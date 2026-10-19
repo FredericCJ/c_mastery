@@ -1,0 +1,771 @@
+{
+  "schema_version": 1,
+  "project": "PR-P4-01",
+  "domain": "INTEGRATION",
+  "title": "Acquisition to bounded frames — explicit composition assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_firmware_followthrough/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-P4-01.md",
+        "sha256": "05b47fd87808518e6118126c26eb77f6552764ddc6cfaa7b157873da24760b7d",
+        "passages": [
+          "Complete metadata, contract, inputs, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "curriculum/guides/integrations.md",
+        "sha256": "43146288b2a8b00d74a5bfe913ae1e4080d2d0e283463a195a45c77ee8fafe22",
+        "passages": [
+          "P4 shared cross-component contract and protocol requirements"
+        ]
+      },
+      {
+        "path": "curriculum/guides/audit.md",
+        "sha256": "909396c9e47065f1c1aff93e463e0fbeb6b5518db58abe8ce6fe0828918e8104",
+        "passages": [
+          "Dependency/ownership/evidence audit rules"
+        ]
+      },
+      {
+        "path": "fixtures/integration/irq.json",
+        "sha256": "890ddb601485240070f25ca37ea295408391f177ce7e627e1c2fee0bbb8a7045",
+        "passages": [
+          "Complete synthetic input and expected model output"
+        ]
+      },
+      {
+        "path": "tools/verify_integration_fixtures.py",
+        "sha256": "6e1986a3769f4af30bf2d7325595d62b520cb0d7470f71fdb78e6708be5cdddc",
+        "passages": [
+          "Independent queue/binary/wire/irq/pressure/fir computation branches"
+        ]
+      },
+      {
+        "path": "labs/integration/CONTRACTS.md",
+        "sha256": "e3e3c4a08f929ff6874826ccf0d85b08b2d210f355461018645ff599e16c979d",
+        "passages": [
+          "P4 handoff contract and common live-object/nonoverlap/ownership requirements"
+        ]
+      },
+      {
+        "path": "labs/integration/include/integration.h",
+        "sha256": "1b6e642a886930a886d43ce8ca867a3c7841f4758b96bbf12c2e3192999245a9",
+        "passages": [
+          "Complete public orchestrator types and function declarations"
+        ]
+      },
+      {
+        "path": "labs/integration/tests/contracts.c",
+        "sha256": "d0c18f29f84497134037b15d4720cf37ef120a9410cf2cc850e5597049860c0a",
+        "passages": [
+          "P4 positive and negative test scopes; not the full checkpoint implementation"
+        ]
+      },
+      {
+        "path": "assessor/integration/integration.c",
+        "sha256": "ab82014687e4bbe5081de5415ec14c4e3bbbfb1a9e1ff5ce96356c4bfe89d82b",
+        "passages": [
+          "P4 actual orchestrator source and component ownership/progress handoffs"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "All assigned checkpoint unit objective/import/export/test mappings"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T27.md",
+        "sha256": "e809dd06bc724518f8101506b7e9ed4cb285da9708028209a013ed562a99b990",
+        "passages": [
+          "Substantive teaching sections T27.08"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T28.md",
+        "sha256": "7edcfdae8b3faae5296f5096fa9eac72a9515a7132fa329b58fd757b2d14a908",
+        "passages": [
+          "Substantive teaching sections T28.05"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T29.md",
+        "sha256": "d586c395b8cb597620cd78132ff54e8a4875f3311def463424edcb96f217f520",
+        "passages": [
+          "Substantive teaching sections T29.06"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T27.md",
+        "anchors": [
+          "T27.08"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T28.md",
+        "anchors": [
+          "T28.05"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T29.md",
+        "anchors": [
+          "T29.06"
+        ]
+      }
+    ],
+    "units": [
+      "U-P4-01-01",
+      "U-P4-01-02",
+      "U-P4-01-03"
+    ],
+    "inspection_limits": [
+      "Complete parent brief, actual assigned teaching sections, shared integration guide, six synthetic fixtures and complete orchestrator/header/contracts/tests inspected.",
+      "Assigned unit objective/import/export/test mappings inspected; no historical learner portfolio or complete target campaign was audited.",
+      "Only exact primary passages in source_records are assigned; no bibliography-only inspection claim."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is explicitly a C11 draft comparison; compiler extensions, ABI/OS/ISA/library and board contracts remain separate authorities.",
+    "target": "Dedicated STM32F439 teaching board or explicitly identified emulator. Host event models are separate and cannot discharge physical/board obligations. This authoring work performs no flashing.",
+    "profile": "E",
+    "dependencies": "Keep the retained profile and producer restrictions. Implement the taught mechanism from permitted primitives; no container/parser/allocator/filter library substitutes. Strict target images audit implicit helpers and all resolved providers. Python/zlib/oracles and diagnostic tools are host verification only. Modern hosted adapter revisits remain separate dependency scopes.",
+    "toolchain": [
+      "Record compiler/version/flags/optimization/data model and actual linker map/symbol closure.",
+      "Record OS/ABI/ISA/emulator/board and clock evidence for the specific claim; unavailable tools or targets remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-CM4",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.2.4 Software ordering of memory accesses",
+        "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+        "2.3.7 Exception entry and return including frame and EXC_RETURN"
+      ]
+    },
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1–14 Order and consistency",
+        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-P4-RM0090-21",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "Printed68 SRAM/CCM;287 GPIO BSRR;294 EXTI routing;310 DMA1 stream6/channel4;324 flow control;334 EN/NDTR;379 F43 interrupt table;389 EXTI W1C;973-975 and1011 TXE/TC and reserved status bits"
+      ]
+    },
+    {
+      "id": "R-P4-ARMV7M-EE",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "C1-699,706-707 DEMCR/TRCENA;736-738 DWT addresses/NOCYCCNT;740-741 CYCCNT enable, wrap and debug halt"
+      ]
+    },
+    {
+      "id": "R-P4-N1570",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs1,11,25: execution environment, release/acquire and data races"
+      ]
+    },
+    {
+      "id": "R-P4-DS9484-14",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "Table12 printed75 PA2 AF7 USART2_TX; Table10 footnote7 printed71 PA0 reset role under selected packages/regulator mode"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Current exact published C17/C23 passages beyond the inspected C11 draft remain separate research obligations.",
+    "Learner prerequisite artifact hashes and acceptance receipts are required at attempt time; no supplied learner portfolio was inspected.",
+    "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing.",
+    "No new complete checkpoint implementation campaign, independent human assessment or delayed learner attempt is claimed.",
+    "Precise F439 UART TXE/TC/DMA completion interaction and current board/errata passages need additional inspection; selected RM0090 receiver/DMA pages are narrower.",
+    "Dedicated-board reset, IRQ/DMA behavior, quiescence and physical timing remain unexecuted required gates."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-P4-01.md",
+    "fixtures/integration/irq.json",
+    "fixtures/legacy_checkpoints/P4.json",
+    "curriculum/guides/integrations.md",
+    "labs/integration/README.md",
+    "labs/integration/include/integration.h",
+    "tools/verify_legacy_checkpoint_fixtures.py",
+    "fixtures/legacy_checkpoints/P1.json",
+    "fixtures/legacy_checkpoints/P2.json",
+    "fixtures/legacy_checkpoints/P3.json",
+    "fixtures/legacy_checkpoints/P5.json",
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_firmware_followthrough/BOARD_CAPTURE.md",
+    "labs/checkpoint_firmware_followthrough/capture_layout.h",
+    "labs/checkpoint_firmware_followthrough/check_capture.py",
+    "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+    "labs/checkpoint_firmware_followthrough/read_capture.py",
+    "labs/checkpoint_firmware_followthrough/run.py",
+    "labs/checkpoint_firmware_followthrough/startup.S",
+    "labs/checkpoint_firmware_followthrough/target_build.py",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/src/checkpoint_firmware.c",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/tests/firmware.c",
+    "labs/checkpoint_depth/transfer/halfduplex.h"
+  ],
+  "prerequisite_artifacts": [
+    "PR-T27-04/accepted-component-and-dossier",
+    "PR-T28-02/accepted-component-and-dossier",
+    "PR-T29-03/accepted-component-and-dossier",
+    "PR-P3-02/accepted-component-and-dossier",
+    "PR-P3-02 full CRC-frame/streaming component and contract digest (the narrower integration.p3 artifact is insufficient)",
+    "PR-P4-01 learner source, headers and source-bound component dossier",
+    "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+  ],
+  "additional_required_projects": [
+    "PR-P3-02"
+  ],
+  "execution_support": {
+    "kind": "Retained bounded integration anchor plus new independent synthetic host model",
+    "scope": "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing.",
+    "tests": [
+      "integration.p4"
+    ],
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "firmware_followthrough_successor": {
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P4-01-T27.08.b",
+        "AX-PR-P4-01-T28.05.c",
+        "AX-PR-P4-01-T29.06.b",
+        "AX-PR-P4-01-T29.06.c"
+      ],
+      "scope": "Exact original P4 ordinary/delayed tasks with capture/timing/changed-condition and reserved-status correction; actual learner/physical evidence separate"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-P4-01-T27.08.b",
+      "title": "Implement a minimal startup with explicit linker symbols.",
+      "objective": "T27.08.b",
+      "families": [
+        "B",
+        "D",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Integrate original F439 startup with the queue, byte buffers and P3 core. Draw LMA/VMA/data-copy/BSS/vector/stack responsibilities and verify reset sentinels, linker symbols and no unexpected helper dependencies. Place DMA buffers only in reachable memory under the selected manual/board contract. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "A host build or MPS2 reset validates F439 startup and DMA reachability.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T27.08, T28.05, T29.06 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T27-04/accepted-component-and-dossier",
+          "PR-T28-02/accepted-component-and-dossier",
+          "PR-T29-03/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P3-02 full CRC-frame/streaming component and contract digest (the narrower integration.p3 artifact is insufficient)",
+          "PR-P4-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "A host build or MPS2 reset validates F439 startup and DMA reachability. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: A host build or MPS2 reset validates F439 startup and DMA reachability.",
+        "D2": "Integrate original F439 startup with the queue, byte buffers and P3 core. Draw LMA/VMA/data-copy/BSS/vector/stack responsibilities and verify reset sentinels, linker symbols and no unexpected helper dependencies. Place DMA buffers only in reachable memory under the selected manual/board contract. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Relocate a buffer section and re-audit map, initialization and DMA reachability before enabling the peripheral."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Different targets have different memory and peripheral maps; the selected F439 DMA cannot use the chosen CCM path. Actual image/map evidence and dedicated board reset observations remain separate. The serialized p4 host anchor is not this validation.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Different targets have different memory and peripheral maps; the selected F439 DMA cannot use the chosen CCM path. Actual image/map evidence and dedicated board reset observations remain separate. The serialized p4 host anchor is not this validation. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Relocate a buffer section and re-audit map, initialization and DMA reachability before enabling the peripheral. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Separate core, peripheral and board responsibilities, and record who owns each buffer at each event.",
+        "Payload publication precedes the SPSC head update. TXE, DMA completion and TC describe different boundaries; no host timestamp establishes the pin-level completion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P4-01-T27.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Relocate a buffer section and re-audit map, initialization and DMA reachability before enabling the peripheral.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2708b",
+      "facet_scope": {
+        "teaching": "Actual T27.08 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-01-T27.08.b"
+      }
+    },
+    {
+      "id": "AX-PR-P4-01-T28.05.c",
+      "title": "Compare polling, interrupt, and DMA transfer contracts.",
+      "objective": "T28.05.c",
+      "families": [
+        "B",
+        "C",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Implement polling first, then an IRQ/DMA UART adapter preserving P3 byte order and bounded output ownership. Distinguish TXE acceptance, DMA completion and TC wire completion. Stall the peripheral, inject a stale generation and keep the buffer live until the promised completion point. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "DMA completion or TXE always means the final serial bit left the pin.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T27.08, T28.05, T29.06 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T27-04/accepted-component-and-dossier",
+          "PR-T28-02/accepted-component-and-dossier",
+          "PR-T29-03/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P3-02 full CRC-frame/streaming component and contract digest (the narrower integration.p3 artifact is insufficient)",
+          "PR-P4-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "DMA completion or TXE always means the final serial bit left the pin. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: DMA completion or TXE always means the final serial bit left the pin.",
+        "D2": "Implement polling first, then an IRQ/DMA UART adapter preserving P3 byte order and bounded output ownership. Distinguish TXE acceptance, DMA completion and TC wire completion. Stall the peripheral, inject a stale generation and keep the buffer live until the promised completion point. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Add half-duplex direction control and require TC/turnaround evidence before changing the transmit-enable pin."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Those events describe different boundaries; the adapter chooses and documents its promised completion. A copied buffer may be released earlier than an application line-idle acknowledgement. Physical waveform claims require actual dedicated-board observation.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Those events describe different boundaries; the adapter chooses and documents its promised completion. A copied buffer may be released earlier than an application line-idle acknowledgement. Physical waveform claims require actual dedicated-board observation. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Add half-duplex direction control and require TC/turnaround evidence before changing the transmit-enable pin. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Separate core, peripheral and board responsibilities, and record who owns each buffer at each event.",
+        "Payload publication precedes the SPSC head update. TXE, DMA completion and TC describe different boundaries; no host timestamp establishes the pin-level completion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P4-01-T28.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add half-duplex direction control and require TC/turnaround evidence before changing the transmit-enable pin.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2805c",
+      "facet_scope": {
+        "teaching": "Actual T28.05 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-01-T28.05.c"
+      }
+    },
+    {
+      "id": "AX-PR-P4-01-T29.06.b",
+      "title": "Handle producer/consumer wraparound and partial publication.",
+      "objective": "T29.06.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Use an N=4 SPSC ring with usable capacity3 and drop-newest for samples100..104 while the consumer pauses. Publish payload before head, retain exact FIFO100,101,102 and count2 drops. Map accepted samples into P3 frames without allocating/blocking in the ISR. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "The count-based integration ring and one-unused-slot ISR ring have identical capacity semantics.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T27.08, T28.05, T29.06 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T27-04/accepted-component-and-dossier",
+          "PR-T28-02/accepted-component-and-dossier",
+          "PR-T29-03/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P3-02 full CRC-frame/streaming component and contract digest (the narrower integration.p3 artifact is insufficient)",
+          "PR-P4-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "The count-based integration ring and one-unused-slot ISR ring have identical capacity semantics. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: The count-based integration ring and one-unused-slot ISR ring have identical capacity semantics.",
+        "D2": "Use an N=4 SPSC ring with usable capacity3 and drop-newest for samples100..104 while the consumer pauses. Publish payload before head, retain exact FIFO100,101,102 and count2 drops. Map accepted samples into P3 frames without allocating/blocking in the ISR. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Change to two producers and explain why the SPSC index-ownership argument no longer suffices."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Their usable capacities differ. The adapter must preserve the selected overflow and ownership policy, with checked wrap and publication order. The serialized algo_ring model cannot establish actual ISR-safe shared access.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Their usable capacities differ. The adapter must preserve the selected overflow and ownership policy, with checked wrap and publication order. The serialized algo_ring model cannot establish actual ISR-safe shared access. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Change to two producers and explain why the SPSC index-ownership argument no longer suffices. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Separate core, peripheral and board responsibilities, and record who owns each buffer at each event.",
+        "Payload publication precedes the SPSC head update. TXE, DMA completion and TC describe different boundaries; no host timestamp establishes the pin-level completion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P4-01-T29.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change to two producers and explain why the SPSC index-ownership argument no longer suffices.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2906b",
+      "facet_scope": {
+        "teaching": "Actual T29.06 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-01-T29.06.b"
+      }
+    },
+    {
+      "id": "AX-PR-P4-01-T29.06.c",
+      "title": "Measure latency while retaining a correctness argument.",
+      "objective": "T29.06.c",
+      "families": [
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Measure sample-arrival, ISR publication, foreground framing and physical transmit completion separately on an identified board. Record clock resolution, instrumentation disturbance, backlog and drops. Supply a host event-model prediction when the board is unavailable, labeled unvalidated. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "One end-to-end timestamp locates the source of latency and proves a bound.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T27.08, T28.05, T29.06 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T27-04/accepted-component-and-dossier",
+          "PR-T28-02/accepted-component-and-dossier",
+          "PR-T29-03/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P3-02 full CRC-frame/streaming component and contract digest (the narrower integration.p3 artifact is insufficient)",
+          "PR-P4-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "One end-to-end timestamp locates the source of latency and proves a bound. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: One end-to-end timestamp locates the source of latency and proves a bound.",
+        "D2": "Measure sample-arrival, ISR publication, foreground framing and physical transmit completion separately on an identified board. Record clock resolution, instrumentation disturbance, backlog and drops. Supply a host event-model prediction when the board is unavailable, labeled unvalidated. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Reduce queue capacity and compare changed loss/latency tradeoffs without hiding dropped samples from the measurement set."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Separate phases expose queueing versus execution versus wire service. Finite observed maxima are measurements, not WCET proofs; missing physical evidence stays open. Equivalent byte/count correctness remains a prerequisite for performance comparison.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p4 is a serialized DMA generation/quiescence-to-queue adapter. It does not establish F439 reset, IRQ concurrency, actual UART/DMA behavior or physical timing. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Separate phases expose queueing versus execution versus wire service. Finite observed maxima are measurements, not WCET proofs; missing physical evidence stays open. Equivalent byte/count correctness remains a prerequisite for performance comparison. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Reduce queue capacity and compare changed loss/latency tradeoffs without hiding dropped samples from the measurement set. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Separate core, peripheral and board responsibilities, and record who owns each buffer at each event.",
+        "Payload publication precedes the SPSC head update. TXE, DMA completion and TC describe different boundaries; no host timestamp establishes the pin-level completion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P4-01-T29.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Reduce queue capacity and compare changed loss/latency tradeoffs without hiding dropped samples from the measurement set.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2906c",
+      "facet_scope": {
+        "teaching": "Actual T29.06 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-01-T29.06.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-P4-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "Bounded fixture models actually checked separately; no new full learner/checkpoint target execution.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Accepted identities, unit bytes, descriptive historical hours and receipts are preserved.",
+      "Authored delayed opportunities are not completed assessments.",
+      "Finite passing tests do not prove absolute mastery."
+    ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P4-01",
+    "criterion_ids": [
+      "AX-PR-P4-01-T27.08.b",
+      "AX-PR-P4-01-T28.05.c",
+      "AX-PR-P4-01-T29.06.b",
+      "AX-PR-P4-01-T29.06.c"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P4-01-T27.08.b",
+        "AX-PR-P4-01-T28.05.c",
+        "AX-PR-P4-01-T29.06.b",
+        "AX-PR-P4-01-T29.06.c"
+      ],
+      "scope": "Exact original P4 ordinary/delayed tasks with capture/timing/changed-condition and reserved-status correction; actual learner/physical evidence separate"
+    }
+  ]
+}

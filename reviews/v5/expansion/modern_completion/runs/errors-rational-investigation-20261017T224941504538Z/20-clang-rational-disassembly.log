@@ -1,0 +1,515 @@
+
+/tmp/cmastery-rational-investigation-kursuxiw/clang-rational.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <efr_gcd>:
+   0:	48 89 d1             	mov    %rdx,%rcx
+   3:	85 f6                	test   %esi,%esi
+   5:	74 21                	je     28 <efr_gcd+0x28>
+   7:	89 f2                	mov    %esi,%edx
+   9:	31 f6                	xor    %esi,%esi
+   b:	89 f8                	mov    %edi,%eax
+   d:	0f 1f 00             	nopl   (%rax)
+  10:	89 d7                	mov    %edx,%edi
+  12:	31 d2                	xor    %edx,%edx
+  14:	f7 f7                	div    %edi
+  16:	ff c6                	inc    %esi
+  18:	89 f8                	mov    %edi,%eax
+  1a:	85 d2                	test   %edx,%edx
+  1c:	75 f2                	jne    10 <efr_gcd+0x10>
+  1e:	48 85 c9             	test   %rcx,%rcx
+  21:	74 02                	je     25 <efr_gcd+0x25>
+  23:	89 31                	mov    %esi,(%rcx)
+  25:	89 f8                	mov    %edi,%eax
+  27:	c3                   	ret
+  28:	31 f6                	xor    %esi,%esi
+  2a:	48 85 c9             	test   %rcx,%rcx
+  2d:	75 f4                	jne    23 <efr_gcd+0x23>
+  2f:	eb f4                	jmp    25 <efr_gcd+0x25>
+  31:	66 66 66 66 66 66 2e 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  38:	0f 1f 84 00 00 00 00 
+  3f:	00 
+
+0000000000000040 <efr_consume>:
+  40:	41 57                	push   %r15
+  42:	41 56                	push   %r14
+  44:	41 54                	push   %r12
+  46:	53                   	push   %rbx
+  47:	50                   	push   %rax
+  48:	49 89 fe             	mov    %rdi,%r14
+  4b:	49 c1 ee 20          	shr    $0x20,%r14
+  4f:	48 85 f6             	test   %rsi,%rsi
+  52:	0f 95 c0             	setne  %al
+  55:	4d 85 f6             	test   %r14,%r14
+  58:	0f 95 c1             	setne  %cl
+  5b:	20 c1                	and    %al,%cl
+  5d:	bb 02 00 00 00       	mov    $0x2,%ebx
+  62:	80 f9 01             	cmp    $0x1,%cl
+  65:	75 30                	jne    97 <efr_consume+0x57>
+  67:	49 89 ff             	mov    %rdi,%r15
+  6a:	49 89 f4             	mov    %rsi,%r12
+  6d:	48 89 e2             	mov    %rsp,%rdx
+  70:	44 89 f6             	mov    %r14d,%esi
+  73:	e8 00 00 00 00       	call   78 <efr_consume+0x38>
+			74: R_X86_64_PLT32	er_refine-0x4
+  78:	85 c0                	test   %eax,%eax
+  7a:	75 1b                	jne    97 <efr_consume+0x57>
+  7c:	44 39 3c 24          	cmp    %r15d,(%rsp)
+  80:	75 15                	jne    97 <efr_consume+0x57>
+  82:	44 39 74 24 04       	cmp    %r14d,0x4(%rsp)
+  87:	75 0e                	jne    97 <efr_consume+0x57>
+  89:	31 db                	xor    %ebx,%ebx
+  8b:	44 89 f8             	mov    %r15d,%eax
+  8e:	31 d2                	xor    %edx,%edx
+  90:	41 f7 f6             	div    %r14d
+  93:	41 89 04 24          	mov    %eax,(%r12)
+  97:	89 d8                	mov    %ebx,%eax
+  99:	48 83 c4 08          	add    $0x8,%rsp
+  9d:	5b                   	pop    %rbx
+  9e:	41 5c                	pop    %r12
+  a0:	41 5e                	pop    %r14
+  a2:	41 5f                	pop    %r15
+  a4:	c3                   	ret
+  a5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  ac:	00 00 00 00 
+
+00000000000000b0 <efr_add_naive>:
+  b0:	55                   	push   %rbp
+  b1:	41 57                	push   %r15
+  b3:	41 56                	push   %r14
+  b5:	41 55                	push   %r13
+  b7:	41 54                	push   %r12
+  b9:	53                   	push   %rbx
+  ba:	50                   	push   %rax
+  bb:	bb 02 00 00 00       	mov    $0x2,%ebx
+  c0:	48 85 d2             	test   %rdx,%rdx
+  c3:	0f 84 a6 00 00 00    	je     16f <efr_add_naive+0xbf>
+  c9:	49 89 f4             	mov    %rsi,%r12
+  cc:	49 89 fd             	mov    %rdi,%r13
+  cf:	48 89 d5             	mov    %rdx,%rbp
+  d2:	49 89 fe             	mov    %rdi,%r14
+  d5:	49 c1 ee 20          	shr    $0x20,%r14
+  d9:	48 89 e2             	mov    %rsp,%rdx
+  dc:	44 89 f6             	mov    %r14d,%esi
+  df:	e8 00 00 00 00       	call   e4 <efr_add_naive+0x34>
+			e0: R_X86_64_PLT32	er_refine-0x4
+  e4:	85 c0                	test   %eax,%eax
+  e6:	0f 85 83 00 00 00    	jne    16f <efr_add_naive+0xbf>
+  ec:	44 39 2c 24          	cmp    %r13d,(%rsp)
+  f0:	75 7d                	jne    16f <efr_add_naive+0xbf>
+  f2:	44 39 74 24 04       	cmp    %r14d,0x4(%rsp)
+  f7:	75 76                	jne    16f <efr_add_naive+0xbf>
+  f9:	4d 89 e7             	mov    %r12,%r15
+  fc:	49 c1 ef 20          	shr    $0x20,%r15
+ 100:	48 89 e2             	mov    %rsp,%rdx
+ 103:	44 89 e7             	mov    %r12d,%edi
+ 106:	44 89 fe             	mov    %r15d,%esi
+ 109:	e8 00 00 00 00       	call   10e <efr_add_naive+0x5e>
+			10a: R_X86_64_PLT32	er_refine-0x4
+ 10e:	85 c0                	test   %eax,%eax
+ 110:	75 5d                	jne    16f <efr_add_naive+0xbf>
+ 112:	44 39 24 24          	cmp    %r12d,(%rsp)
+ 116:	75 57                	jne    16f <efr_add_naive+0xbf>
+ 118:	44 39 7c 24 04       	cmp    %r15d,0x4(%rsp)
+ 11d:	75 50                	jne    16f <efr_add_naive+0xbf>
+ 11f:	44 89 ef             	mov    %r13d,%edi
+ 122:	44 89 e0             	mov    %r12d,%eax
+ 125:	49 0f af ff          	imul   %r15,%rdi
+ 129:	49 0f af c6          	imul   %r14,%rax
+ 12d:	48 89 f9             	mov    %rdi,%rcx
+ 130:	48 09 c1             	or     %rax,%rcx
+ 133:	48 c1 e9 20          	shr    $0x20,%rcx
+ 137:	bb 03 00 00 00       	mov    $0x3,%ebx
+ 13c:	75 31                	jne    16f <efr_add_naive+0xbf>
+ 13e:	4d 0f af fe          	imul   %r14,%r15
+ 142:	48 01 c7             	add    %rax,%rdi
+ 145:	48 89 f8             	mov    %rdi,%rax
+ 148:	4c 09 f8             	or     %r15,%rax
+ 14b:	48 c1 e8 20          	shr    $0x20,%rax
+ 14f:	75 1e                	jne    16f <efr_add_naive+0xbf>
+ 151:	48 89 e2             	mov    %rsp,%rdx
+ 154:	44 89 fe             	mov    %r15d,%esi
+ 157:	e8 00 00 00 00       	call   15c <efr_add_naive+0xac>
+			158: R_X86_64_PLT32	er_refine-0x4
+ 15c:	bb 02 00 00 00       	mov    $0x2,%ebx
+ 161:	85 c0                	test   %eax,%eax
+ 163:	75 0a                	jne    16f <efr_add_naive+0xbf>
+ 165:	48 8b 04 24          	mov    (%rsp),%rax
+ 169:	48 89 45 00          	mov    %rax,0x0(%rbp)
+ 16d:	31 db                	xor    %ebx,%ebx
+ 16f:	89 d8                	mov    %ebx,%eax
+ 171:	48 83 c4 08          	add    $0x8,%rsp
+ 175:	5b                   	pop    %rbx
+ 176:	41 5c                	pop    %r12
+ 178:	41 5d                	pop    %r13
+ 17a:	41 5e                	pop    %r14
+ 17c:	41 5f                	pop    %r15
+ 17e:	5d                   	pop    %rbp
+ 17f:	c3                   	ret
+
+0000000000000180 <efr_add>:
+ 180:	55                   	push   %rbp
+ 181:	41 57                	push   %r15
+ 183:	41 56                	push   %r14
+ 185:	41 55                	push   %r13
+ 187:	41 54                	push   %r12
+ 189:	53                   	push   %rbx
+ 18a:	50                   	push   %rax
+ 18b:	bd 02 00 00 00       	mov    $0x2,%ebp
+ 190:	48 85 d2             	test   %rdx,%rdx
+ 193:	0f 84 3d 01 00 00    	je     2d6 <efr_add+0x156>
+ 199:	48 89 d3             	mov    %rdx,%rbx
+ 19c:	49 89 f4             	mov    %rsi,%r12
+ 19f:	49 89 fd             	mov    %rdi,%r13
+ 1a2:	49 89 ff             	mov    %rdi,%r15
+ 1a5:	49 c1 ef 20          	shr    $0x20,%r15
+ 1a9:	48 89 e2             	mov    %rsp,%rdx
+ 1ac:	44 89 fe             	mov    %r15d,%esi
+ 1af:	e8 00 00 00 00       	call   1b4 <efr_add+0x34>
+			1b0: R_X86_64_PLT32	er_refine-0x4
+ 1b4:	85 c0                	test   %eax,%eax
+ 1b6:	0f 85 1a 01 00 00    	jne    2d6 <efr_add+0x156>
+ 1bc:	44 39 2c 24          	cmp    %r13d,(%rsp)
+ 1c0:	0f 85 10 01 00 00    	jne    2d6 <efr_add+0x156>
+ 1c6:	44 39 7c 24 04       	cmp    %r15d,0x4(%rsp)
+ 1cb:	0f 85 05 01 00 00    	jne    2d6 <efr_add+0x156>
+ 1d1:	4d 89 e6             	mov    %r12,%r14
+ 1d4:	49 c1 ee 20          	shr    $0x20,%r14
+ 1d8:	48 89 e2             	mov    %rsp,%rdx
+ 1db:	44 89 e7             	mov    %r12d,%edi
+ 1de:	44 89 f6             	mov    %r14d,%esi
+ 1e1:	e8 00 00 00 00       	call   1e6 <efr_add+0x66>
+			1e2: R_X86_64_PLT32	er_refine-0x4
+ 1e6:	85 c0                	test   %eax,%eax
+ 1e8:	0f 85 e8 00 00 00    	jne    2d6 <efr_add+0x156>
+ 1ee:	44 39 24 24          	cmp    %r12d,(%rsp)
+ 1f2:	0f 85 de 00 00 00    	jne    2d6 <efr_add+0x156>
+ 1f8:	44 39 74 24 04       	cmp    %r14d,0x4(%rsp)
+ 1fd:	0f 85 d3 00 00 00    	jne    2d6 <efr_add+0x156>
+ 203:	44 89 ef             	mov    %r13d,%edi
+ 206:	44 89 e6             	mov    %r12d,%esi
+ 209:	45 89 f8             	mov    %r15d,%r8d
+ 20c:	4d 85 f6             	test   %r14,%r14
+ 20f:	74 1e                	je     22f <efr_add+0xaf>
+ 211:	44 89 f8             	mov    %r15d,%eax
+ 214:	44 89 f2             	mov    %r14d,%edx
+ 217:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+ 21e:	00 00 
+ 220:	41 89 d0             	mov    %edx,%r8d
+ 223:	31 d2                	xor    %edx,%edx
+ 225:	41 f7 f0             	div    %r8d
+ 228:	44 89 c0             	mov    %r8d,%eax
+ 22b:	85 d2                	test   %edx,%edx
+ 22d:	75 f1                	jne    220 <efr_add+0xa0>
+ 22f:	44 89 f8             	mov    %r15d,%eax
+ 232:	31 d2                	xor    %edx,%edx
+ 234:	41 f7 f0             	div    %r8d
+ 237:	89 c1                	mov    %eax,%ecx
+ 239:	44 89 f0             	mov    %r14d,%eax
+ 23c:	31 d2                	xor    %edx,%edx
+ 23e:	41 f7 f0             	div    %r8d
+ 241:	48 0f af f8          	imul   %rax,%rdi
+ 245:	48 0f af f1          	imul   %rcx,%rsi
+ 249:	bd 03 00 00 00       	mov    $0x3,%ebp
+ 24e:	48 01 fe             	add    %rdi,%rsi
+ 251:	0f 82 7f 00 00 00    	jb     2d6 <efr_add+0x156>
+ 257:	44 89 c2             	mov    %r8d,%edx
+ 25a:	48 89 f0             	mov    %rsi,%rax
+ 25d:	eb 0e                	jmp    26d <efr_add+0xed>
+ 25f:	90                   	nop
+ 260:	31 d2                	xor    %edx,%edx
+ 262:	48 f7 f7             	div    %rdi
+ 265:	48 89 f8             	mov    %rdi,%rax
+ 268:	48 85 d2             	test   %rdx,%rdx
+ 26b:	74 18                	je     285 <efr_add+0x105>
+ 26d:	48 89 d7             	mov    %rdx,%rdi
+ 270:	48 89 c2             	mov    %rax,%rdx
+ 273:	48 c1 ea 20          	shr    $0x20,%rdx
+ 277:	75 e7                	jne    260 <efr_add+0xe0>
+ 279:	31 d2                	xor    %edx,%edx
+ 27b:	f7 f7                	div    %edi
+ 27d:	48 89 f8             	mov    %rdi,%rax
+ 280:	48 85 d2             	test   %rdx,%rdx
+ 283:	75 e8                	jne    26d <efr_add+0xed>
+ 285:	48 89 f0             	mov    %rsi,%rax
+ 288:	48 09 f8             	or     %rdi,%rax
+ 28b:	48 c1 e8 20          	shr    $0x20,%rax
+ 28f:	74 19                	je     2aa <efr_add+0x12a>
+ 291:	48 89 f0             	mov    %rsi,%rax
+ 294:	31 d2                	xor    %edx,%edx
+ 296:	48 f7 f7             	div    %rdi
+ 299:	48 89 c6             	mov    %rax,%rsi
+ 29c:	49 39 fe             	cmp    %rdi,%r14
+ 29f:	72 16                	jb     2b7 <efr_add+0x137>
+ 2a1:	44 89 f0             	mov    %r14d,%eax
+ 2a4:	31 d2                	xor    %edx,%edx
+ 2a6:	f7 f7                	div    %edi
+ 2a8:	eb 0f                	jmp    2b9 <efr_add+0x139>
+ 2aa:	89 f0                	mov    %esi,%eax
+ 2ac:	31 d2                	xor    %edx,%edx
+ 2ae:	f7 f7                	div    %edi
+ 2b0:	89 c6                	mov    %eax,%esi
+ 2b2:	49 39 fe             	cmp    %rdi,%r14
+ 2b5:	73 ea                	jae    2a1 <efr_add+0x121>
+ 2b7:	31 c0                	xor    %eax,%eax
+ 2b9:	48 89 f2             	mov    %rsi,%rdx
+ 2bc:	48 c1 ea 20          	shr    $0x20,%rdx
+ 2c0:	75 14                	jne    2d6 <efr_add+0x156>
+ 2c2:	48 0f af c1          	imul   %rcx,%rax
+ 2c6:	48 89 c1             	mov    %rax,%rcx
+ 2c9:	48 c1 e9 20          	shr    $0x20,%rcx
+ 2cd:	75 07                	jne    2d6 <efr_add+0x156>
+ 2cf:	89 33                	mov    %esi,(%rbx)
+ 2d1:	89 43 04             	mov    %eax,0x4(%rbx)
+ 2d4:	31 ed                	xor    %ebp,%ebp
+ 2d6:	89 e8                	mov    %ebp,%eax
+ 2d8:	48 83 c4 08          	add    $0x8,%rsp
+ 2dc:	5b                   	pop    %rbx
+ 2dd:	41 5c                	pop    %r12
+ 2df:	41 5d                	pop    %r13
+ 2e1:	41 5e                	pop    %r14
+ 2e3:	41 5f                	pop    %r15
+ 2e5:	5d                   	pop    %rbp
+ 2e6:	c3                   	ret
+ 2e7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+ 2ee:	00 00 
+
+00000000000002f0 <efr_signed_make>:
+ 2f0:	48 89 d1             	mov    %rdx,%rcx
+ 2f3:	48 85 d2             	test   %rdx,%rdx
+ 2f6:	0f 94 c2             	sete   %dl
+ 2f9:	85 f6                	test   %esi,%esi
+ 2fb:	41 0f 94 c0          	sete   %r8b
+ 2ff:	b8 02 00 00 00       	mov    $0x2,%eax
+ 304:	41 08 d0             	or     %dl,%r8b
+ 307:	75 69                	jne    372 <efr_signed_make+0x82>
+ 309:	41 89 f8             	mov    %edi,%r8d
+ 30c:	41 f7 d8             	neg    %r8d
+ 30f:	44 0f 48 c7          	cmovs  %edi,%r8d
+ 313:	44 89 c0             	mov    %r8d,%eax
+ 316:	89 f2                	mov    %esi,%edx
+ 318:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 31f:	00 
+ 320:	41 89 d1             	mov    %edx,%r9d
+ 323:	31 d2                	xor    %edx,%edx
+ 325:	41 f7 f1             	div    %r9d
+ 328:	44 89 c8             	mov    %r9d,%eax
+ 32b:	85 d2                	test   %edx,%edx
+ 32d:	75 f1                	jne    320 <efr_signed_make+0x30>
+ 32f:	44 89 c0             	mov    %r8d,%eax
+ 332:	31 d2                	xor    %edx,%edx
+ 334:	41 f7 f1             	div    %r9d
+ 337:	41 89 c0             	mov    %eax,%r8d
+ 33a:	89 f0                	mov    %esi,%eax
+ 33c:	31 d2                	xor    %edx,%edx
+ 33e:	41 f7 f1             	div    %r9d
+ 341:	89 c2                	mov    %eax,%edx
+ 343:	b8 03 00 00 00       	mov    $0x3,%eax
+ 348:	41 39 f1             	cmp    %esi,%r9d
+ 34b:	77 25                	ja     372 <efr_signed_make+0x82>
+ 34d:	31 f6                	xor    %esi,%esi
+ 34f:	85 ff                	test   %edi,%edi
+ 351:	40 0f 98 c6          	sets   %sil
+ 355:	81 c6 ff ff ff 7f    	add    $0x7fffffff,%esi
+ 35b:	44 39 c6             	cmp    %r8d,%esi
+ 35e:	72 12                	jb     372 <efr_signed_make+0x82>
+ 360:	44 89 c0             	mov    %r8d,%eax
+ 363:	f7 d8                	neg    %eax
+ 365:	85 ff                	test   %edi,%edi
+ 367:	41 0f 49 c0          	cmovns %r8d,%eax
+ 36b:	89 01                	mov    %eax,(%rcx)
+ 36d:	89 51 04             	mov    %edx,0x4(%rcx)
+ 370:	31 c0                	xor    %eax,%eax
+ 372:	c3                   	ret
+ 373:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 37a:	84 00 00 00 00 00 
+
+0000000000000380 <efr_signed_add>:
+ 380:	49 89 f8             	mov    %rdi,%r8
+ 383:	49 c1 e8 20          	shr    $0x20,%r8
+ 387:	48 85 d2             	test   %rdx,%rdx
+ 38a:	0f 94 c0             	sete   %al
+ 38d:	4d 85 c0             	test   %r8,%r8
+ 390:	0f 94 c1             	sete   %cl
+ 393:	08 c1                	or     %al,%cl
+ 395:	41 b9 02 00 00 00    	mov    $0x2,%r9d
+ 39b:	0f 85 7d 01 00 00    	jne    51e <efr_signed_add+0x19e>
+ 3a1:	55                   	push   %rbp
+ 3a2:	41 56                	push   %r14
+ 3a4:	53                   	push   %rbx
+ 3a5:	49 89 d2             	mov    %rdx,%r10
+ 3a8:	48 89 f1             	mov    %rsi,%rcx
+ 3ab:	48 c1 e9 20          	shr    $0x20,%rcx
+ 3af:	41 89 fb             	mov    %edi,%r11d
+ 3b2:	41 f7 db             	neg    %r11d
+ 3b5:	44 0f 48 df          	cmovs  %edi,%r11d
+ 3b9:	44 89 d8             	mov    %r11d,%eax
+ 3bc:	44 89 c2             	mov    %r8d,%edx
+ 3bf:	90                   	nop
+ 3c0:	89 d3                	mov    %edx,%ebx
+ 3c2:	31 d2                	xor    %edx,%edx
+ 3c4:	f7 f3                	div    %ebx
+ 3c6:	89 d8                	mov    %ebx,%eax
+ 3c8:	85 d2                	test   %edx,%edx
+ 3ca:	75 f4                	jne    3c0 <efr_signed_add+0x40>
+ 3cc:	83 fb 01             	cmp    $0x1,%ebx
+ 3cf:	0f 95 c0             	setne  %al
+ 3d2:	48 85 c9             	test   %rcx,%rcx
+ 3d5:	0f 94 c2             	sete   %dl
+ 3d8:	08 c2                	or     %al,%dl
+ 3da:	0f 85 3a 01 00 00    	jne    51a <efr_signed_add+0x19a>
+ 3e0:	89 f3                	mov    %esi,%ebx
+ 3e2:	f7 db                	neg    %ebx
+ 3e4:	0f 48 de             	cmovs  %esi,%ebx
+ 3e7:	89 d8                	mov    %ebx,%eax
+ 3e9:	89 ca                	mov    %ecx,%edx
+ 3eb:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 3f0:	89 d5                	mov    %edx,%ebp
+ 3f2:	31 d2                	xor    %edx,%edx
+ 3f4:	f7 f5                	div    %ebp
+ 3f6:	89 e8                	mov    %ebp,%eax
+ 3f8:	85 d2                	test   %edx,%edx
+ 3fa:	75 f4                	jne    3f0 <efr_signed_add+0x70>
+ 3fc:	83 fd 01             	cmp    $0x1,%ebp
+ 3ff:	0f 85 15 01 00 00    	jne    51a <efr_signed_add+0x19a>
+ 405:	44 89 c0             	mov    %r8d,%eax
+ 408:	89 ca                	mov    %ecx,%edx
+ 40a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+ 410:	41 89 d1             	mov    %edx,%r9d
+ 413:	31 d2                	xor    %edx,%edx
+ 415:	41 f7 f1             	div    %r9d
+ 418:	44 89 c8             	mov    %r9d,%eax
+ 41b:	85 d2                	test   %edx,%edx
+ 41d:	75 f1                	jne    410 <efr_signed_add+0x90>
+ 41f:	45 89 ce             	mov    %r9d,%r14d
+ 422:	44 89 c0             	mov    %r8d,%eax
+ 425:	31 d2                	xor    %edx,%edx
+ 427:	41 f7 f1             	div    %r9d
+ 42a:	41 89 c0             	mov    %eax,%r8d
+ 42d:	89 c8                	mov    %ecx,%eax
+ 42f:	31 d2                	xor    %edx,%edx
+ 431:	41 f7 f1             	div    %r9d
+ 434:	44 89 da             	mov    %r11d,%edx
+ 437:	48 0f af d0          	imul   %rax,%rdx
+ 43b:	89 d8                	mov    %ebx,%eax
+ 43d:	49 0f af c0          	imul   %r8,%rax
+ 441:	c1 ef 1f             	shr    $0x1f,%edi
+ 444:	c1 ee 1f             	shr    $0x1f,%esi
+ 447:	39 f7                	cmp    %esi,%edi
+ 449:	75 08                	jne    453 <efr_signed_add+0xd3>
+ 44b:	48 01 c2             	add    %rax,%rdx
+ 44e:	49 89 d1             	mov    %rdx,%r9
+ 451:	eb 10                	jmp    463 <efr_signed_add+0xe3>
+ 453:	49 89 d1             	mov    %rdx,%r9
+ 456:	49 29 c1             	sub    %rax,%r9
+ 459:	73 08                	jae    463 <efr_signed_add+0xe3>
+ 45b:	48 29 d0             	sub    %rdx,%rax
+ 45e:	49 89 c1             	mov    %rax,%r9
+ 461:	89 f7                	mov    %esi,%edi
+ 463:	4c 89 f2             	mov    %r14,%rdx
+ 466:	4c 89 c8             	mov    %r9,%rax
+ 469:	eb 12                	jmp    47d <efr_signed_add+0xfd>
+ 46b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 470:	31 d2                	xor    %edx,%edx
+ 472:	49 f7 f3             	div    %r11
+ 475:	4c 89 d8             	mov    %r11,%rax
+ 478:	48 85 d2             	test   %rdx,%rdx
+ 47b:	74 19                	je     496 <efr_signed_add+0x116>
+ 47d:	49 89 d3             	mov    %rdx,%r11
+ 480:	48 89 c2             	mov    %rax,%rdx
+ 483:	48 c1 ea 20          	shr    $0x20,%rdx
+ 487:	75 e7                	jne    470 <efr_signed_add+0xf0>
+ 489:	31 d2                	xor    %edx,%edx
+ 48b:	41 f7 f3             	div    %r11d
+ 48e:	4c 89 d8             	mov    %r11,%rax
+ 491:	48 85 d2             	test   %rdx,%rdx
+ 494:	75 e7                	jne    47d <efr_signed_add+0xfd>
+ 496:	4c 89 c8             	mov    %r9,%rax
+ 499:	4c 09 d8             	or     %r11,%rax
+ 49c:	48 c1 e8 20          	shr    $0x20,%rax
+ 4a0:	74 23                	je     4c5 <efr_signed_add+0x145>
+ 4a2:	4c 89 c8             	mov    %r9,%rax
+ 4a5:	31 d2                	xor    %edx,%edx
+ 4a7:	49 f7 f3             	div    %r11
+ 4aa:	48 89 c6             	mov    %rax,%rsi
+ 4ad:	48 bb 00 00 00 00 ff 	movabs $0xffffffff00000000,%rbx
+ 4b4:	ff ff ff 
+ 4b7:	4c 39 d9             	cmp    %r11,%rcx
+ 4ba:	72 22                	jb     4de <efr_signed_add+0x15e>
+ 4bc:	89 c8                	mov    %ecx,%eax
+ 4be:	31 d2                	xor    %edx,%edx
+ 4c0:	41 f7 f3             	div    %r11d
+ 4c3:	eb 1b                	jmp    4e0 <efr_signed_add+0x160>
+ 4c5:	44 89 c8             	mov    %r9d,%eax
+ 4c8:	31 d2                	xor    %edx,%edx
+ 4ca:	41 f7 f3             	div    %r11d
+ 4cd:	89 c6                	mov    %eax,%esi
+ 4cf:	48 bb 00 00 00 00 ff 	movabs $0xffffffff00000000,%rbx
+ 4d6:	ff ff ff 
+ 4d9:	4c 39 d9             	cmp    %r11,%rcx
+ 4dc:	73 de                	jae    4bc <efr_signed_add+0x13c>
+ 4de:	31 c0                	xor    %eax,%eax
+ 4e0:	49 0f af c0          	imul   %r8,%rax
+ 4e4:	48 8d 0c 18          	lea    (%rax,%rbx,1),%rcx
+ 4e8:	48 ff c3             	inc    %rbx
+ 4eb:	41 b9 03 00 00 00    	mov    $0x3,%r9d
+ 4f1:	48 39 d9             	cmp    %rbx,%rcx
+ 4f4:	72 24                	jb     51a <efr_signed_add+0x19a>
+ 4f6:	83 ff 01             	cmp    $0x1,%edi
+ 4f9:	b9 00 00 00 80       	mov    $0x80000000,%ecx
+ 4fe:	48 83 d9 00          	sbb    $0x0,%rcx
+ 502:	48 39 ce             	cmp    %rcx,%rsi
+ 505:	77 13                	ja     51a <efr_signed_add+0x19a>
+ 507:	89 f1                	mov    %esi,%ecx
+ 509:	f7 d9                	neg    %ecx
+ 50b:	85 ff                	test   %edi,%edi
+ 50d:	0f 44 ce             	cmove  %esi,%ecx
+ 510:	41 89 0a             	mov    %ecx,(%r10)
+ 513:	41 89 42 04          	mov    %eax,0x4(%r10)
+ 517:	45 31 c9             	xor    %r9d,%r9d
+ 51a:	5b                   	pop    %rbx
+ 51b:	41 5e                	pop    %r14
+ 51d:	5d                   	pop    %rbp
+ 51e:	44 89 c8             	mov    %r9d,%eax
+ 521:	c3                   	ret
+ 522:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 529:	1f 84 00 00 00 00 00 
+
+0000000000000530 <efr_signed_consume>:
+ 530:	49 89 f9             	mov    %rdi,%r9
+ 533:	49 c1 e9 20          	shr    $0x20,%r9
+ 537:	48 85 f6             	test   %rsi,%rsi
+ 53a:	0f 94 c0             	sete   %al
+ 53d:	4d 85 c9             	test   %r9,%r9
+ 540:	0f 94 c1             	sete   %cl
+ 543:	08 c1                	or     %al,%cl
+ 545:	b9 02 00 00 00       	mov    $0x2,%ecx
+ 54a:	75 3e                	jne    58a <efr_signed_consume+0x5a>
+ 54c:	41 89 f8             	mov    %edi,%r8d
+ 54f:	41 f7 d8             	neg    %r8d
+ 552:	44 0f 48 c7          	cmovs  %edi,%r8d
+ 556:	44 89 c0             	mov    %r8d,%eax
+ 559:	44 89 ca             	mov    %r9d,%edx
+ 55c:	0f 1f 40 00          	nopl   0x0(%rax)
+ 560:	41 89 d2             	mov    %edx,%r10d
+ 563:	31 d2                	xor    %edx,%edx
+ 565:	41 f7 f2             	div    %r10d
+ 568:	44 89 d0             	mov    %r10d,%eax
+ 56b:	85 d2                	test   %edx,%edx
+ 56d:	75 f1                	jne    560 <efr_signed_consume+0x30>
+ 56f:	41 83 fa 01          	cmp    $0x1,%r10d
+ 573:	75 15                	jne    58a <efr_signed_consume+0x5a>
+ 575:	31 c9                	xor    %ecx,%ecx
+ 577:	44 89 c0             	mov    %r8d,%eax
+ 57a:	31 d2                	xor    %edx,%edx
+ 57c:	41 f7 f1             	div    %r9d
+ 57f:	89 c2                	mov    %eax,%edx
+ 581:	f7 da                	neg    %edx
+ 583:	85 ff                	test   %edi,%edi
+ 585:	0f 49 d0             	cmovns %eax,%edx
+ 588:	89 16                	mov    %edx,(%rsi)
+ 58a:	89 c8                	mov    %ecx,%eax
+ 58c:	c3                   	ret
+

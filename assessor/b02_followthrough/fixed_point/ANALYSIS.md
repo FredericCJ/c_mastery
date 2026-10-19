@@ -1,0 +1,11 @@
+# Fixed-point assessment discriminators
+
+Product width and accumulator width are separate. Q7 maximum1024 terms fits int32 including bias; Q11 maximum65536 terms needs64-bit accumulation even though every widened16-bit product fits int32. Casting operands before product prevents a16-bit-int multiplication from being selected; the profile still requires a size_t that can represent the admitted length. Selected host/M4 code-generation evidence does not execute such a16-bit-int ABI. Unsigned magnitude shifts avoid negative signed-shift semantics, and the bounded sums make magnitude negation safe.
+
+Stable integer results are not interchangeable rounding policies. Two positive half terms distinguish round-once from per-term rounding; positive and negative even/odd quotient ties distinguish nearest-even; a large exact prefix followed by cancellation distinguishes final clipping from early clipping. The Q11 counterexample needs a wide exact accumulator, not a saturating32-bit substitute. The original B02 provider remains unchanged, with its mutant compiled separately.
+
+The signal ledger exposes a common dimensional error: raw product sum has denominator16384 volts, while output uses128. Its reported error therefore has denominator16384. Input quantization is not included unless actual unquantized inputs are specified; clipping breaks the half-output-quantum arithmetic bound. Scale16 is a distinct legacy task with product denominator256 and raw output divisor16. Converting a scale32 channel before addition changes the numerator, not merely a label on the output.
+
+For two multiplies let e1 be the first rounding error in real scale16 units and e2 the second. Without clipping, final error is(c/16)*e1+e2, hence at most|c|/512+1/32. The explicit(3,8,127) witness exceeds a constant two-half-quantum claim. Once either stage clips, this bound is not asserted; retain exact error and clipping flags. The independent Fraction oracle supplies expected outputs/metadata and both tie policies, without using the C rounding helper.
+
+Score every original criterion and changed condition separately. No source-inspection record, finite corpus, sanitizer result, emulator run or author reference establishes independent learner performance, physical measurement or exact published-edition access.

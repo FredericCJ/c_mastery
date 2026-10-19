@@ -1,0 +1,28 @@
+"""Bind exact original T68.02 criteria and variants to actual current evidence."""
+import json
+from common import ROOT,dump,read_json,sha
+from check_metaprog_capacity import REPORT,COST,check
+READINESS='research/v5/modern/metaprog_capacity_readiness.json'
+def main():
+    d,q=read_json(ROOT/REPORT),read_json(ROOT/COST);check(d,q)
+    brief='curriculum/v5/exercises/X-T68-002.md';m=json.loads((ROOT/brief).read_text(encoding='utf8').split('```json\n',1)[1].split('\n```',1)[0]);teaching=[brief,'labs/metaprog/CONTRACTS.md','labs/metaprog/capacity/CAPACITY.md','assessor/metaprog/capacity/ANALYSIS.md'];implementation=['assessor/metaprog/metaprog.c','assessor/metaprog/capacity/capacity.c','assessor/metaprog/capacity/capacity_template.inc','labs/metaprog/capacity/include/capacity.h','labs/metaprog/capacity/tests/tests.c','labs/metaprog/capacity/targets/i386.c','labs/metaprog/capacity/targets/i386.S','tools/verify_metaprog_capacity.py']
+    claims=[
+      'Actual positive constant1/4/8 instantiations and named capacity0/3 diagnostics distinguish constraints from chosen unused-variable and VLA warning-policy refusals. Runtime admission is actual C code for arbitrary positive capacities, not a nonconstant value falsely treated as a constant expression.',
+      'Product representability and independent byte budget use the actual retained mp_storage_bound. Fixed masking requires a proven positive power of two; arbitrary runtime wrap derives a subtraction/conditional addition bound. Inspected N1570 diagnostics/constant-expression/array/static-assert clauses are explicitly C11 draft evidence, not published C17/C23. Actual Rust const-usize storage and rejected floating const type demonstrate bounded language restrictions.',
+      'Six GCC/Clang debug/release/ASan+UBSan profiles match9836 FIFO histories/54615 transitions and11261 mathematical product cases; analytic16/32/64 models remain labeled. Eight compiled normal semantic controls include actual original overflow/budget defects; four learner anchors compile and reject. Actual no-libc i386 ELF32 final-links without undefined/NEEDED dependencies and executes under QEMU Linux-user, including both original arithmetic controls rejected. Missing hosted32bit headers/libraries remains a distinct availability gap.',
+      'Compile-time capacities1/4/8 and volatile runtime capacities1through17 preserve full/empty/initialization failure and FIFO. Runtime3 uses conditional wrapping instead of a mask; reduced byte budget rejects without publication. Actual O0/O3 object/disassembly and clean/unchanged builds accompany seven equal100000round samples/checksum600000, including runtime initialization and backing storage in the comparison. All13 dimensions retain ABI, pointer-lifetime and nonconcurrency boundaries.'
+    ]
+    criteria=[{**r,'author_readiness':'ready-bounded','demonstration':claim,'teaching':teaching,'implementation':implementation,'validation':[REPORT,COST],'independent_learner':'not-assessed','external_review':'not-run','physical_observation':'not-applicable-host-contract'} for r,claim in zip(m['rubric'],claims)]
+    updates=[]
+    for identity in ['X-T68-002','X-T68-002-DELAYED','T68-02-TRANSFER','T68-02-INVESTIGATION']+[r['id'] for r in m['rubric']]:
+        claim=next((r['demonstration'] for r in criteria if r['id']==identity),claims[3] if identity.endswith(('DELAYED','TRANSFER')) else ' '.join(claims))
+        updates.append(dict(id=identity,dimensions={'teaching':dict(state='complete',evidence=teaching),'implementation':dict(state='complete',evidence=implementation),'author_validation':dict(state='passed',evidence=[REPORT,COST,READINESS]),'external_review':dict(state='not-run',evidence=[]),'independent_learner':dict(state='not-assessed',evidence=[]),'physical_observation':dict(state='not-applicable-host-contract',evidence=[teaching[2]])},closure_rationale=claim+' Bounded author support only.'))
+    g=read_json(ROOT/'research/v5/modern/ad_mp_gap_ledger.json')
+    for row in g['gaps']:
+        if row['id'] in ['T68-02-TRANSFER','T68-02-INVESTIGATION']:row.update(status='author-support-implemented-and-source-validated; independent-learner-not-assessed',author_evidence=[READINESS,REPORT,COST],remaining_external=['Unaided delayed learner attempt and per-objective assessment','Non-author assessment','Exact published C17/C23 access gaps remain'])
+    dump(ROOT/'research/v5/modern/ad_mp_gap_ledger.json',g)
+    inputs={**d['input_sha256'],**q['input_sha256']}
+    for p in teaching+implementation+[REPORT,COST,'tools/build_metaprog_capacity_readiness.py','tools/check_metaprog_capacity.py']:inputs[p]=sha(ROOT/p)
+    dump(ROOT/READINESS,dict(schema_version=1,domain='T68',criteria=criteria,variants=[dict(id='X-T68-002-DELAYED',author_support='implemented-and-author-validated',evidence=teaching+implementation+[REPORT,COST],independent_learner='not-assessed')],current_reports={p:sha(ROOT/p) for p in [REPORT,COST]},input_sha256=inputs,limits=['Serialized live controls/backing and constructor-derived fields are premises.','Analytic16bit model, actual64bit hosted and actual32bit no-libc Linux-user execution are distinct.','Warning policy is not a required ISO refusal; published C17/C23 and hosted32bit libc remain unavailable.','Published C17/C23 remain inaccessible; no physical result or independent human review.']))
+    inputs[READINESS]=sha(ROOT/READINESS);dump(ROOT/'research/v5/modern/metaprog_capacity_completion_dispositions.json',dict(schema_version=1,updates=updates,current_reports=[REPORT,COST],input_sha256=inputs));print(json.dumps(dict(passed=True,criteria=4,updates=8)))
+if __name__=='__main__':main()

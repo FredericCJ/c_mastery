@@ -1,0 +1,34 @@
+{
+  "mechanism_key": "unchecked/payload-read/count-extent",
+  "source": "labs/testing_followthrough/packet_analysis.c",
+  "source_sha256": "db52164213ce6afcb8acd8ed1b466a24a6b60dd4a545747b6afb2071411a7f3f",
+  "tool": "Frama-C33 Eva",
+  "configuration": [
+    "-eva",
+    "-eva-slevel",
+    "100",
+    "-cpp-extra-args=-DANALYSIS_CASE=1"
+  ],
+  "exact_warning": "[eva:alarm] labs/testing_followthrough/packet_analysis.c:10: Warning: out of bounds read.",
+  "owner": "T32 packet component maintainer",
+  "disposition": "Reject global suppression; retain actual invalid-entry alarm.",
+  "precondition_argument": "The private decoder requires count<=4 and live2+2count bytes. Public packet_public establishes both; ANALYSIS_CASE=1 bypasses admission with count5 and cannot use that argument.",
+  "regression": [
+    "Eva case0 no alarm under validated entry",
+    "Eva case1 count5 alarm must remain",
+    "Eva case2 callback-invalidated bound alarm must remain",
+    "Eva case3 rechecked callback bound no alarm",
+    "Native len0,1,2,9,10,11 rejection/publication checks"
+  ],
+  "invalidation": [
+    "source or tool identity changes",
+    "new caller or mutable length premise",
+    "warning mechanism changes even if line number is stable"
+  ],
+  "location_shift_example": {
+    "old_line": 10,
+    "new_line": 18,
+    "same_mechanism_is_not_approval": true,
+    "required_action": "Rerun all four contexts and review new object/entry conditions."
+  }
+}

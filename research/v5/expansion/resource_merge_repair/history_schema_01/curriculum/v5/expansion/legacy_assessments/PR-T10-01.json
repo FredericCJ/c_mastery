@@ -1,0 +1,907 @@
+{
+  "schema_version": 1,
+  "project": "PR-T10-01",
+  "domain": "T10",
+  "title": "Entry stack and startup ownership — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "sha256": "8373d4e013b5340d8f7999a28861b7ed62c50b2b72fe2b4d5631c4277b3c89e1",
+        "passages": [
+          "Topic teaching passages and reading guidance for T10.01, T10.02, T10.03"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T10-01.md",
+        "sha256": "0c7a1e20064bba936fae55782b89d2c09e17dce9711179a3e9374829d8edc50f",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T10-01.json",
+        "sha256": "5689f8c0aed6d1edc245bcfc3009d53ced3af0b51f3ceda1c1d3327856b0ac21",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "anchors": [
+          "T10.01",
+          "T10.02",
+          "T10.03"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-07",
+      "U-T10-01-02",
+      "U-T10-01-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "D",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-AMD64",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Data Representation scalar types and aggregates, lines 104-310; Registers, Stack Frame, Parameter Passing and Returning Values, lines 424-777; Initial Stack and Register State, lines 1051-1155"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.16 -l order; -nostartfiles; -nodefaultlibs; -nostdlib; -pie; -static-pie; -static; -shared"
+      ]
+    },
+    {
+      "id": "R-LSYS-GLIBC-START",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Entry comments and _start argument extraction/stack alignment, lines 31-83"
+      ]
+    },
+    {
+      "id": "R-LSTART-KERNEL",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "padzero118–129; create_elf_tables153–341; elf_map347–381; elf_load387–430; load_elf_binary778–1295"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-ENTRY",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "sysdeps/x86_64/start.S31–126"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-INIT",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "csu/libc-start.c153–203 and222–360; sysdeps/nptl/libc_start_call_main.h complete body"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-PIE",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "elf/dl-reloc-static-pie.c complete92-line file; matching git-updates.diff hunk"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-TLS",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "elf/dl-tls.c467–800; elf/dl-init.c20–76"
+      ]
+    },
+    {
+      "id": "R-LSTART-MUSL-INIT",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "src/env/__libc_start_main.c complete file"
+      ]
+    },
+    {
+      "id": "R-LSTART-MUSL-ERRNO",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "src/errno/__errno_location.c complete file; arch/x86_64/pthread_arch.h complete file; src/internal/pthread_impl.h first4400characters through TLS/self definitions"
+      ]
+    },
+    {
+      "id": "R-LSTART-SYSCALL",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "Description lines35–51; ARM EABI aligned64 example64–103; architecture/argument tables106–236"
+      ]
+    },
+    {
+      "id": "R-LSTART-N1570",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "5.1.2,5.1.2.1,5.1.2.2.1–.3 printed12–14;7.22.4.2/.4/.5 printed350–352"
+      ]
+    },
+    {
+      "id": "R-LSTART-AMD64",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "Previously inspected T08:3.2.2–3.2.3 stack/argument classes; newly read3.4.1–3.4.3 printed27–32/PDF28–33 initial state, stack and auxiliary vector"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T10-01.md",
+    "fixtures/systems/PR-T10-01.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/machine_image/startup_depth/CONTRACTS.md",
+    "labs/machine_image/startup_depth/linux_raw.h",
+    "labs/machine_image/startup_depth/run_core.py",
+    "labs/machine_image/startup_depth/run_target.py",
+    "labs/machine_image/startup_depth/SOURCES.md",
+    "labs/machine_image/startup_depth/startup.c",
+    "labs/machine_image/startup_depth/startup.h",
+    "labs/machine_image/startup_depth/tests.c"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.entry"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T10-01-T10.01.a",
+      "title": "Trace exec loading, mappings, and initial entry selection.",
+      "objective": "T10.01.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Inspect original dynamic and no-interpreter ELF images, mapping e_entry, PT_INTERP, load segments and AT_ENTRY in a controlled debugger run. Draw the first executed entry separately from the application's entry.",
+      "purpose": "The kernel always starts by calling main at e_entry.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The kernel always starts by calling main at e_entry. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The kernel always starts by calling main at e_entry.",
+        "D2": "Inspect original dynamic and no-interpreter ELF images, mapping e_entry, PT_INTERP, load segments and AT_ENTRY in a controlled debugger run. Draw the first executed entry separately from the application's entry.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a supported static PIE and identify the self-relocation path rather than assuming dynamic and static entry sequences coincide."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "A dynamic interpreter can receive control before application entry; main is reached through language/runtime startup. Record actual addresses and mapping ownership.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "A dynamic interpreter can receive control before application entry; main is reached through language/runtime startup. Record actual addresses and mapping ownership. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a supported static PIE and identify the self-relocation path rather than assuming dynamic and static entry sequences coincide. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Locate the first executed instruction rather than assuming it is main.",
+        "Preserve initial rsp before creating an ordinary C helper call frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a supported static PIE and identify the self-relocation path rather than assuming dynamic and static entry sequences coincide."
+        }
+      ],
+      "assessor_anchor": "#t1001a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.01.a"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.b",
+      "title": "Identify which responsibilities belong to kernel and dynamic loader.",
+      "objective": "T10.01.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Assign mapping, zero-fill, interpreter loading, symbol relocation, TLS setup and main invocation to kernel, loader or runtime using inspected evidence. Mark any uninspected implementation step explicitly.",
+      "purpose": "The kernel performs all C initialization because it loaded the executable.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The kernel performs all C initialization because it loaded the executable. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The kernel performs all C initialization because it loaded the executable.",
+        "D2": "Assign mapping, zero-fill, interpreter loading, symbol relocation, TLS setup and main invocation to kernel, loader or runtime using inspected evidence. Mark any uninspected implementation step explicitly.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Remove the dynamic loader from an original image and identify which retained services must now initialize themselves."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "ELF loading and language/runtime initialization have distinct owners; an ownership diagram must not infer execution merely from metadata presence.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "ELF loading and language/runtime initialization have distinct owners; an ownership diagram must not infer execution merely from metadata presence. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Remove the dynamic loader from an original image and identify which retained services must now initialize themselves. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Locate the first executed instruction rather than assuming it is main.",
+        "Preserve initial rsp before creating an ordinary C helper call frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Remove the dynamic loader from an original image and identify which retained services must now initialize themselves."
+        }
+      ],
+      "assessor_anchor": "#t1001b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.01.b"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.c",
+      "title": "Distinguish an executable entry point from a C function call.",
+      "objective": "T10.01.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "At the original no-libc entry capture the initial stack pointer before alignment, then call a C helper through a correctly aligned assembly bridge and exit explicitly. Inspect the return-address difference at each boundary.",
+      "purpose": "_start is an ordinary C function with a valid caller return address.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "_start is an ordinary C function with a valid caller return address. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: _start is an ordinary C function with a valid caller return address.",
+        "D2": "At the original no-libc entry capture the initial stack pointer before alignment, then call a C helper through a correctly aligned assembly bridge and exit explicitly. Inspect the return-address difference at each boundary.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Make the helper unexpectedly return a failure code and prove the bridge still terminates rather than executing ret into initial-stack data."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Process entry has no ordinary C caller; the assembly bridge establishes a call contract for its helper and owns final termination.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Process entry has no ordinary C caller; the assembly bridge establishes a call contract for its helper and owns final termination. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Make the helper unexpectedly return a failure code and prove the bridge still terminates rather than executing ret into initial-stack data. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Locate the first executed instruction rather than assuming it is main.",
+        "Preserve initial rsp before creating an ordinary C helper call frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Make the helper unexpectedly return a failure code and prove the bridge still terminates rather than executing ret into initial-stack data."
+        }
+      ],
+      "assessor_anchor": "#t1001c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.01.c"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.a",
+      "title": "Inspect argc, argument strings, environment, and auxiliary vectors.",
+      "objective": "T10.02.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Decode the supplied initial-stack fixture, then create a bounded byte/word decoder with argc, argv-null, envp-null and AT_NULL checks. Keep string pointer lookup in a separate supplied synthetic memory map; reject truncated tables.",
+      "purpose": "Argument strings are contiguous immediately after the pointer array.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Argument strings are contiguous immediately after the pointer array. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Argument strings are contiguous immediately after the pointer array.",
+        "D2": "Decode the supplied initial-stack fixture, then create a bounded byte/word decoder with argc, argv-null, envp-null and AT_NULL checks. Keep string pointer lookup in a separate supplied synthetic memory map; reject truncated tables.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add empty environment and a reordered/gapped string map while preserving the same pointer-table semantics."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The fixture has argv offset8, envp32, auxv48 and extent96; strings may occupy separate information locations. Every read must remain within the supplied extent.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The fixture has argv offset8, envp32, auxv48 and extent96; strings may occupy separate information locations. Every read must remain within the supplied extent. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add empty environment and a reordered/gapped string map while preserving the same pointer-table semantics. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw pointer tables and pointed-to strings as separate regions.",
+        "Validate terminators/counts inside the supplied span before converting synthetic addresses into map lookups."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add empty environment and a reordered/gapped string map while preserving the same pointer-table semantics."
+        }
+      ],
+      "assessor_anchor": "#t1002a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.02.a"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.b",
+      "title": "Decode addresses with the selected process-entry ABI.",
+      "objective": "T10.02.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Translate fixture addresses into offsets under an explicit64-bit little-endian entry model; derive every table boundary without casting arbitrary bytes to native pointers. Compare with a real entry snapshot only after recording its ABI.",
+      "purpose": "A host pointer cast is a valid decoder for every process image.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A host pointer cast is a valid decoder for every process image. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A host pointer cast is a valid decoder for every process image.",
+        "D2": "Translate fixture addresses into offsets under an explicit64-bit little-endian entry model; derive every table boundary without casting arbitrary bytes to native pointers. Compare with a real entry snapshot only after recording its ABI.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Decode a32-bit model on a64-bit host and explain which offsets change and which termination rules remain."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Pointer width, byte order and alignment belong to the selected ABI; synthetic addresses are labels, not host pointers.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Pointer width, byte order and alignment belong to the selected ABI; synthetic addresses are labels, not host pointers. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Decode a32-bit model on a64-bit host and explain which offsets change and which termination rules remain. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw pointer tables and pointed-to strings as separate regions.",
+        "Validate terminators/counts inside the supplied span before converting synthetic addresses into map lookups."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Decode a32-bit model on a64-bit host and explain which offsets change and which termination rules remain."
+        }
+      ],
+      "assessor_anchor": "#t1002b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.02.b"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.c",
+      "title": "Respect alignment and object-lifetime assumptions during startup.",
+      "objective": "T10.02.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Capture rsp at initial entry and after the bridge alignment; preserve the original pointer for argument decoding. Explain memory ownership and prohibit returning pointers to expired helper-local storage.",
+      "purpose": "Aligning rsp may discard the only reference to the entry argument table safely.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Aligning rsp may discard the only reference to the entry argument table safely. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Aligning rsp may discard the only reference to the entry argument table safely.",
+        "D2": "Capture rsp at initial entry and after the bridge alignment; preserve the original pointer for argument decoding. Explain memory ownership and prohibit returning pointers to expired helper-local storage.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add an over-aligned helper argument and derive the new bridge alignment while retaining valid entry-table access."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The original table address must survive stack adjustment; helper frames and initial process storage have different lifetimes. No uninitialized TLS or libc service may be assumed.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The original table address must survive stack adjustment; helper frames and initial process storage have different lifetimes. No uninitialized TLS or libc service may be assumed. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add an over-aligned helper argument and derive the new bridge alignment while retaining valid entry-table access. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw pointer tables and pointed-to strings as separate regions.",
+        "Validate terminators/counts inside the supplied span before converting synthetic addresses into map lookups."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add an over-aligned helper argument and derive the new bridge alignment while retaining valid entry-table access."
+        }
+      ],
+      "assessor_anchor": "#t1002c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.02.c"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.a",
+      "title": "Inventory crt0, crt1, crti/crtn, and compiler CRT objects for one toolchain.",
+      "objective": "T10.03.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Inventory actual startup objects selected by the driver for native dynamic, static and PIE modes, recording resolved paths, hashes and relevant symbols. Mark missing modes unavailable.",
+      "purpose": "Every Unix toolchain has one interchangeable file named crt0.o.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every Unix toolchain has one interchangeable file named crt0.o. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every Unix toolchain has one interchangeable file named crt0.o.",
+        "D2": "Inventory actual startup objects selected by the driver for native dynamic, static and PIE modes, recording resolved paths, hashes and relevant symbols. Mark missing modes unavailable.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Repeat under another installed C library/toolchain and compare roles without matching filenames mechanically."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Object names/providers vary; source filename folklore does not substitute for the actual link command and symbol ownership.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Object names/providers vary; source filename folklore does not substitute for the actual link command and symbol ownership. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Repeat under another installed C library/toolchain and compare roles without matching filenames mechanically. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Use the actual driver command to find installed startup objects.",
+        "Attribute each role through symbols/code; familiar source filenames do not establish a standardized interface."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Repeat under another installed C library/toolchain and compare roles without matching filenames mechanically."
+        }
+      ],
+      "assessor_anchor": "#t1003a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.03.a"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.b",
+      "title": "Explain target-specific naming and division of responsibility.",
+      "objective": "T10.03.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For each selected startup object classify entry stub, initialization fragment, compiler support or other actual role. Correlate one object symbol with disassembly and identify the handoff to runtime initialization.",
+      "purpose": "All files containing crt in their name initialize the same services.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "All files containing crt in their name initialize the same services. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: All files containing crt in their name initialize the same services.",
+        "D2": "For each selected startup object classify entry stub, initialization fragment, compiler support or other actual role. Correlate one object symbol with disassembly and identify the handoff to runtime initialization.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Remove a startup fragment in a copied original build and diagnose the first missing responsibility from link or entry evidence."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Roles follow actual symbols/code and link ordering; compiler support and C-library startup are not interchangeable.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Roles follow actual symbols/code and link ordering; compiler support and C-library startup are not interchangeable. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Remove a startup fragment in a copied original build and diagnose the first missing responsibility from link or entry evidence. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Use the actual driver command to find installed startup objects.",
+        "Attribute each role through symbols/code; familiar source filenames do not establish a standardized interface."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Remove a startup fragment in a copied original build and diagnose the first missing responsibility from link or entry evidence."
+        }
+      ],
+      "assessor_anchor": "#t1003b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.03.b"
+      }
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.c",
+      "title": "Distinguish startup assembly filenames from standardized interfaces.",
+      "objective": "T10.03.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare the inspected glibc start.S prefix with the actual driver object and document which interfaces are ABI/platform conventions versus ISO C program startup requirements.",
+      "purpose": "The source pathname start.S is a standardized external interface.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The source pathname start.S is a standardized external interface. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The source pathname start.S is a standardized external interface.",
+        "D2": "Compare the inspected glibc start.S prefix with the actual driver object and document which interfaces are ABI/platform conventions versus ISO C program startup requirements.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Use a custom entry whose file is also named start.S and show why the name establishes no compatibility."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "ISO C does not mandate this assembly filename or CRT decomposition; installed object provenance and version matter.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "ISO C does not mandate this assembly filename or CRT decomposition; installed object provenance and version matter. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a custom entry whose file is also named start.S and show why the name establishes no compatibility. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Use the actual driver command to find installed startup objects.",
+        "Attribute each role through symbols/code; familiar source filenames do not establish a standardized interface."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-01-T10.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a custom entry whose file is also named start.S and show why the name establishes no compatibility."
+        }
+      ],
+      "assessor_anchor": "#t1003c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_startup/support.json",
+        "criterion_id": "AX-PR-T10-01-T10.03.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T10-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_systems_startup/support.json",
+    "criterion_ids": [
+      "AX-PR-T10-01-T10.01.a",
+      "AX-PR-T10-01-T10.01.b",
+      "AX-PR-T10-01-T10.01.c",
+      "AX-PR-T10-01-T10.02.a",
+      "AX-PR-T10-01-T10.02.b",
+      "AX-PR-T10-01-T10.02.c",
+      "AX-PR-T10-01-T10.03.a",
+      "AX-PR-T10-01-T10.03.b",
+      "AX-PR-T10-01-T10.03.c"
+    ],
+    "scope": "Source-bound author experiments and assessor transfers; independent learner evidence remains separate."
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T02:33:23.338620+00:00",
+  "source_sha256": {
+    "tools/run_b06_encoding.py": "95a8aa745cc4d6c38bda0b79104b65332a08261a1892949ddebaa63c1bbaac95",
+    "assessor/architecture_ports/targets/encoding.c": "c0016c3d64b6de6ee60457cae65354e80bb3f737f5cd16eee9f3677a6ec5bc95",
+    "labs/architecture_ports/targets/encoding.h": "7e998dfb2b6c902b91a4c7fea495c439204a35eb1c519eda4757ad453ac50185",
+    "labs/architecture_ports/targets/encoding.c": "6486e423550c3d6857a3f71124c1db4189bfacee6d37a36f8c09eef1093f7045",
+    "labs/architecture_ports/targets/veneer.S": "2fd03489bc89e270b962fec5c9f55abc998715a40aabf6169abecf182d7b3c99",
+    "labs/architecture_ports/targets/veneer.ld": "b946937876e006763838062c28669096939fd8704c09d401a8234546dcf8b17b"
+  },
+  "checks": [
+    {
+      "label": "encoder build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/encoding.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/encoding.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "branch independent assembler",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-march=rv64i",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/branch.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/branch.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "branch exact instruction words",
+      "passed": true,
+      "displacements": [
+        -4096,
+        -4094,
+        -2050,
+        -2048,
+        -34,
+        -2,
+        0,
+        2,
+        30,
+        32,
+        2046,
+        2048,
+        4094
+      ],
+      "assembler": [
+        2151776355,
+        2151776611,
+        4265709411,
+        2151776483,
+        4232155107,
+        4265709539,
+        4292707,
+        4292963,
+        4296547,
+        37847139,
+        2118225763,
+        4292835,
+        2118225891
+      ],
+      "implementation": [
+        2151776355,
+        2151776611,
+        4265709411,
+        2151776483,
+        4232155107,
+        4265709539,
+        4292707,
+        4292963,
+        4296547,
+        37847139,
+        2118225763,
+        4292835,
+        2118225891
+      ]
+    },
+    {
+      "label": "jump independent assembler",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-march=rv64i",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/jump.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/jump.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "jump exact instruction words",
+      "passed": true,
+      "displacements": [
+        -1048576,
+        -1048574,
+        -4098,
+        -4096,
+        -2050,
+        -2,
+        0,
+        2,
+        2046,
+        2048,
+        4094,
+        4096,
+        1048574
+      ],
+      "assembler": [
+        2147483887,
+        2149581039,
+        4294959343,
+        2148528367,
+        4293914863,
+        4294963439,
+        239,
+        2097391,
+        2145386735,
+        1048815,
+        2146435311,
+        4335,
+        2147479791
+      ],
+      "implementation": [
+        2147483887,
+        2149581039,
+        4294959343,
+        2148528367,
+        4293914863,
+        4294963439,
+        239,
+        2097391,
+        2145386735,
+        1048815,
+        2146435311,
+        4335,
+        2147479791
+      ]
+    },
+    {
+      "label": "range parity unchanged rejection",
+      "passed": true
+    },
+    {
+      "label": "out-of-range AArch64 call link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/veneer.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/veneer.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/veneer.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "veneer symbol identity",
+      "command": [
+        "readelf",
+        "-sW",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-encoding/veneer.elf"
+      ],
+      "returncode": 0,
+      "stdout": "\nSymbol table '.symtab' contains 8 entries:\n   Num:    Value          Size Type    Bind   Vis      Ndx Name\n     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND \n     1: 0000000000400000     0 NOTYPE  LOCAL  DEFAULT    1 $x\n     2: 0000000050000000     0 NOTYPE  LOCAL  DEFAULT    2 $x\n     3: 0000000000400008    16 FUNC    LOCAL  DEFAULT    1 __AArch64AbsLongThunk_far_function\n     4: 0000000000400008     0 NOTYPE  LOCAL  DEFAULT    1 $x\n     5: 0000000000400010     0 NOTYPE  LOCAL  DEFAULT    1 $d\n     6: 0000000000400000     0 NOTYPE  GLOBAL DEFAULT    1 _start\n     7: 0000000050000000     0 NOTYPE  GLOBAL DEFAULT    2 far_function\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "veneer uses IP0 not argument/callee saved registers",
+      "passed": true,
+      "entry_words": [
+        2483027970,
+        3596551104,
+        1476395088,
+        3592356352,
+        1342177280,
+        0
+      ],
+      "scope": "LDR x16 from target literal plus BR x16 witnessed; flags/IP1 remain permitted clobbers even if unused by this linker"
+    }
+  ],
+  "limitations": [
+    "Independent Clang assembler compared26 scattered-immediate boundary words; not exhaustive every encoding.",
+    "Veneer actual link/disassembly bytes only; not execution or every linker convention."
+  ]
+}

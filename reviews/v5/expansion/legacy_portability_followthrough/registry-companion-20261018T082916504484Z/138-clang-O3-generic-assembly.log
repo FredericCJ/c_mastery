@@ -1,0 +1,70 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/registry-companion-20261018T082916504484Z/clang-O3-generic5.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <generic_int>:
+   0:	eb 0e                	jmp    10 <lg_int>
+   2:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+   9:	1f 84 00 00 00 00 00 
+
+0000000000000010 <lg_int>:
+  10:	8d 47 01             	lea    0x1(%rdi),%eax
+  13:	c3                   	ret
+  14:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+  1b:	00 00 00 00 00 
+
+0000000000000020 <explicit_int>:
+  20:	eb ee                	jmp    10 <lg_int>
+  22:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  29:	1f 84 00 00 00 00 00 
+
+0000000000000030 <generic_double>:
+  30:	eb 0e                	jmp    40 <lg_double>
+  32:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  39:	1f 84 00 00 00 00 00 
+
+0000000000000040 <lg_double>:
+  40:	f2 0f 58 05 00 00 00 	addsd  0x0(%rip),%xmm0        # 48 <lg_double+0x8>
+  47:	00 
+			44: R_X86_64_PC32	.LCPI4_0-0x4
+  48:	c3                   	ret
+  49:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000000050 <explicit_double>:
+  50:	eb ee                	jmp    40 <lg_double>
+  52:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  59:	1f 84 00 00 00 00 00 
+
+0000000000000060 <main>:
+  60:	53                   	push   %rbx
+  61:	48 83 ec 10          	sub    $0x10,%rsp
+  65:	bf 03 00 00 00       	mov    $0x3,%edi
+  6a:	e8 00 00 00 00       	call   6f <main+0xf>
+			6b: R_X86_64_PLT32	generic_int-0x4
+  6f:	89 c3                	mov    %eax,%ebx
+  71:	bf 03 00 00 00       	mov    $0x3,%edi
+  76:	e8 00 00 00 00       	call   7b <main+0x1b>
+			77: R_X86_64_PLT32	explicit_int-0x4
+  7b:	89 c1                	mov    %eax,%ecx
+  7d:	b8 01 00 00 00       	mov    $0x1,%eax
+  82:	39 cb                	cmp    %ecx,%ebx
+  84:	75 2f                	jne    b5 <main+0x55>
+  86:	f2 0f 10 05 00 00 00 	movsd  0x0(%rip),%xmm0        # 8e <main+0x2e>
+  8d:	00 
+			8a: R_X86_64_PC32	.LCPI6_0-0x4
+  8e:	e8 00 00 00 00       	call   93 <main+0x33>
+			8f: R_X86_64_PLT32	generic_double-0x4
+  93:	f2 0f 11 44 24 08    	movsd  %xmm0,0x8(%rsp)
+  99:	f2 0f 10 05 00 00 00 	movsd  0x0(%rip),%xmm0        # a1 <main+0x41>
+  a0:	00 
+			9d: R_X86_64_PC32	.LCPI6_0-0x4
+  a1:	e8 00 00 00 00       	call   a6 <main+0x46>
+			a2: R_X86_64_PLT32	explicit_double-0x4
+  a6:	f2 0f c2 44 24 08 04 	cmpneqsd 0x8(%rsp),%xmm0
+  ad:	66 48 0f 7e c0       	movq   %xmm0,%rax
+  b2:	83 e0 01             	and    $0x1,%eax
+  b5:	48 83 c4 10          	add    $0x10,%rsp
+  b9:	5b                   	pop    %rbx
+  ba:	c3                   	ret

@@ -6,7 +6,10 @@
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/integration/CONTRACTS.md"
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_linux_followthrough/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -182,6 +185,27 @@
         "6.2.8 paragraphs1–7: alignment requirements",
         "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
       ]
+    },
+    {
+      "id": "R-P5-COND",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "DESCRIPTION: atomic release/enrollment, mutex reacquisition and dynamic binding; predicate recheck, spurious wakeups, timed wait and MONOTONIC clock; RATIONALE Condition Wait Semantics"
+      ]
+    },
+    {
+      "id": "R-P5-EPOLL",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "DESCRIPTION LT/ET nonblocking/drain policy; Questions and answers open file description identity; Possible pitfalls ready lists and stale event caches"
+      ]
+    },
+    {
+      "id": "R-P5-CLOSE",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "CAVEATS multithreaded close and error returns; early descriptor retirement, retry hazard, Linux versus POSIX editions"
+      ]
     }
   ],
   "reference_gaps": [
@@ -202,7 +226,33 @@
     "fixtures/legacy_checkpoints/P2.json",
     "fixtures/legacy_checkpoints/P3.json",
     "fixtures/legacy_checkpoints/P4.json",
-    "fixtures/legacy_checkpoints/P6.json"
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_linux_followthrough/bridge.h",
+    "labs/checkpoint_linux_followthrough/bridge_stub.c",
+    "labs/checkpoint_linux_followthrough/bridge_tests.c",
+    "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+    "labs/checkpoint_linux_followthrough/run.py",
+    "labs/checkpoint_depth/include/checkpoint_async.h",
+    "labs/checkpoint_depth/include/checkpoint_channel.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_linux.h",
+    "labs/checkpoint_depth/include/checkpoint_memory.h",
+    "labs/checkpoint_depth/include/checkpoint_numeric.h",
+    "labs/checkpoint_depth/include/checkpoint_operation.h",
+    "labs/checkpoint_depth/include/checkpoint_vector.h",
+    "labs/checkpoint_depth/include/checkpoint_writer.h",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/include/v4_foundation.h",
+    "labs/algorithms/include/algo.h",
+    "labs/algorithms/include/v4_algo.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/src/checkpoint_async.c",
+    "labs/checkpoint_depth/src/checkpoint_linux.c",
+    "labs/checkpoint_depth/src/checkpoint_operation.c",
+    "labs/checkpoint_depth/tests/async.c",
+    "labs/checkpoint_depth/tests/linux.c",
+    "labs/checkpoint_depth/tests/operation.c"
   ],
   "prerequisite_artifacts": [
     "PR-T18-02/accepted-component-and-dossier",
@@ -225,7 +275,20 @@
     "tests": [
       "integration.p5"
     ],
-    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted."
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "linux_followthrough_successor": {
+      "path": "research/v5/expansion/legacy_checkpoint_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P5-01-T24.08.b",
+        "AX-PR-P5-01-T25.02.b",
+        "AX-PR-P5-01-T25.02.c",
+        "AX-PR-P5-01-T18.04.c"
+      ],
+      "scope": "Exact original P5 ordinary/delayed tasks with actual readiness/callback/ownership/changed-condition and failure behavior; actual learner/physical evidence separate"
+    }
   },
   "criteria": [
     {
@@ -345,6 +408,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T24.08.b"
       }
     },
     {
@@ -465,6 +532,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T25.02.b"
       }
     },
     {
@@ -584,6 +655,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T25.02.c"
       }
     },
     {
@@ -703,6 +778,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T18.04.c"
       }
     }
   ],
@@ -717,5 +796,28 @@
       "Authored delayed opportunities are not completed assessments.",
       "Finite passing tests do not prove absolute mastery."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P5-01",
+    "criterion_ids": [
+      "AX-PR-P5-01-T24.08.b",
+      "AX-PR-P5-01-T25.02.b",
+      "AX-PR-P5-01-T25.02.c",
+      "AX-PR-P5-01-T18.04.c"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P5-01-T24.08.b",
+        "AX-PR-P5-01-T25.02.b",
+        "AX-PR-P5-01-T25.02.c",
+        "AX-PR-P5-01-T18.04.c"
+      ],
+      "scope": "Exact original P5 ordinary/delayed tasks with actual readiness/callback/ownership/changed-condition and failure behavior; actual learner/physical evidence separate"
+    }
+  ]
 }

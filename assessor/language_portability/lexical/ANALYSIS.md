@@ -1,0 +1,9 @@
+# Translation-stage assessment key
+
+T06.01.a: phase2 removes backslash-newline. The next physical assignment becomes part of the phase3 line comment. Only initialization1 and return remain. Reversing phases predicts9 incorrectly. Trigraph ??/ is replaced by backslash under the inspected earlier phase1 rule, producing the same splice; the later draft removes that mapping, so its comment ends normally and assignment9 remains. The actual mode experiment is not a source-inspection substitute.
+
+T06.01.b: comment replacement yields A space B. Replacement yields int separated, not an AB token. VALUE is a character sequence within a string token and remains five characters plus zero. PREFIX expands to a string token; phase6 combines it with gate, yielding north:gate and one final zero, array size11. Preprocessing output can still show two literals because the display is not the phase6 object representation.
+
+T06.01.c: TYPE is a valid replacement list int comma. Preprocessing is successful, but the resulting int comma generated declaration violates declaration syntax. The earliest introduced defect is macro replacement, while semantic translation diagnoses it. TYPE int repairs it. In the selected int4/long8 profile, a returns sizeof local, b returns11 and main returns15 before the change,19 after it. Only a's depfile includes config.h. Preserved b/main objects remain identical and a changes. A stale link of round0 objects returns15 despite successful linking; link success does not prove current header consistency.
+
+The key is deliberately small and separate. Assess written derivations and the earliest-stage argument independently. The public judge is only a finite answer checker. No semantic claim is inferred from sanitizers, and no uninspected published edition is represented as read. Re-evaluate exact implementation observations if compiler, input encoding or data model changes.

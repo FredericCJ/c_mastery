@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "format": "Original C Mastery bounded codec, not DEFLATE",
+  "cases": [
+    {
+      "id": "overlap",
+      "operation": "lzdecode",
+      "input_hex": "00780079010502",
+      "expected_hex": "78797879787978"
+    },
+    {
+      "id": "bad-distance",
+      "operation": "lzdecode",
+      "input_hex": "010300",
+      "expected": "CC_INVALID, output and counter unchanged"
+    },
+    {
+      "id": "empty-huffman",
+      "operation": "hdecode",
+      "input_hex": "000000000000000000000000000000000000",
+      "expected_hex": ""
+    },
+    {
+      "id": "singleton",
+      "operation": "hdecode",
+      "input_hex": "01000000000100000000000000000000000000",
+      "expected_hex": "03"
+    },
+    {
+      "id": "oversubscribed",
+      "operation": "book",
+      "input_hex": "01010100000000000000000000000000",
+      "expected": "CC_INVALID"
+    },
+    {
+      "id": "greedy-loss",
+      "operation": "lzoptimal",
+      "input_hex": "000000010000000000",
+      "expected": "Token byte count equals independently derived shortest path; decode preserves all nine bytes"
+    }
+  ],
+  "limits": "Exact defined inputs under original format; no UB golden outputs."
+}

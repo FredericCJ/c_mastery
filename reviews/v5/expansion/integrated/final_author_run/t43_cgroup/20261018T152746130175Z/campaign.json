@@ -1,0 +1,136 @@
+{
+  "passed": false,
+  "error": "AssertionError()",
+  "scope": "AX-PR-T43-10-T43.11.a-DELAYED; author observation, no learner or hardware PMU claim",
+  "original_workload_source": "labs/performance_followthrough/observations.c",
+  "input_sha256": {
+    "build/t43_cgroup_followthrough/delegated.c": "2fd273769931d58752c1fc90c1a0c3f5fe59f38c1aeae40e835334952bdbecbe",
+    "build/t43_cgroup_followthrough/run.py": "96f915b8e1ed5faf267d9c5f60e867308e438f8021772e8980c60c98ff7fca39",
+    "labs/performance_followthrough/observations.c": "47682912a49a19e7f93838eac0520ddae049a2d81efc34ca5622c5b6be8d2d26",
+    "assessor/algorithms/x86_64.S": "0426a490cdd9621763e045f13bd599f7833dfa4ca81aa4317f11f8ac24909bcc",
+    "labs/performance_followthrough/cost.h": "f9f42440f76967ec3f0e8e20a83f65ad4e23f15c7baad8c433375b56dffb5836",
+    "labs/algorithms/include/algo.h": "d7cd32dbc308060a1fa0396412b525ab7aa426f3c03549c19d86bd4cc1213f5c",
+    "labs/realtime_depth/linux/guest.py": "a207f65050d94a12e83082a90895da1841e803975ce971c570e8722cd3dff526",
+    "labs/performance_followthrough/CONTRACTS.md": "d247f0f19144efdcf10a8a1ba9ff269c4087ff9f8312eef545f87790b472692e",
+    "curriculum/v5/expansion/legacy_assessments/PR-T43-10.json": "14492e8e8eca448247115c71cfaf50ef6754c168c2c571430c4c9ebb62828857"
+  },
+  "external_sha256": {
+    "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage": "5a876b0f4bca0bd306e7cdf4edf1bc821f12f2f93eebe52bcc0b0490dd193409",
+    "/home/frede/cmastery-b06-tools/usr/bin/busybox": "df12634c17fcdca839ae5dc47d7627b7558511f7645de7c99ccf097a0f28ed5b",
+    "/usr/bin/qemu-system-x86_64": "0cd4112a8f0cb891eb7c10e8df38c9dfeec8c7389bb22db6aa425f0d6fe733dc"
+  },
+  "commands": [
+    {
+      "label": "host-policy-readonly",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-c",
+        "from pathlib import Path; import json; print(json.dumps({p:Path(p).read_text() for p in [\"/proc/self/cgroup\",\"/proc/sys/kernel/perf_event_paranoid\",\"/sys/fs/cgroup/cgroup.subtree_control\"]}))"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/host-policy-readonly.txt",
+      "log_sha256": "8e35925419d03fc98c7c37eb741aed77ab2c667342536e77597e138aa17dbd76"
+    },
+    {
+      "label": "gcc-version",
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-version.txt",
+      "log_sha256": "6e876a25bb7fdb71ab2914e8f1eeaa00cc61d20a36a6c2981ab7d4d7ceab42f8"
+    },
+    {
+      "label": "gcc-workload-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-g",
+        "-static",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/algorithms/include",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough/observations.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/algorithms/x86_64.S",
+        "-pthread",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-workload"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-workload-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-normal-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-static",
+        "/mnt/f/Learning/Curricula/c_mastery/build/t43_cgroup_followthrough/delegated.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-normal-probe"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-normal-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-normal-guest",
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-normal.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet t43_owned=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T152746130175Z/gcc-normal-guest.txt",
+      "log_sha256": "648faef11214baa8337f27d2be0fcd522f8e5268be58892b531b88e2da02afd1"
+    }
+  ],
+  "profiles": [],
+  "compiled_controls": [],
+  "host_policy_changed": false,
+  "physical_observation": false,
+  "independent_learner": false,
+  "schema_version": 1
+}

@@ -1,0 +1,7 @@
+# T41 actual driver reconciliation
+
+The accepted T41.02/03 records contain complete criterion-specific tasks but their earlier generic net.c exercised no actual PHY or DMA ring. T39 now supplies frozen EpPhy/EnRing, selected F439 ports and concrete changed-condition implementations. This successor composes them with actual NaArp/NiReassembly/NcStack/NwRx/http, preserving all six original criterion/V1 objects and baseline bindings. It also implements the ordinary NW-ARP-DRIVER/NW-IP-DRIVER/NW-TCP-DRIVER children; their closure must wait for the final source-bound campaign and isolated exports.
+
+The CPU model is deliberately not called physical Ethernet. Non-model ports are separately compiled, retained, linked and audited without executing MMIO. Actual board observations, source-version qualifications, external review and independent/delayed learner evidence remain separate. A selected register-link image is an object/link audit artifact, not a flashed board result or a ready production firmware image.
+
+The first campaign retained at reviews/v5/expansion/legacy_network_driver/attempt01.json exposed an unrelated original systems.c reduction warning under Arm GCC O3 with -Werror. The selected stack uses only its original SChecksum definitions. The corrected build uses the existing exact-definition extractor, records both original source and generated slice identities, and preserves all warning checks. This is a declared source slice, not an alternate checksum implementation or suppressed diagnostic.

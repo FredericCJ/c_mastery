@@ -1,0 +1,81 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_kernel_followthrough/boot_pilot7/gcc-O2-stub/kernel.elf:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000101000 <_start>:
+  101000:	fa                   	cli
+  101001:	fc                   	cld
+  101002:	a3 00 90 10 00 89 1d 	movabs %eax,0x90041d8900109000
+  101009:	04 90 
+  10100b:	10 00                	adc    %al,(%rax)
+  10100d:	bc 10 d0 10 00       	mov    $0x10d010,%esp
+  101012:	b8 00 40 10 00       	mov    $0x104000,%eax
+  101017:	83 c8 03             	or     $0x3,%eax
+  10101a:	a3 00 30 10 00 31 c9 	movabs %eax,0xc889c93100103000
+  101021:	89 c8 
+  101023:	c1 e0 0c             	shl    $0xc,%eax
+  101026:	05 00 50 10 00       	add    $0x105000,%eax
+  10102b:	83 c8 03             	or     $0x3,%eax
+  10102e:	89 04 cd 00 40 10 00 	mov    %eax,0x104000(,%rcx,8)
+  101035:	41 83 f9 04          	cmp    $0x4,%r9d
+  101039:	75 e6                	jne    101021 <_start+0x21>
+  10103b:	31 c9                	xor    %ecx,%ecx
+  10103d:	89 c8                	mov    %ecx,%eax
+  10103f:	c1 e0 15             	shl    $0x15,%eax
+  101042:	0d 83 00 00 00       	or     $0x83,%eax
+  101047:	89 04 cd 00 50 10 00 	mov    %eax,0x105000(,%rcx,8)
+  10104e:	41 81 f9 00 08 00 00 	cmp    $0x800,%r9d
+  101055:	75 e6                	jne    10103d <_start+0x3d>
+  101057:	0f 20 e0             	mov    %cr4,%rax
+  10105a:	83 c8 20             	or     $0x20,%eax
+  10105d:	0f 22 e0             	mov    %rax,%cr4
+  101060:	b8 00 30 10 00       	mov    $0x103000,%eax
+  101065:	0f 22 d8             	mov    %rax,%cr3
+  101068:	b9 80 00 00 c0       	mov    $0xc0000080,%ecx
+  10106d:	0f 32                	rdmsr
+  10106f:	0d 00 09 00 00       	or     $0x900,%eax
+  101074:	0f 30                	wrmsr
+  101076:	0f 01 15 18 20 10 00 	lgdt   0x102018(%rip)        # 203095 <kernel_end+0xf607d>
+  10107d:	0f 20 c0             	mov    %cr0,%rax
+  101080:	0d 00 00 01 80       	or     $0x80010000,%eax
+  101085:	0f 22 c0             	mov    %rax,%cr0
+
+0000000000101088 <kf_mode_boundary>:
+  101088:	ea                   	(bad)
+  101089:	8f                   	(bad)
+  10108a:	10 10                	adc    %dl,(%rax)
+  10108c:	00 08                	add    %cl,(%rax)
+	...
+
+000000000010108f <long_start>:
+  10108f:	66 b8 10 00          	mov    $0x10,%ax
+  101093:	8e d8                	mov    %eax,%ds
+  101095:	8e c0                	mov    %eax,%es
+  101097:	8e d0                	mov    %eax,%ss
+  101099:	31 c0                	xor    %eax,%eax
+  10109b:	8e e0                	mov    %eax,%fs
+  10109d:	8e e8                	mov    %eax,%gs
+  10109f:	48 c7 c4 10 d0 10 00 	mov    $0x10d010,%rsp
+  1010a6:	8b 3d 54 7f 00 00    	mov    0x7f54(%rip),%edi        # 109000 <boot_magic>
+  1010ac:	8b 35 52 7f 00 00    	mov    0x7f52(%rip),%esi        # 109004 <boot_info>
+  1010b2:	e8 04 00 00 00       	call   1010bb <kernel_main>
+  1010b7:	fa                   	cli
+  1010b8:	f4                   	hlt
+  1010b9:	eb fc                	jmp    1010b7 <long_start+0x28>
+
+00000000001010bb <kernel_main>:
+  1010bb:	48 89 25 4e bf 00 00 	mov    %rsp,0xbf4e(%rip)        # 10d010 <kf_entry_rsp>
+  1010c2:	e9 09 00 00 00       	jmp    1010d0 <kf_boot_check>
+  1010c7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+  1010ce:	00 00 
+
+00000000001010d0 <kf_boot_check>:
+  1010d0:	f3 0f 1e fa          	endbr64
+  1010d4:	90                   	nop
+  1010d5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  1010dc:	00 00 00 00 
+  1010e0:	fa                   	cli
+  1010e1:	f4                   	hlt
+  1010e2:	eb fc                	jmp    1010e0 <kf_boot_check+0x10>

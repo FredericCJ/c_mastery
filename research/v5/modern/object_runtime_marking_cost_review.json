@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-005",
+  "status": "author-measured-host-scope",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_marking_probe.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed x86-64 GCC/Clang: heap120 align4, handle2, finish16, concurrent168 bytes. Handle slot1..16/gen1..3 and retired4; no pointer packing.",
+      "enforcer_and_limits": "ISO C typed structs; runtime validation; caller initialization."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Sixteen embedded two-edge objects, sixteen gray entries, root counts and generations. Strong roots/edges retain; already marked unreachable nodes can float until next cycle. No tracing of arbitrary native pointers.",
+      "enforcer_and_limits": "Reachability invariant plus caller root discipline."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Fresh stationary init; generation retirement after3 uses; finish owner+revision bound to one instance. All workers joined and tokens discarded before terminal exhaustion retirement or close.",
+      "enforcer_and_limits": "Runtime finite counter checks plus external lifecycle discipline."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Core serialized; wrapper same mutex for every graph/root/work/revision access. No exposed raw payload. Copying handle bits does not retain; a read borrower needs protection until retain succeeds.",
+      "enforcer_and_limits": "POSIX synchronization and runtime generation check; no ownership type enforcement."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Embedded capacity only. BLACK shades children, GRAY queues object, RESTART reseeds all roots. Root255, full/retired pool and revision65535 reject unchanged. No malloc in marking core; pthread implementation allocation is outside target core contract.",
+      "enforcer_and_limits": "Runtime capacity/preflight checks; source and host generated-code inspection."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "No object relocation. Allocation and scan stage/copy120-byte heap; step therefore has fixed-capacity copying overhead in addition to edge scans. Each finish/response is copied. Queue work is O(V+E) between restarts, but whole-state staging invalidates a general linear machine-cost claim.",
+      "enforcer_and_limits": "Source-level derivation and compiler observations."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Commit scans16 slots without recursion. Normal close requires empty/inactive pool; exhausted revision permits whole-pool retirement only after external quiescence. Mutex acquisition can block without a bound.",
+      "enforcer_and_limits": "Runtime phase checks and caller join boundary."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "O2 actual assembly: wrapper dispatches directly to core functions and pthread_mutex_lock/unlock. GCC allocation/step include stack-check failure helper; Clang allocation calls restart helper. No claim this hosted image is freestanding or helper-free.",
+      "enforcer_and_limits": "Inspected actual objdump records; compiler-specific observation."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Actual late-store and late-root pthread schedules plus100 cycles against1000 mutation iterations. Empty queue retains active barriers; commit revalidates revision/work under same lock. No parallel tracing, lock-free progress, fairness, owner-death recovery or asynchronous cancellation guarantee.",
+      "enforcer_and_limits": "POSIX lock/unlock, generation/revision checks, source proof and executed TSan cases."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "All valid failure paths preserve controls/output except documented synchronization environment abort. Epoch cannot wrap; a failed root release at exhaustion requires whole-instance shutdown rather than silent wrap. Stale candidate retry rescans current work.",
+      "enforcer_and_limits": "Runtime checks and exact-state/response negative tests."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Actual six GCC/Clang O0/O2/O3 clean/no-change/header builds recorded. O2 GCC .579249/.039125/.628578 seconds; Clang .721636/.078529/.542559. Filesystem/load noise and single-build samples prohibit general rankings.",
+      "enforcer_and_limits": "Recorded commands and observed timings, not language guarantees."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 whole-image text/data/bss GCC16965/656/16; Clang18835/640/16. Core+original runtime+wrapper linked. Observed frames allocate/step/call/commit GCC176/160/112/8; Clang152/0/88/0 bytes. Clang zero may use registers/red-zone/inlining; not a zero-stack or worst-case-program claim.",
+      "enforcer_and_limits": "Actual size and .su artifacts; host compiler/ABI observation."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "No persistence, wire or process ABI for control/token structs. Host POSIX wrapper is not an MCU adapter. Reference comparison is historical V8 worklists/barriers/finalization, not an engine equivalence.",
+      "enforcer_and_limits": "Explicit contract and separate platform source authority."
+    }
+  ],
+  "timing_scope": "270 retained samples +18 discarded warmups;1000 complete equal-contract graph lifecycles each. Initialization/checks/sweep/cleanup/staging included; first-cycle scans2000/3000/4000 per sample and restarts0/0/1000. No timed parallel speedup or universal latency claim.",
+  "sealed_decision": {
+    "choice": "Bounded explicit gray worklist with gray allocation and mutex-protected split finish for the concurrent teaching adapter.",
+    "reason": "Gray allocation gives ordinary scan ownership; all policies remain implemented for comparison. A finite revision detects the prepared-sweep interval without introducing relaxed-memory proof obligations.",
+    "rejected_overclaim": "A mutex-safe collector is not a parallel, lock-free or starvation-free collector. Larger counters do not establish indefinite identity safety.",
+    "reopen_when": "Change root publication, expose payload pointers, introduce parallel tracing or remove global exclusion; rederive barriers and termination before accepting results."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_marking_probe.json": "2a5252271ad0675890000b7e881de491c55093d40632d1d3bbca89a7f079e0ef",
+    "labs/object_runtime/MARKING_EXTENSIONS.md": "6f5b30484a386aa9ba7c6261c58863dccf394f217e47eb4234537ed5a8f4a400",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

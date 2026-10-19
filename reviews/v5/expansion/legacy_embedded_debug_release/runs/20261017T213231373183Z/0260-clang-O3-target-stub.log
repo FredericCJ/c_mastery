@@ -1,0 +1,191 @@
+
+/tmp/debug-release-3crgyg3v/clang-O3-target-stub/release.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dt_vectors>:
+#include "target.h"
+extern uint32_t dt_stack_top,dt_data_start,dt_data_end,dt_data_load,dt_bss_start,dt_bss_end;
+extern void dt_boot(void);
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+   0:	00 00 01 20 31 01 00 00 01 01 00 00 01 01 00 00     ... 1...........
+	...
+  40:	29 01 00 00 2d 01 00 00                             )...-...
+
+00000048 <dt_reset>:
+  48:	b082      	sub	sp, #8
+  4a:	f240 0000 	movw	r0, #0
+  4e:	f240 0100 	movw	r1, #0
+  52:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+  56:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+  5a:	4281      	cmp	r1, r0
+  5c:	d219      	bcs.n	92 <dt_reset+0x4a>
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  5e:	f240 12e0 	movw	r2, #480	@ 0x1e0
+  62:	f2c0 0200 	movt	r2, #0
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  66:	bf00      	nop
+  68:	6813      	ldr	r3, [r2, #0]
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+  6a:	f841 3b04 	str.w	r3, [r1], #4
+  6e:	4281      	cmp	r1, r0
+  70:	d20f      	bcs.n	92 <dt_reset+0x4a>
+  72:	6853      	ldr	r3, [r2, #4]
+  74:	f841 3b04 	str.w	r3, [r1], #4
+  78:	4281      	cmp	r1, r0
+  7a:	d20a      	bcs.n	92 <dt_reset+0x4a>
+  7c:	6893      	ldr	r3, [r2, #8]
+  7e:	f841 3b04 	str.w	r3, [r1], #4
+  82:	4281      	cmp	r1, r0
+  84:	d205      	bcs.n	92 <dt_reset+0x4a>
+  86:	68d3      	ldr	r3, [r2, #12]
+  88:	3210      	adds	r2, #16
+  8a:	f841 3b04 	str.w	r3, [r1], #4
+  8e:	4281      	cmp	r1, r0
+  90:	d3ea      	bcc.n	68 <dt_reset+0x20>
+  92:	f240 0000 	movw	r0, #0
+  96:	f240 0100 	movw	r1, #0
+  9a:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+  9e:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+  a2:	4281      	cmp	r1, r0
+  a4:	d210      	bcs.n	c8 <dt_reset+0x80>
+  a6:	2200      	movs	r2, #0
+  a8:	f841 2b04 	str.w	r2, [r1], #4
+  ac:	4281      	cmp	r1, r0
+  ae:	d20b      	bcs.n	c8 <dt_reset+0x80>
+  b0:	f841 2b04 	str.w	r2, [r1], #4
+  b4:	4281      	cmp	r1, r0
+  b6:	d207      	bcs.n	c8 <dt_reset+0x80>
+  b8:	f841 2b04 	str.w	r2, [r1], #4
+  bc:	4281      	cmp	r1, r0
+  be:	d203      	bcs.n	c8 <dt_reset+0x80>
+  c0:	f841 2b04 	str.w	r2, [r1], #4
+  c4:	4281      	cmp	r1, r0
+  c6:	d3ef      	bcc.n	a8 <dt_reset+0x60>
+  c8:	f000 f82c 	bl	124 <dt_target>
+  cc:	4602      	mov	r2, r0
+  ce:	2800      	cmp	r0, #0
+  d0:	f240 1061 	movw	r0, #353	@ 0x161
+  d4:	f240 117b 	movw	r1, #379	@ 0x17b
+  d8:	f2c0 0000 	movt	r0, #0
+  dc:	f2c0 0100 	movt	r1, #0
+  e0:	bf18      	it	ne
+  e2:	2201      	movne	r2, #1
+  e4:	bf18      	it	ne
+  e6:	4601      	movne	r1, r0
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  e8:	2004      	movs	r0, #4
+  ea:	beab      	bkpt	0x00ab
+  ec:	2026      	movs	r0, #38	@ 0x26
+  ee:	f2c0 0002 	movt	r0, #2
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  f2:	e9cd 0200 	strd	r0, r2, [sp]
+  f6:	2020      	movs	r0, #32
+  f8:	4669      	mov	r1, sp
+  fa:	beab      	bkpt	0x00ab
+  fc:	bf30      	wfi
+  fe:	e7fd      	b.n	fc <dt_reset+0xb4>
+
+00000100 <failed>:
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+ 100:	b082      	sub	sp, #8
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 102:	f240 11bb 	movw	r1, #443	@ 0x1bb
+ 106:	2004      	movs	r0, #4
+ 108:	f2c0 0100 	movt	r1, #0
+ 10c:	beab      	bkpt	0x00ab
+ 10e:	2026      	movs	r0, #38	@ 0x26
+ 110:	f2c0 0002 	movt	r0, #2
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 114:	9000      	str	r0, [sp, #0]
+ 116:	2001      	movs	r0, #1
+ 118:	9001      	str	r0, [sp, #4]
+ 11a:	2020      	movs	r0, #32
+ 11c:	4669      	mov	r1, sp
+ 11e:	beab      	bkpt	0x00ab
+ 120:	bf30      	wfi
+ 122:	e7fd      	b.n	120 <failed+0x20>
+
+00000124 <dt_target>:
+#include "target.h"
+int dt_target(void){return 1;}
+ 124:	2001      	movs	r0, #1
+ 126:	4770      	bx	lr
+
+00000128 <dt_irq0>:
+void dt_irq0(void){}
+ 128:	4770      	bx	lr
+	...
+
+0000012c <dt_irq1>:
+void dt_irq1(void){}
+ 12c:	4770      	bx	lr
+	...
+
+00000130 <dt_boot>:
+.thumb
+.global dt_boot
+.type dt_boot,%function
+.thumb_func
+dt_boot:
+  cpsid i
+ 130:	b672      	cpsid	i
+  ldr r0,=dt_data_start
+ 132:	4805      	ldr	r0, [pc, #20]	@ (148 <dt_boot+0x18>)
+  ldr r1,=dt_bss_end
+ 134:	4905      	ldr	r1, [pc, #20]	@ (14c <dt_boot+0x1c>)
+  ldr r2,=0xa5a5a5a5
+ 136:	f04f 32a5 	mov.w	r2, #2779096485	@ 0xa5a5a5a5
+1: cmp r0,r1
+ 13a:	4288      	cmp	r0, r1
+  bhs 2f
+ 13c:	d202      	bcs.n	144 <dt_boot+0x14>
+  str r2,[r0],#4
+ 13e:	f840 2b04 	str.w	r2, [r0], #4
+  b 1b
+ 142:	e7fa      	b.n	13a <dt_boot+0xa>
+2: b dt_reset
+ 144:	f7ff bf80 	b.w	48 <dt_reset>
+ 148:	20000000 	.word	0x20000000
+ 14c:	20000000 	.word	0x20000000
+ 150:	33323130 	.word	0x33323130
+ 154:	37363534 	.word	0x37363534
+ 158:	62613938 	.word	0x62613938
+ 15c:	66656463 	.word	0x66656463
+ 160:	5f544400 	.word	0x5f544400
+ 164:	47524154 	.word	0x47524154
+ 168:	435f5445 	.word	0x435f5445
+ 16c:	4b434548 	.word	0x4b434548
+ 170:	6e6f633a 	.word	0x6e6f633a
+ 174:	63617274 	.word	0x63617274
+ 178:	44000a74 	.word	0x44000a74
+ 17c:	41545f54 	.word	0x41545f54
+ 180:	54454752 	.word	0x54454752
+ 184:	5341505f 	.word	0x5341505f
+ 188:	63613a53 	.word	0x63613a53
+ 18c:	6c617574 	.word	0x6c617574
+ 190:	746e692d 	.word	0x746e692d
+ 194:	75727265 	.word	0x75727265
+ 198:	702d7470 	.word	0x702d7470
+ 19c:	696c6275 	.word	0x696c6275
+ 1a0:	69746163 	.word	0x69746163
+ 1a4:	612d6e6f 	.word	0x612d6e6f
+ 1a8:	732d646e 	.word	0x732d646e
+ 1ac:	7774666f 	.word	0x7774666f
+ 1b0:	2d657261 	.word	0x2d657261
+ 1b4:	65736572 	.word	0x65736572
+ 1b8:	44000a74 	.word	0x44000a74
+ 1bc:	41545f54 	.word	0x41545f54
+ 1c0:	54454752 	.word	0x54454752
+ 1c4:	4548435f 	.word	0x4548435f
+ 1c8:	753a4b43 	.word	0x753a4b43
+ 1cc:	7078656e 	.word	0x7078656e
+ 1d0:	65746365 	.word	0x65746365
+ 1d4:	65762d64 	.word	0x65762d64
+ 1d8:	726f7463 	.word	0x726f7463
+ 1dc:	0000000a 	.word	0x0000000a
+arm-none-eabi-objdump: DWARF error: mangled line number section (bad file number)

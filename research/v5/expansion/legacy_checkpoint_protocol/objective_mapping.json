@@ -1,0 +1,303 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-P3-01-T04.06.b",
+      "objective": "T04.06.b",
+      "task": "Encode/decode the shared P3 fixture from an offset byte buffer without struct overlay: A5,version1,sequence258 LE,length3 LE,payload00 41 FF,CRC LE. Require13 bytes and compare the exact fixture hex; run under changed alignment and byte-order assumptions. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-01-T04.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use a big-endian target or independent swapped-host model and preserve identical wire bytes.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t04-06-b",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.codec"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol"
+          ],
+          "profiles": 6
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-01-T15.12.b",
+      "objective": "T15.12.b",
+      "task": "Specify version1 with length0..32, total10+length, sequence modulo65536 and no unspecified extension bytes. Reject unsupported version, length33 and truncated CRC before emitting. Keep duplicate/gap sequence policy in the application adapter, not the framing validator. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-01-T15.12.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a version2 optional field and define compatibility without silently accepting old parsers that miscompute CRC extent.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t15-12-b",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.codec"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol",
+            "protocol16"
+          ],
+          "profiles": 6
+        },
+        {
+          "report": "research/v5/expansion/legacy_checkpoint_protocol/validation.json",
+          "checks": [
+            "gcc.O0.policy",
+            "clang.O3.policy"
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-01-T15.12.c",
+      "objective": "T15.12.c",
+      "task": "Implement reflected IEEE CRC32 from permitted byte/bit primitives, with polynomialEDB88320, initial/final XORFFFFFFFF. Compare123456789\u2192CBF43926 and the P3 fixture against host zlib only as an independent verifier. Flip a payload bit, then recompute CRC for a changed synthetic payload and explain why both are not authenticity tests. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-01-T15.12.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change to an authenticated teaching protocol only after defining keys, replay policy and an inspected primitive contract; CRC equivalence is not claimed.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t15-12-c",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.codec"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "auth"
+          ],
+          "profiles": 6
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-01-T18.01.b",
+      "objective": "T18.01.b",
+      "task": "Partition inputs into valid empty, maximum payload, incomplete candidate, malformed header, bad CRC and unsupported version. Define result/state/output effects for each, including output-capacity refusal. Use sentinel output buffers to show no application message is published on invalid/incomplete input. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-01-T18.01.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Permit in-place encoding only after specifying overlap rules and proving which accesses remain valid.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t18-01-b",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.codec"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol",
+            "protocol16"
+          ],
+          "profiles": 6
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-02-T15.13.b",
+      "objective": "T15.13.b",
+      "task": "Feed the13-byte frame through every two-way split, bytewise chunks and a delayed consumer that refuses the first complete message. Retain one completed output or stop input consumption under a documented policy; resume exactly once when the consumer accepts. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-02-T15.13.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Pause the consumer across two concatenated frames and derive the maximum retained storage and upstream backpressure.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t15-13-b",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.stream"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol",
+            "protocol16"
+          ],
+          "profiles": 6
+        },
+        {
+          "report": "research/v5/expansion/legacy_checkpoint_protocol/validation.json",
+          "checks": [
+            "gcc.O0.replay"
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-02-T15.13.c",
+      "objective": "T15.13.c",
+      "task": "Use a bad42-byte candidate containing a valid empty frame at offset6, followed by the known valid frame. Implement restart one byte after the rejected sync so the nested valid frame is recoverable. Bound candidate storage and worst-case rescan work for repeatedA5 bytes. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-02-T15.13.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Make maximum payload configurable and derive how memory and adversarial recovery cost scale with it.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t15-13-c",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.stream"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol",
+            "protocol16"
+          ],
+          "profiles": 6
+        },
+        {
+          "report": "research/v5/expansion/legacy_checkpoint_protocol/validation.json",
+          "checks": [
+            "gcc.O0.replay",
+            "gcc.O0.policy"
+          ]
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-02-T21.05.b",
+      "objective": "T21.05.b",
+      "task": "Compose frame validation and queue admission as two phases. Fill the destination queue, complete a valid frame, refuse delivery, then free one slot and retry. Ensure no duplicate frame, lost candidate or premature sequence-policy update; inject failure at each publication edge. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-02-T21.05.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a durable sink and distinguish queued, written and durably committed acknowledgement points.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t21-05-b",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.stream"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "durable"
+          ],
+          "profiles": 6
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-02-T32.06.a",
+      "objective": "T32.06.a",
+      "task": "Build a deterministic original-P3 harness with maximum256 input bytes, bounded feed/recovery work, resettable parser/queue state and no external I/O. Seed empty/max/truncated/bad-CRC/oversized/nested-sync cases. Compare accepted frames with an independent whole-buffer oracle and all split schedules for short inputs. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-02-T32.06.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add consumer refusal decisions as fuzz input while preserving deterministic replay and total operation bounds.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t32-06-a",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.stream"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+          "cases": [
+            "protocol",
+            "protocol16"
+          ],
+          "profiles": 6
+        }
+      ]
+    },
+    {
+      "criterion": "AX-PR-P3-02-T32.06.c",
+      "objective": "T32.06.c",
+      "task": "Triage one deliberately faulty skip-candidate or duplicate-delivery parser, minimize its failing stream while preserving the violated property, and retain the original seed, minimized bytes and repaired regression. Separate a sanitizer finding from wrong-output and nontermination evidence. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P3-02-T32.06.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change chunking and queue capacity after the delay and demonstrate the minimized regression still exercises the same mechanism.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+      "assessment": "assessor/checkpoint_followthrough/protocol_analysis.md#t32-06-c",
+      "specific_evidence": [
+        {
+          "report": "reviews/v5/expansion/legacy_completion/checkpoint_depth_campaign.json",
+          "anchors": [
+            "checkpoint_depth.stream"
+          ],
+          "profiles": 8
+        },
+        {
+          "report": "reviews/v5/expansion/legacy_completion/p3_minimized.json",
+          "property": "missing synthetic sequence7",
+          "checks": [
+            "single_byte_deletion_minimal",
+            "comparisons"
+          ]
+        },
+        {
+          "report": "research/v5/expansion/legacy_checkpoint_protocol/validation.json",
+          "checks": [
+            "gcc.O0.replay",
+            "clang.O3.replay",
+            "clang.asan.replay"
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Independent delayed learner attempts and external review remain required and unclaimed.",
+    "Physical target/power observations and final published ISO text remain separate evidence dimensions."
+  ]
+}

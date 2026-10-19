@@ -5,7 +5,14 @@
   "title": "Single-channel ADC acquisition — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/adc/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/timer/timer.h",
+    "labs/peripheral_depth/timer/timer.c",
+    "labs/peripheral_depth/timer/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -95,6 +102,75 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-PA-RM21",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "pp393–403 control,stabilization,scan,sampling,trigger,overrun; pp418–432 selected status/control/sampling/sequence/common clock registers",
+        "pp436–440,448–451 DAC enable/buffer/data/one-APB-cycle software trigger/registers; p456 status versus ADC rc_w0",
+        "Figure45 p395 rendered and visually inspected; selected existing timer/gating provider passages retained",
+        "RCC APB1 reset TIM3RST bit1 p179; selected reset removes inherited TIM3 state before trigger configuration"
+      ]
+    },
+    {
+      "id": "R-PA-DS14",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "pp159–163 ADC clock/range/RADC/CADC/stabilization/latency/static error;pp165–166 factory temperature/VREF calibration locations",
+        "pp167–169 DAC buffer range/load/settling/wakeup; chapter3 peripheral inventory has DAC and analog watchdog, no separate COMP instance",
+        "Table10 pp57–58 LQFP144 PA0 ADC_IN0, PA1 ADC_IN1 and PA4 DAC_OUT1 pins"
+      ]
+    },
+    {
+      "id": "R-PA-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "§2.2.7/2.2.8 p11 clock gate readback and ADC internal noise;§2.5 p19 sequencer modification;§2.6 pp19–20 DAC DMA limitations (no DMA here)"
+      ]
+    },
+    {
+      "id": "R-PA-G4DEVICE",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "COMP register structure/base offsets; RCC AHB2/APB2 enable offsets; GPIOA and COMP CSR EN/INMSEL/INPSEL/HYST/VALUE/LOCK definitions"
+      ]
+    },
+    {
+      "id": "R-PA-G4LL",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Lines104–144 PA1 positive IO1,PA0 negative IO2, hysteresis encodings;line220 startup5us;lines631–716 enable/lock/value semantics",
+        "Used for source inspection only; no vendor header or HAL/LL code is a target dependency"
+      ]
+    },
+    {
+      "id": "R-PA-G4DS6",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table12 pp59–60 PA0/PA1 comparator inputs on LQFP64;Table79 p163 supply/input range,startup5us,conditional propagation31ns,offset and hysteresis MIN/TYP/MAX"
+      ]
+    },
+    {
+      "id": "R-PA-G4BOARD7",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Tables15–17 pp30–34 CN8 A0=PA0/A1=PA1,CN7/28 PA0,CN7/30 PA1,AGND and supply connections"
+      ]
+    },
+    {
+      "id": "R-PA-G4ERRATA9",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table2 p1 Z/Y/X revision identification; Table3 p3 COMP entry;§2.9.1 p18 older Z/Y comparator offset replaces datasheet with−20..+3mV"
+      ]
+    },
+    {
+      "id": "R-PA-F4BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table12 p32 PA1/SB13 Ethernet reference-clock drive; PA0 SB179 CN10/29 and SB180 button routing"
+      ]
     }
   ],
   "reference_gaps": [
@@ -107,7 +183,30 @@
     "curriculum/projects/PR-T28-05.md",
     "fixtures/embedded/PR-T28-05.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/adc/adc.c",
+    "labs/peripheral_depth/adc/adc.h",
+    "labs/peripheral_depth/adc/analog_analysis.py",
+    "labs/peripheral_depth/adc/audit_target.py",
+    "labs/peripheral_depth/adc/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/adc/board_capture.py",
+    "labs/peripheral_depth/adc/capture_template.json",
+    "labs/peripheral_depth/adc/comparator.c",
+    "labs/peripheral_depth/adc/CONTRACTS.md",
+    "labs/peripheral_depth/adc/run.py",
+    "labs/peripheral_depth/adc/target.c",
+    "labs/peripheral_depth/adc/tests.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/timer/timer.h",
+    "labs/peripheral_depth/timer/timer.c",
+    "labs/peripheral_depth/timer/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -115,7 +214,16 @@
     "tests": [
       "firmware_io.adc"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "adc_analog_successor": {
+      "path": "research/v5/expansion/legacy_advanced_adc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-05-T28.09.a",
+        "AX-PR-T28-05-T28.09.b",
+        "AX-PR-T28-05-T28.09.c"
+      ],
+      "scope": "Three T28.09 ordinary and three unchanged delayed tasks; actual pu_rates/pt_choose/pt_input/fw_adc providers; physical, independent and remaining T28 scope separate"
+    }
   },
   "criteria": [
     {
@@ -389,7 +497,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-05.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -397,5 +505,16 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_adc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-05-T28.09.a",
+        "AX-PR-T28-05-T28.09.b",
+        "AX-PR-T28-05-T28.09.c"
+      ],
+      "scope": "Three T28.09 ordinary and three unchanged delayed tasks; actual pu_rates/pt_choose/pt_input/fw_adc providers; physical, independent and remaining T28 scope separate"
+    }
+  ]
 }

@@ -1,0 +1,35 @@
+"""Register only bounded primary passages actually inspected for T10."""
+import argparse,hashlib,json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];sys.path.insert(0,str(ROOT/'tools'))
+from common import dump,sha
+p=argparse.ArgumentParser();p.add_argument('--tool-prefix',type=Path,default=Path('/home/frede/cmastery-startup-tools'));a=p.parse_args();folder=Path(__file__).parent
+entries=[
+ ('KERNEL','Linux ELF loader','https://raw.githubusercontent.com/torvalds/linux/v6.18/fs/binfmt_elf.c','Linuxv6.18 tagged source',['padzero118–129; create_elf_tables153–341; elf_map347–381; elf_load387–430; load_elf_binary778–1295'],'Kernel mapping/zero-fill/table/entry ownership; observed WSL6.18.33.1 is a different build.',None),
+ ('GLIBC-ENTRY','glibc x86-64 process entry','https://packages.ubuntu.com/resolute-updates/glibc-source','Ubuntu glibc-source2.43-2ubuntu2.4',['sysdeps/x86_64/start.S31–126'],'Register/stack capture and libc handoff; package source, not a reproducible binary-build claim.','glibc-2.43/sysdeps/x86_64/start.S'),
+ ('GLIBC-INIT','glibc initialization/main/exit','https://packages.ubuntu.com/resolute-updates/glibc-source','Ubuntu glibc-source2.43-2ubuntu2.4',['csu/libc-start.c153–203 and222–360; sysdeps/nptl/libc_start_call_main.h complete body'],'Static init/fini traversal, relocation/TLS/guards and actual main/exit handoff.','glibc-2.43/csu/libc-start.c'),
+ ('GLIBC-PIE','glibc static-PIE relocation','https://packages.ubuntu.com/resolute-updates/glibc-source','Ubuntu glibc-source2.43-2ubuntu2.4',['elf/dl-reloc-static-pie.c complete92-line file; matching git-updates.diff hunk'],'Load-address difference, own dynamic table and relocation invocation; dependencies called here are not all inspected.','glibc-2.43/elf/dl-reloc-static-pie.c'),
+ ('GLIBC-TLS','glibc TLS and DSO init consumers','https://packages.ubuntu.com/resolute-updates/glibc-source','Ubuntu glibc-source2.43-2ubuntu2.4',['elf/dl-tls.c467–800; elf/dl-init.c20–76'],'Allocation/resize/init/deallocation and DT_INIT/INIT_ARRAY consumer, bounded to these bodies.','glibc-2.43/elf/dl-tls.c'),
+ ('MUSL-INIT','musl environment and startup','https://musl.libc.org/releases/musl-1.2.5.tar.gz','Official musl1.2.5 source archive',['src/env/__libc_start_main.c complete file'],'Auxv/environment work, calls to TLS/guard initialization, stage2 init/main/exit; no whole-libc inspection.','musl-1.2.5/src/env/__libc_start_main.c'),
+ ('MUSL-ERRNO','musl errno TLS dependency','https://musl.libc.org/releases/musl-1.2.5.tar.gz','Official musl1.2.5 source archive',['src/errno/__errno_location.c complete file; arch/x86_64/pthread_arch.h complete file; src/internal/pthread_impl.h first4400characters through TLS/self definitions'],'Thread-pointer/errno representation supports rejecting this service before TLS setup.','musl-1.2.5/src/errno/__errno_location.c'),
+ ('SYSCALL','Linux syscall conventions','https://man7.org/linux/man-pages/man2/syscall.2.html','Linux man-pages6.19 page2026-02-02, inspected2026-10-17',['Description lines35–51; ARM EABI aligned64 example64–103; architecture/argument tables106–236'],'Raw conventions versus libc errno wrapper; alternate architectures require explicit adapter evidence.',None),
+ ('N1570','C execution environment and termination','https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf','WG14 N1570 C11 committee draft2011-04-12',['5.1.2,5.1.2.1,5.1.2.2.1–.3 printed12–14;7.22.4.2/.4/.5 printed350–352'],'Hosted main/return/handlers versus freestanding implementation contracts; _Exit stream cleanup is implementation-defined in this draft.',None),
+ ('AMD64','AMD64 entry and calls','https://refspecs.linuxfoundation.org/elf/x86_64-abi-0.99.pdf','Draft0.99.6 July2,2012',['Previously inspected T08:3.2.2–3.2.3 stack/argument classes; newly read3.4.1–3.4.3 printed27–32/PDF28–33 initial state, stack and auxiliary vector'],'Historical ABI draft corroborates platform derivation; no ISO or current-edition equivalence.',None)]
+resources=[]
+for suffix,title,url,edition,locators,scope,local in entries:
+ r=dict(id='R-LSTART-'+suffix,title=title,url=url,authors=['Named specification/library maintainers'],year=None,edition=edition,kind='manual',access='Named passages directly read',domains=['T10'],role='oracle',assignable=True,reason=scope,prerequisites=['T07–T09 original prerequisites'],locators=locators,inspection=dict(date='2026-10-17',method='Direct primary text/PDF or locally extracted authorized source package',scope=scope,limits='Bounded inspection; no complete-runtime audit, independent review, ISO publication access or source-to-binary reproducibility claim.'))
+ if local:r['inspection']['source_path']=str(a.tool_prefix/'source'/local);r['inspection']['source_sha256']=sha(a.tool_prefix/'source'/local)
+ if suffix=='AMD64':r['inspection']['download_sha256']=sha(ROOT/'build/source-cache/amd64-0996.pdf')
+ resources.append(r)
+source_pins={}
+for relative in ['glibc-2.43/sysdeps/nptl/libc_start_call_main.h','glibc-2.43/elf/dl-init.c','musl-1.2.5/arch/x86_64/pthread_arch.h','musl-1.2.5/src/internal/pthread_impl.h']:source_pins[relative]=sha(a.tool_prefix/'source'/relative)
+package=json.loads((a.tool_prefix/'manifest.json').read_text())
+patch=a.tool_prefix/'root/usr/src/glibc/debian/patches/git-updates.diff';series=a.tool_prefix/'root/usr/src/glibc/debian/patches/series'
+dump(folder/'provisioning.json',package)
+dump(folder/'resources.json',dict(schema_version=1,resources=resources,additional_inspected_source_sha256=source_pins,package_patch_inspection=dict(series_sha256=sha(series),git_updates_sha256=sha(patch),finding='Search of package patch file headers found one startup-file match: static-PIE helper includes dl-symbol-redir-ifunc.h. The extracted packaged body already contains that line. No binary reproduction is claimed.')))
+dump(folder/'research_gate.json',dict(status='passage-inspected',domains=['T10'],inspection_kind='Author source inspection, not external review',research_input_sha256={(folder/'resources.json').relative_to(ROOT).as_posix():sha(folder/'resources.json'),(folder/'provisioning.json').relative_to(ROOT).as_posix():sha(folder/'provisioning.json')}))
+lines=['# T10 inspected primary passages','','Versioned sources and exact limits; a source title alone grants no coverage.','']
+for r in resources:lines+=['- **'+r['id']+'**: ['+r['title']+']('+r['url']+'), '+r['edition']+'. '+ '; '.join(r['locators'])+'. '+r['reason']]
+lines+=['','The official musl archive was used after the cgit access failed. The matching Ubuntu source package was obtained after the guessed upstream glibc2.43 URL failed. Private tools were extracted locally; missing strace libunwind dependencies were then provisioned under the same prefix. No host configuration was changed. Exact published ISO C17/C23 remain reference gaps. The glibc2.42 T09 receipt remains historical; this later source inspection supplies an additive version-correlation successor.']
+(ROOT/'labs/machine_image/startup_depth/SOURCES.md').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
+print(dict(resources=len(resources),source_package='2.43-2ubuntu2.4'))

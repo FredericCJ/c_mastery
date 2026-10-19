@@ -1,0 +1,21 @@
+
+Breakpoint 1, dx_marker (stage=50) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26
+26	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x000063072c95789d in main (argc=2, argv=0x7fff4e146288) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:66
+66	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+
+Breakpoint 3, dx_marker (stage=51) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26
+26	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+
+Breakpoint 4, dx_marker (stage=52) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26
+26	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x000063072c9578fc in main (argc=2, argv=0x7fff4e146288) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:66
+66	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+
+Hardware watchpoint 5: *p
+
+Old value = 4
+New value = 5
+0x000063072c957906 in main (argc=2, argv=0x7fff4e146288) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:66
+66	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+DX_GDB_JSON:{"mode": "relocate", "records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set print pretty off", "output": ""}, {"command": "set debuginfod enabled off", "output": ""}, {"command": "break dx_marker if stage == 50", "output": "Breakpoint 1 at 0x12b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 26.\n"}, {"command": "run relocate", "output": "[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\n"}, {"command": "up", "output": ""}, {"command": "print p", "output": "$1 = (unsigned int *) 0x63073a293010\n"}, {"command": "watch *p", "output": "Hardware watchpoint 2: *p\n"}, {"command": "delete 1", "output": ""}, {"command": "break dx_marker if stage == 51", "output": "Breakpoint 3 at 0x63072c9572b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 26.\n"}, {"command": "continue", "output": ""}, {"command": "delete 2", "output": ""}, {"command": "delete 3", "output": ""}, {"command": "break dx_marker if stage == 52", "output": "Breakpoint 4 at 0x63072c9572b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 26.\n"}, {"command": "continue", "output": ""}, {"command": "up", "output": ""}, {"command": "print p", "output": "$2 = (unsigned int *) 0x63073a293030\n"}, {"command": "watch *p", "output": "Hardware watchpoint 5: *p\n"}, {"command": "continue", "output": ""}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n4       breakpoint     keep y   0x000063072c9572b4 in dx_marker at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26\n\tstop only if stage == 52\n\tbreakpoint already hit 1 time\n5       hw watchpoint  keep y                      *p\n\tbreakpoint already hit 1 time\n"}, {"command": "print *p", "output": "$3 = 5\n"}], "heap": "not-captured", "ASLR": "preserved", "scope": "bounded debugger observation;not full execution history"}

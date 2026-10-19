@@ -8,56 +8,73 @@
     {
       "id": "PR-T70-01",
       "tests": [
-        "dod.columns"
+        "dod.columns",
+        "dod.layout"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-02",
       "tests": [
-        "dod.small"
+        "dod.small",
+        "dod.buffers"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-03",
       "tests": [
-        "dod.swar"
+        "dod.swar",
+        "dod.swar16",
+        "dod.swarsigned"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-04",
       "tests": [
-        "dod.sparse"
+        "dod.sparse",
+        "dod.segmented",
+        "dod.ordered"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-05",
       "tests": [
-        "dod.ecs"
+        "dod.ecs",
+        "dod.query",
+        "dod.entities"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-06",
       "tests": [
-        "dod.persistent"
+        "dod.persistent",
+        "dod.zipper",
+        "dod.refcount"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-07",
       "tests": [
-        "dod.hamt"
+        "dod.hamt",
+        "dod.hamt_delete",
+        "dod.dictionary"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T70-08",
       "tests": [
-        "dod.rope"
+        "dod.rope",
+        "dod.rope_edit",
+        "dod.editors",
+        "dod.utf8",
+        "dod.rope_stats",
+        "dod.rope_splice"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     }
@@ -79,7 +96,8 @@
         "T70.01.e"
       ],
       "tests": [
-        "dod.columns"
+        "dod.columns",
+        "dod.layout"
       ],
       "steps": [
         "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
@@ -87,15 +105,15 @@
       ],
       "checks": [
         "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.",
-        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
+        "For each count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4 and ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
       ],
       "reasoning": [
         "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract.",
         "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields."
       ],
       "deliverables": [
-        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
-        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4, int32 positions/velocities, ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
+        "For each count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4 and ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
         "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
       ],
       "rubric": [
@@ -186,23 +204,24 @@
         "T70.01.e"
       ],
       "tests": [
-        "dod.columns"
+        "dod.columns",
+        "dod.layout"
       ],
       "steps": [
-        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "For each count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4 and ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
         "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
       ],
       "checks": [
         "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.",
-        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
+        "For each count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4 and ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
       ],
       "reasoning": [
         "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract.",
         "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields."
       ],
       "deliverables": [
-        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
-        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4, int32 positions/velocities, ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
+        "For each count0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c4 and ticks0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
         "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
       ],
       "rubric": [
@@ -293,7 +312,8 @@
         "T70.02.e"
       ],
       "tests": [
-        "dod.small"
+        "dod.small",
+        "dod.buffers"
       ],
       "steps": [
         "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
@@ -400,7 +420,8 @@
         "T70.02.e"
       ],
       "tests": [
-        "dod.small"
+        "dod.small",
+        "dod.buffers"
       ],
       "steps": [
         "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed.",
@@ -506,7 +527,9 @@
         "T70.03.d"
       ],
       "tests": [
-        "dod.swar"
+        "dod.swar",
+        "dod.swar16",
+        "dod.swarsigned"
       ],
       "steps": [
         "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
@@ -601,7 +624,9 @@
         "T70.03.d"
       ],
       "tests": [
-        "dod.swar"
+        "dod.swar",
+        "dod.swar16",
+        "dod.swarsigned"
       ],
       "steps": [
         "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.",
@@ -696,7 +721,9 @@
         "T70.04.d"
       ],
       "tests": [
-        "dod.sparse"
+        "dod.sparse",
+        "dod.segmented",
+        "dod.ordered"
       ],
       "steps": [
         "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
@@ -711,7 +738,7 @@
         "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime."
       ],
       "deliverables": [
-        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1–3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
+        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
         "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
         "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
       ],
@@ -791,7 +818,9 @@
         "T70.04.d"
       ],
       "tests": [
-        "dod.sparse"
+        "dod.sparse",
+        "dod.segmented",
+        "dod.ordered"
       ],
       "steps": [
         "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
@@ -806,7 +835,7 @@
         "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime."
       ],
       "deliverables": [
-        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1–3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
+        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
         "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
         "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
       ],
@@ -886,7 +915,9 @@
         "T70.05.d"
       ],
       "tests": [
-        "dod.ecs"
+        "dod.ecs",
+        "dod.query",
+        "dod.entities"
       ],
       "steps": [
         "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
@@ -981,7 +1012,9 @@
         "T70.05.d"
       ],
       "tests": [
-        "dod.ecs"
+        "dod.ecs",
+        "dod.query",
+        "dod.entities"
       ],
       "steps": [
         "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.",
@@ -1077,7 +1110,9 @@
         "T70.06.e"
       ],
       "tests": [
-        "dod.persistent"
+        "dod.persistent",
+        "dod.zipper",
+        "dod.refcount"
       ],
       "steps": [
         "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
@@ -1085,7 +1120,7 @@
       ],
       "checks": [
         "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.",
-        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
+        "For update sequences of length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
       ],
       "reasoning": [
         "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it.",
@@ -1093,7 +1128,7 @@
       ],
       "deliverables": [
         "Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.",
-        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "For update sequences of length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
         "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
       ],
       "rubric": [
@@ -1184,15 +1219,17 @@
         "T70.06.e"
       ],
       "tests": [
-        "dod.persistent"
+        "dod.persistent",
+        "dod.zipper",
+        "dod.refcount"
       ],
       "steps": [
-        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "For update sequences of length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
         "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
       ],
       "checks": [
         "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.",
-        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
+        "For update sequences of length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
       ],
       "reasoning": [
         "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it.",
@@ -1200,7 +1237,7 @@
       ],
       "deliverables": [
         "Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.",
-        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "For update sequences of length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
         "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
       ],
       "rubric": [
@@ -1290,7 +1327,9 @@
         "T70.07.d"
       ],
       "tests": [
-        "dod.hamt"
+        "dod.hamt",
+        "dod.hamt_delete",
+        "dod.dictionary"
       ],
       "steps": [
         "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
@@ -1305,7 +1344,7 @@
         "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality."
       ],
       "deliverables": [
-        "Implement DHamt for keys0–31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
+        "Implement DHamt for keys0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
         "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
         "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
       ],
@@ -1335,7 +1374,7 @@
         {
           "id": "X-T70-007-R3",
           "objective": "T70.07.c",
-          "criterion": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+          "criterion": "Exhaust keys0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
           "levels": {
             "0": "Absent or contradicts the stated representation/contract.",
             "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
@@ -1390,7 +1429,9 @@
         "T70.07.d"
       ],
       "tests": [
-        "dod.hamt"
+        "dod.hamt",
+        "dod.hamt_delete",
+        "dod.dictionary"
       ],
       "steps": [
         "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
@@ -1405,7 +1446,7 @@
         "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality."
       ],
       "deliverables": [
-        "Implement DHamt for keys0–31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
+        "Implement DHamt for keys0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
         "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
         "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
       ],
@@ -1435,7 +1476,7 @@
         {
           "id": "X-T70-007-R3",
           "objective": "T70.07.c",
-          "criterion": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+          "criterion": "Exhaust keys0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
           "levels": {
             "0": "Absent or contradicts the stated representation/contract.",
             "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
@@ -1491,7 +1532,12 @@
         "T70.08.e"
       ],
       "tests": [
-        "dod.rope"
+        "dod.rope",
+        "dod.rope_edit",
+        "dod.editors",
+        "dod.utf8",
+        "dod.rope_stats",
+        "dod.rope_splice"
       ],
       "steps": [
         "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
@@ -1499,15 +1545,15 @@
       ],
       "checks": [
         "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0.",
-        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
+        "Generate edit traces length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
       ],
       "reasoning": [
         "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree.",
         "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates."
       ],
       "deliverables": [
-        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0–8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
-        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
+        "Generate edit traces length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
         "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
       ],
       "rubric": [
@@ -1577,7 +1623,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DOD-ROPES",
-          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "locator": "Representation pages1316\u20131318: ordered shared DAG, lengths and operations",
           "purpose": "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree."
         }
       ]
@@ -1598,23 +1644,28 @@
         "T70.08.e"
       ],
       "tests": [
-        "dod.rope"
+        "dod.rope",
+        "dod.rope_edit",
+        "dod.editors",
+        "dod.utf8",
+        "dod.rope_stats",
+        "dod.rope_splice"
       ],
       "steps": [
-        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "Generate edit traces length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
         "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
       ],
       "checks": [
         "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0.",
-        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
+        "Generate edit traces length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
       ],
       "reasoning": [
         "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree.",
         "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates."
       ],
       "deliverables": [
-        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0–8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
-        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
+        "Generate edit traces length0\u00c3\u0192\u00c6\u2019\u00c3\u2020\u00e2\u20ac\u2122\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u2026\u00c2\u00a1\u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00c6\u2019\u00c3\u201a\u00c2\u00a2\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u00a1\u00c3\u201a\u00c2\u00ac\u00c3\u0192\u00e2\u20ac\u00a6\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
         "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
       ],
       "rubric": [
@@ -1684,7 +1735,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DOD-ROPES",
-          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "locator": "Representation pages1316\u20131318: ordered shared DAG, lengths and operations",
           "purpose": "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree."
         }
       ]
@@ -1695,7 +1746,8 @@
       "id": "X-T70-001",
       "project": "PR-T70-01",
       "tests": [
-        "dod.columns"
+        "dod.columns",
+        "dod.layout"
       ],
       "capabilities": [
         "linux-c17"
@@ -1705,7 +1757,8 @@
       "id": "X-T70-002",
       "project": "PR-T70-02",
       "tests": [
-        "dod.small"
+        "dod.small",
+        "dod.buffers"
       ],
       "capabilities": [
         "linux-c17"
@@ -1715,7 +1768,9 @@
       "id": "X-T70-003",
       "project": "PR-T70-03",
       "tests": [
-        "dod.swar"
+        "dod.swar",
+        "dod.swar16",
+        "dod.swarsigned"
       ],
       "capabilities": [
         "linux-c17"
@@ -1725,7 +1780,9 @@
       "id": "X-T70-004",
       "project": "PR-T70-04",
       "tests": [
-        "dod.sparse"
+        "dod.sparse",
+        "dod.segmented",
+        "dod.ordered"
       ],
       "capabilities": [
         "linux-c17"
@@ -1735,7 +1792,9 @@
       "id": "X-T70-005",
       "project": "PR-T70-05",
       "tests": [
-        "dod.ecs"
+        "dod.ecs",
+        "dod.query",
+        "dod.entities"
       ],
       "capabilities": [
         "linux-c17"
@@ -1745,7 +1804,9 @@
       "id": "X-T70-006",
       "project": "PR-T70-06",
       "tests": [
-        "dod.persistent"
+        "dod.persistent",
+        "dod.zipper",
+        "dod.refcount"
       ],
       "capabilities": [
         "linux-c17"
@@ -1755,7 +1816,9 @@
       "id": "X-T70-007",
       "project": "PR-T70-07",
       "tests": [
-        "dod.hamt"
+        "dod.hamt",
+        "dod.hamt_delete",
+        "dod.dictionary"
       ],
       "capabilities": [
         "linux-c17"
@@ -1765,7 +1828,12 @@
       "id": "X-T70-008",
       "project": "PR-T70-08",
       "tests": [
-        "dod.rope"
+        "dod.rope",
+        "dod.rope_edit",
+        "dod.editors",
+        "dod.utf8",
+        "dod.rope_stats",
+        "dod.rope_splice"
       ],
       "capabilities": [
         "linux-c17"
@@ -1780,7 +1848,24 @@
     "dod.ecs",
     "dod.persistent",
     "dod.hamt",
-    "dod.rope"
+    "dod.rope",
+    "dod.layout",
+    "dod.swar16",
+    "dod.segmented",
+    "dod.query",
+    "dod.zipper",
+    "dod.refcount",
+    "dod.hamt_delete",
+    "dod.rope_edit",
+    "dod.editors",
+    "dod.utf8",
+    "dod.buffers",
+    "dod.swarsigned",
+    "dod.dictionary",
+    "dod.entities",
+    "dod.rope_stats",
+    "dod.ordered",
+    "dod.rope_splice"
   ],
   "modules": [
     "T70"
@@ -1799,7 +1884,8 @@
     ],
     "mutants_per_anchor": 2,
     "assertion_marker": "DOD_CHECK:",
-    "fixture_oracle": "labs/dod/tests/verify_fixtures.py"
+    "fixture_oracle": "tools/verify_dod_extensions.py",
+    "oracle_driver": "dod-extensions"
   },
   "dependencies": [],
   "scope": "Hosted typed bounded models; full written extensions and delayed transfer remain explicit requirements."

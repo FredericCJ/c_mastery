@@ -1,0 +1,29 @@
+"""Bind original T67.08 criteria to exact partial-law and effect-trace evidence."""
+import json
+from common import ROOT,dump,read_json,sha
+from check_adt_partial_optics import REPORT,COST,check
+READINESS='research/v5/modern/adt_partial_optics_readiness.json'
+
+def main():
+    if not (ROOT/REPORT).exists():return
+    d,q=read_json(ROOT/REPORT),read_json(ROOT/COST);check(d,q)
+    brief='curriculum/v5/exercises/X-T67-008.md';m=json.loads((ROOT/brief).read_text(encoding='utf8').split('```json\n',1)[1].split('\n```',1)[0]);teaching=[brief,'labs/adt/CONTRACTS.md','labs/adt/partial_optics/OPTICS.md','assessor/adt/partial_optics/ANALYSIS.md'];implementation=['assessor/adt/adt.c','assessor/adt/partial_optics/partial_optics.c','labs/adt/partial_optics/partial_optics.h','labs/adt/partial_optics/tests.c','tools/verify_adt_partial_optics.py']
+    claims=[
+      'The original three lens equations and prism round trips are derived on explicit domains. Actual retained pair-x and number-prism functions execute256 combinations. Optional nested focus exists only when both presence flags are1; versioned IO focus retains version/code/context, making reconstruction injective over the admitted domain. Absent-path creation, clamping and code-only reconstruction provide defined counterexamples to overstated laws.',
+      'Fieldwise predicates preserve all nonfocused initialized fields without relying on C padding. The copied source and refined version/focus domains separate C type checks from runtime admission and semantic obligations. Actual callback trace demonstrates that unchanged value output does not imply effect-level identity or external rollback; complete operation admission precedes any callback.',
+      'Six compiler profiles compare10496 nested tuple cases,5120 version/tag cases and24832 ordered effect histories with independent Python relations, plus256 pure relation-law cases. Eight compiled controls per profile reject absent creation, collateral audit changes, version loss, wrong branch matching, duplicated callback, partial publication and both retained optics defects. Four compiling learner anchors fail normally. Source/compiler dependency closures, stack/object observations and exact current hashes bind bounded author evidence.',
+      'The implemented delayed successor explicitly constructs a present value separately before partial update, supports version2 context beyond the version1 domain, and stages two callback updates with first-effect retention and second-failure output preservation. Presence and version changes invalidate unqualified total-law claims. Seven direct/composed timing samples use equal replacement results; distinct callback workloads record exactly100000 effects and checksum3100000. Strict diagnostics, helper audits and clean/unchanged builds complete thirteen cost/enforcement dimensions without a Haskell runtime or universal-law claim.'
+    ]
+    inputs={**d['input_sha256'],**q['input_sha256']};criteria=[];updates=[]
+    for r,claim in zip(m['rubric'],claims):criteria.append({**r,'author_readiness':'ready-bounded','demonstration':claim,'teaching':teaching,'implementation':implementation,'validation':[REPORT,COST],'independent_learner':'not-assessed','external_review':'not-run','physical_observation':'not-applicable-host-contract'})
+    for identity in ['X-T67-008','X-T67-008-DELAYED','T67-08-TRANSFER','T67-08-INVESTIGATION']+[r['id'] for r in m['rubric']]:
+        claim=next((r['demonstration'] for r in criteria if r['id']==identity),claims[3] if identity.endswith(('DELAYED','TRANSFER')) else ' '.join(claims))
+        updates.append(dict(id=identity,dimensions={'teaching':dict(state='complete',evidence=teaching),'implementation':dict(state='complete',evidence=implementation),'author_validation':dict(state='passed',evidence=[REPORT,COST,READINESS]),'external_review':dict(state='not-run',evidence=[]),'independent_learner':dict(state='not-assessed',evidence=[]),'physical_observation':dict(state='not-applicable-host-contract',evidence=[teaching[2]])},closure_rationale=claim+' Bounded author support; no unaided delayed learner result or non-author assessment inferred.'))
+    path='research/v5/modern/ad_mp_gap_ledger.json';g=read_json(ROOT/path)
+    for row in g['gaps']:
+        if row['id'] in ['T67-08-TRANSFER','T67-08-INVESTIGATION']:row.update(status='author-support-implemented-and-source-validated; independent-learner-not-assessed',author_evidence=[READINESS,REPORT,COST],remaining_external=['Unaided delayed learner attempt and per-objective assessment','Non-author review; arbitrary callback laws are not proved by finite enumeration','Haskell runtime comparison not executed; exact published C17/C23 text remains inaccessible'])
+    dump(ROOT/path,g)
+    for p in teaching+implementation+[REPORT,COST,'tools/build_adt_partial_optics_readiness.py','tools/check_adt_partial_optics.py']:inputs[p]=sha(ROOT/p)
+    dump(ROOT/READINESS,dict(schema_version=1,domain='T67',criteria=criteria,variants=[dict(id='X-T67-008-DELAYED',author_support='implemented-and-author-validated',evidence=teaching+implementation+[REPORT,COST],independent_learner='not-assessed')],current_reports={p:sha(ROOT/p) for p in [REPORT,COST]},input_sha256=inputs,limits=['Partial laws require the precise presence/focus domain and purity/equality assumptions; callback output atomicity excludes rollback of external effects.','Haskell comparison is a bounded inspected-source comparison, not execution or complete language equivalence.','No published C17/C23 inspection, independent learner result or non-author review inferred.']))
+    inputs[READINESS]=sha(ROOT/READINESS);dump(ROOT/'research/v5/modern/adt_partial_optics_completion_dispositions.json',dict(schema_version=1,updates=updates,current_reports=[REPORT,COST],input_sha256=inputs));print(json.dumps(dict(passed=True,criteria=4,updates=8)))
+if __name__=='__main__':main()

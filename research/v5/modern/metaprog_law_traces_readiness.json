@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "domain": "T68",
+  "criteria": [
+    {
+      "id": "X-T68-007-R1",
+      "objective": "T68.07.a",
+      "criterion": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual independently allocated string owners distinguish empty control from owned empty content and preserve previous allocation/content on failure. Byte-content and explicitly bounded ASCII-canonical equality/hash consistently exclude cache/address/padding. The canonical relation and fixed unsigned64 FNV framing are derived separately from representation equality; equality implies equal hash without collision-free or authentication claims.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-007.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/law_traces/LAWS.md",
+        "assessor/metaprog/law_traces/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/law_traces/law_traces.c",
+        "assessor/metaprog/law_traces/fault_adapter.c",
+        "labs/metaprog/law_traces/include/law_traces.h",
+        "labs/metaprog/law_traces/include/fault_adapter.h",
+        "labs/metaprog/law_traces/tests/tests.c",
+        "labs/metaprog/law_traces/tests/environment.c",
+        "tools/verify_metaprog_law_traces.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_law_traces_validation.json",
+        "research/v5/modern/metaprog_law_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-007-R2",
+      "objective": "T68.07.b",
+      "criterion": "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Separate finite key and string triples exercise reflexivity/symmetry/transitivity. Inspected C11-draft unsigned arithmetic and Rust Hash/Eq/prefix/portability passages support explicit enforcement bounds. Actual Rust2021 derived cache-inclusive equality differs from custom canonical equality/hash; no fixed Rust hash value is assumed. Strictly decreasing trace measure proves termination and local-move minimality, with an executed nonmonotone callback exposing a smaller disconnected witness.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-007.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/law_traces/LAWS.md",
+        "assessor/metaprog/law_traces/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/law_traces/law_traces.c",
+        "assessor/metaprog/law_traces/fault_adapter.c",
+        "labs/metaprog/law_traces/include/law_traces.h",
+        "labs/metaprog/law_traces/include/fault_adapter.h",
+        "labs/metaprog/law_traces/tests/tests.c",
+        "labs/metaprog/law_traces/tests/environment.c",
+        "tools/verify_metaprog_law_traces.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_law_traces_validation.json",
+        "research/v5/modern/metaprog_law_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-007-R3",
+      "objective": "T68.07.c",
+      "criterion": "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six profiles pass4anchors and8compiled ordinary controls, including actual retained MOD13/14;4compiling stubs refuse. Independent immutable-list/byte oracle matches24238cases:1614hashes,22400replays and224reductions, including3948admittedreplays and240failurewitnesses. The actual original fault_adapter implements the inspected testing.faults contract; retained PR-T32-02 declares no C ABI, so no nonexistent source import is claimed.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-007.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/law_traces/LAWS.md",
+        "assessor/metaprog/law_traces/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/law_traces/law_traces.c",
+        "assessor/metaprog/law_traces/fault_adapter.c",
+        "labs/metaprog/law_traces/include/law_traces.h",
+        "labs/metaprog/law_traces/include/fault_adapter.h",
+        "labs/metaprog/law_traces/tests/tests.c",
+        "labs/metaprog/law_traces/tests/environment.c",
+        "tools/verify_metaprog_law_traces.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_law_traces_validation.json",
+        "research/v5/modern/metaprog_law_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-007-R4",
+      "objective": "T68.07.d",
+      "criterion": "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Required changed owner/operation-trace support uses real allocation, deterministic failure ordinals, full reference-model precondition admission and first-divergence classes. Reduction preserves the exact class and rejects invalid or different-callback-error candidates; unexpected host failure aborts unchanged. GCC/Clang O0/O3 actual malloc-wrapper experiments execute initial/candidate refusals with zero retained owners and positive reduction. ASCII normalization is explicitly bounded, not Unicode NFC/case folding. All13cost dimensions and seven equal-contract samples are present; unaided delayed assessment remains external.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-007.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/law_traces/LAWS.md",
+        "assessor/metaprog/law_traces/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/law_traces/law_traces.c",
+        "assessor/metaprog/law_traces/fault_adapter.c",
+        "labs/metaprog/law_traces/include/law_traces.h",
+        "labs/metaprog/law_traces/include/fault_adapter.h",
+        "labs/metaprog/law_traces/tests/tests.c",
+        "labs/metaprog/law_traces/tests/environment.c",
+        "tools/verify_metaprog_law_traces.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_law_traces_validation.json",
+        "research/v5/modern/metaprog_law_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T68-007-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T68-007.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/law_traces/LAWS.md",
+        "assessor/metaprog/law_traces/ANALYSIS.md",
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/law_traces/law_traces.c",
+        "assessor/metaprog/law_traces/fault_adapter.c",
+        "labs/metaprog/law_traces/include/law_traces.h",
+        "labs/metaprog/law_traces/include/fault_adapter.h",
+        "labs/metaprog/law_traces/tests/tests.c",
+        "labs/metaprog/law_traces/tests/environment.c",
+        "tools/verify_metaprog_law_traces.py",
+        "research/v5/modern/metaprog_law_traces_validation.json",
+        "research/v5/modern/metaprog_law_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/metaprog_law_traces_validation.json": "ded08982512f00874cc8ff78ccdc7a2b506ad6ed9cdf2ad0ea1e8ceffcd33538",
+    "research/v5/modern/metaprog_law_investigation_validation.json": "6905c6ef6355274153afedde6ce45013479b2decfa8b2e264646435a41286fea"
+  },
+  "input_sha256": {
+    "assessor/metaprog/law_traces/ANALYSIS.md": "962666368991986ac7bb3545a0fd97cdccc5f886434164b8c2515b8de7ccccb6",
+    "assessor/metaprog/law_traces/fault_adapter.c": "9c11461c483ce29e21ce53deb1e8e73aad5a441072548ab9dcb8bd3bc065232f",
+    "assessor/metaprog/law_traces/law_traces.c": "304b2ccb51e3678c81c500660293bb476070bdfd2bb32facfb826d2e061f0ee9",
+    "assessor/metaprog/metaprog.c": "91962f870285cb7052e09e03639c2b3039196d6cf85ca36f98a87a74a41735d1",
+    "assessor/metaprog/ring_template.inc": "5e6bb7c49e243e69a0c134fa2cbe75b0f5eb44c2c955759ce870f03192bb34cb",
+    "labs/metaprog/CONTRACTS.md": "fa937304252997ddf39e89dc8a1a091024140a02f18c8b8fdcca863c049f3139",
+    "labs/metaprog/include/metaprog.h": "67c597abea589453837d08966f05e46bef26dc89afe44379870f5681a4778557",
+    "labs/metaprog/law_traces/CMakeLists.txt": "4866477535b4ad5ab064c7947f6c6ebd607f1e54d6136d3f068477881e961ead",
+    "labs/metaprog/law_traces/LAWS.md": "12029f6cfa218812662a0e97d2b17a6aaf67aab6fa28fc7e98902802c017474b",
+    "labs/metaprog/law_traces/campaign.json": "c01f3373cfe45cbdd45740962e168584f0672b07f4aeb3af81d025e694b65a40",
+    "labs/metaprog/law_traces/expect_failure.py": "759ec863045b8d001efb86b3597cdb630074de9ada9ebd516d3ae6273f4103dd",
+    "labs/metaprog/law_traces/include/fault_adapter.h": "20a107f53b95caf11894fcba9de8198b90b7f9993442d3ea21361055aafa2958",
+    "labs/metaprog/law_traces/include/law_traces.h": "be03c2ac0c5ad2603850db00028c171cb43c5f3432ed9dabf028895a00b0bcaf",
+    "labs/metaprog/law_traces/src/fault_adapter.c": "181734a7e48e451ef14780941f32615f4d515fe02e8ab957ade76ac03a44e224",
+    "labs/metaprog/law_traces/src/law_traces.c": "32adc625aaa647035549e4d5b68855883a1837e303e381240c3d7e835276202e",
+    "labs/metaprog/law_traces/tests/environment.c": "ed2572b4be232cbcc3e8162f9a28761f5840c211708507c63bc2bca4279d3dde",
+    "labs/metaprog/law_traces/tests/tests.c": "34be19190842eca5366a6096d3357ae042539713debcce0e5d7f574f5bc5ff59",
+    "labs/metaprog/src/metaprog.c": "6bf76b2f1fe4a9504805a95292bbb69fb75699beeb681b81ccc9bb41e72fcf50",
+    "research/v5/modern/metaprog_law_traces_research_gate.json": "16776a359b9e019bea86b5f58b968ffbc49c2a485d90d65591c8ff27c2ad7dc5",
+    "research/v5/modern/metaprog_law_traces_resources.json": "0fc38260b604f187c24486bed8867c78e3ec4c54552b1003e1151aea67667ee0",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_metaprog_law_traces.py": "4ea6191c0b352e0414cedf776d697f53fd30220cc9119c7ca7c9ddf768297333",
+    "tools/run_metaprog_law_traces.py": "1feebbb5507cadc7a92509aa5706d97386ea04d6736a5fbdfd67986ee81b6b5d",
+    "tools/run_metaprog_module.py": "ab6bca4c93cc0ee459ee911d02c8f6a073c001e161b9cee02340b00485bf3c10",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_metaprog_law_traces.py": "8bd0b5ecfa6c7dea81f4d0bc48ce87a15492818c06502a21cf5087b4d73dd342",
+    "tools/run_metaprog_law_investigation.py": "7f3758c79d8213dca3d1015f236bb9f30078941c475fa19ad7607bf0b94f0b15",
+    "curriculum/v5/exercises/X-T68-007.md": "e1125e7b85fa692093950d54481de26ded669b654d313ad2dfec4d63452c7026",
+    "research/v5/modern/metaprog_law_traces_validation.json": "ded08982512f00874cc8ff78ccdc7a2b506ad6ed9cdf2ad0ea1e8ceffcd33538",
+    "research/v5/modern/metaprog_law_investigation_validation.json": "6905c6ef6355274153afedde6ce45013479b2decfa8b2e264646435a41286fea",
+    "tools/build_metaprog_law_traces_readiness.py": "90e84d822d9e15b92ccce5aefdbc3ea4ae1ec58ebe19333a7e34337e827462a0",
+    "tools/check_metaprog_law_traces.py": "e9265adacb9216ff46ee2bb3c333162662d0299bb3364fd5ba3d80ade1fd653f"
+  },
+  "limits": [
+    "Live disjoint objects, nonreentrant callbacks and external serialization are caller premises.",
+    "Deterministic schedule/model supports SET/DROP/CHECK with12steps, two owners and five synthetic strings; arbitrary new operations require another model.",
+    "ASCII text equivalence is not Unicode normalization; hosted GNU linker interception is a test extension.",
+    "Finite author evidence is not independent human review or learner mastery; exact published C17/C23 unavailable."
+  ]
+}

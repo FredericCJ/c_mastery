@@ -35,4 +35,10 @@ def rows():
  out={}
  for line in ROWS.strip().splitlines():
   key,task,misconception,expected,variant=line.split('|');out['T11.'+key]=dict(task=task,misconception=misconception,expected=expected,variant=variant)
+ # Keep the original authored snapshot above inspectable. Active publication
+ # follows an explicit successor correction, never a rewritten old receipt.
+ import json
+ from pathlib import Path
+ correction=json.loads((Path(__file__).parent.parent/'legacy_systems_freestanding/corrections.json').read_text(encoding='utf-8'))['corrections'][0]
+ row=out[correction['objective']];row['task']=correction['active_task'];row['expected']=correction['active_expected'];row['assessor']=correction['derivation']+' '+correction['transfer'];row['hints']=['Bound the processed numerator prefix before each of the128 shifts.','Then change the precondition to an arbitrary full-width remainder below the divisor. Does the same bound survive?']
  return out

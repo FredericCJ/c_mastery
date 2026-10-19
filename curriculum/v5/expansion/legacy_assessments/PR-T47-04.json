@@ -4,7 +4,9 @@
   "domain": "T47",
   "title": "Insertion, splits and root growth - explicit objective assessment",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/storage_followthrough/transactions/CONTRACTS.md",
+    "labs/storage_followthrough/tree/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -99,6 +101,28 @@
       "passages": [
         "Hardware Assumptions"
       ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-TRANSACTIONS",
+      "path": "research/v5/expansion/legacy_storage_followthrough/transactions_resources.json",
+      "passages": [
+        "Original mechanism and an explicit verification port",
+        "Changed contract: operation rollback",
+        "One savepoint with finite identity",
+        "Required evidence and assessment",
+        "Verification and limitations"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-TREE",
+      "path": "research/v5/expansion/legacy_storage_followthrough/tree_resources.json",
+      "passages": [
+        "Representation and dependency boundary",
+        "Derive the split and deletion rules",
+        "Changed separator repair and its costs",
+        "Concrete workloads and independent verification",
+        "Deliverables, rubric and delayed transfer"
+      ]
     }
   ],
   "reference_gaps": [
@@ -109,7 +133,25 @@
   "supplied_artifacts": [
     "curriculum/modules/T47.md",
     "curriculum/projects/PR-T47-04.md",
-    "fixtures/storage/PR-T47-04.json"
+    "fixtures/storage/PR-T47-04.json",
+    "labs/storage_followthrough/transactions/transactions.h",
+    "labs/storage_followthrough/transactions/transactions.c",
+    "labs/storage_followthrough/transactions/fault_port.h",
+    "labs/storage_followthrough/transactions/instrument_store.py",
+    "labs/storage_followthrough/transactions/tests.c",
+    "labs/storage_followthrough/transactions/CMakeLists.txt",
+    "labs/storage_followthrough/transactions/expect_failure.py",
+    "labs/storage_followthrough/transactions/CONTRACTS.md",
+    "labs/storage/include/store.h",
+    "labs/storage/src/store.c",
+    "labs/storage/FORMAT.md",
+    "labs/storage_followthrough/tree/include/tree.h",
+    "labs/storage_followthrough/tree/include/store.h",
+    "labs/storage_followthrough/tree/tree.c",
+    "labs/storage_followthrough/tree/tests.c",
+    "labs/storage_followthrough/tree/CMakeLists.txt",
+    "labs/storage_followthrough/tree/expect_failure.py",
+    "labs/storage_followthrough/tree/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "Retained partial anchors and criterion-specific new assessment tasks",
@@ -117,7 +159,22 @@
     "tests": [
       "storage.insertion"
     ],
-    "fresh_execution": "not-run for these supplemental tasks"
+    "fresh_execution": "not-run for these supplemental tasks",
+    "storage_transactions_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-04-T47.04.b"
+      ],
+      "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
+    },
+    "storage_tree_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-04-T47.04.a",
+        "AX-PR-T47-04-T47.04.c"
+      ],
+      "scope": "Capacity7/3 split/merge/ownership, exact affected-node repair versus full refresh, independent prefix map and format oracles; T47.05.b generation-tagged reference variant remains separate."
+    }
   },
   "criteria": [
     {
@@ -187,6 +244,13 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-04-T47.04.a"
+        ],
+        "scope": "Capacity7/3 split/merge/ownership, exact affected-node repair versus full refresh, independent prefix map and format oracles; T47.05.b generation-tagged reference variant remains separate."
       }
     },
     {
@@ -257,6 +321,13 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-04-T47.04.b"
+        ],
+        "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
       }
     },
     {
@@ -327,6 +398,13 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-04-T47.04.c"
+        ],
+        "scope": "Capacity7/3 split/merge/ownership, exact affected-node repair versus full refresh, independent prefix map and format oracles; T47.05.b generation-tagged reference variant remains separate."
       }
     }
   ],

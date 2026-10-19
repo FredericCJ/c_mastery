@@ -1,0 +1,58 @@
+"""Application health/peer parking, commit reset and selected complete target images."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+from audit_b06_trial_stack import analyze,self_test
+ROOT=Path(__file__).resolve().parents[1]
+def main():
+ lab=ROOT/'labs/firmware_lifecycle/targets';ref=ROOT/'assessor/firmware_lifecycle/targets';tool=Path.home()/'cmastery-b06-tools/monocypher-4.0.3';manifest=ROOT/'research/v5/expansion/b06/monocypher_provider.json';build=ROOT/'build/b06-health';build.mkdir(parents=True,exist_ok=True);rows=[];external=[]
+ rows.append(dict(label="conservative stack checker controls",**self_test()))
+ for item in json.loads(manifest.read_text())['files']:
+  path=tool/item['path'];assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==item['sha256'];external.append(dict(path=str(path),sha256=item['sha256']))
+ def run(label,cmd,negative=None,expected=None):
+  try:
+   p=subprocess.run(list(map(str,cmd)),text=True,capture_output=True,timeout=90);out=p.stdout+p.stderr;ok=p.returncode==0 and (not expected or expected in out) if negative is None else p.returncode!=0 and negative in out;r=dict(label=label,command=list(map(str,cmd)),returncode=p.returncode,stdout=out,passed=ok)
+  except (OSError,subprocess.TimeoutExpired) as e:r=dict(label=label,command=list(map(str,cmd)),passed=False,error=str(e));p=None
+  rows.append(r);print(label,r['passed'],flush=True);return p
+ includes=['-I'+str(lab),'-I'+str(tool/'src'),'-I'+str(tool/'src/optional')];common=[ref/'boot_pair.c',ref/'h745_flash.c',ref/'recovery_transport.c',ref/'boot_storage.c',ref/'flash_maintenance.c',ref/'ecc_guard.c',ref/'h745_cache.c',tool/'src/monocypher.c',tool/'src/optional/monocypher-ed25519.c']
+ for cc,flags,tag in [('gcc',['-O0'],'gcc-debug'),('gcc',['-O3'],'gcc-release'),('clang',['-O0'],'clang-debug'),('clang',['-O3'],'clang-release'),('gcc',['-O1','-g','-fsanitize=address,undefined'],'gcc-sanitize'),('clang',['-O1','-g','-fsanitize=address,undefined'],'clang-sanitize')]:
+  base=[cc,'-std=c17','-Wall','-Wextra','-Wpedantic','-Werror','-Wno-misleading-indentation','-fno-pie',*flags,*includes];objects=[]
+  for i,src in enumerate(common):
+   obj=build/(tag+'-dependency-'+str(i)+'.o');objects.append(obj);run(tag+' actual dependency compile '+str(i),[*base,'-c',src,'-o',obj])
+  for mutant in [0,1,2,3,'stub']:
+   exe=build/(tag+'-'+str(mutant));src=(lab if mutant=='stub' else ref)/'trial_health.c';cmd=[*base,'-no-pie',src,lab/'trial_health_test.c',*objects,'-o',exe]
+   if mutant!='stub':cmd.append('-DTH_MUTANT='+str(mutant))
+   p=run(tag+' build '+str(mutant),cmd)
+   if p and p.returncode==0:run(tag+' execute '+str(mutant),[exe],None if mutant==0 else 'TH_CHECK:')
+ for opt in ['-O0','-O2']:
+  for core,cpu in [(0,'cortex-m7'),(1,'cortex-m4')]:
+   tag=cpu+opt;elf=build/(tag+'.elf');sources=[ref/'trial_health.c',ref/'trial_intent.c',ref/'inactive_install.c',*common,ref/'selected_startup.c',ref/'trial_boot.c',lab/'selected_startup_port.c',lab/'selected_reset.S',lab/'trial_report.S',lab/'flash_maintenance_port.c',lab/'boot_runtime.c',ref/'ecc_guard_port.c',ref/'ecc_guard_port.S',lab/'h745_port.c',ref/'boot_handoff.c',ref/'boot_handoff.S',ref/'boot_program_mode.c'];p=run(tag+' complete selected lifecycle link',['arm-none-eabi-gcc','-std=c17',opt,'-mthumb','-mcpu='+cpu,'-DST_CORE='+str(core),'-DFW_H745_M7='+str(1-core),'-DFB_RAM_BASE='+('0x20000000' if core==0 else '0x30000000'),'-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-ffreestanding','-fno-builtin','-fno-stack-protector','-fstack-usage','-ffunction-sections','-fdata-sections',*includes,*sources,'-nostdlib','-Wl,--gc-sections','-Wl,-T,'+str(lab/('trial_m7.ld' if core==0 else 'trial_m4.ld')),'-Wl,-Map,'+str(build/(tag+'.map')),'-o',elf])
+   if p and p.returncode==0:
+    p=run(tag+' unresolved symbols',['arm-none-eabi-nm','-u',elf]);rows.append(dict(label=tag+' helper closure',passed=p is not None and p.returncode==0 and not p.stdout.strip()));p=run(tag+' symbols',['arm-none-eabi-nm',elf]);symbols=p.stdout if p else '';placed=[line.split() for line in symbols.splitlines() if len(line.split())==3 and line.split()[1] in 'TtRr'];low=0x08120000 if core==0 else 0x08100000;high=0x08160000 if core==0 else 0x08120000;rows.append(dict(label=tag+' every code and rodata symbol in owned bank2',passed=bool(placed) and all(low<=int(z[0],16)<high for z in placed)));rows.append(dict(label=tag+' exact report entry',passed=any(int(z[0],16)==low+1024 and z[2]=='th_app_report' for z in placed)));rows.append(dict(label=tag+' excludes signing',passed=p is not None and not any(x in p.stdout for x in ['crypto_ed25519_sign','crypto_ed25519_key_pair'])));dis=run(tag+' disassembly',['arm-none-eabi-objdump','-d',elf]);run(tag+' sizes',['arm-none-eabi-size','-A',elf]);su='\n'.join(x.read_text() for x in build.glob(tag+'*.su'));rows.append(dict(label=tag+' stack records',stdout=su,passed=bool(su) and 'dynamic' not in su))
+    try:
+     stackrows={}
+     for line in su.splitlines():
+      if not line.strip():continue
+      z=line.split('\t');name=z[0].split(':')[-1];stackrows[name]=max(stackrows.get(name,0),int(z[1]))
+     bounded=analyze(dis.stdout,stackrows);rows.append(dict(label=tag+' bounded whole call paths',passed=bounded['startup_bound']<=16384 and bounded['report_bound']+256<=16384,**bounded))
+    except (ValueError,AttributeError,IndexError) as error:rows.append(dict(label=tag+' bounded whole call paths',passed=False,error=str(error)))
+  primary=build/('primary'+opt+'.elf');p=run('primary'+opt+' trusted cold stage branch',['arm-none-eabi-gcc',opt,'-mthumb','-mcpu=cortex-m7',lab/'trial_primary.S','-nostdlib','-Wl,-T,'+str(lab/'trial_primary.ld'),'-o',primary]);
+  if p and p.returncode==0:run('primary'+opt+' disassembly',['arm-none-eabi-objdump','-d',primary])
+ # Build original candidate applications with separate RAM ownership, then sign
+ # only on the host and re-admit actual emitted payload bytes.
+ pack=build/'pack';p=run('host-only image packer build',['gcc','-std=c17','-O2','-Wall','-Wextra','-Werror','-fno-pie','-no-pie',*includes,lab/'trial_image_pack.c',*[build/('gcc-debug-dependency-'+str(i)+'.o') for i in range(len(common))],'-o',pack])
+ for core in [0,1]:
+  for slot in [0,1]:
+   tag='application-'+str(core)+'-'+str(slot);base=0x08020200+core*0x40000+slot*0x20000;stack=0x30020000 if core else 0x20020000;ld=build/(tag+'.ld');ld.write_text('ENTRY(th_app_reset)\nSECTIONS { . = '+hex(base)+'; .vectors : { KEEP(*(.vectors)) } .text : { *(.text*) *(.rodata*) } _stack_top = '+hex(stack)+'; ASSERT(. <= '+hex(base+2048)+',"signed payload too large") .forbidden : { *(.data*) *(.bss*) *(COMMON) } ASSERT(SIZEOF(.forbidden)==0,"application requires unimplemented runtime storage") /DISCARD/ : { *(.comment) *(.ARM.exidx*) *(.ARM.extab*) } }\n');elf=build/(tag+'.elf');binary=build/(tag+'.bin');p=run(tag+' original application link',['arm-none-eabi-gcc','-std=c17','-O2','-mthumb','-mcpu='+('cortex-m4' if core else 'cortex-m7'),'-Wall','-Wextra','-Werror','-ffreestanding','-fno-builtin','-fno-stack-protector','-fstack-usage','-DAPP_CORE='+str(core),'-DAPP_GENERATION='+str(slot+1),lab/'trial_application.c',lab/'trial_application.S','-nostdlib','-Wl,-T,'+str(ld),'-o',elf]);
+   if p and p.returncode==0:
+    stacklines=[line.split('\t') for f in build.glob(tag+'*.su') for line in f.read_text().splitlines()];rows.append(dict(label=tag+' finite application stack bound',passed=bool(stacklines) and all(z[2]=='static' and int(z[1])<=256 for z in stacklines),rows=stacklines));run(tag+' disassembly',['arm-none-eabi-objdump','-d',elf]);p=run(tag+' undefined',['arm-none-eabi-nm','-u',elf]);rows.append(dict(label=tag+' helper closure',passed=p is not None and p.returncode==0 and not p.stdout.strip()));p=run(tag+' raw payload',['arm-none-eabi-objcopy','-O','binary',elf,binary]);
+    if p and p.returncode==0:run(tag+' signature and actual admission',[pack,str(core),str(slot),str(slot+1),binary,build/(tag+'.slot'),build/(tag+'.frame')],expected='TH_PACK_PASS:')
+ # Actual application instruction execution on MPS2, not H745 peripherals.
+ guestld=build/'application-guest.ld';guestld.write_text('ENTRY(th_app_reset)\nSECTIONS { . = 0; .vectors : { KEEP(*(.vectors)) } .text : { *(.text*) *(.rodata*) } _stack_top = 0x20020000; /DISCARD/ : { *(.comment) *(.ARM.exidx*) *(.ARM.extab*) } }\n')
+ for core,cpu,machine in [(0,'cortex-m7','mps2-an500'),(1,'cortex-m4','mps2-an386')]:
+  for generation in [1,2]:
+   for bad in [0,1]:
+    tag='cpu-application-'+str(core)+'-'+str(generation)+'-'+str(bad);elf=build/(tag+'.elf');flags=['-DAPP_BAD=1'] if bad else [];p=run(tag+' build',['arm-none-eabi-gcc','-std=c17','-O2','-mthumb','-mcpu='+cpu,'-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-ffreestanding','-fno-builtin','-fno-stack-protector','-ffunction-sections','-fdata-sections','-DTH_GUEST=1','-DAPP_CORE='+str(core),'-DAPP_GENERATION='+str(generation),*flags,*includes,lab/'trial_application.c',lab/'trial_application.S',lab/'trial_application_guest.c',ref/'trial_health.c','-nostdlib','-Wl,--gc-sections','-Wl,-T,'+str(guestld),'-o',elf])
+    if p and p.returncode==0:run(tag+' actual CPU execution',['qemu-system-arm','-M',machine,'-nographic','-monitor','none','-serial','none','-semihosting-config','enable=on,target=native','-kernel',elf],negative='TH_CPU_BAD:' if bad else None,expected=None if bad else 'TH_CPU_PASS:')
+ files=[Path(__file__),ROOT/'tools/audit_b06_trial_stack.py',manifest,*[lab/n for n in ['trial_health.h','trial_health.c','trial_health_test.c','trial_boot.c','trial_primary.S','trial_primary.ld','trial_report.S','trial_m7.ld','trial_m4.ld','trial_application.c','trial_application.S','trial_image_pack.c','trial_application_guest.c','TRIAL_HEALTH.md','H745_ERRATA.md','TRIAL_INTENT.md','INACTIVE_INSTALL.md','SELECTED_STARTUP.md','H745_CACHE.md','trial_intent.h','inactive_install.h','recovery_transport.h','selected_startup.h','selected_startup_port.c','selected_reset.S','boot_runtime.c','flash_maintenance_port.c','boot_pair.h','boot_program_mode.h','boot_program_mode.c','boot_storage.h','ecc_guard.h','flash_maintenance.h','h745_flash.h','h745_cache.h','h745_port.c']],*[ref/n for n in ['trial_health.c','TRIAL_HEALTH_ANALYSIS.md','trial_boot.c','trial_intent.c','inactive_install.c','recovery_transport.c','selected_startup.c','boot_storage.c','boot_pair.c','h745_flash.c','flash_maintenance.c','ecc_guard.c','ecc_guard_port.c','ecc_guard_port.S','h745_cache.c','boot_handoff.c','boot_handoff.S','boot_program_mode.c']]]
+ report=dict(passed=all(r['passed'] for r in rows),recorded_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},external_provider=external,checks=rows,limits=['Host model executes actual health gate and32journal-store/6erase cuts; no physical H745 dual-core/flash/UART observation','Selected whole M7/M4 boot/application-service target images are linked and placement audited, not physically executed','Raw controller readback fault may fail-stop; final signature snapshot uses guarded read, no universal ECC recovery claim','External signature/hash primitive follows explicit FW-BOOT profile; no crypto-internals mastery claim','No independent learner, external reviewer or physical evidence inferred']);(ROOT/'research/v5/expansion/b06/trial_health_validation.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(dict(passed=report['passed'],checks=len(rows),failed=[r['label'] for r in rows if not r['passed']])));return 0 if report['passed'] else 1
+if __name__=='__main__':raise SystemExit(main())

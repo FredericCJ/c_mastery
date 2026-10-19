@@ -7,6 +7,7 @@
 typedef struct {unsigned calls,releases,fail;} Alloc;
 static unsigned char *allocate(void *p,size_t n){Alloc *a=p;a->calls++;return a->fail?NULL:malloc(n);}
 static void release(void *p,unsigned char *q){Alloc *a=p;a->releases++;free(q);}
+void d_histories(const char *);
 int main(int argc,char **argv){if(argc!=2)return 2;
  if(!strcmp(argv[1],"columns")){DColumns c={{1,2,3,4},{2,-1,1,0},{7,8,9,10},4};CHECK(d_columns_step(&c,2)==D_OK);CHECK(c.x[0]==5&&c.x[1]==0&&c.x[2]==5&&c.cold[3]==10);c.x[3]=INT32_MAX;c.velocity[3]=1;CHECK(d_columns_step(&c,1)==D_RANGE&&c.x[0]==5&&c.x[3]==INT32_MAX);}
  else if(!strcmp(argv[1],"small")){Alloc a={0,0,0};DSmall s,d;unsigned char bytes[17];size_t i;for(i=0;i<17;i++)bytes[i]=(unsigned char)i;d_small_init(&s,(DAllocator){&a,allocate,release});d_small_init(&d,(DAllocator){&a,allocate,release});CHECK(d_small_append(&s,NULL,0)==D_OK&&s.length==0&&a.calls==0);CHECK(d_small_append(&s,bytes,16)==D_OK&&s.length==16&&a.calls==0);a.fail=1;CHECK(d_small_append(&s,bytes+16,1)==D_FAILED&&s.length==16&&s.heap==NULL);a.fail=0;CHECK(d_small_append(&s,bytes+16,1)==D_OK&&s.length==17&&s.heap!=NULL);CHECK(d_small_move(&d,&s)==D_OK&&s.length==0&&d.length==17&&a.releases==0);CHECK(d_small_truncate(&d,8)==D_OK&&d_small_compact(&d)==D_OK&&d.heap==NULL&&a.releases==1);for(i=0;i<8;i++)CHECK(d_small_data(&d)[i]==i);d_small_reset(&s);d_small_reset(&d);CHECK(a.releases==1);}
@@ -16,6 +17,7 @@ int main(int argc,char **argv){if(argc!=2)return 2;
  else if(!strcmp(argv[1],"persistent")){DTree t;unsigned a=99,b=99,n,out;int v;d_tree_init(&t);CHECK(d_tree_update(&t,0,3,17,&a)==D_OK&&t.used==4);CHECK(d_tree_update(&t,a,6,29,&b)==D_OK&&t.used==8);CHECK(d_tree_get(&t,a,6,&v)==D_OK&&v==0);CHECK(d_tree_get(&t,b,3,&v)==D_OK&&v==17);for(n=1;n<=4;n++){t.fail_after=n;out=99;CHECK(d_tree_update(&t,b,3,50,&out)==D_FAILED&&out==99&&t.used==8);CHECK(d_tree_get(&t,b,3,&v)==D_OK&&v==17);}t.fail_after=0;CHECK(d_tree_update(&t,b,3,50,&out)==D_OK);CHECK(d_tree_get(&t,b,3,&v)==D_OK&&v==17);CHECK(d_tree_get(&t,out,3,&v)==D_OK&&v==50);}
  else if(!strcmp(argv[1],"hamt")){DHamt h;unsigned a=99,b=99,c=99,n,out;int v=77;d_hamt_init(&h);CHECK(d_hamt_update(&h,0,1,10,&a)==D_OK);CHECK(d_hamt_update(&h,a,17,20,&b)==D_OK);CHECK(d_hamt_get(&h,b,1,&v)==D_OK&&v==10);CHECK(d_hamt_get(&h,b,17,&v)==D_OK&&v==20);CHECK(d_hamt_get(&h,a,17,&v)==D_STALE&&v==20);CHECK(d_hamt_update(&h,b,0,30,&c)==D_OK);CHECK(d_hamt_get(&h,c,1,&v)==D_OK&&v==10);for(n=1;n<=3;n++){h.fail_after=n;out=99;CHECK(d_hamt_update(&h,c,17,88,&out)==D_FAILED&&out==99&&h.used==9);}h.fail_after=0;CHECK(d_hamt_update(&h,c,17,88,&out)==D_OK);CHECK(d_hamt_get(&h,c,17,&v)==D_OK&&v==20);CHECK(d_hamt_get(&h,out,17,&v)==D_OK&&v==88);}
  else if(!strcmp(argv[1],"rope")){DRope r;unsigned a=99,b=99,c=99,d=99;size_t n=99;unsigned char out[8]={42};d_rope_init(&r);CHECK(d_rope_leaf(&r,(const unsigned char *)"ab",2,&a)==D_OK);CHECK(d_rope_leaf(&r,(const unsigned char *)"cd",2,&b)==D_OK);CHECK(d_rope_concat(&r,a,b,&c)==D_OK);CHECK(d_rope_concat(&r,c,c,&d)==D_OK);CHECK(d_rope_flatten(&r,d,out,7,&n)==D_FULL&&n==99&&out[0]==42);CHECK(d_rope_flatten(&r,d,out,8,&n)==D_OK&&n==8&&!memcmp(out,"abcdabcd",8));CHECK(d_rope_flatten(&r,a,out,8,&n)==D_OK&&n==2&&!memcmp(out,"ab",2));}
- else return 2;
+ else if(strcmp(argv[1],"oracle"))return 2;
+ d_histories(argv[1]);
  return 0;
 }

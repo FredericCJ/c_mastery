@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-LTICK-ARM",
+      "title": "Armv7-M Architecture Reference Manual",
+      "authors": [
+        "Primary document/source authors"
+      ],
+      "url": "https://documentation-service.arm.com/static/606dc36485368c4c2b1bf62f",
+      "locators": [
+        "B3.3.1-B3.3.6 physical620-623: count transition, reload, clear-on-write/read, clock selection and calibration",
+        "B3.2.4 physical599-601: SysTick pending set/clear and prohibited simultaneous set+clear"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "edition": "DDI0403E.e2021",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate C modular arithmetic, timer contracts, clock phase and reprogramming/clock-stop assumptions.",
+      "prerequisites": [
+        "Unsigned arithmetic and explicit sleep/interrupt ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read complete physical620-623 plus actual ICSR field passages599-601 from the local PDF.",
+        "scope": "B3.3.1-B3.3.6 physical620-623: count transition, reload, clear-on-write/read, clock selection and calibration; B3.2.4 physical599-601: SysTick pending set/clear and prohibited simultaneous set+clear",
+        "limits": "No whole-architecture audit or physical implementation measurements.",
+        "source_sha256": "76500176d20f897eaf05eeadb5a6202cef641e332073b107905c8898e0ee0747",
+        "local_document_id": "research/private/enhancement_algorithms/web/armv7m.pdf"
+      }
+    },
+    {
+      "id": "R-LTICK-ST",
+      "title": "STM32 Cortex-M4 programming manual",
+      "authors": [
+        "Primary document/source authors"
+      ],
+      "url": "https://www.st.com/resource/en/programming_manual/pm0214-stm32-cortexm4-mcus-and-mpus-programming-manual-stmicroelectronics.pdf",
+      "locators": [
+        "4.5 physical246-250: SysTick registers, phase/count behavior, stopped processor clock and initialization"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "edition": "PM0214Revision10",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate C modular arithmetic, timer contracts, clock phase and reprogramming/clock-stop assumptions.",
+      "prerequisites": [
+        "Unsigned arithmetic and explicit sleep/interrupt ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read complete five physical pages from actual local PDF.",
+        "scope": "4.5 physical246-250: SysTick registers, phase/count behavior, stopped processor clock and initialization",
+        "limits": "Physical248 single-shot sentence usesN but its100-cycle example uses99: recorded inconsistency, not silently resolved as an exact-cycle guarantee. Board clock implementation is separate.",
+        "source_sha256": "fb54012a46c674a26dee56bc8cdfa281315f78634f18998001144980b08d1b03",
+        "local_document_id": "build/execution-sources/PM0214-r10.pdf"
+      }
+    },
+    {
+      "id": "R-LTICK-FREERTOS",
+      "title": "FreeRTOS Cortex-M4F tickless port",
+      "authors": [
+        "Primary document/source authors"
+      ],
+      "url": "https://raw.githubusercontent.com/FreeRTOS/FreeRTOS-Kernel/V11.2.0/portable/GCC/ARM_CM4F/port.c",
+      "locators": [
+        "vPortSuppressTicksAndSleep lines542-734: abort recheck, pending tick, partial count and completed-period accounting",
+        "vPortSetupTimerInterrupt lines740-756: suppressed-count bound and regular reload"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "edition": "FreeRTOS-KernelV11.2.0",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate C modular arithmetic, timer contracts, clock phase and reprogramming/clock-stop assumptions.",
+      "prerequisites": [
+        "Unsigned arithmetic and explicit sleep/interrupt ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual tagged primary source in browser.",
+        "scope": "vPortSuppressTicksAndSleep lines542-734: abort recheck, pending tick, partial count and completed-period accounting; vPortSetupTimerInterrupt lines740-756: suppressed-count bound and regular reload",
+        "limits": "Comparison only; no FreeRTOS code is linked into the original mechanism and no whole-kernel proof is claimed."
+      }
+    },
+    {
+      "id": "R-LTICK-QEMU-TIMER",
+      "title": "QEMU CMSDK APB timer model",
+      "authors": [
+        "Primary document/source authors"
+      ],
+      "url": "https://raw.githubusercontent.com/qemu/qemu/v10.2.1/hw/timer/cmsdk-apb-timer.c",
+      "locators": [
+        "lines10-25 and38-46: model limitations and register fields",
+        "cmsdk_apb_timer_read/write lines71-167 and timer initialization217-233: actual count/reload/write behavior"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "edition": "QEMUv10.2.1",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate C modular arithmetic, timer contracts, clock phase and reprogramming/clock-stop assumptions.",
+      "prerequisites": [
+        "Unsigned arithmetic and explicit sleep/interrupt ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read tagged primary source, including full read/write/initialization functions.",
+        "scope": "lines10-25 and38-46: model limitations and register fields; cmsdk_apb_timer_read/write lines71-167 and timer initialization217-233: actual count/reload/write behavior",
+        "limits": "Installed QEMU reports10.2.1 Debian package; upstream source inspection is distinct from a full distribution patch audit. EXTIN is explicitly not modeled."
+      }
+    },
+    {
+      "id": "R-LTICK-QEMU-BOARD",
+      "title": "QEMU MPS2 machine timer mapping",
+      "authors": [
+        "Primary document/source authors"
+      ],
+      "url": "https://raw.githubusercontent.com/qemu/qemu/v10.2.1/hw/arm/mps2.c",
+      "locators": [
+        "CMSDK APB subsystem lines342-355: timer0base0x40000000, IRQ8 and shared sysclk connection",
+        "AN386 machine class464-479: Cortex-M4 board identity"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "edition": "QEMUv10.2.1",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate C modular arithmetic, timer contracts, clock phase and reprogramming/clock-stop assumptions.",
+      "prerequisites": [
+        "Unsigned arithmetic and explicit sleep/interrupt ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual tagged primary mapping and class implementation.",
+        "scope": "CMSDK APB subsystem lines342-355: timer0base0x40000000, IRQ8 and shared sysclk connection; AN386 machine class464-479: Cortex-M4 board identity",
+        "limits": "An emulator machine mapping is not a physical STM32 board or oscillator authority."
+      }
+    }
+  ]
+}

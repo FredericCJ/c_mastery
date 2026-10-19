@@ -296,7 +296,8 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
                 unit['declared_exports']=[a['id'] if isinstance(a,dict) else a for a in extra.get('artifact_outputs',[])]
             if authored:
                 for field in ('new_executable', 'scaffolding', 'reasoning', 'deliverables', 'rubric',
-                              'variants', 'assessor_analysis', 'kind', 'scope', 'validation_status'):
+                              'variants', 'assessor_analysis', 'kind', 'scope', 'validation_status',
+                              'required_exercise_assessments'):
                     if field in extra:
                         unit[field] = deepcopy(extra[field])
             unit['readings']=[dict(r,resource_id=r.get('resource_id',r.get('resource')),

@@ -1,0 +1,35 @@
+"""Register actual bounded passages and twelve context tasks without replacing history."""
+from common import ROOT,dump,read_json,sha
+BASE='research/v5/expansion/legacy_portability_followthrough';PUBLIC='labs/language_portability/context'
+LOCATORS=['Exact scope and prerequisites','Authority records and changed evidence','Amendment and locale tasks','Strict octet stream and changed Unicode assumptions','Deliverables, verification and assessment','References and validation limits']
+SOURCES=[
+ ('N1570-CONTEXT','WG14 N1570', 'https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf','C11 committee draft,April12,2011',2011,'standard-draft',['7.18p1-4','7.29.6.3.2p1-4'],'n1570.pdf','Read actual PDF passages on macros and restartable conversion.'),
+ ('N3096-CONTEXT','WG14 N3096','https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf','Working draft,April1,2023',2023,'standard-draft',['6.4.1p1-3','6.7.1p2-6','6.7.1 footnotes139-141','6.7.1p17 NOTE2','6.7.1p19-20 examples3-4'],'n3096.pdf','Read actual PDF constraints, explanatory footnotes, note and examples separately.'),
+ ('N325-AMENDMENT','WG14 N325 revised normative addendum','https://www.open-std.org/jtc1/sc22/wg14/www/docs/n325.pdf','1994 DAM ballot draft; not published1995 amendment',1994,'standard-draft',['Introduction,printediii','Clauses1-3.3,printed1-2','Clauses4.1-4.4,printed2-3'],'n325.pdf','Rendered scanned primary PDF with private PyMuPDF1.28.2; visually read PDF pages3,5-7, not merely contents. Document log N325 entry identifies revised addendum for DAM balloting.'),
+ ('DR400-OLD','WG14 original DR400','https://www.open-std.org/jtc1/sc22/wg14/www/docs/dr_400.htm','Historical issue page,dated2011-10-24',2011,'issue',['Issue identity and Summary','Suggested Change and Proposed Technical Corrigendum'],'dr400-old.html','Read actual issue body; distinguish suggested/proposed wording from publication.'),
+ ('DR400-CURRENT','WG14 converted issue0400','https://www.open-std.org/jtc1/sc22/wg14/issues/c11c17/issue0400.html','Converted issue page observed2026-10-18',2026,'issue',['Identity,submitted-against,status,fixed-in metadata','Summary and Proposed Technical Corrigendum'],'dr400-current.html','Read actual converted record, including conversion warning and fixed-in-C17 metadata.'),
+ ('GCC-CLEANUP','GCC15.2 Common Variable Attributes','https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/Common-Variable-Attributes.html','GCC15.2.0 manual',2025,'manual',['cleanup(cleanup_function),complete subsection'],'gcc-15.2-cleanup.html','Read actual versioned implementation manual, scope/type/order and normal-return requirements.'),
+ ('ISO-CATALOG','ISO/IEC9899:2024 catalog','https://www.iso.org/standard/82075.html','Edition5 publication catalog,observed2026-10-18',2024,'catalog',['Identity and General information','Life cycle publication stage60.60'],'','Web tool read actual catalog. Direct download403; no raw HTML hash or published-standard text inspection claimed.'),
+ ('RFC3629','RFC3629 UTF-8','https://www.rfc-editor.org/rfc/rfc3629','November2003',2003,'standard',['Section4 Syntax of UTF-8 Byte Sequences'],'rfc3629.txt','Read exact octet grammar and its scope note.'),
+ ('UAX15','Unicode Standard Annex15','https://www.unicode.org/reports/tr15/','Current public report observed2026-10-18',2026,'standard',['Section1.2 Normalization Forms,table1 and canonical composite explanation'],'uax15.html','Read exact normalization-form distinction; no whole algorithm implementation or grapheme segmentation claim.')]
+
+def main():
+ records=[];external={}
+ for key,title,url,edition,year,kind,locators,file,method in SOURCES:
+  inspection=dict(date='2026-10-18',method=method,scope='; '.join(locators),limits='Only named passages; exact published C17/C23 and1995 amendment remain inaccessible. No full-document inspection inferred.')
+  if file:
+   p='build/portability-sources/'+file;inspection.update(download_path=p,download_sha256=sha(ROOT/p));external[p]=sha(ROOT/p)
+  records.append(dict(id='R-LP-'+key,title=title,url=url,authors=['WG14' if 'open-std.org' in url else 'ISO' if 'iso.org' in url else 'Source publisher'],edition=edition,year=year,kind=kind,access='Passage inspected',domains=['T05'],role='primary',reason='Exact source authority, spelling, historical amendment or locale/Unicode comparison.',prerequisites=['PR-T05-01'],assignable=True,locators=locators,inspection=inspection))
+ contract=PUBLIC+'/CONTRACTS.md';records.append(dict(id='R-LP-CONTEXT-CONTRACT',title='Source authority,locale state and strict interchange bytes',url=contract,authors=['Curriculum authors'],edition='Original repository contract,2026-10-18',year=2026,kind='manual',access='Passage inspected',domains=['T05'],role='primary',reason='Exact twelve ordinary/changed tasks and separate evidence layers.',prerequisites=['PR-T05-01'],assignable=True,locators=LOCATORS,inspection=dict(date='2026-10-18',method='Read actual original implementations,fixtures,oracle and contract',scope='; '.join(LOCATORS),limits='Bounded author support only.',local_sha256=sha(ROOT/contract))))
+ for i in [2,4,5,6]:
+  p=f'build/portability-sources/n325-{i}.png';external[p]=sha(ROOT/p)
+ dump(ROOT/BASE/'context_resources.json',dict(resources=records))
+ passages={contract:LOCATORS,'assessor/language_portability/context/context.c':['Complete staged UTF stream and actual mbrtowc wrapper'],'assessor/language_portability/context/ledger.py':['Complete validation and deep-copy append'],'assessor/language_portability/context/ANALYSIS.md':['Exact six ordinary/six delayed analyses'],PUBLIC+'/authority_cases.json':['Original labeled synthetic update and authority tasks']}
+ dump(ROOT/BASE/'context_research_gate.json',dict(status='passage-inspected-author-only',resources=BASE+'/context_resources.json',input_sha256={p:sha(ROOT/p) for p in passages},passages=passages,external_source_sha256=external,inspection=dict(date='2026-10-18',scope='Only registered passages',limits='N325 is a ballot draft; catalog only read via web and no invented raw hash.')))
+ path=ROOT/'curriculum/v5/expansion/legacy_assessments/PR-T05-01.json';d=read_json(path);assets=[p.relative_to(ROOT).as_posix() for p in (ROOT/PUBLIC).iterdir() if p.is_file() and p.name!='campaign.json'];d['supplied_artifacts']=list(dict.fromkeys(d['supplied_artifacts']+assets));d['shared_contracts']=list(dict.fromkeys(d['shared_contracts']+[contract]))
+ binding=dict(path=BASE+'/context_completion_dispositions.json',scope='Twelve exact T05.01/T05.03 ordinary/delayed tasks; actual draft passage narrows access gap without claiming published amendment.')
+ for c in d['criteria']:
+  if c['objective'].startswith(('T05.01.','T05.03.')):c['successor_support']={**binding,'criterion_ids':[c['id']]+[v['id'] for v in c['variants']]}
+ d['source_records']=[r for r in d['source_records'] if r['id'] not in {q['id'] for q in records}]+[dict(id=r['id'],path=BASE+'/context_resources.json',passages=r['locators']) for r in records];dump(path,d);print(dict(attached=12,assets=len(assets)))
+
+if __name__=='__main__':main()

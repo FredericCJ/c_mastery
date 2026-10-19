@@ -1,6 +1,8 @@
 """Scoped routing guards and a real Sphinx fixture; does not rebuild the handbook."""
 from collections import Counter
+from copy import deepcopy
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -16,6 +18,99 @@ import publish_contracts_v5 as contracts
 import publish_links as routing
 
 OBSERVED = {}
+
+FIXTURE_NAMES = ('publication_links.json', 'publication_code_labels.json')
+ROUTE_TRANSITIONS = {
+    ('publication_links.json', 0): 'labs/algorithms/SPEC.md',
+    ('publication_links.json', 1): 'labs/algorithms/SPEC.md',
+    ('publication_links.json', 2): 'labs/algorithms/SPEC.md',
+    ('publication_links.json', 176): 'labs/api_depth/CONTRACTS.md',
+    ('publication_links.json', 193): 'labs/runtime/SPEC.md',
+    ('publication_links.json', 214): 'labs/execution/README.md',
+    ('publication_links.json', 231): 'labs/algorithms/SPEC.md',
+}
+
+
+def case_digest(case):
+    return hashlib.sha256(json.dumps(case, sort_keys=True, ensure_ascii=False,
+                                    separators=(',', ':')).encode()).hexdigest()
+
+
+def route_expectations(policy=None):
+    """Bind current classifications to every unchanged historical fixture case.
+
+    Seven named public documents now have declared shared-contract labels. The
+    old regression inputs and totals remain intact; no aggregate tolerance or
+    dynamic expectation copied from the router can conceal a different route.
+    """
+    policy = read_json(ROOT/'tools/testdata/publication_route_successor.json') if policy is None else policy
+    if (policy.get('schema_version') != 1
+            or policy.get('operation') != 'exact-publication-route-successor'
+            or policy.get('case_count') != 315
+            or set(policy.get('fixtures', {})) != set(FIXTURE_NAMES)):
+        raise ValueError('Malformed publication route successor')
+    expected = policy.get('expectations', [])
+    keys = [(r['fixture'], r['index']) for r in expected]
+    if len(expected) != 315 or len(keys) != len(set(keys)):
+        raise ValueError('Missing or duplicate destination expectation')
+    mapping = dict(zip(keys, expected))
+    cases, previous_totals = [], Counter()
+    for name in FIXTURE_NAMES:
+        path = ROOT/'tools/testdata'/name
+        if hashlib.sha256(path.read_bytes()).hexdigest() != policy['fixtures'][name]:
+            raise ValueError('Changed historical publication fixture: ' + name)
+        fixture = read_json(path)
+        if len(fixture['cases']) != fixture['case_count']:
+            raise ValueError('Changed historical case count')
+        previous_totals.update(fixture['expected_routes'])
+        for index, case in enumerate(fixture['cases']):
+            row = mapping.get((name, index), {})
+            if (row.get('case_sha256') != case_digest(case)
+                    or row.get('page') != case['page'] or row.get('target') != case['target']
+                    or row.get('previous') not in {'download', 'internal', 'restricted'}
+                    or row.get('current') not in {'download', 'internal', 'restricted'}):
+                raise ValueError('Wrong destination expectation: ' + name + ':' + str(index))
+            cases.append((case, row))
+    if (Counter(r['previous'] for _, r in cases) != previous_totals
+            or dict(previous_totals) != policy.get('previous_routes')
+            or dict(Counter(r['current'] for _, r in cases)) != policy.get('current_routes')):
+        raise ValueError('Inconsistent exact route totals')
+    transitions = policy.get('transitions', [])
+    changed = {(r['fixture'], r['index']) for _, r in cases if r['previous'] != r['current']}
+    if (changed != set(ROUTE_TRANSITIONS) or len(transitions) != 7
+            or {(r['fixture'], r['index']) for r in transitions} != changed):
+        raise ValueError('Unqualified route classification change')
+    names = contracts.registered()
+    for transition in transitions:
+        key = (transition['fixture'], transition['index'])
+        row = mapping[key]
+        target = ROUTE_TRANSITIONS[key]
+        if (any(transition.get(k) != v for k, v in row.items())
+                or row['previous'] != 'download' or row['current'] != 'internal'
+                or transition.get('canonical_target') != target or target not in names
+                or target in policy.get('predecessor_shared_contracts', [])
+                or not transition.get('reason')):
+            raise ValueError('Wrong shared-contract route transition')
+        declaration = transition.get('declaration', {})
+        name = declaration.get('path', '')
+        path = ROOT/name
+        if (not name.startswith('curriculum/v5/expansion/legacy_assessments/PR-')
+                or '..' in Path(name).parts or not path.resolve().is_relative_to(ROOT.resolve())
+                or not path.is_file() or declaration.get('shared_contract') != target):
+            raise ValueError('Missing canonical route declaration')
+        record = read_json(path)
+        if record.get('project') != declaration.get('id') or target not in record.get('shared_contracts', []):
+            raise ValueError('Changed shared-contract declaration')
+    return cases, policy['current_routes']
+
+
+def require_route(result, expected):
+    actual = ('internal' if result.startswith('{ref}') else
+              'download' if result.startswith('{download}') else
+              'restricted' if 'restricted source evidence' in result else 'unrouted')
+    if actual != expected:
+        raise ValueError('Wrong destination classification: expected ' + expected + ', got ' + actual)
+    return actual
 
 
 class Routing(unittest.TestCase):
@@ -88,6 +183,44 @@ class Routing(unittest.TestCase):
     def test_inspected_resource_register_remains_downloadable(self):
         self.assertIn('{download}', self.route(
             '[Register](research/v5/expansion/test/resources.json)'))
+
+    def test_private_and_environment_paths_are_excluded_even_when_absent(self):
+        # Source archives intentionally omit these files. Publication must not
+        # require opening a missing private capture to decide not to publish it.
+        for name in ('research/private/root/capture.pdf',
+                     'research/%70rivate/root/capture.pdf',
+                     '../../../research/private/root/capture.pdf',
+                     'labs/test/.venv/secret.txt', 'labs/test/__pycache__/secret.pyc'):
+            with self.subTest(name=name):
+                result = self.route('[Evidence](' + name + ')')
+                self.assertEqual(result,
+                    'Evidence (private research evidence; excluded from publication and all bundles)')
+                self.assertNotIn(name, result)
+                self.assertNotIn('capture.pdf', result)
+                self.assertFalse((self.output/routing.DOWNLOADS).exists())
+
+    def test_existing_private_bytes_are_never_read_copied_or_named(self):
+        name = 'research/private/root/licensed-capture.pdf'
+        path = self.root/name
+        path.parent.mkdir(parents=True)
+        path.write_bytes(b'%PDF PRIVATE-CAPTURE-MARKER\x00\xff')
+        with patch.object(Path, 'read_bytes', side_effect=AssertionError('private read_bytes')), \
+             patch.object(Path, 'read_text', side_effect=AssertionError('private read_text')), \
+             patch.object(routing.shutil, 'copy2', side_effect=AssertionError('private copy')):
+            result = self.route('[Evidence](' + name + ')')
+        self.assertEqual(result,
+            'Evidence (private research evidence; excluded from publication and all bundles)')
+        self.assertNotIn(path.name, result)
+        self.assertNotIn(name, result)
+        self.assertFalse((self.output/routing.DOWNLOADS).exists())
+
+    def test_exclusion_is_a_path_component_not_a_filename_substring(self):
+        name = 'labs/test/private-notes.txt'
+        (self.root/name).write_bytes(b'Public authored notes\r\n')
+        result = self.route('[Notes](' + name + ')')
+        self.assertIn('{download}', result)
+        self.assertEqual((self.output/routing.DOWNLOADS/name).read_bytes(),
+                         (self.root/name).read_bytes())
 
     def test_code_examples_and_external_links_are_unchanged(self):
         text = ('[Outside](https://example.test/path?q=x#f)\n'
@@ -167,6 +300,20 @@ class Routing(unittest.TestCase):
         self.assertNotIn('{download}', result)
         self.assertFalse((self.output/routing.DOWNLOADS).exists())
 
+    def test_internal_symlink_cannot_disguise_or_name_private_source(self):
+        private = self.root/'research/private/root/private-capture.pdf'
+        private.parent.mkdir(parents=True)
+        private.write_bytes(b'%PDF PRIVATE-SYMLINK-MARKER')
+        alias = 'labs/test/apparently-public.pdf'
+        self.symlink(self.root/alias, private)
+        with patch.object(routing.shutil, 'copy2', side_effect=AssertionError('private alias copy')):
+            result = self.route('[Evidence](' + alias + ')')
+        self.assertEqual(result,
+            'Evidence (private research evidence; excluded from publication and all bundles)')
+        for forbidden in (alias, private.name, 'apparently-public.pdf', 'PRIVATE-SYMLINK-MARKER'):
+            self.assertNotIn(forbidden, result)
+        self.assertFalse((self.output/routing.DOWNLOADS).exists())
+
     def test_download_destination_cannot_redirect_writes(self):
         outside = Path(self.temp.name)/'outside'
         outside.mkdir()
@@ -242,6 +389,73 @@ class Routing(unittest.TestCase):
 
 
 class ActualSources(unittest.TestCase):
+    def test_actual_sphinx_excludes_private_bytes_from_static_and_downloads(self):
+        marker = b'PRIVATE-PDF-NOT-FOR-PUBLICATION-7ddc148b'
+        private_name = 'licensed-capture-7ddc148b.pdf'
+        with tempfile.TemporaryDirectory(prefix='cmastery-private-download-') as temporary:
+            base = Path(temporary)
+            root, source, output = base/'checkout', base/'source', base/'html'
+            private = root/'research/private/root'/private_name
+            private.parent.mkdir(parents=True)
+            private.write_bytes(b'%PDF\x00' + marker + b'\xff')
+            public = root/'fixtures/public.json'
+            public.parent.mkdir(parents=True)
+            public_bytes = b'{"public": true}\r\n'
+            public.write_bytes(public_bytes)
+            source.mkdir()
+            rendered = routing.links(
+                '[Evidence](research/private/root/' + private_name + ')\n\n'
+                '[Absent](research/private/root/unavailable-capture.pdf)\n\n'
+                '[Public](fixtures/public.json)\n', source=source,
+                page='index.md', current=None, root=root)
+            (source/'conf.py').write_text(
+                "extensions=['myst_parser']\nsource_suffix={'.md':'markdown'}\n"
+                "root_doc='index'\nnitpicky=True\nhtml_static_path=['_static']\n"
+                "exclude_patterns=['_static/learner_sources/**']\n",
+                encoding='utf8', newline='\n')
+            (source/'index.md').write_text('# Private-source boundary\n\n' + rendered,
+                                          encoding='utf8', newline='\n')
+            command = [sys.executable, '-B', '-m', 'sphinx', '-b', 'html', '-W',
+                       '--keep-going', str(source), str(output)]
+            result = subprocess.run(command, capture_output=True, text=True, encoding='utf8')
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn('WARNING:', result.stdout + result.stderr)
+            self.assertEqual((output/routing.DOWNLOADS/'fixtures/public.json').read_bytes(),
+                             public_bytes)
+            downloads = list((output/'_downloads').rglob('public.json'))
+            self.assertEqual(len(downloads), 1)
+            self.assertEqual(downloads[0].read_bytes(), public_bytes)
+            for folder in (source, output):
+                files = [path for path in folder.rglob('*') if path.is_file()]
+                self.assertTrue(files)
+                for path in files:
+                    with self.subTest(artifact=path.relative_to(folder).as_posix()):
+                        self.assertNotIn('private', path.relative_to(folder).parts)
+                        self.assertNotIn(private_name, path.name)
+                        self.assertNotIn(marker, path.read_bytes())
+                page = folder/('index.md' if folder == source else 'index.html')
+                self.assertNotIn(private_name, page.read_text(encoding='utf8'))
+                self.assertNotIn('unavailable-capture.pdf', page.read_text(encoding='utf8'))
+
+    def test_route_successor_rejects_missing_duplicate_and_wrong_cases(self):
+        original = read_json(ROOT/'tools/testdata/publication_route_successor.json')
+        for operation in ('missing', 'duplicate', 'identity', 'fixture', 'wrong-class', 'declaration'):
+            policy = deepcopy(original)
+            if operation == 'missing': policy['expectations'].pop()
+            if operation == 'duplicate': policy['expectations'][1] = deepcopy(policy['expectations'][0])
+            if operation == 'identity': policy['expectations'][0]['case_sha256'] = '0' * 64
+            if operation == 'fixture': policy['fixtures'][FIXTURE_NAMES[0]] = '0' * 64
+            if operation == 'wrong-class': policy['expectations'][0]['current'] = 'download'
+            if operation == 'declaration': policy['transitions'][0]['declaration']['shared_contract'] = 'assessor/secret.md'
+            with self.subTest(operation=operation), self.assertRaises(ValueError):
+                route_expectations(policy)
+
+    def test_actual_route_cannot_satisfy_wrong_class(self):
+        for actual, expected in (('{ref}`x <label>`', 'download'),
+                                 ('{download}`x <file>`', 'internal'),
+                                 ('x (restricted source evidence: `assessor/x`)', 'download')):
+            with self.assertRaises(ValueError): require_route(actual, expected)
+
     def test_every_publication_input_routes_in_canonical_context(self):
         from cmastery.exercises import learner_brief
         from markdown_it import MarkdownIt
@@ -277,13 +491,7 @@ class ActualSources(unittest.TestCase):
         OBSERVED['canonical_inputs_routed'] = len(inputs)
 
     def test_all_failed_destinations_with_actual_sphinx(self):
-        fixtures = [read_json(ROOT/'tools/testdata'/name) for name in
-                    ('publication_links.json', 'publication_code_labels.json')]
-        cases, expected_routes = [], Counter()
-        for fixture in fixtures:
-            self.assertEqual(len(fixture['cases']), fixture['case_count'])
-            cases.extend(fixture['cases'])
-            expected_routes.update(fixture['expected_routes'])
+        cases, expected_routes = route_expectations()
         names = contracts.registered()
         kinds = Counter()
         with tempfile.TemporaryDirectory(prefix='cmastery-sphinx-links-') as temp:
@@ -295,7 +503,7 @@ class ActualSources(unittest.TestCase):
                 "root_doc = 'index'\nnitpicky = True\nhtml_static_path = ['_static']\n",
                 encoding='utf-8', newline='\n')
             lines, labels = [], set()
-            for case in cases:
+            for case, expectation in cases:
                 page, address = case['page'], case['target']
                 if page.startswith(('modules/', 'projects/')):
                     current = 'curriculum/' + page
@@ -312,6 +520,10 @@ class ActualSources(unittest.TestCase):
                 result = routing.links(markup, source=source, page='index.md',
                                        current=current, contracts=names)
                 self.assertNotEqual(result, markup)
+                require_route(result, expectation['current'])
+                key = (expectation['fixture'], expectation['index'])
+                if key in ROUTE_TRANSITIONS:
+                    self.assertIn('<' + contracts.target(ROUTE_TRANSITIONS[key])[0] + '>', result)
                 lines.append('- ' + result)
                 if result.startswith('{ref}'):
                     labels.add(re.search(r'<([^>]+)>', result)[1]); kinds['internal'] += 1

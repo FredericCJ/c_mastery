@@ -1,0 +1,7 @@
+{
+ "raw_without_stall":{"witness":"forwarded I1 EX3 to dependent I2 EX4","claim":"value dependence exists; declared timing supplies it without an extra stall"},
+ "hazard_with_stall":{"witness":"I3 load MEM6 and consumer I4 EX7","rejected":"consumer EX6","claim":"load timing needs a bubble under next-cycle forwarding"},
+ "c_data_race":{"source":"race_examples.c: race_worker","premises":["two threads","same live int","conflicting non-atomic accesses","neither access happens before the other"],"classification":"undefined behavior","execution":"analysis-only, not run"},
+ "atomic_counter":{"source":"race_examples.c: atomic_counter_worker","claim":"atomic read-modify-write repairs the counter conflict; relaxed order does not publish unrelated data","execution":"compiled, not claimed as a concurrent experiment"},
+ "out_of_order":{"witness":"load latency3: I0 issues1, independent I2 issues2, dependent I1 issues4","changed_assumptions":["issue no longer follows program order","a blocked consumer does not stop every younger independent operation","source names bind to producer versions; false WAR/WAW hazards need not block issue","retirement remains in order under this explicitly different model"],"physical_observation":"not-run"}
+}

@@ -1,0 +1,411 @@
+
+/tmp/cbs-depth-exjs5jxb/gcc-O3-stub/cbs.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <vectors>:
+   0:	00 00 01 20 f1 02 00 00 a1 00 00 00 a1 00 00 00     ... ............
+  10:	a1 00 00 00 a1 00 00 00 a1 00 00 00                 ............
+
+0000001c <cb_init>:
+  1c:	200a      	movs	r0, #10
+  1e:	4770      	bx	lr
+
+00000020 <cb_arrive>:
+  20:	200a      	movs	r0, #10
+  22:	4770      	bx	lr
+
+00000024 <cb_idle>:
+  24:	200a      	movs	r0, #10
+  26:	4770      	bx	lr
+
+00000028 <cb_update>:
+  28:	200a      	movs	r0, #10
+  2a:	4770      	bx	lr
+
+0000002c <cb_charge>:
+  2c:	200a      	movs	r0, #10
+  2e:	4770      	bx	lr
+
+00000030 <cb_admit>:
+  30:	200a      	movs	r0, #10
+  32:	4770      	bx	lr
+
+00000034 <cb_workload>:
+  34:	200a      	movs	r0, #10
+  36:	4770      	bx	lr
+
+00000038 <cb_mutex>:
+  38:	200a      	movs	r0, #10
+  3a:	4770      	bx	lr
+
+0000003c <memset>:
+  3c:	b31a      	cbz	r2, 86 <memset+0x4a>
+  3e:	1e53      	subs	r3, r2, #1
+  40:	2b02      	cmp	r3, #2
+  42:	b510      	push	{r4, lr}
+  44:	b2c9      	uxtb	r1, r1
+  46:	d91f      	bls.n	88 <memset+0x4c>
+  48:	f04f 0c00 	mov.w	ip, #0
+  4c:	f361 0c07 	bfi	ip, r1, #0, #8
+  50:	f361 2c0f 	bfi	ip, r1, #8, #8
+  54:	f361 4c17 	bfi	ip, r1, #16, #8
+  58:	f022 0403 	bic.w	r4, r2, #3
+  5c:	f361 6c1f 	bfi	ip, r1, #24, #8
+  60:	4603      	mov	r3, r0
+  62:	eb04 0e00 	add.w	lr, r4, r0
+  66:	f843 cb04 	str.w	ip, [r3], #4
+  6a:	4573      	cmp	r3, lr
+  6c:	d1fb      	bne.n	66 <memset+0x2a>
+  6e:	4294      	cmp	r4, r2
+  70:	d008      	beq.n	84 <memset+0x48>
+  72:	1c63      	adds	r3, r4, #1
+  74:	429a      	cmp	r2, r3
+  76:	5501      	strb	r1, [r0, r4]
+  78:	d904      	bls.n	84 <memset+0x48>
+  7a:	3402      	adds	r4, #2
+  7c:	42a2      	cmp	r2, r4
+  7e:	54c1      	strb	r1, [r0, r3]
+  80:	bf88      	it	hi
+  82:	5501      	strbhi	r1, [r0, r4]
+  84:	bd10      	pop	{r4, pc}
+  86:	4770      	bx	lr
+  88:	2400      	movs	r4, #0
+  8a:	e7f2      	b.n	72 <memset+0x36>
+
+0000008c <finish>:
+  8c:	4b03      	ldr	r3, [pc, #12]	@ (9c <finish+0x10>)
+  8e:	b082      	sub	sp, #8
+  90:	e9cd 3000 	strd	r3, r0, [sp]
+  94:	4669      	mov	r1, sp
+  96:	2020      	movs	r0, #32
+  98:	beab      	bkpt	0x00ab
+  9a:	e7fe      	b.n	9a <finish+0xe>
+  9c:	00020026 	.word	0x00020026
+
+000000a0 <fault>:
+  a0:	b508      	push	{r3, lr}
+  a2:	4903      	ldr	r1, [pc, #12]	@ (b0 <fault+0x10>)
+  a4:	2004      	movs	r0, #4
+  a6:	beab      	bkpt	0x00ab
+  a8:	2002      	movs	r0, #2
+  aa:	f7ff ffef 	bl	8c <finish>
+  ae:	bf00      	nop
+  b0:	00000398 	.word	0x00000398
+
+000000b4 <task_main>:
+  b4:	b570      	push	{r4, r5, r6, lr}
+  b6:	f5ad 7d0e 	sub.w	sp, sp, #568	@ 0x238
+  ba:	2200      	movs	r2, #0
+  bc:	ad06      	add	r5, sp, #24
+  be:	230a      	movs	r3, #10
+  c0:	e9cd 2200 	strd	r2, r2, [sp]
+  c4:	2103      	movs	r1, #3
+  c6:	461a      	mov	r2, r3
+  c8:	4628      	mov	r0, r5
+  ca:	f7ff ffa7 	bl	1c <cb_init>
+  ce:	b9b0      	cbnz	r0, fe <task_main+0x4a>
+  d0:	4601      	mov	r1, r0
+  d2:	4628      	mov	r0, r5
+  d4:	f7ff ffa4 	bl	20 <cb_arrive>
+  d8:	4604      	mov	r4, r0
+  da:	b980      	cbnz	r0, fe <task_main+0x4a>
+  dc:	2201      	movs	r2, #1
+  de:	4621      	mov	r1, r4
+  e0:	4628      	mov	r0, r5
+  e2:	f7ff ffa3 	bl	2c <cb_charge>
+  e6:	b950      	cbnz	r0, fe <task_main+0x4a>
+  e8:	6a6b      	ldr	r3, [r5, #36]	@ 0x24
+  ea:	b943      	cbnz	r3, fe <task_main+0x4a>
+  ec:	3401      	adds	r4, #1
+  ee:	2c08      	cmp	r4, #8
+  f0:	d1f4      	bne.n	dc <task_main+0x28>
+  f2:	68ae      	ldr	r6, [r5, #8]
+  f4:	2e01      	cmp	r6, #1
+  f6:	d102      	bne.n	fe <task_main+0x4a>
+  f8:	68ea      	ldr	r2, [r5, #12]
+  fa:	2a1e      	cmp	r2, #30
+  fc:	d005      	beq.n	10a <task_main+0x56>
+  fe:	4977      	ldr	r1, [pc, #476]	@ (2dc <task_main+0x228>)
+ 100:	2004      	movs	r0, #4
+ 102:	beab      	bkpt	0x00ab
+ 104:	2001      	movs	r0, #1
+ 106:	f7ff ffc1 	bl	8c <finish>
+ 10a:	e9cd 3300 	strd	r3, r3, [sp]
+ 10e:	4622      	mov	r2, r4
+ 110:	4623      	mov	r3, r4
+ 112:	2104      	movs	r1, #4
+ 114:	a810      	add	r0, sp, #64	@ 0x40
+ 116:	f7ff ff81 	bl	1c <cb_init>
+ 11a:	2800      	cmp	r0, #0
+ 11c:	d1ef      	bne.n	fe <task_main+0x4a>
+ 11e:	e9cd 6000 	strd	r6, r0, [sp]
+ 122:	4623      	mov	r3, r4
+ 124:	4622      	mov	r2, r4
+ 126:	2104      	movs	r1, #4
+ 128:	a81a      	add	r0, sp, #104	@ 0x68
+ 12a:	f7ff ff77 	bl	1c <cb_init>
+ 12e:	2800      	cmp	r0, #0
+ 130:	d1e5      	bne.n	fe <task_main+0x4a>
+ 132:	4601      	mov	r1, r0
+ 134:	a810      	add	r0, sp, #64	@ 0x40
+ 136:	f7ff ff73 	bl	20 <cb_arrive>
+ 13a:	4601      	mov	r1, r0
+ 13c:	2800      	cmp	r0, #0
+ 13e:	d1de      	bne.n	fe <task_main+0x4a>
+ 140:	a81a      	add	r0, sp, #104	@ 0x68
+ 142:	f7ff ff6d 	bl	20 <cb_arrive>
+ 146:	4601      	mov	r1, r0
+ 148:	2800      	cmp	r0, #0
+ 14a:	d1d8      	bne.n	fe <task_main+0x4a>
+ 14c:	2202      	movs	r2, #2
+ 14e:	a810      	add	r0, sp, #64	@ 0x40
+ 150:	f7ff ff6c 	bl	2c <cb_charge>
+ 154:	2800      	cmp	r0, #0
+ 156:	d1d2      	bne.n	fe <task_main+0x4a>
+ 158:	2202      	movs	r2, #2
+ 15a:	2100      	movs	r1, #0
+ 15c:	a81a      	add	r0, sp, #104	@ 0x68
+ 15e:	f7ff ff65 	bl	2c <cb_charge>
+ 162:	2800      	cmp	r0, #0
+ 164:	d1cb      	bne.n	fe <task_main+0x4a>
+ 166:	a810      	add	r0, sp, #64	@ 0x40
+ 168:	f7ff ff5c 	bl	24 <cb_idle>
+ 16c:	2800      	cmp	r0, #0
+ 16e:	d1c6      	bne.n	fe <task_main+0x4a>
+ 170:	a81a      	add	r0, sp, #104	@ 0x68
+ 172:	f7ff ff57 	bl	24 <cb_idle>
+ 176:	2800      	cmp	r0, #0
+ 178:	d1c1      	bne.n	fe <task_main+0x4a>
+ 17a:	2104      	movs	r1, #4
+ 17c:	a810      	add	r0, sp, #64	@ 0x40
+ 17e:	f7ff ff4f 	bl	20 <cb_arrive>
+ 182:	2800      	cmp	r0, #0
+ 184:	d1bb      	bne.n	fe <task_main+0x4a>
+ 186:	2104      	movs	r1, #4
+ 188:	a81a      	add	r0, sp, #104	@ 0x68
+ 18a:	f7ff ff49 	bl	20 <cb_arrive>
+ 18e:	2800      	cmp	r0, #0
+ 190:	d1b5      	bne.n	fe <task_main+0x4a>
+ 192:	9a13      	ldr	r2, [sp, #76]	@ 0x4c
+ 194:	2a0c      	cmp	r2, #12
+ 196:	d1b2      	bne.n	fe <task_main+0x4a>
+ 198:	9a12      	ldr	r2, [sp, #72]	@ 0x48
+ 19a:	2a04      	cmp	r2, #4
+ 19c:	d1af      	bne.n	fe <task_main+0x4a>
+ 19e:	991d      	ldr	r1, [sp, #116]	@ 0x74
+ 1a0:	2908      	cmp	r1, #8
+ 1a2:	d1ac      	bne.n	fe <task_main+0x4a>
+ 1a4:	991c      	ldr	r1, [sp, #112]	@ 0x70
+ 1a6:	2902      	cmp	r1, #2
+ 1a8:	d1a9      	bne.n	fe <task_main+0x4a>
+ 1aa:	e9cd 1000 	strd	r1, r0, [sp]
+ 1ae:	230a      	movs	r3, #10
+ 1b0:	4628      	mov	r0, r5
+ 1b2:	f7ff ff33 	bl	1c <cb_init>
+ 1b6:	2800      	cmp	r0, #0
+ 1b8:	d1a1      	bne.n	fe <task_main+0x4a>
+ 1ba:	2100      	movs	r1, #0
+ 1bc:	4628      	mov	r0, r5
+ 1be:	f7ff ff2f 	bl	20 <cb_arrive>
+ 1c2:	4601      	mov	r1, r0
+ 1c4:	2800      	cmp	r0, #0
+ 1c6:	d19a      	bne.n	fe <task_main+0x4a>
+ 1c8:	68ec      	ldr	r4, [r5, #12]
+ 1ca:	2c04      	cmp	r4, #4
+ 1cc:	d197      	bne.n	fe <task_main+0x4a>
+ 1ce:	2202      	movs	r2, #2
+ 1d0:	4628      	mov	r0, r5
+ 1d2:	f7ff ff2b 	bl	2c <cb_charge>
+ 1d6:	2800      	cmp	r0, #0
+ 1d8:	d191      	bne.n	fe <task_main+0x4a>
+ 1da:	6a6b      	ldr	r3, [r5, #36]	@ 0x24
+ 1dc:	2b00      	cmp	r3, #0
+ 1de:	d08e      	beq.n	fe <task_main+0x4a>
+ 1e0:	4621      	mov	r1, r4
+ 1e2:	4628      	mov	r0, r5
+ 1e4:	f7ff ff20 	bl	28 <cb_update>
+ 1e8:	2800      	cmp	r0, #0
+ 1ea:	d188      	bne.n	fe <task_main+0x4a>
+ 1ec:	68eb      	ldr	r3, [r5, #12]
+ 1ee:	2b0e      	cmp	r3, #14
+ 1f0:	d185      	bne.n	fe <task_main+0x4a>
+ 1f2:	ac05      	add	r4, sp, #20
+ 1f4:	f06f 4200 	mvn.w	r2, #2147483648	@ 0x80000000
+ 1f8:	2163      	movs	r1, #99	@ 0x63
+ 1fa:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 1fe:	e9cd 2401 	strd	r2, r4, [sp, #4]
+ 202:	9200      	str	r2, [sp, #0]
+ 204:	4618      	mov	r0, r3
+ 206:	6021      	str	r1, [r4, #0]
+ 208:	4611      	mov	r1, r2
+ 20a:	f7ff ff11 	bl	30 <cb_admit>
+ 20e:	2800      	cmp	r0, #0
+ 210:	f47f af75 	bne.w	fe <task_main+0x4a>
+ 214:	6821      	ldr	r1, [r4, #0]
+ 216:	2900      	cmp	r1, #0
+ 218:	f47f af71 	bne.w	fe <task_main+0x4a>
+ 21c:	f44f 72d4 	mov.w	r2, #424	@ 0x1a8
+ 220:	a824      	add	r0, sp, #144	@ 0x90
+ 222:	f7ff ff0b 	bl	3c <memset>
+ 226:	2103      	movs	r1, #3
+ 228:	2202      	movs	r2, #2
+ 22a:	e9cd 1224 	strd	r1, r2, [sp, #144]	@ 0x90
+ 22e:	230a      	movs	r3, #10
+ 230:	2205      	movs	r2, #5
+ 232:	e9cd 3226 	strd	r3, r2, [sp, #152]	@ 0x98
+ 236:	2101      	movs	r1, #1
+ 238:	2220      	movs	r2, #32
+ 23a:	4b29      	ldr	r3, [pc, #164]	@ (2e0 <task_main+0x22c>)
+ 23c:	4d29      	ldr	r5, [pc, #164]	@ (2e4 <task_main+0x230>)
+ 23e:	e9cd 122b 	strd	r1, r2, [sp, #172]	@ 0xac
+ 242:	200a      	movs	r0, #10
+ 244:	2208      	movs	r2, #8
+ 246:	2105      	movs	r1, #5
+ 248:	e9cd 0128 	strd	r0, r1, [sp, #160]	@ 0xa0
+ 24c:	922d      	str	r2, [sp, #180]	@ 0xb4
+ 24e:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 250:	ac2e      	add	r4, sp, #184	@ 0xb8
+ 252:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+ 256:	4629      	mov	r1, r5
+ 258:	a824      	add	r0, sp, #144	@ 0x90
+ 25a:	f7ff feeb 	bl	34 <cb_workload>
+ 25e:	2800      	cmp	r0, #0
+ 260:	f47f af4d 	bne.w	fe <task_main+0x4a>
+ 264:	f8d5 3120 	ldr.w	r3, [r5, #288]	@ 0x120
+ 268:	2b08      	cmp	r3, #8
+ 26a:	f47f af48 	bne.w	fe <task_main+0x4a>
+ 26e:	2302      	movs	r3, #2
+ 270:	491c      	ldr	r1, [pc, #112]	@ (2e4 <task_main+0x230>)
+ 272:	f88d 30a8 	strb.w	r3, [sp, #168]	@ 0xa8
+ 276:	a824      	add	r0, sp, #144	@ 0x90
+ 278:	f7ff fedc 	bl	34 <cb_workload>
+ 27c:	2800      	cmp	r0, #0
+ 27e:	f47f af3e 	bne.w	fe <task_main+0x4a>
+ 282:	f8d5 3120 	ldr.w	r3, [r5, #288]	@ 0x120
+ 286:	2b16      	cmp	r3, #22
+ 288:	f47f af39 	bne.w	fe <task_main+0x4a>
+ 28c:	4c16      	ldr	r4, [pc, #88]	@ (2e8 <task_main+0x234>)
+ 28e:	2007      	movs	r0, #7
+ 290:	4621      	mov	r1, r4
+ 292:	f7ff fed1 	bl	38 <cb_mutex>
+ 296:	2800      	cmp	r0, #0
+ 298:	f47f af31 	bne.w	fe <task_main+0x4a>
+ 29c:	f8d4 31c8 	ldr.w	r3, [r4, #456]	@ 0x1c8
+ 2a0:	2b00      	cmp	r3, #0
+ 2a2:	f43f af2c 	beq.w	fe <task_main+0x4a>
+ 2a6:	f8d4 31c4 	ldr.w	r3, [r4, #452]	@ 0x1c4
+ 2aa:	2b08      	cmp	r3, #8
+ 2ac:	f47f af27 	bne.w	fe <task_main+0x4a>
+ 2b0:	f104 0280 	add.w	r2, r4, #128	@ 0x80
+ 2b4:	34c4      	adds	r4, #196	@ 0xc4
+ 2b6:	f852 3f04 	ldr.w	r3, [r2, #4]!
+ 2ba:	2b00      	cmp	r3, #0
+ 2bc:	f47f af1f 	bne.w	fe <task_main+0x4a>
+ 2c0:	f854 1036 	ldr.w	r1, [r4, r6, lsl #3]
+ 2c4:	2902      	cmp	r1, #2
+ 2c6:	f47f af1a 	bne.w	fe <task_main+0x4a>
+ 2ca:	3601      	adds	r6, #1
+ 2cc:	2e07      	cmp	r6, #7
+ 2ce:	d1f2      	bne.n	2b6 <task_main+0x202>
+ 2d0:	4906      	ldr	r1, [pc, #24]	@ (2ec <task_main+0x238>)
+ 2d2:	2004      	movs	r0, #4
+ 2d4:	beab      	bkpt	0x00ab
+ 2d6:	4618      	mov	r0, r3
+ 2d8:	f7ff fed8 	bl	8c <finish>
+ 2dc:	000003a8 	.word	0x000003a8
+ 2e0:	00000400 	.word	0x00000400
+ 2e4:	200001cc 	.word	0x200001cc
+ 2e8:	20000000 	.word	0x20000000
+ 2ec:	000003b8 	.word	0x000003b8
+
+000002f0 <cl_reset>:
+ 2f0:	b538      	push	{r3, r4, r5, lr}
+ 2f2:	4c24      	ldr	r4, [pc, #144]	@ (384 <cl_reset+0x94>)
+ 2f4:	4b24      	ldr	r3, [pc, #144]	@ (388 <cl_reset+0x98>)
+ 2f6:	429c      	cmp	r4, r3
+ 2f8:	d222      	bcs.n	340 <cl_reset+0x50>
+ 2fa:	3b01      	subs	r3, #1
+ 2fc:	1b1b      	subs	r3, r3, r4
+ 2fe:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+ 302:	2b03      	cmp	r3, #3
+ 304:	4d21      	ldr	r5, [pc, #132]	@ (38c <cl_reset+0x9c>)
+ 306:	4622      	mov	r2, r4
+ 308:	f10e 0e01 	add.w	lr, lr, #1
+ 30c:	d916      	bls.n	33c <cl_reset+0x4c>
+ 30e:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+ 312:	462b      	mov	r3, r5
+ 314:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+ 318:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 31c:	3308      	adds	r3, #8
+ 31e:	459c      	cmp	ip, r3
+ 320:	e9c2 0100 	strd	r0, r1, [r2]
+ 324:	f102 0208 	add.w	r2, r2, #8
+ 328:	d1f6      	bne.n	318 <cl_reset+0x28>
+ 32a:	f01e 0f01 	tst.w	lr, #1
+ 32e:	d007      	beq.n	340 <cl_reset+0x50>
+ 330:	f02e 0e01 	bic.w	lr, lr, #1
+ 334:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+ 338:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+ 33c:	682b      	ldr	r3, [r5, #0]
+ 33e:	6023      	str	r3, [r4, #0]
+ 340:	4813      	ldr	r0, [pc, #76]	@ (390 <cl_reset+0xa0>)
+ 342:	4b14      	ldr	r3, [pc, #80]	@ (394 <cl_reset+0xa4>)
+ 344:	4298      	cmp	r0, r3
+ 346:	d21b      	bcs.n	380 <cl_reset+0x90>
+ 348:	3b01      	subs	r3, #1
+ 34a:	1a1a      	subs	r2, r3, r0
+ 34c:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+ 350:	2a03      	cmp	r2, #3
+ 352:	4603      	mov	r3, r0
+ 354:	f10c 0c01 	add.w	ip, ip, #1
+ 358:	d910      	bls.n	37c <cl_reset+0x8c>
+ 35a:	ea4f 015c 	mov.w	r1, ip, lsr #1
+ 35e:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+ 362:	2200      	movs	r2, #0
+ 364:	e9c3 2200 	strd	r2, r2, [r3]
+ 368:	3308      	adds	r3, #8
+ 36a:	428b      	cmp	r3, r1
+ 36c:	d1fa      	bne.n	364 <cl_reset+0x74>
+ 36e:	f01c 0f01 	tst.w	ip, #1
+ 372:	d005      	beq.n	380 <cl_reset+0x90>
+ 374:	f02c 0c01 	bic.w	ip, ip, #1
+ 378:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+ 37c:	2300      	movs	r3, #0
+ 37e:	6003      	str	r3, [r0, #0]
+ 380:	f7ff fe98 	bl	b4 <task_main>
+ 384:	20000000 	.word	0x20000000
+ 388:	20000000 	.word	0x20000000
+ 38c:	00000410 	.word	0x00000410
+ 390:	20000000 	.word	0x20000000
+ 394:	2000120c 	.word	0x2000120c
+ 398:	4d5f4243 	.word	0x4d5f4243
+ 39c:	41465f34 	.word	0x41465f34
+ 3a0:	0a544c55 	.word	0x0a544c55
+ 3a4:	00000000 	.word	0x00000000
+ 3a8:	4d5f4243 	.word	0x4d5f4243
+ 3ac:	48435f34 	.word	0x48435f34
+ 3b0:	0a4b4345 	.word	0x0a4b4345
+ 3b4:	00000000 	.word	0x00000000
+ 3b8:	4d5f4243 	.word	0x4d5f4243
+ 3bc:	41505f34 	.word	0x41505f34
+ 3c0:	733a5353 	.word	0x733a5353
+ 3c4:	2d74666f 	.word	0x2d74666f
+ 3c8:	6f726874 	.word	0x6f726874
+ 3cc:	656c7474 	.word	0x656c7474
+ 3d0:	7571652d 	.word	0x7571652d
+ 3d4:	74696c61 	.word	0x74696c61
+ 3d8:	6f632d79 	.word	0x6f632d79
+ 3dc:	7274736e 	.word	0x7274736e
+ 3e0:	656e6961 	.word	0x656e6961
+ 3e4:	6e612d64 	.word	0x6e612d64
+ 3e8:	65722d64 	.word	0x65722d64
+ 3ec:	6d2d6c61 	.word	0x6d2d6c61
+ 3f0:	78657475 	.word	0x78657475
+ 3f4:	6f72702d 	.word	0x6f72702d
+ 3f8:	65637564 	.word	0x65637564
+ 3fc:	00000a72 	.word	0x00000a72
+	...
+ 408:	00000008 	.word	0x00000008
+ 40c:	0000000a 	.word	0x0000000a

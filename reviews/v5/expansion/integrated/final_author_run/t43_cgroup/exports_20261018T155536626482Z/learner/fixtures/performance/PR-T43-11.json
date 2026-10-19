@@ -1,0 +1,134 @@
+{
+  "id": "PR-T43-11",
+  "description": "Bounded entry/exit attribution, dropped trace, sampled self time and caller-dependent child-cost counterexample.",
+  "kind": "profiling",
+  "input": {
+    "traces": [
+      {
+        "capacity": 6,
+        "dropped": 0,
+        "events": [
+          {
+            "action": "enter",
+            "function": "work",
+            "time": 0
+          },
+          {
+            "action": "enter",
+            "function": "child",
+            "time": 1
+          },
+          {
+            "action": "exit",
+            "function": "child",
+            "time": 4
+          },
+          {
+            "action": "enter",
+            "function": "child",
+            "time": 5
+          },
+          {
+            "action": "exit",
+            "function": "child",
+            "time": 7
+          },
+          {
+            "action": "exit",
+            "function": "work",
+            "time": 9
+          }
+        ]
+      },
+      {
+        "capacity": 4,
+        "dropped": 2,
+        "events": [
+          {
+            "action": "enter",
+            "function": "work",
+            "time": 0
+          },
+          {
+            "action": "enter",
+            "function": "child",
+            "time": 1
+          },
+          {
+            "action": "exit",
+            "function": "child",
+            "time": 4
+          },
+          {
+            "action": "enter",
+            "function": "child",
+            "time": 5
+          }
+        ]
+      }
+    ],
+    "sampling": {
+      "period_ns": 1000000,
+      "samples": {
+        "work": 4,
+        "child": 6
+      }
+    },
+    "child_counts": {
+      "A": 2,
+      "B": 8
+    },
+    "child_total": 20000000,
+    "actual_child": {
+      "A": 16000000,
+      "B": 4000000
+    },
+    "baseline": 1000,
+    "instrumented": 1250,
+    "code_before": 96,
+    "code_after": 144
+  },
+  "expected": {
+    "traces": [
+      {
+        "complete": true,
+        "open_frames": [],
+        "totals": {
+          "work": {
+            "calls": 1,
+            "inclusive": 9,
+            "exclusive": 4
+          },
+          "child": {
+            "calls": 2,
+            "inclusive": 5,
+            "exclusive": 5
+          }
+        }
+      },
+      {
+        "complete": false,
+        "open_frames": [
+          "work",
+          "child"
+        ],
+        "totals": null
+      }
+    ],
+    "sampled_self_ns": {
+      "work": 4000000,
+      "child": 6000000
+    },
+    "estimated_child_ns": {
+      "A": 4000000.0,
+      "B": 16000000.0
+    },
+    "child_error_ns": {
+      "A": -12000000.0,
+      "B": 12000000.0
+    },
+    "overhead_fraction": 0.25,
+    "code_growth": 48
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T23-04",
   "domain": "T23",
-  "title": "Pipeline and terminal restoration — explicit depth assessments",
+  "title": "Pipeline and terminal restoration \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/posix_lifecycle_depth/terminal/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -103,13 +104,20 @@
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T23-04.md",
     "fixtures/systems/PR-T23-04.json",
     "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/posix_lifecycle_depth/terminal/terminal.h",
+    "labs/posix_lifecycle_depth/terminal/terminal_stub.c",
+    "labs/posix_lifecycle_depth/terminal/tests.c",
+    "labs/posix_lifecycle_depth/terminal/stream.h",
+    "labs/posix_lifecycle_depth/terminal/stream_stub.c",
+    "labs/posix_lifecycle_depth/terminal/stream_tests.c",
+    "labs/posix_lifecycle_depth/terminal/run_stream.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -182,7 +190,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Backpressure can block the producer; correct closure and concurrent drain determine termination. The exact capacity is observed or treated symbolically. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a third stage that exits early and specify how remaining children are reaped without leaking the pipeline. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -208,6 +216,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+        "id": "AX-PR-T23-04-T23.11.a"
       }
     },
     {
@@ -272,7 +284,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Line discipline transforms delivery separately from baud/hardware. Restoration belongs to the owned PTY lifecycle; PTY results are not electrical serial evidence. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Use noncanonical VMIN/VTIME cases and distinguish initial-byte timeout from interbyte timeout. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -298,6 +310,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+        "id": "AX-PR-T23-04-T23.11.b"
       }
     },
     {
@@ -362,7 +378,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Pipe, stream and terminal contracts differ; closure removes owned resources once, and retry cannot recreate a vanished peer. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a half-closed local socket and show why receiving EOF need not forbid sending the remaining response. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -388,6 +404,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+        "id": "AX-PR-T23-04-T23.11.c"
       }
     }
   ],
@@ -402,5 +422,17 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+      "project": "PR-T23-04",
+      "criterion_ids": [
+        "AX-PR-T23-04-T23.11.a",
+        "AX-PR-T23-04-T23.11.b",
+        "AX-PR-T23-04-T23.11.c"
+      ],
+      "scope": "Exact hosted terminal/pipeline and explicit same-object parser criteria; no SocketCAN or physical serial/bus closure."
+    }
+  ]
 }

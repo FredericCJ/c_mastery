@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "scope": "Three exact T24.12 criteria and their changed-condition reference support; no other T24 leaf or independent attempt is closed",
+  "criteria": [
+    {
+      "id": "AX-PR-T24-07-T24.12.a",
+      "objective": "T24.12.a",
+      "project": "PR-T24-07",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "ordinary": {
+        "objective": "T24.12.a",
+        "variant": false,
+        "claim": "Actual current operation probe and T62 raw-ring import; ordinary pipe cancellation, separate target/cancel CQEs, stale cancel, delayed dispatch, short read/EOF/badfd and five acquisition cuts;720 event permutations",
+        "evidence": [
+          "native:cancel",
+          "native:boundary",
+          "native:failure",
+          "oracle:event-sets4320",
+          "import:T62"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "changed": {
+        "objective": "T24.12.a",
+        "variant": true,
+        "claim": "Actual registered buffers/subrange17 and invalid range, target-plus-cancel drain then synchronous unregister before unmap; registered blocked-read cancellation",
+        "evidence": [
+          "native:cancel",
+          "native:boundary",
+          "native:failure",
+          "oracle:event-sets4320",
+          "import:T62"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "teaching": "labs/hosted_systems/completion_depth/COMPLETION.md",
+      "assessor_analysis": "assessor/hosted_systems/completion_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_completion_io/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.b",
+      "objective": "T24.12.b",
+      "project": "PR-T24-07",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "ordinary": {
+        "objective": "T24.12.b",
+        "variant": false,
+        "claim": "Equivalent original file/socket bytes through copy/sendfile/ordinary-ring/fixed-ring; raw allocation, retained-byte, pin-interval, mapping/stack/import evidence and independent byte oracle",
+        "evidence": [
+          "workload:192cells",
+          "stall:both-backends",
+          "native:cancel",
+          "ANALYSIS.md:resource-bound"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "changed": {
+        "objective": "T24.12.b",
+        "variant": true,
+        "claim": "Actual stalled copy/sendfile sockets reach EAGAIN, retain immutable file until verified prefix/EOF; observed cancellation-to-drain samples and conditional bound analysis",
+        "evidence": [
+          "workload:192cells",
+          "stall:both-backends",
+          "native:cancel",
+          "ANALYSIS.md:resource-bound"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "teaching": "labs/hosted_systems/completion_depth/COMPLETION.md",
+      "assessor_analysis": "assessor/hosted_systems/completion_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_completion_io/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.c",
+      "objective": "T24.12.c",
+      "project": "PR-T24-07",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "ordinary": {
+        "objective": "T24.12.c",
+        "variant": false,
+        "claim": "Two optimized compilers × four backends × two depths × two cache snapshots × two workload shapes × three trials; full64 latency samples/cell, whole/setup/workload/processCPU, cleanup and disclosed pilot-informed seal",
+        "evidence": [
+          "prediction_seal.json",
+          "workload:192cells",
+          "oracle:independent-bytes",
+          "native:failure"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "changed": {
+        "objective": "T24.12.c",
+        "variant": true,
+        "claim": "Small scattered64-byte versus sequential4096-byte request generator, independent result oracle and pre-matrix prediction; no universal speed or physical-cache claim",
+        "evidence": [
+          "prediction_seal.json",
+          "workload:192cells",
+          "oracle:independent-bytes",
+          "native:failure"
+        ],
+        "limitations": [],
+        "group": "completion"
+      },
+      "teaching": "labs/hosted_systems/completion_depth/COMPLETION.md",
+      "assessor_analysis": "assessor/hosted_systems/completion_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_completion_io/current_validation.json"
+    }
+  ],
+  "updates": [
+    {
+      "id": "AX-PR-T24-07-T24.12.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.a",
+      "project": "PR-T24-07",
+      "closure_rationale": "Actual current operation probe and T62 raw-ring import; ordinary pipe cancellation, separate target/cancel CQEs, stale cancel, delayed dispatch, short read/EOF/badfd and five acquisition cuts;720 event permutations",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.a",
+      "project": "PR-T24-07",
+      "closure_rationale": "Actual registered buffers/subrange17 and invalid range, target-plus-cancel drain then synchronous unregister before unmap; registered blocked-read cancellation",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.b",
+      "project": "PR-T24-07",
+      "closure_rationale": "Equivalent original file/socket bytes through copy/sendfile/ordinary-ring/fixed-ring; raw allocation, retained-byte, pin-interval, mapping/stack/import evidence and independent byte oracle",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.b",
+      "project": "PR-T24-07",
+      "closure_rationale": "Actual stalled copy/sendfile sockets reach EAGAIN, retain immutable file until verified prefix/EOF; observed cancellation-to-drain samples and conditional bound analysis",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.c",
+      "project": "PR-T24-07",
+      "closure_rationale": "Two optimized compilers × four backends × two depths × two cache snapshots × two workload shapes × three trials; full64 latency samples/cell, whole/setup/workload/processCPU, cleanup and disclosed pilot-informed seal",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-07-T24.12.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+      "original_objective": "T24.12.c",
+      "project": "PR-T24-07",
+      "closure_rationale": "Small scattered64-byte versus sequential4096-byte request generator, independent result oracle and pre-matrix prediction; no universal speed or physical-cache claim",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/completion_depth/COMPLETION.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json",
+            "labs/hosted_systems/completion_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/completion_depth/completion.c",
+            "assessor/hosted_systems/completion_depth/native.c",
+            "assessor/hosted_systems/completion_depth/workload.c",
+            "assessor/hosted_systems/completion_depth/stall.c",
+            "assessor/hosted_systems/completion_depth/oracle.py",
+            "assessor/hosted_systems/completion_depth/campaign.py",
+            "assessor/hosted_systems/completion_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_completion_io/current_validation.json",
+            "reviews/v5/expansion/legacy_completion_io/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux x86-64 with actual T62 io_uring, operation probe and an owned guest filesystem supporting the measured cache snapshots; no liburing, host policy change or external traffic.",
+      "validation_method": "Actual ordinary/registered read/cancel modes and acquisition cuts, independent event sets and byte oracle, equivalent192-cell workload matrix, stalled copy/sendfile, compiled semantic controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    }
+  ],
+  "source_sha256": {
+    "reviews/v5/expansion/legacy_completion_io/current_validation.json": "f9bed9ebd588b9845bd080dbd5336b0571193202656f2e9e623122e60fbc7546",
+    "reviews/v5/expansion/legacy_completion_io/support_validation.json": "b720b370bd9b47f9ca2f0b46a80d2e7413f69f7247bd05faaceca04e30b1c1ad",
+    "curriculum/v5/expansion/legacy_assessments/PR-T24-07.json": "55761bc6b63903a94dd8ec90036eebe3304fd7602d6227ee19f09cfe7cdc3190",
+    "tools/close_completion_followthrough.py": "c23a92db27be830ec1359dcc8a5561b3eb9ed207a3c67a9bf5bae6c1994f81c9",
+    "research/v5/expansion/legacy_completion_io/author_support.py": "ba7df2013b03cd8d763c0572b8d3f656531a30ebed35fd1b69bd2aa4e3d4e2c2",
+    "research/v5/expansion/legacy_completion_io/resources.json": "dd049ce8461939b125168a346bc94caf61685599a02de8156bbf5dc10371f751",
+    "research/v5/expansion/legacy_completion_io/source_access.json": "45c4cbca91282c9bbad3ec681e68bed0cd7e775c348cef256e52c6bfa02db06f",
+    "labs/hosted_systems/completion_depth/completion.h": "0702d5b616b1ab49f472edac485e568de4f6476aadccdc545012ed34c9aa00ad",
+    "labs/hosted_systems/completion_depth/completion.c": "ad0d7275b6dbe5fa88f33e58f7ce4204cc340a56e291b755ec9aca1f724955cd",
+    "labs/hosted_systems/completion_depth/tests.c": "a40feb29e806816ae1826bfba993c364f6101d24846d259558290e34eb26a8e3",
+    "labs/hosted_systems/completion_depth/native.c": "591a3fe1c75f2663311db22333f30f33da478873ba08b53dc6827cc30c07dfcb",
+    "labs/hosted_systems/completion_depth/workload.c": "f296bb932d1572219942a54a8b964b31154653b4f1348fcf4296dd1dafd6e9a1",
+    "labs/hosted_systems/completion_depth/stall.c": "5642d2e183ff5f19e381141d2920e17e0d33cf329a509ba86abec35938eb8230",
+    "labs/hosted_systems/completion_depth/run.py": "1c4b97e75acad8dac6a198332eee52df33b4572a978968a92b27e4f62a3e2e89",
+    "labs/hosted_systems/completion_depth/seal.py": "05f5caeff00d5a79eb28ee3fdd478b40becc7cf5128cf3b011ec672add69ab90",
+    "labs/hosted_systems/completion_depth/CONTRACTS.md": "dc51b32ba12d254e070ff129fe2b191f6a6a4787a52a4280656d5baf9ba91ee5",
+    "labs/hosted_systems/completion_depth/COMPLETION.md": "af47b36c0d752ad69df615279ffed89f5b7ba5ea3ee640aff720fffb45b31afd",
+    "labs/linux_io_depth/targets/raw_ring.h": "6747ad721c8485a26aed0dd5de870c2d6745c01aacebcb7e8f7d413c71b19394",
+    "labs/linux_io_depth/targets/raw_ring.c": "d51b0e41a72d892865e9a27a8b49ef6eae4afa72d087549d09549a14055c285a"
+  }
+}

@@ -1,0 +1,298 @@
+--- a/tools/candidate_author_environment.py
++++ b/tools/candidate_author_environment.py
+@@ -1,6 +1,7 @@
+ """Explicit local author evidence inputs, never added to a candidate archive.
+ 
+-Authority comes from exact active disposition rows and their embedded byte pins.
++Authority comes from exact active disposition rows and their embedded byte pins,
++and the validated resource-identity correction policy consumed by the build.
+ This is environment provisioning, not a new source inspection or execution.
+ """
+ import argparse
+@@ -17,6 +18,8 @@
+ from check_residual_followthrough import pins, local
+ 
+ ACTIVE='curriculum/v5/expansion/implementation_updates.json'
++CORRECTIONS='research/v5/resource_identity_corrections.json'
++CORRECTION_CONSUMERS=('tools/resource_identity_v5.py','tools/resource_inputs_v5.py')
+ LIMIT='Qualified local author reproduction: the ZIP alone does not contain these required author evidence inputs. No redistribution, new inspection, new mechanism execution, release acceptance or external observation is inferred.'
+ 
+ 
+@@ -46,12 +49,69 @@
+     return 'other-excluded-local-author-evidence'
+ 
+ 
++def correction_capture_inputs(root,archive_names):
++    """Expose only capture edges actually consumed by corrections(root).
++
++    The policy, predecessor registry, evidence record and consumer sources must
++    already ship as portable metadata. Captures remain opt-in local inputs;
++    this neither registers a reading nor authorizes source redistribution.
++    """
++    from resource_identity_v5 import corrections
++    if not (root/CORRECTIONS).exists():return []
++    policy_path=bounded(root,CORRECTIONS);policy_sha=sha(policy_path)
++    policy=json.loads(policy_path.read_text(encoding='utf8'))
++    # Use the real consumer: malformed policy, stale predecessor/evidence and
++    # changed captures fail before any dependency is admitted or staged.
++    reviewed=corrections(root)
++    if sha(policy_path)!=policy_sha or reviewed!={entry['id']:entry for entry in policy['corrections']}:
++        raise ValueError('Resource correction policy changed during discovery')
++    previous=policy['previous_registry']
++    required={CORRECTIONS,previous['path'],*CORRECTION_CONSUMERS}
++    required.update(entry['evidence']['path'] for entry in reviewed.values())
++    for name in sorted(required):
++        bounded(root,name)
++        if name not in archive_names:
++            raise ValueError('Resource correction authority is absent from source archive: '+name)
++    consumers={name:sha(bounded(root,name)) for name in CORRECTION_CONSUMERS}
++    result=[]
++    for index,entry in enumerate(policy['corrections']):
++        evidence=entry['evidence'];path=bounded(root,evidence['path'])
++        if sha(path)!=evidence['sha256']:
++            raise ValueError('Resource correction evidence changed during discovery')
++        record=json.loads(path.read_text(encoding='utf8'))['records'][entry['id']]
++        if 'capture' not in record:continue
++        name=record['capture'];capture=bounded(root,name)
++        if sha(capture)!=record['sha256']:
++            raise ValueError('Resource correction capture changed during discovery: '+name)
++        if name in archive_names and 'private' in Path(name).parts:
++            raise ValueError('Private resource correction capture is in source archive: '+name)
++        key=entry['id'].replace('~','~0').replace('/','~1')
++        authority=dict(kind='validated-resource-identity-correction-capture',
++            provider=CORRECTIONS,provider_sha256=policy_sha,
++            pointer='/corrections/'+str(index)+'/evidence',pin_name=name,
++            resource_id=entry['id'],previous_registry=previous,
++            evidence=dict(path=evidence['path'],sha256=evidence['sha256'],
++                record=entry['id'],pointer='/records/'+key+'/capture',
++                record_sha256=hashlib.sha256(json.dumps(record,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()),
++            consumer='resource_identity_v5.corrections',consumer_source_sha256=consumers)
++        result.append((name,record['sha256'],authority))
++    return result
++
++
+ def discover(root,identity,archive_names):
+     root=root.resolve();archive_names=set(archive_names)
+     active_path=bounded(root,ACTIVE);active=json.loads(active_path.read_text(encoding='utf8'))['updates']
+     current={r['id']:record_hash(r) for r in active}
+     if len(current)!=len(active):raise ValueError('Duplicate active disposition ID')
+     values={};external=[];supplier_hashes={}
++    def include(normalized,digest,authority):
++        if normalized in archive_names:return
++        supplier=bounded(root,normalized)
++        if normalized not in supplier_hashes:supplier_hashes[normalized]=sha(supplier)
++        if supplier_hashes[normalized]!=digest:raise ValueError('Stale excluded active input: '+normalized)
++        entry=values.setdefault(normalized,dict(destination=normalized,supplier_relative_path=normalized,sha256=digest,bytes=supplier.stat().st_size,category=category(normalized),authority=[],non_redistributed=True))
++        if entry['sha256']!=digest:raise ValueError('Conflicting excluded input identities: '+normalized)
++        if authority not in entry['authority']:entry['authority'].append(authority)
+     for area in ('research/v5/expansion','research/v5/modern'):
+         for directory,dirs,files in os.walk(root/area):
+             dirs[:]=sorted(d for d in dirs if not historical(d))
+@@ -68,20 +128,16 @@
+                     authority=dict(provider=relative,provider_sha256=provider_hash,pointer=pointer,pin_name=name,active_ids=selected)
+                     if normalized is None:
+                         external.append(dict(path=name,sha256=digest,authority=authority,copied=False));continue
+-                    if normalized in archive_names:continue
+-                    supplier=bounded(root,normalized)
+-                    if normalized not in supplier_hashes:supplier_hashes[normalized]=sha(supplier)
+-                    if supplier_hashes[normalized]!=digest:raise ValueError('Stale excluded active input: '+normalized)
+-                    entry=values.setdefault(normalized,dict(destination=normalized,supplier_relative_path=normalized,sha256=digest,bytes=supplier.stat().st_size,category=category(normalized),authority=[],non_redistributed=True))
+-                    if entry['sha256']!=digest:raise ValueError('Conflicting excluded input identities: '+normalized)
+-                    if authority not in entry['authority']:entry['authority'].append(authority)
++                    include(normalized,digest,authority)
++    for name,digest,authority in correction_capture_inputs(root,archive_names):
++        include(name,digest,authority)
+     for entry in values.values():entry['authority'].sort(key=lambda row:(row['provider'],row['pointer'],row['pin_name']))
+     external.sort(key=lambda row:(row['path'],row['authority']['provider'],row['authority']['pointer']))
+     return dict(schema_version=1,kind='qualified-local-author-environment',supplier_root=str(root),source_identity_sha256=identity['sha256'],active_dispositions_sha256=sha(active_path),archive_selection_sha256=names_hash(archive_names),inputs=[values[n] for n in sorted(values)],external_inputs_not_copied=external,limits=LIMIT)
+ 
+ 
+ def validate_manifest(manifest,expected):
+-    if manifest!=expected:raise ValueError('Author environment manifest differs from exact current active pins, source identity or archive selection')
++    if manifest!=expected:raise ValueError('Author environment manifest differs from exact current input authorities, source identity or archive selection')
+ 
+ 
+ def require_opt_in(expected,manifest):
+--- a/tools/check_candidate_author_environment.py
++++ b/tools/check_candidate_author_environment.py
+@@ -31,6 +31,171 @@
+     def write(self,name,value):
+         path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True)
+         path.write_bytes(value if isinstance(value,bytes) else (json.dumps(value)+'\n').encode());return path
++
++    def correction_fixture(self,private=False):
++        """Synthetic bytes and real correction semantics, not source inspection."""
++        from resource_identity_v5 import digest
++        self.correction_evidence='research/v5/expansion/fixture/identity_evidence.json'
++        self.correction_previous='research/v5/expansion/fixture/history_identity_01/previous_registry.json'
++        records={};entries=[];previous=[]
++        self.captures=[]
++        for index,short in enumerate(('hlc','crdt','delta','ot')):
++            key='R-FIXTURE-'+short.upper()
++            name=('research/private/fixture/'+short+'.pdf' if private else 'build/replicated_sources/'+short+'.pdf')
++            self.write(name,('Synthetic binary '+short).encode()+b'\x00\xff')
++            self.captures.append(name)
++            prior=dict(id=key,title='Synthetic '+short,authors=['Placeholder'],edition='Fixture',year=2000,url='https://example.invalid/'+short)
++            incoming=dict(prior,authors=['Fixture Author'])
++            previous.append(prior)
++            records[key]=dict(capture=name,sha256=env.sha(self.root/name),observation='Synthetic byte identity only')
++            entries.append(dict(id=key,previous=prior,incoming=incoming,
++                previous_sha256=digest(prior),incoming_sha256=digest(incoming),identity_fields=['authors']))
++        self.write(self.correction_previous,{'resources':previous})
++        self.write(self.correction_evidence,{'records':records})
++        for entry in entries:
++            entry['evidence']=dict(path=self.correction_evidence,sha256=env.sha(self.root/self.correction_evidence),id=entry['id'])
++        self.correction_policy=dict(schema_version=1,previous_registry=dict(path=self.correction_previous,sha256=env.sha(self.root/self.correction_previous)),corrections=entries)
++        self.write(env.CORRECTIONS,self.correction_policy)
++        for name in env.CORRECTION_CONSUMERS:self.write(name,(env.ROOT/name).read_bytes())
++        self.names.update({env.CORRECTIONS,self.correction_previous,self.correction_evidence,*env.CORRECTION_CONSUMERS})
++        return env.discover(self.root,self.identity,self.names)
++
++    def replace_correction_evidence(self,records):
++        self.write(self.correction_evidence,{'records':records})
++        for entry in self.correction_policy['corrections']:
++            entry['evidence']['sha256']=env.sha(self.root/self.correction_evidence)
++        self.write(env.CORRECTIONS,self.correction_policy)
++
++    def test_four_correction_captures_stage_for_actual_consumer_without_zip_payloads(self):
++        from resource_identity_v5 import corrections
++        expected=self.correction_fixture()
++        selected={row['destination']:row for row in expected['inputs']}
++        self.assertEqual(set(selected),{self.input,*self.captures})
++        for index,name in enumerate(self.captures):
++            authority=selected[name]['authority'][0]
++            self.assertEqual(authority['resource_id'],self.correction_policy['corrections'][index]['id'])
++            self.assertEqual(authority['provider_sha256'],env.sha(self.root/env.CORRECTIONS))
++            self.assertEqual(authority['evidence']['sha256'],env.sha(self.root/self.correction_evidence))
++            self.assertEqual(authority['evidence']['pointer'],'/records/'+authority['resource_id']+'/capture')
++            self.assertEqual(authority['consumer_source_sha256'],{p:env.sha(self.root/p) for p in env.CORRECTION_CONSUMERS})
++            self.assertEqual(authority['previous_registry'],self.correction_policy['previous_registry'])
++        archive=Path(self.temp.name)/'correction-source.zip'
++        with zipfile.ZipFile(archive,'w') as z:
++            for name in sorted(self.names):z.write(self.root/name,name)
++        prior=archive.read_bytes()
++        with zipfile.ZipFile(archive) as z:
++            self.assertTrue(set(self.captures).isdisjoint(z.namelist()))
++            z.extractall(self.out)
++        with self.assertRaisesRegex(ValueError,'Missing or escaping resource path'):corrections(self.out)
++        staged=env.stage(self.root,self.out,expected,expected,self.names)
++        self.assertEqual(staged['files'],5)
++        self.assertEqual(corrections(self.out),corrections(self.root))
++        self.assertEqual(archive.read_bytes(),prior)
++
++    def test_private_correction_captures_require_opt_in_and_stay_outside_archives(self):
++        import package_v4
++        expected=self.correction_fixture(private=True)
++        with patch.object(package_v4,'ROOT',self.root):
++            identity={'files':{name:env.sha(self.root/name) for name in self.names},'sha256':self.identity['sha256']}
++            selected={p.relative_to(self.root).as_posix() for p in package_v4.source_files(identity,'reviews/v5')}
++        self.assertTrue(set(self.captures).isdisjoint(selected))
++        with self.assertRaisesRegex(ValueError,'ZIP alone'):env.require_opt_in(expected,None)
++        env.stage(self.root,self.out,expected,expected,self.names)
++        self.assertTrue(all((self.out/name).is_file() for name in self.captures))
++        with self.assertRaisesRegex(ValueError,'Private resource correction capture'):
++            env.discover(self.root,self.identity,self.names|{self.captures[0]})
++
++    def test_correction_capture_is_deduplicated_with_existing_active_pin(self):
++        self.correction_fixture()
++        provider=json.loads((self.root/self.provider).read_text(encoding='utf8'))
++        provider['source_sha256'][self.captures[0]]=env.sha(self.root/self.captures[0])
++        self.write(self.provider,provider)
++        expected=env.discover(self.root,self.identity,self.names)
++        self.assertEqual(len(expected['inputs']),5)
++        row=next(r for r in expected['inputs'] if r['destination']==self.captures[0])
++        self.assertEqual(len(row['authority']),2)
++        self.assertEqual({r['provider'] for r in row['authority']},{self.provider,env.CORRECTIONS})
++
++    def test_stale_correction_policy_requires_fresh_manifest(self):
++        expected=self.correction_fixture()
++        self.correction_policy['rationale']='Changed policy identity requires a fresh explicit manifest'
++        self.write(env.CORRECTIONS,self.correction_policy)
++        current=env.discover(self.root,self.identity,self.names)
++        with self.assertRaisesRegex(ValueError,'input authorities'):env.validate_manifest(expected,current)
++        self.assertEqual(list(self.out.iterdir()),[])
++
++    def test_stale_correction_evidence_or_capture_is_rejected_by_real_consumer(self):
++        self.correction_fixture()
++        path=self.root/self.correction_evidence;before=path.read_bytes()
++        path.write_bytes(before+b' ')
++        with self.assertRaisesRegex(ValueError,'Missing identity correction evidence'):
++            env.discover(self.root,self.identity,self.names)
++        path.write_bytes(before)
++        self.write(self.captures[0],b'changed synthetic capture')
++        with self.assertRaisesRegex(ValueError,'Changed identity evidence capture'):
++            env.discover(self.root,self.identity,self.names)
++        self.assertEqual(list(self.out.iterdir()),[])
++
++    def test_predecessor_repin_does_not_bypass_correction_semantics(self):
++        self.correction_fixture()
++        previous=json.loads((self.root/self.correction_previous).read_text(encoding='utf8'))
++        previous['resources'][0]['title']='Wrong predecessor, even with a fresh archive digest'
++        self.write(self.correction_previous,previous)
++        self.correction_policy['previous_registry']['sha256']=env.sha(self.root/self.correction_previous)
++        self.write(env.CORRECTIONS,self.correction_policy)
++        with self.assertRaisesRegex(ValueError,'does not match historical registry'):
++            env.discover(self.root,self.identity,self.names)
++
++    def test_corrupt_correction_identity_is_not_a_generic_capture_authority(self):
++        self.correction_fixture()
++        self.correction_policy['corrections'][0]['incoming']['authors']=['Unpinned replacement']
++        self.write(env.CORRECTIONS,self.correction_policy)
++        with self.assertRaisesRegex(ValueError,'Corrupt recorded identity correction'):
++            env.discover(self.root,self.identity,self.names)
++
++    def test_correction_authority_metadata_and_consumers_must_ship(self):
++        self.correction_fixture()
++        required={env.CORRECTIONS,self.correction_previous,self.correction_evidence,*env.CORRECTION_CONSUMERS}
++        for name in required:
++            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'authority is absent from source archive'):
++                env.discover(self.root,self.identity,self.names-{name})
++        expected=env.discover(self.root,self.identity,self.names)
++        consumer=env.CORRECTION_CONSUMERS[0]
++        self.write(consumer,(self.root/consumer).read_bytes()+b'\n# Changed consumer identity\n')
++        with self.assertRaisesRegex(ValueError,'input authorities'):
++            env.validate_manifest(expected,env.discover(self.root,self.identity,self.names))
++
++    def test_unselected_evidence_record_and_unrelated_capture_are_not_discovered(self):
++        expected=self.correction_fixture()
++        records=json.loads((self.root/self.correction_evidence).read_text(encoding='utf8'))['records']
++        records['R-NOT-SELECTED']={'capture':'build/never-created.pdf','sha256':'0'*64}
++        self.replace_correction_evidence(records)
++        self.write('research/v5/expansion/unrelated/resources.json',{'capture':'build/also-never-created.pdf','sha256':'0'*64})
++        current=env.discover(self.root,self.identity,self.names)
++        self.assertEqual([r['destination'] for r in current['inputs']],[r['destination'] for r in expected['inputs']])
++
++    def test_correction_capture_paths_remain_strictly_local(self):
++        self.correction_fixture()
++        records=json.loads((self.root/self.correction_evidence).read_text(encoding='utf8'))['records']
++        records['R-FIXTURE-HLC']['capture']='../outside.pdf'
++        self.replace_correction_evidence(records)
++        with self.assertRaisesRegex(ValueError,'Noncanonical resource path'):
++            env.discover(self.root,self.identity,self.names)
++
++    def test_correction_manifest_chain_cannot_be_edited(self):
++        expected=self.correction_fixture()
++        row=next(r for r in expected['inputs'] if r['destination']==self.captures[0])
++        mutations=[lambda a:a.update(resource_id='R-OTHER'),
++            lambda a:a.update(provider_sha256='0'*64),
++            lambda a:a['evidence'].update(record_sha256='0'*64),
++            lambda a:a['evidence'].update(pointer='/records/R-OTHER/capture'),
++            lambda a:a['previous_registry'].update(sha256='0'*64),
++            lambda a:a['consumer_source_sha256'].update({env.CORRECTION_CONSUMERS[0]:'0'*64})]
++        for mutate in mutations:
++            bad=deepcopy(expected)
++            current=next(r for r in bad['inputs'] if r['destination']==row['destination'])
++            mutate(current['authority'][0])
++            with self.assertRaises(ValueError):env.validate_manifest(bad,expected)
+ 
+     def test_actual_stage_is_exact_and_archive_remains_excluded(self):
+         archive=Path(self.temp.name)/'source.zip'
+@@ -229,7 +394,7 @@
+     output=(env.ROOT/args.output).absolute()
+     if output.exists() or output.resolve()!=output or not output.is_relative_to((env.ROOT/'reviews').resolve()):raise ValueError('Fresh report under reviews required')
+     stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(CandidateEnvironmentGuards))
+-    env.dump(output,dict(passed=result.wasSuccessful(),tests=result.testsRun,skipped=len(result.skipped),output=stream.getvalue(),source_sha256={p:env.sha(env.ROOT/p) for p in ['tools/candidate_author_environment.py','tools/check_candidate_author_environment.py','tools/check_candidate_exports_v5.py','tools/package_v4.py','tools/package_v5.py','tools/check_release_v5.py']},scope='Isolated exact-manifest, authority, path, immutable archive, local staging and acceptance-first release plumbing guards. Real ZIPs use temporary fixtures and a declared build seam; no real private input copied or repository release accepted.'))
++    env.dump(output,dict(passed=result.wasSuccessful(),tests=result.testsRun,skipped=len(result.skipped),output=stream.getvalue(),source_sha256={p:env.sha(env.ROOT/p) for p in ['tools/candidate_author_environment.py','tools/check_candidate_author_environment.py','tools/check_candidate_exports_v5.py','tools/package_v4.py','tools/package_v5.py','tools/check_release_v5.py','tools/resource_identity_v5.py','tools/resource_inputs_v5.py']},scope='Isolated exact-manifest, active-row and validated correction-policy authority, path, immutable archive, local staging and acceptance-first release plumbing guards. Real corrections(root) reads synthetic staged captures; no PDF content or new source inspection. Real ZIPs use temporary fixtures and a declared build seam; no real private input copied or repository release accepted.'))
+     print(stream.getvalue());return int(not result.wasSuccessful())
+ 
+ 

@@ -1,0 +1,10 @@
+#ifndef CMASTERY_MPS_STAMP_H
+#define CMASTERY_MPS_STAMP_H
+#include <stdint.h>
+#define MPS_SCHEMA_0 UINT64_C(0xc0ae0cd62fcb74e4)
+#define MPS_SCHEMA_1 UINT64_C(0x3141f3ae42960f9e)
+#define MPS_SCHEMA_2 UINT64_C(0x626ba2f68e9df427)
+#define MPS_SCHEMA_3 UINT64_C(0x57f99a5fd663e01b)
+#define MPS_SCHEMA_HEX "c0ae0cd62fcb74e43141f3ae42960f9e626ba2f68e9df42757f99a5fd663e01b"
+#define MPS_LINK_GUARD mps_schema_c0ae0cd62fcb74e43141f3ae42960f9e626ba2f68e9df42757f99a5fd663e01b
+#endif

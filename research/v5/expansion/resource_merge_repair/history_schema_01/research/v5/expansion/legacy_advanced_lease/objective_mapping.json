@@ -1,0 +1,157 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T29-04-T29.07.a",
+      "objective": "T29.07.a",
+      "task": "Implement CPU-owned, device-owned, service-complete and canceled/quiesced states with generation tickets. Replay submit,cancel_request,complete,stop_confirm,reclaim and publish exactly one terminal completion.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.07.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Make confirmed stop arrive before completion and reject the late stale callback without changing the chosen terminal result."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#07.a",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug independent oracle",
+        "gcc-debug composition cancel-policy execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-04-T29.07.b",
+      "objective": "T29.07.b",
+      "task": "Draw visibility edges for CPU descriptor/payload writes, device fetch, device result writes and CPU observation. Assign compiler barrier, architectural ordering and any cache maintenance only to edges they actually satisfy.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.07.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use a noncoherent cache-equipped target and derive line alignment plus clean/invalidate ownership to avoid corrupting adjacent CPU data."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#07.b",
+      "checks": [
+        "gcc-debug composition reference execute",
+        "gcc-debug composition stale-cache execute",
+        "gcc-debug composition dirty-neighbour execute",
+        "visibility counterexamples"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-04-T29.07.c",
+      "objective": "T29.07.c",
+      "task": "Cancel generation7, keep its buffer unavailable until quiescence, then reuse for 8 and deliver a delayed callback7. Reject it before modifying current state and prove no old DMA actor can still write after reuse.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.07.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Let reset clear software state while the device remains active and design a reset-domain handshake before reusing storage."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#07.c",
+      "checks": [
+        "gcc-debug 2 execute",
+        "gcc-debug 5 execute",
+        "gcc-debug composition fabricated-fence execute",
+        "clang-release independent oracle"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-04-T29.08.a",
+      "objective": "T29.08.a",
+      "task": "For a shared DMA buffer classify four proposed fixes: compiler memory clobber, DMB/DSB, cache clean/invalidate and interrupt masking. Give a failing trace for each when used in place of another required mechanism.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.08.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Compose all required mechanisms for one declared target and remove a redundant operation only with a source-backed argument and measurement."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#08.a",
+      "checks": [
+        "visibility counterexamples",
+        "arm-none-eabi-gcc-O0 object and interval audit",
+        "clang-O3 object and interval audit"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-04-T29.08.b",
+      "objective": "T29.08.b",
+      "task": "Audit the F439 SRAM/DMA path and refuse fictitious core-data-cache flush calls. Explain the actual barrier purpose and separately identify Flash acceleration as a different subsystem; consult complete instruction definitions before prescribing sequences.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Move to a verified Cortex-M7 target and inspect its cache-line, region and DMA-coherency requirements anew."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#08.b",
+      "checks": [
+        "arm-none-eabi-gcc-O0 F439 build",
+        "clang-O3 H745 build",
+        "wrong cache register object rejection"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-04-T29.08.c",
+      "objective": "T29.08.c",
+      "task": "Compare cacheless F439 SRAM, a synthetic write-back noncoherent cache and the retained H745 shared-memory contract. Track CPU dirty lines, device visibility and ownership at each transition.",
+      "delayed": {
+        "id": "AX-PR-T29-04-T29.08.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Make unrelated CPU state share a cache line with a receive buffer and derive a placement/API restriction that prevents corruption."
+      },
+      "teaching": "labs/interrupt_depth/lease/CONTRACTS.md",
+      "learner_artifacts": [
+        "lease.c",
+        "bridge.c",
+        "order.c",
+        "target.c",
+        "criterion-indexed ownership/visibility/reset/target dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/lease/ANALYSIS.md#08.c",
+      "checks": [
+        "gcc-debug composition peer-generation execute",
+        "gcc-debug composition reference execute",
+        "gcc-debug composition dirty-neighbour execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_lease/resources.json"
+    }
+  ],
+  "remaining": "T29.09–.10 remain required; physical/source/external dimensions are separate."
+}

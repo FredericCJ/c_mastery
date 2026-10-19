@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "project": "PR-T53-03",
+  "domain": "T53",
+  "title": "Per-CPU execution state and stacks \u2014 explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/smp_depth/percpu/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T53.md",
+        "sha256": "83254f89aa8114e1e9c07bb2b30436807e549a13f44da82d1886b9f66f28bbb2",
+        "passages": [
+          "Assigned substantive teaching passages and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T53-03.md",
+        "sha256": "c1b7ac680440cd881486e4c8d91165af86d3a64ea71c6e7ad076b51f101b9d41",
+        "passages": [
+          "Complete metadata, contract, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "fixtures/os_v3/PR-T53-03.json",
+        "sha256": "2176adfd7759a568cba80e2d5af65a354d439269e4b74d7cae21451127d3046f",
+        "passages": [
+          "Complete synthetic input and expected output"
+        ]
+      },
+      {
+        "path": "research/v3/verify_fixtures.py",
+        "sha256": "1870228e17863b2f400262753f25d1d13d90ad6423c5705255f06c21ecb8a10a",
+        "passages": [
+          "compute branches for assigned T51/T52/T53 synthetic models; not learner or target execution"
+        ]
+      },
+      {
+        "path": "labs/kernel_smp/README.md",
+        "sha256": "7cbeff6914fcdf3e4c1064420f6cf9fe61da2be9353f295afd0cffe21071fed9",
+        "passages": [
+          "Actual target/dependency/ownership contracts and explicit evidence limitations"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "Assigned project unit objective/test links and substantive implementation steps"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/smp.c",
+        "sha256": "d3b4b6d8d85c1ed6c47a1d0da592fc906193b75740cc2ad30b30d1b9dd61bb92",
+        "passages": [
+          "Discovery/local tables/AP startup and early cooperative scheduler/wake paths"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/ap.S",
+        "sha256": "35d9e66c9642a11754d355ff2ee17e63e0759300e62fe880133823f602fdcbed",
+        "passages": [
+          "Complete original trampoline/context/interrupt assembly"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/cmk2_model.c",
+        "sha256": "04985b4d2b85ff18c0190deedc5367e616abe3ed513910332eba29d0256f678b",
+        "passages": [
+          "Complete bounded MADT and channel model"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/parallel_user.c",
+        "sha256": "7e426d9419515a95c781aa05f3ce81348b5e26e52d3645bf0ec3bb309b147f81",
+        "passages": [
+          "Complete fixed-job/fixed-DAG helper and partial startup failure paths"
+        ]
+      },
+      {
+        "path": "labs/kernel_smp/tests/cmk2_contracts.c",
+        "sha256": "c55c6407aa37f698fc11fade0802d4ed8d84046909bb1aa1b26e413c80614ee0",
+        "passages": [
+          "Complete MADT and channel tests"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T53.md",
+        "anchors": [
+          "T53.03"
+        ]
+      }
+    ],
+    "units": [
+      "U-T53-03-01",
+      "U-T53-03-02",
+      "U-T53-03-03",
+      "U-T53-03-04"
+    ],
+    "inspection_limits": [
+      "All assigned module teaching, parent contract/steps/failure/acceptance and complete synthetic fixture inspected.",
+      "Unit objective/test mappings and each project substantive implementation step inspected; no complete historical learner portfolio review.",
+      "Exact bounded assessor/test scopes are recorded in the baseline bindings; no full implementation review inferred."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
+    "profile": "F",
+    "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
+    "toolchain": [
+      "Record compiler, flags, optimization, target triple, linker map and actual helper/symbol closure.",
+      "Record emulator/board/kernel/config and clock source; unsupported targets and denied scheduling classes remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LCON-INTEL",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+        "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+        "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
+        "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
+    "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata.",
+    "The existing fault path stops the image; local fault containment and all nested-context stack bounds remain separate obligations."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T53-03.md",
+    "fixtures/os_v3/PR-T53-03.json",
+    "labs/kernel_smp/README.md",
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/smp_depth/percpu/CONTRACTS.md",
+    "labs/smp_depth/percpu/abi_probe.c",
+    "labs/smp_depth/percpu/audit.py",
+    "labs/smp_depth/percpu/cost.c",
+    "labs/smp_depth/percpu/guest.py",
+    "labs/smp_depth/percpu/oracle.py",
+    "labs/smp_depth/percpu/percpu.c",
+    "labs/smp_depth/percpu/percpu.h",
+    "labs/smp_depth/percpu/percpu_frames.S",
+    "labs/smp_depth/percpu/percpu_guest.c",
+    "labs/smp_depth/percpu/tests.c",
+    "labs/smp_depth/percpu/trace.c"
+  ],
+  "execution_support": {
+    "kind": "Retained concrete construction plus bounded model/host/guest anchors",
+    "scope": "Only each named test actual contract counts as existing executable support. The existing fault path stops the image; local fault containment and all nested-context stack bounds remain separate obligations.",
+    "tests": [
+      "kernel_smp_guest_startup"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave; fixture oracle recomputation is reported separately"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T53-03-T53.03.a",
+      "title": "Derive and defend the state, ownership and ordering contract for per-cpu execution state and stacks.",
+      "objective": "T53.03.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-INTEL",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
+            "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
+          ]
+        }
+      ],
+      "task": "Lay out per-CPU records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
+      "purpose": "Per-CPU labels ensure the backing memory is distinct and race-free.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-02",
+          "PR-T53-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Per-CPU labels ensure the backing memory is distinct and race-free. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Per-CPU labels ensure the backing memory is distinct and race-free.",
+        "D2": "Lay out per-CPU records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Change stack size and alignment under a different ABI and regenerate the extent and worst-case frame calculation."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Actual addresses/extents must be disjoint; an index error can alias two private stacks. Immutable shared tables need different reasoning from writable TSS fields. Padding may reduce false sharing but is not synchronization.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Actual addresses/extents must be disjoint; an index error can alias two private stacks. Immutable shared tables need different reasoning from writable TSS fields. Padding may reduce false sharing but is not synchronization. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Change stack size and alignment under a different ABI and regenerate the extent and worst-case frame calculation. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Compare actual half-open address ranges, not variable names.",
+        "Separate a sampled canary from a bound on nested context frames."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-03-T53.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change stack size and alignment under a different ABI and regenerate the extent and worst-case frame calculation."
+        }
+      ],
+      "assessor_anchor": "#t5303a",
+      "facet_scope": {
+        "teaching": "Retained T53.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.a"
+      }
+    },
+    {
+      "id": "AX-PR-T53-03-T53.03.b",
+      "title": "Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress.",
+      "objective": "T53.03.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-INTEL",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
+            "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
+          ]
+        }
+      ],
+      "task": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one CPU without claiming the existing whole-image stop is task-local containment.",
+      "purpose": "A surviving stack canary proves enough stack for every execution.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-02",
+          "PR-T53-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A surviving stack canary proves enough stack for every execution. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A surviving stack canary proves enough stack for every execution.",
+        "D2": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one CPU without claiming the existing whole-image stop is task-local containment.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Permit SIMD in task code and derive the additional context state and preemption-save requirements."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "A canary samples corruption at one boundary and can miss overflow patterns. Bound nested frames separately; no-SIMD/general-register-only target assumptions must be checked in compiler output. The retained fault behavior stops the image, so stronger containment needs new machinery.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "A canary samples corruption at one boundary and can miss overflow patterns. Bound nested frames separately; no-SIMD/general-register-only target assumptions must be checked in compiler output. The retained fault behavior stops the image, so stronger containment needs new machinery. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Permit SIMD in task code and derive the additional context state and preemption-save requirements. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Compare actual half-open address ranges, not variable names.",
+        "Separate a sampled canary from a bound on nested context frames."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-03-T53.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit SIMD in task code and derive the additional context state and preemption-save requirements."
+        }
+      ],
+      "assessor_anchor": "#t5303b",
+      "facet_scope": {
+        "teaching": "Retained T53.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.b"
+      }
+    },
+    {
+      "id": "AX-PR-T53-03-T53.03.c",
+      "title": "Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence.",
+      "objective": "T53.03.c",
+      "families": [
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-INTEL",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
+            "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
+          ]
+        }
+      ],
+      "task": "Run distinct per-CPU synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one CPU's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
+      "purpose": "One-CPU success validates SMP-local storage.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-02",
+          "PR-T53-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "One-CPU success validates SMP-local storage. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: One-CPU success validates SMP-local storage.",
+        "D2": "Run distinct per-CPU synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one CPU's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Add nested faults using a separate emergency stack and specify which faults remain unrecoverable."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Only multiple CPUs can expose cross-CPU aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Only multiple CPUs can expose cross-CPU aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Add nested faults using a separate emergency stack and specify which faults remain unrecoverable. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Compare actual half-open address ranges, not variable names.",
+        "Separate a sampled canary from a bound on nested context frames."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-03-T53.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add nested faults using a separate emergency stack and specify which faults remain unrecoverable."
+        }
+      ],
+      "assessor_anchor": "#t5303c",
+      "facet_scope": {
+        "teaching": "Retained T53.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T53-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "New full leaf investigations unattempted; no fresh full target campaign inferred from fixture or structural validation.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite passing evidence does not prove absolute mastery.",
+      "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
+      "Delayed variants are required opportunities, not completed assessments."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+      "criterion_ids": [
+        "AX-PR-T53-03-T53.03.a",
+        "AX-PR-T53-03-T53.03.b",
+        "AX-PR-T53-03-T53.03.c"
+      ],
+      "scope": "Actual private storage, known nested faults, register/SIMD preservation, changed-ABI finite frame calculation and equivalent-contract padding measurements."
+    }
+  ]
+}

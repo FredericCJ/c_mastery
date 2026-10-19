@@ -1,0 +1,186 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_memory_followthrough/campaign_attempt1/gcc-O2-original.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <descend>:
+   0:	48 81 ec 00 10 00 00 	sub    $0x1000,%rsp
+   7:	48 83 0c 24 00       	orq    $0x0,(%rsp)
+   c:	48 83 ec 18          	sub    $0x18,%rsp
+  10:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  17:	00 00 
+  19:	48 89 84 24 08 10 00 	mov    %rax,0x1008(%rsp)
+  20:	00 
+  21:	31 c0                	xor    %eax,%eax
+  23:	89 f8                	mov    %edi,%eax
+  25:	40 88 3c 24          	mov    %dil,(%rsp)
+  29:	c1 e8 08             	shr    $0x8,%eax
+  2c:	88 84 24 ff 0f 00 00 	mov    %al,0xfff(%rsp)
+  33:	85 ff                	test   %edi,%edi
+  35:	75 39                	jne    70 <descend+0x70>
+  37:	0f b6 04 24          	movzbl (%rsp),%eax
+  3b:	8b 0d 00 00 00 00    	mov    0x0(%rip),%ecx        # 41 <descend+0x41>
+			3d: R_X86_64_PC32	.bss-0x4
+  41:	0f b6 94 24 ff 0f 00 	movzbl 0xfff(%rsp),%edx
+  48:	00 
+  49:	01 d0                	add    %edx,%eax
+  4b:	01 c8                	add    %ecx,%eax
+  4d:	48 8b 94 24 08 10 00 	mov    0x1008(%rsp),%rdx
+  54:	00 
+  55:	64 48 2b 14 25 28 00 	sub    %fs:0x28,%rdx
+  5c:	00 00 
+  5e:	75 20                	jne    80 <descend+0x80>
+  60:	48 81 c4 18 10 00 00 	add    $0x1018,%rsp
+  67:	c3                   	ret
+  68:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+  6f:	00 
+  70:	83 ef 01             	sub    $0x1,%edi
+  73:	e8 88 ff ff ff       	call   0 <descend>
+  78:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # 7e <descend+0x7e>
+			7a: R_X86_64_PC32	.bss-0x4
+  7e:	eb b7                	jmp    37 <descend+0x37>
+  80:	e8 00 00 00 00       	call   85 <descend+0x85>
+			81: R_X86_64_PLT32	__stack_chk_fail-0x4
+  85:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  8c:	00 00 00 00 
+
+0000000000000090 <recursive_tree>:
+  90:	53                   	push   %rbx
+  91:	31 db                	xor    %ebx,%ebx
+  93:	48 83 ec 10          	sub    $0x10,%rsp
+  97:	89 7c 24 0c          	mov    %edi,0xc(%rsp)
+  9b:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+  9f:	85 c0                	test   %eax,%eax
+  a1:	74 2d                	je     d0 <recursive_tree+0x40>
+  a3:	8b 7c 24 0c          	mov    0xc(%rsp),%edi
+  a7:	83 ef 01             	sub    $0x1,%edi
+  aa:	e8 e1 ff ff ff       	call   90 <recursive_tree>
+  af:	01 c3                	add    %eax,%ebx
+  b1:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+  b5:	83 e8 01             	sub    $0x1,%eax
+  b8:	89 44 24 0c          	mov    %eax,0xc(%rsp)
+  bc:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+  c0:	85 c0                	test   %eax,%eax
+  c2:	75 df                	jne    a3 <recursive_tree+0x13>
+  c4:	48 83 c4 10          	add    $0x10,%rsp
+  c8:	8d 43 01             	lea    0x1(%rbx),%eax
+  cb:	5b                   	pop    %rbx
+  cc:	c3                   	ret
+  cd:	0f 1f 00             	nopl   (%rax)
+  d0:	48 83 c4 10          	add    $0x10,%rsp
+  d4:	b8 01 00 00 00       	mov    $0x1,%eax
+  d9:	5b                   	pop    %rbx
+  da:	c3                   	ret
+
+Disassembly of section .text.startup:
+
+0000000000000000 <main>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	53                   	push   %rbx
+   5:	48 83 ec 50          	sub    $0x50,%rsp
+   9:	64 4c 8b 0c 25 28 00 	mov    %fs:0x28,%r9
+  10:	00 00 
+  12:	4c 89 4c 24 48       	mov    %r9,0x48(%rsp)
+  17:	41 89 f9             	mov    %edi,%r9d
+  1a:	83 ff 01             	cmp    $0x1,%edi
+  1d:	0f 84 d4 00 00 00    	je     f7 <main+0xf7>
+  23:	41 83 f9 02          	cmp    $0x2,%r9d
+  27:	74 23                	je     4c <main+0x4c>
+  29:	41 b9 02 00 00 00    	mov    $0x2,%r9d
+  2f:	48 8b 44 24 48       	mov    0x48(%rsp),%rax
+  34:	64 48 2b 04 25 28 00 	sub    %fs:0x28,%rax
+  3b:	00 00 
+  3d:	0f 85 48 01 00 00    	jne    18b <main+0x18b>
+  43:	48 83 c4 50          	add    $0x50,%rsp
+  47:	44 89 c8             	mov    %r9d,%eax
+  4a:	5b                   	pop    %rbx
+  4b:	c3                   	ret
+  4c:	48 8b 7e 08          	mov    0x8(%rsi),%rdi
+  50:	ba 0a 00 00 00       	mov    $0xa,%edx
+  55:	31 f6                	xor    %esi,%esi
+  57:	e8 00 00 00 00       	call   5c <main+0x5c>
+			58: R_X86_64_PLT32	strtoul-0x4
+  5c:	89 c3                	mov    %eax,%ebx
+  5e:	3d 80 00 00 00       	cmp    $0x80,%eax
+  63:	77 c4                	ja     29 <main+0x29>
+  65:	48 8d 74 24 10       	lea    0x10(%rsp),%rsi
+  6a:	bf 03 00 00 00       	mov    $0x3,%edi
+  6f:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  74:	e8 00 00 00 00       	call   79 <main+0x79>
+			75: R_X86_64_PLT32	getrlimit-0x4
+  79:	85 c0                	test   %eax,%eax
+  7b:	0f 85 90 00 00 00    	jne    111 <main+0x111>
+  81:	48 8d 74 24 20       	lea    0x20(%rsp),%rsi
+  86:	bf 04 00 00 00       	mov    $0x4,%edi
+  8b:	e8 00 00 00 00       	call   90 <main+0x90>
+			8c: R_X86_64_PLT32	getrlimit-0x4
+  90:	85 c0                	test   %eax,%eax
+  92:	75 7d                	jne    111 <main+0x111>
+  94:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx
+  99:	48 81 fa 00 00 01 00 	cmp    $0x10000,%rdx
+  a0:	77 7a                	ja     11c <main+0x11c>
+  a2:	48 83 7c 24 20 00    	cmpq   $0x0,0x20(%rsp)
+  a8:	75 72                	jne    11c <main+0x11c>
+  aa:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+  af:	31 c9                	xor    %ecx,%ecx
+  b1:	89 44 24 08          	mov    %eax,0x8(%rsp)
+  b5:	bf 02 00 00 00       	mov    $0x2,%edi
+  ba:	48 8d 35 00 00 00 00 	lea    0x0(%rip),%rsi        # c1 <main+0xc1>
+			bd: R_X86_64_PC32	.LC2-0x4
+  c1:	31 c0                	xor    %eax,%eax
+  c3:	e8 00 00 00 00       	call   c8 <main+0xc8>
+			c4: R_X86_64_PLT32	__printf_chk-0x4
+  c8:	48 8b 3d 00 00 00 00 	mov    0x0(%rip),%rdi        # cf <main+0xcf>
+			cb: R_X86_64_PC32	stdout-0x4
+  cf:	e8 00 00 00 00       	call   d4 <main+0xd4>
+			d0: R_X86_64_PLT32	fflush-0x4
+  d4:	89 df                	mov    %ebx,%edi
+  d6:	e8 00 00 00 00       	call   db <main+0xdb>
+			d7: R_X86_64_PC32	.text-0x4
+  db:	48 8d 3d 00 00 00 00 	lea    0x0(%rip),%rdi        # e2 <main+0xe2>
+			de: R_X86_64_PC32	.LC3-0x4
+  e2:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # e8 <main+0xe8>
+			e4: R_X86_64_PC32	.bss-0x4
+  e8:	e8 00 00 00 00       	call   ed <main+0xed>
+			e9: R_X86_64_PLT32	puts-0x4
+  ed:	44 8b 4c 24 08       	mov    0x8(%rsp),%r9d
+  f2:	e9 38 ff ff ff       	jmp    2f <main+0x2f>
+  f7:	bf 06 00 00 00       	mov    $0x6,%edi
+  fc:	e8 00 00 00 00       	call   101 <main+0x101>
+			fd: R_X86_64_PC32	.text+0x8c
+ 101:	83 f8 40             	cmp    $0x40,%eax
+ 104:	74 21                	je     127 <main+0x127>
+ 106:	41 b9 05 00 00 00    	mov    $0x5,%r9d
+ 10c:	e9 1e ff ff ff       	jmp    2f <main+0x2f>
+ 111:	41 b9 03 00 00 00    	mov    $0x3,%r9d
+ 117:	e9 13 ff ff ff       	jmp    2f <main+0x2f>
+ 11c:	41 b9 04 00 00 00    	mov    $0x4,%r9d
+ 122:	e9 08 ff ff ff       	jmp    2f <main+0x2f>
+ 127:	48 8d 3d 00 00 00 00 	lea    0x0(%rip),%rdi        # 12e <main+0x12e>
+			12a: R_X86_64_PC32	.LC0-0x4
+ 12e:	44 89 4c 24 08       	mov    %r9d,0x8(%rsp)
+ 133:	e8 00 00 00 00       	call   138 <main+0x138>
+			134: R_X86_64_PLT32	puts-0x4
+ 138:	66 0f ef c0          	pxor   %xmm0,%xmm0
+ 13c:	48 8d 7c 24 30       	lea    0x30(%rsp),%rdi
+ 141:	0f 29 44 24 30       	movaps %xmm0,0x30(%rsp)
+ 146:	e8 00 00 00 00       	call   14b <main+0x14b>
+			147: R_X86_64_PLT32	mw_stack_probe-0x4
+ 14b:	48 8b 4c 24 38       	mov    0x38(%rsp),%rcx
+ 150:	31 c0                	xor    %eax,%eax
+ 152:	48 8b 54 24 30       	mov    0x30(%rsp),%rdx
+ 157:	48 8d 35 00 00 00 00 	lea    0x0(%rip),%rsi        # 15e <main+0x15e>
+			15a: R_X86_64_PC32	.LC1-0x4
+ 15e:	bf 02 00 00 00       	mov    $0x2,%edi
+ 163:	e8 00 00 00 00       	call   168 <main+0x168>
+			164: R_X86_64_PLT32	__printf_chk-0x4
+ 168:	48 83 7c 24 30 18    	cmpq   $0x18,0x30(%rsp)
+ 16e:	44 8b 4c 24 08       	mov    0x8(%rsp),%r9d
+ 173:	0f 85 b6 fe ff ff    	jne    2f <main+0x2f>
+ 179:	45 31 c9             	xor    %r9d,%r9d
+ 17c:	48 83 7c 24 38 40    	cmpq   $0x40,0x38(%rsp)
+ 182:	41 0f 95 c1          	setne  %r9b
+ 186:	e9 a4 fe ff ff       	jmp    2f <main+0x2f>
+ 18b:	e8 00 00 00 00       	call   190 <recursive_tree+0x100>
+			18c: R_X86_64_PLT32	__stack_chk_fail-0x4

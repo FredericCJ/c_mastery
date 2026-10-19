@@ -5,7 +5,7 @@ exercise identifiers, laboratory contracts, evidence records or executable code.
 """
 import re
 
-DOMAINS = {'T65', 'T66', 'T67', 'T68', 'T73', 'T75', 'T76'}
+DOMAINS = {'T65', 'T66', 'T67', 'T68', 'T73', 'T74', 'T75', 'T76'}
 TEACHING = {
     'T65.01': 'A result value carries either its success payload or its failure information, selected by the validated tag. Reading the success member after receiving a failure is not error handling; it violates the representation contract even if the storage happens to contain a plausible number.',
     'T65.02': 'Error propagation must preserve the failing stage and its offset while returning control to the caller. In this parser, propagating the second field\'s failure cannot publish the first field as a successful complete configuration; ownership cleanup and publication remain separate obligations.',
@@ -37,6 +37,9 @@ TEACHING = {
 }
 
 REPLACEMENTS = {
+    'adds descriptor retirement': 'adds shape metadata record retirement',
+    'Acquire the replacement descriptor': 'Acquire the replacement shape metadata record',
+    'a weak cache owns no descriptor reference': 'a weak cache owns no shape metadata record reference',
     'unique random value': 'unique randomly generated identifier',
     'A quiet race detector': 'A quiet ThreadSanitizer run',
     'Delayed assessment races the last strong drop with weak upgrade': 'Delayed assessment executes the last strong drop concurrently with weak upgrade',

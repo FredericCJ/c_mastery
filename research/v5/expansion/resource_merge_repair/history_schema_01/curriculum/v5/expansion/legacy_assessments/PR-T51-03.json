@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "project": "PR-T51-03",
+  "domain": "T51",
+  "title": "Owned mutexes and lock ordering \u2014 explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/execution/sync_depth/MUTEX.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T51.md",
+        "sha256": "be23fc019ee82bf2322240949ce033c20ee2bb4b5c103d63d9c46f7271743695",
+        "passages": [
+          "Assigned substantive teaching passages and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T51-03.md",
+        "sha256": "484d7fd08c2727c4a41f26f1eedbcf5630b6495e02fac81bf12803447d1fd572",
+        "passages": [
+          "Complete metadata, contract, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "fixtures/os_v3/PR-T51-03.json",
+        "sha256": "9ae02a97987ef463b6f14d7a9bba31ced549871e4f8c07917a88a26a02923f71",
+        "passages": [
+          "Complete synthetic input and expected output"
+        ]
+      },
+      {
+        "path": "research/v3/verify_fixtures.py",
+        "sha256": "1870228e17863b2f400262753f25d1d13d90ad6423c5705255f06c21ecb8a10a",
+        "passages": [
+          "compute branches for assigned T51/T52/T53 synthetic models; not learner or target execution"
+        ]
+      },
+      {
+        "path": "labs/execution/README.md",
+        "sha256": "74ceca4efe86cb51b9001e6131c427cc761b385b5f908f8a64f8e9b0405561ae",
+        "passages": [
+          "Actual target/dependency/ownership contracts and explicit evidence limitations"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "Assigned project unit objective/test links and substantive implementation steps"
+        ]
+      },
+      {
+        "path": "assessor/execution/cmx.c",
+        "sha256": "2be79d77bc007778d8c5936169ae6a2b481d51d85349cdca40453e5fce953455",
+        "passages": [
+          "Wait enrollment/priority recomputation, condition reacquisition, event/notification/barrier/once/RW functions; response/admission/CBS functions"
+        ]
+      },
+      {
+        "path": "assessor/execution/advanced.c",
+        "sha256": "bf4aa62bf8b17d5b34669c9b8ab71c21f8ce400732c2dc0e9d4360cddcd4ffd6",
+        "passages": [
+          "Priority ordering/partition/simulation/server functions"
+        ]
+      },
+      {
+        "path": "labs/execution/tests/contracts.c",
+        "sha256": "5e5ba66ab91cccf4ea42d1e49e26509acdad77dfbafb358a840b9121ac41f8bb",
+        "passages": [
+          "Enrollment/faults and named synchronization/response/EDF/CBS cases"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T51.md",
+        "anchors": [
+          "T51.03"
+        ]
+      }
+    ],
+    "units": [
+      "U-T51-03-01",
+      "U-T51-03-02",
+      "U-T51-03-03",
+      "U-T51-03-04"
+    ],
+    "inspection_limits": [
+      "All assigned module teaching, parent contract/steps/failure/acceptance and complete synthetic fixture inspected.",
+      "Unit objective/test mappings and each project substantive implementation step inspected; no complete historical learner portfolio review.",
+      "Exact bounded assessor/test scopes are recorded in the baseline bindings; no full implementation review inferred."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
+    "target": "Externally serialized host state models plus original freestanding MCU runtime; actual IRQ execution requires dedicated emulator/board. FreeRTOS/Linux comparisons use separate builds and disposable guests where privileged.",
+    "profile": "E",
+    "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
+    "toolchain": [
+      "Record compiler, flags, optimization, target triple, linker map and actual helper/symbol closure.",
+      "Record emulator/board/kernel/config and clock source; unsupported targets and denied scheduling classes remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LCON-OSPP",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+        "PDF physical98:5.4.1 condition wait, signal and broadcast"
+      ]
+    },
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
+    "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T51-03.md",
+    "fixtures/os_v3/PR-T51-03.json",
+    "labs/execution/README.md",
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/execution/sync_depth/mutex.h",
+    "labs/execution/sync_depth/mutex.c",
+    "labs/execution/sync_depth/mutex_tests.c",
+    "labs/execution/sync_depth/mutex_m4.c",
+    "labs/execution/sync_depth/MUTEX.md",
+    "labs/execution/sync_depth/run_mutex.py",
+    "labs/execution/include/cmx.h",
+    "labs/execution/src/cmx.c",
+    "labs/execution/src/support.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld"
+  ],
+  "execution_support": {
+    "kind": "Retained concrete construction plus bounded model/host/guest anchors",
+    "scope": "Only each named test actual contract counts as existing executable support. The supplemental leaf investigations require their own evidence.",
+    "tests": [
+      "execution.mutex"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave; fixture oracle recomputation is reported separately"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T51-03-T51.03.a",
+      "title": "Derive and defend the state, ownership and ordering contract for owned mutexes and lock ordering.",
+      "objective": "T51.03.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Protect a two-field record (balance, checksum) with one owned nonrecursive mutex. Trace A acquire, B wrong-owner unlock, A recursive acquire and A valid unlock; distinguish mutex ownership from semaphore credit. Add a lock-order graph for a two-record transfer.",
+      "purpose": "A binary semaphore and owned mutex enforce the same misuse rules.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T51-02",
+          "PR-T51-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A binary semaphore and owned mutex enforce the same misuse rules. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A binary semaphore and owned mutex enforce the same misuse rules.",
+        "D2": "Protect a two-field record (balance, checksum) with one owned nonrecursive mutex. Trace A acquire, B wrong-owner unlock, A recursive acquire and A valid unlock; distinguish mutex ownership from semaphore credit. Add a lock-order graph for a two-record transfer.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Permit recursive acquisition and derive the new depth, overflow and final-unlock obligations."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Only the owner may release; recursion is refused under this contract. The checksum invariant may be temporarily broken only while protected. An acyclic global acquisition order avoids this class of lock cycle, not every possible wait deadlock.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Only the owner may release; recursion is refused under this contract. The checksum invariant may be temporarily broken only while protected. An acyclic global acquisition order avoids this class of lock cycle, not every possible wait deadlock. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Permit recursive acquisition and derive the new depth, overflow and final-unlock obligations. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Name the owner and protected invariant at each edge.",
+        "Find the first cycle-closing edge before changing priority or deleting a waiter."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-03-T51.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit recursive acquisition and derive the new depth, overflow and final-unlock obligations."
+        }
+      ],
+      "assessor_anchor": "#t5103a",
+      "facet_scope": {
+        "teaching": "Retained T51.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_mutex/support.json",
+        "id": "AX-PR-T51-03-T51.03.a"
+      }
+    },
+    {
+      "id": "AX-PR-T51-03-T51.03.b",
+      "title": "Implement owner tracking, try-lock, blocking lock and unlock using the wait protocol. Protect a two-field invariant and publish a lock-order graph for a two-object operation.",
+      "objective": "T51.03.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Implement acquisition and handoff preserving one owner, one wait membership and result publication. Force A holding X, B holding Y, A waiting Y, then B requesting X; refuse the closing edge without losing either owner. Reject destruction while owned or referenced by a condition reacquisition.",
+      "purpose": "Priority inheritance resolves a circular lock dependency.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T51-02",
+          "PR-T51-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Priority inheritance resolves a circular lock dependency. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Priority inheritance resolves a circular lock dependency.",
+        "D2": "Implement acquisition and handoff preserving one owner, one wait membership and result publication. Force A holding X, B holding Y, A waiting Y, then B requesting X; refuse the closing edge without losing either owner. Reject destruction while owned or referenced by a condition reacquisition.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Introduce a lock acquired through a callback and revise the declared ordering contract and cycle witness."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Donation changes urgency, not the cycle. Refusing the closing request preserves existing ownership and allows recovery. Destroy refusal must account for indirect condition waiters as well as the ordinary mutex queue.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Donation changes urgency, not the cycle. Refusing the closing request preserves existing ownership and allows recovery. Destroy refusal must account for indirect condition waiters as well as the ordinary mutex queue. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Introduce a lock acquired through a callback and revise the declared ordering contract and cycle witness. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Name the owner and protected invariant at each edge.",
+        "Find the first cycle-closing edge before changing priority or deleting a waiter."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-03-T51.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a lock acquired through a callback and revise the declared ordering contract and cycle witness."
+        }
+      ],
+      "assessor_anchor": "#t5103b",
+      "facet_scope": {
+        "teaching": "Retained T51.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_mutex/support.json",
+        "id": "AX-PR-T51-03-T51.03.b"
+      }
+    },
+    {
+      "id": "AX-PR-T51-03-T51.03.c",
+      "title": "Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents.",
+      "objective": "T51.03.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Instrument every owner transition for a repeated two-task transfer. Compare the protected two-field invariant with a mutant releasing before checksum publication. Include wrong-owner, cancelled waiter and close attempts; analyze the faulty schedule with a model if native execution would be a C data race.",
+      "purpose": "A sanitizer-clean run proves every critical invariant is protected.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.03 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T51-02",
+          "PR-T51-03 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A sanitizer-clean run proves every critical invariant is protected. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A sanitizer-clean run proves every critical invariant is protected.",
+        "D2": "Instrument every owner transition for a repeated two-task transfer. Compare the protected two-field invariant with a mutant releasing before checksum publication. Include wrong-owner, cancelled waiter and close attempts; analyze the faulty schedule with a model if native execution would be a C data race.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Change record update to rollback on arithmetic overflow and show the same lock discipline preserves the old record."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "The causal counterexample is a reader observing a mixed record after premature release; a data race is not needed if the read occurs under the newly available mutex. Trace ownership changes and publication, rather than only a final checksum.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "The causal counterexample is a reader observing a mixed record after premature release; a data race is not needed if the read occurs under the newly available mutex. Trace ownership changes and publication, rather than only a final checksum. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Change record update to rollback on arithmetic overflow and show the same lock discipline preserves the old record. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Name the owner and protected invariant at each edge.",
+        "Find the first cycle-closing edge before changing priority or deleting a waiter."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-03-T51.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change record update to rollback on arithmetic overflow and show the same lock discipline preserves the old record."
+        }
+      ],
+      "assessor_anchor": "#t5103c",
+      "facet_scope": {
+        "teaching": "Retained T51.03 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_mutex/support.json",
+        "id": "AX-PR-T51-03-T51.03.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T51-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "New full leaf investigations unattempted; no fresh full target campaign inferred from fixture or structural validation.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite passing evidence does not prove absolute mastery.",
+      "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
+      "Delayed variants are required opportunities, not completed assessments."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_concurrency_mutex/support.json",
+      "criterion_ids": [
+        "AX-PR-T51-03-T51.03.a",
+        "AX-PR-T51-03-T51.03.b",
+        "AX-PR-T51-03-T51.03.c"
+      ],
+      "scope": "Actual CMX import, recursive/order adapters and protected record transactions; no independent or physical claim."
+    }
+  ]
+}

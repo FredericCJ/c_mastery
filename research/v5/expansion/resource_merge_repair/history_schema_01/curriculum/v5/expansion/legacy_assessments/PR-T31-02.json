@@ -1,0 +1,630 @@
+{
+  "schema_version": 1,
+  "project": "PR-T31-02",
+  "domain": "T31",
+  "title": "PR-T31-02 objective-specific depth assessment supplement",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/embedded_debug_depth/fault/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T31.md",
+        "sha256": "568c5276cacbeb9ff2b450f345a8e8cd65baa276a643d1e1aaf846f9f2f155e4",
+        "passages": [
+          "Complete module teaching and metadata read"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T31-02.md",
+        "sha256": "e30a1b0a6754dd8c8ec6c238a21eb42a985b4c78da8c6b7865132015434a975d",
+        "passages": [
+          "Contract, Steps, Failure, Acceptance and Transfer sections plus metadata read"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T31-02.json",
+        "sha256": "24c5871f83580914f4ecdb913d3ef2333bced4d96f7698f0ebc3cdd368607d49",
+        "passages": [
+          "Complete fixture read"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T31.md",
+        "anchors": [
+          "T31.03",
+          "T31.04"
+        ]
+      }
+    ],
+    "units": [
+      "U-T31-02-01",
+      "U-T31-02-02",
+      "U-T31-02-03"
+    ],
+    "inspection_limits": [
+      "Unit content not freshly reread beyond linked metadata",
+      "Historical acceptance is not fresh execution",
+      "Laboratory support scope is stated separately"
+    ]
+  },
+  "environment": {
+    "language": "C17, with earlier inspected C11 draft semantic passages explicitly identified",
+    "target": "Declared parent project target; local hosted observations and explicitly separate synthetic target models. No hardware execution is implied.",
+    "profile": "E",
+    "dependencies": "Retain exact parent project profile and permitted primitives; host oracle separate from component dependencies.",
+    "toolchain": [
+      "Record actual compiler, linker, runtime and library configuration",
+      "Host oracle/instrumentation remains distinct from permitted component dependencies"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-FREERTOS-CM4F",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "xPortPendSVHandler and vPortValidateInterruptPriority",
+        "vPortSuppressTicksAndSleep",
+        "xPortStartScheduler and vPortEnterCritical"
+      ]
+    },
+    {
+      "id": "R-LEGACY-RM0090-SLEEP",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "5.3.3 Sleep mode and Tables25-26",
+        "21.1-21.3 IWDG including register protection/debug and timing footnote"
+      ]
+    },
+    {
+      "id": "R-LEGACY-ARM-FAULT",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "2.4.2-2.4.4 fault escalation,status and lockup",
+        "4.3.10 CFSR opening and subregister access"
+      ]
+    },
+    {
+      "id": "R-LEGACY-GDB-OPT",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "11 Debugging Optimized Code"
+      ]
+    },
+    {
+      "id": "R-LEGACY-GDB-WATCH",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "5.1.2 Setting Watchpoints"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17 remains unavailable; N1570 is C11",
+    "Baseline book locators not newly reread in this supplement wave; no whole-source inspection claim"
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T31-02.md",
+    "fixtures/embedded/PR-T31-02.json",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/frame/CONTRACTS.md",
+    "labs/embedded_debug_depth/fault/CONTRACTS.md",
+    "labs/embedded_debug_depth/fault/decode.py",
+    "labs/embedded_debug_depth/fault/entry.S",
+    "labs/embedded_debug_depth/fault/fault.c",
+    "labs/embedded_debug_depth/fault/fault.h",
+    "labs/embedded_debug_depth/fault/guest.py",
+    "labs/embedded_debug_depth/fault/m4.c",
+    "labs/embedded_debug_depth/fault/oracle.py",
+    "labs/embedded_debug_depth/fault/replay.c",
+    "labs/embedded_debug_depth/fault/target.c",
+    "labs/embedded_debug_depth/fault/target.h",
+    "labs/embedded_debug_depth/fault/tests.c"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline support",
+    "scope": "Retained parent construction and named anchors support only their actual mechanisms. Additive per-leaf experiments, proof obligations and changed-condition assessments are authored and not freshly executed.",
+    "tests": [],
+    "fresh_execution": "not-run in this audit wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T31-02-T31.03.a",
+      "title": "Read exception status and saved execution context.",
+      "objective": "T31.03.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Decode supplied CFSR0x8200,HFSR0x40000000 using the declared masks. Define a versioned record with valid-field bitmap,EXC_RETURN and bounded frame bytes.",
+      "purpose": "A fault-address register is valid regardless of its validity bit.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Decode supplied CFSR0x8200,HFSR0x40000000 using the declared masks. Define a versioned record with valid-field bitmap,EXC_RETURN and bounded frame bytes.",
+        "Falsify: A fault-address register is valid regardless of its validity bit.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Decode supplied CFSR0x8200,HFSR0x40000000 using the declared masks. Define a versioned record with valid-field bitmap,EXC_RETURN and bounded frame bytes.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Clear address-valid while retaining an old address and ensure the decoder cannot present it as causal evidence."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Three flags are true; unavailable/damaged/extended frames are explicitly rejected or marked incomplete.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Three flags are true; unavailable/damaged/extended frames are explicitly rejected or marked incomplete. Give a correct derivation and independently chosen falsification case.",
+        "3": "Clear address-valid while retaining an old address and ensure the decoder cannot present it as causal evidence. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: A fault-address register is valid regardless of its validity bit."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Clear address-valid while retaining an old address and ensure the decoder cannot present it as causal evidence."
+        }
+      ],
+      "assessor_anchor": "#t3103a",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.03.a"
+      }
+    },
+    {
+      "id": "AX-PR-T31-02-T31.03.b",
+      "title": "Reconstruct the failing instruction and access.",
+      "objective": "T31.03.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Given a synthetic valid basic frame and matching teaching ELF,resolve savedPC to an instruction and reconstruct effective access from captured registers. Add an imprecise-fault case with no exact causalPC guarantee.",
+      "purpose": "SavedPC always identifies the instruction that caused any bus fault.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Given a synthetic valid basic frame and matching teaching ELF,resolve savedPC to an instruction and reconstruct effective access from captured registers. Add an imprecise-fault case with no exact causalPC guarantee.",
+        "Falsify: SavedPC always identifies the instruction that caused any bus fault.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Given a synthetic valid basic frame and matching teaching ELF,resolve savedPC to an instruction and reconstruct effective access from captured registers. Add an imprecise-fault case with no exact causalPC guarantee.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Image hash differs despite the same source filename; reject symbolic attribution until identity matches."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Precise and imprecise attribution have different confidence; address,access kind and operand assumptions are explicit.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Precise and imprecise attribution have different confidence; address,access kind and operand assumptions are explicit. Give a correct derivation and independently chosen falsification case.",
+        "3": "Image hash differs despite the same source filename; reject symbolic attribution until identity matches. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: SavedPC always identifies the instruction that caused any bus fault."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Image hash differs despite the same source filename; reject symbolic attribution until identity matches."
+        }
+      ],
+      "assessor_anchor": "#t3103b",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.03.b"
+      }
+    },
+    {
+      "id": "AX-PR-T31-02-T31.03.c",
+      "title": "Separate primary faults from secondary faults in the handler.",
+      "objective": "T31.03.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Model a fault handler that formats through the same failed peripheral versus a fixed-size memory capture. Inject invalid stack/secondary fault and preserve first-fault identity when possible.",
+      "purpose": "A richer handler always improves diagnosis.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Model a fault handler that formats through the same failed peripheral versus a fixed-size memory capture. Inject invalid stack/secondary fault and preserve first-fault identity when possible.",
+        "Falsify: A richer handler always improves diagnosis.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Model a fault handler that formats through the same failed peripheral versus a fixed-size memory capture. Inject invalid stack/secondary fault and preserve first-fault identity when possible.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Simulate HardFault-handler refault and apply the inspected lockup rules."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "No recursive formatting/allocation is required; secondary failure is distinguished from primary cause and capture can be incomplete.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "No recursive formatting/allocation is required; secondary failure is distinguished from primary cause and capture can be incomplete. Give a correct derivation and independently chosen falsification case.",
+        "3": "Simulate HardFault-handler refault and apply the inspected lockup rules. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: A richer handler always improves diagnosis."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Simulate HardFault-handler refault and apply the inspected lockup rules."
+        }
+      ],
+      "assessor_anchor": "#t3103c",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.03.c"
+      }
+    },
+    {
+      "id": "AX-PR-T31-02-T31.04.a",
+      "title": "Detect overflow, bad alignment, corrupted returns, and nested-handler growth.",
+      "objective": "T31.04.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J",
+        "E"
+      ],
+      "task": "Inject stack canary corruption in a bounded byte-array model,then analyze alignment,bad return and nested-frame growth separately. Do not execute a corrupted native return.",
+      "purpose": "One canary detects all stack faults.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Inject stack canary corruption in a bounded byte-array model,then analyze alignment,bad return and nested-frame growth separately. Do not execute a corrupted native return.",
+        "Falsify: One canary detects all stack faults.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Inject stack canary corruption in a bounded byte-array model,then analyze alignment,bad return and nested-frame growth separately. Do not execute a corrupted native return.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Add floating-point nested frames and revise maximum simultaneously live storage."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Each defect has an appropriate detector/analysis and no invalid target control transfer is used as evidence.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Each defect has an appropriate detector/analysis and no invalid target control transfer is used as evidence. Give a correct derivation and independently chosen falsification case.",
+        "3": "Add floating-point nested frames and revise maximum simultaneously live storage. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: One canary detects all stack faults."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add floating-point nested frames and revise maximum simultaneously live storage."
+        }
+      ],
+      "assessor_anchor": "#t3104a",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": true,
+        "scope": "Bounded original teaching defect, model or learner-owned component only.",
+        "target": "The original local component/model specified in this criterion; synthetic counters, buffers and input only.",
+        "environment": "Host process with the declared diagnostic runtime; stack-overrun/MPU examples remain bounded byte-array models unless a separately authorized dedicated board contract applies.",
+        "attacker_capabilities": "Controls the specified bounded input, logical operation order or deliberate defect mutation; no authority over host policy or unrelated processes.",
+        "isolation": "Run deliberate memory/race defects in an isolated short-lived local process with bounded resources. No external targets, real data, invalid native return address execution or changes to host protections.",
+        "defect": "One canary detects all stack faults.",
+        "exposing_transition": "Inject stack canary corruption in a bounded byte-array model,then analyze alignment,bad return and nested-frame growth separately. Do not execute a corrupted native return.",
+        "exploitability_limits": "A diagnostic, modeled overwrite or incorrect synthetic effect establishes only that named defect. It does not establish arbitrary execution or privilege escalation; runtime absence is not a security proof.",
+        "success_condition": "Each defect has an appropriate detector/analysis and no invalid target control transfer is used as evidence.",
+        "repair": "Identify and repair the precise violated extent, lifetime, initialization, synchronization or authority invariant. Preserve a corrected control and reproduce the original discriminating condition.",
+        "regression": "Check the corrected result/state and ensure the deliberate defect still fails for its intended semantic cause. Each defect has an appropriate detector/analysis and no invalid target control transfer is used as evidence.",
+        "residual_limits": "Tool and model coverage are bounded; unsupported instrumented profiles and physical protection claims remain explicit gaps."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.04.a"
+      }
+    },
+    {
+      "id": "AX-PR-T31-02-T31.04.b",
+      "title": "Compare canaries, watermarks, guards, and MPU protection where supported.",
+      "objective": "T31.04.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J",
+        "E"
+      ],
+      "task": "Compare canary,pattern watermark and supported MPU guard for a256byte stack. Explain which can detect a write beyond the end versus unused-but-touched bytes.",
+      "purpose": "Watermark equals maximum live stack consumption or MPU catches every intra-region write.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Compare canary,pattern watermark and supported MPU guard for a256byte stack. Explain which can detect a write beyond the end versus unused-but-touched bytes.",
+        "Falsify: Watermark equals maximum live stack consumption or MPU catches every intra-region write.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Compare canary,pattern watermark and supported MPU guard for a256byte stack. Explain which can detect a write beyond the end versus unused-but-touched bytes.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "A valid deep frame happens to contain the fill pattern; show watermark underestimation."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Protection granularity,read/write effects and detection latency are explicit; unsupported MPU remains an implementation gap.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Protection granularity,read/write effects and detection latency are explicit; unsupported MPU remains an implementation gap. Give a correct derivation and independently chosen falsification case.",
+        "3": "A valid deep frame happens to contain the fill pattern; show watermark underestimation. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Watermark equals maximum live stack consumption or MPU catches every intra-region write."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "A valid deep frame happens to contain the fill pattern; show watermark underestimation."
+        }
+      ],
+      "assessor_anchor": "#t3104b",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": true,
+        "scope": "Bounded original teaching defect, model or learner-owned component only.",
+        "target": "The original local component/model specified in this criterion; synthetic counters, buffers and input only.",
+        "environment": "Host process with the declared diagnostic runtime; stack-overrun/MPU examples remain bounded byte-array models unless a separately authorized dedicated board contract applies.",
+        "attacker_capabilities": "Controls the specified bounded input, logical operation order or deliberate defect mutation; no authority over host policy or unrelated processes.",
+        "isolation": "Run deliberate memory/race defects in an isolated short-lived local process with bounded resources. No external targets, real data, invalid native return address execution or changes to host protections.",
+        "defect": "Watermark equals maximum live stack consumption or MPU catches every intra-region write.",
+        "exposing_transition": "Compare canary,pattern watermark and supported MPU guard for a256byte stack. Explain which can detect a write beyond the end versus unused-but-touched bytes.",
+        "exploitability_limits": "A diagnostic, modeled overwrite or incorrect synthetic effect establishes only that named defect. It does not establish arbitrary execution or privilege escalation; runtime absence is not a security proof.",
+        "success_condition": "Protection granularity,read/write effects and detection latency are explicit; unsupported MPU remains an implementation gap.",
+        "repair": "Identify and repair the precise violated extent, lifetime, initialization, synchronization or authority invariant. Preserve a corrected control and reproduce the original discriminating condition.",
+        "regression": "Check the corrected result/state and ensure the deliberate defect still fails for its intended semantic cause. Protection granularity,read/write effects and detection latency are explicit; unsupported MPU remains an implementation gap.",
+        "residual_limits": "Tool and model coverage are bounded; unsupported instrumented profiles and physical protection claims remain explicit gaps."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.04.b"
+      }
+    },
+    {
+      "id": "AX-PR-T31-02-T31.04.c",
+      "title": "Avoid treating one observed watermark as a universal bound.",
+      "objective": "T31.04.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Reconcile allocation256,observed-used96 and reasoned allowance160. Construct an unexecuted deeper call path that fits160 but exceeds96.",
+      "purpose": "Observed160free means160bytes are safe to reclaim.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T31 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T31-02 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Reconcile allocation256,observed-used96 and reasoned allowance160. Construct an unexecuted deeper call path that fits160 but exceeds96.",
+        "Falsify: Observed160free means160bytes are safe to reclaim.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Reconcile allocation256,observed-used96 and reasoned allowance160. Construct an unexecuted deeper call path that fits160 but exceeds96.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Add recursion or an opaque callback and identify the missing bound."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Observed free160 is arithmetic only; reasoned allowance and sampling evidence remain separate.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Observed free160 is arithmetic only; reasoned allowance and sampling evidence remain separate. Give a correct derivation and independently chosen falsification case.",
+        "3": "Add recursion or an opaque callback and identify the missing bound. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Observed160free means160bytes are safe to reclaim."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T31-02-T31.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add recursion or an opaque callback and identify the missing bound."
+        }
+      ],
+      "assessor_anchor": "#t3104c",
+      "facet_scope": {
+        "teaching": "Retain actual T31 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+        "id": "AX-PR-T31-02-T31.04.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T31-02.md",
+  "status": {
+    "content": "authored additive assessment",
+    "execution": "not-run for new assessment tasks",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Retained historical identities/receipts/hours unchanged",
+      "No complete-domain mastery claim from authoring",
+      "Actual unit and physical evidence remain separately bounded"
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_embedded_debug_fault/support.json",
+      "criterion_ids": [
+        "AX-PR-T31-02-T31.03.a",
+        "AX-PR-T31-02-T31.03.b",
+        "AX-PR-T31-02-T31.03.c",
+        "AX-PR-T31-02-T31.04.a",
+        "AX-PR-T31-02-T31.04.b",
+        "AX-PR-T31-02-T31.04.c"
+      ],
+      "scope": "All six original fault/stack criteria and named changes under explicit core/model/original-guest scope; physical and independent assessment remain separate. Historical execution/status unchanged."
+    }
+  ]
+}

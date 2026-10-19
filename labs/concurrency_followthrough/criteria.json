@@ -1,0 +1,841 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T55-01-T55.01.a",
+      "objective": "T55.01.a",
+      "project": "PR-T55-01",
+      "original_task": "Derive both payload publication and slot-reuse happens-before chains for capacity4.",
+      "original_expected": "Producer payload precedes release head; consumer acquire head precedes read. Consumer read precedes release tail; producer acquire tail precedes overwrite. Own-index relaxed loads do not replace these cross-party edges.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-01-T55.01.a-V1",
+          "minimum_days": 7,
+          "task": "Batch records and prove the admitted batch publication/reuse boundaries without inserting a second writer."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-01.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-batch",
+          "clang-tsan-core-batch"
+        ],
+        "models": [
+          "publication"
+        ],
+        "providers": [
+          "spsc"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-01-T55.01.b",
+      "objective": "T55.01.b",
+      "project": "PR-T55-01",
+      "original_task": "Start head and tail atUINT32_MAX-1, enqueue4 values then reject a fifth and drain.",
+      "original_expected": "Unsigned difference remains bounded0..4 across wrap; mask selects slots. Empty leaves output unchanged and FULL cannot overwrite unread payload.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-01-T55.01.b-V1",
+          "minimum_days": 7,
+          "task": "Change unsigned width and require capacity below the unambiguous distance bound before reusing the arithmetic proof."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-01.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-ring",
+          "clang-O3-core-ring"
+        ],
+        "models": [
+          "width"
+        ],
+        "providers": [],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-01-T55.01.c",
+      "objective": "T55.01.c",
+      "project": "PR-T55-01",
+      "original_task": "Remove release/acquire and observe no failure on x86 in finite runs.",
+      "original_expected": "Absence of observation is not a portable C proof. Plain payload races require synchronization; target instruction behavior, atomic lock-freedom and false sharing are separate facts.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-01-T55.01.c-V1",
+          "minimum_days": 7,
+          "task": "Compare cache-line-separated indices under equal semantics and report timing apart from sanitizer/model evidence."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-01.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O3-core-ring"
+        ],
+        "models": [
+          "publication"
+        ],
+        "providers": [
+          "spsc"
+        ],
+        "measurements": [
+          {
+            "kind_name": "queue",
+            "kind": 0,
+            "pairs": 1,
+            "affinity": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "AX-PR-T55-02-T55.02.a",
+      "objective": "T55.02.a",
+      "project": "PR-T55-02",
+      "original_task": "One caller repeatedly loses CAS while another succeeds; classify system and per-call progress.",
+      "original_expected": "Successful interference can witness system progress while one caller starves. This is not a bounded wait-free guarantee; include allocation, reclamation and logging paths.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-02-T55.02.a-V1",
+          "minimum_days": 7,
+          "task": "Add a blocking allocator to an otherwise lock-free loop and revise the end-to-end classification."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-02.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-cas"
+        ],
+        "models": [
+          "progress"
+        ],
+        "providers": [
+          "history"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-02-T55.02.b",
+      "objective": "T55.02.b",
+      "project": "PR-T55-02",
+      "original_task": "Reserve tickets0 and1, publish1, pause owner0 and call pop.",
+      "original_expected": "FIFO safety requires RETRY at unpublished0 even though1 isready. This reservation queue is deliberately blocking under the stalled owner, not Michael-Scott helping.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-02-T55.02.b-V1",
+          "minimum_days": 7,
+          "task": "Add cancellation tombstones and define when a skipped reserved ticket preserves the new sequential contract."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-02.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-baseline",
+          "clang-tsan-reservation-tests"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-02-T55.02.c",
+      "objective": "T55.02.c",
+      "project": "PR-T55-02",
+      "original_task": "Inject weak-CAS spurious failure and stale expected values near integer maximum.",
+      "original_expected": "Failure must refresh or reobserve expected state; unsigned/signed overflow policy must be explicit. A missing mutex API is not proof that compiler atomic helpers are lock-free.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-02-T55.02.c-V1",
+          "minimum_days": 7,
+          "task": "Inspect a wider atomic type whose lowering may call libatomic and provide an alternative admitted representation."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-02.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-cas",
+          "clang-O3-core-cas"
+        ],
+        "models": [],
+        "providers": [
+          "identity"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-03-T55.03.a",
+      "objective": "T55.03.a",
+      "project": "PR-T55-03",
+      "original_task": "Pause a pop after reading headA,nextB; another caller removesA/B and reusesA before the stale CAS.",
+      "original_expected": "Pointer bitsA can match while nextB is a stale incarnation. CAS equality alone does not validate that successor or permit its dereference.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-03-T55.03.a-V1",
+          "minimum_days": 7,
+          "task": "Reuse the same allocation for a different node type and separate effective-type/lifetime failure from abstract ABA."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-03.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-baseline"
+        ],
+        "models": [
+          "aba"
+        ],
+        "providers": [
+          "identity"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-03-T55.03.b",
+      "objective": "T55.03.b",
+      "project": "PR-T55-03",
+      "original_task": "Use a two-bit tag starting1 and perform four reuses.",
+      "original_expected": "Tag returns1; finite tagging postpones ABA unless reuse is bounded or storage retires. The actual identity pool retires after65535 rather than wrapping.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-03-T55.03.b-V1",
+          "minimum_days": 7,
+          "task": "Derive a maximum reuse count under a bounded reader pause and explain which premise makes a finite tag sufficient."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-03.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-baseline"
+        ],
+        "models": [
+          "tags"
+        ],
+        "providers": [
+          "identity"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-03-T55.03.c",
+      "objective": "T55.03.c",
+      "project": "PR-T55-03",
+      "original_task": "Compare a generation-valid handle check with hazard-protected dereference.",
+      "original_expected": "Checking identity does not itself pin lifetime against concurrent release. Hazard publication/revalidation or another lifetime protocol is required before reading reclaimed storage.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-03-T55.03.c-V1",
+          "minimum_days": 7,
+          "task": "Pause between validation and dereference and demonstrate the minimal local invalidation trace using synthetic nodes."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-03.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protection-validation",
+          "clang-tsan-protection-validation"
+        ],
+        "models": [
+          "check_then_use"
+        ],
+        "providers": [
+          "identity",
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-04-T55.04.a",
+      "objective": "T55.04.a",
+      "project": "PR-T55-04",
+      "original_task": "Partition32 nodes among dummy, live queued, retired protected, reserved enqueuer and free states.",
+      "original_expected": "Every slot belongs to exactly one ownership state; abstract queue vacancy need not imply allocatable storage. FULL is a valid bounded-resource result.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-04-T55.04.a-V1",
+          "minimum_days": 7,
+          "task": "Pause all four participants holding hazards and derive the remaining admissible enqueue capacity."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-04.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-pool",
+          "clang-O3-protection-retention"
+        ],
+        "models": [
+          "capacity"
+        ],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-04-T55.04.b",
+      "objective": "T55.04.b",
+      "project": "PR-T55-04",
+      "original_task": "Fail linkCAS after taking a node and then retry or abandon.",
+      "original_expected": "The reserved node remains owned by the operation until linked or explicitly returned. A failed CAS cannot silently leak capacity or expose an uninitialized node.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-04-T55.04.b-V1",
+          "minimum_days": 7,
+          "task": "Implement a bounded cancellation path before publication and prove it cannot reclaim an already linked node."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-04.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-pool",
+          "gcc-CF_MUTANT_CANCEL_LINKED",
+          "clang-CF_MUTANT_CANCEL_LINKED"
+        ],
+        "models": [],
+        "providers": [],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-04-T55.04.c",
+      "objective": "T55.04.c",
+      "project": "PR-T55-04",
+      "original_task": "Treat the ordinary-field identity helper as a concurrent pool merely because handles have generations.",
+      "original_expected": "It requires external serialization; generation identity is not atomic ownership transfer. The queue pool instead CASes atomic state including retirement generation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-04-T55.04.c-V1",
+          "minimum_days": 7,
+          "task": "Partition storage per worker and compare imbalance and stealing against an equal total-capacity shared pool."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-04.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-pool"
+        ],
+        "models": [],
+        "providers": [
+          "identity",
+          "reclamation"
+        ],
+        "measurements": [
+          {
+            "kind_name": "pool"
+          }
+        ]
+      }
+    },
+    {
+      "id": "AX-PR-T55-05-T55.05.a",
+      "objective": "T55.05.a",
+      "project": "PR-T55-05",
+      "original_task": "Order loadSource,publishHazard,recheckSource,dereference against remove,retire,scan.",
+      "original_expected": "Dereference follows a matching recheck; if removal/reuse invalidates the source, retry before access. Publishing after dereference or omitting recheck permits premature reuse.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-05-T55.05.a-V1",
+          "minimum_days": 7,
+          "task": "Relax one SC edge and give an actual memory-model argument or counterexample before accepting the optimization."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-05.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protection-validation",
+          "clang-tsan-protection-protection"
+        ],
+        "models": [
+          "hazard_weakening"
+        ],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-05-T55.05.b",
+      "objective": "T55.05.b",
+      "project": "PR-T55-05",
+      "original_task": "A collector retains old retired state2 while another collects,reuses and retires the same slot with a new tag.",
+      "original_expected": "CAS must compare the entire retirement incarnation. Comparing only RETIRED can free a later protected lifetime; the retained collector_aba test deliberately rejects that stale CAS.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-05-T55.05.b-V1",
+          "minimum_days": 7,
+          "task": "Reduce tag space and require permanent retirement or an explicit reuse bound at exhaustion."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-05.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protection-collector",
+          "clang-tsan-protection-generation",
+          "gcc-O0-core-pool"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-05-T55.05.c",
+      "objective": "T55.05.c",
+      "project": "PR-T55-05",
+      "original_task": "Pause one registered participant with hazards and continue all other queue operations.",
+      "original_expected": "Protected retired nodes remain unavailable; safety can coexist with bounded-pool exhaustion. Participant IDs must be exclusive/nonreentrant and cannot be reassigned with stale hazards.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-05-T55.05.c-V1",
+          "minimum_days": 7,
+          "task": "Design deregistration that proves no outstanding reference before clearing slots, then compare retention against epochs."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-05.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protection-retention",
+          "clang-tsan-protection-departure",
+          "gcc-O0-epoch-retention"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation",
+          "grace"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-06-T55.06.a",
+      "objective": "T55.06.a",
+      "project": "PR-T55-06",
+      "original_task": "Pause an enqueuer after successful tail.nextCAS but before updating tail.",
+      "original_expected": "LinkCAS is enqueue publication; a second participant observes next and helps tail. Tail lag is not an empty queue and cannot justify blocking on the paused owner.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-06-T55.06.a-V1",
+          "minimum_days": 7,
+          "task": "Instrument a deterministic pause there and verify another enqueue/dequeue finishes with valid FIFO history."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-06.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-pause",
+          "gcc-history-oracle",
+          "clang-history-oracle"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-06-T55.06.b",
+      "objective": "T55.06.b",
+      "project": "PR-T55-06",
+      "original_task": "Dequeue from dummyA to nextB while a reader protectsA and another collector runs.",
+      "original_expected": "Successful headCAS linearizes removal; old dummyA retires and remains protected until hazards clear. Reading B payload requires protection before possible lifetime reuse.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-06-T55.06.b-V1",
+          "minimum_days": 7,
+          "task": "Interleave two dequeuers and prove exactly one removes each logical value while the losing operation retries safely."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-06.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-pause",
+          "clang-tsan-protocol-pause",
+          "gcc-history-oracle"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-06-T55.06.c",
+      "objective": "T55.06.c",
+      "project": "PR-T55-06",
+      "original_task": "All40000 distinct values are observed once in a stress test.",
+      "original_expected": "This checks a finite execution and payload multiplicity, not every FIFO order, weak-memory schedule, fairness or progress bound. Link/output/history and allocator contracts still need proof.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-06-T55.06.c-V1",
+          "minimum_days": 7,
+          "task": "Generate short operation histories with actual invocation/response intervals and check them independently before benchmarking."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-06.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-stress",
+          "clang-tsan-protocol-stress",
+          "gcc-history-oracle",
+          "clang-history-oracle"
+        ],
+        "models": [],
+        "providers": [
+          "reclamation",
+          "history"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-07-T55.07.a",
+      "objective": "T55.07.a",
+      "project": "PR-T55-07",
+      "original_task": "Participant0 enters epoch0; advance once then try again while it remains active.",
+      "original_expected": "First advance to1 succeeds; second cannot pass the old active observer. A counter increment is not by itself reclamation permission for an arbitrary retired node.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-07-T55.07.a-V1",
+          "minimum_days": 7,
+          "task": "Associate retire epochs and derive the exact earliest reusable generation for every node."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-07.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-epoch-registration",
+          "clang-O3-epoch-retention"
+        ],
+        "models": [],
+        "providers": [
+          "grace"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-07-T55.07.b",
+      "objective": "T55.07.b",
+      "project": "PR-T55-07",
+      "original_task": "Deregister an active stalled reader to relieve pool exhaustion.",
+      "original_expected": "Removing metadata while it still holds references is unsafe; apparent progress cannot justify lifetime violation. Explicit FULL/retention is the correct bounded outcome absent quiescence.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-07-T55.07.b-V1",
+          "minimum_days": 7,
+          "task": "Add periodic quiescent points and compare memory retention with hazard protection under the same workload."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-07.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-versions-pressure",
+          "clang-tsan-epoch-retention"
+        ],
+        "models": [],
+        "providers": [
+          "grace",
+          "reclamation"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-07-T55.07.c",
+      "objective": "T55.07.c",
+      "project": "PR-T55-07",
+      "original_task": "Run ordinary cmx_epoch fields concurrently without the documented serialization.",
+      "original_expected": "That changes the API assumptions and can create C data races. A concurrent epoch implementation needs publication/order and nesting/reentry contracts, not just atomic counter substitution.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-07-T55.07.c-V1",
+          "minimum_days": 7,
+          "task": "Design fixed registration tickets and nonwrapping exhaustion under a selected C memory-order proof."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-07.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-tsan-epoch-threads",
+          "clang-tsan-epoch-threads",
+          "gcc-O0-epoch-registration"
+        ],
+        "models": [
+          "epoch_gate"
+        ],
+        "providers": [
+          "grace"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-08-T55.08.a",
+      "objective": "T55.08.a",
+      "project": "PR-T55-08",
+      "original_task": "Reader0 enters root1; writer publishes2; reader1 enters2; reader0 leaves.",
+      "original_expected": "Old root1 must survive reader0. The retained coarse quiescence check still waits for reader1 even though it sees2, a conservative liveness cost rather than a memory-safety failure.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-08-T55.08.a-V1",
+          "minimum_days": 7,
+          "task": "Compare captured preexisting readers with global-zero polling under an endless stream of new readers."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-08.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-versions-versions",
+          "clang-O3-epoch-arrivals"
+        ],
+        "models": [],
+        "providers": [
+          "grace"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-08-T55.08.b",
+      "objective": "T55.08.b",
+      "project": "PR-T55-08",
+      "original_task": "Attempt nested read on one participant or edit a currently published payload.",
+      "original_expected": "Nested entry rejects in the declared nonnested API; published payload is immutable and caller-owned lifetime must extend through readers. Root-ID exchange alone does not enforce immutability in C.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-08-T55.08.b-V1",
+          "minimum_days": 7,
+          "task": "Add explicit nesting depth and derive correct outermost grace accounting without premature inactive publication."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-08.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-versions-epoch",
+          "clang-tsan-epoch-registration"
+        ],
+        "models": [],
+        "providers": [
+          "grace"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-08-T55.08.c",
+      "objective": "T55.08.c",
+      "project": "PR-T55-08",
+      "original_task": "Publish multiple versions while one reader never exits.",
+      "original_expected": "Finite version storage eventually exhausts; the writer cannot free the protected old version to hide the bound. This teaching scheme is not Linux RCU or an automatic wait-free update guarantee.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-08-T55.08.c-V1",
+          "minimum_days": 7,
+          "task": "Compare a reader-writer lock using equal payload/capacity/shutdown contracts and separate reader cost from writer retention."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-08.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-versions-pressure"
+        ],
+        "models": [],
+        "providers": [
+          "grace"
+        ],
+        "measurements": [
+          {
+            "kind_name": "rw"
+          }
+        ]
+      }
+    },
+    {
+      "id": "AX-PR-T55-09-T55.09.a",
+      "objective": "T55.09.a",
+      "project": "PR-T55-09",
+      "original_task": "Enqueue7 completes before enqueue8, then dequeue returns8 without any earlier dequeue.",
+      "original_expected": "No legal FIFO linearization exists. For overlapping enqueue/dequeue7, a witness may place enqueue first even if log row order differs.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-09-T55.09.a-V1",
+          "minimum_days": 7,
+          "task": "Use a stack specification and exhibit a history valid for one object and invalid for the other."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-09.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-baseline",
+          "clang-O3-history-tests",
+          "gcc-history-oracle"
+        ],
+        "models": [],
+        "providers": [
+          "history"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-09-T55.09.b",
+      "objective": "T55.09.b",
+      "project": "PR-T55-09",
+      "original_task": "Two calls from one nonreentrant participant overlap; two different participants have equal coarse timestamps.",
+      "original_expected": "Overlapping same-participant intervals reject. Strict response<invocation defines precedence in the supplied model; equal timestamps need declared clock/order resolution rather than silently inferred causal order.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-09-T55.09.b-V1",
+          "minimum_days": 7,
+          "task": "Add sequence-event IDs to disambiguate equal timestamps and check the stronger partial order."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-09.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-history-tests",
+          "clang-tsan-protocol-pause"
+        ],
+        "models": [
+          "coarse_time"
+        ],
+        "providers": [],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-09-T55.09.c",
+      "objective": "T55.09.c",
+      "project": "PR-T55-09",
+      "original_task": "Feed a pending operation or nine complete operations into the bounded checker.",
+      "original_expected": "The current contract supports complete histories only and rejects beyond8; it does not prove pending-call completion semantics. Witness indices are implicit distinct operation identities.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-09-T55.09.c-V1",
+          "minimum_days": 7,
+          "task": "Extend pending histories with allowed completion/removal choices, then test independent legal/impossible examples and report search cost."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-09.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-baseline",
+          "gcc-O0-history-tests",
+          "gcc-CH_MUTANT_DROP_PENDING",
+          "gcc-history-oracle",
+          "clang-history-oracle"
+        ],
+        "models": [],
+        "providers": [
+          "history"
+        ],
+        "measurements": []
+      }
+    },
+    {
+      "id": "AX-PR-T55-10-T55.10.a",
+      "objective": "T55.10.a",
+      "project": "PR-T55-10",
+      "original_task": "Compare SPSC and MPMC throughput with different producer counts, capacities and allocation policies.",
+      "original_expected": "Unequal contracts confound the result. Match admitted semantics and report every unavoidable difference; SPSC is not a drop-in multi-producer replacement.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-10-T55.10.a-V1",
+          "minimum_days": 7,
+          "task": "Vary payload size and affinity while holding correctness, shutdown and resource bounds fixed."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-10.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-protocol-stress"
+        ],
+        "models": [],
+        "providers": [],
+        "measurements": [
+          {
+            "kind_name": "queue",
+            "pairs": 1
+          },
+          {
+            "kind_name": "queue",
+            "pairs": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "AX-PR-T55-10-T55.10.b",
+      "objective": "T55.10.b",
+      "project": "PR-T55-10",
+      "original_task": "Measure under ASan and report only average throughput while one participant is paused.",
+      "original_expected": "Sanitizer observations are correctness evidence, not production timing. Tail latency, retries, fairness and retained memory can reveal failures hidden by averages.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-10-T55.10.b-V1",
+          "minimum_days": 7,
+          "task": "Record raw distributions and repeated native runs with uncertainty, including an oversubscribed case where locking is faster."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-10.md",
+      "selectors": {
+        "mechanisms": [
+          "clang-tsan-protocol-stress"
+        ],
+        "models": [],
+        "providers": [],
+        "measurements": [
+          {
+            "kind_name": "queue",
+            "pause": 1
+          },
+          {
+            "kind_name": "queue",
+            "pairs": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "AX-PR-T55-10-T55.10.c",
+      "objective": "T55.10.c",
+      "project": "PR-T55-10",
+      "original_task": "A lock-free data path invokes blocking logging only on exhaustion.",
+      "original_expected": "The complete operation includes that failure path, so its progress claim changes. Audit helper calls, allocation, collection and CPU scheduling assumptions rather than only the centralCAS.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T55-10-T55.10.c-V1",
+          "minimum_days": 7,
+          "task": "Remove the logger, introduce bounded diagnostic buffering and analyze what happens when that buffer also fills."
+        }
+      ],
+      "teaching": "labs/concurrency_followthrough/units/PR-T55-10.md",
+      "selectors": {
+        "mechanisms": [
+          "gcc-O0-core-diagnostic",
+          "clang-O3-core-diagnostic"
+        ],
+        "models": [
+          "progress"
+        ],
+        "providers": [
+          "history"
+        ],
+        "measurements": []
+      }
+    }
+  ]
+}

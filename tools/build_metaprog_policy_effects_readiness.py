@@ -1,0 +1,28 @@
+"""Bind exact original T68.03 criteria and variants to actual current evidence."""
+import json
+from common import ROOT,dump,read_json,sha
+from check_metaprog_policy_effects import REPORT,COST,check
+READINESS='research/v5/modern/metaprog_policy_effects_readiness.json'
+def main():
+    d,q=read_json(ROOT/REPORT),read_json(ROOT/COST);check(d,q)
+    brief='curriculum/v5/exercises/X-T68-003.md';m=json.loads((ROOT/brief).read_text(encoding='utf8').split('```json\n',1)[1].split('\n```',1)[0]);teaching=[brief,'labs/metaprog/CONTRACTS.md','labs/metaprog/policy_effects/POLICY.md','assessor/metaprog/policy_effects/ANALYSIS.md'];implementation=['assessor/metaprog/metaprog.c','assessor/metaprog/policy_effects/policy_effects.c','assessor/metaprog/policy_effects/policy_template.inc','labs/metaprog/policy_effects/include/policy_effects.h','labs/metaprog/policy_effects/tests/tests.c','tools/verify_metaprog_policy_effects.py']
+    claims=[
+      'Dynamic and generated fixed-policy loops have explicit result/effect/failure contracts. Rejection stops at the first excessive prefix; saturation continues required callbacks. Actual generated function definitions and O0/O3 symbols/disassembly separate policy specialization from retained indirect callback dispatch.',
+      'The sum<=limit invariant justifies subtraction; each attempted acquisition receives exactly one total release, including empty/partially allocated failure. Projection borrows only until release. Output publishes only at whole-operation success, while callback effects remain. Empty/invalid admission and a term above limit are distinct. Actual Rust const-bool Result comparison is numeric only, not C callback ABI/ownership equivalence.',
+      'Six compiler profiles pass4anchors and8compiled ordinary semantic controls including both retained pure reducer defects;4compiling learner stubs reject. Each profile matches18968 independent cases and93114 exact ordered callback events,9402 acquisition refusals,4718 projection failures and3546 range refusals, plus actual retained pure-sequence results. Real malloc/free and before/after-allocation cuts test partial ownership. Equal-policy repeated samples retain40000 calls of every callback and exact checksums; compiler helpers/stack/build observations remain source-bound.',
+      'Required effectful transfer is implemented for caller projection, fallible acquisition and cleanup. Saturation at index0 does not omit later effects or final partial acquisition failure; failed results preserve99 while recorded effect prefixes survive. A modulo3 projection changes the numeric input before the checked fold. Dynamic/generated forms agree on status, output, order and resources, with explicit nonreentry/lifetime premises and13cost dimensions. No unaided delayed learner result is inferred.'
+    ]
+    criteria=[{**r,'author_readiness':'ready-bounded','demonstration':claim,'teaching':teaching,'implementation':implementation,'validation':[REPORT,COST],'independent_learner':'not-assessed','external_review':'not-run','physical_observation':'not-applicable-host-contract'} for r,claim in zip(m['rubric'],claims)]
+    updates=[]
+    for identity in ['X-T68-003','X-T68-003-DELAYED','T68-03-TRANSFER','T68-03-INVESTIGATION']+[r['id'] for r in m['rubric']]:
+        claim=next((r['demonstration'] for r in criteria if r['id']==identity),claims[3] if identity.endswith(('DELAYED','TRANSFER')) else ' '.join(claims))
+        updates.append(dict(id=identity,dimensions={'teaching':dict(state='complete',evidence=teaching),'implementation':dict(state='complete',evidence=implementation),'author_validation':dict(state='passed',evidence=[REPORT,COST,READINESS]),'external_review':dict(state='not-run',evidence=[]),'independent_learner':dict(state='not-assessed',evidence=[]),'physical_observation':dict(state='not-applicable-host-contract',evidence=[teaching[2]])},closure_rationale=claim+' Bounded author support only.'))
+    g=read_json(ROOT/'research/v5/modern/ad_mp_gap_ledger.json')
+    for row in g['gaps']:
+        if row['id'] in ['T68-03-TRANSFER','T68-03-INVESTIGATION']:row.update(status='author-support-implemented-and-source-validated; independent-learner-not-assessed',author_evidence=[READINESS,REPORT,COST],remaining_external=['Unaided delayed learner attempt and per-objective assessment','Non-author assessment','Exact published C17/C23 access gaps remain'])
+    dump(ROOT/'research/v5/modern/ad_mp_gap_ledger.json',g)
+    inputs={**d['input_sha256'],**q['input_sha256']}
+    for p in teaching+implementation+[REPORT,COST,'tools/build_metaprog_policy_effects_readiness.py','tools/check_metaprog_policy_effects.py']:inputs[p]=sha(ROOT/p)
+    dump(ROOT/READINESS,dict(schema_version=1,domain='T68',criteria=criteria,variants=[dict(id='X-T68-003-DELAYED',author_support='implemented-and-author-validated',evidence=teaching+implementation+[REPORT,COST],independent_learner='not-assessed')],current_reports={p:sha(ROOT/p) for p in [REPORT,COST]},input_sha256=inputs,limits=['Serialized nonreentrant callbacks and valid partial-owner cleanup contracts are premises.','Numeric saturation does not imply effect-protocol completion or rollback.','Rust const-bool numeric behavior does not implement the C callback resource ABI.','Published C17/C23 remain inaccessible; no physical result or independent human review.']))
+    inputs[READINESS]=sha(ROOT/READINESS);dump(ROOT/'research/v5/modern/metaprog_policy_effects_completion_dispositions.json',dict(schema_version=1,updates=updates,current_reports=[REPORT,COST],input_sha256=inputs));print(json.dumps(dict(passed=True,criteria=4,updates=8)))
+if __name__=='__main__':main()

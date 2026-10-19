@@ -1,0 +1,158 @@
+# X-T70-005: Archetype migration with capacity admission and row repair
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for containers.array, memory.pool, measurement.capture; prerequisite exercises: X-T70-001, X-T70-004. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement DEcs with4 entity IDs, component masks1(position),2(velocity),3(both), and2 rows per archetype. Set creates, replaces or migrates an entity; step updates only the both-component table. Build a query adapter for required/excluded masks and a structural version counter for cached table selection. Specify deletion/reuse as a separate generation-bearing extension, never silently reuse an ID while old views survive. All structural edits happen outside an active iteration borrow.
+
+Supplied artifacts: labs/dod/include/dod.h, deliberately incomplete labs/dod/src/dod.c, executable anchors, fixture PR-T70-05.json and the shared CONTRACTS.md. Expected example: Create entity0/1 in mask1 and entity2 in mask3. Moving0 into mask3 succeeds and moves1 to row0 of mask1. Moving1 into now-full mask3 rejects without deleting it. Step changes both-component positions30,10 with velocities2,1 into32,11; a later overflow preserves the whole table.
+
+## Necessity
+
+An archetype label does not teach migration atomicity or query invalidation. Deleting the old row before discovering a full destination loses an entity even though the numerical component code is correct.
+
+## Reasoning
+
+T70.05.a: Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.
+
+T70.05.b: Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.
+
+T70.05.c: Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.
+
+T70.05.d: Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dod -B build/dod` then build and `ctest --test-dir build/dod -R "^dod.ecs$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. Admission is separate from commit.
+2. Source swap-removal changes a different entity mapping.
+3. A cached table match does not grant a live borrow of its old row storage.
+
+## Variants
+
+X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+## Required extension support
+
+The extension specification in `labs/dod/CONTRACTS.md` and public `dod_ext.h`
+now supplies a compiling learner stub, concrete boundary histories and two
+compiled semantic controls for `dod.query`. Implement this required changed
+contract and include its independent oracle observations in D3. Explain the
+failed invariant for each control and defend the original mapped D4/D5
+criterion where applicable. Author execution does not replace delayed learner
+assessment or any remaining large-workload/target measurements.
+## Recycled identity and deferred publication support
+
+The required delayed variant has a concrete public API in `dod_entities.h`,
+compiling `src/dod_entities.c`, the shared recycled-entity contract and the
+`dod.entities` anchor. Reuse the actual DSparse and query-world implementations
+through this explicit adapter. D2 must define when an iterated row is borrowed,
+when command application is permitted and what a failed batch preserves.
+D3 must test both stale identity and atomicity: an old slot number is not a new
+entity, and a later failed command cannot publish an earlier migration.
+The independent dictionary oracle covers every six-step script over creation,
+latest-handle deletion and first-handle migration. R4 still requires a separate
+query/mutation workload study with equal results and disclosed copy/cache costs;
+this identity adapter alone does not establish performance superiority.
+
+## Query and mutation experiment support
+
+The host `structure_measure.c` and its source-bound runner compare one, sixteen
+and256 queries per mutation for two live entities. The comparison uses actual
+generation-handle checks and a versioned archetype cache versus original dense
+component sets with inverse indices. Include state publication, copying, cache
+maintenance and all query results; do not extrapolate this admitted success
+workload to unrestricted APIs or large populations. The separate observer
+counts explicit payload/ID stores only. For R4 explain why full-world atomic
+staging and compiler inlining can dominate the measured result. A large-world
+transfer requires a new workload and capacity/ownership argument.
+
+## Objective-specific assessment anchors
+
+### X-T70-005-R1 / T70.05.a
+
+Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-005-R2 / T70.05.b
+
+Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-005-R3 / T70.05.c
+
+Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-005-R4 / T70.05.d
+
+Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T70-05
+
+Required earlier exercises: X-T70-001, X-T70-004
+
+Required baseline units: none
+
+Required artifact imports: containers.array, memory.pool, measurement.capture
+
+
+- [R-MOD-DOD-FLECS](https://www.flecs.dev/flecs/Queries.html): Caching: what is it? archetype grouping and component-set tables
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T70-005-DELAYED.
+
+Contract SHA-256: cc34c44bdfd97a7c31ec1699adfa7d78e411eab2cb80c30568a930eb89b88a15

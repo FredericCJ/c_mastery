@@ -5,7 +5,9 @@
   "title": "Bounded ISR and nested masking — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/interrupt_depth/handoff/CONTRACTS.md",
+    "curriculum/guides/interrupt-handoff-board-protocol.md"
   ],
   "baseline_binding": {
     "files": [
@@ -90,6 +92,50 @@
         "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
         "2.3.7 Exception entry and return including frame and EXC_RETURN"
       ]
+    },
+    {
+      "id": "R-XI-DDI",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "DDI0403E.e PDFp519: exception mask context; pp670–673,675–678: privileged register transfers, PRIMASK/BASEPRI_MAX, priority synchronization"
+      ]
+    },
+    {
+      "id": "R-XI-DUI",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "DUI0553B PDFpp210–211: MRS/MSR, BASEPRI_MAX monotonic restriction; p210 IPSR note compared to DDI0403E.e p675"
+      ]
+    },
+    {
+      "id": "R-XI-N1570",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs1–26: thread model, conflicting accesses, release/acquire synchronizes-with and data race",
+        "7.17.3 paragraphs1–6: ordering categories",
+        "7.17.5 and7.17.5.1: lock-free macros and object query"
+      ]
+    },
+    {
+      "id": "R-XI-GCC",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "6.48.2.6 Clobbers and Scratch Registers: memory compiler barrier versus processor speculation; early-clobber/output-input overlap"
+      ]
+    },
+    {
+      "id": "R-XI-QEMU-BOARD",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "lines97–106,142–147,343–355,464–479: selected model clock25MHz and timer0/1 at0x40000000/0x40001000 IRQ8/9"
+      ]
+    },
+    {
+      "id": "R-XI-QEMU-TIMER",
+      "path": "research/v5/expansion/legacy_advanced_handoff/resources.json",
+      "passages": [
+        "lines10–28,42–69,71–167,174–233: control/value/reload/INTSTATUS, W1C, enable, reload, interrupt and unsupported EXTIN"
+      ]
     }
   ],
   "reference_gaps": [
@@ -102,13 +148,48 @@
     "curriculum/projects/PR-T29-02.md",
     "fixtures/embedded/PR-T29-02.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/interrupt_depth/handoff/CONTRACTS.md",
+    "labs/interrupt_depth/handoff/handoff.c",
+    "labs/interrupt_depth/handoff/handoff.h",
+    "labs/interrupt_depth/handoff/port.c",
+    "labs/interrupt_depth/handoff/run.py",
+    "labs/interrupt_depth/handoff/target.c",
+    "labs/interrupt_depth/handoff/target.S",
+    "labs/interrupt_depth/handoff/target_build.py",
+    "labs/interrupt_depth/handoff/tests.c",
+    "labs/interrupt_depth/handoff/wide.c",
+    "labs/interrupt_depth/handoff/wide_atomic.c",
+    "labs/interrupt_depth/handoff/wide_test.c",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/frame/frame.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/frame/CONTRACTS.md",
+    "labs/execution/include/cmx.h",
+    "labs/execution/src/concurrent.c",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "curriculum/guides/interrupt-handoff-board-protocol.md",
+    "fixtures/embedded/interrupt_handoff_capture.json",
+    "tools/check_interrupt_handoff_capture.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "interrupt_handoff_successor": {
+      "path": "research/v5/expansion/legacy_advanced_handoff/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-02-T29.03.a",
+        "AX-PR-T29-02-T29.03.b",
+        "AX-PR-T29-02-T29.03.c",
+        "AX-PR-T29-02-T29.04.a",
+        "AX-PR-T29-02-T29.04.b",
+        "AX-PR-T29-02-T29.04.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed capture/mask/publication/capacity tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
   },
   "criteria": [
     {
@@ -607,7 +688,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T29-02.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -615,5 +696,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_handoff/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-02-T29.03.a",
+        "AX-PR-T29-02-T29.03.b",
+        "AX-PR-T29-02-T29.03.c",
+        "AX-PR-T29-02-T29.04.a",
+        "AX-PR-T29-02-T29.04.b",
+        "AX-PR-T29-02-T29.04.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed capture/mask/publication/capacity tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
+  ]
 }

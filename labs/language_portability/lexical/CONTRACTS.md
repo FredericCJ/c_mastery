@@ -1,0 +1,36 @@
+# Translation stages, tokens and dependency authority
+
+## Exact scope and prerequisites
+
+This required successor supplies all six ordinary and delayed tasks for `AX-PR-T06-01-T06.01.a`, `.b` and `.c`. The parent card remains the shared fourteen-field assessment contract. Families are semantic reasoning, diagnosis, falsification and changed-assumption transfer. The deliverable is a reproducible compiler investigation and repaired build, not a pretend implementation of a complete preprocessor.
+
+Prerequisites: PR-T01-01 command/stage evidence, PR-T05-01 source authority and PR-T05-02 capability distinctions. Required learner artifacts are `predictions.json`, a physical-line/logical-line/token derivation, stage logs, repaired declaration and dependency report. Use hosted Linux x86-64 with strict C17 as baseline. Run C23 as an explicitly separate changed mode; record exact compiler/version. The dependency specimen asserts the selected profile's sizeof(int)=4 and sizeof(long)=8 rather than silently assuming it on other data models. GCC/Clang and Python are host investigation tools. No target runtime component or freestanding closure is asserted.
+
+## Representation and experiment contract
+
+The supplied UTF-8 source files use ASCII C characters and explicit newlines. Do not let an editor remove the backslash at the end of the comment in splice.c. Preserve exact source hashes. Translation phases are an abstract ordering, not a requirement that a compiler physically implement eight separate passes. `-E -P` is an implementation observation of preprocessed output, not a complete phase-by-phase oracle. In particular it need not display adjacent string literals already concatenated.
+
+`experiment.py` takes an explicit compiler, edition, optimization and fresh output directory. It records source-to-preprocessing, compile/link and actual execution separately. Nonzero returns1/9/15/19 are intentional data results from these original programs; do not relabel them failed tool invocations. A malformed declaration has a distinct expected compiler rejection. The runner does not silently choose a private implementation or mark reasoning passed.
+
+The build experiment owns its private directory. It copies a.c, b.c, main.c and config.h, hashes actual compiler-reported depfiles, skips unchanged inputs, then changes only TYPE from int to long in config.h. Only a.c includes that header. It preserves each round's object and configuration snapshots. The host script's dictionary is per-experiment build state, with no concurrent writers. An unsuccessful compile must stop before publishing a successful experiment report. Temporary output cleanup and disk failures remain ordinary host-tool errors, not C semantic outcomes. Work is linear in bytes of declared dependencies plus compiler costs; it does not claim optimal build scheduling or arbitrary filesystem race safety.
+
+## Six exact investigations
+
+1. **T06.01.a:** Predict splice.c before execution. Show the physical line containing the backslash, the logical line after splicing and the comment extent after comment recognition. State the final token stream and returned value. Explain why recognizing line comments before splicing gives a plausible wrong answer.
+2. **T06.01.a-DELAYED:** Use trigraph.c unchanged in both modes. Compare the actual inspected N1570 phase1 trigraph rule with N3096's later phase1 text. Determine how a phase1 replacement can create the backslash consumed at phase2. Attribute observed modes to their recorded compilers and drafts; exact published C17/C23 copies remain inaccessible. Do not add an option that restores trigraphs and then call that the standard default.
+3. **T06.01.b:** Trace A/**/B through comment replacement and macro replacement. Explain why it is two preprocessing tokens, not AB. Explain why VALUE inside a string is not an identifier macro occurrence. Save literal sizes and contents as well as preprocessed text.
+4. **T06.01.b-DELAYED:** Trace PREFIX followed by a direct string literal. Identify macro replacement before adjacent literal concatenation, derive the terminating zero and final array size, and reconcile this with a preprocessor display that still shows two quoted tokens.
+5. **T06.01.c:** The runner supplies TYPE as int followed by a comma. Keep the original declaration, bad configuration, successful preprocessing text and rejecting semantic diagnostic. Identify where the invalid declaration was introduced and where it was diagnosed. Repair only the configuration and demonstrate both new tokens and a successful executable. A compiler's diagnostic line is not automatically the earliest divergent stage.
+6. **T06.01.c-DELAYED:** Run three real dependency rounds: initial build, unchanged build, header-only edit. Preserve commands, declared dependencies, object hashes and returns. Prove which translation unit needs recompilation. Compare a deliberately stale relink from the preserved first-round objects with the rebuilt program. The stale program may link successfully while implementing the prior header contract.
+
+## Verification, pass criteria and limitations
+
+D1 is the independent written phase derivation and source-status table; D2 is repaired declaration plus a dependency-driven build; D3 is the exact source/log/object evidence; D4 is the changed-edition, adjacent-string and header-only transfer. Run GCC and Clang at O0/O3 in C17 and C23. Every cell must show splice1, literals0, bad preprocessing0, bad semantic rejection, repaired execution0, incremental compile sets {a,b,main}, {}, {a}, and returns15,15,19. C17 trigraph returns1; the selected C23 modes return9. These are selected-program expectations, not all-compiler conformance claims.
+
+Three actual counter-controls remove the splice, merge the comment-separated identifiers and relink stale objects. They must respectively return9, fail semantic compilation and retain15 after the header edit. The private answer key derives expected semantics independently of captured compiler text. The public judge requires an explicit key, rejects unfinished and deliberately wrong predictions, and checks only answers, never understanding. Do not ship that private key to the learner. There is no artificial C stub because the assessed mechanism here is source analysis and compiler/build diagnosis; predictions are the unfinished learner artifact.
+
+## Rubric and graduated hints
+
+Score0: missing or wrong phase ordering, missing evidence, or private answers copied. Score1: observed values reproduced without a derivation, or compilation confused with execution. Score2: all ordinary explanations and repair are correct, with exact source and separate stage logs. Score3: independently solves the changed-edition, concatenation and dependency variants, rejects stale linked evidence and states the limits of compiler observations. Author campaigns cannot establish independent learner mastery.
+
+Hints: preserve the physical newline first; next apply splicing before comments; then keep preprocessing tokens separate from string characters; finally compare depfile inputs rather than guessing from filenames. All specimens are original local programs with synthetic data. There is no external service, security setting change, hardware access or exploit demonstration. Private technical analysis remains under assessor/.

@@ -1,0 +1,5 @@
+# Why this is a distinct required mechanism
+
+Retained vector and array-removal work already implements ordinary mutation. The finite84 erase-remove description adds a missing two-phase lifetime distinction. The scalar kernel exposes logical-end versus size. The bounded owner then changes the failure and resource contract, making aliasing, pending ownership, cleanup and generation limits observable. The C++ comparison falsifies the tempting equivalence between a defined removed tail and a valid-but-unspecified moved-from tail. These mechanisms justify one composed exercise with three objective-specific criteria rather than duplicate vector titles.
+
+The original rights ledger uses synthetic IDs and harmless wrong-ID mutations. It can establish that a particular ownership contract is violated without claiming memory exploitation. The fixed twelve-item owner is deliberately bounded; arbitrary generic types, concurrent filtering, callbacks that do not return and allocation-backed resizing remain different contracts, not hidden claims of this exercise.

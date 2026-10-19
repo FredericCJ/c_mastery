@@ -1,0 +1,2 @@
+#include "maximum.h"
+int main(void){return item_n0!=0 || item_n1!=1 || item_n2!=2 || item_n3!=3 || item_n4!=4 || item_n5!=5 || item_n6!=6 || item_n7!=7 || item_n8!=8 || item_n9!=9 || item_n10!=10 || item_n11!=11 || item_n12!=12 || item_n13!=13 || item_n14!=14 || item_n15!=15 || item_n16!=16 || item_n17!=17 || item_n18!=18 || item_n19!=19 || item_n20!=20 || item_n21!=21 || item_n22!=22 || item_n23!=23 || item_n24!=24 || item_n25!=25 || item_n26!=26 || item_n27!=27 || item_n28!=28 || item_n29!=29 || item_n30!=30 || item_n31!=31;}

@@ -1,0 +1,536 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/migration-companion-20261018T061643007388Z/gcc-O3/migration.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <lp_sum>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	48 85 d2             	test   %rdx,%rdx
+   7:	74 37                	je     40 <lp_sum+0x40>
+   9:	85 f6                	test   %esi,%esi
+   b:	7e 1b                	jle    28 <lp_sum+0x28>
+   d:	b9 ff ff ff 7f       	mov    $0x7fffffff,%ecx
+  12:	b8 02 00 00 00       	mov    $0x2,%eax
+  17:	29 f1                	sub    %esi,%ecx
+  19:	39 f9                	cmp    %edi,%ecx
+  1b:	7c 33                	jl     50 <lp_sum+0x50>
+  1d:	01 fe                	add    %edi,%esi
+  1f:	31 c0                	xor    %eax,%eax
+  21:	89 32                	mov    %esi,(%rdx)
+  23:	c3                   	ret
+  24:	0f 1f 40 00          	nopl   0x0(%rax)
+  28:	74 f3                	je     1d <lp_sum+0x1d>
+  2a:	b9 00 00 00 80       	mov    $0x80000000,%ecx
+  2f:	b8 02 00 00 00       	mov    $0x2,%eax
+  34:	29 f1                	sub    %esi,%ecx
+  36:	39 f9                	cmp    %edi,%ecx
+  38:	7e e3                	jle    1d <lp_sum+0x1d>
+  3a:	c3                   	ret
+  3b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+  40:	b8 01 00 00 00       	mov    $0x1,%eax
+  45:	c3                   	ret
+  46:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  4d:	00 00 00 
+  50:	c3                   	ret
+  51:	0f 1f 40 00          	nopl   0x0(%rax)
+  55:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  5c:	00 00 00 00 
+
+0000000000000060 <lp_compare>:
+  60:	f3 0f 1e fa          	endbr64
+  64:	8b 06                	mov    (%rsi),%eax
+  66:	39 07                	cmp    %eax,(%rdi)
+  68:	0f 9f c0             	setg   %al
+  6b:	0f 9c c2             	setl   %dl
+  6e:	0f b6 d2             	movzbl %dl,%edx
+  71:	0f b6 c0             	movzbl %al,%eax
+  74:	29 d0                	sub    %edx,%eax
+  76:	c3                   	ret
+  77:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+  7e:	00 00 
+
+0000000000000080 <lp_adapter>:
+  80:	f3 0f 1e fa          	endbr64
+  84:	8b 06                	mov    (%rsi),%eax
+  86:	39 07                	cmp    %eax,(%rdi)
+  88:	0f 9f c0             	setg   %al
+  8b:	0f 9c c2             	setl   %dl
+  8e:	0f b6 d2             	movzbl %dl,%edx
+  91:	0f b6 c0             	movzbl %al,%eax
+  94:	29 d0                	sub    %edx,%eax
+  96:	c3                   	ret
+  97:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+  9e:	00 00 
+
+00000000000000a0 <lp_context_adapter>:
+  a0:	f3 0f 1e fa          	endbr64
+  a4:	48 89 f0             	mov    %rsi,%rax
+  a7:	48 89 d6             	mov    %rdx,%rsi
+  aa:	31 d2                	xor    %edx,%edx
+  ac:	8b 00                	mov    (%rax),%eax
+  ae:	39 07                	cmp    %eax,(%rdi)
+  b0:	0f 9f c2             	setg   %dl
+  b3:	0f 9c c0             	setl   %al
+  b6:	0f b6 c0             	movzbl %al,%eax
+  b9:	89 d1                	mov    %edx,%ecx
+  bb:	29 c1                	sub    %eax,%ecx
+  bd:	29 d0                	sub    %edx,%eax
+  bf:	8b 16                	mov    (%rsi),%edx
+  c1:	85 d2                	test   %edx,%edx
+  c3:	0f 44 c1             	cmove  %ecx,%eax
+  c6:	c3                   	ret
+  c7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+  ce:	00 00 
+
+00000000000000d0 <lp_sort>:
+  d0:	f3 0f 1e fa          	endbr64
+  d4:	48 85 ff             	test   %rdi,%rdi
+  d7:	0f 94 c1             	sete   %cl
+  da:	48 85 f6             	test   %rsi,%rsi
+  dd:	0f 95 c0             	setne  %al
+  e0:	84 c1                	test   %al,%cl
+  e2:	0f 85 08 06 00 00    	jne    6f0 <lp_sort+0x620>
+  e8:	48 85 d2             	test   %rdx,%rdx
+  eb:	0f 84 ff 05 00 00    	je     6f0 <lp_sort+0x620>
+  f1:	8b 12                	mov    (%rdx),%edx
+  f3:	b8 01 00 00 00       	mov    $0x1,%eax
+  f8:	83 fa 01             	cmp    $0x1,%edx
+  fb:	0f 87 f7 05 00 00    	ja     6f8 <lp_sort+0x628>
+ 101:	b8 02 00 00 00       	mov    $0x2,%eax
+ 106:	48 83 fe 10          	cmp    $0x10,%rsi
+ 10a:	0f 87 e8 05 00 00    	ja     6f8 <lp_sort+0x628>
+ 110:	48 83 fe 01          	cmp    $0x1,%rsi
+ 114:	0f 86 dc 05 00 00    	jbe    6f6 <lp_sort+0x626>
+ 11a:	85 d2                	test   %edx,%edx
+ 11c:	49 89 f8             	mov    %rdi,%r8
+ 11f:	49 89 fa             	mov    %rdi,%r10
+ 122:	53                   	push   %rbx
+ 123:	48 8d 7e ff          	lea    -0x1(%rsi),%rdi
+ 127:	ba 00 00 00 00       	mov    $0x0,%edx
+ 12c:	0f 85 2b 03 00 00    	jne    45d <lp_sort+0x38d>
+ 132:	0f 1f 00             	nopl   (%rax)
+ 135:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 13c:	00 00 00 00 
+ 140:	4c 89 d0             	mov    %r10,%rax
+ 143:	31 f6                	xor    %esi,%esi
+ 145:	31 db                	xor    %ebx,%ebx
+ 147:	49 83 c2 08          	add    $0x8,%r10
+ 14b:	8b 48 08             	mov    0x8(%rax),%ecx
+ 14e:	3b 08                	cmp    (%rax),%ecx
+ 150:	49 89 c1             	mov    %rax,%r9
+ 153:	40 0f 9c c6          	setl   %sil
+ 157:	0f 9f c3             	setg   %bl
+ 15a:	44 8b 58 0c          	mov    0xc(%rax),%r11d
+ 15e:	29 de                	sub    %ebx,%esi
+ 160:	83 fe 01             	cmp    $0x1,%esi
+ 163:	0f 85 98 05 00 00    	jne    701 <lp_sort+0x631>
+ 169:	48 8b 30             	mov    (%rax),%rsi
+ 16c:	48 89 70 08          	mov    %rsi,0x8(%rax)
+ 170:	48 85 d2             	test   %rdx,%rdx
+ 173:	0f 84 81 02 00 00    	je     3fa <lp_sort+0x32a>
+ 179:	31 f6                	xor    %esi,%esi
+ 17b:	31 db                	xor    %ebx,%ebx
+ 17d:	3b 48 f8             	cmp    -0x8(%rax),%ecx
+ 180:	40 0f 9c c6          	setl   %sil
+ 184:	0f 9f c3             	setg   %bl
+ 187:	29 de                	sub    %ebx,%esi
+ 189:	83 fe 01             	cmp    $0x1,%esi
+ 18c:	0f 85 6b 02 00 00    	jne    3fd <lp_sort+0x32d>
+ 192:	48 8b 70 f8          	mov    -0x8(%rax),%rsi
+ 196:	48 89 30             	mov    %rsi,(%rax)
+ 199:	48 83 fa 01          	cmp    $0x1,%rdx
+ 19d:	0f 84 57 02 00 00    	je     3fa <lp_sort+0x32a>
+ 1a3:	31 f6                	xor    %esi,%esi
+ 1a5:	31 db                	xor    %ebx,%ebx
+ 1a7:	3b 48 f0             	cmp    -0x10(%rax),%ecx
+ 1aa:	40 0f 9c c6          	setl   %sil
+ 1ae:	0f 9f c3             	setg   %bl
+ 1b1:	29 de                	sub    %ebx,%esi
+ 1b3:	83 fe 01             	cmp    $0x1,%esi
+ 1b6:	0f 85 56 05 00 00    	jne    712 <lp_sort+0x642>
+ 1bc:	48 8b 70 f0          	mov    -0x10(%rax),%rsi
+ 1c0:	48 89 70 f8          	mov    %rsi,-0x8(%rax)
+ 1c4:	48 83 fa 02          	cmp    $0x2,%rdx
+ 1c8:	0f 84 2c 02 00 00    	je     3fa <lp_sort+0x32a>
+ 1ce:	31 f6                	xor    %esi,%esi
+ 1d0:	31 db                	xor    %ebx,%ebx
+ 1d2:	3b 48 e8             	cmp    -0x18(%rax),%ecx
+ 1d5:	40 0f 9c c6          	setl   %sil
+ 1d9:	0f 9f c3             	setg   %bl
+ 1dc:	29 de                	sub    %ebx,%esi
+ 1de:	83 fe 01             	cmp    $0x1,%esi
+ 1e1:	0f 85 34 05 00 00    	jne    71b <lp_sort+0x64b>
+ 1e7:	48 8b 70 e8          	mov    -0x18(%rax),%rsi
+ 1eb:	48 89 70 f0          	mov    %rsi,-0x10(%rax)
+ 1ef:	48 83 fa 03          	cmp    $0x3,%rdx
+ 1f3:	0f 84 01 02 00 00    	je     3fa <lp_sort+0x32a>
+ 1f9:	31 f6                	xor    %esi,%esi
+ 1fb:	31 db                	xor    %ebx,%ebx
+ 1fd:	3b 48 e0             	cmp    -0x20(%rax),%ecx
+ 200:	40 0f 9c c6          	setl   %sil
+ 204:	0f 9f c3             	setg   %bl
+ 207:	49 83 e9 18          	sub    $0x18,%r9
+ 20b:	29 de                	sub    %ebx,%esi
+ 20d:	83 fe 01             	cmp    $0x1,%esi
+ 210:	0f 85 e7 01 00 00    	jne    3fd <lp_sort+0x32d>
+ 216:	48 8b 70 e0          	mov    -0x20(%rax),%rsi
+ 21a:	48 89 70 e8          	mov    %rsi,-0x18(%rax)
+ 21e:	48 83 fa 04          	cmp    $0x4,%rdx
+ 222:	0f 84 d2 01 00 00    	je     3fa <lp_sort+0x32a>
+ 228:	31 f6                	xor    %esi,%esi
+ 22a:	45 31 c9             	xor    %r9d,%r9d
+ 22d:	3b 48 d8             	cmp    -0x28(%rax),%ecx
+ 230:	41 0f 9f c1          	setg   %r9b
+ 234:	40 0f 9c c6          	setl   %sil
+ 238:	44 29 ce             	sub    %r9d,%esi
+ 23b:	4c 8d 48 e0          	lea    -0x20(%rax),%r9
+ 23f:	83 fe 01             	cmp    $0x1,%esi
+ 242:	0f 85 b5 01 00 00    	jne    3fd <lp_sort+0x32d>
+ 248:	48 8b 70 d8          	mov    -0x28(%rax),%rsi
+ 24c:	48 89 70 e0          	mov    %rsi,-0x20(%rax)
+ 250:	48 83 fa 05          	cmp    $0x5,%rdx
+ 254:	0f 84 a0 01 00 00    	je     3fa <lp_sort+0x32a>
+ 25a:	31 f6                	xor    %esi,%esi
+ 25c:	45 31 c9             	xor    %r9d,%r9d
+ 25f:	3b 48 d0             	cmp    -0x30(%rax),%ecx
+ 262:	41 0f 9f c1          	setg   %r9b
+ 266:	40 0f 9c c6          	setl   %sil
+ 26a:	44 29 ce             	sub    %r9d,%esi
+ 26d:	4c 8d 48 d8          	lea    -0x28(%rax),%r9
+ 271:	83 fe 01             	cmp    $0x1,%esi
+ 274:	0f 85 83 01 00 00    	jne    3fd <lp_sort+0x32d>
+ 27a:	48 8b 70 d0          	mov    -0x30(%rax),%rsi
+ 27e:	48 89 70 d8          	mov    %rsi,-0x28(%rax)
+ 282:	48 83 fa 06          	cmp    $0x6,%rdx
+ 286:	0f 84 6e 01 00 00    	je     3fa <lp_sort+0x32a>
+ 28c:	31 f6                	xor    %esi,%esi
+ 28e:	45 31 c9             	xor    %r9d,%r9d
+ 291:	3b 48 c8             	cmp    -0x38(%rax),%ecx
+ 294:	41 0f 9f c1          	setg   %r9b
+ 298:	40 0f 9c c6          	setl   %sil
+ 29c:	44 29 ce             	sub    %r9d,%esi
+ 29f:	4c 8d 48 d0          	lea    -0x30(%rax),%r9
+ 2a3:	83 fe 01             	cmp    $0x1,%esi
+ 2a6:	0f 85 51 01 00 00    	jne    3fd <lp_sort+0x32d>
+ 2ac:	48 8b 70 c8          	mov    -0x38(%rax),%rsi
+ 2b0:	48 89 70 d0          	mov    %rsi,-0x30(%rax)
+ 2b4:	48 83 fa 07          	cmp    $0x7,%rdx
+ 2b8:	0f 84 3c 01 00 00    	je     3fa <lp_sort+0x32a>
+ 2be:	31 f6                	xor    %esi,%esi
+ 2c0:	45 31 c9             	xor    %r9d,%r9d
+ 2c3:	3b 48 c0             	cmp    -0x40(%rax),%ecx
+ 2c6:	41 0f 9f c1          	setg   %r9b
+ 2ca:	40 0f 9c c6          	setl   %sil
+ 2ce:	44 29 ce             	sub    %r9d,%esi
+ 2d1:	4c 8d 48 c8          	lea    -0x38(%rax),%r9
+ 2d5:	83 fe 01             	cmp    $0x1,%esi
+ 2d8:	0f 85 1f 01 00 00    	jne    3fd <lp_sort+0x32d>
+ 2de:	48 8b 70 c0          	mov    -0x40(%rax),%rsi
+ 2e2:	48 89 70 c8          	mov    %rsi,-0x38(%rax)
+ 2e6:	48 83 fa 08          	cmp    $0x8,%rdx
+ 2ea:	0f 84 0a 01 00 00    	je     3fa <lp_sort+0x32a>
+ 2f0:	31 f6                	xor    %esi,%esi
+ 2f2:	45 31 c9             	xor    %r9d,%r9d
+ 2f5:	3b 48 b8             	cmp    -0x48(%rax),%ecx
+ 2f8:	41 0f 9f c1          	setg   %r9b
+ 2fc:	40 0f 9c c6          	setl   %sil
+ 300:	44 29 ce             	sub    %r9d,%esi
+ 303:	4c 8d 48 c0          	lea    -0x40(%rax),%r9
+ 307:	83 fe 01             	cmp    $0x1,%esi
+ 30a:	0f 85 ed 00 00 00    	jne    3fd <lp_sort+0x32d>
+ 310:	48 8b 70 b8          	mov    -0x48(%rax),%rsi
+ 314:	48 89 70 c0          	mov    %rsi,-0x40(%rax)
+ 318:	48 83 fa 09          	cmp    $0x9,%rdx
+ 31c:	0f 84 d8 00 00 00    	je     3fa <lp_sort+0x32a>
+ 322:	31 f6                	xor    %esi,%esi
+ 324:	45 31 c9             	xor    %r9d,%r9d
+ 327:	3b 48 b0             	cmp    -0x50(%rax),%ecx
+ 32a:	41 0f 9f c1          	setg   %r9b
+ 32e:	40 0f 9c c6          	setl   %sil
+ 332:	44 29 ce             	sub    %r9d,%esi
+ 335:	4c 8d 48 b8          	lea    -0x48(%rax),%r9
+ 339:	83 fe 01             	cmp    $0x1,%esi
+ 33c:	0f 85 bb 00 00 00    	jne    3fd <lp_sort+0x32d>
+ 342:	48 8b 70 b0          	mov    -0x50(%rax),%rsi
+ 346:	48 89 70 b8          	mov    %rsi,-0x48(%rax)
+ 34a:	48 83 fa 0a          	cmp    $0xa,%rdx
+ 34e:	0f 84 a6 00 00 00    	je     3fa <lp_sort+0x32a>
+ 354:	31 f6                	xor    %esi,%esi
+ 356:	45 31 c9             	xor    %r9d,%r9d
+ 359:	3b 48 a8             	cmp    -0x58(%rax),%ecx
+ 35c:	41 0f 9f c1          	setg   %r9b
+ 360:	40 0f 9c c6          	setl   %sil
+ 364:	44 29 ce             	sub    %r9d,%esi
+ 367:	4c 8d 48 b0          	lea    -0x50(%rax),%r9
+ 36b:	83 fe 01             	cmp    $0x1,%esi
+ 36e:	0f 85 89 00 00 00    	jne    3fd <lp_sort+0x32d>
+ 374:	48 8b 70 a8          	mov    -0x58(%rax),%rsi
+ 378:	48 89 70 b0          	mov    %rsi,-0x50(%rax)
+ 37c:	48 83 fa 0b          	cmp    $0xb,%rdx
+ 380:	74 78                	je     3fa <lp_sort+0x32a>
+ 382:	31 f6                	xor    %esi,%esi
+ 384:	45 31 c9             	xor    %r9d,%r9d
+ 387:	3b 48 a0             	cmp    -0x60(%rax),%ecx
+ 38a:	41 0f 9f c1          	setg   %r9b
+ 38e:	40 0f 9c c6          	setl   %sil
+ 392:	44 29 ce             	sub    %r9d,%esi
+ 395:	4c 8d 48 a8          	lea    -0x58(%rax),%r9
+ 399:	83 fe 01             	cmp    $0x1,%esi
+ 39c:	75 5f                	jne    3fd <lp_sort+0x32d>
+ 39e:	48 8b 70 a0          	mov    -0x60(%rax),%rsi
+ 3a2:	48 89 70 a8          	mov    %rsi,-0x58(%rax)
+ 3a6:	48 83 fa 0c          	cmp    $0xc,%rdx
+ 3aa:	74 4e                	je     3fa <lp_sort+0x32a>
+ 3ac:	31 f6                	xor    %esi,%esi
+ 3ae:	45 31 c9             	xor    %r9d,%r9d
+ 3b1:	3b 48 98             	cmp    -0x68(%rax),%ecx
+ 3b4:	41 0f 9f c1          	setg   %r9b
+ 3b8:	40 0f 9c c6          	setl   %sil
+ 3bc:	44 29 ce             	sub    %r9d,%esi
+ 3bf:	4c 8d 48 a0          	lea    -0x60(%rax),%r9
+ 3c3:	83 fe 01             	cmp    $0x1,%esi
+ 3c6:	75 35                	jne    3fd <lp_sort+0x32d>
+ 3c8:	48 8b 70 98          	mov    -0x68(%rax),%rsi
+ 3cc:	48 89 70 a0          	mov    %rsi,-0x60(%rax)
+ 3d0:	48 83 fa 0d          	cmp    $0xd,%rdx
+ 3d4:	74 24                	je     3fa <lp_sort+0x32a>
+ 3d6:	31 f6                	xor    %esi,%esi
+ 3d8:	45 31 c9             	xor    %r9d,%r9d
+ 3db:	3b 48 90             	cmp    -0x70(%rax),%ecx
+ 3de:	41 0f 9f c1          	setg   %r9b
+ 3e2:	40 0f 9c c6          	setl   %sil
+ 3e6:	44 29 ce             	sub    %r9d,%esi
+ 3e9:	4c 8d 48 98          	lea    -0x68(%rax),%r9
+ 3ed:	83 fe 01             	cmp    $0x1,%esi
+ 3f0:	75 0b                	jne    3fd <lp_sort+0x32d>
+ 3f2:	48 8b 70 90          	mov    -0x70(%rax),%rsi
+ 3f6:	48 89 70 98          	mov    %rsi,-0x68(%rax)
+ 3fa:	4d 89 c1             	mov    %r8,%r9
+ 3fd:	48 83 c2 01          	add    $0x1,%rdx
+ 401:	41 89 09             	mov    %ecx,(%r9)
+ 404:	45 89 59 04          	mov    %r11d,0x4(%r9)
+ 408:	48 39 d7             	cmp    %rdx,%rdi
+ 40b:	0f 85 2f fd ff ff    	jne    140 <lp_sort+0x70>
+ 411:	31 c0                	xor    %eax,%eax
+ 413:	5b                   	pop    %rbx
+ 414:	c3                   	ret
+ 415:	0f 1f 00             	nopl   (%rax)
+ 418:	48 8b 70 98          	mov    -0x68(%rax),%rsi
+ 41c:	48 89 70 a0          	mov    %rsi,-0x60(%rax)
+ 420:	48 83 fa 0d          	cmp    $0xd,%rdx
+ 424:	74 24                	je     44a <lp_sort+0x37a>
+ 426:	31 f6                	xor    %esi,%esi
+ 428:	45 31 c9             	xor    %r9d,%r9d
+ 42b:	3b 48 90             	cmp    -0x70(%rax),%ecx
+ 42e:	41 0f 9c c1          	setl   %r9b
+ 432:	40 0f 9f c6          	setg   %sil
+ 436:	44 29 ce             	sub    %r9d,%esi
+ 439:	4c 8d 48 98          	lea    -0x68(%rax),%r9
+ 43d:	83 fe 01             	cmp    $0x1,%esi
+ 440:	75 0b                	jne    44d <lp_sort+0x37d>
+ 442:	48 8b 70 90          	mov    -0x70(%rax),%rsi
+ 446:	48 89 70 98          	mov    %rsi,-0x68(%rax)
+ 44a:	4d 89 c1             	mov    %r8,%r9
+ 44d:	48 83 c2 01          	add    $0x1,%rdx
+ 451:	41 89 09             	mov    %ecx,(%r9)
+ 454:	45 89 59 04          	mov    %r11d,0x4(%r9)
+ 458:	48 39 d7             	cmp    %rdx,%rdi
+ 45b:	74 b4                	je     411 <lp_sort+0x341>
+ 45d:	4c 89 d0             	mov    %r10,%rax
+ 460:	31 f6                	xor    %esi,%esi
+ 462:	31 db                	xor    %ebx,%ebx
+ 464:	49 83 c2 08          	add    $0x8,%r10
+ 468:	8b 48 08             	mov    0x8(%rax),%ecx
+ 46b:	3b 08                	cmp    (%rax),%ecx
+ 46d:	49 89 c1             	mov    %rax,%r9
+ 470:	40 0f 9f c6          	setg   %sil
+ 474:	0f 9c c3             	setl   %bl
+ 477:	44 8b 58 0c          	mov    0xc(%rax),%r11d
+ 47b:	29 de                	sub    %ebx,%esi
+ 47d:	83 fe 01             	cmp    $0x1,%esi
+ 480:	0f 85 73 02 00 00    	jne    6f9 <lp_sort+0x629>
+ 486:	48 8b 30             	mov    (%rax),%rsi
+ 489:	48 89 70 08          	mov    %rsi,0x8(%rax)
+ 48d:	48 85 d2             	test   %rdx,%rdx
+ 490:	74 b8                	je     44a <lp_sort+0x37a>
+ 492:	31 f6                	xor    %esi,%esi
+ 494:	31 db                	xor    %ebx,%ebx
+ 496:	3b 48 f8             	cmp    -0x8(%rax),%ecx
+ 499:	40 0f 9f c6          	setg   %sil
+ 49d:	0f 9c c3             	setl   %bl
+ 4a0:	29 de                	sub    %ebx,%esi
+ 4a2:	83 fe 01             	cmp    $0x1,%esi
+ 4a5:	75 a6                	jne    44d <lp_sort+0x37d>
+ 4a7:	48 8b 70 f8          	mov    -0x8(%rax),%rsi
+ 4ab:	48 89 30             	mov    %rsi,(%rax)
+ 4ae:	48 83 fa 01          	cmp    $0x1,%rdx
+ 4b2:	74 96                	je     44a <lp_sort+0x37a>
+ 4b4:	31 f6                	xor    %esi,%esi
+ 4b6:	31 db                	xor    %ebx,%ebx
+ 4b8:	3b 48 f0             	cmp    -0x10(%rax),%ecx
+ 4bb:	40 0f 9f c6          	setg   %sil
+ 4bf:	0f 9c c3             	setl   %bl
+ 4c2:	29 de                	sub    %ebx,%esi
+ 4c4:	83 fe 01             	cmp    $0x1,%esi
+ 4c7:	0f 85 3c 02 00 00    	jne    709 <lp_sort+0x639>
+ 4cd:	48 8b 70 f0          	mov    -0x10(%rax),%rsi
+ 4d1:	48 89 70 f8          	mov    %rsi,-0x8(%rax)
+ 4d5:	48 83 fa 02          	cmp    $0x2,%rdx
+ 4d9:	0f 84 6b ff ff ff    	je     44a <lp_sort+0x37a>
+ 4df:	31 f6                	xor    %esi,%esi
+ 4e1:	31 db                	xor    %ebx,%ebx
+ 4e3:	3b 48 e8             	cmp    -0x18(%rax),%ecx
+ 4e6:	40 0f 9f c6          	setg   %sil
+ 4ea:	0f 9c c3             	setl   %bl
+ 4ed:	29 de                	sub    %ebx,%esi
+ 4ef:	83 fe 01             	cmp    $0x1,%esi
+ 4f2:	0f 85 2c 02 00 00    	jne    724 <lp_sort+0x654>
+ 4f8:	48 8b 70 e8          	mov    -0x18(%rax),%rsi
+ 4fc:	48 89 70 f0          	mov    %rsi,-0x10(%rax)
+ 500:	48 83 fa 03          	cmp    $0x3,%rdx
+ 504:	0f 84 40 ff ff ff    	je     44a <lp_sort+0x37a>
+ 50a:	31 f6                	xor    %esi,%esi
+ 50c:	31 db                	xor    %ebx,%ebx
+ 50e:	3b 48 e0             	cmp    -0x20(%rax),%ecx
+ 511:	40 0f 9f c6          	setg   %sil
+ 515:	0f 9c c3             	setl   %bl
+ 518:	49 83 e9 18          	sub    $0x18,%r9
+ 51c:	29 de                	sub    %ebx,%esi
+ 51e:	83 fe 01             	cmp    $0x1,%esi
+ 521:	0f 85 26 ff ff ff    	jne    44d <lp_sort+0x37d>
+ 527:	48 8b 70 e0          	mov    -0x20(%rax),%rsi
+ 52b:	48 89 70 e8          	mov    %rsi,-0x18(%rax)
+ 52f:	48 83 fa 04          	cmp    $0x4,%rdx
+ 533:	0f 84 11 ff ff ff    	je     44a <lp_sort+0x37a>
+ 539:	31 f6                	xor    %esi,%esi
+ 53b:	45 31 c9             	xor    %r9d,%r9d
+ 53e:	3b 48 d8             	cmp    -0x28(%rax),%ecx
+ 541:	41 0f 9c c1          	setl   %r9b
+ 545:	40 0f 9f c6          	setg   %sil
+ 549:	44 29 ce             	sub    %r9d,%esi
+ 54c:	4c 8d 48 e0          	lea    -0x20(%rax),%r9
+ 550:	83 fe 01             	cmp    $0x1,%esi
+ 553:	0f 85 f4 fe ff ff    	jne    44d <lp_sort+0x37d>
+ 559:	48 8b 70 d8          	mov    -0x28(%rax),%rsi
+ 55d:	48 89 70 e0          	mov    %rsi,-0x20(%rax)
+ 561:	48 83 fa 05          	cmp    $0x5,%rdx
+ 565:	0f 84 df fe ff ff    	je     44a <lp_sort+0x37a>
+ 56b:	31 f6                	xor    %esi,%esi
+ 56d:	45 31 c9             	xor    %r9d,%r9d
+ 570:	3b 48 d0             	cmp    -0x30(%rax),%ecx
+ 573:	41 0f 9c c1          	setl   %r9b
+ 577:	40 0f 9f c6          	setg   %sil
+ 57b:	44 29 ce             	sub    %r9d,%esi
+ 57e:	4c 8d 48 d8          	lea    -0x28(%rax),%r9
+ 582:	83 fe 01             	cmp    $0x1,%esi
+ 585:	0f 85 c2 fe ff ff    	jne    44d <lp_sort+0x37d>
+ 58b:	48 8b 70 d0          	mov    -0x30(%rax),%rsi
+ 58f:	48 89 70 d8          	mov    %rsi,-0x28(%rax)
+ 593:	48 83 fa 06          	cmp    $0x6,%rdx
+ 597:	0f 84 ad fe ff ff    	je     44a <lp_sort+0x37a>
+ 59d:	31 f6                	xor    %esi,%esi
+ 59f:	45 31 c9             	xor    %r9d,%r9d
+ 5a2:	3b 48 c8             	cmp    -0x38(%rax),%ecx
+ 5a5:	41 0f 9c c1          	setl   %r9b
+ 5a9:	40 0f 9f c6          	setg   %sil
+ 5ad:	44 29 ce             	sub    %r9d,%esi
+ 5b0:	4c 8d 48 d0          	lea    -0x30(%rax),%r9
+ 5b4:	83 fe 01             	cmp    $0x1,%esi
+ 5b7:	0f 85 90 fe ff ff    	jne    44d <lp_sort+0x37d>
+ 5bd:	48 8b 70 c8          	mov    -0x38(%rax),%rsi
+ 5c1:	48 89 70 d0          	mov    %rsi,-0x30(%rax)
+ 5c5:	48 83 fa 07          	cmp    $0x7,%rdx
+ 5c9:	0f 84 7b fe ff ff    	je     44a <lp_sort+0x37a>
+ 5cf:	31 f6                	xor    %esi,%esi
+ 5d1:	45 31 c9             	xor    %r9d,%r9d
+ 5d4:	3b 48 c0             	cmp    -0x40(%rax),%ecx
+ 5d7:	41 0f 9c c1          	setl   %r9b
+ 5db:	40 0f 9f c6          	setg   %sil
+ 5df:	44 29 ce             	sub    %r9d,%esi
+ 5e2:	4c 8d 48 c8          	lea    -0x38(%rax),%r9
+ 5e6:	83 fe 01             	cmp    $0x1,%esi
+ 5e9:	0f 85 5e fe ff ff    	jne    44d <lp_sort+0x37d>
+ 5ef:	48 8b 70 c0          	mov    -0x40(%rax),%rsi
+ 5f3:	48 89 70 c8          	mov    %rsi,-0x38(%rax)
+ 5f7:	48 83 fa 08          	cmp    $0x8,%rdx
+ 5fb:	0f 84 49 fe ff ff    	je     44a <lp_sort+0x37a>
+ 601:	31 f6                	xor    %esi,%esi
+ 603:	45 31 c9             	xor    %r9d,%r9d
+ 606:	3b 48 b8             	cmp    -0x48(%rax),%ecx
+ 609:	41 0f 9c c1          	setl   %r9b
+ 60d:	40 0f 9f c6          	setg   %sil
+ 611:	44 29 ce             	sub    %r9d,%esi
+ 614:	4c 8d 48 c0          	lea    -0x40(%rax),%r9
+ 618:	83 fe 01             	cmp    $0x1,%esi
+ 61b:	0f 85 2c fe ff ff    	jne    44d <lp_sort+0x37d>
+ 621:	48 8b 70 b8          	mov    -0x48(%rax),%rsi
+ 625:	48 89 70 c0          	mov    %rsi,-0x40(%rax)
+ 629:	48 83 fa 09          	cmp    $0x9,%rdx
+ 62d:	0f 84 17 fe ff ff    	je     44a <lp_sort+0x37a>
+ 633:	31 f6                	xor    %esi,%esi
+ 635:	45 31 c9             	xor    %r9d,%r9d
+ 638:	3b 48 b0             	cmp    -0x50(%rax),%ecx
+ 63b:	41 0f 9c c1          	setl   %r9b
+ 63f:	40 0f 9f c6          	setg   %sil
+ 643:	44 29 ce             	sub    %r9d,%esi
+ 646:	4c 8d 48 b8          	lea    -0x48(%rax),%r9
+ 64a:	83 fe 01             	cmp    $0x1,%esi
+ 64d:	0f 85 fa fd ff ff    	jne    44d <lp_sort+0x37d>
+ 653:	48 8b 70 b0          	mov    -0x50(%rax),%rsi
+ 657:	48 89 70 b8          	mov    %rsi,-0x48(%rax)
+ 65b:	48 83 fa 0a          	cmp    $0xa,%rdx
+ 65f:	0f 84 e5 fd ff ff    	je     44a <lp_sort+0x37a>
+ 665:	31 f6                	xor    %esi,%esi
+ 667:	45 31 c9             	xor    %r9d,%r9d
+ 66a:	3b 48 a8             	cmp    -0x58(%rax),%ecx
+ 66d:	41 0f 9c c1          	setl   %r9b
+ 671:	40 0f 9f c6          	setg   %sil
+ 675:	44 29 ce             	sub    %r9d,%esi
+ 678:	4c 8d 48 b0          	lea    -0x50(%rax),%r9
+ 67c:	83 fe 01             	cmp    $0x1,%esi
+ 67f:	0f 85 c8 fd ff ff    	jne    44d <lp_sort+0x37d>
+ 685:	48 8b 70 a8          	mov    -0x58(%rax),%rsi
+ 689:	48 89 70 b0          	mov    %rsi,-0x50(%rax)
+ 68d:	48 83 fa 0b          	cmp    $0xb,%rdx
+ 691:	0f 84 b3 fd ff ff    	je     44a <lp_sort+0x37a>
+ 697:	31 f6                	xor    %esi,%esi
+ 699:	45 31 c9             	xor    %r9d,%r9d
+ 69c:	3b 48 a0             	cmp    -0x60(%rax),%ecx
+ 69f:	41 0f 9c c1          	setl   %r9b
+ 6a3:	40 0f 9f c6          	setg   %sil
+ 6a7:	44 29 ce             	sub    %r9d,%esi
+ 6aa:	4c 8d 48 a8          	lea    -0x58(%rax),%r9
+ 6ae:	83 fe 01             	cmp    $0x1,%esi
+ 6b1:	0f 85 96 fd ff ff    	jne    44d <lp_sort+0x37d>
+ 6b7:	48 8b 70 a0          	mov    -0x60(%rax),%rsi
+ 6bb:	48 89 70 a8          	mov    %rsi,-0x58(%rax)
+ 6bf:	48 83 fa 0c          	cmp    $0xc,%rdx
+ 6c3:	0f 84 81 fd ff ff    	je     44a <lp_sort+0x37a>
+ 6c9:	31 f6                	xor    %esi,%esi
+ 6cb:	45 31 c9             	xor    %r9d,%r9d
+ 6ce:	3b 48 98             	cmp    -0x68(%rax),%ecx
+ 6d1:	41 0f 9c c1          	setl   %r9b
+ 6d5:	40 0f 9f c6          	setg   %sil
+ 6d9:	44 29 ce             	sub    %r9d,%esi
+ 6dc:	4c 8d 48 a0          	lea    -0x60(%rax),%r9
+ 6e0:	83 fe 01             	cmp    $0x1,%esi
+ 6e3:	0f 84 2f fd ff ff    	je     418 <lp_sort+0x348>
+ 6e9:	e9 5f fd ff ff       	jmp    44d <lp_sort+0x37d>
+ 6ee:	66 90                	xchg   %ax,%ax
+ 6f0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 6f5:	c3                   	ret
+ 6f6:	31 c0                	xor    %eax,%eax
+ 6f8:	c3                   	ret
+ 6f9:	4d 89 d1             	mov    %r10,%r9
+ 6fc:	e9 4c fd ff ff       	jmp    44d <lp_sort+0x37d>
+ 701:	4d 89 d1             	mov    %r10,%r9
+ 704:	e9 f4 fc ff ff       	jmp    3fd <lp_sort+0x32d>
+ 709:	49 83 e9 08          	sub    $0x8,%r9
+ 70d:	e9 3b fd ff ff       	jmp    44d <lp_sort+0x37d>
+ 712:	49 83 e9 08          	sub    $0x8,%r9
+ 716:	e9 e2 fc ff ff       	jmp    3fd <lp_sort+0x32d>
+ 71b:	49 83 e9 10          	sub    $0x10,%r9
+ 71f:	e9 d9 fc ff ff       	jmp    3fd <lp_sort+0x32d>
+ 724:	49 83 e9 10          	sub    $0x10,%r9
+ 728:	e9 20 fd ff ff       	jmp    44d <lp_sort+0x37d>

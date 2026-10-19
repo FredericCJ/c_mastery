@@ -5,7 +5,9 @@
   "title": "DMA cancellation and visibility — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/interrupt_depth/lease/CONTRACTS.md",
+    "curriculum/guides/interrupt-lease-board-protocol.md"
   ],
   "baseline_binding": {
     "files": [
@@ -113,6 +115,44 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-XD-DDI",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF230–231 complete DMB/DSB definitions including SY encoding and completion/context effects"
+      ]
+    },
+    {
+      "id": "R-XD-RM0090",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF68 SRAM/CCM access;82–84 Flash ART and literal-pool data cache",
+        "PDF322–326 FIFO flush after EN clear, TC/NDTR, partial widths, configuration and error behavior"
+      ]
+    },
+    {
+      "id": "R-XD-RM0399",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF136–137 SRAM3 normal WBWA map and M4 code alias/DTCM distinction;140–141 DMA2/system maps",
+        "PDF689–690 FIFO drain, TC, stop/resume and remaining-byte limitations"
+      ]
+    },
+    {
+      "id": "R-XD-PM0253",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF219–220 cache line encoding: eight words",
+        "PDF240–244 privilege, PoC registers, reset/init, DSB/ISB, asynchronous faults and completion requirements"
+      ]
+    },
+    {
+      "id": "R-XD-GCC",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "6.48.2.6 memory clobber is compiler read/write ordering; explicitly does not prevent speculative processor reads"
+      ]
     }
   ],
   "reference_gaps": [
@@ -125,7 +165,33 @@
     "curriculum/projects/PR-T29-04.md",
     "fixtures/embedded/PR-T29-04.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/interrupt_depth/lease/board_build.py",
+    "labs/interrupt_depth/lease/bridge.c",
+    "labs/interrupt_depth/lease/bridge.h",
+    "labs/interrupt_depth/lease/CONTRACTS.md",
+    "labs/interrupt_depth/lease/lease.c",
+    "labs/interrupt_depth/lease/lease.h",
+    "labs/interrupt_depth/lease/order.c",
+    "labs/interrupt_depth/lease/order.h",
+    "labs/interrupt_depth/lease/run.py",
+    "labs/interrupt_depth/lease/target.c",
+    "labs/interrupt_depth/lease/target_build.py",
+    "labs/interrupt_depth/lease/tests.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/handoff/target.S",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/target.c",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/h745_cache.h",
+    "labs/firmware_lifecycle/targets/h745_cache.c",
+    "labs/firmware_lifecycle/targets/h745_port.c",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/firmware_lifecycle/targets/H745_ERRATA.md",
+    "curriculum/guides/interrupt-lease-board-protocol.md",
+    "fixtures/embedded/interrupt_lease_capture.json",
+    "tools/check_interrupt_lease_capture.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -133,7 +199,19 @@
     "tests": [
       "firmware_io.dma"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "interrupt_lease_successor": {
+      "path": "research/v5/expansion/legacy_advanced_lease/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-04-T29.07.a",
+        "AX-PR-T29-04-T29.07.b",
+        "AX-PR-T29-04-T29.07.c",
+        "AX-PR-T29-04-T29.08.a",
+        "AX-PR-T29-04-T29.08.b",
+        "AX-PR-T29-04-T29.08.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed cancellation/visibility/reset/target tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
   },
   "criteria": [
     {
@@ -671,7 +749,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T29-04.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -679,5 +757,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_lease/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-04-T29.07.a",
+        "AX-PR-T29-04-T29.07.b",
+        "AX-PR-T29-04-T29.07.c",
+        "AX-PR-T29-04-T29.08.a",
+        "AX-PR-T29-04-T29.08.b",
+        "AX-PR-T29-04-T29.08.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed cancellation/visibility/reset/target tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
+  ]
 }

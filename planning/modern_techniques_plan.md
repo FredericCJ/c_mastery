@@ -328,6 +328,17 @@ model checking (T61), free monads and tagless-final interpreters (reading notes 
 T69.09 and T72.09 only), and structured logging and metric types (rejected as
 elements by the SWE catalog).
 
+Comprehensive-scope correction,2026-10-17: the reading-only free/final boundary
+above records the original discovery decision and is superseded by required
+PR-T69-12/X-T69-012 (typed final interpretation) and PR-T72-10/X-T72-010
+(retained free effects and bind). The shared `higher_order` laboratory has
+separate HT/HF unit ownership, explicit prerequisite imports, independent
+interpreter checks, failure and lifetime variants, diagnostic counterexamples
+and a thirteen-dimension cost dossier. MOD-HIGHER-ORDER-FREE-FINAL preserves
+the omission and its closure evidence. This addition does not replace the
+existing capability/effect exercises or claim unrestricted kind-polymorphism
+and compiler-enforced lifetime safety in C.
+
 ## Project and laboratory anatomy
 
 1. Contract. The guarantee class from the census kernel (static rule, library

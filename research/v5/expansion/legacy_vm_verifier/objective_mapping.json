@@ -1,0 +1,79 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T46-02-T46.02.a",
+      "objective": "T46.02.a",
+      "task": "Derive a two-pass verifier: complete instruction-boundary discovery followed by reachable stack-height propagation per function. Prove each queued instruction is first discovered once and bound work/storage by code bytes and edges.",
+      "delayed": {
+        "id": "AX-PR-T46-02-T46.02.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add an opcode with two branch successors and update both passes from one declared width/effect table."
+      },
+      "teaching": "labs/runtime_followthrough/verifier/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed boundary/worklist/lattice/lowering/target dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/verifier/ANALYSIS.md#02a",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug 1 execute",
+        "gcc-debug 6 execute",
+        "PPC64-O0 0 execute",
+        "clang-O3 resources"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_verifier/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-02-T46.02.b",
+      "objective": "T46.02.b",
+      "task": "Generate one malformed program for each interior target, cross-function branch, wrong call arity, local index and inconsistent join. Pair each with a nearest valid program and verify failure-atomic load.",
+      "delayed": {
+        "id": "AX-PR-T46-02-T46.02.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a loop backedge that disagrees only after a second path reaches the join."
+      },
+      "teaching": "labs/runtime_followthrough/verifier/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed boundary/worklist/lattice/lowering/target dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/verifier/ANALYSIS.md#02b",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug 2 execute",
+        "gcc-debug 5 execute",
+        "target 5 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_verifier/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-02-T46.02.c",
+      "objective": "T46.02.c",
+      "task": "Construct structurally accepted programs with an uninitialized local, wrong arithmetic tag, nonterminating balanced loop and cross-frame operand pressure. Identify the runtime check needed in each.",
+      "delayed": {
+        "id": "AX-PR-T46-02-T46.02.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Extend abstract interpretation with initialized-local sets and explain the changed lattice/join rule."
+      },
+      "teaching": "labs/runtime_followthrough/verifier/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed boundary/worklist/lattice/lowering/target dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/verifier/ANALYSIS.md#02c",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug independent oracle",
+        "gcc-debug 3 execute",
+        "gcc-debug 4 execute",
+        "target 4 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_verifier/resources.json"
+    }
+  ],
+  "remaining": "T46–49 and recursive inventory remain required; physical/source/external dimensions are separate."
+}

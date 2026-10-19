@@ -4,7 +4,11 @@
   "domain": "T38",
   "title": "Independent depth assessment: I2C pull-up and wired-AND investigation",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/i2c/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/i2c/CONTRACTS.md",
+    "labs/serial_retry/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -117,6 +121,38 @@
         "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
         "PR-T38-03: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-IA-NXP7",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp8\u201312 sections3.1.1\u20133.1.9: open-drain,30/70 thresholds, ACK/NACK, synchronized clocks, identical streams and undefined START/STOP combinations",
+        "Printed p19 section3.1.16: stuck-SCL versus nine-clock SDA bus clear",
+        "Printed pp50\u201351 sections7.1\u20137.2: nominal0.8473RC interval and changed capacitance/mode"
+      ]
+    },
+    {
+      "id": "R-IA-RM21",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp849\u2013855: controller address/data sequence, one/two-byte ACK/POS/BTF closing and arbitration loss",
+        "Printed pp863\u2013865,867\u2013874: access width, pending CR1 command restriction, status clearing, CCR and TRISE"
+      ]
+    },
+    {
+      "id": "R-IA-ERR24",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp25\u201327 section2.10: spurious controller BERR, misplaced STOP,88\u2013100kHz repeated-START corner, target-transmit timing and voltage-dependent rise limitation"
+      ]
+    },
+    {
+      "id": "R-SR-NXP7",
+      "path": "research/v5/expansion/legacy_serial_retry/resources.json",
+      "passages": [
+        "UM10204 Rev7 printed pp9\u201313 sections3.1.4\u20133.1.10: STOP-defined bus idle, ACK, arbitration, clock stretching and seven-bit direction",
+        "UM10204 Rev7 printed p44 Table11: Standard/Fast/Fast-mode Plus tBUF minima4.7/1.3/0.5 microseconds"
+      ]
     }
   ],
   "reference_gaps": [
@@ -126,13 +162,72 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T38-03.json",
     "curriculum/projects/PR-T38-03.md",
-    "labs/serial_depth/CONTRACTS.md"
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/i2c/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/capture.py",
+    "labs/serial_followthrough/i2c/cases.c",
+    "labs/serial_followthrough/i2c/clear_learner.c",
+    "labs/serial_followthrough/i2c/electrical.c",
+    "labs/serial_followthrough/i2c/electrical_native.c",
+    "labs/serial_followthrough/i2c/guest.c",
+    "labs/serial_followthrough/i2c/i2c_depth.h",
+    "labs/serial_followthrough/i2c/learner.c",
+    "labs/serial_followthrough/i2c/mapped.c",
+    "labs/serial_followthrough/i2c/mapped_native.c",
+    "labs/serial_followthrough/i2c/native.c",
+    "labs/serial_followthrough/i2c/recovery.h",
+    "labs/serial_followthrough/i2c/target_build.py",
+    "labs/serial_followthrough/i2c/transaction.c",
+    "labs/peripheral_depth/i2c/i2c.h",
+    "labs/peripheral_depth/i2c/i2c.c",
+    "labs/peripheral_depth/i2c/target.c",
+    "labs/peripheral_depth/i2c/CONTRACTS.md",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/b045_systems/include/systems.h",
+    "labs/b045_systems/src/systems.c",
+    "labs/constrained_depth/timing/timing.c",
+    "labs/constrained_depth/timing/timing.h",
+    "labs/network_followthrough/driver/target.S",
+    "labs/serial_retry/CONTRACTS.md",
+    "labs/serial_retry/freestanding/string.h",
+    "labs/serial_retry/guest.c",
+    "labs/serial_retry/learner.c",
+    "labs/serial_retry/native.c",
+    "labs/serial_retry/retry.h",
+    "labs/serial_retry/target.ld",
+    "labs/serial_retry/target_build.py",
+    "labs/serial_retry/tests.c"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Retain exact rational pull-up fixture and X-T38-001 wired-AND arbitration.",
     "tests": [],
-    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied."
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "serial_i2c_successor": {
+      "path": "research/v5/expansion/legacy_serial_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-03-T38.04.a",
+        "AX-PR-T38-03-T38.04.b",
+        "AX-PR-T38-03-T38.04.c"
+      ],
+      "scope": "Three exact original criterion/V1 pairs; author experiments do not discharge physical or independent learner gates."
+    },
+    "serial_retry_successor": {
+      "path": "research/v5/expansion/legacy_serial_retry/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-03-T38.04.a",
+        "AX-PR-T38-03-T38.04.b",
+        "AX-PR-T38-03-T38.04.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
   },
   "criteria": [
     {
@@ -353,12 +448,32 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T38-03.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Actual original I2C derivation and retained-controller author experiments; physical analog evidence, external review and independent delayed learner evidence remain required.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Analog low level/rise-time measurements and selected-device bounds remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-03-T38.04.a",
+        "AX-PR-T38-03-T38.04.b",
+        "AX-PR-T38-03-T38.04.c"
+      ],
+      "scope": "Three exact original criterion/V1 pairs; author experiments do not discharge physical or independent learner gates."
+    },
+    {
+      "path": "research/v5/expansion/legacy_serial_retry/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-03-T38.04.a",
+        "AX-PR-T38-03-T38.04.b",
+        "AX-PR-T38-03-T38.04.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
+  ]
 }

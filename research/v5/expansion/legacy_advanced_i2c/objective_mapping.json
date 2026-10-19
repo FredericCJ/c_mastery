@@ -1,0 +1,62 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T28-04-T28.08.a",
+      "objective": "T28.08.a",
+      "task": "For address 0x52, register 0x10 and one-byte result 0x5A derive wire addresses 0xA4/0xA5 and START,write-address,register,repeated-START,read-address,byte,NACK,STOP. Enforce ACK-disable-before-ADDR-clear for the inspected single-byte receive.",
+      "delayed": {
+        "id": "AX-PR-T28-04-T28.08.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a two-byte read only after deriving its complete ACK/STOP timing from an inspected applicable procedure."
+      },
+      "teaching": "labs/peripheral_depth/i2c/CONTRACTS.md",
+      "learner_artifacts": [
+        "i2c.c",
+        "target.c",
+        "criterion-indexed dossier",
+        "recovery/uncertain-effect record"
+      ],
+      "assessment": "assessor/peripheral_depth/i2c/ANALYSIS.md#08.a",
+      "source_register": "research/v5/expansion/legacy_advanced_i2c/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-04-T28.08.b",
+      "objective": "T28.08.b",
+      "task": "Inject NACK, arbitration loss, stretched clock and stuck SDA into the original phase model. Bound every wait; perform recovery pulses only under the exclusive-single-master precondition, never while another master may own the bus.",
+      "delayed": {
+        "id": "AX-PR-T28-04-T28.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Allow a second master in the model and redesign recovery/admission rather than reusing exclusive-bus assumptions."
+      },
+      "teaching": "labs/peripheral_depth/i2c/CONTRACTS.md",
+      "learner_artifacts": [
+        "i2c.c",
+        "target.c",
+        "criterion-indexed dossier",
+        "recovery/uncertain-effect record"
+      ],
+      "assessment": "assessor/peripheral_depth/i2c/ANALYSIS.md#08.b",
+      "source_register": "research/v5/expansion/legacy_advanced_i2c/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-04-T28.08.c",
+      "objective": "T28.08.c",
+      "task": "Model a device command whose effect occurs before an acknowledgment is lost. Separate bus retry from application idempotence, and preserve an uncertain outcome if repeating could duplicate the effect.",
+      "delayed": {
+        "id": "AX-PR-T28-04-T28.08.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change from a register read to an increment command and revise retry policy without changing bus code blindly."
+      },
+      "teaching": "labs/peripheral_depth/i2c/CONTRACTS.md",
+      "learner_artifacts": [
+        "i2c.c",
+        "target.c",
+        "criterion-indexed dossier",
+        "recovery/uncertain-effect record"
+      ],
+      "assessment": "assessor/peripheral_depth/i2c/ANALYSIS.md#08.c",
+      "source_register": "research/v5/expansion/legacy_advanced_i2c/resources.json"
+    }
+  ],
+  "remaining": "T28.09–.12 and T29 remain required; physical/source/external dimensions separate"
+}

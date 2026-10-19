@@ -1,0 +1,472 @@
+
+/tmp/cmastery-cell_guard-investigation-g5e_co6s/clang.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <ocg_init>:
+   0:	48 85 ff             	test   %rdi,%rdi
+   3:	74 1a                	je     1f <ocg_init+0x1f>
+   5:	55                   	push   %rbp
+   6:	53                   	push   %rbx
+   7:	50                   	push   %rax
+   8:	89 f5                	mov    %esi,%ebp
+   a:	48 89 fb             	mov    %rdi,%rbx
+   d:	31 f6                	xor    %esi,%esi
+   f:	e8 00 00 00 00       	call   14 <ocg_init+0x14>
+			10: R_X86_64_PLT32	pthread_mutex_init-0x4
+  14:	85 c0                	test   %eax,%eax
+  16:	74 0d                	je     25 <ocg_init+0x25>
+  18:	48 83 c4 08          	add    $0x8,%rsp
+  1c:	5b                   	pop    %rbx
+  1d:	5d                   	pop    %rbp
+  1e:	c3                   	ret
+  1f:	b8 16 00 00 00       	mov    $0x16,%eax
+  24:	c3                   	ret
+  25:	0f 57 c0             	xorps  %xmm0,%xmm0
+  28:	0f 11 43 28          	movups %xmm0,0x28(%rbx)
+  2c:	0f 11 83 98 00 00 00 	movups %xmm0,0x98(%rbx)
+  33:	0f 11 83 88 00 00 00 	movups %xmm0,0x88(%rbx)
+  3a:	0f 11 43 78          	movups %xmm0,0x78(%rbx)
+  3e:	0f 11 43 68          	movups %xmm0,0x68(%rbx)
+  42:	0f 11 43 58          	movups %xmm0,0x58(%rbx)
+  46:	0f 11 43 48          	movups %xmm0,0x48(%rbx)
+  4a:	0f 11 43 38          	movups %xmm0,0x38(%rbx)
+  4e:	48 c7 83 a8 00 00 00 	movq   $0x0,0xa8(%rbx)
+  55:	00 00 00 00 
+  59:	89 6b 28             	mov    %ebp,0x28(%rbx)
+  5c:	48 c7 83 b0 00 00 00 	movq   $0x1,0xb0(%rbx)
+  63:	01 00 00 00 
+  67:	c7 83 c0 00 00 00 00 	movl   $0x0,0xc0(%rbx)
+  6e:	00 00 00 
+  71:	48 c7 83 b8 00 00 00 	movq   $0x1,0xb8(%rbx)
+  78:	01 00 00 00 
+  7c:	31 c0                	xor    %eax,%eax
+  7e:	48 83 c4 08          	add    $0x8,%rsp
+  82:	5b                   	pop    %rbx
+  83:	5d                   	pop    %rbp
+  84:	c3                   	ret
+  85:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  8c:	00 00 00 00 
+
+0000000000000090 <ocg_acquire>:
+  90:	48 85 d2             	test   %rdx,%rdx
+  93:	0f 94 c0             	sete   %al
+  96:	48 85 ff             	test   %rdi,%rdi
+  99:	0f 94 c1             	sete   %cl
+  9c:	08 c1                	or     %al,%cl
+  9e:	b8 01 00 00 00       	mov    $0x1,%eax
+  a3:	75 7f                	jne    124 <ocg_acquire+0x94>
+  a5:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+  ac:	74 76                	je     124 <ocg_acquire+0x94>
+  ae:	41 57                	push   %r15
+  b0:	41 56                	push   %r14
+  b2:	53                   	push   %rbx
+  b3:	48 83 ec 10          	sub    $0x10,%rsp
+  b7:	89 f3                	mov    %esi,%ebx
+  b9:	49 89 d6             	mov    %rdx,%r14
+  bc:	49 89 ff             	mov    %rdi,%r15
+  bf:	e8 00 00 00 00       	call   c4 <ocg_acquire+0x34>
+			c0: R_X86_64_PLT32	pthread_mutex_lock-0x4
+  c4:	89 c1                	mov    %eax,%ecx
+  c6:	b8 01 00 00 00       	mov    $0x1,%eax
+  cb:	85 c9                	test   %ecx,%ecx
+  cd:	75 4c                	jne    11b <ocg_acquire+0x8b>
+  cf:	4c 89 ff             	mov    %r15,%rdi
+  d2:	41 83 bf bc 00 00 00 	cmpl   $0x0,0xbc(%r15)
+  d9:	00 
+  da:	74 0c                	je     e8 <ocg_acquire+0x58>
+  dc:	e8 00 00 00 00       	call   e1 <ocg_acquire+0x51>
+			dd: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+  e1:	b8 06 00 00 00       	mov    $0x6,%eax
+  e6:	eb 33                	jmp    11b <ocg_acquire+0x8b>
+  e8:	48 83 c7 30          	add    $0x30,%rdi
+  ec:	4c 8d 44 24 08       	lea    0x8(%rsp),%r8
+  f1:	ba 01 00 00 00       	mov    $0x1,%edx
+  f6:	31 f6                	xor    %esi,%esi
+  f8:	89 d9                	mov    %ebx,%ecx
+  fa:	e8 00 00 00 00       	call   ff <ocg_acquire+0x6f>
+			fb: R_X86_64_PLT32	ow_borrow-0x4
+  ff:	4c 89 ff             	mov    %r15,%rdi
+ 102:	89 c3                	mov    %eax,%ebx
+ 104:	85 c0                	test   %eax,%eax
+ 106:	75 0c                	jne    114 <ocg_acquire+0x84>
+ 108:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+ 10d:	49 89 3e             	mov    %rdi,(%r14)
+ 110:	49 89 46 08          	mov    %rax,0x8(%r14)
+ 114:	e8 00 00 00 00       	call   119 <ocg_acquire+0x89>
+			115: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 119:	89 d8                	mov    %ebx,%eax
+ 11b:	48 83 c4 10          	add    $0x10,%rsp
+ 11f:	5b                   	pop    %rbx
+ 120:	41 5e                	pop    %r14
+ 122:	41 5f                	pop    %r15
+ 124:	c3                   	ret
+ 125:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 12c:	00 00 00 00 
+
+0000000000000130 <ocg_release>:
+ 130:	41 57                	push   %r15
+ 132:	41 56                	push   %r14
+ 134:	41 54                	push   %r12
+ 136:	53                   	push   %rbx
+ 137:	50                   	push   %rax
+ 138:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 13d:	48 85 ff             	test   %rdi,%rdi
+ 140:	74 3e                	je     180 <ocg_release+0x50>
+ 142:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 149:	74 35                	je     180 <ocg_release+0x50>
+ 14b:	49 89 f4             	mov    %rsi,%r12
+ 14e:	49 89 d6             	mov    %rdx,%r14
+ 151:	49 89 ff             	mov    %rdi,%r15
+ 154:	e8 00 00 00 00       	call   159 <ocg_release+0x29>
+			155: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 159:	85 c0                	test   %eax,%eax
+ 15b:	75 23                	jne    180 <ocg_release+0x50>
+ 15d:	bb 03 00 00 00       	mov    $0x3,%ebx
+ 162:	4c 89 ff             	mov    %r15,%rdi
+ 165:	4d 39 fc             	cmp    %r15,%r12
+ 168:	75 11                	jne    17b <ocg_release+0x4b>
+ 16a:	48 83 c7 30          	add    $0x30,%rdi
+ 16e:	4c 89 f6             	mov    %r14,%rsi
+ 171:	e8 00 00 00 00       	call   176 <ocg_release+0x46>
+			172: R_X86_64_PLT32	ow_release-0x4
+ 176:	4c 89 ff             	mov    %r15,%rdi
+ 179:	89 c3                	mov    %eax,%ebx
+ 17b:	e8 00 00 00 00       	call   180 <ocg_release+0x50>
+			17c: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 180:	89 d8                	mov    %ebx,%eax
+ 182:	48 83 c4 08          	add    $0x8,%rsp
+ 186:	5b                   	pop    %rbx
+ 187:	41 5c                	pop    %r12
+ 189:	41 5e                	pop    %r14
+ 18b:	41 5f                	pop    %r15
+ 18d:	c3                   	ret
+ 18e:	66 90                	xchg   %ax,%ax
+
+0000000000000190 <ocg_read>:
+ 190:	41 57                	push   %r15
+ 192:	41 56                	push   %r14
+ 194:	41 55                	push   %r13
+ 196:	41 54                	push   %r12
+ 198:	53                   	push   %rbx
+ 199:	48 85 c9             	test   %rcx,%rcx
+ 19c:	0f 94 c0             	sete   %al
+ 19f:	48 85 ff             	test   %rdi,%rdi
+ 1a2:	41 0f 94 c0          	sete   %r8b
+ 1a6:	41 08 c0             	or     %al,%r8b
+ 1a9:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 1ae:	75 44                	jne    1f4 <ocg_read+0x64>
+ 1b0:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 1b7:	74 3b                	je     1f4 <ocg_read+0x64>
+ 1b9:	49 89 f5             	mov    %rsi,%r13
+ 1bc:	49 89 d7             	mov    %rdx,%r15
+ 1bf:	49 89 ce             	mov    %rcx,%r14
+ 1c2:	49 89 fc             	mov    %rdi,%r12
+ 1c5:	e8 00 00 00 00       	call   1ca <ocg_read+0x3a>
+			1c6: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 1ca:	85 c0                	test   %eax,%eax
+ 1cc:	75 26                	jne    1f4 <ocg_read+0x64>
+ 1ce:	bb 03 00 00 00       	mov    $0x3,%ebx
+ 1d3:	4c 89 e7             	mov    %r12,%rdi
+ 1d6:	4d 39 e5             	cmp    %r12,%r13
+ 1d9:	75 14                	jne    1ef <ocg_read+0x5f>
+ 1db:	48 83 c7 28          	add    $0x28,%rdi
+ 1df:	4c 89 fe             	mov    %r15,%rsi
+ 1e2:	4c 89 f2             	mov    %r14,%rdx
+ 1e5:	e8 00 00 00 00       	call   1ea <ocg_read+0x5a>
+			1e6: R_X86_64_PLT32	ow_cell_read-0x4
+ 1ea:	4c 89 e7             	mov    %r12,%rdi
+ 1ed:	89 c3                	mov    %eax,%ebx
+ 1ef:	e8 00 00 00 00       	call   1f4 <ocg_read+0x64>
+			1f0: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 1f4:	89 d8                	mov    %ebx,%eax
+ 1f6:	5b                   	pop    %rbx
+ 1f7:	41 5c                	pop    %r12
+ 1f9:	41 5d                	pop    %r13
+ 1fb:	41 5e                	pop    %r14
+ 1fd:	41 5f                	pop    %r15
+ 1ff:	c3                   	ret
+
+0000000000000200 <ocg_write>:
+ 200:	55                   	push   %rbp
+ 201:	41 57                	push   %r15
+ 203:	41 56                	push   %r14
+ 205:	41 54                	push   %r12
+ 207:	53                   	push   %rbx
+ 208:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 20d:	48 85 ff             	test   %rdi,%rdi
+ 210:	74 42                	je     254 <ocg_write+0x54>
+ 212:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 219:	74 39                	je     254 <ocg_write+0x54>
+ 21b:	49 89 f4             	mov    %rsi,%r12
+ 21e:	49 89 d6             	mov    %rdx,%r14
+ 221:	89 cd                	mov    %ecx,%ebp
+ 223:	49 89 ff             	mov    %rdi,%r15
+ 226:	e8 00 00 00 00       	call   22b <ocg_write+0x2b>
+			227: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 22b:	85 c0                	test   %eax,%eax
+ 22d:	75 25                	jne    254 <ocg_write+0x54>
+ 22f:	bb 03 00 00 00       	mov    $0x3,%ebx
+ 234:	4c 89 ff             	mov    %r15,%rdi
+ 237:	4d 39 fc             	cmp    %r15,%r12
+ 23a:	75 13                	jne    24f <ocg_write+0x4f>
+ 23c:	48 83 c7 28          	add    $0x28,%rdi
+ 240:	4c 89 f6             	mov    %r14,%rsi
+ 243:	89 ea                	mov    %ebp,%edx
+ 245:	e8 00 00 00 00       	call   24a <ocg_write+0x4a>
+			246: R_X86_64_PLT32	ow_cell_write-0x4
+ 24a:	4c 89 ff             	mov    %r15,%rdi
+ 24d:	89 c3                	mov    %eax,%ebx
+ 24f:	e8 00 00 00 00       	call   254 <ocg_write+0x54>
+			250: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 254:	89 d8                	mov    %ebx,%eax
+ 256:	5b                   	pop    %rbx
+ 257:	41 5c                	pop    %r12
+ 259:	41 5e                	pop    %r14
+ 25b:	41 5f                	pop    %r15
+ 25d:	5d                   	pop    %rbp
+ 25e:	c3                   	ret
+ 25f:	90                   	nop
+
+0000000000000260 <ocg_replace>:
+ 260:	55                   	push   %rbp
+ 261:	41 57                	push   %r15
+ 263:	41 56                	push   %r14
+ 265:	53                   	push   %rbx
+ 266:	50                   	push   %rax
+ 267:	48 85 d2             	test   %rdx,%rdx
+ 26a:	0f 94 c0             	sete   %al
+ 26d:	48 85 ff             	test   %rdi,%rdi
+ 270:	0f 94 c1             	sete   %cl
+ 273:	08 c1                	or     %al,%cl
+ 275:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 27a:	75 44                	jne    2c0 <ocg_replace+0x60>
+ 27c:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 283:	74 3b                	je     2c0 <ocg_replace+0x60>
+ 285:	89 f5                	mov    %esi,%ebp
+ 287:	49 89 d6             	mov    %rdx,%r14
+ 28a:	49 89 ff             	mov    %rdi,%r15
+ 28d:	e8 00 00 00 00       	call   292 <ocg_replace+0x32>
+			28e: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 292:	85 c0                	test   %eax,%eax
+ 294:	75 2a                	jne    2c0 <ocg_replace+0x60>
+ 296:	bb 06 00 00 00       	mov    $0x6,%ebx
+ 29b:	4c 89 ff             	mov    %r15,%rdi
+ 29e:	41 83 bf bc 00 00 00 	cmpl   $0x0,0xbc(%r15)
+ 2a5:	00 
+ 2a6:	75 13                	jne    2bb <ocg_replace+0x5b>
+ 2a8:	48 83 c7 28          	add    $0x28,%rdi
+ 2ac:	89 ee                	mov    %ebp,%esi
+ 2ae:	4c 89 f2             	mov    %r14,%rdx
+ 2b1:	e8 00 00 00 00       	call   2b6 <ocg_replace+0x56>
+			2b2: R_X86_64_PLT32	ow_cell_replace-0x4
+ 2b6:	4c 89 ff             	mov    %r15,%rdi
+ 2b9:	89 c3                	mov    %eax,%ebx
+ 2bb:	e8 00 00 00 00       	call   2c0 <ocg_replace+0x60>
+			2bc: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 2c0:	89 d8                	mov    %ebx,%eax
+ 2c2:	48 83 c4 08          	add    $0x8,%rsp
+ 2c6:	5b                   	pop    %rbx
+ 2c7:	41 5e                	pop    %r14
+ 2c9:	41 5f                	pop    %r15
+ 2cb:	5d                   	pop    %rbp
+ 2cc:	c3                   	ret
+ 2cd:	0f 1f 00             	nopl   (%rax)
+
+00000000000002d0 <ocg_update>:
+ 2d0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 2d5:	48 85 ff             	test   %rdi,%rdi
+ 2d8:	0f 84 70 01 00 00    	je     44e <ocg_update+0x17e>
+ 2de:	48 85 f6             	test   %rsi,%rsi
+ 2e1:	0f 84 67 01 00 00    	je     44e <ocg_update+0x17e>
+ 2e7:	48 85 c9             	test   %rcx,%rcx
+ 2ea:	0f 84 5e 01 00 00    	je     44e <ocg_update+0x17e>
+ 2f0:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 2f7:	0f 84 51 01 00 00    	je     44e <ocg_update+0x17e>
+ 2fd:	55                   	push   %rbp
+ 2fe:	41 57                	push   %r15
+ 300:	41 56                	push   %r14
+ 302:	41 55                	push   %r13
+ 304:	41 54                	push   %r12
+ 306:	53                   	push   %rbx
+ 307:	48 83 ec 18          	sub    $0x18,%rsp
+ 30b:	49 89 d7             	mov    %rdx,%r15
+ 30e:	49 89 f4             	mov    %rsi,%r12
+ 311:	48 89 cd             	mov    %rcx,%rbp
+ 314:	48 89 fb             	mov    %rdi,%rbx
+ 317:	e8 00 00 00 00       	call   31c <ocg_update+0x4c>
+			318: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 31c:	89 c1                	mov    %eax,%ecx
+ 31e:	b8 01 00 00 00       	mov    $0x1,%eax
+ 323:	85 c9                	test   %ecx,%ecx
+ 325:	0f 85 15 01 00 00    	jne    440 <ocg_update+0x170>
+ 32b:	48 89 df             	mov    %rbx,%rdi
+ 32e:	83 bb bc 00 00 00 00 	cmpl   $0x0,0xbc(%rbx)
+ 335:	74 0f                	je     346 <ocg_update+0x76>
+ 337:	e8 00 00 00 00       	call   33c <ocg_update+0x6c>
+			338: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 33c:	b8 06 00 00 00       	mov    $0x6,%eax
+ 341:	e9 fa 00 00 00       	jmp    440 <ocg_update+0x170>
+ 346:	83 bf c0 00 00 00 00 	cmpl   $0x0,0xc0(%rdi)
+ 34d:	74 0f                	je     35e <ocg_update+0x8e>
+ 34f:	e8 00 00 00 00       	call   354 <ocg_update+0x84>
+			350: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 354:	b8 04 00 00 00       	mov    $0x4,%eax
+ 359:	e9 e2 00 00 00       	jmp    440 <ocg_update+0x170>
+ 35e:	4c 8d 77 30          	lea    0x30(%rdi),%r14
+ 362:	4c 8d 44 24 08       	lea    0x8(%rsp),%r8
+ 367:	ba 01 00 00 00       	mov    $0x1,%edx
+ 36c:	4c 89 f7             	mov    %r14,%rdi
+ 36f:	31 f6                	xor    %esi,%esi
+ 371:	b9 01 00 00 00       	mov    $0x1,%ecx
+ 376:	e8 00 00 00 00       	call   37b <ocg_update+0xab>
+			377: R_X86_64_PLT32	ow_borrow-0x4
+ 37b:	85 c0                	test   %eax,%eax
+ 37d:	74 07                	je     386 <ocg_update+0xb6>
+ 37f:	89 c5                	mov    %eax,%ebp
+ 381:	e9 b0 00 00 00       	jmp    436 <ocg_update+0x166>
+ 386:	4c 8d 6b 28          	lea    0x28(%rbx),%r13
+ 38a:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+ 38f:	48 8d 54 24 04       	lea    0x4(%rsp),%rdx
+ 394:	4c 89 ef             	mov    %r13,%rdi
+ 397:	e8 00 00 00 00       	call   39c <ocg_update+0xcc>
+			398: R_X86_64_PLT32	ow_cell_read-0x4
+ 39c:	85 c0                	test   %eax,%eax
+ 39e:	74 14                	je     3b4 <ocg_update+0xe4>
+ 3a0:	89 c5                	mov    %eax,%ebp
+ 3a2:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+ 3a7:	4c 89 f7             	mov    %r14,%rdi
+ 3aa:	e8 00 00 00 00       	call   3af <ocg_update+0xdf>
+			3ab: R_X86_64_PLT32	ow_release-0x4
+ 3af:	e9 82 00 00 00       	jmp    436 <ocg_update+0x166>
+ 3b4:	4c 89 6c 24 10       	mov    %r13,0x10(%rsp)
+ 3b9:	c7 83 c0 00 00 00 01 	movl   $0x1,0xc0(%rbx)
+ 3c0:	00 00 00 
+ 3c3:	48 89 df             	mov    %rbx,%rdi
+ 3c6:	e8 00 00 00 00       	call   3cb <ocg_update+0xfb>
+			3c7: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 3cb:	8b 74 24 04          	mov    0x4(%rsp),%esi
+ 3cf:	89 34 24             	mov    %esi,(%rsp)
+ 3d2:	48 89 e2             	mov    %rsp,%rdx
+ 3d5:	4c 89 ff             	mov    %r15,%rdi
+ 3d8:	41 ff d4             	call   *%r12
+ 3db:	41 89 c7             	mov    %eax,%r15d
+ 3de:	48 89 df             	mov    %rbx,%rdi
+ 3e1:	e8 00 00 00 00       	call   3e6 <ocg_update+0x116>
+			3e2: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 3e6:	b8 06 00 00 00       	mov    $0x6,%eax
+ 3eb:	83 bb bc 00 00 00 00 	cmpl   $0x0,0xbc(%rbx)
+ 3f2:	75 29                	jne    41d <ocg_update+0x14d>
+ 3f4:	b8 01 00 00 00       	mov    $0x1,%eax
+ 3f9:	45 85 ff             	test   %r15d,%r15d
+ 3fc:	75 1f                	jne    41d <ocg_update+0x14d>
+ 3fe:	8b 14 24             	mov    (%rsp),%edx
+ 401:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+ 406:	48 8b 7c 24 10       	mov    0x10(%rsp),%rdi
+ 40b:	e8 00 00 00 00       	call   410 <ocg_update+0x140>
+			40c: R_X86_64_PLT32	ow_cell_write-0x4
+ 410:	85 c0                	test   %eax,%eax
+ 412:	75 09                	jne    41d <ocg_update+0x14d>
+ 414:	8b 44 24 04          	mov    0x4(%rsp),%eax
+ 418:	89 45 00             	mov    %eax,0x0(%rbp)
+ 41b:	31 c0                	xor    %eax,%eax
+ 41d:	89 c5                	mov    %eax,%ebp
+ 41f:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+ 424:	4c 89 f7             	mov    %r14,%rdi
+ 427:	e8 00 00 00 00       	call   42c <ocg_update+0x15c>
+			428: R_X86_64_PLT32	ow_release-0x4
+ 42c:	c7 83 c0 00 00 00 00 	movl   $0x0,0xc0(%rbx)
+ 433:	00 00 00 
+ 436:	48 89 df             	mov    %rbx,%rdi
+ 439:	e8 00 00 00 00       	call   43e <ocg_update+0x16e>
+			43a: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 43e:	89 e8                	mov    %ebp,%eax
+ 440:	48 83 c4 18          	add    $0x18,%rsp
+ 444:	5b                   	pop    %rbx
+ 445:	41 5c                	pop    %r12
+ 447:	41 5d                	pop    %r13
+ 449:	41 5e                	pop    %r14
+ 44b:	41 5f                	pop    %r15
+ 44d:	5d                   	pop    %rbp
+ 44e:	c3                   	ret
+ 44f:	90                   	nop
+
+0000000000000450 <ocg_close>:
+ 450:	41 56                	push   %r14
+ 452:	53                   	push   %rbx
+ 453:	50                   	push   %rax
+ 454:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 459:	48 85 ff             	test   %rdi,%rdi
+ 45c:	74 2a                	je     488 <ocg_close+0x38>
+ 45e:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 465:	74 21                	je     488 <ocg_close+0x38>
+ 467:	49 89 fe             	mov    %rdi,%r14
+ 46a:	e8 00 00 00 00       	call   46f <ocg_close+0x1f>
+			46b: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 46f:	85 c0                	test   %eax,%eax
+ 471:	75 15                	jne    488 <ocg_close+0x38>
+ 473:	4c 89 f7             	mov    %r14,%rdi
+ 476:	41 c7 86 bc 00 00 00 	movl   $0x1,0xbc(%r14)
+ 47d:	01 00 00 00 
+ 481:	e8 00 00 00 00       	call   486 <ocg_close+0x36>
+			482: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 486:	31 db                	xor    %ebx,%ebx
+ 488:	89 d8                	mov    %ebx,%eax
+ 48a:	48 83 c4 08          	add    $0x8,%rsp
+ 48e:	5b                   	pop    %rbx
+ 48f:	41 5e                	pop    %r14
+ 491:	c3                   	ret
+ 492:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 499:	1f 84 00 00 00 00 00 
+
+00000000000004a0 <ocg_destroy>:
+ 4a0:	41 56                	push   %r14
+ 4a2:	53                   	push   %rbx
+ 4a3:	50                   	push   %rax
+ 4a4:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 4a9:	48 85 ff             	test   %rdi,%rdi
+ 4ac:	74 4a                	je     4f8 <ocg_destroy+0x58>
+ 4ae:	83 bf b8 00 00 00 00 	cmpl   $0x0,0xb8(%rdi)
+ 4b5:	74 41                	je     4f8 <ocg_destroy+0x58>
+ 4b7:	49 89 fe             	mov    %rdi,%r14
+ 4ba:	e8 00 00 00 00       	call   4bf <ocg_destroy+0x1f>
+			4bb: R_X86_64_PLT32	pthread_mutex_lock-0x4
+ 4bf:	85 c0                	test   %eax,%eax
+ 4c1:	75 35                	jne    4f8 <ocg_destroy+0x58>
+ 4c3:	4c 89 f7             	mov    %r14,%rdi
+ 4c6:	41 83 be c0 00 00 00 	cmpl   $0x0,0xc0(%r14)
+ 4cd:	00 
+ 4ce:	75 1e                	jne    4ee <ocg_destroy+0x4e>
+ 4d0:	83 7f 44 00          	cmpl   $0x0,0x44(%rdi)
+ 4d4:	75 18                	jne    4ee <ocg_destroy+0x4e>
+ 4d6:	83 7f 64 00          	cmpl   $0x0,0x64(%rdi)
+ 4da:	75 12                	jne    4ee <ocg_destroy+0x4e>
+ 4dc:	83 bf 84 00 00 00 00 	cmpl   $0x0,0x84(%rdi)
+ 4e3:	75 09                	jne    4ee <ocg_destroy+0x4e>
+ 4e5:	83 bf a4 00 00 00 00 	cmpl   $0x0,0xa4(%rdi)
+ 4ec:	74 14                	je     502 <ocg_destroy+0x62>
+ 4ee:	e8 00 00 00 00       	call   4f3 <ocg_destroy+0x53>
+			4ef: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 4f3:	bb 04 00 00 00       	mov    $0x4,%ebx
+ 4f8:	89 d8                	mov    %ebx,%eax
+ 4fa:	48 83 c4 08          	add    $0x8,%rsp
+ 4fe:	5b                   	pop    %rbx
+ 4ff:	41 5e                	pop    %r14
+ 501:	c3                   	ret
+ 502:	c7 87 bc 00 00 00 01 	movl   $0x1,0xbc(%rdi)
+ 509:	00 00 00 
+ 50c:	48 89 fb             	mov    %rdi,%rbx
+ 50f:	e8 00 00 00 00       	call   514 <ocg_destroy+0x74>
+			510: R_X86_64_PLT32	pthread_mutex_unlock-0x4
+ 514:	48 89 df             	mov    %rbx,%rdi
+ 517:	e8 00 00 00 00       	call   51c <ocg_destroy+0x7c>
+			518: R_X86_64_PLT32	pthread_mutex_destroy-0x4
+ 51c:	bb 04 00 00 00       	mov    $0x4,%ebx
+ 521:	85 c0                	test   %eax,%eax
+ 523:	75 d3                	jne    4f8 <ocg_destroy+0x58>
+ 525:	41 c7 86 b8 00 00 00 	movl   $0x0,0xb8(%r14)
+ 52c:	00 00 00 00 
+ 530:	31 db                	xor    %ebx,%ebx
+ 532:	eb c4                	jmp    4f8 <ocg_destroy+0x58>
+

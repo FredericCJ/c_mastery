@@ -1,0 +1,10 @@
+def run(c,root,args):
+ c.group='abstractions-registry';pub=root/'labs/api_depth/abstractions';private=root/'assessor/api_depth/abstractions';source=private/'registry.c';provider=root/'assessor/api_depth/api_depth.c';common=['-std=c17','-Wall','-Wextra','-Werror','-I'+str(pub),'-I'+str(root/'labs/api_depth/include')]
+ for cc in ('gcc','clang'):
+  for name,flags in [('debug',['-O0']),('release',['-O2']),('sanitize',['-O1','-fsanitize=address,undefined','-fno-pie','-no-pie'])]:
+   exe=c.root/(cc+'-'+name+'-registry');c.run([cc,*common,*flags,pub/'registry_tests.c',source,provider,'-o',exe]);c.run([exe],contains='REGISTRY-PASS:histories=10;terminal_free=1;capacity=4;policy_count=2')
+ for name,flag,selected in [('registry-early','API_MUTANT=3',source),('registry-leak','API_MUTANT=4',source),('registry-learner','UNSOLVED',pub/'registry.c')]:
+  exe=c.root/name;c.run(['gcc',*common,'-O2','-D'+flag,pub/'registry_tests.c',selected,provider,'-o',exe]);c.run([exe],expected=1,contains='REGISTRY-CHECK:')
+ obj=c.root/'registry.o';c.run(['gcc',*common,'-O0','-c',source,'-o',obj]);symbols=c.run(['nm','-u',obj]);c.require(all(s in symbols for s in ('api_add','api_remove','api_dispatch','api_destroy')),'actual registry provider imported',symbols)
+ for key,ordinary,changed in [('03.a','Samecallback with two distinctmutable contexts increments0→1 and10→11;early-return stack misuse has explicit lifetime analysis','Heap-owned contexts transfer only on successful registration;drop hooks free once after permissible callbacks'),('03.b','Actualfour-slot snapshot registry traces selfremoval,otherremoval,additionnextdispatch,reentryBUSY andcapacityfailure','Logical suppression wrapper skipsB immediately butdefersdroppingitscontext untilouterdispatch returns;bothpolicies separatelyexecute'),('03.c','DestroyinsideA suppressesB, repeatedrequests remainpending andeachcontextdropsonceafterAreturns','Terminal receiver canactuallyfreeheapregistry;adapter copiesstatus/callback beforeterminalandaccessesno registryafterward;ASan/UBSan profiles execute')]:
+  c.observe('T19.'+key,ordinary,['abstractions-registry']);c.observe('T19.'+key,changed,['abstractions-registry'],True)

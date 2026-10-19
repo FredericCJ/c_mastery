@@ -2,7 +2,7 @@
 from copy import deepcopy
 from common import ROOT, load, dump, check_program_order, read_json, verify_research_hashes
 from validate import check_data
-from check_fixtures import required_oracles, check_oracle_presence
+from check_fixtures import required_oracles, check_oracle_presence, selected_oracles
 from publish import publication_links
 
 def main():
@@ -13,7 +13,7 @@ def main():
     converted=publication_links(interval+'[fixture](../../fixtures/memory_lab/example.json)')
     assert converted==interval+'{download}`fixture <../fixtures/memory_lab/example.json>`','Download conversion consumed interval/prose'
     cases.append({'case':'half-open intervals before fixture link','passed':True,'expected_guard':'Download conversion preserves preceding prose'})
-    scripts=sorted((ROOT/'tools').glob('verify_*_fixtures.py'))
+    scripts=selected_oracles(ROOT)
     check_oracle_presence(scripts)
     for missing in sorted(required_oracles()):
         try:

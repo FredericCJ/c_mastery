@@ -1,0 +1,9 @@
+/* Reasoning-only: not compiled or executed by any campaign. */
+int *p=malloc(sizeof *p);             /* assume success */
+uintptr_t saved=(uintptr_t)(void*)p;
+*p=41;
+free(p);
+int *q=(int*)(void*)saved;
+int value=*q; /* no new allocation; old object lifetime ended */
+/* Classify base lifetime failure separately from interpretation of synthesis,
+   numerical addresses,exposure and an exact proposed provenance model. */

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "status": "passages-inspected-author-campaign-in-progress",
+  "inspected_date": "2026-10-17",
+  "sources": [
+    {
+      "url": "https://docs.kernel.org/scheduler/sched-eevdf.html",
+      "passages": [
+        "EEVDF Scheduler paragraphs on lag eligibility, virtual deadlines and deferred dequeue"
+      ],
+      "observations": [
+        "Eligible tasks have nonnegative lag and selection uses virtual deadline. Fairness accounting is not an application wall-clock completion guarantee."
+      ],
+      "limits": [
+        "Exact selected source/configuration inspected below; documentation introduction chronology is not relied upon."
+      ]
+    },
+    {
+      "url": "https://docs.kernel.org/scheduler/sched-deadline.html",
+      "passages": [
+        "2.1 main CBS algorithm",
+        "3.4 relationship with task parameters",
+        "5 CPU affinity"
+      ],
+      "observations": [
+        "Runtime depletion throttles until replenishment; task temporal requirements must be related to admitted runtime/deadline/period.",
+        "Ordinary affinity restriction smaller than the root domain is not a valid way to pin SCHED_DEADLINE. A refusal must remain an observed unavailable experiment unless a separate owned-guest partition is deliberately configured."
+      ],
+      "limits": [
+        "Bounded pilot actual Linux observations are retained below; final source-bound campaign and controls remain separate."
+      ]
+    },
+    {
+      "url": "https://man7.org/linux/man-pages/man7/sched.7.html",
+      "passages": [
+        "SCHED_FIFO and SCHED_RR rules",
+        "Privileges and resource limits",
+        "Limiting CPU usage of real-time/deadline processes"
+      ],
+      "observations": [
+        "FIFO has no timeslice; RR rotates at a quantum. Real-time static priority differs from application deadlines.",
+        "A bounded supervisor needs a real opportunity to run and per-process resource limits; a harness timeout alone is not recovery."
+      ],
+      "limits": [
+        "No host global scheduler/security settings may change. Dedicated guest only for admitted real-time classes."
+      ]
+    }
+  ],
+  "required_next": [
+    "Complete final source-bound one/two-CPU guest and host model campaigns, semantic controls, export and evidence guard."
+  ],
+  "inspected_guest_source": {
+    "root": "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0",
+    "release": "7.0.14-cmastery-b06",
+    "passages": [
+      "kernel/sched/fair.c781-815: weighted eligibility inequality",
+      "kernel/sched/fair.c991-1078: EEVDF selection with explicit buddy/protected-slice deviations",
+      "kernel/sched/deadline.c1355-1358,1509-1535: depletion/throttle/overrun",
+      "kernel/sched/deadline.c3655-3695: parameter checks"
+    ],
+    "config": [
+      "SMP",
+      "HIGH_RES_TIMERS",
+      "PREEMPT_DYNAMIC",
+      "PREEMPT_LAZY",
+      "PREEMPT_RCU",
+      "SCHEDSTATS",
+      "FTRACE"
+    ],
+    "limits": [
+      "Not PREEMPT_RT. The simplified teaching selector deliberately omits buddy, current-slice protection, hierarchy and placement."
+    ]
+  },
+  "pilot_observations": {
+    "status": "pilot-not-final-campaign",
+    "two_cpu_guest": [
+      "Actual OTHER/FIFO/RR/DEADLINE admitted with exact policy/parameters/affinity readback and20 checksum-correct jobs.",
+      "Deadline8ms CPU demand under3ms/10ms reservation produced11 overrun signals and4 deadline misses in this finite pilot.",
+      "Deadline mask2 under rootdomain mask3 refused EPERM; privilege-dropped FIFO refused EPERM.",
+      "An admitted FIFO infinite worker on CPU1 was supervisor-killed/reaped in about257ms, supervisor on CPU0."
+    ],
+    "limits": [
+      "These exact pilot samples are not a physical WCET/latency guarantee and final source-bound campaigns/negative controls remain required."
+    ]
+  }
+}

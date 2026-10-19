@@ -142,4 +142,8 @@ def main():
       [('adt.packet_view',10,'Borrowed stable exact-extent packet view; explicit error sum and zero-copy lifetime obligations.'),('adt.brand',5,'Nominal pool handle category with live owner/index/nonwrapping generation validation; no linearity or cross-lifetime identity promise.')],
       dict(question='Should unknown advisory packet variants be rejected or preserved as exact borrowed bytes?',alternatives=['closed validated sum','open sum with retained unknown bytes'],discriminator='Round-trip an unrecognized synthetic variant through a version1relay and test whether version2recovers it without weakening critical-tag rejection.',reversal_trigger='Change to an authenticated canonical format where unknown fields cannot be safely forwarded without an explicitly signed extension policy.'))
 
-if __name__=='__main__': main()
+if __name__=='__main__':
+    main()
+    import subprocess,sys
+    from pathlib import Path
+    subprocess.run([sys.executable,str(Path(__file__).resolve().parents[3]/'tools/register_adt_followthrough.py')],check=True)

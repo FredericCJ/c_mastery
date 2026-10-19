@@ -1,0 +1,563 @@
+
+/tmp/cmastery-serial_timer-investigation-jq_jupw8/clang.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <eat_serial>:
+   0:	41 89 d0             	mov    %edx,%r8d
+   3:	8d 47 fe             	lea    -0x2(%rdi),%eax
+   6:	83 f8 0f             	cmp    $0xf,%eax
+   9:	0f 93 c2             	setae  %dl
+   c:	48 85 c9             	test   %rcx,%rcx
+   f:	41 0f 94 c1          	sete   %r9b
+  13:	b8 02 00 00 00       	mov    $0x2,%eax
+  18:	41 08 d1             	or     %dl,%r9b
+  1b:	75 5f                	jne    7c <eat_serial+0x7c>
+  1d:	48 89 ca             	mov    %rcx,%rdx
+  20:	41 b9 01 00 00 00    	mov    $0x1,%r9d
+  26:	89 f9                	mov    %edi,%ecx
+  28:	41 d3 e1             	shl    %cl,%r9d
+  2b:	44 39 ce             	cmp    %r9d,%esi
+  2e:	0f 93 c1             	setae  %cl
+  31:	45 39 c8             	cmp    %r9d,%r8d
+  34:	41 0f 93 c2          	setae  %r10b
+  38:	41 08 ca             	or     %cl,%r10b
+  3b:	75 3f                	jne    7c <eat_serial+0x7c>
+  3d:	83 ff 10             	cmp    $0x10,%edi
+  40:	75 0a                	jne    4c <eat_serial+0x4c>
+  42:	89 f7                	mov    %esi,%edi
+  44:	44 89 c6             	mov    %r8d,%esi
+  47:	e9 00 00 00 00       	jmp    4c <eat_serial+0x4c>
+			48: R_X86_64_PLT32	er_serial16-0x4
+  4c:	44 01 ce             	add    %r9d,%esi
+  4f:	44 29 c6             	sub    %r8d,%esi
+  52:	41 8d 49 ff          	lea    -0x1(%r9),%ecx
+  56:	21 f1                	and    %esi,%ecx
+  58:	41 d1 e9             	shr    $1,%r9d
+  5b:	b8 03 00 00 00       	mov    $0x3,%eax
+  60:	44 39 c9             	cmp    %r9d,%ecx
+  63:	74 17                	je     7c <eat_serial+0x7c>
+  65:	31 c0                	xor    %eax,%eax
+  67:	44 39 c9             	cmp    %r9d,%ecx
+  6a:	be 00 00 00 00       	mov    $0x0,%esi
+  6f:	83 d6 ff             	adc    $0xffffffff,%esi
+  72:	83 ce 01             	or     $0x1,%esi
+  75:	85 c9                	test   %ecx,%ecx
+  77:	0f 44 f1             	cmove  %ecx,%esi
+  7a:	89 32                	mov    %esi,(%rdx)
+  7c:	c3                   	ret
+  7d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000080 <eat_window_init>:
+  80:	b8 02 00 00 00       	mov    $0x2,%eax
+  85:	48 85 ff             	test   %rdi,%rdi
+  88:	74 3e                	je     c8 <eat_window_init+0x48>
+  8a:	8d 4e fe             	lea    -0x2(%rsi),%ecx
+  8d:	83 f9 0f             	cmp    $0xf,%ecx
+  90:	41 0f 92 c0          	setb   %r8b
+  94:	41 89 d1             	mov    %edx,%r9d
+  97:	89 f1                	mov    %esi,%ecx
+  99:	41 d3 e9             	shr    %cl,%r9d
+  9c:	45 85 c9             	test   %r9d,%r9d
+  9f:	0f 94 c1             	sete   %cl
+  a2:	44 20 c1             	and    %r8b,%cl
+  a5:	80 f9 01             	cmp    $0x1,%cl
+  a8:	75 1e                	jne    c8 <eat_window_init+0x48>
+  aa:	89 37                	mov    %esi,(%rdi)
+  ac:	89 57 04             	mov    %edx,0x4(%rdi)
+  af:	0f 57 c0             	xorps  %xmm0,%xmm0
+  b2:	0f 11 47 08          	movups %xmm0,0x8(%rdi)
+  b6:	0f 11 47 18          	movups %xmm0,0x18(%rdi)
+  ba:	0f 11 47 28          	movups %xmm0,0x28(%rdi)
+  be:	48 c7 47 38 00 00 00 	movq   $0x0,0x38(%rdi)
+  c5:	00 
+  c6:	31 c0                	xor    %eax,%eax
+  c8:	c3                   	ret
+  c9:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+00000000000000d0 <eat_window_arm>:
+  d0:	48 85 ff             	test   %rdi,%rdi
+  d3:	74 68                	je     13d <eat_window_arm+0x6d>
+  d5:	0f b6 0f             	movzbl (%rdi),%ecx
+  d8:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+  de:	41 d3 e0             	shl    %cl,%r8d
+  e1:	44 89 c1             	mov    %r8d,%ecx
+  e4:	d1 e9                	shr    $1,%ecx
+  e6:	b8 03 00 00 00       	mov    $0x3,%eax
+  eb:	39 ca                	cmp    %ecx,%edx
+  ed:	73 53                	jae    142 <eat_window_arm+0x72>
+  ef:	48 8b 4f 08          	mov    0x8(%rdi),%rcx
+  f3:	48 85 c9             	test   %rcx,%rcx
+  f6:	74 1c                	je     114 <eat_window_arm+0x44>
+  f8:	4c 8d 4f 10          	lea    0x10(%rdi),%r9
+  fc:	49 89 ca             	mov    %rcx,%r10
+  ff:	90                   	nop
+ 100:	41 39 31             	cmp    %esi,(%r9)
+ 103:	74 38                	je     13d <eat_window_arm+0x6d>
+ 105:	49 83 c1 0c          	add    $0xc,%r9
+ 109:	49 ff ca             	dec    %r10
+ 10c:	75 f2                	jne    100 <eat_window_arm+0x30>
+ 10e:	48 83 f9 04          	cmp    $0x4,%rcx
+ 112:	74 2e                	je     142 <eat_window_arm+0x72>
+ 114:	48 8d 41 01          	lea    0x1(%rcx),%rax
+ 118:	48 89 47 08          	mov    %rax,0x8(%rdi)
+ 11c:	48 8d 04 49          	lea    (%rcx,%rcx,2),%rax
+ 120:	03 57 04             	add    0x4(%rdi),%edx
+ 123:	41 ff c8             	dec    %r8d
+ 126:	41 21 d0             	and    %edx,%r8d
+ 129:	89 74 87 10          	mov    %esi,0x10(%rdi,%rax,4)
+ 12d:	44 89 44 87 14       	mov    %r8d,0x14(%rdi,%rax,4)
+ 132:	c7 44 87 18 00 00 00 	movl   $0x0,0x18(%rdi,%rax,4)
+ 139:	00 
+ 13a:	31 c0                	xor    %eax,%eax
+ 13c:	c3                   	ret
+ 13d:	b8 02 00 00 00       	mov    $0x2,%eax
+ 142:	c3                   	ret
+ 143:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 14a:	84 00 00 00 00 00 
+
+0000000000000150 <eat_window_advance>:
+ 150:	48 85 ff             	test   %rdi,%rdi
+ 153:	74 71                	je     1c6 <eat_window_advance+0x76>
+ 155:	0f b6 0f             	movzbl (%rdi),%ecx
+ 158:	ba 01 00 00 00       	mov    $0x1,%edx
+ 15d:	d3 e2                	shl    %cl,%edx
+ 15f:	41 89 d0             	mov    %edx,%r8d
+ 162:	41 d1 e8             	shr    $1,%r8d
+ 165:	b8 03 00 00 00       	mov    $0x3,%eax
+ 16a:	44 39 c6             	cmp    %r8d,%esi
+ 16d:	0f 83 c9 00 00 00    	jae    23c <eat_window_advance+0xec>
+ 173:	48 8b 4f 08          	mov    0x8(%rdi),%rcx
+ 177:	48 85 c9             	test   %rcx,%rcx
+ 17a:	74 50                	je     1cc <eat_window_advance+0x7c>
+ 17c:	4c 8d 4f 18          	lea    0x18(%rdi),%r9
+ 180:	49 89 ca             	mov    %rcx,%r10
+ 183:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 18a:	84 00 00 00 00 00 
+ 190:	45 8b 19             	mov    (%r9),%r11d
+ 193:	41 01 f3             	add    %esi,%r11d
+ 196:	45 39 c3             	cmp    %r8d,%r11d
+ 199:	0f 83 9d 00 00 00    	jae    23c <eat_window_advance+0xec>
+ 19f:	49 83 c1 0c          	add    $0xc,%r9
+ 1a3:	49 ff ca             	dec    %r10
+ 1a6:	75 e8                	jne    190 <eat_window_advance+0x40>
+ 1a8:	8b 47 04             	mov    0x4(%rdi),%eax
+ 1ab:	01 f0                	add    %esi,%eax
+ 1ad:	ff ca                	dec    %edx
+ 1af:	21 c2                	and    %eax,%edx
+ 1b1:	89 57 04             	mov    %edx,0x4(%rdi)
+ 1b4:	89 ca                	mov    %ecx,%edx
+ 1b6:	83 e2 03             	and    $0x3,%edx
+ 1b9:	31 c0                	xor    %eax,%eax
+ 1bb:	48 83 f9 04          	cmp    $0x4,%rcx
+ 1bf:	73 18                	jae    1d9 <eat_window_advance+0x89>
+ 1c1:	45 31 c0             	xor    %r8d,%r8d
+ 1c4:	eb 46                	jmp    20c <eat_window_advance+0xbc>
+ 1c6:	b8 02 00 00 00       	mov    $0x2,%eax
+ 1cb:	c3                   	ret
+ 1cc:	03 77 04             	add    0x4(%rdi),%esi
+ 1cf:	ff ca                	dec    %edx
+ 1d1:	21 f2                	and    %esi,%edx
+ 1d3:	89 57 04             	mov    %edx,0x4(%rdi)
+ 1d6:	31 c0                	xor    %eax,%eax
+ 1d8:	c3                   	ret
+ 1d9:	4c 8d 4f 18          	lea    0x18(%rdi),%r9
+ 1dd:	48 83 e1 fc          	and    $0xfffffffffffffffc,%rcx
+ 1e1:	49 83 c1 24          	add    $0x24,%r9
+ 1e5:	45 31 c0             	xor    %r8d,%r8d
+ 1e8:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 1ef:	00 
+ 1f0:	41 01 71 dc          	add    %esi,-0x24(%r9)
+ 1f4:	41 01 71 e8          	add    %esi,-0x18(%r9)
+ 1f8:	41 01 71 f4          	add    %esi,-0xc(%r9)
+ 1fc:	41 01 31             	add    %esi,(%r9)
+ 1ff:	49 83 c0 04          	add    $0x4,%r8
+ 203:	49 83 c1 30          	add    $0x30,%r9
+ 207:	4c 39 c1             	cmp    %r8,%rcx
+ 20a:	75 e4                	jne    1f0 <eat_window_advance+0xa0>
+ 20c:	48 85 d2             	test   %rdx,%rdx
+ 20f:	74 2b                	je     23c <eat_window_advance+0xec>
+ 211:	4b 8d 04 40          	lea    (%r8,%r8,2),%rax
+ 215:	48 8d 0c 87          	lea    (%rdi,%rax,4),%rcx
+ 219:	48 83 c1 18          	add    $0x18,%rcx
+ 21d:	c1 e2 02             	shl    $0x2,%edx
+ 220:	48 8d 14 52          	lea    (%rdx,%rdx,2),%rdx
+ 224:	31 c0                	xor    %eax,%eax
+ 226:	31 ff                	xor    %edi,%edi
+ 228:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 22f:	00 
+ 230:	01 34 39             	add    %esi,(%rcx,%rdi,1)
+ 233:	48 83 c7 0c          	add    $0xc,%rdi
+ 237:	48 39 fa             	cmp    %rdi,%rdx
+ 23a:	75 f4                	jne    230 <eat_window_advance+0xe0>
+ 23c:	c3                   	ret
+ 23d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000240 <eat_window_pop>:
+ 240:	48 85 ff             	test   %rdi,%rdi
+ 243:	0f 94 c2             	sete   %dl
+ 246:	48 85 f6             	test   %rsi,%rsi
+ 249:	0f 94 c1             	sete   %cl
+ 24c:	b8 02 00 00 00       	mov    $0x2,%eax
+ 251:	08 d1                	or     %dl,%cl
+ 253:	0f 85 1d 02 00 00    	jne    476 <eat_window_pop+0x236>
+ 259:	55                   	push   %rbp
+ 25a:	41 57                	push   %r15
+ 25c:	41 56                	push   %r14
+ 25e:	41 55                	push   %r13
+ 260:	41 54                	push   %r12
+ 262:	53                   	push   %rbx
+ 263:	48 83 ec 18          	sub    $0x18,%rsp
+ 267:	49 89 fe             	mov    %rdi,%r14
+ 26a:	0f b6 0f             	movzbl (%rdi),%ecx
+ 26d:	41 bd 01 00 00 00    	mov    $0x1,%r13d
+ 273:	41 d3 e5             	shl    %cl,%r13d
+ 276:	48 8b 57 08          	mov    0x8(%rdi),%rdx
+ 27a:	b8 04 00 00 00       	mov    $0x4,%eax
+ 27f:	48 85 d2             	test   %rdx,%rdx
+ 282:	0f 84 e0 01 00 00    	je     468 <eat_window_pop+0x228>
+ 288:	48 89 74 24 10       	mov    %rsi,0x10(%rsp)
+ 28d:	4d 8d 7e 14          	lea    0x14(%r14),%r15
+ 291:	41 8d 45 ff          	lea    -0x1(%r13),%eax
+ 295:	89 44 24 0c          	mov    %eax,0xc(%rsp)
+ 299:	31 db                	xor    %ebx,%ebx
+ 29b:	49 89 d4             	mov    %rdx,%r12
+ 29e:	31 ed                	xor    %ebp,%ebp
+ 2a0:	eb 23                	jmp    2c5 <eat_window_pop+0x85>
+ 2a2:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 2a9:	1f 84 00 00 00 00 00 
+ 2b0:	49 89 cc             	mov    %rcx,%r12
+ 2b3:	89 c3                	mov    %eax,%ebx
+ 2b5:	48 ff c5             	inc    %rbp
+ 2b8:	49 83 c7 0c          	add    $0xc,%r15
+ 2bc:	48 39 d5             	cmp    %rdx,%rbp
+ 2bf:	0f 83 ca 00 00 00    	jae    38f <eat_window_pop+0x14f>
+ 2c5:	c7 44 24 08 00 00 00 	movl   $0x0,0x8(%rsp)
+ 2cc:	00 
+ 2cd:	41 8b 0e             	mov    (%r14),%ecx
+ 2d0:	8d 71 fe             	lea    -0x2(%rcx),%esi
+ 2d3:	b8 02 00 00 00       	mov    $0x2,%eax
+ 2d8:	83 fe 0e             	cmp    $0xe,%esi
+ 2db:	0f 87 87 01 00 00    	ja     468 <eat_window_pop+0x228>
+ 2e1:	41 8b 7e 04          	mov    0x4(%r14),%edi
+ 2e5:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+ 2eb:	41 d3 e0             	shl    %cl,%r8d
+ 2ee:	44 39 c7             	cmp    %r8d,%edi
+ 2f1:	0f 83 71 01 00 00    	jae    468 <eat_window_pop+0x228>
+ 2f7:	41 8b 37             	mov    (%r15),%esi
+ 2fa:	44 39 c6             	cmp    %r8d,%esi
+ 2fd:	0f 83 65 01 00 00    	jae    468 <eat_window_pop+0x228>
+ 303:	83 f9 10             	cmp    $0x10,%ecx
+ 306:	75 28                	jne    330 <eat_window_pop+0xf0>
+ 308:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx
+ 30d:	e8 00 00 00 00       	call   312 <eat_window_pop+0xd2>
+			30e: R_X86_64_PLT32	er_serial16-0x4
+ 312:	85 c0                	test   %eax,%eax
+ 314:	0f 85 4e 01 00 00    	jne    468 <eat_window_pop+0x228>
+ 31a:	8b 44 24 08          	mov    0x8(%rsp),%eax
+ 31e:	49 8b 56 08          	mov    0x8(%r14),%rdx
+ 322:	85 c0                	test   %eax,%eax
+ 324:	79 39                	jns    35f <eat_window_pop+0x11f>
+ 326:	eb 8d                	jmp    2b5 <eat_window_pop+0x75>
+ 328:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 32f:	00 
+ 330:	44 01 c7             	add    %r8d,%edi
+ 333:	29 f7                	sub    %esi,%edi
+ 335:	41 8d 48 ff          	lea    -0x1(%r8),%ecx
+ 339:	21 f9                	and    %edi,%ecx
+ 33b:	41 d1 e8             	shr    $1,%r8d
+ 33e:	44 39 c1             	cmp    %r8d,%ecx
+ 341:	0f 84 a3 00 00 00    	je     3ea <eat_window_pop+0x1aa>
+ 347:	b8 00 00 00 00       	mov    $0x0,%eax
+ 34c:	83 d0 ff             	adc    $0xffffffff,%eax
+ 34f:	83 c8 01             	or     $0x1,%eax
+ 352:	85 c9                	test   %ecx,%ecx
+ 354:	0f 44 c1             	cmove  %ecx,%eax
+ 357:	85 c0                	test   %eax,%eax
+ 359:	0f 88 56 ff ff ff    	js     2b5 <eat_window_pop+0x75>
+ 35f:	41 8b 46 04          	mov    0x4(%r14),%eax
+ 363:	44 01 e8             	add    %r13d,%eax
+ 366:	41 2b 07             	sub    (%r15),%eax
+ 369:	23 44 24 0c          	and    0xc(%rsp),%eax
+ 36d:	49 39 d4             	cmp    %rdx,%r12
+ 370:	0f 94 c1             	sete   %cl
+ 373:	39 d8                	cmp    %ebx,%eax
+ 375:	40 0f 97 c6          	seta   %sil
+ 379:	40 08 ce             	or     %cl,%sil
+ 37c:	48 89 e9             	mov    %rbp,%rcx
+ 37f:	0f 85 2b ff ff ff    	jne    2b0 <eat_window_pop+0x70>
+ 385:	4c 89 e1             	mov    %r12,%rcx
+ 388:	89 d8                	mov    %ebx,%eax
+ 38a:	e9 21 ff ff ff       	jmp    2b0 <eat_window_pop+0x70>
+ 38f:	49 39 d4             	cmp    %rdx,%r12
+ 392:	4c 8b 5c 24 10       	mov    0x10(%rsp),%r11
+ 397:	b8 04 00 00 00       	mov    $0x4,%eax
+ 39c:	0f 84 c6 00 00 00    	je     468 <eat_window_pop+0x228>
+ 3a2:	4f 8d 04 64          	lea    (%r12,%r12,2),%r8
+ 3a6:	43 8b 44 86 10       	mov    0x10(%r14,%r8,4),%eax
+ 3ab:	49 8d 74 24 01       	lea    0x1(%r12),%rsi
+ 3b0:	48 39 d6             	cmp    %rdx,%rsi
+ 3b3:	0f 83 a3 00 00 00    	jae    45c <eat_window_pop+0x21c>
+ 3b9:	49 8d 4e 10          	lea    0x10(%r14),%rcx
+ 3bd:	48 8d 7a fe          	lea    -0x2(%rdx),%rdi
+ 3c1:	45 89 e1             	mov    %r12d,%r9d
+ 3c4:	41 29 d1             	sub    %edx,%r9d
+ 3c7:	41 f6 c1 01          	test   $0x1,%r9b
+ 3cb:	75 24                	jne    3f1 <eat_window_pop+0x1b1>
+ 3cd:	4c 8d 0c 76          	lea    (%rsi,%rsi,2),%r9
+ 3d1:	46 8b 54 89 08       	mov    0x8(%rcx,%r9,4),%r10d
+ 3d6:	46 89 54 81 08       	mov    %r10d,0x8(%rcx,%r8,4)
+ 3db:	4e 8b 0c 89          	mov    (%rcx,%r9,4),%r9
+ 3df:	4e 89 0c 81          	mov    %r9,(%rcx,%r8,4)
+ 3e3:	4d 8d 4c 24 02       	lea    0x2(%r12),%r9
+ 3e8:	eb 0d                	jmp    3f7 <eat_window_pop+0x1b7>
+ 3ea:	b8 03 00 00 00       	mov    $0x3,%eax
+ 3ef:	eb 77                	jmp    468 <eat_window_pop+0x228>
+ 3f1:	49 89 f1             	mov    %rsi,%r9
+ 3f4:	4c 89 e6             	mov    %r12,%rsi
+ 3f7:	4c 39 e7             	cmp    %r12,%rdi
+ 3fa:	74 60                	je     45c <eat_window_pop+0x21c>
+ 3fc:	48 89 d7             	mov    %rdx,%rdi
+ 3ff:	48 f7 df             	neg    %rdi
+ 402:	4f 8d 04 49          	lea    (%r9,%r9,2),%r8
+ 406:	49 ff c1             	inc    %r9
+ 409:	4f 8d 04 86          	lea    (%r14,%r8,4),%r8
+ 40d:	49 83 c0 10          	add    $0x10,%r8
+ 411:	66 66 66 66 66 66 2e 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 418:	0f 1f 84 00 00 00 00 
+ 41f:	00 
+ 420:	48 8d 34 76          	lea    (%rsi,%rsi,2),%rsi
+ 424:	45 8b 50 08          	mov    0x8(%r8),%r10d
+ 428:	44 89 54 b1 08       	mov    %r10d,0x8(%rcx,%rsi,4)
+ 42d:	4d 8b 10             	mov    (%r8),%r10
+ 430:	4c 89 14 b1          	mov    %r10,(%rcx,%rsi,4)
+ 434:	49 8b 70 0c          	mov    0xc(%r8),%rsi
+ 438:	49 89 30             	mov    %rsi,(%r8)
+ 43b:	41 8b 70 14          	mov    0x14(%r8),%esi
+ 43f:	41 89 70 08          	mov    %esi,0x8(%r8)
+ 443:	4e 8d 14 0f          	lea    (%rdi,%r9,1),%r10
+ 447:	49 83 c2 02          	add    $0x2,%r10
+ 44b:	4c 89 ce             	mov    %r9,%rsi
+ 44e:	49 83 c1 02          	add    $0x2,%r9
+ 452:	49 83 c0 18          	add    $0x18,%r8
+ 456:	49 83 fa 01          	cmp    $0x1,%r10
+ 45a:	75 c4                	jne    420 <eat_window_pop+0x1e0>
+ 45c:	48 ff ca             	dec    %rdx
+ 45f:	49 89 56 08          	mov    %rdx,0x8(%r14)
+ 463:	41 89 03             	mov    %eax,(%r11)
+ 466:	31 c0                	xor    %eax,%eax
+ 468:	48 83 c4 18          	add    $0x18,%rsp
+ 46c:	5b                   	pop    %rbx
+ 46d:	41 5c                	pop    %r12
+ 46f:	41 5d                	pop    %r13
+ 471:	41 5e                	pop    %r14
+ 473:	41 5f                	pop    %r15
+ 475:	5d                   	pop    %rbp
+ 476:	c3                   	ret
+ 477:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+ 47e:	00 00 
+
+0000000000000480 <eat_epoch_init>:
+ 480:	48 85 ff             	test   %rdi,%rdi
+ 483:	0f 94 c0             	sete   %al
+ 486:	8d 4e ef             	lea    -0x11(%rsi),%ecx
+ 489:	83 f9 f1             	cmp    $0xfffffff1,%ecx
+ 48c:	0f 92 c1             	setb   %cl
+ 48f:	08 c1                	or     %al,%cl
+ 491:	b8 02 00 00 00       	mov    $0x2,%eax
+ 496:	75 2a                	jne    4c2 <eat_epoch_init+0x42>
+ 498:	89 37                	mov    %esi,(%rdi)
+ 49a:	c7 47 04 00 00 00 00 	movl   $0x0,0x4(%rdi)
+ 4a1:	48 89 57 08          	mov    %rdx,0x8(%rdi)
+ 4a5:	0f 57 c0             	xorps  %xmm0,%xmm0
+ 4a8:	0f 11 47 10          	movups %xmm0,0x10(%rdi)
+ 4ac:	0f 11 47 20          	movups %xmm0,0x20(%rdi)
+ 4b0:	0f 11 47 30          	movups %xmm0,0x30(%rdi)
+ 4b4:	0f 11 47 40          	movups %xmm0,0x40(%rdi)
+ 4b8:	48 c7 47 50 00 00 00 	movq   $0x0,0x50(%rdi)
+ 4bf:	00 
+ 4c0:	31 c0                	xor    %eax,%eax
+ 4c2:	c3                   	ret
+ 4c3:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 4ca:	84 00 00 00 00 00 
+
+00000000000004d0 <eat_epoch_arm>:
+ 4d0:	b8 02 00 00 00       	mov    $0x2,%eax
+ 4d5:	48 85 ff             	test   %rdi,%rdi
+ 4d8:	74 59                	je     533 <eat_epoch_arm+0x63>
+ 4da:	48 8b 4f 10          	mov    0x10(%rdi),%rcx
+ 4de:	48 85 c9             	test   %rcx,%rcx
+ 4e1:	74 26                	je     509 <eat_epoch_arm+0x39>
+ 4e3:	4c 8d 47 18          	lea    0x18(%rdi),%r8
+ 4e7:	49 89 c9             	mov    %rcx,%r9
+ 4ea:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+ 4f0:	41 39 30             	cmp    %esi,(%r8)
+ 4f3:	74 3e                	je     533 <eat_epoch_arm+0x63>
+ 4f5:	49 83 c0 10          	add    $0x10,%r8
+ 4f9:	49 ff c9             	dec    %r9
+ 4fc:	75 f2                	jne    4f0 <eat_epoch_arm+0x20>
+ 4fe:	b8 03 00 00 00       	mov    $0x3,%eax
+ 503:	48 83 f9 04          	cmp    $0x4,%rcx
+ 507:	74 2a                	je     533 <eat_epoch_arm+0x63>
+ 509:	b8 03 00 00 00       	mov    $0x3,%eax
+ 50e:	48 03 57 08          	add    0x8(%rdi),%rdx
+ 512:	72 1f                	jb     533 <eat_epoch_arm+0x63>
+ 514:	48 8d 41 01          	lea    0x1(%rcx),%rax
+ 518:	48 89 47 10          	mov    %rax,0x10(%rdi)
+ 51c:	48 c1 e1 04          	shl    $0x4,%rcx
+ 520:	89 74 0f 18          	mov    %esi,0x18(%rdi,%rcx,1)
+ 524:	c7 44 0f 1c 00 00 00 	movl   $0x0,0x1c(%rdi,%rcx,1)
+ 52b:	00 
+ 52c:	48 89 54 0f 20       	mov    %rdx,0x20(%rdi,%rcx,1)
+ 531:	31 c0                	xor    %eax,%eax
+ 533:	c3                   	ret
+ 534:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 53b:	00 00 00 00 00 
+
+0000000000000540 <eat_epoch_advance>:
+ 540:	48 85 ff             	test   %rdi,%rdi
+ 543:	74 12                	je     557 <eat_epoch_advance+0x17>
+ 545:	b8 03 00 00 00       	mov    $0x3,%eax
+ 54a:	48 03 77 08          	add    0x8(%rdi),%rsi
+ 54e:	72 06                	jb     556 <eat_epoch_advance+0x16>
+ 550:	48 89 77 08          	mov    %rsi,0x8(%rdi)
+ 554:	31 c0                	xor    %eax,%eax
+ 556:	c3                   	ret
+ 557:	b8 02 00 00 00       	mov    $0x2,%eax
+ 55c:	c3                   	ret
+ 55d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000560 <eat_epoch_pop>:
+ 560:	48 85 ff             	test   %rdi,%rdi
+ 563:	0f 94 c1             	sete   %cl
+ 566:	48 85 f6             	test   %rsi,%rsi
+ 569:	0f 94 c2             	sete   %dl
+ 56c:	b8 02 00 00 00       	mov    $0x2,%eax
+ 571:	08 ca                	or     %cl,%dl
+ 573:	0f 85 b5 01 00 00    	jne    72e <eat_epoch_pop+0x1ce>
+ 579:	55                   	push   %rbp
+ 57a:	41 56                	push   %r14
+ 57c:	53                   	push   %rbx
+ 57d:	48 8b 4f 10          	mov    0x10(%rdi),%rcx
+ 581:	48 85 c9             	test   %rcx,%rcx
+ 584:	74 53                	je     5d9 <eat_epoch_pop+0x79>
+ 586:	48 8b 47 08          	mov    0x8(%rdi),%rax
+ 58a:	48 83 f9 01          	cmp    $0x1,%rcx
+ 58e:	0f 85 a6 00 00 00    	jne    63a <eat_epoch_pop+0xda>
+ 594:	49 c7 c1 ff ff ff ff 	mov    $0xffffffffffffffff,%r9
+ 59b:	45 31 c0             	xor    %r8d,%r8d
+ 59e:	48 89 ca             	mov    %rcx,%rdx
+ 5a1:	f6 c1 01             	test   $0x1,%cl
+ 5a4:	74 24                	je     5ca <eat_epoch_pop+0x6a>
+ 5a6:	4d 89 c2             	mov    %r8,%r10
+ 5a9:	49 c1 e2 04          	shl    $0x4,%r10
+ 5ad:	4e 8b 54 17 20       	mov    0x20(%rdi,%r10,1),%r10
+ 5b2:	4d 39 ca             	cmp    %r9,%r10
+ 5b5:	49 89 d1             	mov    %rdx,%r9
+ 5b8:	4d 0f 42 c8          	cmovb  %r8,%r9
+ 5bc:	48 39 ca             	cmp    %rcx,%rdx
+ 5bf:	4d 0f 44 c8          	cmove  %r8,%r9
+ 5c3:	49 39 c2             	cmp    %rax,%r10
+ 5c6:	49 0f 46 d1          	cmovbe %r9,%rdx
+ 5ca:	b8 04 00 00 00       	mov    $0x4,%eax
+ 5cf:	48 39 ca             	cmp    %rcx,%rdx
+ 5d2:	75 15                	jne    5e9 <eat_epoch_pop+0x89>
+ 5d4:	e9 51 01 00 00       	jmp    72a <eat_epoch_pop+0x1ca>
+ 5d9:	31 d2                	xor    %edx,%edx
+ 5db:	b8 04 00 00 00       	mov    $0x4,%eax
+ 5e0:	48 39 ca             	cmp    %rcx,%rdx
+ 5e3:	0f 84 41 01 00 00    	je     72a <eat_epoch_pop+0x1ca>
+ 5e9:	49 89 d3             	mov    %rdx,%r11
+ 5ec:	49 c1 e3 04          	shl    $0x4,%r11
+ 5f0:	42 8b 44 1f 18       	mov    0x18(%rdi,%r11,1),%eax
+ 5f5:	4c 8d 4a 01          	lea    0x1(%rdx),%r9
+ 5f9:	49 39 c9             	cmp    %rcx,%r9
+ 5fc:	0f 83 1d 01 00 00    	jae    71f <eat_epoch_pop+0x1bf>
+ 602:	4c 8d 47 18          	lea    0x18(%rdi),%r8
+ 606:	4c 8d 51 fe          	lea    -0x2(%rcx),%r10
+ 60a:	89 d3                	mov    %edx,%ebx
+ 60c:	29 cb                	sub    %ecx,%ebx
+ 60e:	f6 c3 01             	test   $0x1,%bl
+ 611:	0f 85 a9 00 00 00    	jne    6c0 <eat_epoch_pop+0x160>
+ 617:	4c 89 cb             	mov    %r9,%rbx
+ 61a:	48 c1 e3 04          	shl    $0x4,%rbx
+ 61e:	41 0f 10 04 18       	movups (%r8,%rbx,1),%xmm0
+ 623:	43 0f 11 04 18       	movups %xmm0,(%r8,%r11,1)
+ 628:	4c 8d 5a 02          	lea    0x2(%rdx),%r11
+ 62c:	49 39 d2             	cmp    %rdx,%r10
+ 62f:	0f 85 96 00 00 00    	jne    6cb <eat_epoch_pop+0x16b>
+ 635:	e9 e5 00 00 00       	jmp    71f <eat_epoch_pop+0x1bf>
+ 63a:	49 89 ca             	mov    %rcx,%r10
+ 63d:	49 83 e2 fe          	and    $0xfffffffffffffffe,%r10
+ 641:	4c 8d 5f 30          	lea    0x30(%rdi),%r11
+ 645:	49 c7 c1 ff ff ff ff 	mov    $0xffffffffffffffff,%r9
+ 64c:	45 31 c0             	xor    %r8d,%r8d
+ 64f:	48 89 ca             	mov    %rcx,%rdx
+ 652:	eb 1d                	jmp    671 <eat_epoch_pop+0x111>
+ 654:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 65b:	00 00 00 00 00 
+ 660:	49 83 c0 02          	add    $0x2,%r8
+ 664:	49 83 c3 20          	add    $0x20,%r11
+ 668:	4d 39 c2             	cmp    %r8,%r10
+ 66b:	0f 84 30 ff ff ff    	je     5a1 <eat_epoch_pop+0x41>
+ 671:	49 8b 5b f0          	mov    -0x10(%r11),%rbx
+ 675:	48 39 c3             	cmp    %rax,%rbx
+ 678:	77 22                	ja     69c <eat_epoch_pop+0x13c>
+ 67a:	48 39 ca             	cmp    %rcx,%rdx
+ 67d:	40 0f 94 c5          	sete   %bpl
+ 681:	4c 39 cb             	cmp    %r9,%rbx
+ 684:	41 0f 92 c6          	setb   %r14b
+ 688:	41 08 ee             	or     %bpl,%r14b
+ 68b:	4d 89 c6             	mov    %r8,%r14
+ 68e:	75 06                	jne    696 <eat_epoch_pop+0x136>
+ 690:	4c 89 cb             	mov    %r9,%rbx
+ 693:	49 89 d6             	mov    %rdx,%r14
+ 696:	49 89 d9             	mov    %rbx,%r9
+ 699:	4c 89 f2             	mov    %r14,%rdx
+ 69c:	49 8b 1b             	mov    (%r11),%rbx
+ 69f:	48 39 c3             	cmp    %rax,%rbx
+ 6a2:	77 bc                	ja     660 <eat_epoch_pop+0x100>
+ 6a4:	48 39 ca             	cmp    %rcx,%rdx
+ 6a7:	40 0f 94 c5          	sete   %bpl
+ 6ab:	4c 39 cb             	cmp    %r9,%rbx
+ 6ae:	41 0f 92 c6          	setb   %r14b
+ 6b2:	41 08 ee             	or     %bpl,%r14b
+ 6b5:	74 a9                	je     660 <eat_epoch_pop+0x100>
+ 6b7:	49 8d 50 01          	lea    0x1(%r8),%rdx
+ 6bb:	49 89 d9             	mov    %rbx,%r9
+ 6be:	eb a0                	jmp    660 <eat_epoch_pop+0x100>
+ 6c0:	4d 89 cb             	mov    %r9,%r11
+ 6c3:	49 89 d1             	mov    %rdx,%r9
+ 6c6:	49 39 d2             	cmp    %rdx,%r10
+ 6c9:	74 54                	je     71f <eat_epoch_pop+0x1bf>
+ 6cb:	48 89 ca             	mov    %rcx,%rdx
+ 6ce:	48 f7 da             	neg    %rdx
+ 6d1:	49 8d 5b 01          	lea    0x1(%r11),%rbx
+ 6d5:	49 c1 e3 04          	shl    $0x4,%r11
+ 6d9:	4d 8d 14 3b          	lea    (%r11,%rdi,1),%r10
+ 6dd:	49 83 c2 18          	add    $0x18,%r10
+ 6e1:	66 66 66 66 66 66 2e 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 6e8:	0f 1f 84 00 00 00 00 
+ 6ef:	00 
+ 6f0:	49 c1 e1 04          	shl    $0x4,%r9
+ 6f4:	41 0f 10 02          	movups (%r10),%xmm0
+ 6f8:	43 0f 11 04 08       	movups %xmm0,(%r8,%r9,1)
+ 6fd:	41 0f 10 42 10       	movups 0x10(%r10),%xmm0
+ 702:	41 0f 11 02          	movups %xmm0,(%r10)
+ 706:	4c 8d 1c 1a          	lea    (%rdx,%rbx,1),%r11
+ 70a:	49 83 c3 02          	add    $0x2,%r11
+ 70e:	49 89 d9             	mov    %rbx,%r9
+ 711:	48 83 c3 02          	add    $0x2,%rbx
+ 715:	49 83 c2 20          	add    $0x20,%r10
+ 719:	49 83 fb 01          	cmp    $0x1,%r11
+ 71d:	75 d1                	jne    6f0 <eat_epoch_pop+0x190>
+ 71f:	48 ff c9             	dec    %rcx
+ 722:	48 89 4f 10          	mov    %rcx,0x10(%rdi)
+ 726:	89 06                	mov    %eax,(%rsi)
+ 728:	31 c0                	xor    %eax,%eax
+ 72a:	5b                   	pop    %rbx
+ 72b:	41 5e                	pop    %r14
+ 72d:	5d                   	pop    %rbp
+ 72e:	c3                   	ret
+

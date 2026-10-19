@@ -1,0 +1,65 @@
+{
+  "seed": 176001,
+  "cases": [
+    {
+      "id": "locals-calls-loop",
+      "source": "fn twice(x){return x*2;} fn main(x){let i=0;let y=0;while(i<7){y=y+twice(x+i);i=i+1;}if(x<3){y=y-1;}else{y=y+2;}return y;}",
+      "c": "static uint32_t twice(uint32_t x){return x*2u;} uint32_t ref(uint32_t x){uint32_t i=0,y=0;while(i<7u){y=y+twice(x+i);i=i+1u;}if(x<3u){y=y-1u;}else{y=y+2u;}return y;}",
+      "model": "sum-seven"
+    },
+    {
+      "id": "pointer-alias",
+      "source": "fn adjust(x){return x+0xFFFFFFFF;} fn main(x){let i=0;let y=0;ptr p=&a[0];while(i<8){*p=adjust(x+i);p=p+1;i=i+1;}i=0;while(i<8){y=y+a[i];i=i+1;}return y;}",
+      "c": "static uint32_t adjust(uint32_t x){return x+UINT32_MAX;} uint32_t ref(uint32_t x){uint32_t a[8]={0},i=0,y=0;uint32_t*p=&a[0];while(i<8u){*p=adjust(x+i);p=p+1;i=i+1u;}i=0;while(i<8u){y=y+a[i];i=i+1u;}return y;}",
+      "model": "array-eight"
+    },
+    {
+      "id": "nested-calls-preservation",
+      "source": "fn inc(x){return x+1;} fn square(x){return x*x;} fn main(x){let y=inc(square(x))+square(inc(x));return y-x-3;}",
+      "c": "static uint32_t inc(uint32_t x){return x+1u;} static uint32_t square(uint32_t x){return x*x;} uint32_t ref(uint32_t x){uint32_t y=inc(square(x))+square(inc(x));return y-x-3u;}",
+      "model": "nested"
+    },
+    {
+      "id": "branches-zero-iteration",
+      "source": "fn main(x){let i=0;let a0=0;let a1=1;let temp=0;while(i<8){temp=a0+a1;a0=a1;a1=temp;i=i+1;}if(x==0){a0=a1;}else{a0=a0+x;}return a0;}",
+      "c": "uint32_t ref(uint32_t x){uint32_t i=0,a0=0,a1=1,temp=0;while(i<8u){temp=a0+a1;a0=a1;a1=temp;i=i+1u;}if(x==0u){a0=a1;}else{a0=a0+x;}return a0;}",
+      "model": "fib"
+    },
+    {
+      "id": "signed-checked",
+      "model": "signed-checked",
+      "source": "fn main(x){int y=(i32(0)-i32(7))*i32(3);if(x<1000){y=y-i32(x);}return u32(y);}",
+      "c": "uint32_t ref(uint32_t x){int32_t y=-7*3;if(x<1000)y=y-(int32_t)x;return (uint32_t)y;}"
+    },
+    {
+      "id": "signed-add-overflow",
+      "model": "signed-error",
+      "source": "fn main(x){return u32(i32(2147483647)+i32(1));}",
+      "c": "uint32_t ref(uint32_t x){(void)x;return 0;}"
+    },
+    {
+      "id": "signed-sub-overflow",
+      "model": "signed-error",
+      "source": "fn main(x){return u32(i32(0)-i32(2147483647)-i32(2));}",
+      "c": "uint32_t ref(uint32_t x){(void)x;return 0;}"
+    },
+    {
+      "id": "signed-mul-overflow",
+      "model": "signed-error",
+      "source": "fn main(x){return u32((i32(0)-i32(2147483647)-i32(1))*(i32(0)-i32(2)));}",
+      "c": "uint32_t ref(uint32_t x){(void)x;return 0;}"
+    },
+    {
+      "id": "signed-cast-range",
+      "model": "signed-error",
+      "source": "fn main(x){return u32(i32(0x80000000));}",
+      "c": "uint32_t ref(uint32_t x){(void)x;return 0;}"
+    },
+    {
+      "id": "side-effect-order",
+      "model": "side-effect-order",
+      "source": "fn bump(x){return tick(x);} fn main(x){return bump(x)-bump(x)+bump(x);}",
+      "c": "uint32_t ref(uint32_t x){uint32_t first=x,second=x+1,third=x+2;return first-second+third;}"
+    }
+  ]
+}

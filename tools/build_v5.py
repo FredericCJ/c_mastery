@@ -17,6 +17,18 @@ OPTIONAL_CHECKS += ['check_exercises_v5.py', 'check_exercise_workflow.py', 'chec
 OPTIONAL_CHECKS += ['check_modern_coverage.py', 'check_v5_authoring_contracts.py']
 OPTIONAL_CHECKS += ['check_legacy_assessments.py']
 OPTIONAL_CHECKS += ['check_publication_links.py']
+OPTIONAL_CHECKS += ['check_implementation_inventory_v5.py']
+OPTIONAL_CHECKS += ['check_project_assets.py']
+OPTIONAL_CHECKS += ['check_research_batches_v5.py']
+OPTIONAL_CHECKS += ['check_v5_publication_bindings.py']
+OPTIONAL_CHECKS += ['check_fixture_selection.py']
+OPTIONAL_CHECKS += ['check_resource_authorship_v5.py']
+OPTIONAL_CHECKS += ['check_publication_scopes.py']
+OPTIONAL_CHECKS += ['check_publication_shapes.py']
+OPTIONAL_CHECKS += ['check_embedded_fixture_contracts.py', 'check_network_fixture_contracts.py']
+OPTIONAL_CHECKS += ['check_fixture_inspection_successor.py']
+OPTIONAL_CHECKS += ['check_html_streaming.py', 'check_navigation_v5.py']
+OPTIONAL_CHECKS += ['check_resource_publication_locations.py']
 
 
 def run_tool(name, *arguments):

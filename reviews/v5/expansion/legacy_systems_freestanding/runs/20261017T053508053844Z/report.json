@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "role": "author reference experiments; no learner credit",
+  "environment": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "input_sha256": {
+    "tools/run_systems_freestanding.py": "dc92d9d7e20d8f69d959242b90b7757d696dfc6a46039b0ef50119e75e87b6bc",
+    "assessor/legacy_systems/toolchain/common.py": "b6122ec4ac3d34e809ada92282671b461b995ed7e923648648c886934dc6d7d9",
+    "research/v5/expansion/legacy_systems/t11_cards.py": "871ee8ea041c7695a282462cad3c1cb0fa81631160a34dd07a16e471894f9ba8",
+    "labs/machine_image/freestanding_depth/free.c": "172c02952d49aee6413ebd680483d81a8e5c1af433962106c70837fcfd3ca798",
+    "labs/machine_image/freestanding_depth/free.h": "45cf007516083a0daee4537995fa8943a27fd76ffa89b408726af0922497a00b",
+    "labs/machine_image/freestanding_depth/services.c": "048bd1b8908a88eb6cbbdbd3a1d62f332a0ac2284687daad6e29085c3bf3b886",
+    "labs/machine_image/freestanding_depth/services.h": "96675835ec405847b81f431400dcf12fe99b86ffde1ccbb711062a49daab44f3",
+    "labs/machine_image/freestanding_depth/service_tests.c": "a21ead9b8bfe7c67ee5c50022956e83f1085a9fce0cd799ce450b1fdf9fb5fd2",
+    "labs/machine_image/freestanding_depth/tests.c": "634f2f6100001857647c318528ee6713ae2586283fed67120d6a05689d7683f8",
+    "assessor/legacy_systems/freestanding_depth/aeabi_uldivmod.S": "38256d8a2aacae0beedb964b2c3fef6cd13ce19e6ebaa4d9ad829b8aaa487d0a",
+    "assessor/legacy_systems/freestanding_depth/arithmetic_probe.c": "af60ea9395c41dbc6283db372139279c07f76009091a8c05252115d38d4fc16f",
+    "assessor/legacy_systems/freestanding_depth/bytes.c": "d5a7ad284fc3678fdfc77f01b0c6d71a6e71cc8b8f6037d81a27aefeb380dc82",
+    "assessor/legacy_systems/freestanding_depth/core.py": "8428afa18adcefe575a7a13f584638b59374a7107e0af152d77023e7ec36bbc4",
+    "assessor/legacy_systems/freestanding_depth/divide.c": "e633f9a0a0c29ac753ae6f1376aa65ea85b81187e142bfc5eeaa8fdfee3506bd",
+    "assessor/legacy_systems/freestanding_depth/instrumentation.py": "0a65d4279d7fae3f2811f8de07770d6aa9e278e7a0664b704c3087d4816a4152",
+    "assessor/legacy_systems/freestanding_depth/lowering.py": "d2e0601df3a2cf5b29a0167dfeaea658350b792d4d6f4b16572c5cd6111397ac",
+    "assessor/legacy_systems/freestanding_depth/memory_provider.c": "57f2d52ae29527d64795dc6d444a695c594f75a689d23940620ee73ea1590ae2",
+    "assessor/legacy_systems/freestanding_depth/runtime128.c": "f50a5a264d00147628bc8a3711b43da76185ebf1c7dd848ebe361f447d828462",
+    "assessor/legacy_systems/freestanding_depth/runtime64_arm.c": "6be46f61eb3994b991547fc70d05840cd7b5c0685708994c7246b7f4bf46fdaa",
+    "assessor/legacy_systems/freestanding_depth/services.c": "fe577ba62c2d8191838e2ba51df777805d3fea4fe4426306f0c6dfb3c52f80b8",
+    "assessor/legacy_systems/freestanding_depth/services.py": "b3ee62d69f6bd4906ca3c341a41ae623fb4f2e37f97f83dc0864a7578d27cc04"
+  },
+  "commands": [
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-O1",
+        "-fstack-protector-all",
+        "-fno-pie",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/instrument/probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "                 U __printf_chk\n                 U __stack_chk_fail\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-O1",
+        "-fstack-protector-all",
+        "-no-pie",
+        "-###",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.o",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "Using built-in specs.\nCOLLECT_GCC=gcc\nCOLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-16ubuntu1' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-j35TAX/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-j35TAX/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 15.2.0 (Ubuntu 15.2.0-16ubuntu1) \nCOMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/\nLIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/\nCOLLECT_GCC_OPTIONS='-O1' '-fstack-protector-all' '-no-pie' '-o' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack' '-mtune=generic' '-march=x86-64' '-dumpdir' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.'\n /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so \"-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper\" \"-plugin-opt=-fresolution=/tmp/cc2lK4VG.res\" \"-plugin-opt=-pass-through=-lgcc\" \"-plugin-opt=-pass-through=-lgcc_s\" \"-plugin-opt=-pass-through=-lc\" \"-plugin-opt=-pass-through=-lgcc\" \"-plugin-opt=-pass-through=-lgcc_s\" --build-id --eh-frame-hdr -m elf_x86_64 \"--hash-style=gnu\" --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtend.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o\nCOLLECT_GCC_OPTIONS='-O1' '-fstack-protector-all' '-no-pie' '-o' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack' '-mtune=generic' '-march=x86-64' '-dumpdir' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.'\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-O1",
+        "-fstack-protector-all",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.o",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "nm",
+        "-a",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000000000 a \n0000000000403e08 d _DYNAMIC\n0000000000403fe8 d _GLOBAL_OFFSET_TABLE_\n0000000000402000 R _IO_stdin_used\n0000000000402170 r __FRAME_END__\n0000000000402020 r __GNU_EH_FRAME_HDR\n0000000000404020 D __TMC_END__\n00000000004021a8 r __abi_tag\n0000000000404020 B __bss_start\n0000000000404010 D __data_start\n0000000000401120 t __do_global_dtors_aux\n0000000000403e00 d __do_global_dtors_aux_fini_array_entry\n0000000000404018 D __dso_handle\n0000000000403df8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n                 U __stack_chk_fail@GLIBC_2.4\n00000000004010a0 T _dl_relocate_static_pie\n0000000000404020 D _edata\n0000000000404028 B _end\n000000000040127c T _fini\n0000000000401000 T _init\n0000000000401070 T _start\n00000000004011c8 T access\n0000000000401193 T checked\n0000000000404020 b completed.0\n0000000000000000 a crt1.o\n0000000000000000 a crtstuff.c\n0000000000000000 a crtstuff.c\n0000000000404010 W data_start\n00000000004010b0 t deregister_tm_clones\n0000000000401150 t frame_dummy\n0000000000401156 T guarded\n00000000004011ff T main\n0000000000000000 a probe.c\n00000000004010e0 t register_tm_clones\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "readelf",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDynamic section at offset 0x2e08 contains 24 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x000000000000000c (INIT)               0x401000\n 0x000000000000000d (FINI)               0x40127c\n 0x0000000000000019 (INIT_ARRAY)         0x403df8\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x403e00\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x400390\n 0x0000000000000005 (STRTAB)             0x400448\n 0x0000000000000006 (SYMTAB)             0x4003b8\n 0x000000000000000a (STRSZ)              114 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000015 (DEBUG)              0x0\n 0x0000000000000003 (PLTGOT)             0x403fe8\n 0x0000000000000002 (PLTRELSZ)           48 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x400538\n 0x0000000000000007 (RELA)               0x400508\n 0x0000000000000008 (RELASZ)             48 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x4004c8\n 0x000000006fffffff (VERNEEDNUM)         1\n 0x000000006ffffff0 (VERSYM)             0x4004ba\n 0x0000000000000000 (NULL)               0x0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack:     file format elf64-x86-64\n\n\nDisassembly of section .init:\n\n0000000000401000 <_init>:\n  401000:\tf3 0f 1e fa          \tendbr64\n  401004:\t48 83 ec 08          \tsub    $0x8,%rsp\n  401008:\t48 8b 05 d1 2f 00 00 \tmov    0x2fd1(%rip),%rax        # 403fe0 <__gmon_start__>\n  40100f:\t48 85 c0             \ttest   %rax,%rax\n  401012:\t74 02                \tje     401016 <_init+0x16>\n  401014:\tff d0                \tcall   *%rax\n  401016:\t48 83 c4 08          \tadd    $0x8,%rsp\n  40101a:\tc3                   \tret\n\nDisassembly of section .plt:\n\n0000000000401020 <.plt>:\n  401020:\tff 35 ca 2f 00 00    \tpush   0x2fca(%rip)        # 403ff0 <_GLOBAL_OFFSET_TABLE_+0x8>\n  401026:\tff 25 cc 2f 00 00    \tjmp    *0x2fcc(%rip)        # 403ff8 <_GLOBAL_OFFSET_TABLE_+0x10>\n  40102c:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  401030:\tf3 0f 1e fa          \tendbr64\n  401034:\t68 00 00 00 00       \tpush   $0x0\n  401039:\te9 e2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40103e:\t66 90                \txchg   %ax,%ax\n  401040:\tf3 0f 1e fa          \tendbr64\n  401044:\t68 01 00 00 00       \tpush   $0x1\n  401049:\te9 d2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40104e:\t66 90                \txchg   %ax,%ax\n\nDisassembly of section .plt.sec:\n\n0000000000401050 <__stack_chk_fail@plt>:\n  401050:\tf3 0f 1e fa          \tendbr64\n  401054:\tff 25 a6 2f 00 00    \tjmp    *0x2fa6(%rip)        # 404000 <__stack_chk_fail@GLIBC_2.4>\n  40105a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n0000000000401060 <__printf_chk@plt>:\n  401060:\tf3 0f 1e fa          \tendbr64\n  401064:\tff 25 9e 2f 00 00    \tjmp    *0x2f9e(%rip)        # 404008 <__printf_chk@GLIBC_2.3.4>\n  40106a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\nDisassembly of section .text:\n\n0000000000401070 <_start>:\n  401070:\tf3 0f 1e fa          \tendbr64\n  401074:\t31 ed                \txor    %ebp,%ebp\n  401076:\t49 89 d1             \tmov    %rdx,%r9\n  401079:\t5e                   \tpop    %rsi\n  40107a:\t48 89 e2             \tmov    %rsp,%rdx\n  40107d:\t48 83 e4 f0          \tand    $0xfffffffffffffff0,%rsp\n  401081:\t50                   \tpush   %rax\n  401082:\t54                   \tpush   %rsp\n  401083:\t45 31 c0             \txor    %r8d,%r8d\n  401086:\t31 c9                \txor    %ecx,%ecx\n  401088:\t48 c7 c7 ff 11 40 00 \tmov    $0x4011ff,%rdi\n  40108f:\tff 15 43 2f 00 00    \tcall   *0x2f43(%rip)        # 403fd8 <__libc_start_main@GLIBC_2.34>\n  401095:\tf4                   \thlt\n  401096:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n  40109d:\t00 00 00 \n\n00000000004010a0 <_dl_relocate_static_pie>:\n  4010a0:\tf3 0f 1e fa          \tendbr64\n  4010a4:\tc3                   \tret\n  4010a5:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n  4010ac:\t00 00 00 \n  4010af:\t90                   \tnop\n\n00000000004010b0 <deregister_tm_clones>:\n  4010b0:\tb8 20 40 40 00       \tmov    $0x404020,%eax\n  4010b5:\t48 3d 20 40 40 00    \tcmp    $0x404020,%rax\n  4010bb:\t74 13                \tje     4010d0 <deregister_tm_clones+0x20>\n  4010bd:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  4010c2:\t48 85 c0             \ttest   %rax,%rax\n  4010c5:\t74 09                \tje     4010d0 <deregister_tm_clones+0x20>\n  4010c7:\tbf 20 40 40 00       \tmov    $0x404020,%edi\n  4010cc:\tff e0                \tjmp    *%rax\n  4010ce:\t66 90                \txchg   %ax,%ax\n  4010d0:\tc3                   \tret\n  4010d1:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  4010d5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  4010dc:\t00 00 00 00 \n\n00000000004010e0 <register_tm_clones>:\n  4010e0:\tbe 20 40 40 00       \tmov    $0x404020,%esi\n  4010e5:\t48 81 ee 20 40 40 00 \tsub    $0x404020,%rsi\n  4010ec:\t48 89 f0             \tmov    %rsi,%rax\n  4010ef:\t48 c1 ee 3f          \tshr    $0x3f,%rsi\n  4010f3:\t48 c1 f8 03          \tsar    $0x3,%rax\n  4010f7:\t48 01 c6             \tadd    %rax,%rsi\n  4010fa:\t48 d1 fe             \tsar    $1,%rsi\n  4010fd:\t74 11                \tje     401110 <register_tm_clones+0x30>\n  4010ff:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  401104:\t48 85 c0             \ttest   %rax,%rax\n  401107:\t74 07                \tje     401110 <register_tm_clones+0x30>\n  401109:\tbf 20 40 40 00       \tmov    $0x404020,%edi\n  40110e:\tff e0                \tjmp    *%rax\n  401110:\tc3                   \tret\n  401111:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  401115:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  40111c:\t00 00 00 00 \n\n0000000000401120 <__do_global_dtors_aux>:\n  401120:\tf3 0f 1e fa          \tendbr64\n  401124:\t80 3d f5 2e 00 00 00 \tcmpb   $0x0,0x2ef5(%rip)        # 404020 <__TMC_END__>\n  40112b:\t75 13                \tjne    401140 <__do_global_dtors_aux+0x20>\n  40112d:\t55                   \tpush   %rbp\n  40112e:\t48 89 e5             \tmov    %rsp,%rbp\n  401131:\te8 7a ff ff ff       \tcall   4010b0 <deregister_tm_clones>\n  401136:\tc6 05 e3 2e 00 00 01 \tmovb   $0x1,0x2ee3(%rip)        # 404020 <__TMC_END__>\n  40113d:\t5d                   \tpop    %rbp\n  40113e:\tc3                   \tret\n  40113f:\t90                   \tnop\n  401140:\tc3                   \tret\n  401141:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  401145:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  40114c:\t00 00 00 00 \n\n0000000000401150 <frame_dummy>:\n  401150:\tf3 0f 1e fa          \tendbr64\n  401154:\teb 8a                \tjmp    4010e0 <register_tm_clones>\n\n0000000000401156 <guarded>:\n  401156:\tf3 0f 1e fa          \tendbr64\n  40115a:\t48 83 ec 38          \tsub    $0x38,%rsp\n  40115e:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n  401165:\t00 00 \n  401167:\t48 89 44 24 28       \tmov    %rax,0x28(%rsp)\n  40116c:\t31 c0                \txor    %eax,%eax\n  40116e:\t40 88 3c 24          \tmov    %dil,(%rsp)\n  401172:\t0f b6 04 24          \tmovzbl (%rsp),%eax\n  401176:\t48 8b 54 24 28       \tmov    0x28(%rsp),%rdx\n  40117b:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n  401182:\t00 00 \n  401184:\t75 08                \tjne    40118e <guarded+0x38>\n  401186:\t0f be c0             \tmovsbl %al,%eax\n  401189:\t48 83 c4 38          \tadd    $0x38,%rsp\n  40118d:\tc3                   \tret\n  40118e:\te8 bd fe ff ff       \tcall   401050 <__stack_chk_fail@plt>\n\n0000000000401193 <checked>:\n  401193:\tf3 0f 1e fa          \tendbr64\n  401197:\t48 83 ec 18          \tsub    $0x18,%rsp\n  40119b:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n  4011a2:\t00 00 \n  4011a4:\t48 89 44 24 08       \tmov    %rax,0x8(%rsp)\n  4011a9:\t31 c0                \txor    %eax,%eax\n  4011ab:\t48 8b 54 24 08       \tmov    0x8(%rsp),%rdx\n  4011b0:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n  4011b7:\t00 00 \n  4011b9:\t75 08                \tjne    4011c3 <checked+0x30>\n  4011bb:\t8d 47 01             \tlea    0x1(%rdi),%eax\n  4011be:\t48 83 c4 18          \tadd    $0x18,%rsp\n  4011c2:\tc3                   \tret\n  4011c3:\te8 88 fe ff ff       \tcall   401050 <__stack_chk_fail@plt>\n\n00000000004011c8 <access>:\n  4011c8:\tf3 0f 1e fa          \tendbr64\n  4011cc:\t48 83 ec 18          \tsub    $0x18,%rsp\n  4011d0:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n  4011d7:\t00 00 \n  4011d9:\t48 89 44 24 08       \tmov    %rax,0x8(%rsp)\n  4011de:\t31 c0                \txor    %eax,%eax\n  4011e0:\t48 8b 44 24 08       \tmov    0x8(%rsp),%rax\n  4011e5:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n  4011ec:\t00 00 \n  4011ee:\t75 0a                \tjne    4011fa <access+0x32>\n  4011f0:\tb8 25 00 00 00       \tmov    $0x25,%eax\n  4011f5:\t48 83 c4 18          \tadd    $0x18,%rsp\n  4011f9:\tc3                   \tret\n  4011fa:\te8 51 fe ff ff       \tcall   401050 <__stack_chk_fail@plt>\n\n00000000004011ff <main>:\n  4011ff:\tf3 0f 1e fa          \tendbr64\n  401203:\t41 56                \tpush   %r14\n  401205:\t53                   \tpush   %rbx\n  401206:\t48 83 ec 18          \tsub    $0x18,%rsp\n  40120a:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n  401211:\t00 00 \n  401213:\t48 89 44 24 08       \tmov    %rax,0x8(%rsp)\n  401218:\t31 c0                \txor    %eax,%eax\n  40121a:\tbf 07 00 00 00       \tmov    $0x7,%edi\n  40121f:\te8 a4 ff ff ff       \tcall   4011c8 <access>\n  401224:\t41 89 c6             \tmov    %eax,%r14d\n  401227:\tbf 0a 00 00 00       \tmov    $0xa,%edi\n  40122c:\te8 62 ff ff ff       \tcall   401193 <checked>\n  401231:\t89 c3                \tmov    %eax,%ebx\n  401233:\tbf 07 00 00 00       \tmov    $0x7,%edi\n  401238:\te8 19 ff ff ff       \tcall   401156 <guarded>\n  40123d:\t89 c2                \tmov    %eax,%edx\n  40123f:\t45 89 f0             \tmov    %r14d,%r8d\n  401242:\t89 d9                \tmov    %ebx,%ecx\n  401244:\tbe 04 20 40 00       \tmov    $0x402004,%esi\n  401249:\tbf 02 00 00 00       \tmov    $0x2,%edi\n  40124e:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  401253:\te8 08 fe ff ff       \tcall   401060 <__printf_chk@plt>\n  401258:\t48 8b 44 24 08       \tmov    0x8(%rsp),%rax\n  40125d:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n  401264:\t00 00 \n  401266:\t75 0d                \tjne    401275 <main+0x76>\n  401268:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  40126d:\t48 83 c4 18          \tadd    $0x18,%rsp\n  401271:\t5b                   \tpop    %rbx\n  401272:\t41 5e                \tpop    %r14\n  401274:\tc3                   \tret\n  401275:\te8 d6 fd ff ff       \tcall   401050 <__stack_chk_fail@plt>\n\nDisassembly of section .fini:\n\n000000000040127c <_fini>:\n  40127c:\tf3 0f 1e fa          \tendbr64\n  401280:\t48 83 ec 08          \tsub    $0x8,%rsp\n  401284:\t48 83 c4 08          \tadd    $0x8,%rsp\n  401288:\tc3                   \tret\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-stack"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "INSTRUMENT-PASS:7:11:37",
+      "stdout": "INSTRUMENT-PASS:7:11:37\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-O1",
+        "-fsanitize=address",
+        "-DCONTROL_ASAN",
+        "-fno-pie",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/instrument/probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "                 U __asan_init\n                 U __asan_option_detect_stack_use_after_return\n                 U __asan_register_globals\n                 U __asan_stack_malloc_1\n                 U __asan_unregister_globals\n                 U __asan_version_mismatch_check_v8\n                 U __printf_chk\n                 U __stack_chk_fail\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-O1",
+        "-fsanitize=address",
+        "-DCONTROL_ASAN",
+        "-no-pie",
+        "-###",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.o",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "Using built-in specs.\nCOLLECT_GCC=gcc\nCOLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-16ubuntu1' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-j35TAX/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-j35TAX/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 15.2.0 (Ubuntu 15.2.0-16ubuntu1) \nCOMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/\nLIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/\nCOLLECT_GCC_OPTIONS='-O1' '-fsanitize=address' '-D' 'CONTROL_ASAN' '-no-pie' '-o' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan' '-mtune=generic' '-march=x86-64' '-dumpdir' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.'\n /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so \"-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper\" \"-plugin-opt=-fresolution=/tmp/ccSZexw4.res\" \"-plugin-opt=-pass-through=-lgcc\" \"-plugin-opt=-pass-through=-lgcc_s\" \"-plugin-opt=-pass-through=-lc\" \"-plugin-opt=-pass-through=-lgcc\" \"-plugin-opt=-pass-through=-lgcc_s\" --build-id --eh-frame-hdr -m elf_x86_64 \"--hash-style=gnu\" -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib /usr/lib/gcc/x86_64-linux-gnu/15/libasan_preinit.o --push-state --no-as-needed -lasan --pop-state /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtend.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o\nCOLLECT_GCC_OPTIONS='-O1' '-fsanitize=address' '-D' 'CONTROL_ASAN' '-no-pie' '-o' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan' '-mtune=generic' '-march=x86-64' '-dumpdir' '/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.'\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "gcc",
+        "-O1",
+        "-fsanitize=address",
+        "-DCONTROL_ASAN",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.o",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "nm",
+        "-a",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000000000 a \n0000000000403dd8 d _DYNAMIC\n0000000000403fe8 d _GLOBAL_OFFSET_TABLE_\n0000000000402000 R _IO_stdin_used\n0000000000403db0 d _ZL7preinit\n0000000000402260 r __FRAME_END__\n00000000004020d0 r __GNU_EH_FRAME_HDR\n00000000004040a0 D __TMC_END__\n0000000000402298 r __abi_tag\n                 U __asan_init\n00000000004040a0 B __asan_option_detect_stack_use_after_return\n                 U __asan_register_globals\n                 U __asan_stack_malloc_1\n                 U __asan_unregister_globals\n                 U __asan_version_mismatch_check_v8\n00000000004040a0 B __bss_start\n0000000000404040 D __data_start\n00000000004011c0 t __do_global_dtors_aux\n0000000000403dd0 d __do_global_dtors_aux_fini_array_entry\n0000000000404048 D __dso_handle\n0000000000403dc0 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n                 U __sanitizer_internal_memcpy\n                 U __sanitizer_internal_memmove\n                 U __sanitizer_internal_memset\n                 U __stack_chk_fail@GLIBC_2.4\n0000000000401140 T _dl_relocate_static_pie\n00000000004040a0 D _edata\n00000000004040a8 B _end\n0000000000401398 T _fini\n0000000000401000 T _init\n0000000000401110 T _start\n0000000000401354 t _sub_D_00099_0\n0000000000401370 t _sub_I_00099_1\n00000000004012e3 T access\n0000000000000000 a asan_preinit.cpp\n00000000004012db T checked\n00000000004040a4 b completed.0\n0000000000000000 a crt1.o\n0000000000000000 a crtstuff.c\n0000000000000000 a crtstuff.c\n0000000000404040 W data_start\n0000000000401150 t deregister_tm_clones\n00000000004011f0 t frame_dummy\n00000000004011f6 T guarded\n00000000004012ed T main\n0000000000000000 a probe.c\n0000000000401180 t register_tm_clones\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "readelf",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDynamic section at offset 0x2dd8 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libasan.so.8]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x000000000000000c (INIT)               0x401000\n 0x000000000000000d (FINI)               0x401398\n 0x0000000000000020 (PREINIT_ARRAY)      0x403db0\n 0x0000000000000021 (PREINIT_ARRAYSZ)    8 (bytes)\n 0x0000000000000019 (INIT_ARRAY)         0x403db8\n 0x000000000000001b (INIT_ARRAYSZ)       16 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x403dc8\n 0x000000000000001c (FINI_ARRAYSZ)       16 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x400390\n 0x0000000000000005 (STRTAB)             0x400520\n 0x0000000000000006 (SYMTAB)             0x4003b8\n 0x000000000000000a (STRSZ)              373 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000015 (DEBUG)              0x0\n 0x0000000000000003 (PLTGOT)             0x403fe8\n 0x0000000000000002 (PLTRELSZ)           168 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x400758\n 0x0000000000000007 (RELA)               0x4006f8\n 0x0000000000000008 (RELASZ)             96 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x4006b8\n 0x000000006fffffff (VERNEEDNUM)         1\n 0x000000006ffffff0 (VERSYM)             0x400696\n 0x0000000000000000 (NULL)               0x0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan:     file format elf64-x86-64\n\n\nDisassembly of section .init:\n\n0000000000401000 <_init>:\n  401000:\tf3 0f 1e fa          \tendbr64\n  401004:\t48 83 ec 08          \tsub    $0x8,%rsp\n  401008:\t48 8b 05 c9 2f 00 00 \tmov    0x2fc9(%rip),%rax        # 403fd8 <__gmon_start__>\n  40100f:\t48 85 c0             \ttest   %rax,%rax\n  401012:\t74 02                \tje     401016 <_init+0x16>\n  401014:\tff d0                \tcall   *%rax\n  401016:\t48 83 c4 08          \tadd    $0x8,%rsp\n  40101a:\tc3                   \tret\n\nDisassembly of section .plt:\n\n0000000000401020 <.plt>:\n  401020:\tff 35 ca 2f 00 00    \tpush   0x2fca(%rip)        # 403ff0 <_GLOBAL_OFFSET_TABLE_+0x8>\n  401026:\tff 25 cc 2f 00 00    \tjmp    *0x2fcc(%rip)        # 403ff8 <_GLOBAL_OFFSET_TABLE_+0x10>\n  40102c:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  401030:\tf3 0f 1e fa          \tendbr64\n  401034:\t68 00 00 00 00       \tpush   $0x0\n  401039:\te9 e2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40103e:\t66 90                \txchg   %ax,%ax\n  401040:\tf3 0f 1e fa          \tendbr64\n  401044:\t68 01 00 00 00       \tpush   $0x1\n  401049:\te9 d2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40104e:\t66 90                \txchg   %ax,%ax\n  401050:\tf3 0f 1e fa          \tendbr64\n  401054:\t68 02 00 00 00       \tpush   $0x2\n  401059:\te9 c2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40105e:\t66 90                \txchg   %ax,%ax\n  401060:\tf3 0f 1e fa          \tendbr64\n  401064:\t68 03 00 00 00       \tpush   $0x3\n  401069:\te9 b2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40106e:\t66 90                \txchg   %ax,%ax\n  401070:\tf3 0f 1e fa          \tendbr64\n  401074:\t68 04 00 00 00       \tpush   $0x4\n  401079:\te9 a2 ff ff ff       \tjmp    401020 <_init+0x20>\n  40107e:\t66 90                \txchg   %ax,%ax\n  401080:\tf3 0f 1e fa          \tendbr64\n  401084:\t68 05 00 00 00       \tpush   $0x5\n  401089:\te9 92 ff ff ff       \tjmp    401020 <_init+0x20>\n  40108e:\t66 90                \txchg   %ax,%ax\n  401090:\tf3 0f 1e fa          \tendbr64\n  401094:\t68 06 00 00 00       \tpush   $0x6\n  401099:\te9 82 ff ff ff       \tjmp    401020 <_init+0x20>\n  40109e:\t66 90                \txchg   %ax,%ax\n\nDisassembly of section .plt.sec:\n\n00000000004010a0 <__asan_init@plt>:\n  4010a0:\tf3 0f 1e fa          \tendbr64\n  4010a4:\tff 25 56 2f 00 00    \tjmp    *0x2f56(%rip)        # 404000 <__asan_init>\n  4010aa:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000004010b0 <__asan_stack_malloc_1@plt>:\n  4010b0:\tf3 0f 1e fa          \tendbr64\n  4010b4:\tff 25 4e 2f 00 00    \tjmp    *0x2f4e(%rip)        # 404008 <__asan_stack_malloc_1>\n  4010ba:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000004010c0 <__printf_chk@plt>:\n  4010c0:\tf3 0f 1e fa          \tendbr64\n  4010c4:\tff 25 46 2f 00 00    \tjmp    *0x2f46(%rip)        # 404010 <__printf_chk@GLIBC_2.3.4>\n  4010ca:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000004010d0 <__stack_chk_fail@plt>:\n  4010d0:\tf3 0f 1e fa          \tendbr64\n  4010d4:\tff 25 3e 2f 00 00    \tjmp    *0x2f3e(%rip)        # 404018 <__stack_chk_fail@GLIBC_2.4>\n  4010da:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000004010e0 <__asan_unregister_globals@plt>:\n  4010e0:\tf3 0f 1e fa          \tendbr64\n  4010e4:\tff 25 36 2f 00 00    \tjmp    *0x2f36(%rip)        # 404020 <__asan_unregister_globals>\n  4010ea:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000004010f0 <__asan_register_globals@plt>:\n  4010f0:\tf3 0f 1e fa          \tendbr64\n  4010f4:\tff 25 2e 2f 00 00    \tjmp    *0x2f2e(%rip)        # 404028 <__asan_register_globals>\n  4010fa:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n0000000000401100 <__asan_version_mismatch_check_v8@plt>:\n  401100:\tf3 0f 1e fa          \tendbr64\n  401104:\tff 25 26 2f 00 00    \tjmp    *0x2f26(%rip)        # 404030 <__asan_version_mismatch_check_v8>\n  40110a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\nDisassembly of section .text:\n\n0000000000401110 <_start>:\n  401110:\tf3 0f 1e fa          \tendbr64\n  401114:\t31 ed                \txor    %ebp,%ebp\n  401116:\t49 89 d1             \tmov    %rdx,%r9\n  401119:\t5e                   \tpop    %rsi\n  40111a:\t48 89 e2             \tmov    %rsp,%rdx\n  40111d:\t48 83 e4 f0          \tand    $0xfffffffffffffff0,%rsp\n  401121:\t50                   \tpush   %rax\n  401122:\t54                   \tpush   %rsp\n  401123:\t45 31 c0             \txor    %r8d,%r8d\n  401126:\t31 c9                \txor    %ecx,%ecx\n  401128:\t48 c7 c7 ed 12 40 00 \tmov    $0x4012ed,%rdi\n  40112f:\tff 15 ab 2e 00 00    \tcall   *0x2eab(%rip)        # 403fe0 <__libc_start_main@GLIBC_2.34>\n  401135:\tf4                   \thlt\n  401136:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n  40113d:\t00 00 00 \n\n0000000000401140 <_dl_relocate_static_pie>:\n  401140:\tf3 0f 1e fa          \tendbr64\n  401144:\tc3                   \tret\n  401145:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n  40114c:\t00 00 00 \n  40114f:\t90                   \tnop\n\n0000000000401150 <deregister_tm_clones>:\n  401150:\tb8 a0 40 40 00       \tmov    $0x4040a0,%eax\n  401155:\t48 3d a0 40 40 00    \tcmp    $0x4040a0,%rax\n  40115b:\t74 13                \tje     401170 <deregister_tm_clones+0x20>\n  40115d:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  401162:\t48 85 c0             \ttest   %rax,%rax\n  401165:\t74 09                \tje     401170 <deregister_tm_clones+0x20>\n  401167:\tbf a0 40 40 00       \tmov    $0x4040a0,%edi\n  40116c:\tff e0                \tjmp    *%rax\n  40116e:\t66 90                \txchg   %ax,%ax\n  401170:\tc3                   \tret\n  401171:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  401175:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  40117c:\t00 00 00 00 \n\n0000000000401180 <register_tm_clones>:\n  401180:\tbe a0 40 40 00       \tmov    $0x4040a0,%esi\n  401185:\t48 81 ee a0 40 40 00 \tsub    $0x4040a0,%rsi\n  40118c:\t48 89 f0             \tmov    %rsi,%rax\n  40118f:\t48 c1 ee 3f          \tshr    $0x3f,%rsi\n  401193:\t48 c1 f8 03          \tsar    $0x3,%rax\n  401197:\t48 01 c6             \tadd    %rax,%rsi\n  40119a:\t48 d1 fe             \tsar    $1,%rsi\n  40119d:\t74 11                \tje     4011b0 <register_tm_clones+0x30>\n  40119f:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  4011a4:\t48 85 c0             \ttest   %rax,%rax\n  4011a7:\t74 07                \tje     4011b0 <register_tm_clones+0x30>\n  4011a9:\tbf a0 40 40 00       \tmov    $0x4040a0,%edi\n  4011ae:\tff e0                \tjmp    *%rax\n  4011b0:\tc3                   \tret\n  4011b1:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  4011b5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  4011bc:\t00 00 00 00 \n\n00000000004011c0 <__do_global_dtors_aux>:\n  4011c0:\tf3 0f 1e fa          \tendbr64\n  4011c4:\t80 3d d9 2e 00 00 00 \tcmpb   $0x0,0x2ed9(%rip)        # 4040a4 <completed.0>\n  4011cb:\t75 13                \tjne    4011e0 <__do_global_dtors_aux+0x20>\n  4011cd:\t55                   \tpush   %rbp\n  4011ce:\t48 89 e5             \tmov    %rsp,%rbp\n  4011d1:\te8 7a ff ff ff       \tcall   401150 <deregister_tm_clones>\n  4011d6:\tc6 05 c7 2e 00 00 01 \tmovb   $0x1,0x2ec7(%rip)        # 4040a4 <completed.0>\n  4011dd:\t5d                   \tpop    %rbp\n  4011de:\tc3                   \tret\n  4011df:\t90                   \tnop\n  4011e0:\tc3                   \tret\n  4011e1:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  4011e5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  4011ec:\t00 00 00 00 \n\n00000000004011f0 <frame_dummy>:\n  4011f0:\tf3 0f 1e fa          \tendbr64\n  4011f4:\teb 8a                \tjmp    401180 <register_tm_clones>\n\n00000000004011f6 <guarded>:\n  4011f6:\tf3 0f 1e fa          \tendbr64\n  4011fa:\t55                   \tpush   %rbp\n  4011fb:\t53                   \tpush   %rbx\n  4011fc:\t48 81 ec 88 00 00 00 \tsub    $0x88,%rsp\n  401203:\t89 fd                \tmov    %edi,%ebp\n  401205:\t48 89 e3             \tmov    %rsp,%rbx\n  401208:\t83 3d 91 2e 00 00 00 \tcmpl   $0x0,0x2e91(%rip)        # 4040a0 <__asan_option_detect_stack_use_after_return>\n  40120f:\t0f 85 80 00 00 00    \tjne    401295 <guarded+0x9f>\n  401215:\t48 c7 03 b3 8a b5 41 \tmovq   $0x41b58ab3,(%rbx)\n  40121c:\t48 c7 43 08 04 20 40 \tmovq   $0x402004,0x8(%rbx)\n  401223:\t00 \n  401224:\t48 c7 43 10 f6 11 40 \tmovq   $0x4011f6,0x10(%rbx)\n  40122b:\t00 \n  40122c:\t48 89 da             \tmov    %rbx,%rdx\n  40122f:\t48 c1 ea 03          \tshr    $0x3,%rdx\n  401233:\tc7 82 00 80 ff 7f f1 \tmovl   $0xf1f1f1f1,0x7fff8000(%rdx)\n  40123a:\tf1 f1 f1 \n  40123d:\tc7 82 08 80 ff 7f f3 \tmovl   $0xf3f3f3f3,0x7fff8008(%rdx)\n  401244:\tf3 f3 f3 \n  401247:\t64 48 8b 0c 25 28 00 \tmov    %fs:0x28,%rcx\n  40124e:\t00 00 \n  401250:\t48 89 4c 24 78       \tmov    %rcx,0x78(%rsp)\n  401255:\t31 c9                \txor    %ecx,%ecx\n  401257:\t40 88 6b 20          \tmov    %bpl,0x20(%rbx)\n  40125b:\t0f b6 43 20          \tmovzbl 0x20(%rbx),%eax\n  40125f:\t0f be c0             \tmovsbl %al,%eax\n  401262:\t48 39 dc             \tcmp    %rbx,%rsp\n  401265:\t75 44                \tjne    4012ab <guarded+0xb5>\n  401267:\tc7 82 00 80 ff 7f 00 \tmovl   $0x0,0x7fff8000(%rdx)\n  40126e:\t00 00 00 \n  401271:\tc7 82 08 80 ff 7f 00 \tmovl   $0x0,0x7fff8008(%rdx)\n  401278:\t00 00 00 \n  40127b:\t48 8b 54 24 78       \tmov    0x78(%rsp),%rdx\n  401280:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n  401287:\t00 00 \n  401289:\t75 4b                \tjne    4012d6 <guarded+0xe0>\n  40128b:\t48 81 c4 88 00 00 00 \tadd    $0x88,%rsp\n  401292:\t5b                   \tpop    %rbx\n  401293:\t5d                   \tpop    %rbp\n  401294:\tc3                   \tret\n  401295:\tbf 60 00 00 00       \tmov    $0x60,%edi\n  40129a:\te8 11 fe ff ff       \tcall   4010b0 <__asan_stack_malloc_1@plt>\n  40129f:\t48 85 c0             \ttest   %rax,%rax\n  4012a2:\t48 0f 45 d8          \tcmovne %rax,%rbx\n  4012a6:\te9 6a ff ff ff       \tjmp    401215 <guarded+0x1f>\n  4012ab:\t48 c7 03 0e 36 e0 45 \tmovq   $0x45e0360e,(%rbx)\n  4012b2:\t48 be f5 f5 f5 f5 f5 \tmovabs $0xf5f5f5f5f5f5f5f5,%rsi\n  4012b9:\tf5 f5 f5 \n  4012bc:\t48 89 b2 00 80 ff 7f \tmov    %rsi,0x7fff8000(%rdx)\n  4012c3:\tc7 82 08 80 ff 7f f5 \tmovl   $0xf5f5f5f5,0x7fff8008(%rdx)\n  4012ca:\tf5 f5 f5 \n  4012cd:\t48 8b 53 78          \tmov    0x78(%rbx),%rdx\n  4012d1:\tc6 02 00             \tmovb   $0x0,(%rdx)\n  4012d4:\teb a5                \tjmp    40127b <guarded+0x85>\n  4012d6:\te8 f5 fd ff ff       \tcall   4010d0 <__stack_chk_fail@plt>\n\n00000000004012db <checked>:\n  4012db:\tf3 0f 1e fa          \tendbr64\n  4012df:\t8d 47 01             \tlea    0x1(%rdi),%eax\n  4012e2:\tc3                   \tret\n\n00000000004012e3 <access>:\n  4012e3:\tf3 0f 1e fa          \tendbr64\n  4012e7:\tb8 25 00 00 00       \tmov    $0x25,%eax\n  4012ec:\tc3                   \tret\n\n00000000004012ed <main>:\n  4012ed:\tf3 0f 1e fa          \tendbr64\n  4012f1:\t41 56                \tpush   %r14\n  4012f3:\t53                   \tpush   %rbx\n  4012f4:\t48 83 ec 08          \tsub    $0x8,%rsp\n  4012f8:\t83 ff 01             \tcmp    $0x1,%edi\n  4012fb:\t7e 12                \tjle    40130f <main+0x22>\n  4012fd:\tbf 09 00 00 00       \tmov    $0x9,%edi\n  401302:\te8 dc ff ff ff       \tcall   4012e3 <access>\n  401307:\t48 83 c4 08          \tadd    $0x8,%rsp\n  40130b:\t5b                   \tpop    %rbx\n  40130c:\t41 5e                \tpop    %r14\n  40130e:\tc3                   \tret\n  40130f:\tbf 07 00 00 00       \tmov    $0x7,%edi\n  401314:\te8 ca ff ff ff       \tcall   4012e3 <access>\n  401319:\t41 89 c6             \tmov    %eax,%r14d\n  40131c:\tbf 0a 00 00 00       \tmov    $0xa,%edi\n  401321:\te8 b5 ff ff ff       \tcall   4012db <checked>\n  401326:\t89 c3                \tmov    %eax,%ebx\n  401328:\tbf 07 00 00 00       \tmov    $0x7,%edi\n  40132d:\te8 c4 fe ff ff       \tcall   4011f6 <guarded>\n  401332:\t89 c2                \tmov    %eax,%edx\n  401334:\t45 89 f0             \tmov    %r14d,%r8d\n  401337:\t89 d9                \tmov    %ebx,%ecx\n  401339:\tbe 20 20 40 00       \tmov    $0x402020,%esi\n  40133e:\tbf 02 00 00 00       \tmov    $0x2,%edi\n  401343:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  401348:\te8 73 fd ff ff       \tcall   4010c0 <__printf_chk@plt>\n  40134d:\tb8 00 00 00 00       \tmov    $0x0,%eax\n  401352:\teb b3                \tjmp    401307 <main+0x1a>\n\n0000000000401354 <_sub_D_00099_0>:\n  401354:\tf3 0f 1e fa          \tendbr64\n  401358:\t48 83 ec 08          \tsub    $0x8,%rsp\n  40135c:\tbe 01 00 00 00       \tmov    $0x1,%esi\n  401361:\tbf 60 40 40 00       \tmov    $0x404060,%edi\n  401366:\te8 75 fd ff ff       \tcall   4010e0 <__asan_unregister_globals@plt>\n  40136b:\t48 83 c4 08          \tadd    $0x8,%rsp\n  40136f:\tc3                   \tret\n\n0000000000401370 <_sub_I_00099_1>:\n  401370:\tf3 0f 1e fa          \tendbr64\n  401374:\t48 83 ec 08          \tsub    $0x8,%rsp\n  401378:\te8 23 fd ff ff       \tcall   4010a0 <__asan_init@plt>\n  40137d:\te8 7e fd ff ff       \tcall   401100 <__asan_version_mismatch_check_v8@plt>\n  401382:\tbe 01 00 00 00       \tmov    $0x1,%esi\n  401387:\tbf 60 40 40 00       \tmov    $0x404060,%edi\n  40138c:\te8 5f fd ff ff       \tcall   4010f0 <__asan_register_globals@plt>\n  401391:\t48 83 c4 08          \tadd    $0x8,%rsp\n  401395:\tc3                   \tret\n\nDisassembly of section .fini:\n\n0000000000401398 <_fini>:\n  401398:\tf3 0f 1e fa          \tendbr64\n  40139c:\t48 83 ec 08          \tsub    $0x8,%rsp\n  4013a0:\t48 83 c4 08          \tadd    $0x8,%rsp\n  4013a4:\tc3                   \tret\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "INSTRUMENT-PASS:7:11:37",
+      "stdout": "INSTRUMENT-PASS:7:11:37\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan",
+        "fault"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z",
+      "exit": 37,
+      "expected": "nonzero",
+      "diagnostic": "AddressSanitizer",
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": false
+    }
+  ],
+  "checks": [
+    {
+      "group": "freestanding-instrumentation",
+      "name": "instrumentation positive marker remains in final image",
+      "passed": true,
+      "observed": "gcc-stack"
+    },
+    {
+      "group": "freestanding-instrumentation",
+      "name": "instrumentation positive marker remains in final image",
+      "passed": true,
+      "observed": "gcc-asan"
+    }
+  ],
+  "observations": [],
+  "generated_inputs": {
+    "instrument/probe.c": {
+      "sha256": "79031922e8f5f1faf46577a95f51d1ddef1e0bcd31e246c5b3d70ba1b1d22417",
+      "content": "#include <limits.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <stdatomic.h>\n__attribute__((noinline)) int guarded(int n){volatile char bytes[32];bytes[0]=(char)n;return bytes[0];}\n__attribute__((noinline)) int checked(int n){return n+1;}\n__attribute__((noinline)) int access(int n){char *p=malloc(8);if(!p)return -1;p[n]=37;int result=p[n];free(p);return result;}\nint main(int argc,char **argv){(void)argv;if(argc>1){\n#if defined(CONTROL_UBSAN)\n volatile int n=INT_MAX;return checked(n);\n#elif defined(CONTROL_ASAN)\n return access(9);\n#endif\n}printf(\"INSTRUMENT-PASS:%d:%d:%d\\n\",guarded(7),checked(10),access(7));return 0;}\n"
+    }
+  },
+  "error": "{\n  \"group\": \"freestanding-instrumentation\",\n  \"argv\": [\n    \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z/gcc-asan\",\n    \"fault\"\n  ],\n  \"cwd\": \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_freestanding/20261017T053508053844Z\",\n  \"exit\": 37,\n  \"expected\": \"nonzero\",\n  \"diagnostic\": \"AddressSanitizer\",\n  \"stdout\": \"\",\n  \"stderr\": \"\",\n  \"environment\": {\n    \"LC_ALL\": \"C\"\n  },\n  \"passed\": false\n}",
+  "passed": false,
+  "limits": [
+    "Bounded Linux/toolchain experiments; no physical target claim.",
+    "A successful reference run does not establish independent learner performance.",
+    "Source identity and reproducibility do not establish trust in a toolchain."
+  ],
+  "selected_modules": [
+    "instrumentation"
+  ]
+}

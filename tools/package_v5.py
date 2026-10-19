@@ -2,6 +2,11 @@
 
 Beyond the v4 comparisons (published HTML and the standalone Markdown), every
 tracked generated file must be a fixed point of the extracted-source rebuild.
+
+For explicitly provisioned local author inputs, run accept_v5.py first, then
+candidate_author_environment.py --manifest REVIEWS_PATH, then this producer
+with --author-environment-manifest REVIEWS_PATH. Acceptance is checked again;
+any changed selected file set requires a new manifest, never automatic admission.
 """
 import accept_v5
 import package_v4
@@ -33,11 +38,15 @@ def learner_file(relative):
     return True
 
 
-def main():
+def main(author_environment_manifest=None):
     package_v4.main(receipts=RECEIPTS, schema_version=5, accept=accept_v5.main, archives=ARCHIVES,
                     candidate_prefix='v5_', build_script='tools/build_v5.py', fixed_point=FIXED_POINT,
-                    learner_filter=learner_file)
+                    learner_filter=learner_file,author_environment_manifest=author_environment_manifest)
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    from pathlib import Path
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--author-environment-manifest',type=Path,help='Explicit exact active-pin local author inputs; never distributed in archives and never an acceptance override')
+    main(parser.parse_args().author_environment_manifest)

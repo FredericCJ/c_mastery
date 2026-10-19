@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "project": "PR-T37-07",
+  "domain": "T37",
+  "title": "Independent depth assessment: Call ABI versus reset and exception frame",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/architecture_frame/CONTRACTS.md",
+    "labs/interrupt_depth/frame/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-T37-07.md",
+        "sha256": "a14cdd2bb6807df3c9c41d0940813bc4cffea88692420ee4e9a807909fee79fb",
+        "passages": [
+          "Full project obligations"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T37.md",
+        "sha256": "011b1fbcddf4747bc6d44f4354b3b66b03453e750d72398d3db6b3e6e7729eee",
+        "passages": [
+          "Study sequence and teaching T37.01 through .10"
+        ]
+      },
+      {
+        "path": "labs/algorithms/SPEC.md",
+        "sha256": "9ab88d640d39c9cd21635e6feab626a7753a0fd22fa9da9ef9c6173dce2d105f",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/family.json",
+        "sha256": "21aad45052c78efb652c607d1f355d13e1acf35d7885590d42890d272261131b",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/include/algo.h",
+        "sha256": "d7cd32dbc308060a1fa0396412b525ab7aa426f3c03549c19d86bd4cc1213f5c",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/tests/test_algo.c",
+        "sha256": "0b63455eb7255940cb805759140aebf564124de5b8ee4a1be89949652447cb54",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "tools/verify_algorithms_fixtures.py",
+        "sha256": "210a97cc2bbfbf2b8cbe87d6546e060d230edda7c909a15214078febed9934dc",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T37.md",
+        "anchors": [
+          "T37.09"
+        ]
+      }
+    ],
+    "units": [
+      "U-T37-07-01",
+      "U-T37-07-02",
+      "U-T37-07-03"
+    ],
+    "inspection_limits": [
+      "Units reviewed as objective mappings/project-derived checks, not independent evidence.",
+      "Selected relevant algorithms assessor/test functions inspected; unrelated functions not all reinspected.",
+      "External assigned books/vendor manuals not freshly inspected in this audit."
+    ]
+  },
+  "environment": {
+    "language": "ISO C17 baseline",
+    "target": "Parent Linux SysV x86-64 / Cortex-M4 bounded model or isolated emulator as applicable; physical evidence separate",
+    "profile": "C",
+    "dependencies": "Parent permitted primitives; host Python/sanitizers/oracles are not target runtime dependencies.",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python3",
+      "Parent assembler/disassembler/emulator as required"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-T37-LOCAL",
+      "path": "research/v5/expansion/b045_legacy/resources.json",
+      "passages": [
+        "curriculum/modules/T37.md: Study sequence and teaching, T37.01 through T37.10",
+        "PR-T37-07: Contract, Inputs and expected results, Steps, Failure cases, Acceptance and evidence, Hints and recovery, Transfer challenge"
+      ]
+    },
+    {
+      "id": "R-MF-ARM",
+      "path": "research/v5/expansion/legacy_architecture_frame/resources.json",
+      "passages": [
+        "Pinned RST lines821\u2013899: register table, r9 platform role, callee preservation and public-call status flags",
+        "Pinned RST lines1034\u20131085: full-descending stack, universal and public-interface constraints",
+        "Pinned RST lines1162\u20131199: BL/link register and return semantics"
+      ]
+    },
+    {
+      "id": "R-MF-DUI",
+      "path": "research/v5/expansion/legacy_architecture_frame/resources.json",
+      "passages": [
+        "PDFpp35\u201341: vector table/reset address, priorities/grouping, stacking and EXC_RETURN",
+        "PDFp40 Figure2-3 rendered and visually inspected: core words unchanged in extended frame"
+      ]
+    },
+    {
+      "id": "R-MF-DDI",
+      "path": "research/v5/expansion/legacy_architecture_frame/resources.json",
+      "passages": [
+        "PDFpp531\u2013533: actual reset, PushStack and ExceptionTaken pseudocode",
+        "PDFpp535\u2013539: STKALIGN, basic/extended sizes, lazy FP ownership and return encoding"
+      ]
+    },
+    {
+      "id": "R-MF-RM21",
+      "path": "research/v5/expansion/legacy_architecture_frame/resources.json",
+      "passages": [
+        "Printed pp69\u201372 section2.4 and Tables2\u20134: boot pins, reset alias fetch, SRAM vector relocation, selected F42/43 mapping and bank2 distinction"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact external textbook/vendor/ISO passages need fresh inspection before source-dependent new claims; bibliography entries are not counted as read."
+  ],
+  "supplied_artifacts": [
+    "fixtures/algorithms/PR-T37-07.json",
+    "curriculum/projects/PR-T37-07.md",
+    "labs/algorithms/SPEC.md",
+    "labs/architecture_frame/CONTRACTS.md",
+    "labs/architecture_frame/learner.c",
+    "labs/architecture_frame/ledger.h",
+    "labs/architecture_frame/native.c",
+    "labs/architecture_frame/target_build.py",
+    "labs/architecture_frame/target_prefix.c",
+    "labs/architecture_frame/tests.c",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/frame/frame.c",
+    "labs/interrupt_depth/frame/target.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/frame/CONTRACTS.md",
+    "labs/containers_depth/byte_helpers.c"
+  ],
+  "execution_support": {
+    "kind": "retained-implementation-and-assessment-analysis",
+    "scope": "Original basic-frame fixture; algorithms executable only covers scalar callABI",
+    "tests": [
+      "algorithms.x86_64",
+      "algorithms.thumb"
+    ],
+    "fresh_execution": "not-run-by-this-supplement; additive X campaigns have separate source-bound results",
+    "architecture_frame_successor": {
+      "path": "research/v5/expansion/legacy_architecture_frame/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-07-T37.09.a",
+        "AX-PR-T37-07-T37.09.b",
+        "AX-PR-T37-07-T37.09.c"
+      ],
+      "scope": "Three exact ordinary/changed reset, call/exception ownership and actual reused handler observation mechanisms."
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T37-07-T37.09.a",
+      "title": "Derive reset and eight-word Thread/PSP frame addresses",
+      "objective": "T37.09.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Derive reset and eight-word Thread/PSP frame addresses; reject unsupportedFP/padding before indexing.",
+      "purpose": "Test derivation and missing assumptions beyond memorized output.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.09 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-07 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Derive reset and eight-word Thread/PSP frame addresses; reject unsupportedFP/padding before indexing.",
+        "Derive the obligations behind this expectation: MSP0x20002000,entry0x08000100;frame0x20000FE0..FFC;IRQ5 vector0x08000054.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Derive reset and eight-word Thread/PSP frame addresses; reject unsupportedFP/padding before indexing.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "D3": "Independent check and minimal counterexample against: MSP0x20002000,entry0x08000100;frame0x20000FE0..FFC;IRQ5 vector0x08000054.",
+        "D4": "Delayed transfer: Admit padded/FP frame only after new source inspection and extent/variant checks."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "MSP0x20002000,entry0x08000100;frame0x20000FE0..FFC;IRQ5 vector0x08000054.",
+        "limits": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: MSP0x20002000,entry0x08000100;frame0x20000FE0..FFC;IRQ5 vector0x08000054.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: MSP0x20002000,entry0x08000100;frame0x20000FE0..FFC;IRQ5 vector0x08000054."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-07-T37.09.a-V1",
+          "minimum_days": 7,
+          "task": "Admit padded/FP frame only after new source inspection and extent/variant checks."
+        }
+      ],
+      "assessor_anchor": "#t37-09-a",
+      "facet_scope": {
+        "teaching": "Retain actual T37.09 module explanation and project contract.",
+        "implementation_or_analysis": "Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-07-T37.09.b",
+      "title": "ContrastBL/LR software preservation with exception-stacked registers and scoped priority ordering.",
+      "objective": "T37.09.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "task": "ContrastBL/LR software preservation with exception-stacked registers and scoped priority ordering.",
+      "purpose": "Test the concrete implementation/interface or evidence boundary.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.09 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-07 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "ContrastBL/LR software preservation with exception-stacked registers and scoped priority ordering.",
+        "Derive the obligations behind this expectation: Basicframe r0-r3,r12,LR,PC,xPSR excludesr4-r11; savedLR differs fromEXC_RETURN; grouping needs exacttarget.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: ContrastBL/LR software preservation with exception-stacked registers and scoped priority ordering.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "D3": "Independent check and minimal counterexample against: Basicframe r0-r3,r12,LR,PC,xPSR excludesr4-r11; savedLR differs fromEXC_RETURN; grouping needs exacttarget.",
+        "D4": "Delayed transfer: Add nestedexception using another stack and assign each saved value to its proper frame."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Basicframe r0-r3,r12,LR,PC,xPSR excludesr4-r11; savedLR differs fromEXC_RETURN; grouping needs exacttarget.",
+        "limits": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Basicframe r0-r3,r12,LR,PC,xPSR excludesr4-r11; savedLR differs fromEXC_RETURN; grouping needs exacttarget.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Basicframe r0-r3,r12,LR,PC,xPSR excludesr4-r11; savedLR differs fromEXC_RETURN; grouping needs exacttarget."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-07-T37.09.b-V1",
+          "minimum_days": 7,
+          "task": "Add nestedexception using another stack and assign each saved value to its proper frame."
+        }
+      ],
+      "assessor_anchor": "#t37-09-b",
+      "facet_scope": {
+        "teaching": "Retain actual T37.09 module explanation and project contract.",
+        "implementation_or_analysis": "Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-07-T37.09.c",
+      "title": "Replay an original frame through named decoder and capture separately identified emulator evidence with explicitFP/boot limits.",
+      "objective": "T37.09.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Replay an original frame through named decoder and capture separately identified emulator evidence with explicitFP/boot limits.",
+      "purpose": "Test falsification, resource/observation limits and transfer.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.09 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-07 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Replay an original frame through named decoder and capture separately identified emulator evidence with explicitFP/boot limits.",
+        "Derive the obligations behind this expectation: Synthetic offsets/scalarABIprobe do not prove exception return; missingThumb/unsupportedreturn reject without publication.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Replay an original frame through named decoder and capture separately identified emulator evidence with explicitFP/boot limits.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "D3": "Independent check and minimal counterexample against: Synthetic offsets/scalarABIprobe do not prove exception return; missingThumb/unsupportedreturn reject without publication.",
+        "D4": "Delayed transfer: Change boot remapping and identify reset addresses requiring renewed board evidence."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Synthetic offsets/scalarABIprobe do not prove exception return; missingThumb/unsupportedreturn reject without publication.",
+        "limits": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Synthetic offsets/scalarABIprobe do not prove exception return; missingThumb/unsupportedreturn reject without publication.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Synthetic offsets/scalarABIprobe do not prove exception return; missingThumb/unsupportedreturn reject without publication."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-07-T37.09.c-V1",
+          "minimum_days": 7,
+          "task": "Change boot remapping and identify reset addresses requiring renewed board evidence."
+        }
+      ],
+      "assessor_anchor": "#t37-09-c",
+      "facet_scope": {
+        "teaching": "Retain actual T37.09 module explanation and project contract.",
+        "implementation_or_analysis": "Original basic-frame fixture; algorithms executable only covers scalar callABI",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Reused startup/frame decoder, actual emulator observations and exact core passages need integration. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T37-07.md",
+  "status": {
+    "content": "authored",
+    "execution": "Actual frozen decoder/startup/IRQ composition and original/changed author packets; physical boot, external review and independent delayed learner evidence remain separate.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Reused startup/frame decoder, actual emulator observations and exact core passages need integration.",
+      "No whole-leaf execution closure, absolute mastery or physical validation."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_architecture_frame/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-07-T37.09.a",
+        "AX-PR-T37-07-T37.09.b",
+        "AX-PR-T37-07-T37.09.c"
+      ],
+      "scope": "Three exact ordinary/changed reset, call/exception ownership and actual reused handler observation mechanisms."
+    }
+  ]
+}

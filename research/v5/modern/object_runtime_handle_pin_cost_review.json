@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-008",
+  "status": "author-measured-host-scope",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_handle_pin_probe.json",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed handle2,ticket16,heap336,cell20 bytes. A copied handle is an inert identity; pin ticket names a central OwPin control."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Both pending jobs own one explicit root. Pin adds raw-span retention and reserves object7 physical position; rooted handle allows its identity entry to redirect."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Root transfer retains then releases the original owner. Synchronous job completes all reads before pin finish; final roots released and all4survivors reclaimed. Real async join remains separate campaign evidence."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Read-only payload; packing may rewrite only unpinned cells. Handle lookup/copy is serialized with packing in this probe; no unprotected concurrent metadata access."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Eight preallocated typed cells; no allocator call in either job path. Full/lease exhaustion semantics are tested separately; this cost workload uses admitted capacity."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Per1000 jobs handle path moves4000cells; pinned path3000. Handle reads copy1000*length*reads payload bytes; pin direct reads copy none during access but still pay setup/packing/control work."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Every pin finishes after synchronous quiescence; every root released; final collection reclaims4cells/job. No destructor recursion or timed asynchronous join."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual existing orx_read/orx_foreign_begin/orx_pack/orx_foreign_finish with actual T66 ownership.c, compiled separately. Probe source does not replace those mechanisms."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "No parallel speed or simultaneous access claim from the timing probe. Actual backend cancellation/join and TSan evidence remain in the source-bound family campaign."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Equal admitted-state workload checks every returned status and cleanup count. Existing failed-capacity/stale-ticket tests remain necessary; successful timing runs alone do not establish failure atomicity."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Exact six configurations plus clean/no-change/one-header rebuilds recorded by the source-bound probe. No cross-machine compilation ranking."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Actual size/disassembly/.su artifacts retained for all six configurations. Whole-image includes original runtime, typed pool and T66 ownership; local frames are not whole-program bounds."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Host synchronous job contract, immutable payload and stable handle authority. No persisted pointer ABI, physical timing or hardware-counter claim. Relocation freedom differs and is reported explicitly."
+    }
+  ],
+  "observation": "1080retained samples+72warmups;1000full jobs/sample; two lengths and three read counts. Same checked payload/ownership/cleanup outcomes, different declared relocation policy. Raw measurements remain authoritative; no universal winner inferred.",
+  "sealed_decision": {
+    "choice": "Prefer copied rooted identity when consumer can use handle lookup and movement is useful; pin only at an explicit raw-span boundary with established quiescence.",
+    "reason": "The handle preserves relocation freedom but adds resolution/payload-copy work; pinning avoids repeated copies while retaining a physical slot.",
+    "reopen_when": "Change payload mutation, asynchronous backend lifetime, heap compaction policy or consumer access API."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_handle_pin_probe.json": "0761c430c1738d8b3e2509f23e4ff0b927dc48aa6e01b871036106da0b16bd05",
+    "curriculum/v5/exercises/X-T74-008.md": "837ccd8a3819d6edfd72766f1779ccf92bcc7f65c1bbd630cc4cad5673bf2510",
+    "labs/object_runtime/EXTENSIONS.md": "48799779c8a9b404d9d1db9c5d7b539bbcdf05ed8985fe2d65cf2e7d8ba85b36",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

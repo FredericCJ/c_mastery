@@ -5,7 +5,9 @@
   "title": "Readiness loop and generation identities — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/hosted_systems/reactor_depth/CONTRACTS.md",
+    "labs/hosted_systems/stream_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -106,6 +108,36 @@
         "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
         "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
       ]
+    },
+    {
+      "id": "R-REACTOR-EPOLL",
+      "path": "research/v5/expansion/legacy_reactor/resources.json",
+      "passages": [
+        "DESCRIPTION: interest/ready lists, LT/ET example, nonblocking drain and ONESHOT",
+        "Questions and answers: open-file descriptions, duplication, removal and cached events",
+        "Possible pitfalls: starvation, explicit ready list and stale event cache"
+      ]
+    },
+    {
+      "id": "R-REACTOR-EPOLL_CTL",
+      "path": "research/v5/expansion/legacy_reactor/resources.json",
+      "passages": [
+        "DESCRIPTION through EPOLLONESHOT: ADD/MOD/DEL, saved event data, readiness/HUP and rearm"
+      ]
+    },
+    {
+      "id": "R-REACTOR-EPOLL_WAIT",
+      "path": "research/v5/expansion/legacy_reactor/resources.json",
+      "passages": [
+        "DESCRIPTION, RETURN VALUE, ERRORS and NOTES: ready list, MONOTONIC timeout, returned event data, EINTR and round-robin reporting"
+      ]
+    },
+    {
+      "id": "R-REACTOR-PTHREAD_COND_WAIT",
+      "path": "research/v5/expansion/legacy_reactor/resources.json",
+      "passages": [
+        "POSIX Issue8 title/version and complete DESCRIPTION, RETURN VALUE and ERRORS: atomic release/wait, mutex reacquisition, predicate recheck, dynamic binding, cancellation boundary, clock attributes and timeout race"
+      ]
     }
   ],
   "reference_gaps": [
@@ -116,8 +148,22 @@
   "supplied_artifacts": [
     "curriculum/projects/PR-T24-04.md",
     "fixtures/systems/PR-T24-04.json",
-    "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/hosted_systems/reactor_depth/CONTRACTS.md",
+    "labs/hosted_systems/reactor_depth/LIFETIME.md",
+    "labs/hosted_systems/reactor_depth/READINESS.md",
+    "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+    "labs/hosted_systems/reactor_depth/reactor.c",
+    "labs/hosted_systems/reactor_depth/reactor.h",
+    "labs/hosted_systems/reactor_depth/tests.c",
+    "labs/hosted_systems/reactor_depth/waiters.c",
+    "labs/hosted_systems/reactor_depth/waiters.h",
+    "labs/hosted_systems/reactor_depth/waiters_tests.c",
+    "labs/hosted_systems/stream_depth/CONTRACTS.md",
+    "labs/hosted_systems/stream_depth/STREAMS.md",
+    "labs/hosted_systems/stream_depth/stream.c",
+    "labs/hosted_systems/stream_depth/stream.h",
+    "tools/verify_systems_fixtures.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -206,6 +252,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.07.a"
       }
     },
     {
@@ -286,6 +336,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.07.b"
       }
     },
     {
@@ -366,6 +420,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.07.c"
       }
     },
     {
@@ -447,6 +505,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.08.a"
       }
     },
     {
@@ -528,6 +590,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.08.b"
       }
     },
     {
@@ -609,6 +675,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.08.c"
       }
     },
     {
@@ -696,6 +766,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.11.a"
       }
     },
     {
@@ -783,6 +857,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.11.b"
       }
     },
     {
@@ -870,6 +948,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_reactor/support.json",
+        "criterion_id": "AX-PR-T24-04-T24.11.c"
       }
     }
   ],
@@ -884,5 +966,20 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_reactor/support.json",
+    "criterion_ids": [
+      "AX-PR-T24-04-T24.07.a",
+      "AX-PR-T24-04-T24.07.b",
+      "AX-PR-T24-04-T24.07.c",
+      "AX-PR-T24-04-T24.08.a",
+      "AX-PR-T24-04-T24.08.b",
+      "AX-PR-T24-04-T24.08.c",
+      "AX-PR-T24-04-T24.11.a",
+      "AX-PR-T24-04-T24.11.b",
+      "AX-PR-T24-04-T24.11.c"
+    ],
+    "scope": "Only nine named readiness/lifetime/shutdown criteria and their implemented changed conditions; independent/delayed learner work remains required."
   }
 }

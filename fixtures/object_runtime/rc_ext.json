@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-010",
+  "oracle_rows": 65536,
+  "inputs": {
+    "graphs": 4096,
+    "root_sets": 8,
+    "release_modes": 2
+  },
+  "expected_late_retain": [
+    "prepare dead={A,B}",
+    "worker retains A",
+    "stale commit STATE unchanged",
+    "fresh commit dead={} retaining A and B",
+    "worker releases A",
+    "fresh commit dead={A,B}"
+  ],
+  "mutants": [
+    "omit cascade decrements",
+    "allow root underflow",
+    "drop oldest full-queue obligation",
+    "omit candidate buffering",
+    "commit stale snapshot",
+    "prepare with pending decrements"
+  ],
+  "limits": "Original bounded owner, mutex-serialized operations; no lock-free or concurrent raw traversal claim."
+}

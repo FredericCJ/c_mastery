@@ -1,0 +1,972 @@
+
+/tmp/debug-release-3crgyg3v/gcc-O3-target-0/release.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dt_vectors>:
+int dt_irq_take(DtTrace*q,DtCritical c,DtRecord*out){
+ if(!q||!out||!c.enter||!c.leave)return DT_INVALID;
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+}
+int dt_duration(const DtInterval*v,size_t n,DtDuration*out){
+ DtDuration r={0};if(!out||!v||!n||n>8)return DT_INVALID;
+   0:	00 00 01 20 35 07 00 00 49 00 00 00 49 00 00 00     ... 5...I...I...
+	...
+ for(size_t i=0;i<n;i++){
+  if(!v[i].width||v[i].width>32||!v[i].frequency)return DT_INVALID;
+  uint32_t mask=v[i].width==32?UINT32_MAX:((UINT32_C(1)<<v[i].width)-1);
+  if(v[i].before>mask||v[i].after>mask)return DT_INVALID;
+  uint32_t ticks=(v[i].after-v[i].before)&mask;
+  40:	f1 03 00 00 39 04 00 00                             ....9...
+
+00000048 <failed>:
+extern uint32_t dt_stack_top,dt_data_start,dt_data_end,dt_data_load,dt_bss_start,dt_bss_end;
+extern void dt_boot(void);
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+  48:	b082      	sub	sp, #8
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  4a:	2004      	movs	r0, #4
+  4c:	4905      	ldr	r1, [pc, #20]	@ (64 <failed+0x1c>)
+  4e:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  50:	4a05      	ldr	r2, [pc, #20]	@ (68 <failed+0x20>)
+  52:	2301      	movs	r3, #1
+  54:	e9cd 2300 	strd	r2, r3, [sp]
+  58:	2020      	movs	r0, #32
+  5a:	4669      	mov	r1, sp
+  5c:	beab      	bkpt	0x00ab
+  5e:	bf30      	wfi
+  60:	e7fd      	b.n	5e <failed+0x16>
+  62:	bf00      	nop
+  64:	00000754 	.word	0x00000754
+  68:	00020026 	.word	0x00020026
+
+0000006c <dt_output>:
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  6c:	4601      	mov	r1, r0
+  6e:	2004      	movs	r0, #4
+  70:	beab      	bkpt	0x00ab
+  72:	4770      	bx	lr
+
+00000074 <dt_hex>:
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  74:	4b1e      	ldr	r3, [pc, #120]	@ (f0 <dt_hex+0x7c>)
+  76:	f3c0 3c03 	ubfx	ip, r0, #12, #4
+  7a:	f3c0 2203 	ubfx	r2, r0, #8, #4
+  7e:	b500      	push	{lr}
+  80:	f813 e00c 	ldrb.w	lr, [r3, ip]
+  84:	f813 c002 	ldrb.w	ip, [r3, r2]
+  88:	2200      	movs	r2, #0
+  8a:	f36e 0207 	bfi	r2, lr, #0, #8
+  8e:	f36c 220f 	bfi	r2, ip, #8, #8
+  92:	f3c0 1c03 	ubfx	ip, r0, #4, #4
+  96:	0f01      	lsrs	r1, r0, #28
+  98:	f813 c00c 	ldrb.w	ip, [r3, ip]
+  9c:	5c59      	ldrb	r1, [r3, r1]
+  9e:	f36c 4217 	bfi	r2, ip, #16, #8
+  a2:	f000 0c0f 	and.w	ip, r0, #15
+  a6:	b085      	sub	sp, #20
+  a8:	f813 c00c 	ldrb.w	ip, [r3, ip]
+  ac:	f36c 621f 	bfi	r2, ip, #24, #8
+  b0:	9202      	str	r2, [sp, #8]
+  b2:	f3c0 6c03 	ubfx	ip, r0, #24, #4
+  b6:	2200      	movs	r2, #0
+  b8:	f361 0207 	bfi	r2, r1, #0, #8
+  bc:	f3c0 5103 	ubfx	r1, r0, #20, #4
+  c0:	f813 c00c 	ldrb.w	ip, [r3, ip]
+  c4:	5c59      	ldrb	r1, [r3, r1]
+  c6:	f3c0 4003 	ubfx	r0, r0, #16, #4
+  ca:	f36c 220f 	bfi	r2, ip, #8, #8
+  ce:	5c1b      	ldrb	r3, [r3, r0]
+  d0:	f361 4217 	bfi	r2, r1, #16, #8
+  d4:	f363 621f 	bfi	r2, r3, #24, #8
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  d8:	2004      	movs	r0, #4
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  da:	2300      	movs	r3, #0
+  dc:	9201      	str	r2, [sp, #4]
+  de:	f88d 300c 	strb.w	r3, [sp, #12]
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  e2:	eb0d 0100 	add.w	r1, sp, r0
+  e6:	beab      	bkpt	0x00ab
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  e8:	b005      	add	sp, #20
+  ea:	f85d fb04 	ldr.w	pc, [sp], #4
+  ee:	bf00      	nop
+  f0:	00000778 	.word	0x00000778
+
+000000f4 <dt_reset>:
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+  f4:	b530      	push	{r4, r5, lr}
+  f6:	4b2e      	ldr	r3, [pc, #184]	@ (1b0 <dt_reset+0xbc>)
+  f8:	4c2e      	ldr	r4, [pc, #184]	@ (1b4 <dt_reset+0xc0>)
+  fa:	429c      	cmp	r4, r3
+  fc:	b083      	sub	sp, #12
+  fe:	d222      	bcs.n	146 <dt_reset+0x52>
+ 100:	3b01      	subs	r3, #1
+ 102:	1b1b      	subs	r3, r3, r4
+ 104:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+ 108:	2b03      	cmp	r3, #3
+ 10a:	4d2b      	ldr	r5, [pc, #172]	@ (1b8 <dt_reset+0xc4>)
+ 10c:	4622      	mov	r2, r4
+ 10e:	f10e 0e01 	add.w	lr, lr, #1
+ 112:	d916      	bls.n	142 <dt_reset+0x4e>
+ 114:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+ 118:	462b      	mov	r3, r5
+ 11a:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+ 11e:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 122:	3308      	adds	r3, #8
+ 124:	459c      	cmp	ip, r3
+ 126:	e9c2 0100 	strd	r0, r1, [r2]
+ 12a:	f102 0208 	add.w	r2, r2, #8
+ 12e:	d1f6      	bne.n	11e <dt_reset+0x2a>
+ 130:	f01e 0f01 	tst.w	lr, #1
+ 134:	d007      	beq.n	146 <dt_reset+0x52>
+ 136:	f02e 0e01 	bic.w	lr, lr, #1
+ 13a:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+ 13e:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+ 142:	682b      	ldr	r3, [r5, #0]
+ 144:	6023      	str	r3, [r4, #0]
+ 146:	481d      	ldr	r0, [pc, #116]	@ (1bc <dt_reset+0xc8>)
+ 148:	4b1d      	ldr	r3, [pc, #116]	@ (1c0 <dt_reset+0xcc>)
+ 14a:	4298      	cmp	r0, r3
+ 14c:	d21b      	bcs.n	186 <dt_reset+0x92>
+ 14e:	3b01      	subs	r3, #1
+ 150:	1a1a      	subs	r2, r3, r0
+ 152:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+ 156:	2a03      	cmp	r2, #3
+ 158:	4603      	mov	r3, r0
+ 15a:	f10c 0c01 	add.w	ip, ip, #1
+ 15e:	d910      	bls.n	182 <dt_reset+0x8e>
+ 160:	ea4f 015c 	mov.w	r1, ip, lsr #1
+ 164:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+ 168:	2200      	movs	r2, #0
+ 16a:	e9c3 2200 	strd	r2, r2, [r3]
+ 16e:	3308      	adds	r3, #8
+ 170:	428b      	cmp	r3, r1
+ 172:	d1fa      	bne.n	16a <dt_reset+0x76>
+ 174:	f01c 0f01 	tst.w	ip, #1
+ 178:	d005      	beq.n	186 <dt_reset+0x92>
+ 17a:	f02c 0c01 	bic.w	ip, ip, #1
+ 17e:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+ 182:	2300      	movs	r3, #0
+ 184:	6003      	str	r3, [r0, #0]
+ 186:	f000 f977 	bl	478 <dt_target>
+ 18a:	4603      	mov	r3, r0
+ 18c:	b168      	cbz	r0, 1aa <dt_reset+0xb6>
+ 18e:	490d      	ldr	r1, [pc, #52]	@ (1c4 <dt_reset+0xd0>)
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 190:	2004      	movs	r0, #4
+ 192:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 194:	4a0c      	ldr	r2, [pc, #48]	@ (1c8 <dt_reset+0xd4>)
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+ 196:	3b00      	subs	r3, #0
+ 198:	bf18      	it	ne
+ 19a:	2301      	movne	r3, #1
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 19c:	e9cd 2300 	strd	r2, r3, [sp]
+ 1a0:	2020      	movs	r0, #32
+ 1a2:	4669      	mov	r1, sp
+ 1a4:	beab      	bkpt	0x00ab
+ 1a6:	bf30      	wfi
+ 1a8:	e7fd      	b.n	1a6 <dt_reset+0xb2>
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+ 1aa:	4908      	ldr	r1, [pc, #32]	@ (1cc <dt_reset+0xd8>)
+ 1ac:	e7f0      	b.n	190 <dt_reset+0x9c>
+ 1ae:	bf00      	nop
+ 1b0:	20000004 	.word	0x20000004
+ 1b4:	20000000 	.word	0x20000000
+ 1b8:	00000840 	.word	0x00000840
+ 1bc:	20000004 	.word	0x20000004
+ 1c0:	20000500 	.word	0x20000500
+ 1c4:	0000078c 	.word	0x0000078c
+ 1c8:	00020026 	.word	0x00020026
+ 1cc:	000007a8 	.word	0x000007a8
+
+000001d0 <dt_irq_emit>:
+int dt_irq_emit(DtTrace*q,DtCritical c,uint32_t k,uint32_t t,uint32_t p){
+ 1d0:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 1d2:	b085      	sub	sp, #20
+ 1d4:	ac04      	add	r4, sp, #16
+ 1d6:	e904 000e 	stmdb	r4, {r1, r2, r3}
+ if(!q||!c.enter||!c.leave)return DT_INVALID;
+ 1da:	2800      	cmp	r0, #0
+ 1dc:	d032      	beq.n	244 <dt_irq_emit+0x74>
+ 1de:	2a00      	cmp	r2, #0
+ 1e0:	d030      	beq.n	244 <dt_irq_emit+0x74>
+ 1e2:	9d03      	ldr	r5, [sp, #12]
+ 1e4:	b375      	cbz	r5, 244 <dt_irq_emit+0x74>
+ 1e6:	4604      	mov	r4, r0
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 1e8:	4608      	mov	r0, r1
+ 1ea:	460e      	mov	r6, r1
+ 1ec:	4790      	blx	r2
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 1ee:	6ba3      	ldr	r3, [r4, #56]	@ 0x38
+ 1f0:	2b02      	cmp	r3, #2
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 1f2:	4601      	mov	r1, r0
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 1f4:	d820      	bhi.n	238 <dt_irq_emit+0x68>
+ 1f6:	6be2      	ldr	r2, [r4, #60]	@ 0x3c
+ 1f8:	2a03      	cmp	r2, #3
+ 1fa:	d81d      	bhi.n	238 <dt_irq_emit+0x68>
+ if(q->next==UINT32_MAX)return DT_EXHAUSTED;
+ 1fc:	6b20      	ldr	r0, [r4, #48]	@ 0x30
+ 1fe:	1c47      	adds	r7, r0, #1
+ 200:	d02d      	beq.n	25e <dt_irq_emit+0x8e>
+ if(q->count==3){if(q->dropped==UINT32_MAX)return DT_EXHAUSTED;q->dropped++;if(DT_MUTANT!=1)q->next++;return DT_FULL;}
+ 202:	2a03      	cmp	r2, #3
+ 204:	d022      	beq.n	24c <dt_irq_emit+0x7c>
+ unsigned at=(q->head+q->count)%3;q->records[at]=(DtRecord){q->next,kind,timestamp,payload};q->next++;q->count++;return DT_OK;
+ 206:	4f17      	ldr	r7, [pc, #92]	@ (264 <dt_irq_emit+0x94>)
+ 208:	4413      	add	r3, r2
+ 20a:	fba7 7c03 	umull	r7, ip, r7, r3
+ 20e:	f02c 0701 	bic.w	r7, ip, #1
+ 212:	eb07 075c 	add.w	r7, r7, ip, lsr #1
+ 216:	1bdb      	subs	r3, r3, r7
+ 218:	eb04 1703 	add.w	r7, r4, r3, lsl #4
+ 21c:	011b      	lsls	r3, r3, #4
+ 21e:	3201      	adds	r2, #1
+ 220:	50e0      	str	r0, [r4, r3]
+ 222:	9b0a      	ldr	r3, [sp, #40]	@ 0x28
+ 224:	607b      	str	r3, [r7, #4]
+ 226:	9b0b      	ldr	r3, [sp, #44]	@ 0x2c
+ 228:	60bb      	str	r3, [r7, #8]
+ 22a:	3001      	adds	r0, #1
+ 22c:	9b0c      	ldr	r3, [sp, #48]	@ 0x30
+ 22e:	60fb      	str	r3, [r7, #12]
+ 230:	6320      	str	r0, [r4, #48]	@ 0x30
+ 232:	63e2      	str	r2, [r4, #60]	@ 0x3c
+ 234:	2400      	movs	r4, #0
+ 236:	e000      	b.n	23a <dt_irq_emit+0x6a>
+ if(!valid(q))return DT_INVALID;
+ 238:	2401      	movs	r4, #1
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 23a:	4630      	mov	r0, r6
+ 23c:	47a8      	blx	r5
+}
+ 23e:	4620      	mov	r0, r4
+ 240:	b005      	add	sp, #20
+ 242:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ if(!q||!c.enter||!c.leave)return DT_INVALID;
+ 244:	2401      	movs	r4, #1
+}
+ 246:	4620      	mov	r0, r4
+ 248:	b005      	add	sp, #20
+ 24a:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ if(q->count==3){if(q->dropped==UINT32_MAX)return DT_EXHAUSTED;q->dropped++;if(DT_MUTANT!=1)q->next++;return DT_FULL;}
+ 24c:	6b63      	ldr	r3, [r4, #52]	@ 0x34
+ 24e:	1c5a      	adds	r2, r3, #1
+ 250:	d005      	beq.n	25e <dt_irq_emit+0x8e>
+ 252:	3301      	adds	r3, #1
+ 254:	3001      	adds	r0, #1
+ 256:	6363      	str	r3, [r4, #52]	@ 0x34
+ 258:	6320      	str	r0, [r4, #48]	@ 0x30
+ 25a:	2402      	movs	r4, #2
+ 25c:	e7ed      	b.n	23a <dt_irq_emit+0x6a>
+ if(q->next==UINT32_MAX)return DT_EXHAUSTED;
+ 25e:	2404      	movs	r4, #4
+ 260:	e7eb      	b.n	23a <dt_irq_emit+0x6a>
+ 262:	bf00      	nop
+ 264:	aaaaaaab 	.word	0xaaaaaaab
+
+00000268 <dt_irq_take>:
+int dt_irq_take(DtTrace*q,DtCritical c,DtRecord*out){
+ 268:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
+ 26c:	b085      	sub	sp, #20
+ 26e:	ac04      	add	r4, sp, #16
+ 270:	e904 000e 	stmdb	r4, {r1, r2, r3}
+ if(!q||!out||!c.enter||!c.leave)return DT_INVALID;
+ 274:	b338      	cbz	r0, 2c6 <dt_irq_take+0x5e>
+ 276:	9b0c      	ldr	r3, [sp, #48]	@ 0x30
+ 278:	b32b      	cbz	r3, 2c6 <dt_irq_take+0x5e>
+ 27a:	b322      	cbz	r2, 2c6 <dt_irq_take+0x5e>
+ 27c:	9e03      	ldr	r6, [sp, #12]
+ 27e:	b316      	cbz	r6, 2c6 <dt_irq_take+0x5e>
+ 280:	4604      	mov	r4, r0
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 282:	4608      	mov	r0, r1
+ 284:	460f      	mov	r7, r1
+ 286:	4790      	blx	r2
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 288:	6ba3      	ldr	r3, [r4, #56]	@ 0x38
+ 28a:	2b02      	cmp	r3, #2
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 28c:	4684      	mov	ip, r0
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 28e:	d81f      	bhi.n	2d0 <dt_irq_take+0x68>
+ 290:	6be2      	ldr	r2, [r4, #60]	@ 0x3c
+ 292:	2a03      	cmp	r2, #3
+ 294:	d81c      	bhi.n	2d0 <dt_irq_take+0x68>
+ if(!q->count)return DT_EMPTY;
+ 296:	b31a      	cbz	r2, 2e0 <dt_irq_take+0x78>
+ *out=q->records[q->head];q->head=(q->head+1)%3;q->count--;return DT_OK;
+ 298:	4912      	ldr	r1, [pc, #72]	@ (2e4 <dt_irq_take+0x7c>)
+ 29a:	f8dd 9030 	ldr.w	r9, [sp, #48]	@ 0x30
+ 29e:	f102 38ff 	add.w	r8, r2, #4294967295	@ 0xffffffff
+ 2a2:	eb04 1203 	add.w	r2, r4, r3, lsl #4
+ 2a6:	3301      	adds	r3, #1
+ 2a8:	fba1 0103 	umull	r0, r1, r1, r3
+ 2ac:	f021 0001 	bic.w	r0, r1, #1
+ 2b0:	eb00 0151 	add.w	r1, r0, r1, lsr #1
+ 2b4:	eba3 0e01 	sub.w	lr, r3, r1
+ 2b8:	ca0f      	ldmia	r2, {r0, r1, r2, r3}
+ 2ba:	2500      	movs	r5, #0
+ 2bc:	e889 000f 	stmia.w	r9, {r0, r1, r2, r3}
+ 2c0:	e9c4 e80e 	strd	lr, r8, [r4, #56]	@ 0x38
+ 2c4:	e005      	b.n	2d2 <dt_irq_take+0x6a>
+ if(!q||!out||!c.enter||!c.leave)return DT_INVALID;
+ 2c6:	2501      	movs	r5, #1
+}
+ 2c8:	4628      	mov	r0, r5
+ 2ca:	b005      	add	sp, #20
+ 2cc:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ if(!valid(q)||!out)return DT_INVALID;
+ 2d0:	2501      	movs	r5, #1
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 2d2:	4638      	mov	r0, r7
+ 2d4:	4661      	mov	r1, ip
+ 2d6:	47b0      	blx	r6
+}
+ 2d8:	4628      	mov	r0, r5
+ 2da:	b005      	add	sp, #20
+ 2dc:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ if(!q->count)return DT_EMPTY;
+ 2e0:	2503      	movs	r5, #3
+ 2e2:	e7f6      	b.n	2d2 <dt_irq_take+0x6a>
+ 2e4:	aaaaaaab 	.word	0xaaaaaaab
+
+000002e8 <dt_record>:
+ if(!out||bytes<8||offset>bytes-8||base&3u||offset&3u)return DT_INVALID;
+ if(bytes>UINT32_MAX-base)return DT_RANGE;
+ DtImage r={base+offset,base+bytes};*out=r;return DT_OK;
+}
+int dt_record(DtRetained*r,uint32_t image,uint32_t code){
+ if(!r||!image)return DT_INVALID;
+ 2e8:	b180      	cbz	r0, 30c <dt_record+0x24>
+ 2ea:	b179      	cbz	r1, 30c <dt_record+0x24>
+ *r=(DtRetained){1,0x44545231u,image,code,image^code^0x72657431u};return DT_OK;
+ 2ec:	4b08      	ldr	r3, [pc, #32]	@ (310 <dt_record+0x28>)
+int dt_record(DtRetained*r,uint32_t image,uint32_t code){
+ 2ee:	b410      	push	{r4}
+ *r=(DtRetained){1,0x44545231u,image,code,image^code^0x72657431u};return DT_OK;
+ 2f0:	ea81 0c02 	eor.w	ip, r1, r2
+ 2f4:	4c07      	ldr	r4, [pc, #28]	@ (314 <dt_record+0x2c>)
+ 2f6:	6044      	str	r4, [r0, #4]
+ 2f8:	ea8c 0303 	eor.w	r3, ip, r3
+ 2fc:	2401      	movs	r4, #1
+ 2fe:	6004      	str	r4, [r0, #0]
+ 300:	e9c0 1202 	strd	r1, r2, [r0, #8]
+ 304:	6103      	str	r3, [r0, #16]
+}
+ 306:	bc10      	pop	{r4}
+ *r=(DtRetained){1,0x44545231u,image,code,image^code^0x72657431u};return DT_OK;
+ 308:	2000      	movs	r0, #0
+}
+ 30a:	4770      	bx	lr
+ if(!r||!image)return DT_INVALID;
+ 30c:	2001      	movs	r0, #1
+}
+ 30e:	4770      	bx	lr
+ 310:	72657431 	.word	0x72657431
+ 314:	44545231 	.word	0x44545231
+
+00000318 <leave>:
+ (void)v;uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));
+ if(DT_TARGET_MUTANT!=1)__asm__ volatile("cpsid i":::"memory");
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ return mask;
+}
+static void leave(void*v,uint32_t mask){(void)v;__asm__ volatile("msr primask,%0"::"r"(mask):"memory");}
+ 318:	f381 8810 	msr	PRIMASK, r1
+ 31c:	4770      	bx	lr
+ 31e:	bf00      	nop
+
+00000320 <workload>:
+static DtCritical port={0,enter,leave};
+void dt_irq0(void){injected=1;if(dt_irq_emit(&trace,port,1,100,10)!=DT_OK)done=99;else done|=1;}
+void dt_irq1(void){if(dt_irq_emit(&trace,port,2,101,20)!=DT_OK)done=99;else done|=2;}
+__attribute__((noinline)) static uint32_t workload(unsigned mode){
+ 320:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
+ 324:	4604      	mov	r4, r0
+ 326:	b089      	sub	sp, #36	@ 0x24
+ 328:	b960      	cbnz	r0, 344 <workload+0x24>
+ 32a:	4f22      	ldr	r7, [pc, #136]	@ (3b4 <workload+0x94>)
+ uint32_t sum=0;DtRecord record;
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ 32c:	4603      	mov	r3, r0
+ 32e:	f857 2023 	ldr.w	r2, [r7, r3, lsl #2]
+ 332:	3301      	adds	r3, #1
+ 334:	f5b3 7f96 	cmp.w	r3, #300	@ 0x12c
+ 338:	4414      	add	r4, r2
+ 33a:	d1f8      	bne.n	32e <workload+0xe>
+ return sum;
+}
+ 33c:	4620      	mov	r0, r4
+ 33e:	b009      	add	sp, #36	@ 0x24
+ 340:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ 344:	2500      	movs	r5, #0
+ 346:	2802      	cmp	r0, #2
+ 348:	4f1a      	ldr	r7, [pc, #104]	@ (3b4 <workload+0x94>)
+ 34a:	4e1b      	ldr	r6, [pc, #108]	@ (3b8 <workload+0x98>)
+ uint32_t sum=0;DtRecord record;
+ 34c:	462c      	mov	r4, r5
+ 34e:	d015      	beq.n	37c <workload+0x5c>
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ 350:	f04f 0803 	mov.w	r8, #3
+ 354:	f857 c025 	ldr.w	ip, [r7, r5, lsl #2]
+ 358:	4818      	ldr	r0, [pc, #96]	@ (3bc <workload+0x9c>)
+ 35a:	f8cd 8000 	str.w	r8, [sp]
+ 35e:	e9cd 5501 	strd	r5, r5, [sp, #4]
+ 362:	e896 000e 	ldmia.w	r6, {r1, r2, r3}
+ 366:	3501      	adds	r5, #1
+ 368:	4464      	add	r4, ip
+ 36a:	f7ff ff31 	bl	1d0 <dt_irq_emit>
+ 36e:	f5b5 7f96 	cmp.w	r5, #300	@ 0x12c
+ 372:	d1ef      	bne.n	354 <workload+0x34>
+}
+ 374:	4620      	mov	r0, r4
+ 376:	b009      	add	sp, #36	@ 0x24
+ 378:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ 37c:	f10d 0910 	add.w	r9, sp, #16
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ 380:	f04f 0803 	mov.w	r8, #3
+ 384:	f857 c025 	ldr.w	ip, [r7, r5, lsl #2]
+ 388:	480c      	ldr	r0, [pc, #48]	@ (3bc <workload+0x9c>)
+ 38a:	f8cd 8000 	str.w	r8, [sp]
+ 38e:	e896 000e 	ldmia.w	r6, {r1, r2, r3}
+ 392:	e9cd 5501 	strd	r5, r5, [sp, #4]
+ 396:	4464      	add	r4, ip
+ 398:	3501      	adds	r5, #1
+ 39a:	f7ff ff19 	bl	1d0 <dt_irq_emit>
+ 39e:	e896 000e 	ldmia.w	r6, {r1, r2, r3}
+ 3a2:	4806      	ldr	r0, [pc, #24]	@ (3bc <workload+0x9c>)
+ 3a4:	f8cd 9000 	str.w	r9, [sp]
+ 3a8:	f7ff ff5e 	bl	268 <dt_irq_take>
+ 3ac:	f5b5 7f96 	cmp.w	r5, #300	@ 0x12c
+ 3b0:	d1e8      	bne.n	384 <workload+0x64>
+ 3b2:	e7c3      	b.n	33c <workload+0x1c>
+ 3b4:	20000004 	.word	0x20000004
+ 3b8:	00000834 	.word	0x00000834
+ 3bc:	200004c0 	.word	0x200004c0
+
+000003c0 <enter>:
+ (void)v;uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));
+ 3c0:	f3ef 8010 	mrs	r0, PRIMASK
+ if(DT_TARGET_MUTANT!=1)__asm__ volatile("cpsid i":::"memory");
+ 3c4:	b672      	cpsid	i
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ 3c6:	4b09      	ldr	r3, [pc, #36]	@ (3ec <enter+0x2c>)
+ 3c8:	681a      	ldr	r2, [r3, #0]
+ 3ca:	b16a      	cbz	r2, 3e8 <enter+0x28>
+ 3cc:	f04f 22e0 	mov.w	r2, #3758153728	@ 0xe000e000
+static uint32_t enter(void*v){
+ 3d0:	b410      	push	{r4}
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ 3d2:	2102      	movs	r1, #2
+ 3d4:	2400      	movs	r4, #0
+ 3d6:	601c      	str	r4, [r3, #0]
+ 3d8:	f8c2 1200 	str.w	r1, [r2, #512]	@ 0x200
+ 3dc:	f3bf 8f4f 	dsb	sy
+ 3e0:	f3bf 8f6f 	isb	sy
+}
+ 3e4:	bc10      	pop	{r4}
+ 3e6:	4770      	bx	lr
+ 3e8:	4770      	bx	lr
+ 3ea:	bf00      	nop
+ 3ec:	200004bc 	.word	0x200004bc
+
+000003f0 <dt_irq0>:
+void dt_irq0(void){injected=1;if(dt_irq_emit(&trace,port,1,100,10)!=DT_OK)done=99;else done|=1;}
+ 3f0:	b510      	push	{r4, lr}
+ 3f2:	4b0d      	ldr	r3, [pc, #52]	@ (428 <dt_irq0+0x38>)
+ 3f4:	4c0d      	ldr	r4, [pc, #52]	@ (42c <dt_irq0+0x3c>)
+ 3f6:	b084      	sub	sp, #16
+ 3f8:	2001      	movs	r0, #1
+ 3fa:	2264      	movs	r2, #100	@ 0x64
+ 3fc:	210a      	movs	r1, #10
+ 3fe:	e9cd 2101 	strd	r2, r1, [sp, #4]
+ 402:	9000      	str	r0, [sp, #0]
+ 404:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 406:	6020      	str	r0, [r4, #0]
+ 408:	4809      	ldr	r0, [pc, #36]	@ (430 <dt_irq0+0x40>)
+ 40a:	f7ff fee1 	bl	1d0 <dt_irq_emit>
+ 40e:	b120      	cbz	r0, 41a <dt_irq0+0x2a>
+ 410:	4b08      	ldr	r3, [pc, #32]	@ (434 <dt_irq0+0x44>)
+ 412:	2263      	movs	r2, #99	@ 0x63
+ 414:	601a      	str	r2, [r3, #0]
+ 416:	b004      	add	sp, #16
+ 418:	bd10      	pop	{r4, pc}
+ 41a:	4a06      	ldr	r2, [pc, #24]	@ (434 <dt_irq0+0x44>)
+ 41c:	6813      	ldr	r3, [r2, #0]
+ 41e:	f043 0301 	orr.w	r3, r3, #1
+ 422:	6013      	str	r3, [r2, #0]
+ 424:	b004      	add	sp, #16
+ 426:	bd10      	pop	{r4, pc}
+ 428:	00000834 	.word	0x00000834
+ 42c:	200004bc 	.word	0x200004bc
+ 430:	200004c0 	.word	0x200004c0
+ 434:	200004b8 	.word	0x200004b8
+
+00000438 <dt_irq1>:
+void dt_irq1(void){if(dt_irq_emit(&trace,port,2,101,20)!=DT_OK)done=99;else done|=2;}
+ 438:	b510      	push	{r4, lr}
+ 43a:	4b0c      	ldr	r3, [pc, #48]	@ (46c <dt_irq1+0x34>)
+ 43c:	480c      	ldr	r0, [pc, #48]	@ (470 <dt_irq1+0x38>)
+ 43e:	b084      	sub	sp, #16
+ 440:	2114      	movs	r1, #20
+ 442:	2265      	movs	r2, #101	@ 0x65
+ 444:	2402      	movs	r4, #2
+ 446:	e9cd 2101 	strd	r2, r1, [sp, #4]
+ 44a:	9400      	str	r4, [sp, #0]
+ 44c:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 44e:	f7ff febf 	bl	1d0 <dt_irq_emit>
+ 452:	b120      	cbz	r0, 45e <dt_irq1+0x26>
+ 454:	4b07      	ldr	r3, [pc, #28]	@ (474 <dt_irq1+0x3c>)
+ 456:	2263      	movs	r2, #99	@ 0x63
+ 458:	601a      	str	r2, [r3, #0]
+ 45a:	b004      	add	sp, #16
+ 45c:	bd10      	pop	{r4, pc}
+ 45e:	4a05      	ldr	r2, [pc, #20]	@ (474 <dt_irq1+0x3c>)
+ 460:	6813      	ldr	r3, [r2, #0]
+ 462:	f043 0302 	orr.w	r3, r3, #2
+ 466:	6013      	str	r3, [r2, #0]
+ 468:	b004      	add	sp, #16
+ 46a:	bd10      	pop	{r4, pc}
+ 46c:	00000834 	.word	0x00000834
+ 470:	200004c0 	.word	0x200004c0
+ 474:	200004b8 	.word	0x200004b8
+
+00000478 <dt_target>:
+int dt_target(void){
+ if(cookie!=42||zero)return 1;
+ 478:	4b89      	ldr	r3, [pc, #548]	@ (6a0 <dt_target+0x228>)
+ 47a:	681b      	ldr	r3, [r3, #0]
+ 47c:	2b2a      	cmp	r3, #42	@ 0x2a
+ 47e:	f040 80fd 	bne.w	67c <dt_target+0x204>
+int dt_target(void){
+ 482:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+ if(cookie!=42||zero)return 1;
+ 486:	4b87      	ldr	r3, [pc, #540]	@ (6a4 <dt_target+0x22c>)
+ 488:	681c      	ldr	r4, [r3, #0]
+int dt_target(void){
+ 48a:	b08a      	sub	sp, #40	@ 0x28
+ if(cookie!=42||zero)return 1;
+ 48c:	2c00      	cmp	r4, #0
+ 48e:	f040 80f1 	bne.w	674 <dt_target+0x1fc>
+ if(retained.valid){
+ 492:	4d85      	ldr	r5, [pc, #532]	@ (6a8 <dt_target+0x230>)
+ 494:	6868      	ldr	r0, [r5, #4]
+ 496:	2800      	cmp	r0, #0
+ 498:	f040 80e6 	bne.w	668 <dt_target+0x1f0>
+  if(retained.version!=1||retained.image!=42||retained.code!=123||retained.check!=(42u^123u^0x72657431u))return 1;
+  dt_output("DT_RESET:retained-v1-current-token data42 bss0\n");retained.valid=0;return 0;
+ }
+ /* Observed capability and movement, never assume emulator CYCCNT support. */
+ volatile uint32_t*demcr=(volatile uint32_t*)0xe000edfcu,*ctrl=(volatile uint32_t*)0xe0001000u,*cycles=(volatile uint32_t*)0xe0001004u;
+ uint32_t original=*ctrl,a=0,b=0;*demcr|=1u<<24;
+ 49c:	f04f 21e0 	mov.w	r1, #3758153728	@ 0xe000e000
+ 4a0:	4a82      	ldr	r2, [pc, #520]	@ (6ac <dt_target+0x234>)
+ 4a2:	6815      	ldr	r5, [r2, #0]
+ 4a4:	f8d1 3dfc 	ldr.w	r3, [r1, #3580]	@ 0xdfc
+ 4a8:	f043 7380 	orr.w	r3, r3, #16777216	@ 0x1000000
+ 4ac:	f8c1 3dfc 	str.w	r3, [r1, #3580]	@ 0xdfc
+ if(!(original&(1u<<25))){*cycles=0;*ctrl=original|1u;a=*cycles;for(volatile unsigned i=0;i<1000;i++){}b=*cycles;}
+ 4b0:	f015 7300 	ands.w	r3, r5, #33554432	@ 0x2000000
+ 4b4:	f040 80e4 	bne.w	680 <dt_target+0x208>
+ 4b8:	f045 0101 	orr.w	r1, r5, #1
+ 4bc:	6053      	str	r3, [r2, #4]
+ 4be:	6011      	str	r1, [r2, #0]
+ 4c0:	6856      	ldr	r6, [r2, #4]
+ 4c2:	9305      	str	r3, [sp, #20]
+ 4c4:	9b05      	ldr	r3, [sp, #20]
+ 4c6:	f5b3 7f7a 	cmp.w	r3, #1000	@ 0x3e8
+ 4ca:	d206      	bcs.n	4da <dt_target+0x62>
+ 4cc:	9b05      	ldr	r3, [sp, #20]
+ 4ce:	3301      	adds	r3, #1
+ 4d0:	9305      	str	r3, [sp, #20]
+ 4d2:	9b05      	ldr	r3, [sp, #20]
+ 4d4:	f5b3 7f7a 	cmp.w	r3, #1000	@ 0x3e8
+ 4d8:	d3f8      	bcc.n	4cc <dt_target+0x54>
+ 4da:	4b74      	ldr	r3, [pc, #464]	@ (6ac <dt_target+0x234>)
+ 4dc:	685c      	ldr	r4, [r3, #4]
+ dt_output("DT_DWT:");dt_hex(original);dt_output(":");dt_hex(a);dt_output(":");dt_hex(b);dt_output("\n");
+ 4de:	4874      	ldr	r0, [pc, #464]	@ (6b0 <dt_target+0x238>)
+ 4e0:	f7ff fdc4 	bl	6c <dt_output>
+ 4e4:	4628      	mov	r0, r5
+ 4e6:	f7ff fdc5 	bl	74 <dt_hex>
+ 4ea:	4872      	ldr	r0, [pc, #456]	@ (6b4 <dt_target+0x23c>)
+ 4ec:	f7ff fdbe 	bl	6c <dt_output>
+ 4f0:	4630      	mov	r0, r6
+ 4f2:	f7ff fdbf 	bl	74 <dt_hex>
+ 4f6:	486f      	ldr	r0, [pc, #444]	@ (6b4 <dt_target+0x23c>)
+ 4f8:	f7ff fdb8 	bl	6c <dt_output>
+ 4fc:	4620      	mov	r0, r4
+ 4fe:	f7ff fdb9 	bl	74 <dt_hex>
+ 502:	486d      	ldr	r0, [pc, #436]	@ (6b8 <dt_target+0x240>)
+ 504:	f7ff fdb2 	bl	6c <dt_output>
+ *(volatile uint8_t*)0xe000e400u=0x80;*(volatile uint8_t*)0xe000e401u=0x40;
+ 508:	4a6c      	ldr	r2, [pc, #432]	@ (6bc <dt_target+0x244>)
+ *(volatile uint32_t*)0xe000e100u=3;*(volatile uint32_t*)0xe000e200u=1;
+ 50a:	f04f 23e0 	mov.w	r3, #3758153728	@ 0xe000e000
+ *(volatile uint8_t*)0xe000e400u=0x80;*(volatile uint8_t*)0xe000e401u=0x40;
+ 50e:	2480      	movs	r4, #128	@ 0x80
+ 510:	2040      	movs	r0, #64	@ 0x40
+ 512:	7014      	strb	r4, [r2, #0]
+ *(volatile uint32_t*)0xe000e100u=3;*(volatile uint32_t*)0xe000e200u=1;
+ 514:	2103      	movs	r1, #3
+ *(volatile uint8_t*)0xe000e400u=0x80;*(volatile uint8_t*)0xe000e401u=0x40;
+ 516:	7050      	strb	r0, [r2, #1]
+ *(volatile uint32_t*)0xe000e100u=3;*(volatile uint32_t*)0xe000e200u=1;
+ 518:	2201      	movs	r2, #1
+ 51a:	f8c3 1100 	str.w	r1, [r3, #256]	@ 0x100
+ 51e:	f8c3 2200 	str.w	r2, [r3, #512]	@ 0x200
+ __asm__ volatile("cpsie i\ndsb\nisb":::"memory");
+ 522:	b662      	cpsie	i
+ 524:	f3bf 8f4f 	dsb	sy
+ 528:	f3bf 8f6f 	isb	sy
+ for(unsigned i=0;done!=3&&i<100000;i++)__asm__ volatile("nop":::"memory");
+ 52c:	4964      	ldr	r1, [pc, #400]	@ (6c0 <dt_target+0x248>)
+ 52e:	680b      	ldr	r3, [r1, #0]
+ 530:	2b03      	cmp	r3, #3
+ 532:	d007      	beq.n	544 <dt_target+0xcc>
+ 534:	4b63      	ldr	r3, [pc, #396]	@ (6c4 <dt_target+0x24c>)
+ 536:	e001      	b.n	53c <dt_target+0xc4>
+ 538:	3b01      	subs	r3, #1
+ 53a:	d003      	beq.n	544 <dt_target+0xcc>
+ 53c:	bf00      	nop
+ 53e:	680a      	ldr	r2, [r1, #0]
+ 540:	2a03      	cmp	r2, #3
+ 542:	d1f9      	bne.n	538 <dt_target+0xc0>
+ if(done!=3)return 1;
+ 544:	680b      	ldr	r3, [r1, #0]
+ 546:	2b03      	cmp	r3, #3
+ 548:	f040 8094 	bne.w	674 <dt_target+0x1fc>
+ DtRecord record;if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=1)return 1;
+ 54c:	4d5e      	ldr	r5, [pc, #376]	@ (6c8 <dt_target+0x250>)
+ 54e:	485f      	ldr	r0, [pc, #380]	@ (6cc <dt_target+0x254>)
+ 550:	ae06      	add	r6, sp, #24
+ 552:	e895 000e 	ldmia.w	r5, {r1, r2, r3}
+ 556:	9600      	str	r6, [sp, #0]
+ 558:	f7ff fe86 	bl	268 <dt_irq_take>
+ 55c:	2800      	cmp	r0, #0
+ 55e:	f040 8089 	bne.w	674 <dt_target+0x1fc>
+ 562:	9b07      	ldr	r3, [sp, #28]
+ 564:	2b01      	cmp	r3, #1
+ 566:	f040 8085 	bne.w	674 <dt_target+0x1fc>
+ if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=2)return 1;
+ 56a:	e895 000e 	ldmia.w	r5, {r1, r2, r3}
+ 56e:	4857      	ldr	r0, [pc, #348]	@ (6cc <dt_target+0x254>)
+ 570:	9600      	str	r6, [sp, #0]
+ 572:	f7ff fe79 	bl	268 <dt_irq_take>
+ 576:	2800      	cmp	r0, #0
+ 578:	d17c      	bne.n	674 <dt_target+0x1fc>
+ 57a:	9b07      	ldr	r3, [sp, #28]
+ 57c:	2b02      	cmp	r3, #2
+ 57e:	d179      	bne.n	674 <dt_target+0x1fc>
+ __asm__ volatile("cpsid i":::"memory");
+ 580:	b672      	cpsid	i
+ if(dt_irq_emit(&trace,port,4,0,0)!=DT_OK)return 1;
+ 582:	2304      	movs	r3, #4
+ 584:	e9cd 0001 	strd	r0, r0, [sp, #4]
+ 588:	9300      	str	r3, [sp, #0]
+ 58a:	4850      	ldr	r0, [pc, #320]	@ (6cc <dt_target+0x254>)
+ 58c:	e895 000e 	ldmia.w	r5, {r1, r2, r3}
+ 590:	f7ff fe1e 	bl	1d0 <dt_irq_emit>
+ 594:	4604      	mov	r4, r0
+ 596:	2800      	cmp	r0, #0
+ 598:	d16c      	bne.n	674 <dt_target+0x1fc>
+ uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));if(mask!=1)return 1;
+ 59a:	f3ef 8710 	mrs	r7, PRIMASK
+ 59e:	2f01      	cmp	r7, #1
+ 5a0:	d168      	bne.n	674 <dt_target+0x1fc>
+ (void)dt_irq_take(&trace,port,&record);
+ 5a2:	e895 000e 	ldmia.w	r5, {r1, r2, r3}
+ 5a6:	4849      	ldr	r0, [pc, #292]	@ (6cc <dt_target+0x254>)
+ 5a8:	9600      	str	r6, [sp, #0]
+ 5aa:	f7ff fe5d 	bl	268 <dt_irq_take>
+ volatile uint32_t*timer=(volatile uint32_t*)0x40000000u;timer[0]=0;timer[2]=0x00ffffffu;timer[3]=1;timer[0]=1;
+ 5ae:	f04f 4180 	mov.w	r1, #1073741824	@ 0x40000000
+ 5b2:	f06f 427f 	mvn.w	r2, #4278190080	@ 0xff000000
+ 5b6:	600c      	str	r4, [r1, #0]
+ 5b8:	608a      	str	r2, [r1, #8]
+ 5ba:	4a45      	ldr	r2, [pc, #276]	@ (6d0 <dt_target+0x258>)
+ 5bc:	60cf      	str	r7, [r1, #12]
+ 5be:	600f      	str	r7, [r1, #0]
+ for(unsigned i=0;i<300;i++)values[i]=i;
+ 5c0:	f842 4024 	str.w	r4, [r2, r4, lsl #2]
+ 5c4:	3401      	adds	r4, #1
+ 5c6:	f5b4 7f96 	cmp.w	r4, #300	@ 0x12c
+ 5ca:	d1f9      	bne.n	5c0 <dt_target+0x148>
+ for(unsigned sample=0;sample<7;sample++)for(unsigned mode=0;mode<3;mode++){
+ 5cc:	2500      	movs	r5, #0
+ 5ce:	2400      	movs	r4, #0
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 5d0:	2240      	movs	r2, #64	@ 0x40
+ 5d2:	2100      	movs	r1, #0
+ 5d4:	f04f 4680 	mov.w	r6, #1073741824	@ 0x40000000
+ 5d8:	483c      	ldr	r0, [pc, #240]	@ (6cc <dt_target+0x254>)
+ 5da:	f000 f883 	bl	6e4 <memset>
+ 5de:	4620      	mov	r0, r4
+ 5e0:	f8d6 8004 	ldr.w	r8, [r6, #4]
+ 5e4:	f7ff fe9c 	bl	320 <workload>
+  if(sum!=44850||before<after||before==after)return 1;
+ 5e8:	f64a 7332 	movw	r3, #44850	@ 0xaf32
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 5ec:	4602      	mov	r2, r0
+  if(sum!=44850||before<after||before==after)return 1;
+ 5ee:	429a      	cmp	r2, r3
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 5f0:	4838      	ldr	r0, [pc, #224]	@ (6d4 <dt_target+0x25c>)
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 5f2:	6877      	ldr	r7, [r6, #4]
+  if(sum!=44850||before<after||before==after)return 1;
+ 5f4:	d13e      	bne.n	674 <dt_target+0x1fc>
+ 5f6:	45b8      	cmp	r8, r7
+ 5f8:	d93c      	bls.n	674 <dt_target+0x1fc>
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 5fa:	f7ff fd37 	bl	6c <dt_output>
+ 5fe:	4628      	mov	r0, r5
+ 600:	f7ff fd38 	bl	74 <dt_hex>
+ 604:	482b      	ldr	r0, [pc, #172]	@ (6b4 <dt_target+0x23c>)
+ 606:	f7ff fd31 	bl	6c <dt_output>
+ 60a:	4620      	mov	r0, r4
+ 60c:	f7ff fd32 	bl	74 <dt_hex>
+ 610:	4828      	ldr	r0, [pc, #160]	@ (6b4 <dt_target+0x23c>)
+ 612:	f7ff fd2b 	bl	6c <dt_output>
+ 616:	eba8 0007 	sub.w	r0, r8, r7
+ 61a:	f7ff fd2b 	bl	74 <dt_hex>
+ 61e:	4825      	ldr	r0, [pc, #148]	@ (6b4 <dt_target+0x23c>)
+ 620:	f7ff fd24 	bl	6c <dt_output>
+ 624:	4b29      	ldr	r3, [pc, #164]	@ (6cc <dt_target+0x254>)
+ 626:	6b58      	ldr	r0, [r3, #52]	@ 0x34
+ 628:	f7ff fd24 	bl	74 <dt_hex>
+ for(unsigned sample=0;sample<7;sample++)for(unsigned mode=0;mode<3;mode++){
+ 62c:	3401      	adds	r4, #1
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 62e:	4822      	ldr	r0, [pc, #136]	@ (6b8 <dt_target+0x240>)
+ 630:	f7ff fd1c 	bl	6c <dt_output>
+ for(unsigned sample=0;sample<7;sample++)for(unsigned mode=0;mode<3;mode++){
+ 634:	2c03      	cmp	r4, #3
+ 636:	d1cb      	bne.n	5d0 <dt_target+0x158>
+ 638:	3501      	adds	r5, #1
+ 63a:	2d07      	cmp	r5, #7
+ 63c:	d1c7      	bne.n	5ce <dt_target+0x156>
+ }
+ timer[0]=0;*(volatile uint32_t*)0xe000e180u=3;
+ 63e:	f04f 25e0 	mov.w	r5, #3758153728	@ 0xe000e000
+ 642:	2300      	movs	r3, #0
+ 644:	6033      	str	r3, [r6, #0]
+ if(dt_record(&retained,42,123)!=DT_OK)return 1;
+ 646:	4818      	ldr	r0, [pc, #96]	@ (6a8 <dt_target+0x230>)
+ timer[0]=0;*(volatile uint32_t*)0xe000e180u=3;
+ 648:	f8c5 4180 	str.w	r4, [r5, #384]	@ 0x180
+ if(dt_record(&retained,42,123)!=DT_OK)return 1;
+ 64c:	227b      	movs	r2, #123	@ 0x7b
+ 64e:	212a      	movs	r1, #42	@ 0x2a
+ 650:	f7ff fe4a 	bl	2e8 <dt_record>
+ 654:	b970      	cbnz	r0, 674 <dt_target+0x1fc>
+ if(DT_TARGET_MUTANT==2)retained.version=2;
+ __asm__ volatile("dsb":::"memory");*(volatile uint32_t*)0xe000ed0cu=0x05fa0004u;__asm__ volatile("dsb":::"memory");
+ 656:	f3bf 8f4f 	dsb	sy
+ 65a:	4b1f      	ldr	r3, [pc, #124]	@ (6d8 <dt_target+0x260>)
+ 65c:	f8c5 3d0c 	str.w	r3, [r5, #3340]	@ 0xd0c
+ 660:	f3bf 8f4f 	dsb	sy
+ for(;;)__asm__ volatile("wfi");
+ 664:	bf30      	wfi
+ 666:	e7fd      	b.n	664 <dt_target+0x1ec>
+  if(retained.version!=1||retained.image!=42||retained.code!=123||retained.check!=(42u^123u^0x72657431u))return 1;
+ 668:	682b      	ldr	r3, [r5, #0]
+ 66a:	2b01      	cmp	r3, #1
+ 66c:	d102      	bne.n	674 <dt_target+0x1fc>
+ 66e:	68ab      	ldr	r3, [r5, #8]
+ 670:	2b2a      	cmp	r3, #42	@ 0x2a
+ 672:	d008      	beq.n	686 <dt_target+0x20e>
+ if(cookie!=42||zero)return 1;
+ 674:	2001      	movs	r0, #1
+}
+ 676:	b00a      	add	sp, #40	@ 0x28
+ 678:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+ if(cookie!=42||zero)return 1;
+ 67c:	2001      	movs	r0, #1
+}
+ 67e:	4770      	bx	lr
+ uint32_t original=*ctrl,a=0,b=0;*demcr|=1u<<24;
+ 680:	4604      	mov	r4, r0
+ 682:	4606      	mov	r6, r0
+ 684:	e72b      	b.n	4de <dt_target+0x66>
+  if(retained.version!=1||retained.image!=42||retained.code!=123||retained.check!=(42u^123u^0x72657431u))return 1;
+ 686:	68eb      	ldr	r3, [r5, #12]
+ 688:	2b7b      	cmp	r3, #123	@ 0x7b
+ 68a:	d1f3      	bne.n	674 <dt_target+0x1fc>
+ 68c:	4b13      	ldr	r3, [pc, #76]	@ (6dc <dt_target+0x264>)
+ 68e:	692a      	ldr	r2, [r5, #16]
+ 690:	429a      	cmp	r2, r3
+ 692:	d1ef      	bne.n	674 <dt_target+0x1fc>
+  dt_output("DT_RESET:retained-v1-current-token data42 bss0\n");retained.valid=0;return 0;
+ 694:	4812      	ldr	r0, [pc, #72]	@ (6e0 <dt_target+0x268>)
+ 696:	f7ff fce9 	bl	6c <dt_output>
+ 69a:	606c      	str	r4, [r5, #4]
+ 69c:	4620      	mov	r0, r4
+ 69e:	e7ea      	b.n	676 <dt_target+0x1fe>
+ 6a0:	20000000 	.word	0x20000000
+ 6a4:	200004b4 	.word	0x200004b4
+ 6a8:	20000500 	.word	0x20000500
+ 6ac:	e0001000 	.word	0xe0001000
+ 6b0:	00000818 	.word	0x00000818
+ 6b4:	00000820 	.word	0x00000820
+ 6b8:	00000824 	.word	0x00000824
+ 6bc:	e000e400 	.word	0xe000e400
+ 6c0:	200004b8 	.word	0x200004b8
+ 6c4:	000186a0 	.word	0x000186a0
+ 6c8:	00000834 	.word	0x00000834
+ 6cc:	200004c0 	.word	0x200004c0
+ 6d0:	20000004 	.word	0x20000004
+ 6d4:	00000828 	.word	0x00000828
+ 6d8:	05fa0004 	.word	0x05fa0004
+ 6dc:	72657460 	.word	0x72657460
+ 6e0:	000007e8 	.word	0x000007e8
+
+000006e4 <memset>:
+    a[i] = b[i];
+  return d;
+}
+void *memset(void *d, int v, size_t n) {
+  unsigned char *a = d;
+  for (size_t i = 0; i < n; i++)
+ 6e4:	b31a      	cbz	r2, 72e <memset+0x4a>
+ 6e6:	1e53      	subs	r3, r2, #1
+ 6e8:	2b02      	cmp	r3, #2
+void *memset(void *d, int v, size_t n) {
+ 6ea:	b510      	push	{r4, lr}
+    a[i] = (unsigned char)v;
+ 6ec:	b2c9      	uxtb	r1, r1
+ 6ee:	d91f      	bls.n	730 <memset+0x4c>
+ 6f0:	f04f 0c00 	mov.w	ip, #0
+ 6f4:	f361 0c07 	bfi	ip, r1, #0, #8
+ 6f8:	f361 2c0f 	bfi	ip, r1, #8, #8
+ 6fc:	f361 4c17 	bfi	ip, r1, #16, #8
+ 700:	f022 0403 	bic.w	r4, r2, #3
+ 704:	f361 6c1f 	bfi	ip, r1, #24, #8
+ 708:	4603      	mov	r3, r0
+ 70a:	eb04 0e00 	add.w	lr, r4, r0
+ 70e:	f843 cb04 	str.w	ip, [r3], #4
+  for (size_t i = 0; i < n; i++)
+ 712:	4573      	cmp	r3, lr
+ 714:	d1fb      	bne.n	70e <memset+0x2a>
+ 716:	4294      	cmp	r4, r2
+ 718:	d008      	beq.n	72c <memset+0x48>
+ 71a:	1c63      	adds	r3, r4, #1
+ 71c:	429a      	cmp	r2, r3
+    a[i] = (unsigned char)v;
+ 71e:	5501      	strb	r1, [r0, r4]
+  for (size_t i = 0; i < n; i++)
+ 720:	d904      	bls.n	72c <memset+0x48>
+ 722:	3402      	adds	r4, #2
+ 724:	42a2      	cmp	r2, r4
+    a[i] = (unsigned char)v;
+ 726:	54c1      	strb	r1, [r0, r3]
+ 728:	bf88      	it	hi
+ 72a:	5501      	strbhi	r1, [r0, r4]
+  return d;
+}
+ 72c:	bd10      	pop	{r4, pc}
+ 72e:	4770      	bx	lr
+  for (size_t i = 0; i < n; i++)
+ 730:	2400      	movs	r4, #0
+ 732:	e7f2      	b.n	71a <memset+0x36>
+
+00000734 <dt_boot>:
+.thumb
+.global dt_boot
+.type dt_boot,%function
+.thumb_func
+dt_boot:
+  cpsid i
+ 734:	b672      	cpsid	i
+  ldr r0,=dt_data_start
+ 736:	4805      	ldr	r0, [pc, #20]	@ (74c <dt_boot+0x18>)
+  ldr r1,=dt_bss_end
+ 738:	4905      	ldr	r1, [pc, #20]	@ (750 <dt_boot+0x1c>)
+  ldr r2,=0xa5a5a5a5
+ 73a:	f04f 32a5 	mov.w	r2, #2779096485	@ 0xa5a5a5a5
+1: cmp r0,r1
+ 73e:	4288      	cmp	r0, r1
+  bhs 2f
+ 740:	d202      	bcs.n	748 <dt_boot+0x14>
+  str r2,[r0],#4
+ 742:	f840 2b04 	str.w	r2, [r0], #4
+  b 1b
+ 746:	e7fa      	b.n	73e <dt_boot+0xa>
+2: b dt_reset
+ 748:	f7ff bcd4 	b.w	f4 <dt_reset>
+  ldr r0,=dt_data_start
+ 74c:	20000000 	.word	0x20000000
+  ldr r1,=dt_bss_end
+ 750:	20000500 	.word	0x20000500
+ 754:	545f5444 	.word	0x545f5444
+ 758:	45475241 	.word	0x45475241
+ 75c:	48435f54 	.word	0x48435f54
+ 760:	3a4b4345 	.word	0x3a4b4345
+ 764:	78656e75 	.word	0x78656e75
+ 768:	74636570 	.word	0x74636570
+ 76c:	762d6465 	.word	0x762d6465
+ 770:	6f746365 	.word	0x6f746365
+ 774:	00000a72 	.word	0x00000a72
+ 778:	33323130 	.word	0x33323130
+ 77c:	37363534 	.word	0x37363534
+ 780:	62613938 	.word	0x62613938
+ 784:	66656463 	.word	0x66656463
+ 788:	00000000 	.word	0x00000000
+ 78c:	545f5444 	.word	0x545f5444
+ 790:	45475241 	.word	0x45475241
+ 794:	48435f54 	.word	0x48435f54
+ 798:	3a4b4345 	.word	0x3a4b4345
+ 79c:	746e6f63 	.word	0x746e6f63
+ 7a0:	74636172 	.word	0x74636172
+ 7a4:	0000000a 	.word	0x0000000a
+ 7a8:	545f5444 	.word	0x545f5444
+ 7ac:	45475241 	.word	0x45475241
+ 7b0:	41505f54 	.word	0x41505f54
+ 7b4:	613a5353 	.word	0x613a5353
+ 7b8:	61757463 	.word	0x61757463
+ 7bc:	6e692d6c 	.word	0x6e692d6c
+ 7c0:	72726574 	.word	0x72726574
+ 7c4:	2d747075 	.word	0x2d747075
+ 7c8:	6c627570 	.word	0x6c627570
+ 7cc:	74616369 	.word	0x74616369
+ 7d0:	2d6e6f69 	.word	0x2d6e6f69
+ 7d4:	2d646e61 	.word	0x2d646e61
+ 7d8:	74666f73 	.word	0x74666f73
+ 7dc:	65726177 	.word	0x65726177
+ 7e0:	7365722d 	.word	0x7365722d
+ 7e4:	000a7465 	.word	0x000a7465
+ 7e8:	525f5444 	.word	0x525f5444
+ 7ec:	54455345 	.word	0x54455345
+ 7f0:	7465723a 	.word	0x7465723a
+ 7f4:	656e6961 	.word	0x656e6961
+ 7f8:	31762d64 	.word	0x31762d64
+ 7fc:	7275632d 	.word	0x7275632d
+ 800:	746e6572 	.word	0x746e6572
+ 804:	6b6f742d 	.word	0x6b6f742d
+ 808:	64206e65 	.word	0x64206e65
+ 80c:	34617461 	.word	0x34617461
+ 810:	73622032 	.word	0x73622032
+ 814:	000a3073 	.word	0x000a3073
+ 818:	445f5444 	.word	0x445f5444
+ 81c:	003a5457 	.word	0x003a5457
+ 820:	0000003a 	.word	0x0000003a
+ 824:	0000000a 	.word	0x0000000a
+ 828:	435f5444 	.word	0x435f5444
+ 82c:	3a54534f 	.word	0x3a54534f
+ 830:	00000000 	.word	0x00000000
+
+00000834 <port>:
+ 834:	00000000 000003c1 00000319              ............

@@ -1,0 +1,109 @@
+
+/tmp/constrained-analysis-bqd5ltq3/clang-O3-1-25000-stub/analysis.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <vectors>:
+   0:	00 00 01 20 69 00 00 00 19 01 00 00 19 01 00 00     ... i...........
+  10:	19 01 00 00 19 01 00 00 19 01 00 00 00 00 00 00     ................
+	...
+  60:	29 01 00 00                                         )...
+
+00000064 <ca_checkpoint>:
+  64:	bf00      	nop
+  66:	4770      	bx	lr
+
+00000068 <cl_reset>:
+  68:	f240 0000 	movw	r0, #0
+  6c:	f240 0100 	movw	r1, #0
+  70:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+  74:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+  78:	4281      	cmp	r1, r0
+  7a:	d218      	bcs.n	ae <cl_reset+0x46>
+  7c:	f240 124c 	movw	r2, #332	@ 0x14c
+  80:	f2c0 0200 	movt	r2, #0
+  84:	6813      	ldr	r3, [r2, #0]
+  86:	f841 3b04 	str.w	r3, [r1], #4
+  8a:	4281      	cmp	r1, r0
+  8c:	d20f      	bcs.n	ae <cl_reset+0x46>
+  8e:	6853      	ldr	r3, [r2, #4]
+  90:	f841 3b04 	str.w	r3, [r1], #4
+  94:	4281      	cmp	r1, r0
+  96:	d20a      	bcs.n	ae <cl_reset+0x46>
+  98:	6893      	ldr	r3, [r2, #8]
+  9a:	f841 3b04 	str.w	r3, [r1], #4
+  9e:	4281      	cmp	r1, r0
+  a0:	d205      	bcs.n	ae <cl_reset+0x46>
+  a2:	68d3      	ldr	r3, [r2, #12]
+  a4:	3210      	adds	r2, #16
+  a6:	f841 3b04 	str.w	r3, [r1], #4
+  aa:	4281      	cmp	r1, r0
+  ac:	d3ea      	bcc.n	84 <cl_reset+0x1c>
+  ae:	f240 0010 	movw	r0, #16
+  b2:	f240 0100 	movw	r1, #0
+  b6:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+  ba:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+  be:	4281      	cmp	r1, r0
+  c0:	d210      	bcs.n	e4 <cl_reset+0x7c>
+  c2:	2200      	movs	r2, #0
+  c4:	f841 2b04 	str.w	r2, [r1], #4
+  c8:	4281      	cmp	r1, r0
+  ca:	d20b      	bcs.n	e4 <cl_reset+0x7c>
+  cc:	f841 2b04 	str.w	r2, [r1], #4
+  d0:	4281      	cmp	r1, r0
+  d2:	d207      	bcs.n	e4 <cl_reset+0x7c>
+  d4:	f841 2b04 	str.w	r2, [r1], #4
+  d8:	4281      	cmp	r1, r0
+  da:	d203      	bcs.n	e4 <cl_reset+0x7c>
+  dc:	f841 2b04 	str.w	r2, [r1], #4
+  e0:	4281      	cmp	r1, r0
+  e2:	d3ef      	bcc.n	c4 <cl_reset+0x5c>
+  e4:	f240 0404 	movw	r4, #4
+  e8:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+  ec:	2000      	movs	r0, #0
+  ee:	6020      	str	r0, [r4, #0]
+  f0:	6060      	str	r0, [r4, #4]
+  f2:	f000 f829 	bl	148 <ca_target_paths>
+  f6:	b148      	cbz	r0, 10c <cl_reset+0xa4>
+  f8:	f246 10a8 	movw	r0, #25000	@ 0x61a8
+  fc:	f000 f822 	bl	144 <ca_target_init>
+ 100:	2800      	cmp	r0, #0
+ 102:	f04f 0001 	mov.w	r0, #1
+ 106:	bf08      	it	eq
+ 108:	2002      	moveq	r0, #2
+ 10a:	e000      	b.n	10e <cl_reset+0xa6>
+ 10c:	2002      	movs	r0, #2
+ 10e:	60a0      	str	r0, [r4, #8]
+ 110:	f7ff ffa8 	bl	64 <ca_checkpoint>
+ 114:	bf30      	wfi
+ 116:	e7fd      	b.n	114 <cl_reset+0xac>
+
+00000118 <failure>:
+ 118:	f240 0004 	movw	r0, #4
+ 11c:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 120:	2103      	movs	r1, #3
+ 122:	6081      	str	r1, [r0, #8]
+ 124:	bf00      	nop
+ 126:	e7fd      	b.n	124 <failure+0xc>
+
+00000128 <timer>:
+ 128:	200c      	movs	r0, #12
+ 12a:	f2c4 0000 	movt	r0, #16384	@ 0x4000
+ 12e:	2101      	movs	r1, #1
+ 130:	6001      	str	r1, [r0, #0]
+ 132:	f240 0000 	movw	r0, #0
+ 136:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 13a:	6801      	ldr	r1, [r0, #0]
+ 13c:	3101      	adds	r1, #1
+ 13e:	6001      	str	r1, [r0, #0]
+ 140:	4770      	bx	lr
+	...
+
+00000144 <ca_target_init>:
+ 144:	2000      	movs	r0, #0
+ 146:	4770      	bx	lr
+
+00000148 <ca_target_paths>:
+ 148:	2000      	movs	r0, #0
+ 14a:	4770      	bx	lr

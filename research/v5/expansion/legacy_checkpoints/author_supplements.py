@@ -9,9 +9,18 @@ ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT/'tools'))
+sys.path.insert(0, str(ROOT))
 from cards import rows
 from inputs import write
 from common import load
+from research.v5.expansion.legacy_completion.support import attach as attach_successor_support
+from research.v5.expansion.legacy_checkpoint_memory.author_support import attach as attach_memory_followthrough
+from research.v5.expansion.legacy_checkpoint_entry.author_support import attach as attach_entry_followthrough
+from research.v5.expansion.legacy_checkpoint_writer.author_support import attach as attach_writer_followthrough
+from research.v5.expansion.legacy_checkpoint_firmware.author_support import attach as attach_firmware_followthrough
+from research.v5.expansion.legacy_checkpoint_protocol.author_support import attach as attach_protocol_followthrough
+from research.v5.expansion.legacy_numeric_followthrough.author_support import attach as attach_numeric_followthrough
+from research.v5.expansion.legacy_checkpoint_linux.author_support import attach as attach_linux_followthrough
 
 REGISTERS = ['research/v5/expansion/legacy_checkpoints/resources.json',
              'research/v5/expansion/legacy_systems/resources.json',
@@ -218,7 +227,7 @@ def main():
         for oid in sorted(parent_leaves):
             dispositions.append(dict(project=pid,objective=oid,disposition='composition-criterion-authored' if oid in selected else 'retained-parent-domain-obligation',criterion='AX-'+pid+'-'+oid if oid in selected else None,
                                      scope='Selected leaves assess concrete integration interactions; nonselected leaves remain in their domain projects/supplements and are not newly claimed as checkpoint-assessed.',required=True))
-        write(ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json'),record)
+        write(ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json'),attach_linux_followthrough(attach_numeric_followthrough(attach_protocol_followthrough(attach_firmware_followthrough(attach_writer_followthrough(attach_entry_followthrough(attach_memory_followthrough(attach_successor_support(record)))))))))
         (ROOT/record['assessor_analysis']).write_text('\n'.join(analysis)+'\n',encoding='utf-8',newline='\n')
     write(HERE/'depth_audit.json',dict(schema_version=1,status='author passage/depth audit',projects=audit))
     write(HERE/'traceability.json',dict(schema_version=1,scope='Actual passages → parent topic/objective → criterion → learner artifacts → rubric/delayed assessment. Authored opportunity, not learner evidence.',rows=trace))

@@ -1,0 +1,786 @@
+{
+  "schema_version": 1,
+  "project": "PR-T13-01",
+  "domain": "T13",
+  "title": "PR-T13-01 objective-specific depth assessment supplement",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/effects_depth/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T13.md",
+        "sha256": "73dfc440428c53b84d269d50ca7a73f2f3210b6c3675c9239a0344913b1f2aed",
+        "passages": [
+          "Complete module teaching and metadata read"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T13-01.md",
+        "sha256": "c67882e60fa2eaa573c4a32ebd08a6064342e0d27f367b6fe1146916d79c709b",
+        "passages": [
+          "Contract, Steps, Failure, Acceptance and Transfer sections plus metadata read"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T13-01.json",
+        "sha256": "2c0a2eae7bbfc8e41c19ad5a8f8a09021cf344798f9e409dbd3db3dc35cd8fb3",
+        "passages": [
+          "Complete fixture read"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T13.md",
+        "anchors": [
+          "T13.01",
+          "T13.02",
+          "T13.06"
+        ]
+      }
+    ],
+    "units": [
+      "U-T13-01-01",
+      "U-T13-01-02",
+      "U-T13-01-03"
+    ],
+    "inspection_limits": [
+      "Unit content not freshly reread beyond linked metadata",
+      "Historical acceptance is not fresh execution",
+      "Laboratory support scope is stated separately"
+    ]
+  },
+  "environment": {
+    "language": "C17, with earlier inspected C11 draft semantic passages explicitly identified",
+    "target": "Declared parent project target; local hosted observations and explicitly separate synthetic target models. No hardware execution is implied.",
+    "profile": "A",
+    "dependencies": "Retain exact parent project profile and permitted primitives; host oracle separate from component dependencies.",
+    "toolchain": [
+      "Record actual compiler, linker, runtime and library configuration",
+      "Host oracle/instrumentation remains distinct from permitted component dependencies"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-GLIBC-QSORT",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "QSORT_STACK_SIZE and INDIRECT_SORT_SIZE_THRES",
+        "__qsort_r allocation and heapsort fallback",
+        "msort_with_tmp and indirect_msort_with_tmp call graph",
+        "qsort wrapper"
+      ]
+    },
+    {
+      "id": "R-LEGACY-PICOLIBC-STDIO",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "doc/os.md stdin/stdout/stderr and fopen,fdopen",
+        "doc/os.md POSIX console support",
+        "doc/build.md Stdio options and Tinystdio options opening"
+      ]
+    },
+    {
+      "id": "R-LEGACY-GLIBC-SAFETY",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "1.2.2.1 MT-Safe, AS-Safe, AC-Safe and Preliminary annotations"
+      ]
+    },
+    {
+      "id": "R-LEGACY-GCC-STACK",
+      "path": "research/v5/expansion/legacy_depth/resources.json",
+      "passages": [
+        "-fstack-usage static,dynamic,bounded qualifiers"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17 remains unavailable; N1570 is C11",
+    "Baseline book locators not newly reread in this supplement wave; no whole-source inspection claim",
+    "Fresh musl source retrieval unavailable; exact historical source inspection is not relabeled as new.",
+    "Actual ISR ABI/board frame sizes and platform-specific tracing/synchronization must be inspected before physical or complete effects claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T13-01.md",
+    "fixtures/systems/PR-T13-01.json",
+    "labs/effects_depth/CONTRACTS.md",
+    "labs/effects_depth/core_test.c",
+    "labs/effects_depth/cpu_test.c",
+    "labs/effects_depth/effects.c",
+    "labs/effects_depth/effects.h",
+    "labs/effects_depth/glibc_sort_probe.c",
+    "labs/effects_depth/helper_probe.c",
+    "labs/effects_depth/hidden.c",
+    "labs/effects_depth/highwater_test.c",
+    "labs/effects_depth/hook_scope.c",
+    "labs/effects_depth/locks_test.c",
+    "labs/effects_depth/logger.c",
+    "labs/effects_depth/logger.h",
+    "labs/effects_depth/musl_sort_probe.c",
+    "labs/effects_depth/oracles.py",
+    "labs/effects_depth/pico_custom.c",
+    "labs/effects_depth/pico_file.c",
+    "labs/effects_depth/pico_probe.c",
+    "labs/effects_depth/process_test.c",
+    "labs/effects_depth/sort_experiment.c",
+    "labs/effects_depth/stack_probe.c",
+    "labs/effects_depth/state_test.c"
+  ],
+  "execution_support": {
+    "kind": "additive source-bound original effects implementation and host/source/object investigations",
+    "scope": "Only exact ordinary/changed-condition mechanisms in research/v5/expansion/legacy_effects/completion_dispositions.json; physical/independent assessment remains separate.",
+    "tests": [
+      "python3 tools/run_effects_followthrough.py"
+    ],
+    "fresh_execution": "See current source-bound research/v5/expansion/legacy_effects/validation.json",
+    "author_validation": "research/v5/expansion/legacy_effects/validation.json",
+    "successor_bindings": "research/v5/expansion/legacy_effects/completion_dispositions.json"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T13-01-T13.01.a",
+      "title": "Enumerate allocation, stack, locks, syscalls, state changes, and blocking.",
+      "objective": "T13.01.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Construct an effects ledger for an original wrapper: entry calls component and crt; component invokes callback; crt initializes TLS. Annotate allocation, stack, locks, syscalls, persistent state and blocking, including unknown callback edges.",
+      "purpose": "A deterministic return value implies absence of environmental effects.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Construct an effects ledger for an original wrapper: entry calls component and crt; component invokes callback; crt initializes TLS. Annotate allocation, stack, locks, syscalls, persistent state and blocking, including unknown callback edges.",
+        "Falsify: A deterministic return value implies absence of environmental effects.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Construct an effects ledger for an original wrapper: entry calls component and crt; component invokes callback; crt initializes TLS. Annotate allocation, stack, locks, syscalls, persistent state and blocking, including unknown callback edges.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Replace the callback with one that allocates and blocks while returning the same value."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The closure includes every reachable node and retains unknown effects instead of treating them as zero.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The closure includes every reachable node and retains unknown effects instead of treating them as zero. Give a correct derivation and independently chosen falsification case.",
+        "3": "Replace the callback with one that allocates and blocks while returning the same value. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: A deterministic return value implies absence of environmental effects."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the callback with one that allocates and blocks while returning the same value."
+        }
+      ],
+      "assessor_anchor": "#t1301a",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.01.b",
+      "title": "Separate caller-visible outputs from indirect environmental effects.",
+      "objective": "T13.01.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Create two implementations returning the same checksum: one uses caller storage, the other lazily allocates a cache. Compare return/output equivalence and first-call allocation/state observations on synthetic data.",
+      "purpose": "Equivalent values imply interchangeable resource behavior.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Create two implementations returning the same checksum: one uses caller storage, the other lazily allocates a cache. Compare return/output equivalence and first-call allocation/state observations on synthetic data.",
+        "Falsify: Equivalent values imply interchangeable resource behavior.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Create two implementations returning the same checksum: one uses caller storage, the other lazily allocates a cache. Compare return/output equivalence and first-call allocation/state observations on synthetic data.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Move cache creation to process startup and revisit whether the component or deployment owns its cost."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The output comparison can pass while the restricted effects contract fails; both results are recorded separately.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The output comparison can pass while the restricted effects contract fails; both results are recorded separately. Give a correct derivation and independently chosen falsification case.",
+        "3": "Move cache creation to process startup and revisit whether the component or deployment owns its cost. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Equivalent values imply interchangeable resource behavior."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move cache creation to process startup and revisit whether the component or deployment owns its cost."
+        }
+      ],
+      "assessor_anchor": "#t1301b",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.01.c",
+      "title": "State component-local and transitive resource requirements independently.",
+      "objective": "T13.01.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Give the checksum a local bound of 32 stack bytes and a callback contract of at most64 additional simultaneously live bytes. Derive the composed bound and then replace the callback bound with unknown.",
+      "purpose": "Component-local estimates automatically bound arbitrary transitive calls.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Give the checksum a local bound of 32 stack bytes and a callback contract of at most64 additional simultaneously live bytes. Derive the composed bound and then replace the callback bound with unknown.",
+        "Falsify: Component-local estimates automatically bound arbitrary transitive calls.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Give the checksum a local bound of 32 stack bytes and a callback contract of at most64 additional simultaneously live bytes. Derive the composed bound and then replace the callback bound with unknown.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Tail-call elimination removes one frame in a specific build; compare the conditional artifact observation with the conservative source model."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Under explicit nesting assumptions the bound is96 bytes; with an unknown callback the whole bound is unresolved.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Under explicit nesting assumptions the bound is96 bytes; with an unknown callback the whole bound is unresolved. Give a correct derivation and independently chosen falsification case.",
+        "3": "Tail-call elimination removes one frame in a specific build; compare the conditional artifact observation with the conservative source model. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Component-local estimates automatically bound arbitrary transitive calls."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Tail-call elimination removes one frame in a specific build; compare the conditional artifact observation with the conservative source model."
+        }
+      ],
+      "assessor_anchor": "#t1301c",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.02.a",
+      "title": "Trace direct, indirect, lazy, and allocator-internal memory activity.",
+      "objective": "T13.02.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Instrument an original allocator wrapper with direct allocation, callback allocation, first-use cache and pool reuse paths. Count requests, acquisitions and live bytes separately over cold and warm traces.",
+      "purpose": "Every request acquires new OS memory and warm zero acquisition proves no allocation mechanism.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Instrument an original allocator wrapper with direct allocation, callback allocation, first-use cache and pool reuse paths. Count requests, acquisitions and live bytes separately over cold and warm traces.",
+        "Falsify: Every request acquires new OS memory and warm zero acquisition proves no allocation mechanism.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Instrument an original allocator wrapper with direct allocation, callback allocation, first-use cache and pool reuse paths. Count requests, acquisitions and live bytes separately over cold and warm traces.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Add a pool refill after a long warm interval and show why short warm sampling misses it."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The trace distinguishes request count, backing acquisition and retained/live storage; initialization remains visible.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The trace distinguishes request count, backing acquisition and retained/live storage; initialization remains visible. Give a correct derivation and independently chosen falsification case.",
+        "3": "Add a pool refill after a long warm interval and show why short warm sampling misses it. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Every request acquires new OS memory and warm zero acquisition proves no allocation mechanism."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a pool refill after a long warm interval and show why short warm sampling misses it."
+        }
+      ],
+      "assessor_anchor": "#t1302a",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.02.b",
+      "title": "Compare allocator interposition, wrappers, source inspection, and profiling.",
+      "objective": "T13.02.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Compare a link-time malloc wrapper, source call-graph audit and process-level observation on the same original fixture. State exactly which interfaces each hook sees and deliberately invoke an unwrapped custom pool allocator.",
+      "purpose": "One interception technique gives a complete allocation proof.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Compare a link-time malloc wrapper, source call-graph audit and process-level observation on the same original fixture. State exactly which interfaces each hook sees and deliberately invoke an unwrapped custom pool allocator.",
+        "Falsify: One interception technique gives a complete allocation proof.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Compare a link-time malloc wrapper, source call-graph audit and process-level observation on the same original fixture. State exactly which interfaces each hook sees and deliberately invoke an unwrapped custom pool allocator.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Build a statically linked or symbol-hidden variant and redo the interception coverage argument."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The methods disagree in a predicted way on the bypass path and the combined conclusion preserves their limits.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The methods disagree in a predicted way on the bypass path and the combined conclusion preserves their limits. Give a correct derivation and independently chosen falsification case.",
+        "3": "Build a statically linked or symbol-hidden variant and redo the interception coverage argument. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: One interception technique gives a complete allocation proof."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Build a statically linked or symbol-hidden variant and redo the interception coverage argument."
+        }
+      ],
+      "assessor_anchor": "#t1302b",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.02.c",
+      "title": "Identify paths that bypass the chosen interception technique.",
+      "objective": "T13.02.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Use the supplied closure fixture whose forbidden set contains malloc but whose reachable nodes include helper and TLS. Add an indirect helper-to-pool acquisition edge and show that a lexical malloc scan remains empty.",
+      "purpose": "An empty forbidden-symbol intersection proves allocation freedom.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Use the supplied closure fixture whose forbidden set contains malloc but whose reachable nodes include helper and TLS. Add an indirect helper-to-pool acquisition edge and show that a lexical malloc scan remains empty.",
+        "Falsify: An empty forbidden-symbol intersection proves allocation freedom.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Use the supplied closure fixture whose forbidden set contains malloc but whose reachable nodes include helper and TLS. Add an indirect helper-to-pool acquisition edge and show that a lexical malloc scan remains empty.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Represent callbacks as a finite registered target set, then allow dynamic registration and identify the new unresolved boundary."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The original closure result is reproduced, while the stronger allocation-free claim is rejected because the graph/effect model was incomplete.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The original closure result is reproduced, while the stronger allocation-free claim is rejected because the graph/effect model was incomplete. Give a correct derivation and independently chosen falsification case.",
+        "3": "Represent callbacks as a finite registered target set, then allow dynamic registration and identify the new unresolved boundary. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: An empty forbidden-symbol intersection proves allocation freedom."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Represent callbacks as a finite registered target set, then allow dynamic registration and identify the new unresolved boundary."
+        }
+      ],
+      "assessor_anchor": "#t1302c",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.06.a",
+      "title": "Trace filesystem, terminal, loader, memory, and scheduling interactions.",
+      "objective": "T13.06.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Trace an original program that opens a synthetic temporary file, writes buffered bytes, allocates memory and performs one timed wait. Attribute loader, filesystem, terminal, mapping and scheduler events using actual tool support.",
+      "purpose": "Every visible syscall corresponds one-to-one to an API call.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Trace an original program that opens a synthetic temporary file, writes buffered bytes, allocates memory and performs one timed wait. Attribute loader, filesystem, terminal, mapping and scheduler events using actual tool support.",
+        "Falsify: Every visible syscall corresponds one-to-one to an API call.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Trace an original program that opens a synthetic temporary file, writes buffered bytes, allocates memory and performs one timed wait. Attribute loader, filesystem, terminal, mapping and scheduler events using actual tool support.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Redirect output from terminal to file and compare buffering/interaction assumptions."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The trace has operation boundaries and separately identifies startup/background effects; unavailable tracing is a gap.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The trace has operation boundaries and separately identifies startup/background effects; unavailable tracing is a gap. Give a correct derivation and independently chosen falsification case.",
+        "3": "Redirect output from terminal to file and compare buffering/interaction assumptions. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Every visible syscall corresponds one-to-one to an API call."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Redirect output from terminal to file and compare buffering/interaction assumptions."
+        }
+      ],
+      "assessor_anchor": "#t1306a",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.06.b",
+      "title": "Explain why syscall absence does not prove allocation absence.",
+      "objective": "T13.06.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Demonstrate a caller-owned pool allocation that consumes a free slot without a syscall, and a pre-reserved arena whose first page touch may fault. Keep allocation, address reservation and residency ledgers separate.",
+      "purpose": "No syscall in the selected interval proves no allocation or storage cost.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Demonstrate a caller-owned pool allocation that consumes a free slot without a syscall, and a pre-reserved arena whose first page touch may fault. Keep allocation, address reservation and residency ledgers separate.",
+        "Falsify: No syscall in the selected interval proves no allocation or storage cost.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Demonstrate a caller-owned pool allocation that consumes a free slot without a syscall, and a pre-reserved arena whose first page touch may fault. Keep allocation, address reservation and residency ledgers separate.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Exhaust the pool and refill it through a backend, recording the changed effects boundary."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "The pool changes ownership with no kernel request; page residency is not inferred from virtual address reservation.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "The pool changes ownership with no kernel request; page residency is not inferred from virtual address reservation. Give a correct derivation and independently chosen falsification case.",
+        "3": "Exhaust the pool and refill it through a backend, recording the changed effects boundary. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: No syscall in the selected interval proves no allocation or storage cost."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Exhaust the pool and refill it through a backend, recording the changed effects boundary."
+        }
+      ],
+      "assessor_anchor": "#t1306b",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    },
+    {
+      "id": "AX-PR-T13-01-T13.06.c",
+      "title": "Attribute user-space work separately from kernel execution.",
+      "objective": "T13.06.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Measure user CPU, kernel CPU and elapsed time for the bounded fixture under named platform counters. Include a CPU-only control and a waiting control, and report clock resolution and observer cost.",
+      "purpose": "Elapsed minus user CPU exactly equals kernel work.",
+      "prerequisites": {
+        "knowledge": [
+          "Bound T13 topic teaching and parent project contracts",
+          "Active C17 semantic/tool/environment distinction"
+        ],
+        "artifacts": [
+          "Learner-owned PR-T13-01 implementation/notebook and fixture predictions; no assessor source"
+        ]
+      },
+      "reasoning": [
+        "Measure user CPU, kernel CPU and elapsed time for the bounded fixture under named platform counters. Include a CPU-only control and a waiting control, and report clock resolution and observer cost.",
+        "Falsify: Elapsed minus user CPU exactly equals kernel work.",
+        "State representation, pre/postconditions, ownership, failure and relevant cost assumptions rather than infer them from one run."
+      ],
+      "deliverables": {
+        "D1": "Prediction, exact derivation and misconception counterexample.",
+        "D2": "Measure user CPU, kernel CPU and elapsed time for the bounded fixture under named platform counters. Include a CPU-only control and a waiting control, and report clock resolution and observer cost.",
+        "D3": "Independent cases, failure/diagnostic evidence and source/tool manifest for this criterion.",
+        "D4": "Run with multiple worker threads and explain why aggregate CPU can exceed elapsed time."
+      },
+      "verification": {
+        "procedure": "Predict the concrete task before execution. Check the named fixture where applicable, then create an independent discriminating case. Compile negative cases separately, execute only defined examples and inspect diagnostics for the intended cause. Preserve state/output on parent-contract failures.",
+        "expected": "Waiting/descheduling and measurement overhead prevent that subtraction from being a general kernel-time estimator.",
+        "pass": "Meet every clause of the exact task/expected result and derive its cause; no compiler silence, crash or unrelated failure counts as proof.",
+        "limits": "Authoring and existing partial anchors do not establish learner performance or every execution; unavailable source/target evidence remains explicit."
+      },
+      "rubric": {
+        "0": "Incorrect/missing result or semantic argument.",
+        "1": "Supplied example reproduced but the named misconception remains unresolved.",
+        "2": "Waiting/descheduling and measurement overhead prevent that subtraction from being a general kernel-time estimator. Give a correct derivation and independently chosen falsification case.",
+        "3": "Run with multiple worker threads and explain why aggregate CPU can exceed elapsed time. Derive changed obligations without copying and delimit the evidence."
+      },
+      "hints": [
+        "Name the concrete object/state or observation boundary before applying the proposed contract.",
+        "Challenge the precise claim: Elapsed minus user CPU exactly equals kernel work."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T13-01-T13.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Run with multiple worker threads and explain why aggregate CPU can exceed elapsed time."
+        }
+      ],
+      "assessor_anchor": "#t1306c",
+      "facet_scope": {
+        "teaching": "Retain actual T13 topic passage and project contract; substantively inspected.",
+        "implementation_or_analysis": "Retain parent construction; this criterion adds the concrete task above.",
+        "boundary_adversarial": "Criterion-specific counterexample and changed condition plus existing parent failures.",
+        "independent_assessment": "Authored objective-specific criterion and separate technical analysis; learner not assessed.",
+        "remaining": "Execute/review the learner task and delayed variant; source/target limitations remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Synthetic local contract/effect experiments; no external targets, privileged host changes, deployed hardware or real data. Invalid C preconditions are analyzed rather than executed."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T13-01.md",
+  "status": {
+    "content": "authored additive assessment",
+    "execution": "See source-bound T13 author execution receipt; independent learner assessment is not supplied",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Retained historical identities/receipts/hours unchanged",
+      "No complete-domain mastery claim from authoring",
+      "Actual unit and physical evidence remain separately bounded"
+    ]
+  }
+}

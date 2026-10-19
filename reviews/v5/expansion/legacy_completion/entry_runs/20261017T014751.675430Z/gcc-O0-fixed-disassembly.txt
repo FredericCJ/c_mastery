@@ -1,0 +1,613 @@
+
+/tmp/checkpoint-entry-2tkhk0id/gcc-O0-fixed:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000401000 <_start>:
+  401000:	48 89 e7             	mov    %rsp,%rdi
+  401003:	31 ed                	xor    %ebp,%ebp
+  401005:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  401009:	e8 85 00 00 00       	call   401093 <cpw_image>
+  40100e:	89 c7                	mov    %eax,%edi
+  401010:	b8 3c 00 00 00       	mov    $0x3c,%eax
+  401015:	0f 05                	syscall
+  401017:	0f 0b                	ud2
+
+0000000000401019 <raw_write>:
+  401019:	f3 0f 1e fa          	endbr64
+  40101d:	55                   	push   %rbp
+  40101e:	48 89 e5             	mov    %rsp,%rbp
+  401021:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
+  401025:	48 89 75 e0          	mov    %rsi,-0x20(%rbp)
+  401029:	48 89 55 d8          	mov    %rdx,-0x28(%rbp)
+  40102d:	b8 01 00 00 00       	mov    $0x1,%eax
+  401032:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+  401036:	48 8b 75 e0          	mov    -0x20(%rbp),%rsi
+  40103a:	48 8b 55 d8          	mov    -0x28(%rbp),%rdx
+  40103e:	0f 05                	syscall
+  401040:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+  401044:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401048:	5d                   	pop    %rbp
+  401049:	c3                   	ret
+
+000000000040104a <writer>:
+  40104a:	f3 0f 1e fa          	endbr64
+  40104e:	55                   	push   %rbp
+  40104f:	48 89 e5             	mov    %rsp,%rbp
+  401052:	48 83 ec 20          	sub    $0x20,%rsp
+  401056:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  40105a:	48 89 75 f0          	mov    %rsi,-0x10(%rbp)
+  40105e:	48 89 55 e8          	mov    %rdx,-0x18(%rbp)
+  401062:	48 89 4d e0          	mov    %rcx,-0x20(%rbp)
+  401066:	48 8b 55 e0          	mov    -0x20(%rbp),%rdx
+  40106a:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  40106e:	48 89 c6             	mov    %rax,%rsi
+  401071:	bf 01 00 00 00       	mov    $0x1,%edi
+  401076:	e8 9e ff ff ff       	call   401019 <raw_write>
+  40107b:	48 89 c2             	mov    %rax,%rdx
+  40107e:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401082:	48 89 d6             	mov    %rdx,%rsi
+  401085:	48 89 c7             	mov    %rax,%rdi
+  401088:	e8 fc 02 00 00       	call   401389 <cpw_raw>
+  40108d:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401091:	c9                   	leave
+  401092:	c3                   	ret
+
+0000000000401093 <cpw_image>:
+  401093:	f3 0f 1e fa          	endbr64
+  401097:	55                   	push   %rbp
+  401098:	48 89 e5             	mov    %rsp,%rbp
+  40109b:	48 81 ec b0 00 00 00 	sub    $0xb0,%rsp
+  4010a2:	48 89 bd 58 ff ff ff 	mov    %rdi,-0xa8(%rbp)
+  4010a9:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4010b0:	83 e0 0f             	and    $0xf,%eax
+  4010b3:	48 85 c0             	test   %rax,%rax
+  4010b6:	75 3a                	jne    4010f2 <cpw_image+0x5f>
+  4010b8:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4010bf:	48 8b 00             	mov    (%rax),%rax
+  4010c2:	48 83 f8 03          	cmp    $0x3,%rax
+  4010c6:	75 2a                	jne    4010f2 <cpw_image+0x5f>
+  4010c8:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4010cf:	48 83 c0 20          	add    $0x20,%rax
+  4010d3:	48 8b 00             	mov    (%rax),%rax
+  4010d6:	48 85 c0             	test   %rax,%rax
+  4010d9:	75 17                	jne    4010f2 <cpw_image+0x5f>
+  4010db:	8b 05 23 0f 00 00    	mov    0xf23(%rip),%eax        # 402004 <cpw_bss>
+  4010e1:	85 c0                	test   %eax,%eax
+  4010e3:	75 0d                	jne    4010f2 <cpw_image+0x5f>
+  4010e5:	8b 05 15 0f 00 00    	mov    0xf15(%rip),%eax        # 402000 <cpw_data>
+  4010eb:	3d bd 79 35 01       	cmp    $0x13579bd,%eax
+  4010f0:	74 0a                	je     4010fc <cpw_image+0x69>
+  4010f2:	b8 46 00 00 00       	mov    $0x46,%eax
+  4010f7:	e9 e3 01 00 00       	jmp    4012df <cpw_image+0x24c>
+  4010fc:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  401103:	48 83 c0 10          	add    $0x10,%rax
+  401107:	48 8b 00             	mov    (%rax),%rax
+  40110a:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  40110e:	48 c7 45 f8 00 00 00 	movq   $0x0,-0x8(%rbp)
+  401115:	00 
+  401116:	eb 28                	jmp    401140 <cpw_image+0xad>
+  401118:	48 8b 55 e8          	mov    -0x18(%rbp),%rdx
+  40111c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401120:	48 01 d0             	add    %rdx,%rax
+  401123:	0f b6 00             	movzbl (%rax),%eax
+  401126:	48 8b 55 f8          	mov    -0x8(%rbp),%rdx
+  40112a:	83 c2 41             	add    $0x41,%edx
+  40112d:	38 d0                	cmp    %dl,%al
+  40112f:	74 0a                	je     40113b <cpw_image+0xa8>
+  401131:	b8 47 00 00 00       	mov    $0x47,%eax
+  401136:	e9 a4 01 00 00       	jmp    4012df <cpw_image+0x24c>
+  40113b:	48 83 45 f8 01       	addq   $0x1,-0x8(%rbp)
+  401140:	48 83 7d f8 08       	cmpq   $0x8,-0x8(%rbp)
+  401145:	76 d1                	jbe    401118 <cpw_image+0x85>
+  401147:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  40114b:	48 83 c0 09          	add    $0x9,%rax
+  40114f:	0f b6 00             	movzbl (%rax),%eax
+  401152:	84 c0                	test   %al,%al
+  401154:	74 0a                	je     401160 <cpw_image+0xcd>
+  401156:	b8 48 00 00 00       	mov    $0x48,%eax
+  40115b:	e9 7f 01 00 00       	jmp    4012df <cpw_image+0x24c>
+  401160:	48 8b 75 e8          	mov    -0x18(%rbp),%rsi
+  401164:	48 8d 45 a0          	lea    -0x60(%rbp),%rax
+  401168:	b9 5b 00 00 00       	mov    $0x5b,%ecx
+  40116d:	ba 09 00 00 00       	mov    $0x9,%edx
+  401172:	48 89 c7             	mov    %rax,%rdi
+  401175:	e8 65 04 00 00       	call   4015df <cpw_begin>
+  40117a:	85 c0                	test   %eax,%eax
+  40117c:	74 0a                	je     401188 <cpw_image+0xf5>
+  40117e:	b8 49 00 00 00       	mov    $0x49,%eax
+  401183:	e9 57 01 00 00       	jmp    4012df <cpw_image+0x24c>
+  401188:	c7 45 f4 00 00 00 00 	movl   $0x0,-0xc(%rbp)
+  40118f:	eb 1a                	jmp    4011ab <cpw_image+0x118>
+  401191:	48 8d 45 a0          	lea    -0x60(%rbp),%rax
+  401195:	ba 00 00 00 00       	mov    $0x0,%edx
+  40119a:	be 4a 10 40 00       	mov    $0x40104a,%esi
+  40119f:	48 89 c7             	mov    %rax,%rdi
+  4011a2:	e8 c8 04 00 00       	call   40166f <cpw_step>
+  4011a7:	83 45 f4 01          	addl   $0x1,-0xc(%rbp)
+  4011ab:	83 7d f4 0f          	cmpl   $0xf,-0xc(%rbp)
+  4011af:	77 07                	ja     4011b8 <cpw_image+0x125>
+  4011b1:	8b 45 b8             	mov    -0x48(%rbp),%eax
+  4011b4:	85 c0                	test   %eax,%eax
+  4011b6:	74 d9                	je     401191 <cpw_image+0xfe>
+  4011b8:	8b 45 b8             	mov    -0x48(%rbp),%eax
+  4011bb:	83 f8 01             	cmp    $0x1,%eax
+  4011be:	75 0a                	jne    4011ca <cpw_image+0x137>
+  4011c0:	48 8b 45 b0          	mov    -0x50(%rbp),%rax
+  4011c4:	48 83 f8 09          	cmp    $0x9,%rax
+  4011c8:	74 0a                	je     4011d4 <cpw_image+0x141>
+  4011ca:	b8 4a 00 00 00       	mov    $0x4a,%eax
+  4011cf:	e9 0b 01 00 00       	jmp    4012df <cpw_image+0x24c>
+  4011d4:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  4011d8:	ba 01 00 00 00       	mov    $0x1,%edx
+  4011dd:	48 89 c6             	mov    %rax,%rsi
+  4011e0:	48 c7 c7 ff ff ff ff 	mov    $0xffffffffffffffff,%rdi
+  4011e7:	e8 2d fe ff ff       	call   401019 <raw_write>
+  4011ec:	48 89 c2             	mov    %rax,%rdx
+  4011ef:	48 8d 45 80          	lea    -0x80(%rbp),%rax
+  4011f3:	48 89 d6             	mov    %rdx,%rsi
+  4011f6:	48 89 c7             	mov    %rax,%rdi
+  4011f9:	e8 8b 01 00 00       	call   401389 <cpw_raw>
+  4011fe:	8b 45 80             	mov    -0x80(%rbp),%eax
+  401201:	83 f8 02             	cmp    $0x2,%eax
+  401204:	75 08                	jne    40120e <cpw_image+0x17b>
+  401206:	8b 45 90             	mov    -0x70(%rbp),%eax
+  401209:	83 f8 09             	cmp    $0x9,%eax
+  40120c:	74 0a                	je     401218 <cpw_image+0x185>
+  40120e:	b8 4b 00 00 00       	mov    $0x4b,%eax
+  401213:	e9 c7 00 00 00       	jmp    4012df <cpw_image+0x24c>
+  401218:	48 b8 43 50 5f 45 4e 	movabs $0x5952544e455f5043,%rax
+  40121f:	54 52 59 
+  401222:	48 ba 5f 4f 4b 20 30 	movabs $0x30303030204b4f5f,%rdx
+  401229:	30 30 30 
+  40122c:	48 89 85 60 ff ff ff 	mov    %rax,-0xa0(%rbp)
+  401233:	48 89 95 68 ff ff ff 	mov    %rdx,-0x98(%rbp)
+  40123a:	48 b8 30 30 30 30 30 	movabs $0x3030303030303030,%rax
+  401241:	30 30 30 
+  401244:	48 ba 30 30 30 30 30 	movabs $0xa303030303030,%rdx
+  40124b:	30 0a 00 
+  40124e:	48 89 85 6e ff ff ff 	mov    %rax,-0x92(%rbp)
+  401255:	48 89 95 76 ff ff ff 	mov    %rdx,-0x8a(%rbp)
+  40125c:	48 c7 45 e0 00 20 40 	movq   $0x402000,-0x20(%rbp)
+  401263:	00 
+  401264:	c7 45 f0 00 00 00 00 	movl   $0x0,-0x10(%rbp)
+  40126b:	eb 41                	jmp    4012ae <cpw_image+0x21b>
+  40126d:	8b 45 f0             	mov    -0x10(%rbp),%eax
+  401270:	c1 e0 02             	shl    $0x2,%eax
+  401273:	48 8b 55 e0          	mov    -0x20(%rbp),%rdx
+  401277:	89 c1                	mov    %eax,%ecx
+  401279:	48 d3 ea             	shr    %cl,%rdx
+  40127c:	48 89 d0             	mov    %rdx,%rax
+  40127f:	83 e0 0f             	and    $0xf,%eax
+  401282:	89 45 dc             	mov    %eax,-0x24(%rbp)
+  401285:	83 7d dc 09          	cmpl   $0x9,-0x24(%rbp)
+  401289:	77 08                	ja     401293 <cpw_image+0x200>
+  40128b:	8b 45 dc             	mov    -0x24(%rbp),%eax
+  40128e:	83 c0 30             	add    $0x30,%eax
+  401291:	eb 06                	jmp    401299 <cpw_image+0x206>
+  401293:	8b 45 dc             	mov    -0x24(%rbp),%eax
+  401296:	83 c0 57             	add    $0x57,%eax
+  401299:	ba 1b 00 00 00       	mov    $0x1b,%edx
+  40129e:	2b 55 f0             	sub    -0x10(%rbp),%edx
+  4012a1:	89 d2                	mov    %edx,%edx
+  4012a3:	88 84 15 60 ff ff ff 	mov    %al,-0xa0(%rbp,%rdx,1)
+  4012aa:	83 45 f0 01          	addl   $0x1,-0x10(%rbp)
+  4012ae:	83 7d f0 0f          	cmpl   $0xf,-0x10(%rbp)
+  4012b2:	76 b9                	jbe    40126d <cpw_image+0x1da>
+  4012b4:	48 8d 85 60 ff ff ff 	lea    -0xa0(%rbp),%rax
+  4012bb:	ba 1d 00 00 00       	mov    $0x1d,%edx
+  4012c0:	48 89 c6             	mov    %rax,%rsi
+  4012c3:	bf 02 00 00 00       	mov    $0x2,%edi
+  4012c8:	e8 4c fd ff ff       	call   401019 <raw_write>
+  4012cd:	48 83 f8 1d          	cmp    $0x1d,%rax
+  4012d1:	74 07                	je     4012da <cpw_image+0x247>
+  4012d3:	b8 4c 00 00 00       	mov    $0x4c,%eax
+  4012d8:	eb 05                	jmp    4012df <cpw_image+0x24c>
+  4012da:	b8 00 00 00 00       	mov    $0x0,%eax
+  4012df:	c9                   	leave
+  4012e0:	c3                   	ret
+
+00000000004012e1 <memcpy>:
+  4012e1:	f3 0f 1e fa          	endbr64
+  4012e5:	55                   	push   %rbp
+  4012e6:	48 89 e5             	mov    %rsp,%rbp
+  4012e9:	48 89 7d d8          	mov    %rdi,-0x28(%rbp)
+  4012ed:	48 89 75 d0          	mov    %rsi,-0x30(%rbp)
+  4012f1:	48 89 55 c8          	mov    %rdx,-0x38(%rbp)
+  4012f5:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4012f9:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+  4012fd:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+  401301:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  401305:	48 c7 45 f8 00 00 00 	movq   $0x0,-0x8(%rbp)
+  40130c:	00 
+  40130d:	eb 20                	jmp    40132f <memcpy+0x4e>
+  40130f:	48 8b 55 e8          	mov    -0x18(%rbp),%rdx
+  401313:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401317:	48 01 d0             	add    %rdx,%rax
+  40131a:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+  40131e:	48 8b 55 f8          	mov    -0x8(%rbp),%rdx
+  401322:	48 01 ca             	add    %rcx,%rdx
+  401325:	0f b6 00             	movzbl (%rax),%eax
+  401328:	88 02                	mov    %al,(%rdx)
+  40132a:	48 83 45 f8 01       	addq   $0x1,-0x8(%rbp)
+  40132f:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401333:	48 3b 45 c8          	cmp    -0x38(%rbp),%rax
+  401337:	72 d6                	jb     40130f <memcpy+0x2e>
+  401339:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  40133d:	5d                   	pop    %rbp
+  40133e:	c3                   	ret
+
+000000000040133f <memset>:
+  40133f:	f3 0f 1e fa          	endbr64
+  401343:	55                   	push   %rbp
+  401344:	48 89 e5             	mov    %rsp,%rbp
+  401347:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
+  40134b:	89 75 e4             	mov    %esi,-0x1c(%rbp)
+  40134e:	48 89 55 d8          	mov    %rdx,-0x28(%rbp)
+  401352:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401356:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+  40135a:	48 c7 45 f8 00 00 00 	movq   $0x0,-0x8(%rbp)
+  401361:	00 
+  401362:	eb 15                	jmp    401379 <memset+0x3a>
+  401364:	48 8b 55 f0          	mov    -0x10(%rbp),%rdx
+  401368:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  40136c:	48 01 d0             	add    %rdx,%rax
+  40136f:	8b 55 e4             	mov    -0x1c(%rbp),%edx
+  401372:	88 10                	mov    %dl,(%rax)
+  401374:	48 83 45 f8 01       	addq   $0x1,-0x8(%rbp)
+  401379:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  40137d:	48 3b 45 d8          	cmp    -0x28(%rbp),%rax
+  401381:	72 e1                	jb     401364 <memset+0x25>
+  401383:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401387:	5d                   	pop    %rbp
+  401388:	c3                   	ret
+
+0000000000401389 <cpw_raw>:
+  401389:	f3 0f 1e fa          	endbr64
+  40138d:	55                   	push   %rbp
+  40138e:	48 89 e5             	mov    %rsp,%rbp
+  401391:	48 83 ec 38          	sub    $0x38,%rsp
+  401395:	48 89 bd 58 ff ff ff 	mov    %rdi,-0xa8(%rbp)
+  40139c:	48 89 b5 50 ff ff ff 	mov    %rsi,-0xb0(%rbp)
+  4013a3:	48 83 bd 50 ff ff ff 	cmpq   $0x0,-0xb0(%rbp)
+  4013aa:	00 
+  4013ab:	7e 2a                	jle    4013d7 <cpw_raw+0x4e>
+  4013ad:	48 8b 95 50 ff ff ff 	mov    -0xb0(%rbp),%rdx
+  4013b4:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4013bb:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  4013bf:	0f 11 00             	movups %xmm0,(%rax)
+  4013c2:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  4013c7:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4013ce:	48 89 50 08          	mov    %rdx,0x8(%rax)
+  4013d2:	e9 ec 00 00 00       	jmp    4014c3 <cpw_raw+0x13a>
+  4013d7:	48 83 bd 50 ff ff ff 	cmpq   $0x0,-0xb0(%rbp)
+  4013de:	00 
+  4013df:	75 25                	jne    401406 <cpw_raw+0x7d>
+  4013e1:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4013e8:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  4013ec:	0f 11 00             	movups %xmm0,(%rax)
+  4013ef:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  4013f4:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4013fb:	c7 00 01 00 00 00    	movl   $0x1,(%rax)
+  401401:	e9 bd 00 00 00       	jmp    4014c3 <cpw_raw+0x13a>
+  401406:	48 83 bd 50 ff ff ff 	cmpq   $0xfffffffffffffffc,-0xb0(%rbp)
+  40140d:	fc 
+  40140e:	74 0a                	je     40141a <cpw_raw+0x91>
+  401410:	48 83 bd 50 ff ff ff 	cmpq   $0xfffffffffffffff5,-0xb0(%rbp)
+  401417:	f5 
+  401418:	75 37                	jne    401451 <cpw_raw+0xc8>
+  40141a:	48 8b 85 50 ff ff ff 	mov    -0xb0(%rbp),%rax
+  401421:	f7 d8                	neg    %eax
+  401423:	89 c2                	mov    %eax,%edx
+  401425:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  40142c:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  401430:	0f 11 00             	movups %xmm0,(%rax)
+  401433:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  401438:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  40143f:	c7 00 01 00 00 00    	movl   $0x1,(%rax)
+  401445:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  40144c:	89 50 10             	mov    %edx,0x10(%rax)
+  40144f:	eb 72                	jmp    4014c3 <cpw_raw+0x13a>
+  401451:	48 81 bd 50 ff ff ff 	cmpq   $0xfffffffffffff001,-0xb0(%rbp)
+  401458:	01 f0 ff ff 
+  40145c:	7d 30                	jge    40148e <cpw_raw+0x105>
+  40145e:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  401465:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  401469:	0f 11 00             	movups %xmm0,(%rax)
+  40146c:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  401471:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  401478:	c7 00 02 00 00 00    	movl   $0x2,(%rax)
+  40147e:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  401485:	c7 40 10 00 10 00 00 	movl   $0x1000,0x10(%rax)
+  40148c:	eb 35                	jmp    4014c3 <cpw_raw+0x13a>
+  40148e:	48 8b 85 50 ff ff ff 	mov    -0xb0(%rbp),%rax
+  401495:	f7 d8                	neg    %eax
+  401497:	89 c2                	mov    %eax,%edx
+  401499:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4014a0:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  4014a4:	0f 11 00             	movups %xmm0,(%rax)
+  4014a7:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  4014ac:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4014b3:	c7 00 02 00 00 00    	movl   $0x2,(%rax)
+  4014b9:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4014c0:	89 50 10             	mov    %edx,0x10(%rax)
+  4014c3:	48 8b 85 58 ff ff ff 	mov    -0xa8(%rbp),%rax
+  4014ca:	c9                   	leave
+  4014cb:	c3                   	ret
+
+00000000004014cc <cpw_libc>:
+  4014cc:	f3 0f 1e fa          	endbr64
+  4014d0:	55                   	push   %rbp
+  4014d1:	48 89 e5             	mov    %rsp,%rbp
+  4014d4:	48 83 ec 40          	sub    $0x40,%rsp
+  4014d8:	48 89 7d d8          	mov    %rdi,-0x28(%rbp)
+  4014dc:	48 89 75 d0          	mov    %rsi,-0x30(%rbp)
+  4014e0:	89 55 cc             	mov    %edx,-0x34(%rbp)
+  4014e3:	48 83 7d d0 ff       	cmpq   $0xffffffffffffffff,-0x30(%rbp)
+  4014e8:	74 15                	je     4014ff <cpw_libc+0x33>
+  4014ea:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4014ee:	48 8b 55 d0          	mov    -0x30(%rbp),%rdx
+  4014f2:	48 89 d6             	mov    %rdx,%rsi
+  4014f5:	48 89 c7             	mov    %rax,%rdi
+  4014f8:	e8 8c fe ff ff       	call   401389 <cpw_raw>
+  4014fd:	eb 50                	jmp    40154f <cpw_libc+0x83>
+  4014ff:	83 7d cc 00          	cmpl   $0x0,-0x34(%rbp)
+  401503:	7e 09                	jle    40150e <cpw_libc+0x42>
+  401505:	81 7d cc ff 0f 00 00 	cmpl   $0xfff,-0x34(%rbp)
+  40150c:	7e 27                	jle    401535 <cpw_libc+0x69>
+  40150e:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401512:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  401516:	0f 11 00             	movups %xmm0,(%rax)
+  401519:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  40151e:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401522:	c7 00 02 00 00 00    	movl   $0x2,(%rax)
+  401528:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  40152c:	c7 40 10 00 10 00 00 	movl   $0x1000,0x10(%rax)
+  401533:	eb 1a                	jmp    40154f <cpw_libc+0x83>
+  401535:	8b 45 cc             	mov    -0x34(%rbp),%eax
+  401538:	48 98                	cltq
+  40153a:	48 f7 d8             	neg    %rax
+  40153d:	48 89 c2             	mov    %rax,%rdx
+  401540:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401544:	48 89 d6             	mov    %rdx,%rsi
+  401547:	48 89 c7             	mov    %rax,%rdi
+  40154a:	e8 3a fe ff ff       	call   401389 <cpw_raw>
+  40154f:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401553:	c9                   	leave
+  401554:	c3                   	ret
+
+0000000000401555 <cpw_script>:
+  401555:	f3 0f 1e fa          	endbr64
+  401559:	55                   	push   %rbp
+  40155a:	48 89 e5             	mov    %rsp,%rbp
+  40155d:	48 83 ec 50          	sub    $0x50,%rsp
+  401561:	48 89 7d b8          	mov    %rdi,-0x48(%rbp)
+  401565:	48 89 75 b0          	mov    %rsi,-0x50(%rbp)
+  401569:	48 83 7d b0 fe       	cmpq   $0xfffffffffffffffe,-0x50(%rbp)
+  40156e:	75 27                	jne    401597 <cpw_script+0x42>
+  401570:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  401574:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  401578:	0f 11 00             	movups %xmm0,(%rax)
+  40157b:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  401580:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  401584:	c7 00 01 00 00 00    	movl   $0x1,(%rax)
+  40158a:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  40158e:	c7 40 10 ea 03 00 00 	movl   $0x3ea,0x10(%rax)
+  401595:	eb 42                	jmp    4015d9 <cpw_script+0x84>
+  401597:	48 83 7d b0 00       	cmpq   $0x0,-0x50(%rbp)
+  40159c:	79 27                	jns    4015c5 <cpw_script+0x70>
+  40159e:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  4015a2:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  4015a6:	0f 11 00             	movups %xmm0,(%rax)
+  4015a9:	66 0f d6 40 10       	movq   %xmm0,0x10(%rax)
+  4015ae:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  4015b2:	c7 00 02 00 00 00    	movl   $0x2,(%rax)
+  4015b8:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  4015bc:	c7 40 10 e9 03 00 00 	movl   $0x3e9,0x10(%rax)
+  4015c3:	eb 13                	jmp    4015d8 <cpw_script+0x83>
+  4015c5:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  4015c9:	48 8b 55 b0          	mov    -0x50(%rbp),%rdx
+  4015cd:	48 89 d6             	mov    %rdx,%rsi
+  4015d0:	48 89 c7             	mov    %rax,%rdi
+  4015d3:	e8 b1 fd ff ff       	call   401389 <cpw_raw>
+  4015d8:	90                   	nop
+  4015d9:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  4015dd:	c9                   	leave
+  4015de:	c3                   	ret
+
+00000000004015df <cpw_begin>:
+  4015df:	f3 0f 1e fa          	endbr64
+  4015e3:	55                   	push   %rbp
+  4015e4:	48 89 e5             	mov    %rsp,%rbp
+  4015e7:	48 89 7d b8          	mov    %rdi,-0x48(%rbp)
+  4015eb:	48 89 75 b0          	mov    %rsi,-0x50(%rbp)
+  4015ef:	48 89 55 a8          	mov    %rdx,-0x58(%rbp)
+  4015f3:	89 4d a4             	mov    %ecx,-0x5c(%rbp)
+  4015f6:	48 83 7d b8 00       	cmpq   $0x0,-0x48(%rbp)
+  4015fb:	74 17                	je     401614 <cpw_begin+0x35>
+  4015fd:	48 83 7d a8 00       	cmpq   $0x0,-0x58(%rbp)
+  401602:	74 07                	je     40160b <cpw_begin+0x2c>
+  401604:	48 83 7d b0 00       	cmpq   $0x0,-0x50(%rbp)
+  401609:	74 09                	je     401614 <cpw_begin+0x35>
+  40160b:	48 8b 45 a8          	mov    -0x58(%rbp),%rax
+  40160f:	48 85 c0             	test   %rax,%rax
+  401612:	79 07                	jns    40161b <cpw_begin+0x3c>
+  401614:	b8 03 00 00 00       	mov    $0x3,%eax
+  401619:	eb 52                	jmp    40166d <cpw_begin+0x8e>
+  40161b:	48 83 7d a8 00       	cmpq   $0x0,-0x58(%rbp)
+  401620:	0f 94 c0             	sete   %al
+  401623:	0f b6 d0             	movzbl %al,%edx
+  401626:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  40162a:	66 0f ef c0          	pxor   %xmm0,%xmm0
+  40162e:	0f 11 00             	movups %xmm0,(%rax)
+  401631:	0f 11 40 10          	movups %xmm0,0x10(%rax)
+  401635:	0f 11 40 20          	movups %xmm0,0x20(%rax)
+  401639:	66 0f d6 40 30       	movq   %xmm0,0x30(%rax)
+  40163e:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  401642:	48 8b 4d b0          	mov    -0x50(%rbp),%rcx
+  401646:	48 89 08             	mov    %rcx,(%rax)
+  401649:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  40164d:	48 8b 4d a8          	mov    -0x58(%rbp),%rcx
+  401651:	48 89 48 08          	mov    %rcx,0x8(%rax)
+  401655:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  401659:	89 50 18             	mov    %edx,0x18(%rax)
+  40165c:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  401660:	8b 55 a4             	mov    -0x5c(%rbp),%edx
+  401663:	89 50 20             	mov    %edx,0x20(%rax)
+  401666:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  40166a:	8b 40 18             	mov    0x18(%rax),%eax
+  40166d:	5d                   	pop    %rbp
+  40166e:	c3                   	ret
+
+000000000040166f <cpw_step>:
+  40166f:	f3 0f 1e fa          	endbr64
+  401673:	55                   	push   %rbp
+  401674:	48 89 e5             	mov    %rsp,%rbp
+  401677:	48 83 ec 40          	sub    $0x40,%rsp
+  40167b:	48 89 7d d8          	mov    %rdi,-0x28(%rbp)
+  40167f:	48 89 75 d0          	mov    %rsi,-0x30(%rbp)
+  401683:	48 89 55 c8          	mov    %rdx,-0x38(%rbp)
+  401687:	48 83 7d d8 00       	cmpq   $0x0,-0x28(%rbp)
+  40168c:	74 07                	je     401695 <cpw_step+0x26>
+  40168e:	48 83 7d d0 00       	cmpq   $0x0,-0x30(%rbp)
+  401693:	75 0a                	jne    40169f <cpw_step+0x30>
+  401695:	b8 03 00 00 00       	mov    $0x3,%eax
+  40169a:	e9 21 01 00 00       	jmp    4017c0 <cpw_step+0x151>
+  40169f:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016a3:	8b 40 18             	mov    0x18(%rax),%eax
+  4016a6:	85 c0                	test   %eax,%eax
+  4016a8:	74 0c                	je     4016b6 <cpw_step+0x47>
+  4016aa:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016ae:	8b 40 18             	mov    0x18(%rax),%eax
+  4016b1:	e9 0a 01 00 00       	jmp    4017c0 <cpw_step+0x151>
+  4016b6:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016ba:	48 8b 50 08          	mov    0x8(%rax),%rdx
+  4016be:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016c2:	48 8b 40 10          	mov    0x10(%rax),%rax
+  4016c6:	48 29 c2             	sub    %rax,%rdx
+  4016c9:	48 89 55 f8          	mov    %rdx,-0x8(%rbp)
+  4016cd:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016d1:	48 8b 10             	mov    (%rax),%rdx
+  4016d4:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4016d8:	48 8b 40 10          	mov    0x10(%rax),%rax
+  4016dc:	48 8d 3c 02          	lea    (%rdx,%rax,1),%rdi
+  4016e0:	48 8d 45 e0          	lea    -0x20(%rbp),%rax
+  4016e4:	48 8b 55 f8          	mov    -0x8(%rbp),%rdx
+  4016e8:	48 8b 75 c8          	mov    -0x38(%rbp),%rsi
+  4016ec:	4c 8b 45 d0          	mov    -0x30(%rbp),%r8
+  4016f0:	48 89 d1             	mov    %rdx,%rcx
+  4016f3:	48 89 fa             	mov    %rdi,%rdx
+  4016f6:	48 89 c7             	mov    %rax,%rdi
+  4016f9:	41 ff d0             	call   *%r8
+  4016fc:	8b 45 e0             	mov    -0x20(%rbp),%eax
+  4016ff:	85 c0                	test   %eax,%eax
+  401701:	75 53                	jne    401756 <cpw_step+0xe7>
+  401703:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401707:	48 85 c0             	test   %rax,%rax
+  40170a:	74 4a                	je     401756 <cpw_step+0xe7>
+  40170c:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401710:	48 39 45 f8          	cmp    %rax,-0x8(%rbp)
+  401714:	72 40                	jb     401756 <cpw_step+0xe7>
+  401716:	8b 45 f0             	mov    -0x10(%rbp),%eax
+  401719:	85 c0                	test   %eax,%eax
+  40171b:	75 39                	jne    401756 <cpw_step+0xe7>
+  40171d:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401721:	48 8b 50 10          	mov    0x10(%rax),%rdx
+  401725:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401729:	48 01 c2             	add    %rax,%rdx
+  40172c:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401730:	48 89 50 10          	mov    %rdx,0x10(%rax)
+  401734:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401738:	48 8b 50 10          	mov    0x10(%rax),%rdx
+  40173c:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401740:	48 8b 40 08          	mov    0x8(%rax),%rax
+  401744:	48 39 c2             	cmp    %rax,%rdx
+  401747:	75 60                	jne    4017a9 <cpw_step+0x13a>
+  401749:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  40174d:	c7 40 18 01 00 00 00 	movl   $0x1,0x18(%rax)
+  401754:	eb 53                	jmp    4017a9 <cpw_step+0x13a>
+  401756:	8b 45 e0             	mov    -0x20(%rbp),%eax
+  401759:	83 f8 01             	cmp    $0x1,%eax
+  40175c:	75 09                	jne    401767 <cpw_step+0xf8>
+  40175e:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401762:	48 85 c0             	test   %rax,%rax
+  401765:	74 41                	je     4017a8 <cpw_step+0x139>
+  401767:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  40176b:	c7 40 18 02 00 00 00 	movl   $0x2,0x18(%rax)
+  401772:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  401776:	8b 40 30             	mov    0x30(%rax),%eax
+  401779:	85 c0                	test   %eax,%eax
+  40177b:	75 2c                	jne    4017a9 <cpw_step+0x13a>
+  40177d:	8b 45 e0             	mov    -0x20(%rbp),%eax
+  401780:	83 f8 02             	cmp    $0x2,%eax
+  401783:	75 15                	jne    40179a <cpw_step+0x12b>
+  401785:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  401789:	48 85 c0             	test   %rax,%rax
+  40178c:	75 0c                	jne    40179a <cpw_step+0x12b>
+  40178e:	8b 45 f0             	mov    -0x10(%rbp),%eax
+  401791:	85 c0                	test   %eax,%eax
+  401793:	7e 05                	jle    40179a <cpw_step+0x12b>
+  401795:	8b 45 f0             	mov    -0x10(%rbp),%eax
+  401798:	eb 05                	jmp    40179f <cpw_step+0x130>
+  40179a:	b8 00 10 00 00       	mov    $0x1000,%eax
+  40179f:	48 8b 55 d8          	mov    -0x28(%rbp),%rdx
+  4017a3:	89 42 30             	mov    %eax,0x30(%rdx)
+  4017a6:	eb 01                	jmp    4017a9 <cpw_step+0x13a>
+  4017a8:	90                   	nop
+  4017a9:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4017ad:	48 8b 50 10          	mov    0x10(%rax),%rdx
+  4017b1:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4017b5:	48 89 50 28          	mov    %rdx,0x28(%rax)
+  4017b9:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  4017bd:	8b 40 18             	mov    0x18(%rax),%eax
+  4017c0:	c9                   	leave
+  4017c1:	c3                   	ret
+
+00000000004017c2 <cpw_recover>:
+  4017c2:	f3 0f 1e fa          	endbr64
+  4017c6:	55                   	push   %rbp
+  4017c7:	48 89 e5             	mov    %rsp,%rbp
+  4017ca:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  4017ce:	48 83 7d f8 00       	cmpq   $0x0,-0x8(%rbp)
+  4017d3:	74 0c                	je     4017e1 <cpw_recover+0x1f>
+  4017d5:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  4017d9:	8b 40 18             	mov    0x18(%rax),%eax
+  4017dc:	83 f8 02             	cmp    $0x2,%eax
+  4017df:	74 07                	je     4017e8 <cpw_recover+0x26>
+  4017e1:	b8 03 00 00 00       	mov    $0x3,%eax
+  4017e6:	eb 27                	jmp    40180f <cpw_recover+0x4d>
+  4017e8:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  4017ec:	48 8b 50 10          	mov    0x10(%rax),%rdx
+  4017f0:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  4017f4:	48 8b 40 08          	mov    0x8(%rax),%rax
+  4017f8:	48 39 c2             	cmp    %rax,%rdx
+  4017fb:	0f 94 c0             	sete   %al
+  4017fe:	0f b6 d0             	movzbl %al,%edx
+  401801:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401805:	89 50 18             	mov    %edx,0x18(%rax)
+  401808:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  40180c:	8b 40 18             	mov    0x18(%rax),%eax
+  40180f:	5d                   	pop    %rbp
+  401810:	c3                   	ret
+
+0000000000401811 <cpw_cleanup>:
+  401811:	f3 0f 1e fa          	endbr64
+  401815:	55                   	push   %rbp
+  401816:	48 89 e5             	mov    %rsp,%rbp
+  401819:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  40181d:	89 75 f4             	mov    %esi,-0xc(%rbp)
+  401820:	48 83 7d f8 00       	cmpq   $0x0,-0x8(%rbp)
+  401825:	74 1b                	je     401842 <cpw_cleanup+0x31>
+  401827:	83 7d f4 00          	cmpl   $0x0,-0xc(%rbp)
+  40182b:	7e 15                	jle    401842 <cpw_cleanup+0x31>
+  40182d:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  401831:	8b 40 34             	mov    0x34(%rax),%eax
+  401834:	85 c0                	test   %eax,%eax
+  401836:	75 0a                	jne    401842 <cpw_cleanup+0x31>
+  401838:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  40183c:	8b 55 f4             	mov    -0xc(%rbp),%edx
+  40183f:	89 50 34             	mov    %edx,0x34(%rax)
+  401842:	90                   	nop
+  401843:	5d                   	pop    %rbp
+  401844:	c3                   	ret

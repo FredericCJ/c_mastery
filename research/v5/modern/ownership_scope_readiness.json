@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-002-R1",
+      "objective": "T66.02.a",
+      "criterion": "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The existing OwScope is a resource protocol implementing a reversed conditional filter, not a semantic undo log. Actual external counters retain every admitted registration effect across raised errors and cleanup. Publication swaps exclusive owners before old release; the new value is observable during cleanup, but no synchronization or reversal of already published effects is inferred.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-002.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/scope/SCOPE.md",
+        "assessor/ownership/scope/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/scope/scope.c",
+        "assessor/errors/errors.c",
+        "labs/ownership/scope/include/scope.h",
+        "labs/ownership/scope/tests/tests.c",
+        "tools/verify_ownership_scope.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_scope_validation.json",
+        "research/v5/modern/ownership_scope_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-002-R2",
+      "objective": "T66.02.b",
+      "criterion": "Implement conditional LIFO cleanup and publication-by-swap with explicit callback effects, stack capacity, transferred ownership and nonlocal-exit restrictions.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual ow_defer/ow_finish/ow_publish and typed ow_allocator are composed unchanged. Six real allocations exercise publication of three staged resources before releasing three old resources. Callback capacity, nonlocal-exit restrictions and explicit guarded rejection are stated. The jump adapter imports actual early er_run/er_raise and converts status before cleanup without modifying automatic locals in the setjmp-containing function.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-002.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/scope/SCOPE.md",
+        "assessor/ownership/scope/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/scope/scope.c",
+        "assessor/errors/errors.c",
+        "labs/ownership/scope/include/scope.h",
+        "labs/ownership/scope/tests/tests.c",
+        "tools/verify_ownership_scope.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_scope_validation.json",
+        "research/v5/modern/ownership_scope_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-002-R3",
+      "objective": "T66.02.c",
+      "criterion": "Enumerate all success/failure policy combinations through depth4 against an independent reversed-list filter, test capacity8/9 and callback reentrancy rejection, inject failure before every registration, and trace publication before old cleanup. Kill a mutant that executes every conditional cleanup.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six C17 profiles run six anchors, eight compiled controls and six compiling-stub rejections. Independent reversed-list filtering checks2735policy/failure histories through depth4, while341retained/error-mask histories check exact consumption traces. Explicit anchors cover capacity8/9, every failure before registration, callback reentrancy rejection, publication-before-release, stale tickets and final-generation cleanup. Actual OW_MUTANT2/12 distinguish unconditional and FIFO cleanup.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-002.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/scope/SCOPE.md",
+        "assessor/ownership/scope/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/scope/scope.c",
+        "assessor/errors/errors.c",
+        "labs/ownership/scope/include/scope.h",
+        "labs/ownership/scope/tests/tests.c",
+        "tools/verify_ownership_scope.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_scope_validation.json",
+        "research/v5/modern/ownership_scope_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-002-R4",
+      "objective": "T66.02.d",
+      "criterion": "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The required fallible changed contract is implemented separately: RETAINED stops at the top and preserves earlier dependencies, while RELEASED_ERROR consumes the resource exactly once and records a diagnostic. Real typed allocations remain live across pending recovery. Sealed registration bounds diagnostic count and finite generation never obstructs final cleanup. Unknown release is explicitly outside this three-state contract and needs another authority state. Independent delayed learner work remains unassessed.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-002.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/scope/SCOPE.md",
+        "assessor/ownership/scope/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/scope/scope.c",
+        "assessor/errors/errors.c",
+        "labs/ownership/scope/include/scope.h",
+        "labs/ownership/scope/tests/tests.c",
+        "tools/verify_ownership_scope.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_scope_validation.json",
+        "research/v5/modern/ownership_scope_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-002-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-002.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/scope/SCOPE.md",
+        "assessor/ownership/scope/ANALYSIS.md",
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/scope/scope.c",
+        "assessor/errors/errors.c",
+        "labs/ownership/scope/include/scope.h",
+        "labs/ownership/scope/tests/tests.c",
+        "tools/verify_ownership_scope.py",
+        "research/v5/modern/ownership_scope_validation.json",
+        "research/v5/modern/ownership_scope_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_scope_validation.json": "fc71210980b55a82842e4fd91e8a08cf7e2c09d449c877d53b8115abecc63dbd",
+    "research/v5/modern/ownership_scope_investigation_validation.json": "578c88917325ff5c244c289ca585aaf129a83de63580709b99f8a320a00572b9"
+  },
+  "input_sha256": {
+    "assessor/errors/errors.c": "5eba0560d7dd51697b02aff1b9642ad94a9cded49fbad6ef871e7340f960ac19",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "assessor/ownership/scope/ANALYSIS.md": "4a30c8fe61e5790a6e17e09182d794eecd9b438998430611b81dca0bb64e8c32",
+    "assessor/ownership/scope/scope.c": "1d95eefcae4318d8135613b1766646387bc807008a31841f14623101c508dbdf",
+    "labs/errors/CONTRACTS.md": "e6864e6922218ba3d84deddd8629a9aebd3322e763526a75f4e51ba12261f567",
+    "labs/errors/include/errors.h": "8347154cf68575293d6da9a9e72a887c2981afc0fa6162fec25beb454dfb2e77",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/scope/CMakeLists.txt": "a2a45dfd1e8ab2441d2753fe79eff854801f3cda07c9cc419592aa2574bd4512",
+    "labs/ownership/scope/SCOPE.md": "22aa0515c6c1b400dfc174f6e2b4fc9ea0eddf7082c1977be2ffe93627c28023",
+    "labs/ownership/scope/campaign.json": "dabb496827565abc1d085f54c75747f553d01288ac7e9cc0eadb6c8bd27e2c43",
+    "labs/ownership/scope/expect_failure.py": "97ac02e82347d0bb3a03749e548e2aa71e9881e7b383ed4b07229171ddaa0723",
+    "labs/ownership/scope/include/scope.h": "529b1b55a4613f288a3fcf038bd543ff75df00823e671394c7aca73feb8644d0",
+    "labs/ownership/scope/src/scope.c": "70331034448be3bacaff4ec4a6eb94928a880073097c19073bb10768628a520a",
+    "labs/ownership/scope/tests/tests.c": "2f3ec3d892f0c437e46774de217a3af333944bb9b71e5c71bd9b98331d13cb41",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "research/v5/modern/errors_resources.json": "a2fd214dc52ace20395373d1b501fe87c7293aecddc31998374a1450b088266b",
+    "research/v5/modern/ownership_scope_research_gate.json": "f088507a8312b46bdc258cba5e31e408cf5258f0a3910fa18427c76711b30963",
+    "research/v5/modern/ownership_scope_resources.json": "ac649a7a6cedfa9108c620b52bef710f42d4148166a60ab2c2de22f16f68eaf1",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_scope.py": "33f7e01e86660ee7688b76e18ead24b4e45b757d8c46ff8f57941d87b299c02f",
+    "tools/run_ownership_module.py": "5c4144294d6625388b8ba7fe143ceaaeae281653e837fd6930a4b53ea3ef9197",
+    "tools/run_ownership_scope.py": "e31bf138acc2115ef2baef1d9695e8e6e4c54296471eb61c8af352b66b600e1f",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_ownership_scope.py": "df28032b4f459f627c7b9df3e6745098902e79ea5e86e21f91861af7ceee88b1",
+    "tools/run_ownership_scope_investigation.py": "9707be1b14d55c50bd317cc25174a509573c960095495c4afad93668b1cc6400",
+    "curriculum/v5/exercises/X-T66-002.md": "11ebdd4f93ee3e050a456fff7a5d11990dc7756f3a3ffa62c9c0ea5b91e2eaea",
+    "research/v5/modern/ownership_scope_validation.json": "fc71210980b55a82842e4fd91e8a08cf7e2c09d449c877d53b8115abecc63dbd",
+    "research/v5/modern/ownership_scope_investigation_validation.json": "578c88917325ff5c244c289ca585aaf129a83de63580709b99f8a320a00572b9",
+    "tools/build_ownership_scope_readiness.py": "1418396719047a27b376344b082498210214ecf227f5a887a76c5edabd9364ec",
+    "tools/check_ownership_scope.py": "4bfa6c868349062dce229897008d9eec13c5002d5a3070d7eb28c03f78fcf0b8"
+  },
+  "limits": [
+    "Finite histories do not prove arbitrary C callbacks or unconditional recovery progress.",
+    "Retained is a known unreleased outcome, not an unknown OS release state.",
+    "Explicit early errors workspace import does not certify learner mastery or reverse prerequisite edges.",
+    "Exact published C17 inaccessible.",
+    "No independent human review or unaided learner assessment."
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "family": "modern_composition",
+  "title": "Composing actual ownership and asynchronous components",
+  "build_system": "cmake",
+  "assessor_root": "assessor/modern_composition",
+  "dependencies": [
+    "errors",
+    "ownership",
+    "coroutines",
+    "messaging"
+  ],
+  "tests": [
+    "modern_composition.publish",
+    "modern_composition.async",
+    "modern_composition.publish_close",
+    "modern_composition.real_io",
+    "modern_composition.publication_admission",
+    "modern_composition.publication_prefix",
+    "modern_composition.publication_close",
+    "modern_composition.publication_recovery",
+    "modern_composition.publication_limits",
+    "modern_composition.publication_original"
+  ],
+  "projects": [
+    {
+      "id": "PR-T66-02",
+      "tests": [
+        "modern_composition.publish",
+        "modern_composition.publish_close"
+      ],
+      "scope": "Cross-component exercise; use its explicit prerequisites."
+    },
+    {
+      "id": "PR-T73-03",
+      "tests": [
+        "modern_composition.async",
+        "modern_composition.real_io"
+      ],
+      "scope": "Cross-component exercise; use its explicit prerequisites."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T66-011",
+      "project": "PR-T66-02",
+      "tests": [
+        "modern_composition.publish",
+        "modern_composition.publish_close",
+        "modern_composition.publication_admission",
+        "modern_composition.publication_prefix",
+        "modern_composition.publication_close",
+        "modern_composition.publication_recovery",
+        "modern_composition.publication_limits",
+        "modern_composition.publication_original"
+      ]
+    },
+    {
+      "id": "X-T73-011",
+      "project": "PR-T73-03",
+      "tests": [
+        "modern_composition.async",
+        "modern_composition.real_io"
+      ]
+    }
+  ],
+  "campaign": {
+    "producer": "tools/run_modern_composition.py",
+    "receipt": "modern_composition_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "gcc-tsan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "MC_CHECK:",
+    "fixture_oracle": "tools/verify_modern_composition_recovery.py",
+    "oracle_driver": "composition-recovery",
+    "publication_depth_producer": "tools/run_ownership_publication.py",
+    "publication_depth_report": "research/v5/modern/ownership_publication_validation.json"
+  },
+  "limits": [
+    "Hosted owner-serialized adapters with a real Linux readiness worker and local descriptors; no arbitrary concurrent owner calls, syscall cancellation, durability proof, target execution or learner assessment."
+  ]
+}

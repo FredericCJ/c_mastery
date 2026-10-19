@@ -1,0 +1,14 @@
+#ifndef LS_GENERATED_FIELDS_H
+#define LS_GENERATED_FIELDS_H
+#include <stdint.h>
+#define LS_FLAGS_SHIFT 10
+#define LS_FLAGS_MAX UINT32_C(3)
+#define LS_FLAGS_MASK UINT32_C(3072)
+#define LS_LENGTH_SHIFT 3
+#define LS_LENGTH_MAX UINT32_C(31)
+#define LS_LENGTH_MASK UINT32_C(248)
+#define LS_TAG_SHIFT 0
+#define LS_TAG_MAX UINT32_C(7)
+#define LS_TAG_MASK UINT32_C(7)
+#define LS_ALLOWED UINT32_C(3327)
+#endif

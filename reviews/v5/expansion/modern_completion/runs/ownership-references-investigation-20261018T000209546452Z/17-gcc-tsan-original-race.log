@@ -1,0 +1,55 @@
+ORC_RACE synchronized-start rounds256 success234 dead22 actual-payload-control-reclamation
+
+==================
+WARNING: ThreadSanitizer: data race (pid=3762)
+  Write of size 4 at 0x7fffffffd500 by thread T1:
+    #0 release /mnt/f/Learning/Curricula/c_mastery/assessor/ownership/ownership.c:214 (gcc-tsan+0x404525) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #1 race_destroy /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:28 (gcc-tsan+0x401ed3) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 ow_atomic_drop /mnt/f/Learning/Curricula/c_mastery/assessor/ownership/ownership.c:154 (gcc-tsan+0x405b49) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #3 dropper /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:31 (gcc-tsan+0x4020fa) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Previous read of size 4 at 0x7fffffffd500 by thread T2:
+    #0 upgrader /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:32 (gcc-tsan+0x40207d) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Location is stack of main thread.
+
+  Thread T1 (tid=3764, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:33 (gcc-tsan+0x4025a5) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:37 (gcc-tsan+0x4033af) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Thread T2 (tid=3765, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:33 (gcc-tsan+0x4025ca) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:37 (gcc-tsan+0x4033af) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+SUMMARY: ThreadSanitizer: data race /mnt/f/Learning/Curricula/c_mastery/assessor/ownership/ownership.c:214 in release
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=3762)
+  Write of size 8 at 0x721400000038 by thread T1:
+    #0 race_destroy /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:28 (gcc-tsan+0x401edb) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #1 ow_atomic_drop /mnt/f/Learning/Curricula/c_mastery/assessor/ownership/ownership.c:154 (gcc-tsan+0x405b49) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 dropper /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:31 (gcc-tsan+0x4020fa) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Previous read of size 8 at 0x721400000038 by thread T2:
+    #0 upgrader /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:32 (gcc-tsan+0x402070) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Location is heap block of size 72 at 0x721400000000 allocated by main thread:
+    #0 malloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:670 (libtsan.so.2+0x8d29c) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:33 (gcc-tsan+0x4023b9) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:37 (gcc-tsan+0x4033af) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Thread T1 (tid=3764, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:33 (gcc-tsan+0x4025a5) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:37 (gcc-tsan+0x4033af) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+  Thread T2 (tid=3765, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:33 (gcc-tsan+0x4025ca) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+    #2 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:37 (gcc-tsan+0x4033af) (BuildId: c80410fdcfc9c43aa8168fe48194d81d58d47640)
+
+SUMMARY: ThreadSanitizer: data race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/tests.c:28 in race_destroy
+==================
+ThreadSanitizer: reported 2 warnings

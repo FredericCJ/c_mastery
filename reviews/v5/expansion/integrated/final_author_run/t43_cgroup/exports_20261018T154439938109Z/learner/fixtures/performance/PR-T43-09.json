@@ -1,0 +1,154 @@
+{
+  "id": "PR-T43-09",
+  "description": "PMU raw/time fields, permitted and unavailable routes, and mismatched group rejection for ratios.",
+  "kind": "pmu",
+  "input": {
+    "cases": [
+      {
+        "permitted": true,
+        "supported": true,
+        "events": [
+          {
+            "name": "instructions",
+            "raw": 1200,
+            "enabled": 20,
+            "running": 10,
+            "group": 1
+          },
+          {
+            "name": "cycles",
+            "raw": 3000,
+            "enabled": 20,
+            "running": 10,
+            "group": 1
+          }
+        ]
+      },
+      {
+        "permitted": true,
+        "supported": true,
+        "events": [
+          {
+            "name": "instructions",
+            "raw": 0,
+            "enabled": 20,
+            "running": 0,
+            "group": 1
+          },
+          {
+            "name": "cycles",
+            "raw": 0,
+            "enabled": 20,
+            "running": 0,
+            "group": 1
+          }
+        ]
+      },
+      {
+        "permitted": false,
+        "supported": true,
+        "events": [
+          {
+            "name": "instructions",
+            "raw": 0,
+            "enabled": 0,
+            "running": 0,
+            "group": 1
+          },
+          {
+            "name": "cycles",
+            "raw": 0,
+            "enabled": 0,
+            "running": 0,
+            "group": 1
+          }
+        ]
+      },
+      {
+        "permitted": true,
+        "supported": false,
+        "events": [
+          {
+            "name": "instructions",
+            "raw": 0,
+            "enabled": 0,
+            "running": 0,
+            "group": 1
+          },
+          {
+            "name": "cycles",
+            "raw": 0,
+            "enabled": 0,
+            "running": 0,
+            "group": 1
+          }
+        ]
+      },
+      {
+        "permitted": true,
+        "supported": true,
+        "events": [
+          {
+            "name": "instructions",
+            "raw": 1200,
+            "enabled": 20,
+            "running": 10,
+            "group": 1
+          },
+          {
+            "name": "cycles",
+            "raw": 3000,
+            "enabled": 20,
+            "running": 10,
+            "group": 2
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "scaled": [
+          2400.0,
+          6000.0
+        ],
+        "cpi": 2.5,
+        "status": "observed"
+      },
+      {
+        "scaled": [
+          null,
+          null
+        ],
+        "cpi": null,
+        "status": "not_running"
+      },
+      {
+        "scaled": [
+          null,
+          null
+        ],
+        "cpi": null,
+        "status": "denied"
+      },
+      {
+        "scaled": [
+          null,
+          null
+        ],
+        "cpi": null,
+        "status": "unsupported"
+      },
+      {
+        "scaled": [
+          2400.0,
+          6000.0
+        ],
+        "cpi": null,
+        "status": "observed"
+      }
+    ]
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

@@ -1,0 +1,2 @@
+from run_metaprog_module import run
+if __name__=='__main__':raise SystemExit(0 if run('law_traces') else 1)

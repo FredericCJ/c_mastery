@@ -1,0 +1,264 @@
+
+/tmp/cmastery-modes-investigation-p0iffh66/gcc.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <unlock>:
+   0:	48 83 ec 08          	sub    $0x8,%rsp
+   4:	e8 00 00 00 00       	call   9 <unlock+0x9>
+			5: R_X86_64_PLT32	mtx_unlock-0x4
+   9:	85 c0                	test   %eax,%eax
+   b:	75 05                	jne    12 <unlock+0x12>
+   d:	48 83 c4 08          	add    $0x8,%rsp
+  11:	c3                   	ret
+  12:	e8 00 00 00 00       	call   17 <ecm_init>
+			13: R_X86_64_PLT32	abort-0x4
+
+0000000000000017 <ecm_init>:
+  17:	f3 0f 1e fa          	endbr64
+  1b:	48 85 ff             	test   %rdi,%rdi
+  1e:	74 26                	je     46 <ecm_init+0x2f>
+  20:	48 83 fa 08          	cmp    $0x8,%rdx
+  24:	77 20                	ja     46 <ecm_init+0x2f>
+  26:	48 85 d2             	test   %rdx,%rdx
+  29:	74 0a                	je     35 <ecm_init+0x1e>
+  2b:	b8 02 00 00 00       	mov    $0x2,%eax
+  30:	48 85 f6             	test   %rsi,%rsi
+  33:	74 16                	je     4b <ecm_init+0x34>
+  35:	48 89 37             	mov    %rsi,(%rdi)
+  38:	48 89 57 08          	mov    %rdx,0x8(%rdi)
+  3c:	48 89 4f 10          	mov    %rcx,0x10(%rdi)
+  40:	b8 00 00 00 00       	mov    $0x0,%eax
+  45:	c3                   	ret
+  46:	b8 02 00 00 00       	mov    $0x2,%eax
+  4b:	c3                   	ret
+
+000000000000004c <ecm_write>:
+  4c:	f3 0f 1e fa          	endbr64
+  50:	48 85 ff             	test   %rdi,%rdi
+  53:	74 3d                	je     92 <ecm_write+0x46>
+  55:	83 fe 02             	cmp    $0x2,%esi
+  58:	77 38                	ja     92 <ecm_write+0x46>
+  5a:	48 3b 57 08          	cmp    0x8(%rdi),%rdx
+  5e:	72 26                	jb     86 <ecm_write+0x3a>
+  60:	b8 07 00 00 00       	mov    $0x7,%eax
+  65:	85 f6                	test   %esi,%esi
+  67:	74 2e                	je     97 <ecm_write+0x4b>
+  69:	48 8b 57 10          	mov    0x10(%rdi),%rdx
+  6d:	b8 03 00 00 00       	mov    $0x3,%eax
+  72:	48 83 fa ff          	cmp    $0xffffffffffffffff,%rdx
+  76:	74 1f                	je     97 <ecm_write+0x4b>
+  78:	48 83 c2 01          	add    $0x1,%rdx
+  7c:	48 89 57 10          	mov    %rdx,0x10(%rdi)
+  80:	b8 07 00 00 00       	mov    $0x7,%eax
+  85:	c3                   	ret
+  86:	48 8b 07             	mov    (%rdi),%rax
+  89:	88 0c 10             	mov    %cl,(%rax,%rdx,1)
+  8c:	b8 00 00 00 00       	mov    $0x0,%eax
+  91:	c3                   	ret
+  92:	b8 02 00 00 00       	mov    $0x2,%eax
+  97:	c3                   	ret
+
+0000000000000098 <ecm_shared_init>:
+  98:	f3 0f 1e fa          	endbr64
+  9c:	48 85 ff             	test   %rdi,%rdi
+  9f:	74 6e                	je     10f <ecm_shared_init+0x77>
+  a1:	41 57                	push   %r15
+  a3:	41 56                	push   %r14
+  a5:	41 54                	push   %r12
+  a7:	55                   	push   %rbp
+  a8:	53                   	push   %rbx
+  a9:	48 89 fb             	mov    %rdi,%rbx
+  ac:	49 89 f6             	mov    %rsi,%r14
+  af:	48 89 d5             	mov    %rdx,%rbp
+  b2:	41 89 cc             	mov    %ecx,%r12d
+  b5:	4d 89 c7             	mov    %r8,%r15
+  b8:	83 f9 64             	cmp    $0x64,%ecx
+  bb:	77 4b                	ja     108 <ecm_shared_init+0x70>
+  bd:	b8 02 00 00 00       	mov    $0x2,%eax
+  c2:	48 83 fa 08          	cmp    $0x8,%rdx
+  c6:	77 37                	ja     ff <ecm_shared_init+0x67>
+  c8:	48 85 d2             	test   %rdx,%rdx
+  cb:	74 05                	je     d2 <ecm_shared_init+0x3a>
+  cd:	48 85 f6             	test   %rsi,%rsi
+  d0:	74 2d                	je     ff <ecm_shared_init+0x67>
+  d2:	be 00 00 00 00       	mov    $0x0,%esi
+  d7:	48 89 df             	mov    %rbx,%rdi
+  da:	e8 00 00 00 00       	call   df <ecm_shared_init+0x47>
+			db: R_X86_64_PLT32	mtx_init-0x4
+  df:	89 c2                	mov    %eax,%edx
+  e1:	b8 05 00 00 00       	mov    $0x5,%eax
+  e6:	85 d2                	test   %edx,%edx
+  e8:	75 15                	jne    ff <ecm_shared_init+0x67>
+  ea:	4c 89 73 28          	mov    %r14,0x28(%rbx)
+  ee:	48 89 6b 30          	mov    %rbp,0x30(%rbx)
+  f2:	4c 89 7b 38          	mov    %r15,0x38(%rbx)
+  f6:	44 89 63 40          	mov    %r12d,0x40(%rbx)
+  fa:	b8 00 00 00 00       	mov    $0x0,%eax
+  ff:	5b                   	pop    %rbx
+ 100:	5d                   	pop    %rbp
+ 101:	41 5c                	pop    %r12
+ 103:	41 5e                	pop    %r14
+ 105:	41 5f                	pop    %r15
+ 107:	c3                   	ret
+ 108:	b8 02 00 00 00       	mov    $0x2,%eax
+ 10d:	eb f0                	jmp    ff <ecm_shared_init+0x67>
+ 10f:	b8 02 00 00 00       	mov    $0x2,%eax
+ 114:	c3                   	ret
+
+0000000000000115 <ecm_shared_write>:
+ 115:	f3 0f 1e fa          	endbr64
+ 119:	41 57                	push   %r15
+ 11b:	41 56                	push   %r14
+ 11d:	41 54                	push   %r12
+ 11f:	55                   	push   %rbp
+ 120:	53                   	push   %rbx
+ 121:	48 85 ff             	test   %rdi,%rdi
+ 124:	74 43                	je     169 <ecm_shared_write+0x54>
+ 126:	48 89 fb             	mov    %rdi,%rbx
+ 129:	89 f5                	mov    %esi,%ebp
+ 12b:	49 89 d7             	mov    %rdx,%r15
+ 12e:	41 89 ce             	mov    %ecx,%r14d
+ 131:	e8 00 00 00 00       	call   136 <ecm_shared_write+0x21>
+			132: R_X86_64_PLT32	mtx_lock-0x4
+ 136:	41 bc 05 00 00 00    	mov    $0x5,%r12d
+ 13c:	85 c0                	test   %eax,%eax
+ 13e:	75 1d                	jne    15d <ecm_shared_write+0x48>
+ 140:	41 0f b6 ce          	movzbl %r14b,%ecx
+ 144:	48 8d 7b 28          	lea    0x28(%rbx),%rdi
+ 148:	4c 89 fa             	mov    %r15,%rdx
+ 14b:	89 ee                	mov    %ebp,%esi
+ 14d:	e8 00 00 00 00       	call   152 <ecm_shared_write+0x3d>
+			14e: R_X86_64_PLT32	ecm_write-0x4
+ 152:	41 89 c4             	mov    %eax,%r12d
+ 155:	48 89 df             	mov    %rbx,%rdi
+ 158:	e8 a3 fe ff ff       	call   0 <unlock>
+ 15d:	44 89 e0             	mov    %r12d,%eax
+ 160:	5b                   	pop    %rbx
+ 161:	5d                   	pop    %rbp
+ 162:	41 5c                	pop    %r12
+ 164:	41 5e                	pop    %r14
+ 166:	41 5f                	pop    %r15
+ 168:	c3                   	ret
+ 169:	41 bc 02 00 00 00    	mov    $0x2,%r12d
+ 16f:	eb ec                	jmp    15d <ecm_shared_write+0x48>
+
+0000000000000171 <ecm_shared_counter>:
+ 171:	f3 0f 1e fa          	endbr64
+ 175:	41 57                	push   %r15
+ 177:	41 56                	push   %r14
+ 179:	55                   	push   %rbp
+ 17a:	53                   	push   %rbx
+ 17b:	48 83 ec 08          	sub    $0x8,%rsp
+ 17f:	48 85 ff             	test   %rdi,%rdi
+ 182:	74 41                	je     1c5 <ecm_shared_counter+0x54>
+ 184:	48 89 fb             	mov    %rdi,%rbx
+ 187:	41 89 f7             	mov    %esi,%r15d
+ 18a:	41 89 d6             	mov    %edx,%r14d
+ 18d:	e8 00 00 00 00       	call   192 <ecm_shared_counter+0x21>
+			18e: R_X86_64_PLT32	mtx_lock-0x4
+ 192:	bd 05 00 00 00       	mov    $0x5,%ebp
+ 197:	85 c0                	test   %eax,%eax
+ 199:	75 1d                	jne    1b8 <ecm_shared_counter+0x47>
+ 19b:	48 8d 4b 38          	lea    0x38(%rbx),%rcx
+ 19f:	48 8d 53 40          	lea    0x40(%rbx),%rdx
+ 1a3:	44 89 f6             	mov    %r14d,%esi
+ 1a6:	44 89 ff             	mov    %r15d,%edi
+ 1a9:	e8 00 00 00 00       	call   1ae <ecm_shared_counter+0x3d>
+			1aa: R_X86_64_PLT32	er_contract_counter-0x4
+ 1ae:	89 c5                	mov    %eax,%ebp
+ 1b0:	48 89 df             	mov    %rbx,%rdi
+ 1b3:	e8 48 fe ff ff       	call   0 <unlock>
+ 1b8:	89 e8                	mov    %ebp,%eax
+ 1ba:	48 83 c4 08          	add    $0x8,%rsp
+ 1be:	5b                   	pop    %rbx
+ 1bf:	5d                   	pop    %rbp
+ 1c0:	41 5e                	pop    %r14
+ 1c2:	41 5f                	pop    %r15
+ 1c4:	c3                   	ret
+ 1c5:	bd 02 00 00 00       	mov    $0x2,%ebp
+ 1ca:	eb ec                	jmp    1b8 <ecm_shared_counter+0x47>
+
+00000000000001cc <ecm_shared_snapshot>:
+ 1cc:	f3 0f 1e fa          	endbr64
+ 1d0:	41 57                	push   %r15
+ 1d2:	41 56                	push   %r14
+ 1d4:	41 54                	push   %r12
+ 1d6:	55                   	push   %rbp
+ 1d7:	53                   	push   %rbx
+ 1d8:	48 83 ec 30          	sub    $0x30,%rsp
+ 1dc:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+ 1e3:	00 00 
+ 1e5:	48 89 44 24 28       	mov    %rax,0x28(%rsp)
+ 1ea:	31 c0                	xor    %eax,%eax
+ 1ec:	48 85 ff             	test   %rdi,%rdi
+ 1ef:	0f 84 c8 00 00 00    	je     2bd <ecm_shared_snapshot+0xf1>
+ 1f5:	48 89 fb             	mov    %rdi,%rbx
+ 1f8:	48 89 f5             	mov    %rsi,%rbp
+ 1fb:	48 85 f6             	test   %rsi,%rsi
+ 1fe:	0f 84 b9 00 00 00    	je     2bd <ecm_shared_snapshot+0xf1>
+ 204:	e8 00 00 00 00       	call   209 <ecm_shared_snapshot+0x3d>
+			205: R_X86_64_PLT32	mtx_lock-0x4
+ 209:	89 c2                	mov    %eax,%edx
+ 20b:	b8 05 00 00 00       	mov    $0x5,%eax
+ 210:	85 d2                	test   %edx,%edx
+ 212:	0f 85 88 00 00 00    	jne    2a0 <ecm_shared_snapshot+0xd4>
+ 218:	66 0f ef c0          	pxor   %xmm0,%xmm0
+ 21c:	0f 11 44 24 04       	movups %xmm0,0x4(%rsp)
+ 221:	0f 11 44 24 10       	movups %xmm0,0x10(%rsp)
+ 226:	8b 43 40             	mov    0x40(%rbx),%eax
+ 229:	41 89 c6             	mov    %eax,%r14d
+ 22c:	48 8b 43 38          	mov    0x38(%rbx),%rax
+ 230:	49 89 c7             	mov    %rax,%r15
+ 233:	4c 8b 63 30          	mov    0x30(%rbx),%r12
+ 237:	4d 85 e4             	test   %r12,%r12
+ 23a:	74 36                	je     272 <ecm_shared_snapshot+0xa6>
+ 23c:	48 8b 43 28          	mov    0x28(%rbx),%rax
+ 240:	48 8d 54 24 18       	lea    0x18(%rsp),%rdx
+ 245:	49 8d 34 04          	lea    (%r12,%rax,1),%rsi
+ 249:	90                   	nop
+ 24a:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 251:	00 00 00 00 
+ 255:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 25c:	00 00 00 00 
+ 260:	0f b6 08             	movzbl (%rax),%ecx
+ 263:	88 0a                	mov    %cl,(%rdx)
+ 265:	48 83 c0 01          	add    $0x1,%rax
+ 269:	48 83 c2 01          	add    $0x1,%rdx
+ 26d:	48 39 f0             	cmp    %rsi,%rax
+ 270:	75 ee                	jne    260 <ecm_shared_snapshot+0x94>
+ 272:	48 89 df             	mov    %rbx,%rdi
+ 275:	e8 86 fd ff ff       	call   0 <unlock>
+ 27a:	44 89 34 24          	mov    %r14d,(%rsp)
+ 27e:	4c 89 7c 24 08       	mov    %r15,0x8(%rsp)
+ 283:	4c 89 64 24 10       	mov    %r12,0x10(%rsp)
+ 288:	66 0f 6f 0c 24       	movdqa (%rsp),%xmm1
+ 28d:	0f 11 4d 00          	movups %xmm1,0x0(%rbp)
+ 291:	66 0f 6f 54 24 10    	movdqa 0x10(%rsp),%xmm2
+ 297:	0f 11 55 10          	movups %xmm2,0x10(%rbp)
+ 29b:	b8 00 00 00 00       	mov    $0x0,%eax
+ 2a0:	48 8b 54 24 28       	mov    0x28(%rsp),%rdx
+ 2a5:	64 48 2b 14 25 28 00 	sub    %fs:0x28,%rdx
+ 2ac:	00 00 
+ 2ae:	75 14                	jne    2c4 <ecm_shared_snapshot+0xf8>
+ 2b0:	48 83 c4 30          	add    $0x30,%rsp
+ 2b4:	5b                   	pop    %rbx
+ 2b5:	5d                   	pop    %rbp
+ 2b6:	41 5c                	pop    %r12
+ 2b8:	41 5e                	pop    %r14
+ 2ba:	41 5f                	pop    %r15
+ 2bc:	c3                   	ret
+ 2bd:	b8 02 00 00 00       	mov    $0x2,%eax
+ 2c2:	eb dc                	jmp    2a0 <ecm_shared_snapshot+0xd4>
+ 2c4:	e8 00 00 00 00       	call   2c9 <ecm_shared_destroy>
+			2c5: R_X86_64_PLT32	__stack_chk_fail-0x4
+
+00000000000002c9 <ecm_shared_destroy>:
+ 2c9:	f3 0f 1e fa          	endbr64
+ 2cd:	48 83 ec 08          	sub    $0x8,%rsp
+ 2d1:	e8 00 00 00 00       	call   2d6 <ecm_shared_destroy+0xd>
+			2d2: R_X86_64_PLT32	mtx_destroy-0x4
+ 2d6:	48 83 c4 08          	add    $0x8,%rsp
+ 2da:	c3                   	ret
+

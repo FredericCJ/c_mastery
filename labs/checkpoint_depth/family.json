@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "family": "checkpoint_depth",
+  "title": "Checkpoint storage, protocol, execution and numerical composition",
+  "build_system": "cmake",
+  "assessor_root": "assessor/checkpoint_depth",
+  "tests": [
+    "checkpoint_depth.codec",
+    "checkpoint_depth.stream",
+    "checkpoint_depth.memory",
+    "checkpoint_depth.ownership",
+    "checkpoint_depth.numeric",
+    "checkpoint_depth.numeric_policy",
+    "checkpoint_depth.dispatch",
+    "checkpoint_depth.vector",
+    "checkpoint_depth.numeric_transaction",
+    "checkpoint_depth.writer",
+    "checkpoint_depth.writer_ownership",
+    "checkpoint_depth.async_admission",
+    "checkpoint_depth.async_lifecycle",
+    "checkpoint_depth.async_wait",
+    "checkpoint_depth.linux_reader",
+    "checkpoint_depth.operation",
+    "checkpoint_depth.firmware_ring",
+    "checkpoint_depth.firmware_tx",
+    "checkpoint_depth.firmware_clock"
+  ],
+  "projects": [
+    {
+      "id": "PR-P1-01",
+      "tests": [
+        "checkpoint_depth.memory",
+        "checkpoint_depth.ownership"
+      ],
+      "scope": "Declared byte arena and typed pool, bounded FIFO, prefix versus atomic admission, borrow quiescence and generation retirement."
+    },
+    {
+      "id": "PR-P1-02",
+      "tests": [
+        "checkpoint_depth.memory",
+        "checkpoint_depth.ownership"
+      ],
+      "scope": "Every four-acquisition failure ordinal, rollback/state conservation and stale-completion rejection; target effects require separate object/image audit."
+    },
+    {
+      "id": "PR-P2-01",
+      "tests": [
+        "checkpoint_depth.writer"
+      ],
+      "scope": "Portable transfer core plus separately executed custom-entry Linux fixed/PIE images, target helpers and ELF closure audited by tools/run_checkpoint_entry.py."
+    },
+    {
+      "id": "PR-P2-02",
+      "tests": [
+        "checkpoint_depth.writer",
+        "checkpoint_depth.writer_ownership"
+      ],
+      "scope": "Nine-byte accepted-prefix transfer, retries/zero/terminal errors, copied queue to active ownership, recoverable errors and preserved first/cleanup causes."
+    },
+    {
+      "id": "PR-P3-01",
+      "tests": [
+        "checkpoint_depth.codec"
+      ],
+      "scope": "Exact A5/version/LE/length0..32/CRC wire; atomic capacity rejection and bytewise decoding."
+    },
+    {
+      "id": "PR-P3-02",
+      "tests": [
+        "checkpoint_depth.stream"
+      ],
+      "scope": "Bounded nested-sync recovery, all short partitions, copied queue refusal/retry and independent differential oracle."
+    },
+    {
+      "id": "PR-P4-01",
+      "tests": [
+        "checkpoint_depth.firmware_ring",
+        "checkpoint_depth.firmware_tx"
+      ],
+      "scope": "SPSC acquisition and P3 framing, TXE/DMA/TC ownership; actual emulator startup/ISR and F439 cross-build separately reported."
+    },
+    {
+      "id": "PR-P4-02",
+      "tests": [
+        "checkpoint_depth.firmware_clock",
+        "checkpoint_depth.firmware_tx"
+      ],
+      "scope": "Half-range timing, coherent multiword snapshot, bounded timeout/abort retention and generation/retry retirement; physical measurements pending."
+    },
+    {
+      "id": "PR-P5-01",
+      "tests": [
+        "checkpoint_depth.async_admission",
+        "checkpoint_depth.linux_reader"
+      ],
+      "scope": "Actual Linux epoll lifetime tokens, parser-held backpressure, copied two-worker delivery and generation-safe completion."
+    },
+    {
+      "id": "PR-P5-02",
+      "tests": [
+        "checkpoint_depth.async_lifecycle",
+        "checkpoint_depth.async_wait",
+        "checkpoint_depth.operation"
+      ],
+      "scope": "Predicate loops, close/abort/drain deadlines, asynchronous quiescence, large copied payload allocation failure and duplicate/stale callbacks."
+    },
+    {
+      "id": "PR-P6-01",
+      "tests": [
+        "checkpoint_depth.numeric",
+        "checkpoint_depth.numeric_policy",
+        "checkpoint_depth.numeric_transaction"
+      ],
+      "scope": "Exact denominator4 convolution, binary64 evaluation order, all short splits, finite-input policy, overlap/capacity refusal."
+    },
+    {
+      "id": "PR-P6-02",
+      "tests": [
+        "checkpoint_depth.dispatch",
+        "checkpoint_depth.vector"
+      ],
+      "scope": "Guarded AVX CPU/OS probe, staged alias-permitting scalar/compiler/SIMD adapters, offsets and all lengths0..256; source-bound actual timing/disassembly in separate producer tools/run_checkpoint_numeric.py."
+    }
+  ],
+  "assessment_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/PR-P1-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P1-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P2-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P2-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P3-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P3-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P4-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P4-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P5-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P5-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P6-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-P6-02.json"
+  ],
+  "campaign": {
+    "producer": "tools/run_checkpoint_depth.py",
+    "receipt": "checkpoint_depth_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "gcc-tsan",
+      "clang-tsan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "CP_CHECK:"
+  },
+  "limits": [
+    "Additive support for original AX criteria; accepted units and prior receipts remain unchanged.",
+    "Concrete local host, Linux and Cortex-M emulator evidence is source-bound; F439 peripheral behavior, physical timing, delayed learner attempts and independent review remain separately recorded.",
+    "Finite passing cases and mutant rejection establish bounded evidence, not absolute correctness or learner mastery."
+  ],
+  "supplemental_campaigns": [
+    {
+      "id": "checkpoint_transfer",
+      "producer": "tools/run_checkpoint_transfer.py",
+      "report": "reviews/v5/expansion/legacy_completion/checkpoint_transfer.json",
+      "learner_contract": "labs/checkpoint_depth/transfer/CONTRACTS.md",
+      "imports": [
+        "ownership",
+        "errors",
+        "service_depth receipt",
+        "storage"
+      ],
+      "scope": "Separate hosted delayed-variant reference support, not imports of the strict core."
+    },
+    {
+      "id": "checkpoint_dependencies",
+      "producer": "tools/run_checkpoint_dependencies.py",
+      "report": "reviews/v5/expansion/legacy_completion/checkpoint_dependencies.json",
+      "scope": "LTO/stack-protector/native provider audit; inspection images are not executed."
+    },
+    {
+      "id": "checkpoint_timing",
+      "producer": "tools/verify_checkpoint_timing.py",
+      "report": "reviews/v5/expansion/legacy_completion/checkpoint_timing.json",
+      "scope": "Declared integer/rational response, service and finite-burst model; no physical timing."
+    }
+  ]
+}

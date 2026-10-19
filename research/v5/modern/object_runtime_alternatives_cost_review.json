@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_report": "reviews/v5/expansion/modern_completion/object_runtime_alternatives_probe.json",
+  "semantic_report": "reviews/v5/expansion/modern_completion/object_runtime_alternatives_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed dictionary24, original shared-shape arena113, receiver20 and cache24 bytes on both host compilers. Keys and values are distinct typed arrays; original shape index is separate from property count."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Dictionary owns four keys/values per object. Shared model uses one113-byte arena plus20 per receiver and optional24 per cache. Compare common admitted layouts; dictionary has no16-transition exhaustion, and no equality of capacity contracts is claimed."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Zero initialization admits empty dictionary; copied scalar fields need no external roots or destructors. Generic/cached receiver and shape arena must remain live throughout access; cached owner is borrowed."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Dictionary deletion shifts key/value pairs together. Existing updates work at count4. Direct generic access reads current receiver layout and current field; independent outputs do not alias input/control storage."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "No dynamic allocation in these typed kernels. Dictionary creates no shared transitions; original shape set can exhaust16 metadata rows while common admitted lookup traces remain comparable. Host tools allocate independently."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Delete shifts at most3 pairs and clears one trailing pair. Shared shape updates change a receiver index and copy four-key metadata only on new transitions. Neither lookup copies whole objects."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Dropping these scalar-only controls is constant lifetime termination with no callback. Dictionary erase is bounded shifting, not an external-resource destructor; a future owning payload must supply explicit move/drop and rollback."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Direct lookup performs at most4 key comparisons without a cache. Original cache checks up to2 guarded pairs and switches to sticky generic on a third distinct pair. Actual disassembly is recorded; functions are separate translation units without LTO."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "These operations require serialized ownership. No atomic data-race repair is implied by generic lookup or immutable descriptors. The broader family TSan covers its distinct foreign-reader schedule only."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Full new insertion and absent deletion preserve dictionary; missing lookup preserves output777. Four compiled mutants reject false full-capacity rejection, mispaired deletion, wrong-layout lookup and overwritten missing output. Independent38880 dictionary observations and generic/cached update traces passed."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Six actual compiler/optimization configurations have clean, unchanged and single-header rebuild logs. O2 seconds clean/no-change/header: GCC0.7658/0.0507/0.6935; Clang0.6319/0.0659/0.5062. Process/filesystem noise prevents general compiler ranking."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Whole probe O2 text/data/BSS: GCC11936/616/16, Clang14763/600/16. Generic versus cached local frames: GCC8/32, Clang0/16 bytes. Dictionary set/delete/get frames: GCC8/8/8, Clang0/48/0. Baseline functions are linked; these are local compiler observations, not all-call-stack bounds."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "540 retained equal-contract samples plus36 discarded warmups,10000 calls each; one/two/three layouts, missing every17th and same-layout update every13th. Python independently checks checksums, statuses and exact cache counters. Setup excluded; observer/loop/check overhead included. No hardware cache counter, physical, JIT or learner claim."
+    }
+  ],
+  "sealed_decision": {
+    "choice": "Keep an explicit direct path and dictionary alternative; choose based on admitted mutation/shape reuse rather than assume cache wins.",
+    "counterexample": "Three alternating shape/key pairs make the original cache sticky generic; deleting one dictionary key shifts offsets so a stale offset is not a valid cached handler."
+  }
+}

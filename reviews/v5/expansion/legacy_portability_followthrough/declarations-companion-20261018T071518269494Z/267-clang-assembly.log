@@ -1,0 +1,45 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/declarations-companion-20261018T071518269494Z/clang-O3/clang-provider.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <ld_bit_encode>:
+   0:	48 85 f6             	test   %rsi,%rsi
+   3:	0f 94 c1             	sete   %cl
+   6:	8d 87 00 f0 ff ff    	lea    -0x1000(%rdi),%eax
+   c:	3d 00 e0 ff ff       	cmp    $0xffffe000,%eax
+  11:	0f 92 c2             	setb   %dl
+  14:	31 c0                	xor    %eax,%eax
+  16:	08 ca                	or     %cl,%dl
+  18:	75 12                	jne    2c <ld_bit_encode+0x2c>
+  1a:	89 f8                	mov    %edi,%eax
+  1c:	c1 e8 08             	shr    $0x8,%eax
+  1f:	24 1f                	and    $0x1f,%al
+  21:	88 06                	mov    %al,(%rsi)
+  23:	40 88 7e 01          	mov    %dil,0x1(%rsi)
+  27:	b8 01 00 00 00       	mov    $0x1,%eax
+  2c:	c3                   	ret
+  2d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000030 <ld_bit_decode>:
+  30:	48 85 ff             	test   %rdi,%rdi
+  33:	0f 94 c1             	sete   %cl
+  36:	48 85 f6             	test   %rsi,%rsi
+  39:	0f 94 c2             	sete   %dl
+  3c:	31 c0                	xor    %eax,%eax
+  3e:	08 ca                	or     %cl,%dl
+  40:	75 28                	jne    6a <ld_bit_decode+0x3a>
+  42:	0f b6 0f             	movzbl (%rdi),%ecx
+  45:	83 f9 1f             	cmp    $0x1f,%ecx
+  48:	77 20                	ja     6a <ld_bit_decode+0x3a>
+  4a:	89 c8                	mov    %ecx,%eax
+  4c:	c1 e0 08             	shl    $0x8,%eax
+  4f:	0f b6 57 01          	movzbl 0x1(%rdi),%edx
+  53:	8d 3c 10             	lea    (%rax,%rdx,1),%edi
+  56:	80 f9 10             	cmp    $0x10,%cl
+  59:	8d 84 10 00 e0 ff ff 	lea    -0x2000(%rax,%rdx,1),%eax
+  60:	0f 42 c7             	cmovb  %edi,%eax
+  63:	89 06                	mov    %eax,(%rsi)
+  65:	b8 01 00 00 00       	mov    $0x1,%eax
+  6a:	c3                   	ret

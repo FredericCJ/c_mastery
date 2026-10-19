@@ -1,0 +1,2508 @@
+{
+  "schema_version": 1,
+  "role": "author reference experiments; no learner credit",
+  "environment": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "input_sha256": {
+    "tools/run_systems_elf.py": "596dba8e5b708b9102a70cf379fde5c3f203a63352660b774da290c0125dcbee",
+    "assessor/legacy_systems/toolchain/common.py": "b6122ec4ac3d34e809ada92282671b461b995ed7e923648648c886934dc6d7d9",
+    "labs/machine_image/elf_depth/CONTRACTS.md": "6ab4999a21051f2b67ffed4b5319ebbb2eb2a363b6d724ceacabbdd55d61d6c7",
+    "labs/machine_image/elf_depth/elf_depth.c": "a9aba8be96a563c9694df1819cc09fa6bc44f59fddef21e9bbf4cf45e5013a7f",
+    "labs/machine_image/elf_depth/elf_depth.h": "083d2be2a133b9ae82e92fdced0a1f3945ddb749d854c8e7a8b3f02cd3d6cd31",
+    "labs/machine_image/elf_depth/inspect.c": "155d7249d0f29c1e34033a56a6cd6e05d340478789eb4c8027322b9c1218fcfa",
+    "assessor/legacy_systems/elf_depth/decoder.py": "baec928e2693f82a9b3d5ae91e6a32e33ea495f959036d1dde96b83b75941f51",
+    "assessor/legacy_systems/elf_depth/dynamic.py": "a63801f569a53f60a46aab76a86ab022286eaed82e16249a95f4d95c34aed4a2",
+    "assessor/legacy_systems/elf_depth/elf_depth.c": "1d9c5b4c44df8b6257f6ba1bd5101e90a505805ec7143b7e1d01737b8fd00f21",
+    "assessor/legacy_systems/elf_depth/layout.py": "3c59f87c2470376fbd2f254a8cad28a4c7ed62d6eebce0315af1e17e3e8b8a97",
+    "assessor/legacy_systems/elf_depth/linker.py": "de8956b87d2c9c63b5269efba6195d669b2d96dfd001d0105207855b06f82be8"
+  },
+  "commands": [
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000010000 T entry\n0000000000010080 A data_load\n0000000000020000 D data_start\n0000000000020010 B bss_start\n0000000000020010 D data_end\n0000000000020028 B bss_end\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-lW",
+        "-SW",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "There are 8 section headers, starting at offset 0x2128:\n\nSection Headers:\n  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al\n  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0\n  [ 1] .text             PROGBITS        0000000000010000 001000 000008 00  AX  0   0  1\n  [ 2] .data             PROGBITS        0000000000020000 002000 000010 00  WA  0   0  1\n  [ 3] .copy_table       PROGBITS        0000000000010040 001040 000014 00   A  0   0  1\n  [ 4] .bss              NOBITS          0000000000020010 002010 000018 00  WA  0   0  1\n  [ 5] .symtab           SYMTAB          0000000000000000 002010 0000a8 18      6   1  8\n  [ 6] .strtab           STRTAB          0000000000000000 0020b8 000037 00      0   0  1\n  [ 7] .shstrtab         STRTAB          0000000000000000 0020ef 000038 00      0   0  1\nKey to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n  L (link order), O (extra OS processing required), G (group), T (TLS),\n  C (compressed), x (unknown), o (OS specific), E (exclude),\n  D (mbind), l (large), p (processor specific)\n\nElf file type is EXEC (Executable file)\nEntry point 0x10000\nThere are 3 program headers, starting at offset 64\n\nProgram Headers:\n  Type           Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   Flg Align\n  LOAD           0x001000 0x0000000000010000 0x0000000000010000 0x000054 0x000054 R E 0x1000\n  LOAD           0x002000 0x0000000000020000 0x0000000000010080 0x000010 0x000028 RW  0x1000\n  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RW  0x10\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text .copy_table \n   01     .data .bss \n   02     \n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objdump",
+        "-h",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf:     file format elf64-x86-64\n\nSections:\nIdx Name          Size      VMA               LMA               File off  Algn\n  0 .text         00000008  0000000000010000  0000000000010000  00001000  2**0\n                  CONTENTS, ALLOC, LOAD, READONLY, CODE\n  1 .data         00000010  0000000000020000  0000000000010080  00002000  2**0\n                  CONTENTS, ALLOC, LOAD, DATA\n  2 .copy_table   00000014  0000000000010040  0000000000010040  00001040  2**0\n                  CONTENTS, ALLOC, LOAD, READONLY, DATA\n  3 .bss          00000018  0000000000020010  0000000000010090  00002010  2**0\n                  ALLOC\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "-O",
+        "binary",
+        "--gap-fill=0",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.elf",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.bin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Os",
+        "-ffreestanding",
+        "-fno-pie",
+        "-fno-asynchronous-unwind-tables",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbols.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbols.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objdump",
+        "-dr",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbols.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbols.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <checked_count>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\tb8 00 00 00 00       \tmov    $0x0,%eax\n\t\t\t5: R_X86_64_32\tdata_end\n   9:\t31 d2                \txor    %edx,%edx\n   b:\t48 3d 00 00 00 00    \tcmp    $0x0,%rax\n\t\t\td: R_X86_64_32S\tdata_start\n  11:\t72 0e                \tjb     21 <checked_count+0x21>\n  13:\t48 2d 00 00 00 00    \tsub    $0x0,%rax\n\t\t\t15: R_X86_64_32S\tdata_start\n  19:\tba 01 00 00 00       \tmov    $0x1,%edx\n  1e:\t48 89 07             \tmov    %rax,(%rdi)\n  21:\t89 d0                \tmov    %edx,%eax\n  23:\tc3                   \tret\n\n0000000000000024 <load_address>:\n  24:\tf3 0f 1e fa          \tendbr64\n  28:\tb8 00 00 00 00       \tmov    $0x0,%eax\n\t\t\t29: R_X86_64_32\tdata_load\n  2d:\tc3                   \tret\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbols.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbol-convention.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/symbol-convention.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 1,
+      "expected": "nonzero",
+      "diagnostic": "RAM_BUDGET",
+      "stdout": "",
+      "stderr": "/usr/bin/x86_64-linux-gnu-ld.bfd: /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/huge.elf section `.bss' will not fit in region `RAM'\n/usr/bin/x86_64-linux-gnu-ld.bfd: RAM_BUDGET\n/usr/bin/x86_64-linux-gnu-ld.bfd: region `RAM' overflowed by 16 bytes\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padded.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/image.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padded.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padded.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "-O",
+        "binary",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padded.elf",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padded.bin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/banks.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-fails.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-fails.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 1,
+      "expected": "nonzero",
+      "diagnostic": "will not fit in region `R1'",
+      "stdout": "",
+      "stderr": "/usr/bin/x86_64-linux-gnu-ld.bfd: /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-fails.elf section `.bank' will not fit in region `R1'\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/split.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/split.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/split.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/split.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-split.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-split.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-SW",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/bank-split.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "There are 6 section headers, starting at offset 0x130:\n\nSection Headers:\n  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al\n  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0\n  [ 1] .first            NOBITS          0000000000020000 001000 000030 00  WA  0   0  1\n  [ 2] .second           NOBITS          0000000000030000 001000 000030 00  WA  0   0  1\n  [ 3] .symtab           SYMTAB          0000000000000000 0000e8 000018 18      4   1  8\n  [ 4] .strtab           STRTAB          0000000000000000 000100 000001 00      0   0  1\n  [ 5] .shstrtab         STRTAB          0000000000000000 000101 00002a 00      0   0  1\nKey to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n  L (link order), O (extra OS processing required), G (group), T (TLS),\n  C (compressed), x (unknown), o (OS specific), E (exclude),\n  D (mbind), l (large), p (processor specific)\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ar",
+        "rcs",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-plain.a",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000000000 T callback_a\n0000000000000000 T callback_b\n0000000000000000 T registration_anchor\n0000000000000000 d table\n0000000000000000 T unrelated\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-plain.a",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-unextracted.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n000000000000210c r __FRAME_END__\n0000000000002014 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002140 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011bc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002012 R registry_end\n0000000000002012 R registry_start\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-plain.a",
+        "-Wl,-u,registration_anchor",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-extracted.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=33 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002184 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n00000000000021b8 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011e8 T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n00000000000011c0 T callback_a\n00000000000011d0 T callback_b\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n00000000000011e0 T registration_anchor\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-direct.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=33 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002168 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n00000000000021a0 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011dc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n00000000000011c0 T callback_a\n00000000000011d0 T callback_b\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-no-keep.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-collected.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n000000000000210c r __FRAME_END__\n0000000000002014 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002140 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011bc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002012 R registry_end\n0000000000002012 R registry_start\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-plain.o",
+        "-DSKIP",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-not-enumerated.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/plain-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002140 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002178 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001140 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011ac T _fini\n0000000000001000 T _init\n00000000000010a0 T _start\n0000000000001190 T callback_a\n00000000000011a0 T callback_b\n0000000000004008 b completed.0\n00000000000010d0 t deregister_tm_clones\n0000000000001180 t frame_dummy\n0000000000001060 T main\n0000000000001100 t register_tm_clones\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-DOMIT",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-plain.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-plain.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-plain"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-plain"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "count=0",
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-flto",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ar",
+        "rcs",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-lto.a",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "00000000 T callback_a\n00000000 T callback_b\n00000000 T registration_anchor\n00000000 T unrelated\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-lto.a",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-unextracted.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-unextracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n000000000000210c r __FRAME_END__\n0000000000002014 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002140 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011bc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002012 R registry_end\n0000000000002012 R registry_start\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-lto.a",
+        "-Wl,-u,registration_anchor",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-extracted.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=33 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-extracted"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002180 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n00000000000021b8 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011e8 T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n00000000000011c0 t callback_a\n00000000000011d0 t callback_b\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n00000000000011e0 T registration_anchor\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-direct.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=33 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-direct"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002164 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002198 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011dc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n00000000000011c0 t callback_a\n00000000000011d0 t callback_b\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry-no-keep.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-collected.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-collected"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n000000000000210c r __FRAME_END__\n0000000000002014 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002140 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001170 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011bc T _fini\n0000000000001000 T _init\n00000000000010d0 T _start\n0000000000004008 b completed.0\n0000000000001100 t deregister_tm_clones\n00000000000011b0 t frame_dummy\n0000000000001060 T main\n0000000000001130 t register_tm_clones\n0000000000002012 R registry_end\n0000000000002012 R registry_start\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register-lto.o",
+        "-DSKIP",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-Wl,-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-not-enumerated.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "sum=0 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/lto-not-enumerated"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n0000000000002140 r __FRAME_END__\n0000000000002030 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002178 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n0000000000001140 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n                 U __printf_chk@GLIBC_2.3.4\n0000000000004008 D _edata\n0000000000004010 B _end\n00000000000011ac T _fini\n0000000000001000 T _init\n00000000000010a0 T _start\n0000000000001190 t callback_a\n00000000000011a0 t callback_b\n0000000000004008 b completed.0\n00000000000010d0 t deregister_tm_clones\n0000000000001180 t frame_dummy\n0000000000001060 T main\n0000000000001100 t register_tm_clones\n0000000000002030 D registry_end\n0000000000002020 D registry_start\n0000000000002020 d table\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "-DOMIT",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/register.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-lto.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-flto",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-lto.o",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-lto"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/omitted-lto"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "count=0",
+      "stdout": "sum=0 count=0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/enumerate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric.o",
+        "-DSKIP",
+        "-Wl,--gc-sections",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/registry.ld",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "count=2",
+      "stdout": "sum=0 count=2\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/numeric"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000003dc8 d _DYNAMIC\n0000000000003fb8 d _GLOBAL_OFFSET_TABLE_\n                 w _ITM_deregisterTMCloneTable\n                 w _ITM_registerTMCloneTable\n00000000000020e0 r __FRAME_END__\n0000000000002024 r __GNU_EH_FRAME_HDR\n0000000000004008 D __TMC_END__\n0000000000002108 r __abi_tag\n0000000000004008 B __bss_start\n                 w __cxa_finalize@GLIBC_2.2.5\n00000000000010f0 t __do_global_dtors_aux\n0000000000003dc0 d __do_global_dtors_aux_fini_array_entry\n0000000000004000 D __dso_handle\n0000000000003db8 d __frame_dummy_init_array_entry\n                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n0000000000004008 D _edata\n0000000000004010 B _end\n0000000000001188 T _fini\n0000000000001000 T _init\n0000000000001050 T _start\n0000000000004008 b completed.0\n0000000000001080 t deregister_tm_clones\n0000000000001130 t frame_dummy\n0000000000001139 T main\n                 U printf@GLIBC_2.2.5\n00000000000010b0 t register_tm_clones\n0000000000002022 R registry_end\n0000000000002012 R registry_start\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/budget.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b32.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000020020 B budget_end\n0000000000020040 A stack_bottom\n0000000000020100 A stack_top\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b128.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b128.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/budget.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b128.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b128.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/b128.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 1,
+      "expected": "nonzero",
+      "diagnostic": "STATIC_BUDGET64",
+      "stdout": "",
+      "stderr": "/usr/bin/x86_64-linux-gnu-ld.bfd: STATIC_BUDGET64\n/usr/bin/x86_64-linux-gnu-ld.bfd: STACK_COLLISION\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/budget.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/aligned.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "0000000000020030 B budget_end\n0000000000020040 A stack_bottom\n0000000000020100 A stack_top\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padding-overflow.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padding-overflow.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/budget.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padding-overflow.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padding-overflow.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/padding-overflow.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 1,
+      "expected": "nonzero",
+      "diagnostic": "STATIC_BUDGET64",
+      "stdout": "",
+      "stderr": "/usr/bin/x86_64-linux-gnu-ld.bfd: STATIC_BUDGET64\n/usr/bin/x86_64-linux-gnu-ld.bfd: STACK_COLLISION\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-O0",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "same:same:7:0",
+      "stdout": "same:same:7:0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "size",
+        "-A",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep  :\nsection              size    addr\n.note.gnu.build-id     36     848\n.interp                28     884\n.gnu.hash              36     912\n.dynsym               168     952\n.dynstr               143    1120\n.gnu.version           14    1264\n.gnu.version_r         48    1280\n.rela.dyn             192    1328\n.rela.plt              24    1520\n.init                  27    4096\n.plt                   32    4128\n.plt.got               16    4160\n.plt.sec               16    4176\n.text                 296    4192\n.fini                  13    4488\n.rodata                27    8192\n.eh_frame_hdr          52    8220\n.eh_frame             172    8272\n.note.gnu.property     48    8448\n.note.ABI-tag          32    8496\n.init_array             8   15800\n.fini_array             8   15808\n.dynamic              496   15816\n.got                   72   16312\n.data                  20   16384\n.bss                   64   16416\n.comment               38       0\n.debug_aranges         48       0\n.debug_info           293       0\n.debug_abbrev         182       0\n.debug_line           103       0\n.debug_str            274       0\n.debug_line_str       299       0\nTotal                3325\n\n\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-SW",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "There are 37 section headers, starting at offset 0x3c10:\n\nSection Headers:\n  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al\n  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0\n  [ 1] .note.gnu.build-id NOTE            0000000000000350 000350 000024 00   A  0   0  4\n  [ 2] .interp           PROGBITS        0000000000000374 000374 00001c 00   A  0   0  1\n  [ 3] .gnu.hash         GNU_HASH        0000000000000390 000390 000024 00   A  4   0  8\n  [ 4] .dynsym           DYNSYM          00000000000003b8 0003b8 0000a8 18   A  5   1  8\n  [ 5] .dynstr           STRTAB          0000000000000460 000460 00008f 00   A  0   0  1\n  [ 6] .gnu.version      VERSYM          00000000000004f0 0004f0 00000e 02   A  4   0  2\n  [ 7] .gnu.version_r    VERNEED         0000000000000500 000500 000030 00   A  5   1  8\n  [ 8] .rela.dyn         RELA            0000000000000530 000530 0000c0 18   A  4   0  8\n  [ 9] .rela.plt         RELA            00000000000005f0 0005f0 000018 18  AI  4  24  8\n  [10] .init             PROGBITS        0000000000001000 001000 00001b 00  AX  0   0  4\n  [11] .plt              PROGBITS        0000000000001020 001020 000020 10  AX  0   0 16\n  [12] .plt.got          PROGBITS        0000000000001040 001040 000010 10  AX  0   0 16\n  [13] .plt.sec          PROGBITS        0000000000001050 001050 000010 10  AX  0   0 16\n  [14] .text             PROGBITS        0000000000001060 001060 000128 00  AX  0   0 16\n  [15] .fini             PROGBITS        0000000000001188 001188 00000d 00  AX  0   0  4\n  [16] .rodata           PROGBITS        0000000000002000 002000 00001b 00   A  0   0  4\n  [17] .eh_frame_hdr     PROGBITS        000000000000201c 00201c 000034 00   A  0   0  4\n  [18] .eh_frame         PROGBITS        0000000000002050 002050 0000ac 00   A  0   0  8\n  [19] .note.gnu.property NOTE            0000000000002100 002100 000030 00   A  0   0  8\n  [20] .note.ABI-tag     NOTE            0000000000002130 002130 000020 00   A  0   0  4\n  [21] .init_array       INIT_ARRAY      0000000000003db8 002db8 000008 08  WA  0   0  8\n  [22] .fini_array       FINI_ARRAY      0000000000003dc0 002dc0 000008 08  WA  0   0  8\n  [23] .dynamic          DYNAMIC         0000000000003dc8 002dc8 0001f0 10  WA  5   0  8\n  [24] .got              PROGBITS        0000000000003fb8 002fb8 000048 08  WA  0   0  8\n  [25] .data             PROGBITS        0000000000004000 003000 000014 00  WA  0   0  8\n  [26] .bss              NOBITS          0000000000004020 003014 000040 00  WA  0   0 32\n  [27] .comment          PROGBITS        0000000000000000 003014 000026 01  MS  0   0  1\n  [28] .debug_aranges    PROGBITS        0000000000000000 00303a 000030 00      0   0  1\n  [29] .debug_info       PROGBITS        0000000000000000 00306a 000125 00      0   0  1\n  [30] .debug_abbrev     PROGBITS        0000000000000000 00318f 0000b6 00      0   0  1\n  [31] .debug_line       PROGBITS        0000000000000000 003245 000067 00      0   0  1\n  [32] .debug_str        PROGBITS        0000000000000000 0032ac 000112 01  MS  0   0  1\n  [33] .debug_line_str   PROGBITS        0000000000000000 0033be 00012b 01  MS  0   0  1\n  [34] .symtab           SYMTAB          0000000000000000 0034f0 0003c0 18     35  22  8\n  [35] .strtab           STRTAB          0000000000000000 0038b0 0001f4 00      0   0  1\n  [36] .shstrtab         STRTAB          0000000000000000 003aa4 00016a 00      0   0  1\nKey to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n  L (link order), O (extra OS processing required), G (group), T (TLS),\n  C (compressed), x (unknown), o (OS specific), E (exclude),\n  D (mbind), l (large), p (processor specific)\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wl,--gc-sections",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "same:same:7:0",
+      "stdout": "same:same:7:0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "size",
+        "-A",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc  :\nsection              size    addr\n.note.gnu.build-id     36     848\n.interp                28     884\n.gnu.hash              36     912\n.dynsym               168     952\n.dynstr               161    1120\n.gnu.version           14    1282\n.gnu.version_r         64    1296\n.rela.dyn             192    1360\n.rela.plt              24    1552\n.init                  27    4096\n.plt                   32    4128\n.plt.got               16    4160\n.plt.sec               16    4176\n.text                 297    4192\n.fini                  13    4492\n.rodata                23    8192\n.eh_frame_hdr          52    8216\n.eh_frame             164    8272\n.note.gnu.property     48    8440\n.note.ABI-tag          32    8488\n.init_array             8   15800\n.fini_array             8   15808\n.dynamic              496   15816\n.got                   72   16312\n.data                   8   16384\n.bss                    8   16392\n.comment               38       0\n.debug_aranges         48       0\n.debug_info           413       0\n.debug_abbrev         277       0\n.debug_line           144       0\n.debug_str            349       0\n.debug_line_str       336       0\n.debug_loclists        36       0\n.debug_rnglists        39       0\nTotal                3723\n\n\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-SW",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "There are 39 section headers, starting at offset 0x3d38:\n\nSection Headers:\n  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al\n  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0\n  [ 1] .note.gnu.build-id NOTE            0000000000000350 000350 000024 00   A  0   0  4\n  [ 2] .interp           PROGBITS        0000000000000374 000374 00001c 00   A  0   0  1\n  [ 3] .gnu.hash         GNU_HASH        0000000000000390 000390 000024 00   A  4   0  8\n  [ 4] .dynsym           DYNSYM          00000000000003b8 0003b8 0000a8 18   A  5   1  8\n  [ 5] .dynstr           STRTAB          0000000000000460 000460 0000a1 00   A  0   0  1\n  [ 6] .gnu.version      VERSYM          0000000000000502 000502 00000e 02   A  4   0  2\n  [ 7] .gnu.version_r    VERNEED         0000000000000510 000510 000040 00   A  5   1  8\n  [ 8] .rela.dyn         RELA            0000000000000550 000550 0000c0 18   A  4   0  8\n  [ 9] .rela.plt         RELA            0000000000000610 000610 000018 18  AI  4  24  8\n  [10] .init             PROGBITS        0000000000001000 001000 00001b 00  AX  0   0  4\n  [11] .plt              PROGBITS        0000000000001020 001020 000020 10  AX  0   0 16\n  [12] .plt.got          PROGBITS        0000000000001040 001040 000010 10  AX  0   0 16\n  [13] .plt.sec          PROGBITS        0000000000001050 001050 000010 10  AX  0   0 16\n  [14] .text             PROGBITS        0000000000001060 001060 000129 00  AX  0   0 16\n  [15] .fini             PROGBITS        000000000000118c 00118c 00000d 00  AX  0   0  4\n  [16] .rodata           PROGBITS        0000000000002000 002000 000017 00   A  0   0  1\n  [17] .eh_frame_hdr     PROGBITS        0000000000002018 002018 000034 00   A  0   0  4\n  [18] .eh_frame         PROGBITS        0000000000002050 002050 0000a4 00   A  0   0  8\n  [19] .note.gnu.property NOTE            00000000000020f8 0020f8 000030 00   A  0   0  8\n  [20] .note.ABI-tag     NOTE            0000000000002128 002128 000020 00   A  0   0  4\n  [21] .init_array       INIT_ARRAY      0000000000003db8 002db8 000008 08  WA  0   0  8\n  [22] .fini_array       FINI_ARRAY      0000000000003dc0 002dc0 000008 08  WA  0   0  8\n  [23] .dynamic          DYNAMIC         0000000000003dc8 002dc8 0001f0 10  WA  5   0  8\n  [24] .got              PROGBITS        0000000000003fb8 002fb8 000048 08  WA  0   0  8\n  [25] .data             PROGBITS        0000000000004000 003000 000008 00  WA  0   0  8\n  [26] .bss              NOBITS          0000000000004008 003008 000008 00  WA  0   0  1\n  [27] .comment          PROGBITS        0000000000000000 003008 000026 01  MS  0   0  1\n  [28] .debug_aranges    PROGBITS        0000000000000000 00302e 000030 00      0   0  1\n  [29] .debug_info       PROGBITS        0000000000000000 00305e 00019d 00      0   0  1\n  [30] .debug_abbrev     PROGBITS        0000000000000000 0031fb 000115 00      0   0  1\n  [31] .debug_line       PROGBITS        0000000000000000 003310 000090 00      0   0  1\n  [32] .debug_str        PROGBITS        0000000000000000 0033a0 00015d 01  MS  0   0  1\n  [33] .debug_line_str   PROGBITS        0000000000000000 0034fd 000150 01  MS  0   0  1\n  [34] .debug_loclists   PROGBITS        0000000000000000 00364d 000024 00      0   0  1\n  [35] .debug_rnglists   PROGBITS        0000000000000000 003671 000027 00      0   0  1\n  [36] .symtab           SYMTAB          0000000000000000 003698 000348 18     37  20  8\n  [37] .strtab           STRTAB          0000000000000000 0039e0 0001cd 00      0   0  1\n  [38] .shstrtab         STRTAB          0000000000000000 003bad 00018a 00      0   0  1\nKey to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n  L (link order), O (extra OS processing required), G (group), T (TLS),\n  C (compressed), x (unknown), o (OS specific), E (exclude),\n  D (mbind), l (large), p (processor specific)\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.S",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "ld",
+        "-T",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.ld",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.o",
+        "-Map=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.map",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.elf"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "-O",
+        "binary",
+        "--gap-fill=0",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.elf",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse-0.bin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "-O",
+        "binary",
+        "--gap-fill=165",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.elf",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse-165.bin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "-O",
+        "ihex",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.elf",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/sparse.hex"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-O0",
+        "-fno-pie",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.c",
+        "-Wl,--build-id=sha1",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "--only-keep-debug",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "--strip-all",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "--add-gnu-debuglink=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n0000000000401000 T _init\n0000000000401020 T _start\n0000000000401050 T _dl_relocate_static_pie\n0000000000401060 t deregister_tm_clones\n0000000000401090 t register_tm_clones\n00000000004010d0 t __do_global_dtors_aux\n0000000000401100 t frame_dummy\n0000000000401106 T marker\n0000000000401119 T main\n0000000000401138 T _fini\n0000000000402000 R _IO_stdin_used\n0000000000402004 r __GNU_EH_FRAME_HDR\n00000000004020b0 r __FRAME_END__\n00000000004020e8 r __abi_tag\n0000000000403e38 d __frame_dummy_init_array_entry\n0000000000403e40 d __do_global_dtors_aux_fini_array_entry\n0000000000403e48 d _DYNAMIC\n0000000000403fe8 d _GLOBAL_OFFSET_TABLE_\n0000000000404000 D __data_start\n0000000000404000 W data_start\n0000000000404008 D __dso_handle\n0000000000404010 D __TMC_END__\n0000000000404010 B __bss_start\n0000000000404010 D _edata\n0000000000404010 b completed.0\n0000000000404018 B _end\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "addr2line",
+        "-e",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info",
+        "0x401106"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "debug.c:1",
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.c:1\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "--dump-section",
+        ".gnu_debuglink=/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debuglink.bin",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 8792f58db9da5e9a3dfa60da00eb173bcc2d454b\n\nDisplaying notes found in: .note.gnu.property\n  Owner                Data size \tDescription\n  GNU                  0x00000020\tNT_GNU_PROPERTY_TYPE_0\n      Properties: x86 feature: IBT, SHSTK\n\tx86 ISA needed: x86-64-baseline\n\nDisplaying notes found in: .note.ABI-tag\n  Owner                Data size \tDescription\n  GNU                  0x00000010\tNT_GNU_ABI_TAG (ABI version tag)\n    OS: Linux, ABI: 3.2.0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 8792f58db9da5e9a3dfa60da00eb173bcc2d454b\n\nDisplaying notes found in: .note.gnu.property\n  Owner                Data size \tDescription\n  GNU                  0x00000020\tNT_GNU_PROPERTY_TYPE_0\n      Properties: x86 feature: IBT, SHSTK\n\tx86 ISA needed: x86-64-baseline\n\nDisplaying notes found in: .note.ABI-tag\n  Owner                Data size \tDescription\n  GNU                  0x00000010\tNT_GNU_ABI_TAG (ABI version tag)\n    OS: Linux, ABI: 3.2.0\n",
+      "stderr": "readelf: Error: Unable to find program interpreter name\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 8792f58db9da5e9a3dfa60da00eb173bcc2d454b\n\nDisplaying notes found in: .note.gnu.property\n  Owner                Data size \tDescription\n  GNU                  0x00000020\tNT_GNU_PROPERTY_TYPE_0\n      Properties: x86 feature: IBT, SHSTK\n\tx86 ISA needed: x86-64-baseline\n\nDisplaying notes found in: .note.ABI-tag\n  Owner                Data size \tDescription\n  GNU                  0x00000010\tNT_GNU_ABI_TAG (ABI version tag)\n    OS: Linux, ABI: 3.2.0\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gcc",
+        "-g",
+        "-O0",
+        "-fno-pie",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.c",
+        "-Wl,-Ttext-segment=0x500000",
+        "-Wl,--build-id=sha1",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/different-base"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "objcopy",
+        "--only-keep-debug",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/different-base",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/different.info"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "readelf",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/different.info"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: f86b40f299698b4aaa3fda87514156ee927d1104\n\nDisplaying notes found in: .note.gnu.property\n  Owner                Data size \tDescription\n  GNU                  0x00000020\tNT_GNU_PROPERTY_TYPE_0\n      Properties: x86 feature: IBT, SHSTK\n\tx86 ISA needed: x86-64-baseline\n\nDisplaying notes found in: .note.ABI-tag\n  Owner                Data size \tDescription\n  GNU                  0x00000010\tNT_GNU_ABI_TAG (ABI version tag)\n    OS: Linux, ABI: 3.2.0\n",
+      "stderr": "readelf: Error: Unable to find program interpreter name\n",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/different-base"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "                 w __gmon_start__\n                 U __libc_start_main@GLIBC_2.34\n0000000000501000 T _init\n0000000000501020 T _start\n0000000000501050 T _dl_relocate_static_pie\n0000000000501060 t deregister_tm_clones\n0000000000501090 t register_tm_clones\n00000000005010d0 t __do_global_dtors_aux\n0000000000501100 t frame_dummy\n0000000000501106 T marker\n0000000000501119 T main\n0000000000501138 T _fini\n0000000000502000 R _IO_stdin_used\n0000000000502004 r __GNU_EH_FRAME_HDR\n00000000005020b0 r __FRAME_END__\n00000000005020e8 r __abi_tag\n0000000000503e38 d __frame_dummy_init_array_entry\n0000000000503e40 d __do_global_dtors_aux_fini_array_entry\n0000000000503e48 d _DYNAMIC\n0000000000503fe8 d _GLOBAL_OFFSET_TABLE_\n0000000000504000 D __data_start\n0000000000504000 W data_start\n0000000000504008 D __dso_handle\n0000000000504010 D __TMC_END__\n0000000000504010 B __bss_start\n0000000000504010 D _edata\n0000000000504010 b completed.0\n0000000000504018 B _end\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "layout-retention-images",
+      "argv": [
+        "gdb",
+        "-nx",
+        "-batch",
+        "-iex",
+        "set debuginfod enabled off",
+        "-iex",
+        "set debug-file-directory /nonexistent",
+        "-ex",
+        "file /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped",
+        "-ex",
+        "info line marker"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z",
+      "exit": 1,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "warning: the debug information found in \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info\" does not match \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped\" (CRC mismatch).\nNo symbol table is loaded.  Use the \"file\" command.\n",
+      "environment": {
+        "LC_ALL": "C",
+        "DEBUGINFOD_URLS": ""
+      },
+      "passed": false
+    }
+  ],
+  "checks": [
+    {
+      "group": "layout-retention-images",
+      "name": "independently derived run/load intervals",
+      "passed": true,
+      "observed": {
+        "entry": 65536,
+        "data_load": 65664,
+        "data_start": 131072,
+        "bss_start": 131088,
+        "data_end": 131088,
+        "bss_end": 131112
+      }
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "load extent includes padding and16 initializers, excludes24 BSS bytes",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "actual startup table carries source/destination/count and zero interval",
+      "passed": true,
+      "observed": [
+        65664,
+        131072,
+        16,
+        131088,
+        24
+      ]
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "validated table initialization preserves unrelated bytes",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('copy', 65535, 131072, 1)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('copy', 65680, 131072, 1)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('zero', 0, 131200, 1)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('zero', 0, 131071, 1)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('zero', 0, 131072, 18446744073709551615)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "all-table validation prevents partial writes ('wrong', 0, 131072, 0)",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "padding changes copy source and raw extent independently of RAM",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage plain/unextracted",
+      "passed": true,
+      "observed": "sum=0 count=0\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected plain/unextracted",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage plain/extracted",
+      "passed": true,
+      "observed": "sum=33 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected plain/extracted",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage plain/direct",
+      "passed": true,
+      "observed": "sum=33 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected plain/direct",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage plain/collected",
+      "passed": true,
+      "observed": "sum=0 count=0\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected plain/collected",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage plain/not-enumerated",
+      "passed": true,
+      "observed": "sum=0 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected plain/not-enumerated",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage lto/unextracted",
+      "passed": true,
+      "observed": "sum=0 count=0\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected lto/unextracted",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage lto/extracted",
+      "passed": true,
+      "observed": "sum=33 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected lto/extracted",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage lto/direct",
+      "passed": true,
+      "observed": "sum=33 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected lto/direct",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage lto/collected",
+      "passed": true,
+      "observed": "sum=0 count=0\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected lto/collected",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "registry stage lto/not-enumerated",
+      "passed": true,
+      "observed": "sum=0 count=2\n"
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "unrelated function collected lto/not-enumerated",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "retained pointer edges preserve both callbacks",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "numeric values do not create callback reachability edges",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent aligned budget end b32",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent aligned budget end aligned",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent raw base/fill/span 0",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent raw base/fill/span 165",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "Intel HEX record marker",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent HEX length/checksum",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "nonoverlapping HEX records",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "nonoverlapping HEX records",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "Intel HEX record marker",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent HEX length/checksum",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "nonoverlapping HEX records",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "nonoverlapping HEX records",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "Intel HEX record marker",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent HEX length/checksum",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "address-bearing sparse data retained independently of14 absent bytes",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "independent debuglink CRC",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "same build identity across strip/debug split",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "layout-retention-images",
+      "name": "different base rejects old address/build correlation",
+      "passed": true,
+      "observed": null
+    }
+  ],
+  "observations": [],
+  "generated_inputs": {
+    "layout/aligned.S": {
+      "sha256": "8098bbfd27a61a9afb16a7bc7485bec795e9c0c6ed93afc41255ab19cf59b53a",
+      "content": ".section .first,\"aw\",@nobits\n.space 17\n.section .second,\"aw\",@nobits\n.space 16\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/b128.S": {
+      "sha256": "77e5085313120aa54a4e833b64027b02d8150da2fe355d4ea5a323d24528aeda",
+      "content": ".section .first,\"aw\",@nobits\n.space 128\n.section .second,\"aw\",@nobits\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/b32.S": {
+      "sha256": "ba7169ac2b20a4b351c4ac57e7666739fc68f01cd3bc7d425f99347c1bdc8737",
+      "content": ".section .first,\"aw\",@nobits\n.space 32\n.section .second,\"aw\",@nobits\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/bank.S": {
+      "sha256": "dc80cbbbcac8beed70c072d286a3555d83e55af38a0e3ac7e9c249f0fefd6ac6",
+      "content": ".section .bank,\"aw\",@nobits\n.space 96\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/constants.c": {
+      "sha256": "ebf990cfac7808de888444925b05ea53b9e743d2bc606ec1de176cf8aea50df4",
+      "content": "#include <stdio.h>\nstatic const char a[]=\"same\",b[]=\"same\";static int initialized=7,zero[8];int main(void){printf(\"%s:%s:%d:%d\\n\",a,b,initialized,zero[0]);return 0;}\n"
+    },
+    "layout/debug.c": {
+      "sha256": "6c7ab6e93ba9367c1b9e2fa1f8a2a86ef5c91466fb37b3d72f859879bbd753b9",
+      "content": "int marker(int x){return x+7;}\nint main(void){return marker(35)!=42;}\n"
+    },
+    "layout/enumerate.c": {
+      "sha256": "b50796246110851f66d6090bf9f7adf7bd58333630025d93b737997baae0b181",
+      "content": "#include <stdio.h>\ntypedef int (*fn)(void);extern fn registry_start[],registry_end[];\nint main(void){int sum=0;\n#ifndef SKIP\nfor(fn *p=registry_start;p!=registry_end;++p)sum+=(*p)();\n#endif\nprintf(\"sum=%d count=%ld\\n\",sum,(long)(registry_end-registry_start));return 0;}\n"
+    },
+    "layout/huge.S": {
+      "sha256": "cc08ed66247c9ec54720215aa08737ca460ad17781e1b4398f94d3a42e7b70db",
+      "content": ".section .text.entry,\"ax\"\n.global entry\nentry: .byte 0x90,0x90,0x90,0xc3\n.section .rodata,\"a\"\n.byte 9,8,7,6\n.section .data,\"aw\"\n.byte 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15\n.section .bss,\"aw\",@nobits\n.space 128\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/image.S": {
+      "sha256": "fdd21c0690973096803b6e3aee4e6126d1ee410b06b0b9221b3f5a695a2d84e4",
+      "content": ".section .text.entry,\"ax\"\n.global entry\nentry: .byte 0x90,0x90,0x90,0xc3\n.section .rodata,\"a\"\n.byte 9,8,7,6\n.section .data,\"aw\"\n.byte 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15\n.section .bss,\"aw\",@nobits\n.space 24\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/numeric.S": {
+      "sha256": "4c4c7c1a213ce3aa99871001c810e185b00a1a6ccb5aba514066d11abd8d4148",
+      "content": ".section .registry,\"a\"\n.quad 16,32\n.section .text.numeric_callback,\"ax\"\n.global numeric_callback\nnumeric_callback: ret\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/padding-overflow.S": {
+      "sha256": "3d7ad8105cf468b12497bf2b961f91d80d500d734b3806ac229960dabc178492",
+      "content": ".section .first,\"aw\",@nobits\n.space 33\n.section .second,\"aw\",@nobits\n.space 1\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/register.c": {
+      "sha256": "b01f4c54c28bcc2972e30efaaab11e4a1ebe9f1ceb870ef16e28931f10ac0201",
+      "content": "typedef int (*fn)(void);\nint callback_a(void){return 11;} int callback_b(void){return 22;} int unrelated(void){return 99;}\nvoid registration_anchor(void){}\n#ifndef OMIT\n__attribute__((used,section(\".registry\"))) static fn table[]={callback_a,callback_b};\n#else\n__attribute__((section(\".registry\"))) static fn table[]={callback_a,callback_b};\n#endif\n"
+    },
+    "layout/registry-stages.json": {
+      "sha256": "c827de8f0add7d20eb2abe4d35d624d901ff75692808dc9ca50285a40e51b06c",
+      "content": "[\n  {\n    \"lto\": false,\n    \"case\": \"unextracted\",\n    \"sum\": 0,\n    \"count\": 0\n  },\n  {\n    \"lto\": false,\n    \"case\": \"extracted\",\n    \"sum\": 33,\n    \"count\": 2\n  },\n  {\n    \"lto\": false,\n    \"case\": \"direct\",\n    \"sum\": 33,\n    \"count\": 2\n  },\n  {\n    \"lto\": false,\n    \"case\": \"collected\",\n    \"sum\": 0,\n    \"count\": 0\n  },\n  {\n    \"lto\": false,\n    \"case\": \"not-enumerated\",\n    \"sum\": 0,\n    \"count\": 2\n  },\n  {\n    \"lto\": true,\n    \"case\": \"unextracted\",\n    \"sum\": 0,\n    \"count\": 0\n  },\n  {\n    \"lto\": true,\n    \"case\": \"extracted\",\n    \"sum\": 33,\n    \"count\": 2\n  },\n  {\n    \"lto\": true,\n    \"case\": \"direct\",\n    \"sum\": 33,\n    \"count\": 2\n  },\n  {\n    \"lto\": true,\n    \"case\": \"collected\",\n    \"sum\": 0,\n    \"count\": 0\n  },\n  {\n    \"lto\": true,\n    \"case\": \"not-enumerated\",\n    \"sum\": 0,\n    \"count\": 2\n  }\n]"
+    },
+    "layout/resource-metrics.json": {
+      "sha256": "8a828f2a0d35b645a59a990b302d0c0920f03a29b1a9de758a49c8e69959a157",
+      "content": "{\n  \"synthetic_elf_bytes\": 9000,\n  \"raw_load_extent\": 144,\n  \"initialized_ram_bytes\": 16,\n  \"zero_fill_ram_bytes\": 24,\n  \"constants\": [\n    {\n      \"configuration\": \"keep\",\n      \"sections\": \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-keep  :\\nsection              size    addr\\n.note.gnu.build-id     36     848\\n.interp                28     884\\n.gnu.hash              36     912\\n.dynsym               168     952\\n.dynstr               143    1120\\n.gnu.version           14    1264\\n.gnu.version_r         48    1280\\n.rela.dyn             192    1328\\n.rela.plt              24    1520\\n.init                  27    4096\\n.plt                   32    4128\\n.plt.got               16    4160\\n.plt.sec               16    4176\\n.text                 296    4192\\n.fini                  13    4488\\n.rodata                27    8192\\n.eh_frame_hdr          52    8220\\n.eh_frame             172    8272\\n.note.gnu.property     48    8448\\n.note.ABI-tag          32    8496\\n.init_array             8   15800\\n.fini_array             8   15808\\n.dynamic              496   15816\\n.got                   72   16312\\n.data                  20   16384\\n.bss                   64   16416\\n.comment               38       0\\n.debug_aranges         48       0\\n.debug_info           293       0\\n.debug_abbrev         182       0\\n.debug_line           103       0\\n.debug_str            274       0\\n.debug_line_str       299       0\\nTotal                3325\\n\\n\\n\",\n      \"file_bytes\": 17744\n    },\n    {\n      \"configuration\": \"gc\",\n      \"sections\": \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/constants-gc  :\\nsection              size    addr\\n.note.gnu.build-id     36     848\\n.interp                28     884\\n.gnu.hash              36     912\\n.dynsym               168     952\\n.dynstr               161    1120\\n.gnu.version           14    1282\\n.gnu.version_r         64    1296\\n.rela.dyn             192    1360\\n.rela.plt              24    1552\\n.init                  27    4096\\n.plt                   32    4128\\n.plt.got               16    4160\\n.plt.sec               16    4176\\n.text                 297    4192\\n.fini                  13    4492\\n.rodata                23    8192\\n.eh_frame_hdr          52    8216\\n.eh_frame             164    8272\\n.note.gnu.property     48    8440\\n.note.ABI-tag          32    8488\\n.init_array             8   15800\\n.fini_array             8   15808\\n.dynamic              496   15816\\n.got                   72   16312\\n.data                   8   16384\\n.bss                    8   16392\\n.comment               38       0\\n.debug_aranges         48       0\\n.debug_info           413       0\\n.debug_abbrev         277       0\\n.debug_line           144       0\\n.debug_str            349       0\\n.debug_line_str       336       0\\n.debug_loclists        36       0\\n.debug_rnglists        39       0\\nTotal                3723\\n\\n\\n\",\n      \"file_bytes\": 18168\n    }\n  ]\n}"
+    },
+    "layout/sparse.S": {
+      "sha256": "02b0b221aa03a3fbd106efc2c9b393e55ee230449a5839ab8d72c6048f3e10f4",
+      "content": ".section .low,\"a\"\n.byte 1,2\n.section .high,\"a\"\n.byte 254,255\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/split.S": {
+      "sha256": "f81e98283e0eccacb9f9a8d3c866c110d8f4b37ae4391accca36f824d884f26b",
+      "content": ".section .bank.first,\"aw\",@nobits\n.space 48\n.section .bank.second,\"aw\",@nobits\n.space 48\n\n.section .note.GNU-stack,\"\",@progbits\n"
+    },
+    "layout/startup-model.json": {
+      "sha256": "b1dc897ff5ceaa9b8f5ede4c11bbb504257db66acf58a4918b7a59e794056078",
+      "content": "{\n  \"table\": [\n    65664,\n    131072,\n    16,\n    131088,\n    24\n  ],\n  \"source_interval\": [\n    65664,\n    65680\n  ],\n  \"destination_interval\": [\n    131072,\n    131088\n  ],\n  \"zero_interval\": [\n    131088,\n    131112\n  ],\n  \"rejected\": [\n    [\n      \"copy\",\n      65535,\n      131072,\n      1\n    ],\n    [\n      \"copy\",\n      65680,\n      131072,\n      1\n    ],\n    [\n      \"zero\",\n      0,\n      131200,\n      1\n    ],\n    [\n      \"zero\",\n      0,\n      131071,\n      1\n    ],\n    [\n      \"zero\",\n      0,\n      131072,\n      18446744073709551615\n    ],\n    [\n      \"wrong\",\n      0,\n      131072,\n      0\n    ]\n  ]\n}"
+    },
+    "layout/symbols.c": {
+      "sha256": "4b207871a15e47e6e2a0244872be2e10ed9ff1373b67823739c1036b3e4cf2b9",
+      "content": "#include <stdint.h>\nextern unsigned char data_start[],data_end[],data_load[];\nint checked_count(uintptr_t *n){uintptr_t a=(uintptr_t)data_start,b=(uintptr_t)data_end;if(b<a)return 0;*n=b-a;return 1;}uintptr_t load_address(void){return (uintptr_t)data_load;}\n"
+    }
+  },
+  "error": "{\n  \"group\": \"layout-retention-images\",\n  \"argv\": [\n    \"gdb\",\n    \"-nx\",\n    \"-batch\",\n    \"-iex\",\n    \"set debuginfod enabled off\",\n    \"-iex\",\n    \"set debug-file-directory /nonexistent\",\n    \"-ex\",\n    \"file /mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped\",\n    \"-ex\",\n    \"info line marker\"\n  ],\n  \"cwd\": \"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z\",\n  \"exit\": 1,\n  \"expected\": 0,\n  \"diagnostic\": null,\n  \"stdout\": \"\",\n  \"stderr\": \"warning: the debug information found in \\\"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/debug.info\\\" does not match \\\"/mnt/f/Learning/Curricula/c_mastery/build/legacy_systems_elf/20261017T044112429813Z/layout/stripped\\\" (CRC mismatch).\\nNo symbol table is loaded.  Use the \\\"file\\\" command.\\n\",\n  \"environment\": {\n    \"LC_ALL\": \"C\",\n    \"DEBUGINFOD_URLS\": \"\"\n  },\n  \"passed\": false\n}",
+  "passed": false,
+  "limits": [
+    "Bounded Linux/toolchain experiments; no physical target claim.",
+    "A successful reference run does not establish independent learner performance.",
+    "Source identity and reproducibility do not establish trust in a toolchain."
+  ]
+}

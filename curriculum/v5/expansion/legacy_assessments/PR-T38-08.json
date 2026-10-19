@@ -4,7 +4,11 @@
   "domain": "T38",
   "title": "Independent depth assessment: RS-485 direction-safe reusable byte channel",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/rs485/CONTRACTS.md",
+    "labs/serial_followthrough/rs485/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -119,6 +123,30 @@
         "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
         "PR-T38-08: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-R5-1410",
+      "path": "research/v5/expansion/legacy_serial_rs485/resources.json",
+      "passages": [
+        "Printed5,9\u201311: SOIC pin functions, recommended limits, receiver thresholds and condition-specific driver/receiver enable/disable timing",
+        "Printed19\u201321,23\u201324: selected THVD1410 operation, enable truth table, failsafe and eighth-unit loading; other family diagrams not adopted"
+      ]
+    },
+    {
+      "id": "R-R5-1400",
+      "path": "research/v5/expansion/legacy_serial_rs485/resources.json",
+      "passages": [
+        "Printed3\u20137: selected pin functions, recommended bus input/differential/load conditions and condition-specific enable/disable timing",
+        "Printed13\u201314,16: functional operation, failsafe and one-eighth-unit load scope"
+      ]
+    },
+    {
+      "id": "R-R5-GPIO",
+      "path": "research/v5/expansion/legacy_serial_rs485/resources.json",
+      "passages": [
+        "Printed68: SRAM mapping and CPU-only CCM compared with AHB access",
+        "Printed284\u2013285,287\u2013289: mode, output type/speed/pull, BSRR write semantics and alternate-function register offsets"
+      ]
     }
   ],
   "reference_gaps": [
@@ -128,13 +156,45 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T38-08.json",
     "curriculum/projects/PR-T38-08.md",
-    "labs/serial_depth/CONTRACTS.md"
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/rs485/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/rs485/CONTRACTS.md",
+    "labs/serial_followthrough/rs485/channel.h",
+    "labs/serial_followthrough/rs485/freestanding/string.h",
+    "labs/serial_followthrough/rs485/guest.c",
+    "labs/serial_followthrough/rs485/learner.c",
+    "labs/serial_followthrough/rs485/mapped.c",
+    "labs/serial_followthrough/rs485/native.c",
+    "labs/serial_followthrough/rs485/port_learner.c",
+    "labs/serial_followthrough/rs485/target.ld",
+    "labs/serial_followthrough/rs485/target_build.py",
+    "labs/serial_followthrough/rs485/tests.c",
+    "labs/serial_followthrough/uart/uart_depth.h",
+    "labs/serial_followthrough/uart/learner.c",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/communications/include/com_edu7.h",
+    "labs/communications/learner/edu7.c"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Retain unit-load/timing fixture and edu7 DE subset; new full bounded RS485 event channel.",
     "tests": [],
-    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied."
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "rs485_successor": {
+      "path": "research/v5/expansion/legacy_serial_rs485/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-08-T38.09.a",
+        "AX-PR-T38-08-T38.09.b",
+        "AX-PR-T38-08-T38.09.c"
+      ],
+      "scope": "Original three criterion/V1 pairs; actual UART/DMA channel and EDU7 frame composition, selected F439 adapter; physical and independent gates remain."
+    }
   },
   "criteria": [
     {
@@ -355,12 +415,23 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T38-08.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Source-bound actual UART/DMA byte channel, EDU7 frame composition and Thumb RAM-register execution; physical line captures and independent attempts remain separately required.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Actual selected transceiver enable/wake timings, ISR synchronization and physical bus non-overlap remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_rs485/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-08-T38.09.a",
+        "AX-PR-T38-08-T38.09.b",
+        "AX-PR-T38-08-T38.09.c"
+      ],
+      "scope": "Original three criterion/V1 pairs; actual UART/DMA channel and EDU7 frame composition, selected F439 adapter; physical and independent gates remain."
+    }
+  ]
 }

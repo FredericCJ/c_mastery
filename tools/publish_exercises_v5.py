@@ -1,9 +1,26 @@
 """Publish mandatory exercise supplements without editing accepted teaching bytes."""
 from __future__ import annotations
 
-from common import ROOT, anchor, read_json
+from pathlib import PurePosixPath
+import re
+
+from common import ROOT, anchor, read_json, write as write_raw
 from publish_contracts_v5 import reference, registered, target
 from publish_links import links as source_links
+
+
+def contract_body(name, content):
+    """Markdown remains prose; declared C/header artifacts remain literal code."""
+    suffix = PurePosixPath(name).suffix
+    if suffix == '.md':
+        return content
+    if suffix not in {'.c', '.h'}:
+        raise ValueError('Unsupported shared-contract publication type: ' + name)
+    fence = '`' * max(3, 1 + max((len(run) for run in re.findall(r'`+', content)), default=0))
+    separator = '' if content.endswith('\n') else '\n'
+    return ('# Source contract: `' + name + '`\n\n'
+            'The following is the unchanged learner source artifact.\n\n' +
+            fence + 'c\n' + content + separator + fence + '\n')
 
 
 def prepare(source, merged):
@@ -43,11 +60,16 @@ def prepare(source, merged):
         identifier, page = target(name)
         if page is None:
             continue
-        shared = (ROOT/name).read_text(encoding='utf-8')
-        shared = '(' + identifier + ')=\n' + link_page(source_links(
-            shared, contracts=contracts, current=name, root=ROOT,
-            source=source, page='learning/exercises/' + page + '.md'))
-        write(source/'learning/exercises'/(page + '.md'), shared)
+        # Decode without universal-newline conversion so literal C/H payloads
+        # retain their bytes; do not run code through prose/link transforms.
+        shared = contract_body(name, (ROOT/name).read_bytes().decode('utf-8'))
+        is_code = PurePosixPath(name).suffix in {'.c', '.h'}
+        if not is_code:
+            shared = link_page(source_links(
+                shared, contracts=contracts, current=name, root=ROOT,
+                source=source, page='learning/exercises/' + page + '.md'))
+        shared = '(' + identifier + ')=\n' + shared
+        (write_raw if is_code else write)(source/'learning/exercises'/(page + '.md'), shared)
         sections.insert(0, shared)
         docs.append('learning/exercises/' + page)
         contract_docs.append(page)

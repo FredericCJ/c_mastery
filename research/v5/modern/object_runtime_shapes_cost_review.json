@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_report": "reviews/v5/expansion/modern_completion/object_runtime_shapes_probe.json",
+  "semantic_report": "reviews/v5/expansion/modern_completion/object_runtime_shapes_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Actual x86-64 GCC/Clang sizes: world1368, descriptor12, object104, field24, cache32 bytes; cache alignment8. Shape and object generations are separate finite identities."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Eight actual typed heap cells plus eight field rows and16 descriptors are embedded in the world. Prototype edge0 is strong; caches own neither object nor descriptor references. Four fields per receiver and15 nonempty descriptor slots bound storage."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Create owns one root and one descriptor reference. Collection releases dead descriptors; nonempty descriptor generations1..3 advance and retire4. Getters receive temporary receiver/holder roots, released on every status."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "One serialized controller. Same-layout value changes keep shape and epoch; structural changes advance epoch. Borrowed getter code/context must remain live across any self-mutation. Cache hit uses current field, not retained payload."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "World operations use embedded typed storage with no general allocator. A getter may allocate through the actual pool; tests allocate/release/collect during both successful and failing getters. Arbitrary callback allocation cost is outside the fixed kernel bound."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Descriptor publication stages a full object and desired descriptor before acquire/drop. Pool packing may move payload cells behind stable handles; metadata and weak caches retain logical identities, not cell pointers. Descriptor fields are copied on structural transition."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "World collection scans eight metadata rows and releases one descriptor reference per dead object. Prototype cycles are rejected. Root cleanup is outside timed lookup loops and its bounded pool scan is documented; callbacks cannot consume temporary roots they do not own."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Generic traversal visits at most8 objects with at most4 key comparisons each. Retained cache performs world/identity/shape/key/epoch guards. Accessors are typed indirect calls after lifetime admission; generated disassembly is recorded, no JIT or universal inlining claim."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Controller and getter operations are serialized with nested lookup rejected. Temporary rooting protects collection during callback reentry, not simultaneous unprotected writers. The broader family TSan run includes the distinct actual foreign-reader backend; this cache is not a concurrent dictionary."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Capacity, readonly, cycle and epoch failures preserve world/output. Callback failure preserves payload output but retains completed callback effects, clears reentry and releases holds. Counters and epoch reject before wrap; arbitrary corrupt pointers are outside the model."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Six actual CMake/Ninja GCC/Clang O0/O2/O3 configurations record clean, unchanged and one-header rebuilds. At O2 observed clean/no-change/header seconds: GCC0.9713/0.0612/0.8075, Clang0.8854/0.0828/0.7125. These include process/filesystem overhead and are observations, not stable compiler-speed conclusions."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 full probe text/data/BSS bytes: GCC31937/632/16, Clang35179/608/16. Local collect/define/prototype/get frames: GCC48/224/32/288 and Clang24/152/8/280. Baseline and ownership objects are linked; deeper callback frames are additional and unbounded without their own contract."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "540 retained samples plus36 warmups time10000 equal-result lookups at chain depths1/4/8 with625 same-layout value updates, reset versus retained cache. Setup/root cleanup excluded; loop/timer/reset/check/counter overhead included. No cache-traffic counter, worst-case bound, JS semantics, hardware or learner assessment claim."
+    }
+  ],
+  "sealed_decision": {
+    "choice": "Conservative global epoch and finite retirement for the bounded world.",
+    "reason": "Eight-object chains make worst-case traversal explicit; shared immutable descriptors permit value updates without invalidation.",
+    "rejected_alternative": "Bare offset cache or wrapping generations loses semantic identity; per-chain validity can reduce misses but requires a separate dependency/invalidation proof.",
+    "counterexample": "Old holder remains live with unchanged shape after receiver prototype changes, so lifetime checks alone return the wrong property."
+  }
+}

@@ -1,0 +1,20 @@
+"""Canonical effectful reduction support without replacing original numeric policy."""
+import json
+from common import ROOT,dump,read_json,sha
+ANCHORS=['policy_order','policy_failure','policy_saturation','policy_base']
+MARKERS=['MPP_ORDER acquire-project-release left-to-right once','MPP_FAILURE partial-acquisition release output-rollback effects-retained','MPP_SATURATION mandatory-effects late-failure rejection-prefix','MPP_BASE actual-reject-saturate empty-identity']
+def register():
+    contract='labs/metaprog/policy_effects/POLICY.md';source='research/v5/modern/metaprog_policy_effects_resources.json';gate='research/v5/modern/metaprog_policy_effects_research_gate.json';tests=['metaprog.'+a for a in ANCHORS]
+    f=read_json(ROOT/'labs/metaprog/family.json')
+    for row in f.get('projects',[])+f.get('exercises',[]):
+        if row['id'] in ['PR-T68-03','X-T68-003']:row['tests']=list(dict.fromkeys(row['tests']+tests))
+    f['tests']=list(dict.fromkeys(f.get('tests',[])+tests));f.setdefault('campaign',{}).update(policy_effects_producer='tools/run_metaprog_policy_effects.py',policy_effects_report='research/v5/modern/metaprog_policy_effects_validation.json');dump(ROOT/'labs/metaprog/family.json',f)
+    p=ROOT/'labs/metaprog/CMakeLists.txt';body=p.read_text(encoding='utf8');line='include("${CMAKE_CURRENT_SOURCE_DIR}/policy_effects/CMakeLists.txt")'
+    if line not in body:p.write_text(body.rstrip()+'\n'+line+'\n',encoding='utf8')
+    dump(ROOT/source,dict(schema_version=1,resources=[],reused_sources=[dict(id='R-ADMP-GENERICS',path='research/v5/modern/metaprog_resources.json',passages=['Const generics introduction, allowed types and standalone use restrictions'],limits='Actual bool policy comparison only; no callback ABI/resource-law equivalence.')],inspected_artifacts=[dict(path=p,sha256=sha(ROOT/p),passages=parts) for p,parts in [('assessor/metaprog/metaprog.c',['mp_reduce and MP_POLICY_WRAPPER']),('curriculum/v5/exercises/X-T68-003.md',['R1-R4 and delayed effectful projection/acquisition obligation'])]],reference_gaps=['Published C17/C23 inaccessible; no whole Rust language/source inspection inferred.']))
+    p=ROOT/'curriculum/v5/exercises/X-T68-003.md';body=p.read_text(encoding='utf8');a,rest=body.split('```json\n',1);raw,b=rest.split('\n```',1);m=json.loads(raw);m['lab']['tests']=list(dict.fromkeys(m['lab']['tests']+tests));m['shared_contracts']=list(dict.fromkeys(m['shared_contracts']+[contract]));heading='\n## Required ordered acquisition/projection and policy comparison\n';b=b.split(heading,1)[0].rstrip()+heading+'\n[POLICY.md](../../../labs/metaprog/policy_effects/POLICY.md) supplies partial acquisition cleanup, exact callback order, output/effect rollback distinction, saturation without omitted effects, generated/dynamic implementations, independent traces and equal-contract measurements. Original rubric and delayed IDs remain active.\n';p.write_text(a+'```json\n'+json.dumps(m,indent=2,ensure_ascii=False)+'\n```'+b,encoding='utf8')
+    r=read_json(ROOT/source)
+    for row in r['inspected_artifacts']:row['sha256']=sha(ROOT/row['path'])
+    dump(ROOT/source,r);dump(ROOT/gate,dict(status='passage-inspected',domains=['T68'],reviewer='author only',research_input_sha256={p:sha(ROOT/p) for p in [source,contract,'research/v5/modern/metaprog_resources.json']}))
+    dump(ROOT/'labs/metaprog/policy_effects/campaign.json',dict(module='policy_effects',target='metaprog-policy_effects',learner_option='CMASTERY_MPP_LEARNER',anchors=ANCHORS,control_count=8,observation_markers=MARKERS,oracle='tools/verify_metaprog_policy_effects.py',metrics=['metrics'],object_sources=['policy_effects.c','metaprog.c'],producer='tools/run_metaprog_policy_effects.py',report='research/v5/modern/metaprog_policy_effects_validation.json',imports=['labs/metaprog/CONTRACTS.md','labs/metaprog/include/metaprog.h','labs/metaprog/src/metaprog.c','assessor/metaprog/metaprog.c','assessor/metaprog/ring_template.inc',source,gate,'tools/register_metaprog_policy_effects.py']))
+if __name__=='__main__':register()

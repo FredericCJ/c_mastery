@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_broker_probe.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Actual GCC/Clang x86-64 observations: DSBroker104 bytes, grant20 bytes, fixed request/reply16 octets. Exact uint32 arithmetic and eight-bit octets are declared target assumptions; no native pointer/struct bytes cross the stream."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Two counters, two epoch/sequence arrays and four grants are held in the server. Kernel socket buffers, process pages and libc state are additional reachable resources and are not counted as zero. The child holds only its endpoint and request/reply arrays."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "The authenticated session is the provisioned endpoint lifetime. IDs are not reused in one state; object epoch4 and sequence65536 permanently retire authority. Restart/reconnect identity is deliberately not persisted."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Single-threaded server owns state. Input/output16-octet spans may overlap after complete decoding; neither may overlap the control. Child private memory changes do not mutate server records in the ordinary address-space model."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "The authorization core allocates nothing. socketpair and fork allocate OS resources and can fail; the harness closes acquired descriptors on setup failure. No claim is made that ordinary process startup or stdio uses no heap."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Each request and reply traverses fixed-size byte arrays and kernel transport; core decoding constructs integers arithmetically. Stream fragmentation uses bounded user chunks but kernel-copy counts are not measured. Grant records are fixed typed objects."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "The harness closes only its pair ends and waits for its known child. A partial request is discarded without authority effects. Closing a transport does not roll back a committed counter change; no cancellation of an arbitrary blocked syscall is inferred."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "The core uses explicit opcode dispatch and constant-size grant lookup, with no plugin callback. OS/libc send, recv, poll, fork and wait are distinct hosted boundaries. Generated code and compiler stack reports are retained in the source-bound probe."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Two processes exchange framed bytes, with one serialized server owner and no shared user-memory mutation. Endpoint provisioning supplies holder identity; this is not a thread-safe shared-table API or concurrent revocation protocol."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Actual tests cover duplicate sequence, denied rights/holder/target, attenuation/exhaustion, epoch and sequence retirement, bounded addition and truncated input. Lost responses leave an unknown outcome. Twelve actual repaired/flawed experiments distinguish semantic authorization violations from crashes."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "The report records actual separate compilation and link commands/durations for GCC/Clang O2 and sanitizer controls. A core edit rebuilds its object and relinks; no runtime code generation or arbitrary serialization library is used. Incremental wall-clock distribution was not benchmarked."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Observed nonsanitized test-image text/data/BSS bytes: GCC11598/704/24, Clang11651/680/16. Core apply frames56/48 bytes and process experiment512(dynamic bounded)/232 bytes respectively; these omit deeper libc/kernel/tool frames and are not whole-process memory bounds."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "ISO C defines typed state and arithmetic; Linux/POSIX APIs provide processes and local stream transport. Process setup, OS resource allocation, same-user debugger access and kernel trust remain explicit assumptions. No hard latency/fairness bound, cryptographic authentication, deployed security guarantee or physical-board result is claimed."
+    }
+  ]
+}

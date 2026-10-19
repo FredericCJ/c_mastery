@@ -341,7 +341,7 @@ When a project has more than one family, choose the additional workspace explici
 | {ref}`PR-T65-08` | errors | `errors.contracts` | Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required.  |
 | {ref}`PR-T65-09` | errors | `errors.refinement` | Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required.  |
 | {ref}`PR-T66-01` | ownership | `ownership.frontier` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T66-02` | modern_composition | `modern_composition.publish` | Cross-component exercise; use its explicit prerequisites.  |
+| {ref}`PR-T66-02` | modern_composition | `modern_composition.publish`, `modern_composition.publish_close` | Cross-component exercise; use its explicit prerequisites.  |
 | {ref}`PR-T66-02` | ownership | `ownership.scope` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T66-03` | ownership | `ownership.move` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T66-04` | ownership | `ownership.borrows` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
@@ -351,45 +351,46 @@ When a project has more than one family, choose the additional workspace explici
 | {ref}`PR-T66-08` | ownership | `ownership.pin` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T66-09` | ownership | `ownership.allocator` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T66-10` | ownership | `ownership.facade` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-01` | adt | `adt.sums` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-02` | adt | `adt.quantities` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-03` | adt | `adt.flags` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-04` | adt | `adt.text` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-05` | adt | `adt.brands` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-06` | adt | `adt.views` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-07` | adt | `adt.arena` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-08` | adt | `adt.optics` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-09` | adt | `adt.evolution` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T67-10` | adt | `adt.packet` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-01` | metaprog | `metaprog.mono` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-02` | metaprog | `metaprog.constraints` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-03` | metaprog | `metaprog.policies` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-04` | metaprog | `metaprog.variadic` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-05` | metaprog | `metaprog.generic` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-06` | metaprog | `metaprog.reflection` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-07` | metaprog | `metaprog.laws` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-08` | metaprog | `metaprog.formatting` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-09` | metaprog | `metaprog.hygiene` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T68-10` | metaprog | `metaprog.buildgraph` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T69-01` | dispatch | `dispatch.traits` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T67-01` | adt | `adt.sums`, `adt.sum_value`, `adt.sum_owner`, `adt.sum_rollback`, `adt.sum_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-02` | adt | `adt.quantities`, `adt.rational_fraction`, `adt.rational_boundary`, `adt.rational_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-03` | adt | `adt.flags`, `adt.flags_negotiation`, `adt.flags_sets`, `adt.flags_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-04` | adt | `adt.text`, `adt.utf8_chunks`, `adt.utf8_finalization`, `adt.utf8_owner`, `adt.utf8_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-05` | adt | `adt.brands`, `adt.pool_identity`, `adt.pool_retirement`, `adt.pool_relocation`, `adt.pool_native`, `adt.pool_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-06` | adt | `adt.views`, `adt.view_geometry`, `adt.view_transform`, `adt.view_vector`, `adt.view_reduction`, `adt.view_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-07` | adt | `adt.arena`, `adt.arena_certificate`, `adt.arena_worklist`, `adt.arena_outcomes`, `adt.arena_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-08` | adt | `adt.optics`, `adt.optics_nested`, `adt.optics_prism`, `adt.optics_effects`, `adt.optics_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-09` | adt | `adt.evolution`, `adt.evolution_records`, `adt.evolution_auth`, `adt.evolution_policy`, `adt.evolution_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T67-10` | adt | `adt.packet`, `adt.packet_ring`, `adt.packet_lifetime`, `adt.packet_pipe`, `adt.packet_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-01` | metaprog | `metaprog.mono`, `metaprog.mono_base`, `metaprog.owning_failure`, `metaprog.owning_transfer`, `metaprog.owning_erased` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-02` | metaprog | `metaprog.constraints`, `metaprog.capacity_fixed`, `metaprog.capacity_runtime`, `metaprog.capacity_refusal`, `metaprog.capacity_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-03` | metaprog | `metaprog.policies`, `metaprog.policy_order`, `metaprog.policy_failure`, `metaprog.policy_saturation`, `metaprog.policy_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-04` | metaprog | `metaprog.variadic`, `metaprog.logging_eval`, `metaprog.logging_copy`, `metaprog.logging_atomic`, `metaprog.logging_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-05` | metaprog | `metaprog.generic`, `metaprog.receiver_dispatch`, `metaprog.receiver_effects`, `metaprog.receiver_device`, `metaprog.receiver_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-06` | metaprog | `metaprog.reflection`, `metaprog.schema_wire`, `metaprog.schema_semantics`, `metaprog.schema_visit`, `metaprog.schema_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-07` | metaprog | `metaprog.laws`, `metaprog.law_owner`, `metaprog.law_canonical`, `metaprog.law_shrink`, `metaprog.law_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-08` | metaprog | `metaprog.formatting`, `metaprog.format_parse`, `metaprog.format_atomic`, `metaprog.format_stream`, `metaprog.format_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-09` | metaprog | `metaprog.hygiene`, `metaprog.macro_nested`, `metaprog.macro_budgets`, `metaprog.macro_capture`, `metaprog.macro_base` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T68-10` | metaprog | `metaprog.buildgraph`, `metaprog.cache_inputs`, `metaprog.cache_schedule`, `metaprog.cache_publication`, `metaprog.cache_base`, `metaprog.cache_files`, `metaprog.cache_parallel` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T69-01` | dispatch | `dispatch.traits`, `dispatch.nominal`, `dispatch.progress` | Hosted anchors do not replace full exercise obligations.  |
 | {ref}`PR-T69-02` | dispatch | `dispatch.fat` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-03` | dispatch | `dispatch.dictionary` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-04` | dispatch | `dispatch.closures` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-05` | dispatch | `dispatch.erased` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-06` | dispatch | `dispatch.multiple` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-07` | dispatch | `dispatch.intrusive` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-08` | dispatch | `dispatch.modules` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T69-09` | dispatch | `dispatch.capabilities` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-03` | dispatch | `dispatch.dictionary`, `dispatch.reduction` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-04` | dispatch | `dispatch.closures`, `dispatch.owned_closure` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-05` | dispatch | `dispatch.erased`, `dispatch.capture_codec`, `dispatch.typed_capture`, `dispatch.clone_pair` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-06` | dispatch | `dispatch.multiple`, `dispatch.resolution`, `dispatch.plugin_cache` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-07` | dispatch | `dispatch.intrusive`, `dispatch.dual_hook`, `dispatch.index_move` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-08` | dispatch | `dispatch.modules`, `dispatch.module_second`, `dispatch.shared_modules` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-09` | dispatch | `dispatch.capabilities`, `dispatch.broker` | Hosted anchors do not replace full exercise obligations.  |
 | {ref}`PR-T69-10` | dispatch | `dispatch.plugin` | Hosted anchors do not replace full exercise obligations.  |
 | {ref}`PR-T69-11` | dispatch | `dispatch.reload` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-01` | dod | `dod.columns` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-02` | dod | `dod.small` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-03` | dod | `dod.swar` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-04` | dod | `dod.sparse` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-05` | dod | `dod.ecs` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-06` | dod | `dod.persistent` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-07` | dod | `dod.hamt` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T70-08` | dod | `dod.rope` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T69-12` | higher_order | `higher_order.final` | Finite mechanism checks; full project dossier and transfer remain required.  |
+| {ref}`PR-T70-01` | dod | `dod.columns`, `dod.layout` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-02` | dod | `dod.small`, `dod.buffers` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-03` | dod | `dod.swar`, `dod.swar16`, `dod.swarsigned` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-04` | dod | `dod.sparse`, `dod.segmented`, `dod.ordered` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-05` | dod | `dod.ecs`, `dod.query`, `dod.entities` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-06` | dod | `dod.persistent`, `dod.zipper`, `dod.refcount` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-07` | dod | `dod.hamt`, `dod.hamt_delete`, `dod.dictionary` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T70-08` | dod | `dod.rope`, `dod.rope_edit`, `dod.editors`, `dod.utf8`, `dod.rope_stats`, `dod.rope_splice` | Hosted anchors do not replace full exercise obligations.  |
 | {ref}`PR-T71-01` | protocols | `protocols.typestate` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T71-02` | protocols | `protocols.builder` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T71-03` | protocols | `protocols.session` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
@@ -407,10 +408,11 @@ When a project has more than one family, choose the additional workspace explici
 | {ref}`PR-T72-07` | coroutines | `coroutines.packrat` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T72-08` | coroutines | `coroutines.async` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T72-09` | coroutines | `coroutines.effect` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
+| {ref}`PR-T72-10` | higher_order | `higher_order.free` | Finite mechanism checks; full project dossier and transfer remain required.  |
 | {ref}`PR-T73-01` | messaging | `messaging.nursery` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T73-02` | messaging | `messaging.channels` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T73-03` | messaging | `messaging.operations` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T73-03` | modern_composition | `modern_composition.async` | Cross-component exercise; use its explicit prerequisites.  |
+| {ref}`PR-T73-03` | modern_composition | `modern_composition.async`, `modern_composition.real_io` | Cross-component exercise; use its explicit prerequisites.  |
 | {ref}`PR-T73-04` | messaging | `messaging.actors` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T73-05` | messaging | `messaging.supervision` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
 | {ref}`PR-T73-06` | messaging | `messaging.stealing` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
@@ -429,21 +431,21 @@ When a project has more than one family, choose the additional workspace explici
 | {ref}`PR-T74-09` | object_runtime | `object_runtime.weak` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T74-10` | object_runtime | `object_runtime.trial` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
 | {ref}`PR-T74-11` | object_runtime | `object_runtime.safepoint` | Bounded executable anchor; full exercise alternatives, integration and assessment remain required.  |
-| {ref}`PR-T75-01` | resilience | `resilience.deadline` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-02` | resilience | `resilience.pressure` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-03` | resilience | `resilience.wheel` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-04` | resilience | `resilience.bucket` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-05` | resilience | `resilience.retry` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-06` | resilience | `resilience.gate` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-07` | resilience | `resilience.hedge` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-08` | resilience | `resilience.receiver` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T75-09` | resilience | `resilience.service` | Hosted anchors do not replace full exercise obligations.  |
-| {ref}`PR-T76-01` | replicated | `replicated.log` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-02` | replicated | `replicated.projection` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-03` | replicated | `replicated.clocks` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-04` | replicated | `replicated.counters` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-05` | replicated | `replicated.sets` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-06` | replicated | `replicated.sequence` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-07` | replicated | `replicated.merkle` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-08` | replicated | `replicated.wire` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
-| {ref}`PR-T76-09` | replicated | `replicated.replay` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T75-01` | resilience | `resilience.deadline`, `resilience.scope_follow` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-02` | resilience | `resilience.pressure`, `resilience.pressure_owned` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-03` | resilience | `resilience.wheel`, `resilience.timer_structures` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-04` | resilience | `resilience.bucket`, `resilience.fractional_follow` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-05` | resilience | `resilience.retry`, `resilience.retry_transport` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-06` | resilience | `resilience.gate`, `resilience.breaker_window` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-07` | resilience | `resilience.hedge`, `resilience.hedge_owned` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-08` | resilience | `resilience.receiver`, `resilience.receiver_journal` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T75-09` | resilience | `resilience.service`, `resilience.service_outbox`, `resilience.service_io`, `resilience.service_transport` | Hosted anchors do not replace full exercise obligations.  |
+| {ref}`PR-T76-01` | replicated | `replicated.log`, `replicated.durable_log`, `replicated.durable_snapshot`, `replicated.durable_bytes`, `replicated.ordinary_log` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-02` | replicated | `replicated.projection`, `replicated.outbox_receive`, `replicated.outbox_ack`, `replicated.outbox_transport`, `replicated.outbox_faults`, `replicated.outbox_native`, `replicated.ordinary_projection` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-03` | replicated | `replicated.clocks`, `replicated.clock_identity`, `replicated.clock_store`, `replicated.clock_policy`, `replicated.ordinary_clocks` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-04` | replicated | `replicated.counters`, `replicated.membership_join`, `replicated.membership_wire`, `replicated.membership_auth`, `replicated.membership_replay`, `replicated.ordinary_counters`, `replicated.ordinary_laws` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-05` | replicated | `replicated.sets`, `replicated.delta_sets`, `replicated.delta_wire`, `replicated.delta_durable`, `replicated.delta_protocol`, `replicated.ordinary_sets` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-06` | replicated | `replicated.sequence`, `replicated.seq_tree`, `replicated.seq_snapshot`, `replicated.ot_context`, `replicated.ot_delivery`, `replicated.ordinary_sequence` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-07` | replicated | `replicated.merkle`, `replicated.sha_stream`, `replicated.hash_hmac`, `replicated.hash_lifecycle`, `replicated.hash_security`, `replicated.merkle_proof`, `replicated.merkle_wire`, `replicated.merkle_repair`, `replicated.merkle_cost`, `replicated.ordinary_merkle` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-08` | replicated | `replicated.wire`, `replicated.wire_nested`, `replicated.wire_limits`, `replicated.wire_stream`, `replicated.wire_evolution`, `replicated.ordinary_wire` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |
+| {ref}`PR-T76-09` | replicated | `replicated.replay`, `replicated.replay_prediction`, `replicated.replay_snapshot`, `replicated.replay_durable`, `replicated.replay_effects`, `replicated.replay_transport`, `replicated.replay_native`, `replicated.ordinary_replay` | Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required.  |

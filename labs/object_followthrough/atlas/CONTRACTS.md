@@ -1,0 +1,59 @@
+# Lifetime, representation and aligned typed storage
+
+This required PR-T03-01 successor implements its nine original criterion tasks and nine unchanged delayed variants. The original criterion IDs, prerequisites, four-level rubric and seven-day delay remain authoritative in the assessment supplement. Historical hours and acceptance receipts are unchanged. The source and executable evidence here are author work, not an independent learner assessment.
+
+## Environment and dependencies
+
+Use C17/profile A for the component. The host harness may use malloc/free, character copying, stdio and math classification macros. No allocator library implements the replacement policy for you. The component receives explicit allocation callbacks and uses no implicit ownership convention. GCC/Clang debug, optimized and sanitizer configurations are distinct experiments; actual i386 execution changes LP64 to ILP32. The thread-storage extension is a separate GCC GNU17/POSIX experiment using the documented `__thread` model, mutex and condition variable. It is not a claim that ISO C alone permits every indirect cross-thread TLS access.
+
+Know T02 function/qualifier contracts and T03 object lifetime, bytes and alignment. Required learner artifacts are a truthful owner/view ledger, a self-contained typed interface, source-level preconditions, four storage-duration timelines and predicted layout/encoding results. Do not obtain evidence by evaluating an expired pointer, invalid cast or trapping representation.
+
+## Operations, ownership and failure
+
+`OaOwner` starts `{NULL,0,0}` and uniquely owns a byte allocation. `oa_resize(owner,n,allocator)` admits nonzero n and an unsaturated generation. Allocate a new disjoint n-byte object first; failure leaves all owner fields and old bytes unchanged. On success copy the shorter extent, initialize new suffix bytes to zero, release the old allocation, publish the new pointer/length and increment generation. This deliberately controlled allocate-copy-free operation is not a promise about libc realloc's address policy. Release clears pointer and length, retains the generation and is idempotent for an already empty owner. Saturated generations cannot acquire another object.
+
+The callbacks must provide live actual allocated storage of at least n bytes or return NULL, release only the supplied live allocation, never reenter/mutate the owner and never retain a post-release access. The callback context outlives every call. No concurrent call/access is admitted. Borrowed views expire on successful replacement or release; failed replacement preserves them. Only numeric observations saved before lifetime termination may be compared afterward. A fresh pointer is required for a fresh object, even if a later allocator happens to reuse an address.
+
+`oa_label(dest,cap,out)` copies `cat` plus its terminator, then publishes `{dest,3}`; cap must be at least4. `oa_deep_copy(source,dest,cap,out)` copies exactly source.length bytes and publishes a view of dest. It does not promise a terminator. Both reject null controls or insufficient capacity without changing output metadata or destination bytes. Source/destination arrays must be live with truthful extents and disjoint or identical; out is a separate live object. No returned pointer may name a callee's automatic array or compound literal.
+
+`oa_equal` compares marker and number and uses the explicit policy that equal floating values match, both signed zeros match and all quiet NaNs belong to one equivalence class. This is application equality, not floating `==` for NaNs. `oa_encode` produces exactly13 bytes: marker, four-byte big-endian number modulo2^32, eight-byte big-endian binary64. Normalize both zeros to positive zero and all quiet NaNs to `7ff8000000000000`; other admitted binary64 values retain their representation. Require eight-bit bytes, exact uint32/uint64, binary64 double and matching integer/double byte order. Capability checks and recorded target assumptions are both necessary; a single checked constant does not prove an arbitrary implementation's complete floating layout. Wrong output size returns -1; unsupported format returns -2; both preserve output bytes. This codec does not copy C structure padding or pointers.
+
+`oa_place(total,start,length,width,alignment,out)` is arithmetic on a synthetic base known to be aligned. Admit a power-of-two alignment and a contained slice before calculating padding. Return the first aligned offset fitting width, or -1 without changing out. Width0 is a geometric empty interval, not an allocated object. No pointer is formed. `oa_slot` separately takes an actual live `OaStorage` containing four `OaRecord` objects: require offset at a record boundary, one whole record available and the declared slice inside the owner. It returns that existing typed object. Byte capacity alone never creates a record in a declared char array. Output controls must be disjoint from the owner.
+
+`oa_wide_admit` checks a caller's stated alignment guarantee against the supported `_Alignas(64)` type; it does not inspect an arbitrary address. `oa_decode_u32` accepts four live bytes at any byte offset, forms a big-endian value by byte operations and publishes only after length admission. It never converts the input to a stricter-aligned integer pointer. All small operations are constant-space; resize and deep copy are linear in copied/initialized length. The typed owner occupies four records; a replacement temporarily needs old plus new allocations.
+
+## T03.01 — Lifetime and transferred views
+
+For `.a`, draw separate automatic, static, allocated and thread-local record timelines. Name creation, last legal use and owner termination; do not confuse lexical visibility with lifetime. Run `tls.c` only under its named implementation contract. It publishes one worker TLS record while the worker waits, synchronizes a write, clears the published pointer before permitting exit, then joins. Account separately for the main thread's distinct record. The `.a-DELAYED` packet must explain why the GCC extension contract and synchronization are both needed.
+
+For `.b`, start with bytes3,7,9,11. Inject allocation failure during growth4→8 and prove the old view remains live; then perform successful growth, shrink8→2 and release. Never test invalidation by evaluating an old pointer after release. For `.b-DELAYED`, capture uintptr_t history while the old allocation is live, compare only integers/fresh observations after relocation and explain why an integer is not permission to dereference an expired object.
+
+For `.c`, analyze both original defects in `analysis_only.c` without linking or running them. Repair with caller-owned capacity and no partial output. For `.c-DELAYED`, return an aggregate view, make an owned deep copy, then mutate the original array: the borrowed view changes while the copy remains independent. State which owner must outlive each returned view. Copying the aggregate alone does not copy its pointee.
+
+## T03.02 — Representation, authority and equality
+
+For `.a`, annotate each field and padding byte using actual sizeof/offsetof, inspect through unsigned char and record member values separately. Never treat unspecified padding as uninitialized member data. For `.a-DELAYED`, reorder the fields and compare sizes, alignments, offsets and interface compatibility; equal total size does not imply the same member layout or compatible type.
+
+For `.b`, construct an authority ledger: N1570 permits several signed representations and unspecified padding; N3096's named draft clause requires two's complement while retaining representation limitations. Neither inspected draft is the exact final published C17/C23 text. Floating binary64, signed zero and quiet-NaN behavior in this lab are selected target premises, not universal ISO guarantees. For `.b-DELAYED`, compare actual LP64 and ILP32 observations, distinguish changed long/pointer/alignment properties from unchanged chosen wire fields, and list the consequences of an unsupported floating or byte model.
+
+For `.c`, compare records field-wise and by bytes after explicitly changing only identified padding. Compare +0/-0 and quiet NaNs under the stated floating model. For `.c-DELAYED`, derive the canonical13-byte encoding and its normalization policy before running the independent expected-byte check. A semantic-equality policy must decide what to do with NaNs; raw bytes silently choose a different policy.
+
+## T03.03 — Alignment without invalid conversions
+
+For `.a`, derive the fixture's padding for offsets0,1,7,8 at alignment8, then test interval admission and array stride. For `.a-DELAYED`, use a slice beginning at1: length7 cannot hold a width1 object at the next aligned offset, while length8 can. Include zero width, unsupported alignment and arithmetic near SIZE_MAX without allocating or forming those synthetic addresses.
+
+For `.b`, explain why a cast cannot repair base+1 and why even the conversion's alignment obligation matters. Repair with byte decoding or an actual typed owner. For `.b-DELAYED`, inspect the optimized decoder's machine instructions and execute a byte-offset1 input. An unaligned machine load emitted for defined byte operations does not authorize a source-level misaligned typed conversion. If a compiler emits byte loads instead, record that result rather than asserting a mandatory instruction.
+
+For `.c`, make capacity, alignment, actual type and live owner four separate premises. Show why uintptr_t modulo is only a target-mapping observation, not an unconditional ISO validator. For `.c-DELAYED`, compare `_Alignof(max_align_t)` with the actual64-aligned type and refuse insufficient guarantees. Never perform the rejected conversion as a test. An aligned char array still does not acquire a declared record type merely from its address.
+
+## Deliverables, verification and hints
+
+D1: component source and lifecycle/borrow tables, including failure and retirement transitions. D2: field/padding diagrams, edition/implementation authority ledger, explicit equality policy and canonical bytes. D3: derived alignment geometry, actual typed wrapper and changed data-model/instruction observations. D4: nine independent delayed packets retaining their original IDs and minimum seven days.
+
+Verify five selectors for lifetime, escape repair, representation, equality and alignment; independently enumerate the3690 bounded placement cases; rerun actual i386 and native profiles. Inspect the TLS synchronization and failure-injection ledger. The tests must reject unfinished components and six distinct semantic defects. Each original rubric distinguishes superficial execution from a justified invariant and then independent transfer; no test count supplies that transfer evidence.
+
+First draw the actual object, then its valid extent and owner. Next calculate geometry without creating a pointer. For equality, write the intended equivalence relation before looking at bytes. For replacement, identify the last expression allowed to use an old pointer. For source authority, put draft, implementation documentation and observed machine behavior in separate columns. Assessor code and exact technical analysis are withheld.
+
+## Validation and limits
+
+No security target is attacked. The invalid examples remain analysis-only; the actual programs use synthetic local records. No host settings or physical boards are touched. Author reports record exact commands, source hashes, ABI/runtime identities and negative controls; they do not establish external review, independent mastery or physical behavior. A failed mutant test initially exited before harness cleanup and was caught by LeakSanitizer; the failed receipt remains, and the corrected harness now frees tracked test allocations without disabling leak detection.

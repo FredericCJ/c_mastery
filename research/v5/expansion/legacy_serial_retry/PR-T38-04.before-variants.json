@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "project": "PR-T38-04",
+  "domain": "T38",
+  "title": "Independent depth assessment: I2C transaction and conditional bus recovery",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/i2c/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/i2c/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-T38-04.md",
+        "sha256": "9c64400a3b121a35135a634757279d9ce29661771d529c1fc20fcfb787a1b278",
+        "passages": [
+          "Full project contract"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T38.md",
+        "sha256": "d07743ae80459092c5926d8e613ef276b5771dcce539b88cb35e228c6cb549b8",
+        "passages": [
+          "T38 teaching subsections"
+        ]
+      },
+      {
+        "path": "labs/communications/family.json",
+        "sha256": "dc1e6e3f28f644f025c319ce0e013942a1f52d61ddfb7386030b9541274809bb",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/include/com_mcu.h",
+        "sha256": "0e811cdd5f9a83d2ede0145b791ffa3e08f1dcf8da37c29649685a850822ea10",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/mcu.c",
+        "sha256": "6d90de877bca4ec0a8022c30948800888f666ab0b7e26126a86869a2097b1370",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/v4_com.c",
+        "sha256": "45414c7364356618e0312da0ceaf7ce42d59e453ae1e1f6942b70e0c53cc9a1a",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/edu7.c",
+        "sha256": "2343b7e3b05855899634c2f4fd9f5914d19d23dba07957c7cf189415d4157110",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/tests/mcu.c",
+        "sha256": "21361f547e0bf67bfdddcd5b085e51b8c521e0e1541b5bc1d564c584ecef7668",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/tests/v4_com.c",
+        "sha256": "88b088254d3a6624a711777ce5d5da1c88e48ebab1f80a85a300b5cfc70fa217",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "tools/verify_communications_fixtures.py",
+        "sha256": "1bbda6c197cd4ed1109c17ded0232763d2c856e20e721eb3b2e80e3797be6010",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T38.md",
+        "anchors": [
+          "T38.05"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-FW-06",
+      "U-T38-04-02",
+      "U-T38-04-03"
+    ],
+    "inspection_limits": [
+      "Unit objective mappings and project-derived checks reviewed, not independently administered.",
+      "Primary-source fresh bounded inspections are separately source-gated under research/v5/expansion/serial_depth."
+    ]
+  },
+  "environment": {
+    "language": "ISO C17 baseline",
+    "target": "Parent selected F439/host model; actual board/electrical claims retain required dedicated setup and not-run status",
+    "profile": "C",
+    "dependencies": "Parent dependency profile preserved. Portable serial_depth cores and host verification do not silently replace target firmware libraries or physical apparatus.",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python3",
+      "Selected parent target tools and instruments only when separately authorized"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-T38-LOCAL",
+      "path": "research/v5/expansion/t38_legacy/resources.json",
+      "passages": [
+        "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
+        "PR-T38-04: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
+      ]
+    },
+    {
+      "id": "R-IA-NXP7",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp8\u201312 sections3.1.1\u20133.1.9: open-drain,30/70 thresholds, ACK/NACK, synchronized clocks, identical streams and undefined START/STOP combinations",
+        "Printed p19 section3.1.16: stuck-SCL versus nine-clock SDA bus clear",
+        "Printed pp50\u201351 sections7.1\u20137.2: nominal0.8473RC interval and changed capacitance/mode"
+      ]
+    },
+    {
+      "id": "R-IA-RM21",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp849\u2013855: controller address/data sequence, one/two-byte ACK/POS/BTF closing and arbitration loss",
+        "Printed pp863\u2013865,867\u2013874: access width, pending CR1 command restriction, status clearing, CCR and TRISE"
+      ]
+    },
+    {
+      "id": "R-IA-ERR24",
+      "path": "research/v5/expansion/legacy_serial_i2c/resources.json",
+      "passages": [
+        "Printed pp25\u201327 section2.10: spurious controller BERR, misplaced STOP,88\u2013100kHz repeated-START corner, target-transmit timing and voltage-dependent rise limitation"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Current full ISO CAN/FD, selected transceiver/connector/board and complete register error-recovery passages remain outside the fresh bounded serial_depth source scope.",
+    "Physical experiments are required and not-run; historical optional taxonomy wording does not waive PR-T38-11/12 gates."
+  ],
+  "supplied_artifacts": [
+    "fixtures/communications/PR-T38-04.json",
+    "curriculum/projects/PR-T38-04.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/i2c/CONTRACTS.md",
+    "labs/serial_followthrough/i2c/capture.py",
+    "labs/serial_followthrough/i2c/cases.c",
+    "labs/serial_followthrough/i2c/clear_learner.c",
+    "labs/serial_followthrough/i2c/electrical.c",
+    "labs/serial_followthrough/i2c/electrical_native.c",
+    "labs/serial_followthrough/i2c/guest.c",
+    "labs/serial_followthrough/i2c/i2c_depth.h",
+    "labs/serial_followthrough/i2c/learner.c",
+    "labs/serial_followthrough/i2c/mapped.c",
+    "labs/serial_followthrough/i2c/mapped_native.c",
+    "labs/serial_followthrough/i2c/native.c",
+    "labs/serial_followthrough/i2c/recovery.h",
+    "labs/serial_followthrough/i2c/target_build.py",
+    "labs/serial_followthrough/i2c/transaction.c",
+    "labs/peripheral_depth/i2c/i2c.h",
+    "labs/peripheral_depth/i2c/i2c.c",
+    "labs/peripheral_depth/i2c/target.c",
+    "labs/peripheral_depth/i2c/CONTRACTS.md",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld"
+  ],
+  "execution_support": {
+    "kind": "retained-implementation-and-new-portable-models",
+    "scope": "New tokened single-register I2C transaction and conditional bus-clear model.",
+    "tests": [],
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "serial_i2c_successor": {
+      "path": "research/v5/expansion/legacy_serial_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-04-T38.05.a",
+        "AX-PR-T38-04-T38.05.b",
+        "AX-PR-T38-04-T38.05.c"
+      ],
+      "scope": "Three exact original criterion/V1 pairs; author experiments do not discharge physical or independent learner gates."
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T38-04-T38.05.a",
+      "title": "Execute A0 ACK, register07 ACK, repeated A1 ACK, received5A",
+      "objective": "T38.05.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Execute A0 ACK, register07 ACK, repeated A1 ACK, received5A; identify who sends the final NACK.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.05 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-04 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Execute A0 ACK, register07 ACK, repeated A1 ACK, received5A; identify who sends the final NACK.",
+        "Derive and bound: The controller receiver generates final NACK normally before STOP;5A publishes only on completed data event.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Execute A0 ACK, register07 ACK, repeated A1 ACK, received5A; identify who sends the final NACK.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New tokened single-register I2C transaction and conditional bus-clear model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: The controller receiver generates final NACK normally before STOP;5A publishes only on completed data event.",
+        "D4": "Changed-assumption task after seven days: Extend to two received bytes and derive the changed ACK/NACK schedule and register-adapter obligations."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "The controller receiver generates final NACK normally before STOP;5A publishes only on completed data event.",
+        "limits": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: The controller receiver generates final NACK normally before STOP;5A publishes only on completed data event."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-04-T38.05.a-V1",
+          "minimum_days": 7,
+          "task": "Extend to two received bytes and derive the changed ACK/NACK schedule and register-adapter obligations."
+        }
+      ],
+      "assessor_anchor": "#t38-05-a",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.05 explanation and parent project contract.",
+        "implementation_or_analysis": "New tokened single-register I2C transaction and conditional bus-clear model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-04-T38.05.b",
+      "title": "Inject address NACK, register NACK, arbitration loss and timeout in otherwise identical attempts",
+      "objective": "T38.05.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Inject address NACK, register NACK, arbitration loss and timeout in otherwise identical attempts; compare outputs and bus actions.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.05 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-04 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Inject address NACK, register NACK, arbitration loss and timeout in otherwise identical attempts; compare outputs and bus actions.",
+        "Derive and bound: Address and data NACK have distinct results; arbitration releases without STOP; timeout diagnoses failure rather than completing a zero byte or automatically retrying.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Inject address NACK, register NACK, arbitration loss and timeout in otherwise identical attempts; compare outputs and bus actions.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New tokened single-register I2C transaction and conditional bus-clear model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Address and data NACK have distinct results; arbitration releases without STOP; timeout diagnoses failure rather than completing a zero byte or automatically retrying.",
+        "D4": "Changed-assumption task after seven days: Inject a late completion from token1 after token2 begins and construct the stale-publication counterexample."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Address and data NACK have distinct results; arbitration releases without STOP; timeout diagnoses failure rather than completing a zero byte or automatically retrying.",
+        "limits": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Address and data NACK have distinct results; arbitration releases without STOP; timeout diagnoses failure rather than completing a zero byte or automatically retrying."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-04-T38.05.b-V1",
+          "minimum_days": 7,
+          "task": "Inject a late completion from token1 after token2 begins and construct the stale-publication counterexample."
+        }
+      ],
+      "assessor_anchor": "#t38-05-b",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.05 explanation and parent project contract.",
+        "implementation_or_analysis": "New tokened single-register I2C transaction and conditional bus-clear model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-04-T38.05.c",
+      "title": "Compare SDA-low/SCL-high release on pulse3, continued SDA-low after9, and SCL-held-low recovery.",
+      "objective": "T38.05.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Compare SDA-low/SCL-high release on pulse3, continued SDA-low after9, and SCL-held-low recovery.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.05 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-04 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Compare SDA-low/SCL-high release on pulse3, continued SDA-low after9, and SCL-held-low recovery.",
+        "Derive and bound: Use3 pulses and success,9 pulses and RESET, or0 pulses and RESET respectively; no clock-pulsing cure for unreleased SCL.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Compare SDA-low/SCL-high release on pulse3, continued SDA-low after9, and SCL-held-low recovery.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New tokened single-register I2C transaction and conditional bus-clear model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Use3 pulses and success,9 pulses and RESET, or0 pulses and RESET respectively; no clock-pulsing cure for unreleased SCL.",
+        "D4": "Changed-assumption task after seven days: Permit another controller to acquire the bus during recovery and derive the required ownership precondition before issuing pulses."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Use3 pulses and success,9 pulses and RESET, or0 pulses and RESET respectively; no clock-pulsing cure for unreleased SCL.",
+        "limits": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Use3 pulses and success,9 pulses and RESET, or0 pulses and RESET respectively; no clock-pulsing cure for unreleased SCL."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-04-T38.05.c-V1",
+          "minimum_days": 7,
+          "task": "Permit another controller to acquire the bus during recovery and derive the required ownership precondition before issuing pulses."
+        }
+      ],
+      "assessor_anchor": "#t38-05-c",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.05 explanation and parent project contract.",
+        "implementation_or_analysis": "New tokened single-register I2C transaction and conditional bus-clear model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T38-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "Actual original I2C derivation and retained-controller author experiments; physical analog evidence, external review and independent delayed learner evidence remain required.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Target-specific I2C NACK/STOP/register error clearing and physical bus traces remain required.",
+      "No complete leaf closure, physical validation or absolute mastery claimed."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-04-T38.05.a",
+        "AX-PR-T38-04-T38.05.b",
+        "AX-PR-T38-04-T38.05.c"
+      ],
+      "scope": "Three exact original criterion/V1 pairs; author experiments do not discharge physical or independent learner gates."
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/migration-companion-20261018T061746635130Z/clang-O3/migration.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <lp_sum>:
+   0:	48 85 d2             	test   %rdx,%rdx
+   3:	74 3d                	je     42 <lp_sum+0x42>
+   5:	85 f6                	test   %esi,%esi
+   7:	0f 9f c1             	setg   %cl
+   a:	89 f0                	mov    %esi,%eax
+   c:	35 ff ff ff 7f       	xor    $0x7fffffff,%eax
+  11:	39 c7                	cmp    %eax,%edi
+  13:	41 0f 9f c0          	setg   %r8b
+  17:	b8 02 00 00 00       	mov    $0x2,%eax
+  1c:	44 84 c1             	test   %r8b,%cl
+  1f:	75 20                	jne    41 <lp_sum+0x41>
+  21:	85 f6                	test   %esi,%esi
+  23:	0f 98 c1             	sets   %cl
+  26:	41 b8 00 00 00 80    	mov    $0x80000000,%r8d
+  2c:	41 29 f0             	sub    %esi,%r8d
+  2f:	44 39 c7             	cmp    %r8d,%edi
+  32:	41 0f 9c c0          	setl   %r8b
+  36:	44 84 c1             	test   %r8b,%cl
+  39:	75 06                	jne    41 <lp_sum+0x41>
+  3b:	01 fe                	add    %edi,%esi
+  3d:	89 32                	mov    %esi,(%rdx)
+  3f:	31 c0                	xor    %eax,%eax
+  41:	c3                   	ret
+  42:	b8 01 00 00 00       	mov    $0x1,%eax
+  47:	c3                   	ret
+  48:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+  4f:	00 
+
+0000000000000050 <lp_compare>:
+  50:	8b 07                	mov    (%rdi),%eax
+  52:	3b 06                	cmp    (%rsi),%eax
+  54:	0f 9c c0             	setl   %al
+  57:	0f 9f c1             	setg   %cl
+  5a:	28 c1                	sub    %al,%cl
+  5c:	0f be c1             	movsbl %cl,%eax
+  5f:	c3                   	ret
+
+0000000000000060 <lp_adapter>:
+  60:	8b 07                	mov    (%rdi),%eax
+  62:	3b 06                	cmp    (%rsi),%eax
+  64:	0f 9c c0             	setl   %al
+  67:	0f 9f c1             	setg   %cl
+  6a:	28 c1                	sub    %al,%cl
+  6c:	0f be c1             	movsbl %cl,%eax
+  6f:	c3                   	ret
+
+0000000000000070 <lp_context_adapter>:
+  70:	8b 07                	mov    (%rdi),%eax
+  72:	3b 06                	cmp    (%rsi),%eax
+  74:	0f 9c c0             	setl   %al
+  77:	0f 9f c1             	setg   %cl
+  7a:	28 c1                	sub    %al,%cl
+  7c:	0f be c9             	movsbl %cl,%ecx
+  7f:	89 c8                	mov    %ecx,%eax
+  81:	f7 d8                	neg    %eax
+  83:	83 3a 00             	cmpl   $0x0,(%rdx)
+  86:	0f 44 c1             	cmove  %ecx,%eax
+  89:	c3                   	ret
+  8a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+0000000000000090 <lp_sort>:
+  90:	48 85 ff             	test   %rdi,%rdi
+  93:	0f 94 c0             	sete   %al
+  96:	48 85 f6             	test   %rsi,%rsi
+  99:	0f 95 c1             	setne  %cl
+  9c:	20 c1                	and    %al,%cl
+  9e:	48 85 d2             	test   %rdx,%rdx
+  a1:	41 0f 94 c0          	sete   %r8b
+  a5:	b8 01 00 00 00       	mov    $0x1,%eax
+  aa:	41 08 c8             	or     %cl,%r8b
+  ad:	75 12                	jne    c1 <lp_sort+0x31>
+  af:	8b 0a                	mov    (%rdx),%ecx
+  b1:	83 f9 01             	cmp    $0x1,%ecx
+  b4:	77 0b                	ja     c1 <lp_sort+0x31>
+  b6:	b8 02 00 00 00       	mov    $0x2,%eax
+  bb:	48 83 fe 10          	cmp    $0x10,%rsi
+  bf:	76 01                	jbe    c2 <lp_sort+0x32>
+  c1:	c3                   	ret
+  c2:	48 83 fe 02          	cmp    $0x2,%rsi
+  c6:	72 4e                	jb     116 <lp_sort+0x86>
+  c8:	85 c9                	test   %ecx,%ecx
+  ca:	74 4d                	je     119 <lp_sort+0x89>
+  cc:	b8 01 00 00 00       	mov    $0x1,%eax
+  d1:	eb 1b                	jmp    ee <lp_sort+0x5e>
+  d3:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  da:	84 00 00 00 00 00 
+  e0:	31 d2                	xor    %edx,%edx
+  e2:	48 89 0c d7          	mov    %rcx,(%rdi,%rdx,8)
+  e6:	48 ff c0             	inc    %rax
+  e9:	48 39 f0             	cmp    %rsi,%rax
+  ec:	74 28                	je     116 <lp_sort+0x86>
+  ee:	48 8b 0c c7          	mov    (%rdi,%rax,8),%rcx
+  f2:	48 89 c2             	mov    %rax,%rdx
+  f5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  fc:	00 00 00 00 
+ 100:	39 4c d7 f8          	cmp    %ecx,-0x8(%rdi,%rdx,8)
+ 104:	7d dc                	jge    e2 <lp_sort+0x52>
+ 106:	4c 8b 44 d7 f8       	mov    -0x8(%rdi,%rdx,8),%r8
+ 10b:	4c 89 04 d7          	mov    %r8,(%rdi,%rdx,8)
+ 10f:	48 ff ca             	dec    %rdx
+ 112:	75 ec                	jne    100 <lp_sort+0x70>
+ 114:	eb ca                	jmp    e0 <lp_sort+0x50>
+ 116:	31 c0                	xor    %eax,%eax
+ 118:	c3                   	ret
+ 119:	b9 01 00 00 00       	mov    $0x1,%ecx
+ 11e:	eb 10                	jmp    130 <lp_sort+0xa0>
+ 120:	31 d2                	xor    %edx,%edx
+ 122:	48 89 04 d7          	mov    %rax,(%rdi,%rdx,8)
+ 126:	48 ff c1             	inc    %rcx
+ 129:	31 c0                	xor    %eax,%eax
+ 12b:	48 39 f1             	cmp    %rsi,%rcx
+ 12e:	74 91                	je     c1 <lp_sort+0x31>
+ 130:	48 8b 04 cf          	mov    (%rdi,%rcx,8),%rax
+ 134:	48 89 ca             	mov    %rcx,%rdx
+ 137:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+ 13e:	00 00 
+ 140:	39 44 d7 f8          	cmp    %eax,-0x8(%rdi,%rdx,8)
+ 144:	7e dc                	jle    122 <lp_sort+0x92>
+ 146:	4c 8b 44 d7 f8       	mov    -0x8(%rdi,%rdx,8),%r8
+ 14b:	4c 89 04 d7          	mov    %r8,(%rdi,%rdx,8)
+ 14f:	48 ff ca             	dec    %rdx
+ 152:	75 ec                	jne    140 <lp_sort+0xb0>
+ 154:	eb ca                	jmp    120 <lp_sort+0x90>

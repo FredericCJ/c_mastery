@@ -107,7 +107,11 @@ def generate():
                 'next_action': 'Use check_modern_coverage.py to resolve actual rubric, artifact and inspected-source links. A disposition is not learner evidence.'})
     dump(BASE / 'modern_discovery.json', {'schema_version': 1, 'techniques': technique_rows,
         'limits': 'Explicit mentions in the existing plan are candidate ownership only. No modern exercise coverage is inferred. '
-                  'The SWE catalog and library still require topic-by-topic inspection; these 100 techniques are not the whole corpus.'})
+                  'The 100 census dispositions are discovery coverage. Exact source inspections and source-access limits are '
+                  'recorded by the linked resource registers and work_inventory.json; neither a library index nor a census '
+                  'entry establishes passage inspection. G-CORPUS also requires a documented relevance screening '
+                  'beyond assigned sources and the existing taxonomy; bounded source inspections alone do not close it. '
+                  'See research/v5/expansion/followthrough/scope.md for the audit boundary.'})
     domain_rows = []
     for d in taxonomy:
         owned = [r for r in rows if r['domain'] == d['id']]
@@ -124,7 +128,9 @@ def generate():
     lines += [f'| {k.replace("_", " ")} | {v} |' for k, v in counts.items()]
     lines += ['', 'Named tests measure executable support only. Analysis exercises need inspectable reasoning and assessment, '
               'not an irrelevant execution quota. Accepted T01–T56 identities remain preserved. New-domain status is derived from actual canonical contracts below.', '',
-              '## Consequential inspected gaps', '',
+              '## Retained starting observations', '',
+              'These observations explain why the expansion was required. They are not the active completion state; '
+              'the original gap IDs and their separate evidence dimensions remain in the reconciled inventory.', '',
               '- PR-T03-03 covers effective type, incompatible lvalues, restrict and provenance, but its fixture contains four mathematical overlap results and no dedicated family mapping. B01 adds mechanism-specific exercises.',
               '- PR-T16-03 names generation handles and wrap policy, but three fixture snapshots do not assess complete reuse and exhaustion histories. B01 adds a finite transition model and retirement policy.',
               '- Existing foundation family mappings explicitly identify their visible tests as partial anchors. The expansion retains those limitations and adds objective-specific criteria.',
@@ -140,6 +146,18 @@ def generate():
               'New omissions require additive taxonomy records with authority, prerequisites and assessment rationale. T57–T76 domain fragments and research taxonomies record actual additions; uncreated domains remain planned.', '',
               'The canonical gap ledger and remaining-work manifest define what is still open. '
               'Hardware validation, learner independence and research completeness are not inferred from author execution.']
+    lines += ['', '## Current implementation follow-through', '',
+              'Use [the reconciled inventory](work_inventory.json) for each originating obligation, exact criterion, '
+              'changed condition, implementation and evidence limit. Its canonical input is '
+              '[implementation_updates.json](implementation_updates.json); [the completion ledger](completion_ledger.json) '
+              'retains all required gap-register entry points. Source snapshots remain historical.', '',
+              '[The finite scope and evidence rules](../../../research/v5/expansion/followthrough/scope.md) '
+              'describe how the active taxonomy, original exercise contracts, assigned sources and discovered omissions '
+              'are reconciled. A specified rubric, passing reference program and independent learner performance '
+              'are different claims. Source-dependent extensions remain required when authoritative input is unavailable.', '',
+              'Author-side source comparisons include POSIX edition-specific descriptor ownership, C allocation lifetime, '
+              'epoch guard enforcement, and Intel HEX addressing. Their public teaching is linked from '
+              '[the standards guide](../../guides/standards.md); private solutions remain under assessor/.']
     scoped_audits = sorted(p for p in (ROOT/'research/v5/expansion').glob('*/*.md')
                           if p.name.lower() in {'audit.md', 'completion.md'})
     if scoped_audits:

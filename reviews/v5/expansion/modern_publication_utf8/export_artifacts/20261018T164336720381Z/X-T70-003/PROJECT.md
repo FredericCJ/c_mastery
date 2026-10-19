@@ -1,0 +1,53 @@
+```json
+{
+  "id": "PR-T70-03",
+  "title": "Four saturating byte lanes without cross-lane carries",
+  "module": "T70",
+  "topics": [
+    "T70.03"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dod/PR-T70-03.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T70-03: Four saturating byte lanes without cross-lane carries
+
+## Contract
+
+Derive and implement d_swar_add for four unsigned8-bit lanes inside uint32_t using shifts, masks and unsigned arithmetic only. No intrinsics, scalar per-lane loop in the assessed implementation or signed overflow is allowed. A separate scalar oracle extracts each lane, adds in unsigned int and clamps to255. The packed numerical lane convention is independent of how a uint32_t is stored as bytes.
+
+The full required exercise is {ref}`X-T70-003`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+0xff00ff00 plus0x01010101 produces0xff01ff01. A255+1 low lane must saturate without adding1 to the adjacent lane. Every pair of byte inputs must agree with min(255,a+b).
+
+## Steps
+
+- **T70.03:** Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+Ordinary word addition is not lane-wise addition; carries and saturation require a proof. A benchmark over only identical lanes can miss a carry leaking into a different neighboring lane. The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.
+
+## Acceptance and evidence
+
+- **T70.03:** The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Split each lane into its high bit and lower7 bits. Adding two low7-bit parts cannot carry outside the byte. Derive overflow from two high bits or one high bit plus the low-part carry; expand one bit per lane into a full-byte mask.
+
+## Transfer challenge
+
+X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version.

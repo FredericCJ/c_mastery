@@ -4,7 +4,9 @@
   "domain": "T35",
   "title": "PR-T35-02 objective-specific depth assessment supplement",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/security_depth/worker/CONTRACTS.md",
+    "labs/posix_lifecycle_depth/namespace/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -118,6 +120,37 @@
         "DESCRIPTION argv array",
         "File descriptors across execve"
       ]
+    },
+    {
+      "id": "R-SD-OS",
+      "path": "research/v5/expansion/legacy_security_worker/resources.json",
+      "passages": [
+        "open DESCRIPTION: open-file identity/access modes and O_CLOEXEC/O_EXCL/O_NOFOLLOW",
+        "execve DESCRIPTION: explicit argv and envp",
+        "write ERRORS: EBADF",
+        "close_range DESCRIPTION: CLOSE_RANGE_CLOEXEC",
+        "openat2 DESCRIPTION: RESOLVE_BENEATH/NO_SYMLINKS/NO_MAGICLINKS and ERRORS"
+      ]
+    },
+    {
+      "id": "R-SD-MPU",
+      "path": "research/v5/expansion/legacy_security_worker/resources.json",
+      "passages": [
+        "PM0214 revision10 pp.195\u2013199: AP/XN, update barriers, subregions and CPU/DMA distinction",
+        "PM0214 revision10 pp.200\u2013205: region count, control/background, RBAR alignment and RASR"
+      ]
+    },
+    {
+      "id": "R-SD-PRODUCERS",
+      "path": "research/v5/expansion/legacy_security_worker/resources.json",
+      "passages": [
+        "labs/posix_lifecycle_depth/namespace/path.h and CONTRACTS.md: complete retained interface/contract",
+        "assessor/posix_lifecycle_depth/namespace/path.c: pn_open_confined complete implementation",
+        "assessor/firmware_lifecycle/targets/boot_handoff.c: complete region programming and handoff",
+        "labs/firmware_lifecycle/targets/boot_guest.S: original application startup and two MPU fault variants",
+        "research/v5/expansion/b06/boot_pair_validation.json: twelve actual CPU execute observations and current input hashes",
+        "assessor/hosted_systems/descriptor.c: complete hs_dup_owned"
+      ]
     }
   ],
   "reference_gaps": [
@@ -126,7 +159,17 @@
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T35-02.md",
-    "fixtures/embedded/PR-T35-02.json"
+    "fixtures/embedded/PR-T35-02.json",
+    "labs/security_depth/worker/CONTRACTS.md",
+    "labs/security_depth/worker/echo_worker.c",
+    "labs/security_depth/worker/learner.c",
+    "labs/security_depth/worker/tests.c",
+    "labs/security_depth/worker/worker.h",
+    "labs/posix_lifecycle_depth/namespace/path.h",
+    "labs/posix_lifecycle_depth/namespace/path_stub.c",
+    "labs/posix_lifecycle_depth/namespace/CONTRACTS.md",
+    "labs/security_depth/command/process_boundary.c",
+    "labs/firmware_lifecycle/targets/boot_guest.S"
   ],
   "execution_support": {
     "kind": "retained partial baseline support",
@@ -134,7 +177,19 @@
     "tests": [
       "integration.mcu"
     ],
-    "fresh_execution": "not-run in this audit wave"
+    "fresh_execution": "not-run in this audit wave",
+    "security_worker_successor": {
+      "path": "research/v5/expansion/legacy_security_worker/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T35-02-T35.05.a",
+        "AX-PR-T35-02-T35.05.b",
+        "AX-PR-T35-02-T35.05.c",
+        "AX-PR-T35-02-T35.08.a",
+        "AX-PR-T35-02-T35.08.b",
+        "AX-PR-T35-02-T35.08.c"
+      ],
+      "scope": "Exact original T35.05/.08 ordinary and changed tasks, actual local OS authority and source-bound prior selected MPU observations; no complete isolation or independent assessment claim."
+    }
   },
   "criteria": [
     {
@@ -639,7 +694,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T35-02.md",
   "status": {
     "content": "authored additive assessment",
-    "execution": "not-run for new assessment tasks",
+    "execution": "Current scoped author successors; original historical evidence and independent learner/source/target gaps remain separate.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -647,5 +702,19 @@
       "No complete-domain mastery claim from authoring",
       "Actual unit and physical evidence remain separately bounded"
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_security_worker/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T35-02-T35.05.a",
+        "AX-PR-T35-02-T35.05.b",
+        "AX-PR-T35-02-T35.05.c",
+        "AX-PR-T35-02-T35.08.a",
+        "AX-PR-T35-02-T35.08.b",
+        "AX-PR-T35-02-T35.08.c"
+      ],
+      "scope": "Exact original T35.05/.08 ordinary and changed tasks, actual local OS authority and source-bound prior selected MPU observations; no complete isolation or independent assessment claim."
+    }
+  ]
 }

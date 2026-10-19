@@ -1,0 +1,712 @@
+{
+  "schema_version": 1,
+  "project": "PR-T38-09",
+  "domain": "T38",
+  "title": "Independent depth assessment: Classic CAN codec and bounded bxCAN control",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/can/CONTRACTS.md",
+    "labs/serial_followthrough/can/BOARD_CAPTURE.md",
+    "labs/serial_variants/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-T38-09.md",
+        "sha256": "9eb0ca5bda47e5b7c50d9017edf7a5afa62053645f93bb4f315bd0a328756730",
+        "passages": [
+          "Full project contract"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T38.md",
+        "sha256": "d07743ae80459092c5926d8e613ef276b5771dcce539b88cb35e228c6cb549b8",
+        "passages": [
+          "T38 teaching subsections"
+        ]
+      },
+      {
+        "path": "labs/communications/family.json",
+        "sha256": "dc1e6e3f28f644f025c319ce0e013942a1f52d61ddfb7386030b9541274809bb",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/include/com_mcu.h",
+        "sha256": "0e811cdd5f9a83d2ede0145b791ffa3e08f1dcf8da37c29649685a850822ea10",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/mcu.c",
+        "sha256": "6d90de877bca4ec0a8022c30948800888f666ab0b7e26126a86869a2097b1370",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/v4_com.c",
+        "sha256": "45414c7364356618e0312da0ceaf7ce42d59e453ae1e1f6942b70e0c53cc9a1a",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "assessor/communications/edu7.c",
+        "sha256": "2343b7e3b05855899634c2f4fd9f5914d19d23dba07957c7cf189415d4157110",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/tests/mcu.c",
+        "sha256": "21361f547e0bf67bfdddcd5b085e51b8c521e0e1541b5bc1d564c584ecef7668",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "labs/communications/tests/v4_com.c",
+        "sha256": "88b088254d3a6624a711777ce5d5da1c88e48ebab1f80a85a300b5cfc70fa217",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      },
+      {
+        "path": "tools/verify_communications_fixtures.py",
+        "sha256": "1bbda6c197cd4ed1109c17ded0232763d2c856e20e721eb3b2e80e3797be6010",
+        "passages": [
+          "Actual T38-relevant API/model/test or fixture branch; unrelated edu7 methods not claimed inspected"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T38.md",
+        "anchors": [
+          "T38.10",
+          "T38.11"
+        ]
+      }
+    ],
+    "units": [
+      "U-T38-09-01",
+      "U-T38-09-02",
+      "U-T38-09-03",
+      "U-T38-09-04"
+    ],
+    "inspection_limits": [
+      "Unit objective mappings and project-derived checks reviewed, not independently administered.",
+      "Primary-source fresh bounded inspections are separately source-gated under research/v5/expansion/serial_depth."
+    ]
+  },
+  "environment": {
+    "language": "ISO C17 baseline",
+    "target": "Parent selected F439/host model; actual board/electrical claims retain required dedicated setup and not-run status",
+    "profile": "E",
+    "dependencies": "Parent dependency profile preserved. Portable serial_depth cores and host verification do not silently replace target firmware libraries or physical apparatus.",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python3",
+      "Selected parent target tools and instruments only when separately authorized"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-T38-LOCAL",
+      "path": "research/v5/expansion/t38_legacy/resources.json",
+      "passages": [
+        "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
+        "PR-T38-09: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
+      ]
+    },
+    {
+      "id": "R-CN-ISO2024",
+      "path": "research/v5/expansion/legacy_serial_can/resources.json",
+      "passages": [
+        "Printed66\u201371, clauses8.1.1\u20138.1.5: error-signalling states, all eight fault-counter rules and exceptions, passive/off transitions and restart conditions",
+        "Printed31\u201333, clauses6.6.10\u20136.6.11 opening: Classic format, CRC/tail and current receiver limits; FD opening only",
+        "Printed42\u201345, clauses6.6.13\u20136.6.19 opening: dynamic/fixed stuffing, ACK, validation, arbitration, restricted/monitoring modes and error handling opening"
+      ]
+    },
+    {
+      "id": "R-CN-RM21",
+      "path": "research/v5/expansion/legacy_serial_can/resources.json",
+      "passages": [
+        "Printed65\u201367: selected memory/peripheral map including CAN1 APB1 boundary",
+        "Printed1084\u20131092,1094\u20131097: test modes, TX/abort/NART, FIFO handling/overflow, filter organization, mailbox storage, bus-off recovery and bit timing",
+        "Printed1100\u20131116: 32-bit access protection, control/status/timing and TX/RX mailbox registers",
+        "Printed1117\u20131120: filter configuration, ownership, activation and mask register encoding"
+      ]
+    },
+    {
+      "id": "R-SV-RP2040",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed421 section4.2.3.2.1: divisor16-bit integer/six-bit fraction, formula and rounding",
+        "Printed432 tables430/431: IBRD/FBRD widths; table432 word/parity and stop-bit distinctions"
+      ]
+    },
+    {
+      "id": "R-SV-RM21",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed994 section30.3.7 Table147: M/PCE word and parity placement",
+        "Printed997\u2013998 section30.3.9: synchronous master CK and setup/hold premise",
+        "Printed1017 CR2 LBCL: last eighth/ninth hardware word bit",
+        "Printed1117\u20131118 section32.9.4: list/mask and16/32-bit scale"
+      ]
+    },
+    {
+      "id": "R-SV-THVD1450",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Web PDF page indexes8/9, sections7.4/7.7: terminal/differential limits, threshold extrema and minimum hysteresis footnote",
+        "Web PDF page indexes18/23, Table2 and section10.2.1.4: enabled/open/short/idle behavior and hysteresis explanation"
+      ]
+    },
+    {
+      "id": "R-SV-CAN2024",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed31\u201333 section6.6.10: SRR, r0/r1 and FD-tolerant protocol exception rules",
+        "Printed42\u201344 sections6.6.13\u20136.6.18: dynamic stuffing, receiver/transmitter final EOF validation and protocol-exception counter preservation"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Current full ISO CAN/FD, selected transceiver/connector/board and complete register error-recovery passages remain outside the fresh bounded serial_depth source scope.",
+    "Physical experiments are required and not-run; historical optional taxonomy wording does not waive PR-T38-11/12 gates."
+  ],
+  "supplied_artifacts": [
+    "fixtures/communications/PR-T38-09.json",
+    "curriculum/projects/PR-T38-09.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/can/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/can/CONTRACTS.md",
+    "labs/serial_followthrough/can/can.h",
+    "labs/serial_followthrough/can/controller_tests.c",
+    "labs/serial_followthrough/can/freestanding/string.h",
+    "labs/serial_followthrough/can/guest.c",
+    "labs/serial_followthrough/can/learner.c",
+    "labs/serial_followthrough/can/native.c",
+    "labs/serial_followthrough/can/target_build.py",
+    "labs/serial_followthrough/can/tests.c",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/network_followthrough/driver/target.S",
+    "labs/serial_variants/CONTRACTS.md",
+    "labs/serial_variants/freestanding/string.h",
+    "labs/serial_variants/guest.c",
+    "labs/serial_variants/learner.c",
+    "labs/serial_variants/native.c",
+    "labs/serial_variants/target.ld",
+    "labs/serial_variants/target_build.py",
+    "labs/serial_variants/tests.c",
+    "labs/serial_variants/variants.h"
+  ],
+  "execution_support": {
+    "kind": "retained-implementation-and-new-portable-models",
+    "scope": "New classic standard/extended arbitration and strict CRC/stuffing codec.; New timing/range, mask, FIFO and tokened mailbox model.",
+    "tests": [],
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "classic_can_successor": {
+      "path": "research/v5/expansion/legacy_serial_can/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-09-T38.10.a",
+        "AX-PR-T38-09-T38.10.b",
+        "AX-PR-T38-09-T38.10.c",
+        "AX-PR-T38-09-T38.11.a",
+        "AX-PR-T38-09-T38.11.b",
+        "AX-PR-T38-09-T38.11.c"
+      ],
+      "scope": "Six unchanged criterion/V1 pairs; actual codec/FCE and selected CAN1 register adapter; physical/independent gates separate."
+    },
+    "serial_variants_successor": {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-09-T38.10.a",
+        "AX-PR-T38-09-T38.10.b",
+        "AX-PR-T38-09-T38.10.c",
+        "AX-PR-T38-09-T38.11.a",
+        "AX-PR-T38-09-T38.11.b",
+        "AX-PR-T38-09-T38.11.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T38-09-T38.10.a",
+      "title": "Compare standard data123, standard remote123 and extended base123 using wire-order fields rather than numeric identifiers.",
+      "objective": "T38.10.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Compare standard data123, standard remote123 and extended base123 using wire-order fields rather than numeric identifiers.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.10 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Compare standard data123, standard remote123 and extended base123 using wire-order fields rather than numeric identifiers.",
+        "Derive and bound: Data wins at RTR; standard remote defeats extended at IDE after equal base/SRR position. Equal prefixes alone do not certify different payloads can coexist.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Compare standard data123, standard remote123 and extended base123 using wire-order fields rather than numeric identifiers.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Data wins at RTR; standard remote defeats extended at IDE after equal base/SRR position. Equal prefixes alone do not certify different payloads can coexist.",
+        "D4": "Changed-assumption task after seven days: Construct extended identifiers whose numeric ordering disagrees with a naive standard-versus-extended comparison."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Data wins at RTR; standard remote defeats extended at IDE after equal base/SRR position. Equal prefixes alone do not certify different payloads can coexist.",
+        "limits": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Data wins at RTR; standard remote defeats extended at IDE after equal base/SRR position. Equal prefixes alone do not certify different payloads can coexist."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.10.a-V1",
+          "minimum_days": 7,
+          "task": "Construct extended identifiers whose numeric ordering disagrees with a naive standard-versus-extended comparison."
+        }
+      ],
+      "assessor_anchor": "#t38-10-a",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.10 explanation and parent project contract.",
+        "implementation_or_analysis": "New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-09-T38.10.b",
+      "title": "Decode a frame with valid CRC but wrong fixed delimiter, then one with valid fixed fields but corrupted CRC",
+      "objective": "T38.10.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Decode a frame with valid CRC but wrong fixed delimiter, then one with valid fixed fields but corrupted CRC; classify ACK0 versus application delivery.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.10 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Decode a frame with valid CRC but wrong fixed delimiter, then one with valid fixed fields but corrupted CRC; classify ACK0 versus application delivery.",
+        "Derive and bound: Both corruptions reject unchanged under the declared strict subset. ACK is link-level observation; it does not prove application processing or authorization.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Decode a frame with valid CRC but wrong fixed delimiter, then one with valid fixed fields but corrupted CRC; classify ACK0 versus application delivery.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Both corruptions reject unchanged under the declared strict subset. ACK is link-level observation; it does not prove application processing or authorization.",
+        "D4": "Changed-assumption task after seven days: Build a streaming decoder that splits a run of five across chunks and prove it preserves stuffing state."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Both corruptions reject unchanged under the declared strict subset. ACK is link-level observation; it does not prove application processing or authorization.",
+        "limits": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Both corruptions reject unchanged under the declared strict subset. ACK is link-level observation; it does not prove application processing or authorization."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.10.b-V1",
+          "minimum_days": 7,
+          "task": "Build a streaming decoder that splits a run of five across chunks and prove it preserves stuffing state."
+        }
+      ],
+      "assessor_anchor": "#t38-10-b",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.10 explanation and parent project contract.",
+        "implementation_or_analysis": "New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-09-T38.10.c",
+      "title": "A trace labels arbitration loss as a bit error and bus-off recovery as proof of network health",
+      "objective": "T38.10.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "A trace labels arbitration loss as a bit error and bus-off recovery as proof of network health; identify the two overclaims.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.10 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "A trace labels arbitration loss as a bit error and bus-off recovery as proof of network health; identify the two overclaims.",
+        "Derive and bound: Losing recessive arbitration is expected participation, not that error event; bus-off recovery only permits re-entry under its specified counter/timing rules. Complete conformance remains outside the bounded codec.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: A trace labels arbitration loss as a bit error and bus-off recovery as proof of network health; identify the two overclaims.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Losing recessive arbitration is expected participation, not that error event; bus-off recovery only permits re-entry under its specified counter/timing rules. Complete conformance remains outside the bounded codec.",
+        "D4": "Changed-assumption task after seven days: Inspect a full current fault-counter clause and construct a trace where multiple update rules or exceptions apply; retain uninspected rules as gaps."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Losing recessive arbitration is expected participation, not that error event; bus-off recovery only permits re-entry under its specified counter/timing rules. Complete conformance remains outside the bounded codec.",
+        "limits": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Losing recessive arbitration is expected participation, not that error event; bus-off recovery only permits re-entry under its specified counter/timing rules. Complete conformance remains outside the bounded codec."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.10.c-V1",
+          "minimum_days": 7,
+          "task": "Inspect a full current fault-counter clause and construct a trace where multiple update rules or exceptions apply; retain uninspected rules as gaps."
+        }
+      ],
+      "assessor_anchor": "#t38-10-c",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.10 explanation and parent project contract.",
+        "implementation_or_analysis": "New classic standard/extended arbitration and strict CRC/stuffing codec.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-09-T38.11.a",
+      "title": "Derive42MHz/(6*(1+11+2)), sample fraction and four encoded timing fields.",
+      "objective": "T38.11.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Derive42MHz/(6*(1+11+2)), sample fraction and four encoded timing fields.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.11 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Derive42MHz/(6*(1+11+2)), sample fraction and four encoded timing fields.",
+        "Derive and bound: 500000bit/s,12/14 sample point, fields5,10,1,0 and BTR0x1A0005; SJW exceedingBS2 is rejected.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Derive42MHz/(6*(1+11+2)), sample fraction and four encoded timing fields.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New timing/range, mask, FIFO and tokened mailbox model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: 500000bit/s,12/14 sample point, fields5,10,1,0 and BTR0x1A0005; SJW exceedingBS2 is rejected.",
+        "D4": "Changed-assumption task after seven days: Change clock and desired sample point; search legal tuples and explain why an exact bitrate may still violate propagation constraints."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "500000bit/s,12/14 sample point, fields5,10,1,0 and BTR0x1A0005; SJW exceedingBS2 is rejected.",
+        "limits": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: 500000bit/s,12/14 sample point, fields5,10,1,0 and BTR0x1A0005; SJW exceedingBS2 is rejected."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.11.a-V1",
+          "minimum_days": 7,
+          "task": "Change clock and desired sample point; search legal tuples and explain why an exact bitrate may still violate propagation constraints."
+        }
+      ],
+      "assessor_anchor": "#t38-11-a",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.11 explanation and parent project contract.",
+        "implementation_or_analysis": "New timing/range, mask, FIFO and tokened mailbox model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-09-T38.11.b",
+      "title": "Push10,20,30,40 into three entries under each lock setting and release each returned entry once.",
+      "objective": "T38.11.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Push10,20,30,40 into three entries under each lock setting and release each returned entry once.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.11 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Push10,20,30,40 into three entries under each lock setting and release each returned entry once.",
+        "Derive and bound: Unlocked returns10,20,40; locked retains10,20,30 and discards40 with sticky overrun. ID masks filter content, not destination addresses.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Push10,20,30,40 into three entries under each lock setting and release each returned entry once.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New timing/range, mask, FIFO and tokened mailbox model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Unlocked returns10,20,40; locked retains10,20,30 and discards40 with sticky overrun. ID masks filter content, not destination addresses.",
+        "D4": "Changed-assumption task after seven days: Adapt a controller that overwrites oldest; prove the client cannot silently assume the original loss policy."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Unlocked returns10,20,40; locked retains10,20,30 and discards40 with sticky overrun. ID masks filter content, not destination addresses.",
+        "limits": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Unlocked returns10,20,40; locked retains10,20,30 and discards40 with sticky overrun. ID masks filter content, not destination addresses."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.11.b-V1",
+          "minimum_days": 7,
+          "task": "Adapt a controller that overwrites oldest; prove the client cannot silently assume the original loss policy."
+        }
+      ],
+      "assessor_anchor": "#t38-11-b",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.11 explanation and parent project contract.",
+        "implementation_or_analysis": "New timing/range, mask, FIFO and tokened mailbox model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    },
+    {
+      "id": "AX-PR-T38-09-T38.11.c",
+      "title": "Submit token1, observe arbitration loss, then success",
+      "objective": "T38.11.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Submit token1, observe arbitration loss, then success; consume twice and inject token1 completion during token2.",
+      "purpose": "Assess this concrete serial mechanism, misconception and evidence boundary independently.",
+      "prerequisites": {
+        "knowledge": [
+          "T38.11 teaching and parent contract",
+          "C17 object lifetime, exact integer arithmetic and explicit controller/transceiver distinction"
+        ],
+        "artifacts": [
+          "PR-T38-09 learner source/analysis and source identities; missing implementations and physical evidence remain required"
+        ]
+      },
+      "reasoning": [
+        "Submit token1, observe arbitration loss, then success; consume twice and inject token1 completion during token2.",
+        "Derive and bound: Arbitration loss remains pending; success becomes ready; second take and stale completion reject without double publication. A pending mailbox is never inferred done.",
+        "Separate original model policy, ISO C, protocol, vendor register and electrical claims; state ownership, failure publication and costs."
+      ],
+      "deliverables": {
+        "D1": "Unaided prediction and mechanism proof: Submit token1, observe arbitration loss, then success; consume twice and inject token1 completion during token2.",
+        "D2": "Inspectable implementation/adapter or analysis using the retained support: New timing/range, mask, FIFO and tokened mailbox model.",
+        "D3": "Independent expected-result comparison and fresh falsifier: Arbitration loss remains pending; success becomes ready; second take and stale completion reject without double publication. A pending mailbox is never inferred done.",
+        "D4": "Changed-assumption task after seven days: Introduce no-auto-retry and bus-off interruption; specify a bounded recovery/cancellation contract before implementing new transitions."
+      },
+      "verification": {
+        "procedure": "Predict before consulting expected results. Compare complete state/output and first divergence using an independent representation; preserve raw source/tool/trace identity. Mark absent board/physical evidence not-run.",
+        "expected": "Arbitration loss remains pending; success becomes ready; second take and stale completion reject without double publication. A pending mailbox is never inferred done.",
+        "limits": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required. No physical measurements, baseline re-execution or independent human review are invented.",
+        "pass": "Every stated relation and premise is explained, fresh counterexample diagnosed and changed-condition artifact independently attempted."
+      },
+      "rubric": {
+        "0": "Incorrect relation or unsupported evidence claim.",
+        "1": "Repeats expected output without the relevant premise, transition or evidence limit.",
+        "2": "Derives the named relation, constructs/verifies the required artifact and diagnoses a fresh boundary failure.",
+        "3": "Independently transfers under the changed assumption with evidence and explicit remaining limits."
+      },
+      "hints": [
+        "Identify which component owns the relevant bit, buffer, timing interval or evidence claim.",
+        "After retaining the unaided attempt, use this discriminator: Arbitration loss remains pending; success becomes ready; second take and stale completion reject without double publication. A pending mailbox is never inferred done."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T38-09-T38.11.c-V1",
+          "minimum_days": 7,
+          "task": "Introduce no-auto-retry and bus-off interruption; specify a bounded recovery/cancellation contract before implementing new transitions."
+        }
+      ],
+      "assessor_anchor": "#t38-11-c",
+      "facet_scope": {
+        "teaching": "Retain inspected T38.11 explanation and parent project contract.",
+        "implementation_or_analysis": "New timing/range, mask, FIFO and tokened mailbox model.",
+        "boundary_adversarial": "Concrete criterion-specific failure and expected result; new executable facets only where explicitly named.",
+        "independent_assessment": "This criterion and delayed variant are authored, not independently administered.",
+        "remaining": "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic traces/arrays and separately required dedicated teaching hardware only. No external services, deployed buses, operational vehicles, host security changes or flashing in this authoring task."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T38-09.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current-source Classic CAN/FCE and selected CAN1 mailbox/FIFO implementation; native/Thumb RAM-effects evidence separate from physical bus and independent learner work.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Complete ISO error/fault-confinement model and physical classic two-node exchange remain required.",
+      "Full filter-bank packing, MMIO flag clearing, error counters and physical propagation remain required.",
+      "No complete leaf closure, physical validation or absolute mastery claimed."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_can/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-09-T38.10.a",
+        "AX-PR-T38-09-T38.10.b",
+        "AX-PR-T38-09-T38.10.c",
+        "AX-PR-T38-09-T38.11.a",
+        "AX-PR-T38-09-T38.11.b",
+        "AX-PR-T38-09-T38.11.c"
+      ],
+      "scope": "Six unchanged criterion/V1 pairs; actual codec/FCE and selected CAN1 register adapter; physical/independent gates separate."
+    },
+    {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-09-T38.10.a",
+        "AX-PR-T38-09-T38.10.b",
+        "AX-PR-T38-09-T38.10.c",
+        "AX-PR-T38-09-T38.11.a",
+        "AX-PR-T38-09-T38.11.b",
+        "AX-PR-T38-09-T38.11.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
+  ]
+}

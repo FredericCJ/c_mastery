@@ -1,0 +1,1811 @@
+
+/tmp/debug-fault-r3o8ajxz/gcc-O0-target-1/fault.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <df_vectors>:
+ if(!out||kind>3||ignore>1||mpu>1)return DF_INVALID;
+ *out=kind==0?(ignore?DF_IGNORED:DF_LOCKUP):kind==1?DF_PENDING:kind==2?(mpu?DF_LOCKUP:DF_IGNORED):DF_LOCKUP;return DF_OK;
+}
+int df_watermark(const unsigned char*s,size_t n,unsigned char fill,size_t*out){if(!s||!out)return DF_INVALID;size_t first=0;while(first<n&&s[first]==fill)++first;*out=n-first;return DF_OK;}
+int df_canary(const unsigned char*p,size_t n,unsigned char value,unsigned*out){if(!p||!out||!n)return DF_INVALID;unsigned intact=1;for(size_t i=0;i<n;++i)if(p[i]!=value)intact=0;*out=intact;return DF_OK;}
+int df_budget(const DfLiveFrame*f,size_t n,uint32_t allocated,unsigned recursion,unsigned opaque,DfBudget*out){
+   0:	00 00 01 20 91 00 00 00 79 00 00 00 79 00 00 00     ... ....y...y...
+ if(!f||!out||n>8||recursion>1||opaque>1)return DF_INVALID;
+  10:	e9 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+	...
+
+00000040 <output>:
+#include <stdint.h>
+#include "target.h"
+extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
+extern void df_memmanage(void);
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  40:	b480      	push	{r7}
+  42:	b083      	sub	sp, #12
+  44:	af00      	add	r7, sp, #0
+  46:	6078      	str	r0, [r7, #4]
+  48:	2004      	movs	r0, #4
+  4a:	6879      	ldr	r1, [r7, #4]
+  4c:	beab      	bkpt	0x00ab
+  4e:	bf00      	nop
+  50:	370c      	adds	r7, #12
+  52:	46bd      	mov	sp, r7
+  54:	bc80      	pop	{r7}
+  56:	4770      	bx	lr
+
+00000058 <done>:
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  58:	b480      	push	{r7}
+  5a:	b085      	sub	sp, #20
+  5c:	af00      	add	r7, sp, #0
+  5e:	6078      	str	r0, [r7, #4]
+  60:	4b04      	ldr	r3, [pc, #16]	@ (74 <done+0x1c>)
+  62:	60bb      	str	r3, [r7, #8]
+  64:	687b      	ldr	r3, [r7, #4]
+  66:	60fb      	str	r3, [r7, #12]
+  68:	2020      	movs	r0, #32
+  6a:	f107 0108 	add.w	r1, r7, #8
+  6e:	beab      	bkpt	0x00ab
+  70:	bf30      	wfi
+  72:	e7fd      	b.n	70 <done+0x18>
+  74:	00020026 	.word	0x00020026
+
+00000078 <failed>:
+static void failed(void){output("DF_TARGET_CHECK:unexpected-vector\n");done(1);}
+  78:	b580      	push	{r7, lr}
+  7a:	af00      	add	r7, sp, #0
+  7c:	4803      	ldr	r0, [pc, #12]	@ (8c <failed+0x14>)
+  7e:	f7ff ffdf 	bl	40 <output>
+  82:	2001      	movs	r0, #1
+  84:	f7ff ffe8 	bl	58 <done>
+  88:	bf00      	nop
+  8a:	bd80      	pop	{r7, pc}
+  8c:	00000f00 	.word	0x00000f00
+
+00000090 <cl_reset>:
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+  90:	b580      	push	{r7, lr}
+  92:	b084      	sub	sp, #16
+  94:	af00      	add	r7, sp, #0
+  96:	4b1c      	ldr	r3, [pc, #112]	@ (108 <cl_reset+0x78>)
+  98:	60fb      	str	r3, [r7, #12]
+  9a:	4b1c      	ldr	r3, [pc, #112]	@ (10c <cl_reset+0x7c>)
+  9c:	60bb      	str	r3, [r7, #8]
+  9e:	e008      	b.n	b2 <cl_reset+0x22>
+  a0:	68fb      	ldr	r3, [r7, #12]
+  a2:	1d1a      	adds	r2, r3, #4
+  a4:	60fa      	str	r2, [r7, #12]
+  a6:	681a      	ldr	r2, [r3, #0]
+  a8:	68bb      	ldr	r3, [r7, #8]
+  aa:	601a      	str	r2, [r3, #0]
+  ac:	68bb      	ldr	r3, [r7, #8]
+  ae:	3304      	adds	r3, #4
+  b0:	60bb      	str	r3, [r7, #8]
+  b2:	68bb      	ldr	r3, [r7, #8]
+  b4:	4a16      	ldr	r2, [pc, #88]	@ (110 <cl_reset+0x80>)
+  b6:	4293      	cmp	r3, r2
+  b8:	d3f2      	bcc.n	a0 <cl_reset+0x10>
+  ba:	4b16      	ldr	r3, [pc, #88]	@ (114 <cl_reset+0x84>)
+  bc:	607b      	str	r3, [r7, #4]
+  be:	e005      	b.n	cc <cl_reset+0x3c>
+  c0:	687b      	ldr	r3, [r7, #4]
+  c2:	2200      	movs	r2, #0
+  c4:	601a      	str	r2, [r3, #0]
+  c6:	687b      	ldr	r3, [r7, #4]
+  c8:	3304      	adds	r3, #4
+  ca:	607b      	str	r3, [r7, #4]
+  cc:	687b      	ldr	r3, [r7, #4]
+  ce:	4a12      	ldr	r2, [pc, #72]	@ (118 <cl_reset+0x88>)
+  d0:	4293      	cmp	r3, r2
+  d2:	d3f5      	bcc.n	c0 <cl_reset+0x30>
+  d4:	f000 fbfc 	bl	8d0 <df_target>
+  d8:	6038      	str	r0, [r7, #0]
+  da:	683b      	ldr	r3, [r7, #0]
+  dc:	2b00      	cmp	r3, #0
+  de:	d001      	beq.n	e4 <cl_reset+0x54>
+  e0:	4b0e      	ldr	r3, [pc, #56]	@ (11c <cl_reset+0x8c>)
+  e2:	e000      	b.n	e6 <cl_reset+0x56>
+  e4:	4b0e      	ldr	r3, [pc, #56]	@ (120 <cl_reset+0x90>)
+  e6:	4618      	mov	r0, r3
+  e8:	f7ff ffaa 	bl	40 <output>
+  ec:	683b      	ldr	r3, [r7, #0]
+  ee:	2b00      	cmp	r3, #0
+  f0:	bf14      	ite	ne
+  f2:	2301      	movne	r3, #1
+  f4:	2300      	moveq	r3, #0
+  f6:	b2db      	uxtb	r3, r3
+  f8:	4618      	mov	r0, r3
+  fa:	f7ff ffad 	bl	58 <done>
+  fe:	bf00      	nop
+ 100:	3710      	adds	r7, #16
+ 102:	46bd      	mov	sp, r7
+ 104:	bd80      	pop	{r7, pc}
+ 106:	bf00      	nop
+ 108:	00000fec 	.word	0x00000fec
+ 10c:	20000000 	.word	0x20000000
+ 110:	20000000 	.word	0x20000000
+ 114:	20000000 	.word	0x20000000
+ 118:	200001a8 	.word	0x200001a8
+ 11c:	00000f24 	.word	0x00000f24
+ 120:	00000f40 	.word	0x00000f40
+
+00000124 <df_init>:
+ if(recursion||opaque)return DF_UNKNOWN;
+ uint32_t total=0;
+ for(size_t j=0;j<n;++j){
+ 124:	b580      	push	{r7, lr}
+  uint32_t hardware=f[j].exception?(f[j].extended?104u:32u)+4u*f[j].padding:0;
+  if(DF_MUTANT==4)hardware=f[j].exception?32u:0;
+  if(f[j].software>UINT32_MAX-hardware||total>UINT32_MAX-f[j].software-hardware)return DF_RANGE;
+  total+=f[j].software+hardware;
+ }
+ *out=(DfBudget){total,total<=allocated};return DF_OK;
+ 126:	b09e      	sub	sp, #120	@ 0x78
+ 128:	af00      	add	r7, sp, #0
+ 12a:	6078      	str	r0, [r7, #4]
+ 12c:	687b      	ldr	r3, [r7, #4]
+ 12e:	677b      	str	r3, [r7, #116]	@ 0x74
+ 130:	2300      	movs	r3, #0
+ 132:	60fb      	str	r3, [r7, #12]
+ 134:	68fa      	ldr	r2, [r7, #12]
+ 136:	6f7b      	ldr	r3, [r7, #116]	@ 0x74
+ 138:	601a      	str	r2, [r3, #0]
+ 13a:	687b      	ldr	r3, [r7, #4]
+ 13c:	3304      	adds	r3, #4
+ 13e:	673b      	str	r3, [r7, #112]	@ 0x70
+ 140:	2300      	movs	r3, #0
+}
+ 142:	60bb      	str	r3, [r7, #8]
+ 144:	68ba      	ldr	r2, [r7, #8]
+ 146:	6f3b      	ldr	r3, [r7, #112]	@ 0x70
+ 148:	601a      	str	r2, [r3, #0]
+ 14a:	687b      	ldr	r3, [r7, #4]
+void df_init(DfCapture*c){atomic_init(&c->state,0);atomic_init(&c->secondary,0);c->record=(DfRecord){0};}
+ 14c:	3308      	adds	r3, #8
+ 14e:	2260      	movs	r2, #96	@ 0x60
+ 150:	2100      	movs	r1, #0
+ 152:	4618      	mov	r0, r3
+ 154:	f000 feaa 	bl	eac <memset>
+ 158:	bf00      	nop
+ 15a:	3778      	adds	r7, #120	@ 0x78
+ 15c:	46bd      	mov	sp, r7
+ 15e:	bd80      	pop	{r7, pc}
+
+00000160 <df_capture>:
+int df_capture(DfCapture*c,const DfInput*i,void(*hook)(void*),void*context){
+ 160:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 162:	b0cd      	sub	sp, #308	@ 0x134
+ 164:	af06      	add	r7, sp, #24
+ 166:	f507 748c 	add.w	r4, r7, #280	@ 0x118
+ 16a:	f5a4 7486 	sub.w	r4, r4, #268	@ 0x10c
+ 16e:	6020      	str	r0, [r4, #0]
+ 170:	f507 708c 	add.w	r0, r7, #280	@ 0x118
+ 174:	f5a0 7088 	sub.w	r0, r0, #272	@ 0x110
+ 178:	6001      	str	r1, [r0, #0]
+ 17a:	f507 718c 	add.w	r1, r7, #280	@ 0x118
+ 17e:	f5a1 718a 	sub.w	r1, r1, #276	@ 0x114
+ 182:	600a      	str	r2, [r1, #0]
+ 184:	f507 728c 	add.w	r2, r7, #280	@ 0x118
+ 188:	f5a2 728c 	sub.w	r2, r2, #280	@ 0x118
+ 18c:	6013      	str	r3, [r2, #0]
+ if(!c||!i||i->readable>1||i->aligned>1||i->stacking_fault>1)return DF_INVALID;
+ 18e:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 192:	f5a3 7386 	sub.w	r3, r3, #268	@ 0x10c
+ 196:	681b      	ldr	r3, [r3, #0]
+ 198:	2b00      	cmp	r3, #0
+ 19a:	d01e      	beq.n	1da <df_capture+0x7a>
+ 19c:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 1a0:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 1a4:	681b      	ldr	r3, [r3, #0]
+ 1a6:	2b00      	cmp	r3, #0
+ 1a8:	d017      	beq.n	1da <df_capture+0x7a>
+ 1aa:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 1ae:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 1b2:	681b      	ldr	r3, [r3, #0]
+ 1b4:	6a1b      	ldr	r3, [r3, #32]
+ 1b6:	2b01      	cmp	r3, #1
+ 1b8:	d80f      	bhi.n	1da <df_capture+0x7a>
+ 1ba:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 1be:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 1c2:	681b      	ldr	r3, [r3, #0]
+ 1c4:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 1c6:	2b01      	cmp	r3, #1
+ 1c8:	d807      	bhi.n	1da <df_capture+0x7a>
+ 1ca:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 1ce:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 1d2:	681b      	ldr	r3, [r3, #0]
+ 1d4:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
+ 1d6:	2b01      	cmp	r3, #1
+ 1d8:	d901      	bls.n	1de <df_capture+0x7e>
+ 1da:	2301      	movs	r3, #1
+ 1dc:	e18c      	b.n	4f8 <df_capture+0x398>
+ unsigned empty=0;
+ 1de:	2300      	movs	r3, #0
+ 1e0:	f8c7 30fc 	str.w	r3, [r7, #252]	@ 0xfc
+ if(!atomic_compare_exchange_strong(&c->state,&empty,1)){
+ 1e4:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 1e8:	f5a3 7386 	sub.w	r3, r3, #268	@ 0x10c
+ 1ec:	681b      	ldr	r3, [r3, #0]
+ 1ee:	f8c7 310c 	str.w	r3, [r7, #268]	@ 0x10c
+ 1f2:	2301      	movs	r3, #1
+ 1f4:	f8c7 3098 	str.w	r3, [r7, #152]	@ 0x98
+ 1f8:	f8d7 4098 	ldr.w	r4, [r7, #152]	@ 0x98
+ 1fc:	f8d7 210c 	ldr.w	r2, [r7, #268]	@ 0x10c
+ 200:	f107 03fc 	add.w	r3, r7, #252	@ 0xfc
+ 204:	6818      	ldr	r0, [r3, #0]
+ 206:	f3bf 8f5b 	dmb	ish
+ 20a:	e852 1f00 	ldrex	r1, [r2]
+ 20e:	4281      	cmp	r1, r0
+ 210:	d104      	bne.n	21c <df_capture+0xbc>
+ 212:	e842 4500 	strex	r5, r4, [r2]
+ 216:	2d00      	cmp	r5, #0
+ 218:	2d00      	cmp	r5, #0
+ 21a:	d1f6      	bne.n	20a <df_capture+0xaa>
+ 21c:	f3bf 8f5b 	dmb	ish
+ 220:	bf0c      	ite	eq
+ 222:	2201      	moveq	r2, #1
+ 224:	2200      	movne	r2, #0
+ 226:	2a00      	cmp	r2, #0
+ 228:	d100      	bne.n	22c <df_capture+0xcc>
+ 22a:	6019      	str	r1, [r3, #0]
+ 22c:	4613      	mov	r3, r2
+ 22e:	f083 0301 	eor.w	r3, r3, #1
+ 232:	b2db      	uxtb	r3, r3
+ 234:	2b00      	cmp	r3, #0
+ 236:	d015      	beq.n	264 <df_capture+0x104>
+  atomic_store(&c->secondary,1);return DF_AGAIN;
+ 238:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 23c:	f5a3 7386 	sub.w	r3, r3, #268	@ 0x10c
+ 240:	681b      	ldr	r3, [r3, #0]
+ 242:	3304      	adds	r3, #4
+ 244:	f8c7 3100 	str.w	r3, [r7, #256]	@ 0x100
+ 248:	2301      	movs	r3, #1
+ 24a:	f8c7 3094 	str.w	r3, [r7, #148]	@ 0x94
+ 24e:	f8d7 2094 	ldr.w	r2, [r7, #148]	@ 0x94
+ 252:	f8d7 3100 	ldr.w	r3, [r7, #256]	@ 0x100
+ 256:	f3bf 8f5b 	dmb	ish
+ 25a:	601a      	str	r2, [r3, #0]
+ 25c:	f3bf 8f5b 	dmb	ish
+ 260:	2304      	movs	r3, #4
+ 262:	e149      	b.n	4f8 <df_capture+0x398>
+ DfRecord r={.version=1,.valid=DF_STATUS,.cfsr=i->cfsr,.hfsr=i->hfsr,.exc_return=i->exc_return,.frame_status=DF_INCOMPLETE};
+ 264:	f107 039c 	add.w	r3, r7, #156	@ 0x9c
+ 268:	2260      	movs	r2, #96	@ 0x60
+ 26a:	2100      	movs	r1, #0
+ 26c:	4618      	mov	r0, r3
+ 26e:	f000 fe1d 	bl	eac <memset>
+ 272:	2301      	movs	r3, #1
+ 274:	f8c7 309c 	str.w	r3, [r7, #156]	@ 0x9c
+ 278:	2301      	movs	r3, #1
+ 27a:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+ 27e:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 282:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 286:	681b      	ldr	r3, [r3, #0]
+ 288:	681b      	ldr	r3, [r3, #0]
+ 28a:	f8c7 30a4 	str.w	r3, [r7, #164]	@ 0xa4
+ 28e:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 292:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 296:	681b      	ldr	r3, [r3, #0]
+ 298:	685b      	ldr	r3, [r3, #4]
+ 29a:	f8c7 30a8 	str.w	r3, [r7, #168]	@ 0xa8
+ 29e:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 2a2:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 2a6:	681b      	ldr	r3, [r3, #0]
+ 2a8:	691b      	ldr	r3, [r3, #16]
+ 2aa:	f8c7 30ac 	str.w	r3, [r7, #172]	@ 0xac
+ 2ae:	2302      	movs	r3, #2
+ 2b0:	f8c7 30d8 	str.w	r3, [r7, #216]	@ 0xd8
+ if((i->cfsr&0x8000u)||DF_MUTANT==1){r.valid|=DF_BUS_ADDRESS;r.bfar=i->bfar;}
+ 2b4:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 2b8:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 2bc:	681b      	ldr	r3, [r3, #0]
+ 2be:	681b      	ldr	r3, [r3, #0]
+ 2c0:	f403 4300 	and.w	r3, r3, #32768	@ 0x8000
+ 2c4:	2b00      	cmp	r3, #0
+ 2c6:	d00d      	beq.n	2e4 <df_capture+0x184>
+ 2c8:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ 2cc:	f043 0302 	orr.w	r3, r3, #2
+ 2d0:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+ 2d4:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 2d8:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 2dc:	681b      	ldr	r3, [r3, #0]
+ 2de:	689b      	ldr	r3, [r3, #8]
+ 2e0:	f8c7 30b0 	str.w	r3, [r7, #176]	@ 0xb0
+ if(i->cfsr&0x80u){r.valid|=DF_MEMORY_ADDRESS;r.mmfar=i->mmfar;}
+ 2e4:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 2e8:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 2ec:	681b      	ldr	r3, [r3, #0]
+ 2ee:	681b      	ldr	r3, [r3, #0]
+ 2f0:	f003 0380 	and.w	r3, r3, #128	@ 0x80
+ 2f4:	2b00      	cmp	r3, #0
+ 2f6:	d00d      	beq.n	314 <df_capture+0x1b4>
+ 2f8:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ 2fc:	f043 0304 	orr.w	r3, r3, #4
+ 300:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+ 304:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 308:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 30c:	681b      	ldr	r3, [r3, #0]
+ 30e:	68db      	ldr	r3, [r3, #12]
+ 310:	f8c7 30b4 	str.w	r3, [r7, #180]	@ 0xb4
+ if(i->image){for(unsigned n=0;n<32;++n)r.image[n]=i->image[n];r.valid|=DF_IMAGE;}
+ 314:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 318:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 31c:	681b      	ldr	r3, [r3, #0]
+ 31e:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 320:	2b00      	cmp	r3, #0
+ 322:	d023      	beq.n	36c <df_capture+0x20c>
+ 324:	2300      	movs	r3, #0
+ 326:	f8c7 3114 	str.w	r3, [r7, #276]	@ 0x114
+ 32a:	e015      	b.n	358 <df_capture+0x1f8>
+ 32c:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 330:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 334:	681b      	ldr	r3, [r3, #0]
+ 336:	6ada      	ldr	r2, [r3, #44]	@ 0x2c
+ 338:	f8d7 3114 	ldr.w	r3, [r7, #276]	@ 0x114
+ 33c:	4413      	add	r3, r2
+ 33e:	7819      	ldrb	r1, [r3, #0]
+ 340:	f107 02dc 	add.w	r2, r7, #220	@ 0xdc
+ 344:	f8d7 3114 	ldr.w	r3, [r7, #276]	@ 0x114
+ 348:	4413      	add	r3, r2
+ 34a:	460a      	mov	r2, r1
+ 34c:	701a      	strb	r2, [r3, #0]
+ 34e:	f8d7 3114 	ldr.w	r3, [r7, #276]	@ 0x114
+ 352:	3301      	adds	r3, #1
+ 354:	f8c7 3114 	str.w	r3, [r7, #276]	@ 0x114
+ 358:	f8d7 3114 	ldr.w	r3, [r7, #276]	@ 0x114
+ 35c:	2b1f      	cmp	r3, #31
+ 35e:	d9e5      	bls.n	32c <df_capture+0x1cc>
+ 360:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ 364:	f043 0310 	orr.w	r3, r3, #16
+ 368:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+ if(hook)hook(context);
+ 36c:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 370:	f5a3 738a 	sub.w	r3, r3, #276	@ 0x114
+ 374:	681b      	ldr	r3, [r3, #0]
+ 376:	2b00      	cmp	r3, #0
+ 378:	d00a      	beq.n	390 <df_capture+0x230>
+ 37a:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 37e:	f5a3 728c 	sub.w	r2, r3, #280	@ 0x118
+ 382:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 386:	f5a3 738a 	sub.w	r3, r3, #276	@ 0x114
+ 38a:	681b      	ldr	r3, [r3, #0]
+ 38c:	6810      	ldr	r0, [r2, #0]
+ 38e:	4798      	blx	r3
+ if(i->readable){
+ 390:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 394:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 398:	681b      	ldr	r3, [r3, #0]
+ 39a:	6a1b      	ldr	r3, [r3, #32]
+ 39c:	2b00      	cmp	r3, #0
+ 39e:	f000 808d 	beq.w	4bc <df_capture+0x35c>
+  XfFrame frame;int status=xf_frame(i->words,i->available,i->stack_address,i->exc_return,0,0,i->aligned,i->stacking_fault||(i->cfsr&0x3838u)!=0,&frame);
+ 3a2:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3a6:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3aa:	681b      	ldr	r3, [r3, #0]
+ 3ac:	6998      	ldr	r0, [r3, #24]
+ 3ae:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3b2:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3b6:	681b      	ldr	r3, [r3, #0]
+ 3b8:	69dc      	ldr	r4, [r3, #28]
+ 3ba:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3be:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3c2:	681b      	ldr	r3, [r3, #0]
+ 3c4:	695d      	ldr	r5, [r3, #20]
+ 3c6:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3ca:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3ce:	681b      	ldr	r3, [r3, #0]
+ 3d0:	691e      	ldr	r6, [r3, #16]
+ 3d2:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3d6:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3da:	681b      	ldr	r3, [r3, #0]
+ 3dc:	6a5a      	ldr	r2, [r3, #36]	@ 0x24
+ 3de:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3e2:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3e6:	681b      	ldr	r3, [r3, #0]
+ 3e8:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
+ 3ea:	2b00      	cmp	r3, #0
+ 3ec:	d10a      	bne.n	404 <df_capture+0x2a4>
+ 3ee:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 3f2:	f5a3 7388 	sub.w	r3, r3, #272	@ 0x110
+ 3f6:	681b      	ldr	r3, [r3, #0]
+ 3f8:	6819      	ldr	r1, [r3, #0]
+ 3fa:	f643 0338 	movw	r3, #14392	@ 0x3838
+ 3fe:	400b      	ands	r3, r1
+ 400:	2b00      	cmp	r3, #0
+ 402:	d001      	beq.n	408 <df_capture+0x2a8>
+ 404:	2301      	movs	r3, #1
+ 406:	e000      	b.n	40a <df_capture+0x2aa>
+ 408:	2300      	movs	r3, #0
+ 40a:	4619      	mov	r1, r3
+ 40c:	f107 0310 	add.w	r3, r7, #16
+ 410:	9304      	str	r3, [sp, #16]
+ 412:	9103      	str	r1, [sp, #12]
+ 414:	9202      	str	r2, [sp, #8]
+ 416:	2300      	movs	r3, #0
+ 418:	9301      	str	r3, [sp, #4]
+ 41a:	2300      	movs	r3, #0
+ 41c:	9300      	str	r3, [sp, #0]
+ 41e:	4633      	mov	r3, r6
+ 420:	462a      	mov	r2, r5
+ 422:	4621      	mov	r1, r4
+ 424:	f000 fb9c 	bl	b60 <xf_frame>
+ 428:	f8c7 0108 	str.w	r0, [r7, #264]	@ 0x108
+  r.frame_status=(unsigned)status;
+ 42c:	f8d7 3108 	ldr.w	r3, [r7, #264]	@ 0x108
+ 430:	f8c7 30d8 	str.w	r3, [r7, #216]	@ 0xd8
+  if(status==XF_OK){for(unsigned n=0;n<4;++n)r.frame[n]=frame.r[n];r.frame[4]=frame.r12;r.frame[5]=frame.stacked_lr;r.frame[6]=frame.pc;r.frame[7]=frame.xpsr;r.valid|=DF_FRAME;}
+ 434:	f8d7 3108 	ldr.w	r3, [r7, #264]	@ 0x108
+ 438:	2b00      	cmp	r3, #0
+ 43a:	d13f      	bne.n	4bc <df_capture+0x35c>
+ 43c:	2300      	movs	r3, #0
+ 43e:	f8c7 3110 	str.w	r3, [r7, #272]	@ 0x110
+ 442:	e015      	b.n	470 <df_capture+0x310>
+ 444:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 448:	f5a3 7384 	sub.w	r3, r3, #264	@ 0x108
+ 44c:	f8d7 2110 	ldr.w	r2, [r7, #272]	@ 0x110
+ 450:	f853 2022 	ldr.w	r2, [r3, r2, lsl #2]
+ 454:	f8d7 3110 	ldr.w	r3, [r7, #272]	@ 0x110
+ 458:	3306      	adds	r3, #6
+ 45a:	009b      	lsls	r3, r3, #2
+ 45c:	f503 738c 	add.w	r3, r3, #280	@ 0x118
+ 460:	443b      	add	r3, r7
+ 462:	f843 2c78 	str.w	r2, [r3, #-120]
+ 466:	f8d7 3110 	ldr.w	r3, [r7, #272]	@ 0x110
+ 46a:	3301      	adds	r3, #1
+ 46c:	f8c7 3110 	str.w	r3, [r7, #272]	@ 0x110
+ 470:	f8d7 3110 	ldr.w	r3, [r7, #272]	@ 0x110
+ 474:	2b03      	cmp	r3, #3
+ 476:	d9e5      	bls.n	444 <df_capture+0x2e4>
+ 478:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 47c:	f5a3 7384 	sub.w	r3, r3, #264	@ 0x108
+ 480:	691b      	ldr	r3, [r3, #16]
+ 482:	f8c7 30c8 	str.w	r3, [r7, #200]	@ 0xc8
+ 486:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 48a:	f5a3 7384 	sub.w	r3, r3, #264	@ 0x108
+ 48e:	695b      	ldr	r3, [r3, #20]
+ 490:	f8c7 30cc 	str.w	r3, [r7, #204]	@ 0xcc
+ 494:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 498:	f5a3 7384 	sub.w	r3, r3, #264	@ 0x108
+ 49c:	699b      	ldr	r3, [r3, #24]
+ 49e:	f8c7 30d0 	str.w	r3, [r7, #208]	@ 0xd0
+ 4a2:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 4a6:	f5a3 7384 	sub.w	r3, r3, #264	@ 0x108
+ 4aa:	69db      	ldr	r3, [r3, #28]
+ 4ac:	f8c7 30d4 	str.w	r3, [r7, #212]	@ 0xd4
+ 4b0:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ 4b4:	f043 0308 	orr.w	r3, r3, #8
+ 4b8:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+ c->record=r;atomic_store_explicit(&c->state,2,memory_order_release);return DF_OK;
+ 4bc:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 4c0:	f5a3 7386 	sub.w	r3, r3, #268	@ 0x10c
+ 4c4:	681b      	ldr	r3, [r3, #0]
+ 4c6:	3308      	adds	r3, #8
+ 4c8:	f107 019c 	add.w	r1, r7, #156	@ 0x9c
+ 4cc:	2260      	movs	r2, #96	@ 0x60
+ 4ce:	4618      	mov	r0, r3
+ 4d0:	f000 fcca 	bl	e68 <memcpy>
+ 4d4:	f507 738c 	add.w	r3, r7, #280	@ 0x118
+ 4d8:	f5a3 7386 	sub.w	r3, r3, #268	@ 0x10c
+ 4dc:	681b      	ldr	r3, [r3, #0]
+ 4de:	f8c7 3104 	str.w	r3, [r7, #260]	@ 0x104
+ 4e2:	2302      	movs	r3, #2
+ 4e4:	f8c7 3090 	str.w	r3, [r7, #144]	@ 0x90
+ 4e8:	f8d7 2090 	ldr.w	r2, [r7, #144]	@ 0x90
+ 4ec:	f8d7 3104 	ldr.w	r3, [r7, #260]	@ 0x104
+ 4f0:	f3bf 8f5b 	dmb	ish
+ 4f4:	601a      	str	r2, [r3, #0]
+ 4f6:	2300      	movs	r3, #0
+}
+ 4f8:	4618      	mov	r0, r3
+ 4fa:	f507 778e 	add.w	r7, r7, #284	@ 0x11c
+ 4fe:	46bd      	mov	sp, r7
+ 500:	bdf0      	pop	{r4, r5, r6, r7, pc}
+
+00000502 <df_read>:
+int df_read(const DfCapture*c,DfRecord*out,unsigned*secondary){
+ 502:	b580      	push	{r7, lr}
+ 504:	b088      	sub	sp, #32
+ 506:	af00      	add	r7, sp, #0
+ 508:	60f8      	str	r0, [r7, #12]
+ 50a:	60b9      	str	r1, [r7, #8]
+ 50c:	607a      	str	r2, [r7, #4]
+ if(!c||!out||!secondary)return DF_INVALID;
+ 50e:	68fb      	ldr	r3, [r7, #12]
+ 510:	2b00      	cmp	r3, #0
+ 512:	d005      	beq.n	520 <df_read+0x1e>
+ 514:	68bb      	ldr	r3, [r7, #8]
+ 516:	2b00      	cmp	r3, #0
+ 518:	d002      	beq.n	520 <df_read+0x1e>
+ 51a:	687b      	ldr	r3, [r7, #4]
+ 51c:	2b00      	cmp	r3, #0
+ 51e:	d101      	bne.n	524 <df_read+0x22>
+ 520:	2301      	movs	r3, #1
+ 522:	e021      	b.n	568 <df_read+0x66>
+ if(atomic_load_explicit(&c->state,memory_order_acquire)!=2)return DF_BUSY;
+ 524:	68fb      	ldr	r3, [r7, #12]
+ 526:	61fb      	str	r3, [r7, #28]
+ 528:	69fb      	ldr	r3, [r7, #28]
+ 52a:	681b      	ldr	r3, [r3, #0]
+ 52c:	f3bf 8f5b 	dmb	ish
+ 530:	617b      	str	r3, [r7, #20]
+ 532:	697b      	ldr	r3, [r7, #20]
+ 534:	2b02      	cmp	r3, #2
+ 536:	d001      	beq.n	53c <df_read+0x3a>
+ 538:	2303      	movs	r3, #3
+ 53a:	e015      	b.n	568 <df_read+0x66>
+ *out=c->record;*secondary=atomic_load(&c->secondary);return DF_OK;
+ 53c:	68ba      	ldr	r2, [r7, #8]
+ 53e:	68fb      	ldr	r3, [r7, #12]
+ 540:	4610      	mov	r0, r2
+ 542:	3308      	adds	r3, #8
+ 544:	2260      	movs	r2, #96	@ 0x60
+ 546:	4619      	mov	r1, r3
+ 548:	f000 fc8e 	bl	e68 <memcpy>
+ 54c:	68fb      	ldr	r3, [r7, #12]
+ 54e:	3304      	adds	r3, #4
+ 550:	61bb      	str	r3, [r7, #24]
+ 552:	69bb      	ldr	r3, [r7, #24]
+ 554:	f3bf 8f5b 	dmb	ish
+ 558:	681b      	ldr	r3, [r3, #0]
+ 55a:	f3bf 8f5b 	dmb	ish
+ 55e:	613b      	str	r3, [r7, #16]
+ 560:	693a      	ldr	r2, [r7, #16]
+ 562:	687b      	ldr	r3, [r7, #4]
+ 564:	601a      	str	r2, [r3, #0]
+ 566:	2300      	movs	r3, #0
+}
+ 568:	4618      	mov	r0, r3
+ 56a:	3720      	adds	r7, #32
+ 56c:	46bd      	mov	sp, r7
+ 56e:	bd80      	pop	{r7, pc}
+
+00000570 <df_access>:
+int df_access(const DfRecord*r,const unsigned char image[32],uint32_t base,const unsigned char*code,size_t n,DfAccess*out){
+ 570:	b4b0      	push	{r4, r5, r7}
+ 572:	b093      	sub	sp, #76	@ 0x4c
+ 574:	af00      	add	r7, sp, #0
+ 576:	60f8      	str	r0, [r7, #12]
+ 578:	60b9      	str	r1, [r7, #8]
+ 57a:	607a      	str	r2, [r7, #4]
+ 57c:	603b      	str	r3, [r7, #0]
+ if(!r||!image||!code||!out)return DF_INVALID;
+ 57e:	68fb      	ldr	r3, [r7, #12]
+ 580:	2b00      	cmp	r3, #0
+ 582:	d008      	beq.n	596 <df_access+0x26>
+ 584:	68bb      	ldr	r3, [r7, #8]
+ 586:	2b00      	cmp	r3, #0
+ 588:	d005      	beq.n	596 <df_access+0x26>
+ 58a:	683b      	ldr	r3, [r7, #0]
+ 58c:	2b00      	cmp	r3, #0
+ 58e:	d002      	beq.n	596 <df_access+0x26>
+ 590:	6dfb      	ldr	r3, [r7, #92]	@ 0x5c
+ 592:	2b00      	cmp	r3, #0
+ 594:	d101      	bne.n	59a <df_access+0x2a>
+ 596:	2301      	movs	r3, #1
+ 598:	e0c7      	b.n	72a <df_access+0x1ba>
+ if(r->version!=1)return DF_UNSUPPORTED;
+ 59a:	68fb      	ldr	r3, [r7, #12]
+ 59c:	681b      	ldr	r3, [r3, #0]
+ 59e:	2b01      	cmp	r3, #1
+ 5a0:	d001      	beq.n	5a6 <df_access+0x36>
+ 5a2:	2306      	movs	r3, #6
+ 5a4:	e0c1      	b.n	72a <df_access+0x1ba>
+ if((r->valid&(DF_FRAME|DF_IMAGE|DF_STATUS))!=(DF_FRAME|DF_IMAGE|DF_STATUS))return DF_INCOMPLETE;
+ 5a6:	68fb      	ldr	r3, [r7, #12]
+ 5a8:	685b      	ldr	r3, [r3, #4]
+ 5aa:	f003 0319 	and.w	r3, r3, #25
+ 5ae:	2b19      	cmp	r3, #25
+ 5b0:	d001      	beq.n	5b6 <df_access+0x46>
+ 5b2:	2302      	movs	r3, #2
+ 5b4:	e0b9      	b.n	72a <df_access+0x1ba>
+ for(unsigned j=0;j<32;++j)if(DF_MUTANT!=2&&image[j]!=r->image[j])return DF_IDENTITY;
+ 5b6:	2300      	movs	r3, #0
+ 5b8:	647b      	str	r3, [r7, #68]	@ 0x44
+ 5ba:	e00f      	b.n	5dc <df_access+0x6c>
+ 5bc:	68ba      	ldr	r2, [r7, #8]
+ 5be:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 5c0:	4413      	add	r3, r2
+ 5c2:	781a      	ldrb	r2, [r3, #0]
+ 5c4:	68f9      	ldr	r1, [r7, #12]
+ 5c6:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 5c8:	440b      	add	r3, r1
+ 5ca:	3340      	adds	r3, #64	@ 0x40
+ 5cc:	781b      	ldrb	r3, [r3, #0]
+ 5ce:	429a      	cmp	r2, r3
+ 5d0:	d001      	beq.n	5d6 <df_access+0x66>
+ 5d2:	2305      	movs	r3, #5
+ 5d4:	e0a9      	b.n	72a <df_access+0x1ba>
+ 5d6:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 5d8:	3301      	adds	r3, #1
+ 5da:	647b      	str	r3, [r7, #68]	@ 0x44
+ 5dc:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 5de:	2b1f      	cmp	r3, #31
+ 5e0:	d9ec      	bls.n	5bc <df_access+0x4c>
+ uint32_t pc=r->frame[6];if(n>UINT32_MAX-base||pc<base||pc-base>=n||n-(pc-base)<2)return DF_RANGE;
+ 5e2:	68fb      	ldr	r3, [r7, #12]
+ 5e4:	6b5b      	ldr	r3, [r3, #52]	@ 0x34
+ 5e6:	643b      	str	r3, [r7, #64]	@ 0x40
+ 5e8:	687b      	ldr	r3, [r7, #4]
+ 5ea:	43db      	mvns	r3, r3
+ 5ec:	6dba      	ldr	r2, [r7, #88]	@ 0x58
+ 5ee:	429a      	cmp	r2, r3
+ 5f0:	d810      	bhi.n	614 <df_access+0xa4>
+ 5f2:	6c3a      	ldr	r2, [r7, #64]	@ 0x40
+ 5f4:	687b      	ldr	r3, [r7, #4]
+ 5f6:	429a      	cmp	r2, r3
+ 5f8:	d30c      	bcc.n	614 <df_access+0xa4>
+ 5fa:	6c3a      	ldr	r2, [r7, #64]	@ 0x40
+ 5fc:	687b      	ldr	r3, [r7, #4]
+ 5fe:	1ad3      	subs	r3, r2, r3
+ 600:	6dba      	ldr	r2, [r7, #88]	@ 0x58
+ 602:	429a      	cmp	r2, r3
+ 604:	d906      	bls.n	614 <df_access+0xa4>
+ 606:	687a      	ldr	r2, [r7, #4]
+ 608:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
+ 60a:	1ad2      	subs	r2, r2, r3
+ 60c:	6dbb      	ldr	r3, [r7, #88]	@ 0x58
+ 60e:	4413      	add	r3, r2
+ 610:	2b01      	cmp	r3, #1
+ 612:	d801      	bhi.n	618 <df_access+0xa8>
+ 614:	2307      	movs	r3, #7
+ 616:	e088      	b.n	72a <df_access+0x1ba>
+ size_t offset=pc-base;unsigned instruction=code[offset]|(unsigned)code[offset+1]<<8;
+ 618:	6c3a      	ldr	r2, [r7, #64]	@ 0x40
+ 61a:	687b      	ldr	r3, [r7, #4]
+ 61c:	1ad3      	subs	r3, r2, r3
+ 61e:	63fb      	str	r3, [r7, #60]	@ 0x3c
+ 620:	683a      	ldr	r2, [r7, #0]
+ 622:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
+ 624:	4413      	add	r3, r2
+ 626:	781b      	ldrb	r3, [r3, #0]
+ 628:	4619      	mov	r1, r3
+ 62a:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
+ 62c:	3301      	adds	r3, #1
+ 62e:	683a      	ldr	r2, [r7, #0]
+ 630:	4413      	add	r3, r2
+ 632:	781b      	ldrb	r3, [r3, #0]
+ 634:	021b      	lsls	r3, r3, #8
+ 636:	430b      	orrs	r3, r1
+ 638:	63bb      	str	r3, [r7, #56]	@ 0x38
+ unsigned opcode=instruction&0xf800u;if(opcode!=0x6000u&&opcode!=0x6800u)return DF_UNSUPPORTED;
+ 63a:	6bbb      	ldr	r3, [r7, #56]	@ 0x38
+ 63c:	f403 4378 	and.w	r3, r3, #63488	@ 0xf800
+ 640:	637b      	str	r3, [r7, #52]	@ 0x34
+ 642:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 644:	f5b3 4fc0 	cmp.w	r3, #24576	@ 0x6000
+ 648:	d005      	beq.n	656 <df_access+0xe6>
+ 64a:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 64c:	f5b3 4fd0 	cmp.w	r3, #26624	@ 0x6800
+ 650:	d001      	beq.n	656 <df_access+0xe6>
+ 652:	2306      	movs	r3, #6
+ 654:	e069      	b.n	72a <df_access+0x1ba>
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 656:	6bbb      	ldr	r3, [r7, #56]	@ 0x38
+ 658:	08db      	lsrs	r3, r3, #3
+ 65a:	f003 0307 	and.w	r3, r3, #7
+ 65e:	633b      	str	r3, [r7, #48]	@ 0x30
+ 660:	6bbb      	ldr	r3, [r7, #56]	@ 0x38
+ 662:	f003 0307 	and.w	r3, r3, #7
+ 666:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 668:	6bbb      	ldr	r3, [r7, #56]	@ 0x38
+ 66a:	099b      	lsrs	r3, r3, #6
+ 66c:	f003 031f 	and.w	r3, r3, #31
+ 670:	009b      	lsls	r3, r3, #2
+ 672:	62bb      	str	r3, [r7, #40]	@ 0x28
+ if(rn>3||(opcode==0x6000u&&rt>3))return DF_INCOMPLETE;
+ 674:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 676:	2b03      	cmp	r3, #3
+ 678:	d806      	bhi.n	688 <df_access+0x118>
+ 67a:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 67c:	f5b3 4fc0 	cmp.w	r3, #24576	@ 0x6000
+ 680:	d104      	bne.n	68c <df_access+0x11c>
+ 682:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 684:	2b03      	cmp	r3, #3
+ 686:	d901      	bls.n	68c <df_access+0x11c>
+ 688:	2302      	movs	r3, #2
+ 68a:	e04e      	b.n	72a <df_access+0x1ba>
+ if(r->frame[rn]>UINT32_MAX-displacement)return DF_RANGE;
+ 68c:	68fa      	ldr	r2, [r7, #12]
+ 68e:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 690:	3306      	adds	r3, #6
+ 692:	009b      	lsls	r3, r3, #2
+ 694:	4413      	add	r3, r2
+ 696:	685a      	ldr	r2, [r3, #4]
+ 698:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 69a:	43db      	mvns	r3, r3
+ 69c:	429a      	cmp	r2, r3
+ 69e:	d901      	bls.n	6a4 <df_access+0x134>
+ 6a0:	2307      	movs	r3, #7
+ 6a2:	e042      	b.n	72a <df_access+0x1ba>
+ DfAccess value={.pc=pc,.effective_address=r->frame[rn]+displacement,.operand=opcode==0x6000u?r->frame[rt]:0,.write=opcode==0x6000u};
+ 6a4:	f107 0310 	add.w	r3, r7, #16
+ 6a8:	2200      	movs	r2, #0
+ 6aa:	601a      	str	r2, [r3, #0]
+ 6ac:	605a      	str	r2, [r3, #4]
+ 6ae:	609a      	str	r2, [r3, #8]
+ 6b0:	60da      	str	r2, [r3, #12]
+ 6b2:	611a      	str	r2, [r3, #16]
+ 6b4:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
+ 6b6:	613b      	str	r3, [r7, #16]
+ 6b8:	68fa      	ldr	r2, [r7, #12]
+ 6ba:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 6bc:	3306      	adds	r3, #6
+ 6be:	009b      	lsls	r3, r3, #2
+ 6c0:	4413      	add	r3, r2
+ 6c2:	685a      	ldr	r2, [r3, #4]
+ 6c4:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 6c6:	4413      	add	r3, r2
+ 6c8:	617b      	str	r3, [r7, #20]
+ 6ca:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 6cc:	f5b3 4fc0 	cmp.w	r3, #24576	@ 0x6000
+ 6d0:	d106      	bne.n	6e0 <df_access+0x170>
+ 6d2:	68fa      	ldr	r2, [r7, #12]
+ 6d4:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 6d6:	3306      	adds	r3, #6
+ 6d8:	009b      	lsls	r3, r3, #2
+ 6da:	4413      	add	r3, r2
+ 6dc:	685b      	ldr	r3, [r3, #4]
+ 6de:	e000      	b.n	6e2 <df_access+0x172>
+ 6e0:	2300      	movs	r3, #0
+ 6e2:	61bb      	str	r3, [r7, #24]
+ 6e4:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 6e6:	f5b3 4fc0 	cmp.w	r3, #24576	@ 0x6000
+ 6ea:	bf0c      	ite	eq
+ 6ec:	2301      	moveq	r3, #1
+ 6ee:	2300      	movne	r3, #0
+ 6f0:	b2db      	uxtb	r3, r3
+ 6f2:	61fb      	str	r3, [r7, #28]
+ uint32_t event=r->cfsr&~UINT32_C(0x8080);
+ 6f4:	68fb      	ldr	r3, [r7, #12]
+ 6f6:	689b      	ldr	r3, [r3, #8]
+ 6f8:	f423 4300 	bic.w	r3, r3, #32768	@ 0x8000
+ 6fc:	f023 0380 	bic.w	r3, r3, #128	@ 0x80
+ 700:	627b      	str	r3, [r7, #36]	@ 0x24
+ value.precise=(event==2u||event==0x200u)||DF_MUTANT==3;
+ 702:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 704:	2b02      	cmp	r3, #2
+ 706:	d003      	beq.n	710 <df_access+0x1a0>
+ 708:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 70a:	f5b3 7f00 	cmp.w	r3, #512	@ 0x200
+ 70e:	d101      	bne.n	714 <df_access+0x1a4>
+ 710:	2301      	movs	r3, #1
+ 712:	e000      	b.n	716 <df_access+0x1a6>
+ 714:	2300      	movs	r3, #0
+ 716:	623b      	str	r3, [r7, #32]
+ *out=value;return DF_OK;
+ 718:	6dfb      	ldr	r3, [r7, #92]	@ 0x5c
+ 71a:	461d      	mov	r5, r3
+ 71c:	f107 0410 	add.w	r4, r7, #16
+ 720:	cc0f      	ldmia	r4!, {r0, r1, r2, r3}
+ 722:	c50f      	stmia	r5!, {r0, r1, r2, r3}
+ 724:	6823      	ldr	r3, [r4, #0]
+ 726:	602b      	str	r3, [r5, #0]
+ 728:	2300      	movs	r3, #0
+}
+ 72a:	4618      	mov	r0, r3
+ 72c:	374c      	adds	r7, #76	@ 0x4c
+ 72e:	46bd      	mov	sp, r7
+ 730:	bcb0      	pop	{r4, r5, r7}
+ 732:	4770      	bx	lr
+
+00000734 <output>:
+static volatile uint32_t sandbox[72] __attribute__((aligned(32)));
+static volatile unsigned handler_count,handler_ok;
+/* This is a synthetic acquisition token; the host envelope binds the actual ELF
+ * SHA256 separately. Never label this fixed token an embedded ELF digest. */
+static const unsigned char token[32]={1};
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 734:	b480      	push	{r7}
+ 736:	b083      	sub	sp, #12
+ 738:	af00      	add	r7, sp, #0
+ 73a:	6078      	str	r0, [r7, #4]
+ 73c:	2004      	movs	r0, #4
+ 73e:	6879      	ldr	r1, [r7, #4]
+ 740:	beab      	bkpt	0x00ab
+ 742:	bf00      	nop
+ 744:	370c      	adds	r7, #12
+ 746:	46bd      	mov	sp, r7
+ 748:	bc80      	pop	{r7}
+ 74a:	4770      	bx	lr
+
+0000074c <hex>:
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 74c:	b580      	push	{r7, lr}
+ 74e:	b086      	sub	sp, #24
+ 750:	af00      	add	r7, sp, #0
+ 752:	6078      	str	r0, [r7, #4]
+ 754:	2300      	movs	r3, #0
+ 756:	617b      	str	r3, [r7, #20]
+ 758:	e013      	b.n	782 <hex+0x36>
+ 75a:	697b      	ldr	r3, [r7, #20]
+ 75c:	f1c3 0307 	rsb	r3, r3, #7
+ 760:	009b      	lsls	r3, r3, #2
+ 762:	687a      	ldr	r2, [r7, #4]
+ 764:	fa22 f303 	lsr.w	r3, r2, r3
+ 768:	f003 030f 	and.w	r3, r3, #15
+ 76c:	4a0d      	ldr	r2, [pc, #52]	@ (7a4 <hex+0x58>)
+ 76e:	5cd1      	ldrb	r1, [r2, r3]
+ 770:	f107 0208 	add.w	r2, r7, #8
+ 774:	697b      	ldr	r3, [r7, #20]
+ 776:	4413      	add	r3, r2
+ 778:	460a      	mov	r2, r1
+ 77a:	701a      	strb	r2, [r3, #0]
+ 77c:	697b      	ldr	r3, [r7, #20]
+ 77e:	3301      	adds	r3, #1
+ 780:	617b      	str	r3, [r7, #20]
+ 782:	697b      	ldr	r3, [r7, #20]
+ 784:	2b07      	cmp	r3, #7
+ 786:	d9e8      	bls.n	75a <hex+0xe>
+ 788:	2320      	movs	r3, #32
+ 78a:	743b      	strb	r3, [r7, #16]
+ 78c:	2300      	movs	r3, #0
+ 78e:	747b      	strb	r3, [r7, #17]
+ 790:	f107 0308 	add.w	r3, r7, #8
+ 794:	4618      	mov	r0, r3
+ 796:	f7ff ffcd 	bl	734 <output>
+ 79a:	bf00      	nop
+ 79c:	3718      	adds	r7, #24
+ 79e:	46bd      	mov	sp, r7
+ 7a0:	bd80      	pop	{r7, pc}
+ 7a2:	bf00      	nop
+ 7a4:	00000fc8 	.word	0x00000fc8
+
+000007a8 <df_handler>:
+void df_handler(uint32_t*words,uint32_t er){
+ 7a8:	b580      	push	{r7, lr}
+ 7aa:	b094      	sub	sp, #80	@ 0x50
+ 7ac:	af00      	add	r7, sp, #0
+ 7ae:	6078      	str	r0, [r7, #4]
+ 7b0:	6039      	str	r1, [r7, #0]
+ uint32_t status=REG(0xe000ed28),sp=(uint32_t)(uintptr_t)words,top=(uint32_t)(uintptr_t)&cl_stack_top;
+ 7b2:	4b3b      	ldr	r3, [pc, #236]	@ (8a0 <df_handler+0xf8>)
+ 7b4:	681b      	ldr	r3, [r3, #0]
+ 7b6:	64fb      	str	r3, [r7, #76]	@ 0x4c
+ 7b8:	687b      	ldr	r3, [r7, #4]
+ 7ba:	64bb      	str	r3, [r7, #72]	@ 0x48
+ 7bc:	4b39      	ldr	r3, [pc, #228]	@ (8a4 <df_handler+0xfc>)
+ 7be:	647b      	str	r3, [r7, #68]	@ 0x44
+ unsigned readable=sp>=top-8192&&sp<=top-32&&(sp&3)==0;
+ 7c0:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 7c2:	f5a3 5300 	sub.w	r3, r3, #8192	@ 0x2000
+ 7c6:	6cba      	ldr	r2, [r7, #72]	@ 0x48
+ 7c8:	429a      	cmp	r2, r3
+ 7ca:	d30b      	bcc.n	7e4 <df_handler+0x3c>
+ 7cc:	6c7b      	ldr	r3, [r7, #68]	@ 0x44
+ 7ce:	3b20      	subs	r3, #32
+ 7d0:	6cba      	ldr	r2, [r7, #72]	@ 0x48
+ 7d2:	429a      	cmp	r2, r3
+ 7d4:	d806      	bhi.n	7e4 <df_handler+0x3c>
+ 7d6:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 7d8:	f003 0303 	and.w	r3, r3, #3
+ 7dc:	2b00      	cmp	r3, #0
+ 7de:	d101      	bne.n	7e4 <df_handler+0x3c>
+ 7e0:	2301      	movs	r3, #1
+ 7e2:	e000      	b.n	7e6 <df_handler+0x3e>
+ 7e4:	2300      	movs	r3, #0
+ 7e6:	643b      	str	r3, [r7, #64]	@ 0x40
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 7e8:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
+ 7ea:	60fb      	str	r3, [r7, #12]
+ 7ec:	4b2e      	ldr	r3, [pc, #184]	@ (8a8 <df_handler+0x100>)
+ 7ee:	681b      	ldr	r3, [r3, #0]
+ 7f0:	613b      	str	r3, [r7, #16]
+ 7f2:	4b2e      	ldr	r3, [pc, #184]	@ (8ac <df_handler+0x104>)
+ 7f4:	681b      	ldr	r3, [r3, #0]
+ 7f6:	617b      	str	r3, [r7, #20]
+ 7f8:	4b2d      	ldr	r3, [pc, #180]	@ (8b0 <df_handler+0x108>)
+ 7fa:	681b      	ldr	r3, [r3, #0]
+ 7fc:	61bb      	str	r3, [r7, #24]
+ 7fe:	683b      	ldr	r3, [r7, #0]
+ 800:	61fb      	str	r3, [r7, #28]
+ 802:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 804:	623b      	str	r3, [r7, #32]
+ 806:	687b      	ldr	r3, [r7, #4]
+ 808:	627b      	str	r3, [r7, #36]	@ 0x24
+ 80a:	2308      	movs	r3, #8
+ 80c:	62bb      	str	r3, [r7, #40]	@ 0x28
+ 80e:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
+ 810:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 812:	2301      	movs	r3, #1
+ 814:	633b      	str	r3, [r7, #48]	@ 0x30
+ 816:	6cfa      	ldr	r2, [r7, #76]	@ 0x4c
+ 818:	f643 0338 	movw	r3, #14392	@ 0x3838
+ 81c:	4013      	ands	r3, r2
+ 81e:	2b00      	cmp	r3, #0
+ 820:	bf14      	ite	ne
+ 822:	2301      	movne	r3, #1
+ 824:	2300      	moveq	r3, #0
+ 826:	b2db      	uxtb	r3, r3
+ 828:	637b      	str	r3, [r7, #52]	@ 0x34
+ 82a:	4b22      	ldr	r3, [pc, #136]	@ (8b4 <df_handler+0x10c>)
+ 82c:	63bb      	str	r3, [r7, #56]	@ 0x38
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 82e:	4b22      	ldr	r3, [pc, #136]	@ (8b8 <df_handler+0x110>)
+ 830:	681b      	ldr	r3, [r3, #0]
+ 832:	3301      	adds	r3, #1
+ 834:	4a20      	ldr	r2, [pc, #128]	@ (8b8 <df_handler+0x110>)
+ 836:	6013      	str	r3, [r2, #0]
+ 838:	f107 010c 	add.w	r1, r7, #12
+ 83c:	2300      	movs	r3, #0
+ 83e:	2200      	movs	r2, #0
+ 840:	481e      	ldr	r0, [pc, #120]	@ (8bc <df_handler+0x114>)
+ 842:	f7ff fc8d 	bl	160 <df_capture>
+ 846:	63f8      	str	r0, [r7, #60]	@ 0x3c
+ /* This continuation belongs only to the one original synthetic STR below. */
+ if(result==DF_OK&&readable&&!(status&0x3838u)&&words[6]==(uint32_t)(uintptr_t)df_fault_instruction){handler_ok=1;words[6]=(uint32_t)(uintptr_t)df_fault_resume;}
+ 848:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
+ 84a:	2b00      	cmp	r3, #0
+ 84c:	d000      	beq.n	850 <df_handler+0xa8>
+ 84e:	e016      	b.n	87e <df_handler+0xd6>
+ 850:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
+ 852:	2b00      	cmp	r3, #0
+ 854:	d013      	beq.n	87e <df_handler+0xd6>
+ 856:	6cfa      	ldr	r2, [r7, #76]	@ 0x4c
+ 858:	f643 0338 	movw	r3, #14392	@ 0x3838
+ 85c:	4013      	ands	r3, r2
+ 85e:	2b00      	cmp	r3, #0
+ 860:	d10d      	bne.n	87e <df_handler+0xd6>
+ 862:	687b      	ldr	r3, [r7, #4]
+ 864:	3318      	adds	r3, #24
+ 866:	681b      	ldr	r3, [r3, #0]
+ 868:	4a15      	ldr	r2, [pc, #84]	@ (8c0 <df_handler+0x118>)
+ 86a:	4293      	cmp	r3, r2
+ 86c:	d107      	bne.n	87e <df_handler+0xd6>
+ 86e:	4b15      	ldr	r3, [pc, #84]	@ (8c4 <df_handler+0x11c>)
+ 870:	2201      	movs	r2, #1
+ 872:	601a      	str	r2, [r3, #0]
+ 874:	687b      	ldr	r3, [r7, #4]
+ 876:	3318      	adds	r3, #24
+ 878:	4a13      	ldr	r2, [pc, #76]	@ (8c8 <df_handler+0x120>)
+ 87a:	601a      	str	r2, [r3, #0]
+ 87c:	e001      	b.n	882 <df_handler+0xda>
+ else for(;;)__asm__ volatile("wfi");
+ 87e:	bf30      	wfi
+ 880:	e7fd      	b.n	87e <df_handler+0xd6>
+ REG(0xe000ed94)=0;__asm__ volatile("dsb\nisb":::"memory");REG(0xe000ed28)=0x82;
+ 882:	4b12      	ldr	r3, [pc, #72]	@ (8cc <df_handler+0x124>)
+ 884:	2200      	movs	r2, #0
+ 886:	601a      	str	r2, [r3, #0]
+ 888:	f3bf 8f4f 	dsb	sy
+ 88c:	f3bf 8f6f 	isb	sy
+ 890:	4b03      	ldr	r3, [pc, #12]	@ (8a0 <df_handler+0xf8>)
+ 892:	2282      	movs	r2, #130	@ 0x82
+ 894:	601a      	str	r2, [r3, #0]
+}
+ 896:	bf00      	nop
+ 898:	3750      	adds	r7, #80	@ 0x50
+ 89a:	46bd      	mov	sp, r7
+ 89c:	bd80      	pop	{r7, pc}
+ 89e:	bf00      	nop
+ 8a0:	e000ed28 	.word	0xe000ed28
+ 8a4:	20010000 	.word	0x20010000
+ 8a8:	e000ed2c 	.word	0xe000ed2c
+ 8ac:	e000ed38 	.word	0xe000ed38
+ 8b0:	e000ed34 	.word	0xe000ed34
+ 8b4:	00000fa8 	.word	0x00000fa8
+ 8b8:	200001a0 	.word	0x200001a0
+ 8bc:	20000000 	.word	0x20000000
+ 8c0:	00000efc 	.word	0x00000efc
+ 8c4:	200001a4 	.word	0x200001a4
+ 8c8:	00000efe 	.word	0x00000efe
+ 8cc:	e000ed94 	.word	0xe000ed94
+
+000008d0 <df_target>:
+int df_target(void){
+ 8d0:	b580      	push	{r7, lr}
+ 8d2:	b0a6      	sub	sp, #152	@ 0x98
+ 8d4:	af02      	add	r7, sp, #8
+ unsigned regions=(REG(0xe000ed90)>>8)&255;if(!regions)return 1;
+ 8d6:	4b8c      	ldr	r3, [pc, #560]	@ (b08 <df_target+0x238>)
+ 8d8:	681b      	ldr	r3, [r3, #0]
+ 8da:	0a1b      	lsrs	r3, r3, #8
+ 8dc:	b2db      	uxtb	r3, r3
+ 8de:	f8c7 3080 	str.w	r3, [r7, #128]	@ 0x80
+ 8e2:	f8d7 3080 	ldr.w	r3, [r7, #128]	@ 0x80
+ 8e6:	2b00      	cmp	r3, #0
+ 8e8:	d101      	bne.n	8ee <df_target+0x1e>
+ 8ea:	2301      	movs	r3, #1
+ 8ec:	e108      	b.n	b00 <df_target+0x230>
+ REG(0xe000ed94)=0;for(unsigned i=0;i<regions;++i){REG(0xe000ed98)=i;REG(0xe000eda0)=0;}
+ 8ee:	4b87      	ldr	r3, [pc, #540]	@ (b0c <df_target+0x23c>)
+ 8f0:	2200      	movs	r2, #0
+ 8f2:	601a      	str	r2, [r3, #0]
+ 8f4:	2300      	movs	r3, #0
+ 8f6:	f8c7 3088 	str.w	r3, [r7, #136]	@ 0x88
+ 8fa:	e00b      	b.n	914 <df_target+0x44>
+ 8fc:	4a84      	ldr	r2, [pc, #528]	@ (b10 <df_target+0x240>)
+ 8fe:	f8d7 3088 	ldr.w	r3, [r7, #136]	@ 0x88
+ 902:	6013      	str	r3, [r2, #0]
+ 904:	4b83      	ldr	r3, [pc, #524]	@ (b14 <df_target+0x244>)
+ 906:	2200      	movs	r2, #0
+ 908:	601a      	str	r2, [r3, #0]
+ 90a:	f8d7 3088 	ldr.w	r3, [r7, #136]	@ 0x88
+ 90e:	3301      	adds	r3, #1
+ 910:	f8c7 3088 	str.w	r3, [r7, #136]	@ 0x88
+ 914:	f8d7 2088 	ldr.w	r2, [r7, #136]	@ 0x88
+ 918:	f8d7 3080 	ldr.w	r3, [r7, #128]	@ 0x80
+ 91c:	429a      	cmp	r2, r3
+ 91e:	d3ed      	bcc.n	8fc <df_target+0x2c>
+ REG(0xe000ed98)=0;REG(0xe000ed9c)=0xffffffe0;uint32_t alignment=REG(0xe000ed9c)&0xffffffe0u;
+ 920:	4b7b      	ldr	r3, [pc, #492]	@ (b10 <df_target+0x240>)
+ 922:	2200      	movs	r2, #0
+ 924:	601a      	str	r2, [r3, #0]
+ 926:	4b7c      	ldr	r3, [pc, #496]	@ (b18 <df_target+0x248>)
+ 928:	f06f 021f 	mvn.w	r2, #31
+ 92c:	601a      	str	r2, [r3, #0]
+ 92e:	4b7a      	ldr	r3, [pc, #488]	@ (b18 <df_target+0x248>)
+ 930:	681b      	ldr	r3, [r3, #0]
+ 932:	f023 031f 	bic.w	r3, r3, #31
+ 936:	67fb      	str	r3, [r7, #124]	@ 0x7c
+ if((alignment&0x20)==0)return 2;
+ 938:	6ffb      	ldr	r3, [r7, #124]	@ 0x7c
+ 93a:	f003 0320 	and.w	r3, r3, #32
+ 93e:	2b00      	cmp	r3, #0
+ 940:	d101      	bne.n	946 <df_target+0x76>
+ 942:	2302      	movs	r3, #2
+ 944:	e0dc      	b.n	b00 <df_target+0x230>
+ for(unsigned i=0;i<72;++i)sandbox[i]=0xaaaaaaaau;
+ 946:	2300      	movs	r3, #0
+ 948:	f8c7 3084 	str.w	r3, [r7, #132]	@ 0x84
+ 94c:	e00b      	b.n	966 <df_target+0x96>
+ 94e:	4a73      	ldr	r2, [pc, #460]	@ (b1c <df_target+0x24c>)
+ 950:	f8d7 3084 	ldr.w	r3, [r7, #132]	@ 0x84
+ 954:	f04f 31aa 	mov.w	r1, #2863311530	@ 0xaaaaaaaa
+ 958:	f842 1023 	str.w	r1, [r2, r3, lsl #2]
+ 95c:	f8d7 3084 	ldr.w	r3, [r7, #132]	@ 0x84
+ 960:	3301      	adds	r3, #1
+ 962:	f8c7 3084 	str.w	r3, [r7, #132]	@ 0x84
+ 966:	f8d7 3084 	ldr.w	r3, [r7, #132]	@ 0x84
+ 96a:	2b47      	cmp	r3, #71	@ 0x47
+ 96c:	d9ef      	bls.n	94e <df_target+0x7e>
+ df_init(&capture);handler_count=handler_ok=0;
+ 96e:	486c      	ldr	r0, [pc, #432]	@ (b20 <df_target+0x250>)
+ 970:	f7ff fbd8 	bl	124 <df_init>
+ 974:	2300      	movs	r3, #0
+ 976:	4a6b      	ldr	r2, [pc, #428]	@ (b24 <df_target+0x254>)
+ 978:	6013      	str	r3, [r2, #0]
+ 97a:	4a6b      	ldr	r2, [pc, #428]	@ (b28 <df_target+0x258>)
+ 97c:	6013      	str	r3, [r2, #0]
+ REG(0xe000ed28)=0x030fbfbbu;REG(0xe000ed2c)=0x40000002u;REG(0xe000ed14)|=1u<<9;REG(0xe000ed24)|=1u<<16;
+ 97e:	4b6b      	ldr	r3, [pc, #428]	@ (b2c <df_target+0x25c>)
+ 980:	4a6b      	ldr	r2, [pc, #428]	@ (b30 <df_target+0x260>)
+ 982:	601a      	str	r2, [r3, #0]
+ 984:	4b6b      	ldr	r3, [pc, #428]	@ (b34 <df_target+0x264>)
+ 986:	4a6c      	ldr	r2, [pc, #432]	@ (b38 <df_target+0x268>)
+ 988:	601a      	str	r2, [r3, #0]
+ 98a:	4b6c      	ldr	r3, [pc, #432]	@ (b3c <df_target+0x26c>)
+ 98c:	681b      	ldr	r3, [r3, #0]
+ 98e:	4a6b      	ldr	r2, [pc, #428]	@ (b3c <df_target+0x26c>)
+ 990:	f443 7300 	orr.w	r3, r3, #512	@ 0x200
+ 994:	6013      	str	r3, [r2, #0]
+ 996:	4b6a      	ldr	r3, [pc, #424]	@ (b40 <df_target+0x270>)
+ 998:	681b      	ldr	r3, [r3, #0]
+ 99a:	4a69      	ldr	r2, [pc, #420]	@ (b40 <df_target+0x270>)
+ 99c:	f443 3380 	orr.w	r3, r3, #65536	@ 0x10000
+ 9a0:	6013      	str	r3, [r2, #0]
+ REG(0xe000ed9c)=(uint32_t)(uintptr_t)sandbox;REG(0xe000eda0)=(1u<<28)|(1u<<19)|(4u<<1)|1u;
+ 9a2:	4b5d      	ldr	r3, [pc, #372]	@ (b18 <df_target+0x248>)
+ 9a4:	4a5d      	ldr	r2, [pc, #372]	@ (b1c <df_target+0x24c>)
+ 9a6:	601a      	str	r2, [r3, #0]
+ 9a8:	4b5a      	ldr	r3, [pc, #360]	@ (b14 <df_target+0x244>)
+ 9aa:	4a66      	ldr	r2, [pc, #408]	@ (b44 <df_target+0x274>)
+ 9ac:	601a      	str	r2, [r3, #0]
+ if(DF_TARGET_MUTANT!=1)REG(0xe000ed94)=5;
+ __asm__ volatile("dsb\nisb":::"memory");
+ 9ae:	f3bf 8f4f 	dsb	sy
+ 9b2:	f3bf 8f6f 	isb	sy
+ sandbox[8]=0x55667788u;if(sandbox[8]!=0x55667788u||handler_count)return 3;
+ 9b6:	4b59      	ldr	r3, [pc, #356]	@ (b1c <df_target+0x24c>)
+ 9b8:	4a63      	ldr	r2, [pc, #396]	@ (b48 <df_target+0x278>)
+ 9ba:	621a      	str	r2, [r3, #32]
+ 9bc:	4b57      	ldr	r3, [pc, #348]	@ (b1c <df_target+0x24c>)
+ 9be:	6a1b      	ldr	r3, [r3, #32]
+ 9c0:	4a61      	ldr	r2, [pc, #388]	@ (b48 <df_target+0x278>)
+ 9c2:	4293      	cmp	r3, r2
+ 9c4:	d103      	bne.n	9ce <df_target+0xfe>
+ 9c6:	4b58      	ldr	r3, [pc, #352]	@ (b28 <df_target+0x258>)
+ 9c8:	681b      	ldr	r3, [r3, #0]
+ 9ca:	2b00      	cmp	r3, #0
+ 9cc:	d001      	beq.n	9d2 <df_target+0x102>
+ 9ce:	2303      	movs	r3, #3
+ 9d0:	e096      	b.n	b00 <df_target+0x230>
+ df_store(0x12345678u,sandbox);
+ 9d2:	4952      	ldr	r1, [pc, #328]	@ (b1c <df_target+0x24c>)
+ 9d4:	485d      	ldr	r0, [pc, #372]	@ (b4c <df_target+0x27c>)
+ 9d6:	f000 fa91 	bl	efc <df_store>
+ REG(0xe000ed94)=0;__asm__ volatile("dsb\nisb":::"memory");
+ 9da:	4b4c      	ldr	r3, [pc, #304]	@ (b0c <df_target+0x23c>)
+ 9dc:	2200      	movs	r2, #0
+ 9de:	601a      	str	r2, [r3, #0]
+ 9e0:	f3bf 8f4f 	dsb	sy
+ 9e4:	f3bf 8f6f 	isb	sy
+ if(handler_count!=1||!handler_ok||sandbox[0]!=0xaaaaaaaau)return 4;
+ 9e8:	4b4f      	ldr	r3, [pc, #316]	@ (b28 <df_target+0x258>)
+ 9ea:	681b      	ldr	r3, [r3, #0]
+ 9ec:	2b01      	cmp	r3, #1
+ 9ee:	d108      	bne.n	a02 <df_target+0x132>
+ 9f0:	4b4c      	ldr	r3, [pc, #304]	@ (b24 <df_target+0x254>)
+ 9f2:	681b      	ldr	r3, [r3, #0]
+ 9f4:	2b00      	cmp	r3, #0
+ 9f6:	d004      	beq.n	a02 <df_target+0x132>
+ 9f8:	4b48      	ldr	r3, [pc, #288]	@ (b1c <df_target+0x24c>)
+ 9fa:	681b      	ldr	r3, [r3, #0]
+ 9fc:	f1b3 3faa 	cmp.w	r3, #2863311530	@ 0xaaaaaaaa
+ a00:	d001      	beq.n	a06 <df_target+0x136>
+ a02:	2304      	movs	r3, #4
+ a04:	e07c      	b.n	b00 <df_target+0x230>
+ DfRecord record;unsigned secondary;if(df_read(&capture,&record,&secondary)!=DF_OK||secondary||record.cfsr!=0x82||record.mmfar!=(uint32_t)(uintptr_t)sandbox||!(record.valid&DF_FRAME)||record.frame[6]!=(uint32_t)(uintptr_t)df_fault_instruction)return 5;
+ a06:	f107 0218 	add.w	r2, r7, #24
+ a0a:	f107 031c 	add.w	r3, r7, #28
+ a0e:	4619      	mov	r1, r3
+ a10:	4843      	ldr	r0, [pc, #268]	@ (b20 <df_target+0x250>)
+ a12:	f7ff fd76 	bl	502 <df_read>
+ a16:	4603      	mov	r3, r0
+ a18:	2b00      	cmp	r3, #0
+ a1a:	d112      	bne.n	a42 <df_target+0x172>
+ a1c:	69bb      	ldr	r3, [r7, #24]
+ a1e:	2b00      	cmp	r3, #0
+ a20:	d10f      	bne.n	a42 <df_target+0x172>
+ a22:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ a24:	2b82      	cmp	r3, #130	@ 0x82
+ a26:	d10c      	bne.n	a42 <df_target+0x172>
+ a28:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ a2a:	4a3c      	ldr	r2, [pc, #240]	@ (b1c <df_target+0x24c>)
+ a2c:	4293      	cmp	r3, r2
+ a2e:	d108      	bne.n	a42 <df_target+0x172>
+ a30:	6a3b      	ldr	r3, [r7, #32]
+ a32:	f003 0308 	and.w	r3, r3, #8
+ a36:	2b00      	cmp	r3, #0
+ a38:	d003      	beq.n	a42 <df_target+0x172>
+ a3a:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ a3c:	4a44      	ldr	r2, [pc, #272]	@ (b50 <df_target+0x280>)
+ a3e:	4293      	cmp	r3, r2
+ a40:	d001      	beq.n	a46 <df_target+0x176>
+ a42:	2305      	movs	r3, #5
+ a44:	e05c      	b.n	b00 <df_target+0x230>
+ unsigned char code[2]={df_fault_instruction[0],df_fault_instruction[1]};DfAccess access;
+ a46:	4b42      	ldr	r3, [pc, #264]	@ (b50 <df_target+0x280>)
+ a48:	781b      	ldrb	r3, [r3, #0]
+ a4a:	753b      	strb	r3, [r7, #20]
+ a4c:	4b40      	ldr	r3, [pc, #256]	@ (b50 <df_target+0x280>)
+ a4e:	785b      	ldrb	r3, [r3, #1]
+ a50:	757b      	strb	r3, [r7, #21]
+ if(DF_TARGET_MUTANT==2)record.frame[1]+=4;
+ if(df_access(&record,token,record.frame[6],code,2,&access)!=DF_OK||!access.precise||!access.write||access.effective_address!=record.mmfar||access.operand!=0x12345678u)return 6;
+ a52:	6d3a      	ldr	r2, [r7, #80]	@ 0x50
+ a54:	f107 0114 	add.w	r1, r7, #20
+ a58:	f107 001c 	add.w	r0, r7, #28
+ a5c:	463b      	mov	r3, r7
+ a5e:	9301      	str	r3, [sp, #4]
+ a60:	2302      	movs	r3, #2
+ a62:	9300      	str	r3, [sp, #0]
+ a64:	460b      	mov	r3, r1
+ a66:	493b      	ldr	r1, [pc, #236]	@ (b54 <df_target+0x284>)
+ a68:	f7ff fd82 	bl	570 <df_access>
+ a6c:	4603      	mov	r3, r0
+ a6e:	2b00      	cmp	r3, #0
+ a70:	d10d      	bne.n	a8e <df_target+0x1be>
+ a72:	693b      	ldr	r3, [r7, #16]
+ a74:	2b00      	cmp	r3, #0
+ a76:	d00a      	beq.n	a8e <df_target+0x1be>
+ a78:	68fb      	ldr	r3, [r7, #12]
+ a7a:	2b00      	cmp	r3, #0
+ a7c:	d007      	beq.n	a8e <df_target+0x1be>
+ a7e:	687a      	ldr	r2, [r7, #4]
+ a80:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ a82:	429a      	cmp	r2, r3
+ a84:	d103      	bne.n	a8e <df_target+0x1be>
+ a86:	68bb      	ldr	r3, [r7, #8]
+ a88:	4a30      	ldr	r2, [pc, #192]	@ (b4c <df_target+0x27c>)
+ a8a:	4293      	cmp	r3, r2
+ a8c:	d001      	beq.n	a92 <df_target+0x1c2>
+ a8e:	2306      	movs	r3, #6
+ a90:	e036      	b.n	b00 <df_target+0x230>
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ a92:	4831      	ldr	r0, [pc, #196]	@ (b58 <df_target+0x288>)
+ a94:	f7ff fe4e 	bl	734 <output>
+ a98:	69fb      	ldr	r3, [r7, #28]
+ a9a:	4618      	mov	r0, r3
+ a9c:	f7ff fe56 	bl	74c <hex>
+ aa0:	6a3b      	ldr	r3, [r7, #32]
+ aa2:	4618      	mov	r0, r3
+ aa4:	f7ff fe52 	bl	74c <hex>
+ aa8:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ aaa:	4618      	mov	r0, r3
+ aac:	f7ff fe4e 	bl	74c <hex>
+ ab0:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ ab2:	4618      	mov	r0, r3
+ ab4:	f7ff fe4a 	bl	74c <hex>
+ ab8:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ aba:	4618      	mov	r0, r3
+ abc:	f7ff fe46 	bl	74c <hex>
+ ac0:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ ac2:	4618      	mov	r0, r3
+ ac4:	f7ff fe42 	bl	74c <hex>
+ ac8:	2300      	movs	r3, #0
+ aca:	f8c7 308c 	str.w	r3, [r7, #140]	@ 0x8c
+ ace:	e00f      	b.n	af0 <df_target+0x220>
+ ad0:	f8d7 308c 	ldr.w	r3, [r7, #140]	@ 0x8c
+ ad4:	3306      	adds	r3, #6
+ ad6:	009b      	lsls	r3, r3, #2
+ ad8:	3390      	adds	r3, #144	@ 0x90
+ ada:	443b      	add	r3, r7
+ adc:	f853 3c70 	ldr.w	r3, [r3, #-112]
+ ae0:	4618      	mov	r0, r3
+ ae2:	f7ff fe33 	bl	74c <hex>
+ ae6:	f8d7 308c 	ldr.w	r3, [r7, #140]	@ 0x8c
+ aea:	3301      	adds	r3, #1
+ aec:	f8c7 308c 	str.w	r3, [r7, #140]	@ 0x8c
+ af0:	f8d7 308c 	ldr.w	r3, [r7, #140]	@ 0x8c
+ af4:	2b07      	cmp	r3, #7
+ af6:	d9eb      	bls.n	ad0 <df_target+0x200>
+ af8:	4818      	ldr	r0, [pc, #96]	@ (b5c <df_target+0x28c>)
+ afa:	f7ff fe1b 	bl	734 <output>
+ return 0;
+ afe:	2300      	movs	r3, #0
+}
+ b00:	4618      	mov	r0, r3
+ b02:	3790      	adds	r7, #144	@ 0x90
+ b04:	46bd      	mov	sp, r7
+ b06:	bd80      	pop	{r7, pc}
+ b08:	e000ed90 	.word	0xe000ed90
+ b0c:	e000ed94 	.word	0xe000ed94
+ b10:	e000ed98 	.word	0xe000ed98
+ b14:	e000eda0 	.word	0xe000eda0
+ b18:	e000ed9c 	.word	0xe000ed9c
+ b1c:	20000080 	.word	0x20000080
+ b20:	20000000 	.word	0x20000000
+ b24:	200001a4 	.word	0x200001a4
+ b28:	200001a0 	.word	0x200001a0
+ b2c:	e000ed28 	.word	0xe000ed28
+ b30:	030fbfbb 	.word	0x030fbfbb
+ b34:	e000ed2c 	.word	0xe000ed2c
+ b38:	40000002 	.word	0x40000002
+ b3c:	e000ed14 	.word	0xe000ed14
+ b40:	e000ed24 	.word	0xe000ed24
+ b44:	10080009 	.word	0x10080009
+ b48:	55667788 	.word	0x55667788
+ b4c:	12345678 	.word	0x12345678
+ b50:	00000efc 	.word	0x00000efc
+ b54:	00000fa8 	.word	0x00000fa8
+ b58:	00000fdc 	.word	0x00000fdc
+ b5c:	00000fe8 	.word	0x00000fe8
+
+00000b60 <xf_frame>:
+static int config(XfPriorityConfig c) {
+  return c.bits >= 3 && c.bits <= 8 && c.grouping <= 7;
+}
+int xf_frame(const uint32_t *w, size_t n, uint32_t sp, uint32_t er,
+             unsigned fpu, unsigned material, unsigned align, unsigned fault,
+             XfFrame *out) {
+ b60:	b580      	push	{r7, lr}
+ b62:	b0ae      	sub	sp, #184	@ 0xb8
+ b64:	af00      	add	r7, sp, #0
+ b66:	60f8      	str	r0, [r7, #12]
+ b68:	60b9      	str	r1, [r7, #8]
+ b6a:	607a      	str	r2, [r7, #4]
+ b6c:	603b      	str	r3, [r7, #0]
+  if (!w || !out || fpu > 1 || material > 1 || align > 1 || fault > 1 || sp % 4)
+ b6e:	68fb      	ldr	r3, [r7, #12]
+ b70:	2b00      	cmp	r3, #0
+ b72:	d018      	beq.n	ba6 <xf_frame+0x46>
+ b74:	f8d7 30d0 	ldr.w	r3, [r7, #208]	@ 0xd0
+ b78:	2b00      	cmp	r3, #0
+ b7a:	d014      	beq.n	ba6 <xf_frame+0x46>
+ b7c:	f8d7 30c0 	ldr.w	r3, [r7, #192]	@ 0xc0
+ b80:	2b01      	cmp	r3, #1
+ b82:	d810      	bhi.n	ba6 <xf_frame+0x46>
+ b84:	f8d7 30c4 	ldr.w	r3, [r7, #196]	@ 0xc4
+ b88:	2b01      	cmp	r3, #1
+ b8a:	d80c      	bhi.n	ba6 <xf_frame+0x46>
+ b8c:	f8d7 30c8 	ldr.w	r3, [r7, #200]	@ 0xc8
+ b90:	2b01      	cmp	r3, #1
+ b92:	d808      	bhi.n	ba6 <xf_frame+0x46>
+ b94:	f8d7 30cc 	ldr.w	r3, [r7, #204]	@ 0xcc
+ b98:	2b01      	cmp	r3, #1
+ b9a:	d804      	bhi.n	ba6 <xf_frame+0x46>
+ b9c:	687b      	ldr	r3, [r7, #4]
+ b9e:	f003 0303 	and.w	r3, r3, #3
+ ba2:	2b00      	cmp	r3, #0
+ ba4:	d001      	beq.n	baa <xf_frame+0x4a>
+    return XF_INVALID;
+ ba6:	2301      	movs	r3, #1
+ ba8:	e15a      	b.n	e60 <xf_frame+0x300>
+  if (fault)
+ baa:	f8d7 30cc 	ldr.w	r3, [r7, #204]	@ 0xcc
+ bae:	2b00      	cmp	r3, #0
+ bb0:	d001      	beq.n	bb6 <xf_frame+0x56>
+    return XF_FRAME; /* Never dereference a stacking-fault capture. */
+ bb2:	2304      	movs	r3, #4
+ bb4:	e154      	b.n	e60 <xf_frame+0x300>
+  if (er != 0xfffffff1u && er != 0xfffffff9u && er != 0xfffffffdu &&
+ bb6:	683b      	ldr	r3, [r7, #0]
+ bb8:	f113 0f0f 	cmn.w	r3, #15
+ bbc:	d015      	beq.n	bea <xf_frame+0x8a>
+ bbe:	683b      	ldr	r3, [r7, #0]
+ bc0:	f113 0f07 	cmn.w	r3, #7
+ bc4:	d011      	beq.n	bea <xf_frame+0x8a>
+ bc6:	683b      	ldr	r3, [r7, #0]
+ bc8:	f113 0f03 	cmn.w	r3, #3
+ bcc:	d00d      	beq.n	bea <xf_frame+0x8a>
+ bce:	683b      	ldr	r3, [r7, #0]
+ bd0:	f113 0f1f 	cmn.w	r3, #31
+ bd4:	d009      	beq.n	bea <xf_frame+0x8a>
+      er != 0xffffffe1u && er != 0xffffffe9u && er != 0xffffffedu)
+ bd6:	683b      	ldr	r3, [r7, #0]
+ bd8:	f113 0f17 	cmn.w	r3, #23
+ bdc:	d005      	beq.n	bea <xf_frame+0x8a>
+ bde:	683b      	ldr	r3, [r7, #0]
+ be0:	f113 0f13 	cmn.w	r3, #19
+ be4:	d001      	beq.n	bea <xf_frame+0x8a>
+    return XF_UNSUPPORTED;
+ be6:	2303      	movs	r3, #3
+ be8:	e13a      	b.n	e60 <xf_frame+0x300>
+  unsigned extended = (er & 16u) == 0, thread = (er & 8u) != 0,
+ bea:	683b      	ldr	r3, [r7, #0]
+ bec:	f003 0310 	and.w	r3, r3, #16
+ bf0:	2b00      	cmp	r3, #0
+ bf2:	bf0c      	ite	eq
+ bf4:	2301      	moveq	r3, #1
+ bf6:	2300      	movne	r3, #0
+ bf8:	b2db      	uxtb	r3, r3
+ bfa:	f8c7 30ac 	str.w	r3, [r7, #172]	@ 0xac
+ bfe:	683b      	ldr	r3, [r7, #0]
+ c00:	f003 0308 	and.w	r3, r3, #8
+ c04:	2b00      	cmp	r3, #0
+ c06:	bf14      	ite	ne
+ c08:	2301      	movne	r3, #1
+ c0a:	2300      	moveq	r3, #0
+ c0c:	b2db      	uxtb	r3, r3
+ c0e:	f8c7 30a8 	str.w	r3, [r7, #168]	@ 0xa8
+           psp = (er & 4u) != 0;
+ c12:	683b      	ldr	r3, [r7, #0]
+ c14:	f003 0304 	and.w	r3, r3, #4
+ c18:	2b00      	cmp	r3, #0
+ c1a:	bf14      	ite	ne
+ c1c:	2301      	movne	r3, #1
+ c1e:	2300      	moveq	r3, #0
+ c20:	b2db      	uxtb	r3, r3
+ c22:	f8c7 30a4 	str.w	r3, [r7, #164]	@ 0xa4
+  if (extended && !fpu)
+ c26:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ c2a:	2b00      	cmp	r3, #0
+ c2c:	d005      	beq.n	c3a <xf_frame+0xda>
+ c2e:	f8d7 30c0 	ldr.w	r3, [r7, #192]	@ 0xc0
+ c32:	2b00      	cmp	r3, #0
+ c34:	d101      	bne.n	c3a <xf_frame+0xda>
+    return XF_UNSUPPORTED;
+ c36:	2303      	movs	r3, #3
+ c38:	e112      	b.n	e60 <xf_frame+0x300>
+  if (material && !extended)
+ c3a:	f8d7 30c4 	ldr.w	r3, [r7, #196]	@ 0xc4
+ c3e:	2b00      	cmp	r3, #0
+ c40:	d005      	beq.n	c4e <xf_frame+0xee>
+ c42:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ c46:	2b00      	cmp	r3, #0
+ c48:	d101      	bne.n	c4e <xf_frame+0xee>
+    return XF_INVALID;
+ c4a:	2301      	movs	r3, #1
+ c4c:	e108      	b.n	e60 <xf_frame+0x300>
+  unsigned count = extended ? 26 : 8;
+ c4e:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ c52:	2b00      	cmp	r3, #0
+ c54:	d001      	beq.n	c5a <xf_frame+0xfa>
+ c56:	231a      	movs	r3, #26
+ c58:	e000      	b.n	c5c <xf_frame+0xfc>
+ c5a:	2308      	movs	r3, #8
+ c5c:	f8c7 30a0 	str.w	r3, [r7, #160]	@ 0xa0
+  if (n < count)
+ c60:	68ba      	ldr	r2, [r7, #8]
+ c62:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ c66:	429a      	cmp	r2, r3
+ c68:	d201      	bcs.n	c6e <xf_frame+0x10e>
+    return XF_SHORT;
+ c6a:	2302      	movs	r3, #2
+ c6c:	e0f8      	b.n	e60 <xf_frame+0x300>
+  /* Core offsets never shift when FP state extends the frame. */
+  unsigned offset = (XF_MUTANT == 1 && extended) ? 18 : 0;
+ c6e:	2300      	movs	r3, #0
+ c70:	f8c7 309c 	str.w	r3, [r7, #156]	@ 0x9c
+  uint32_t psr = w[offset + 7];
+ c74:	f8d7 309c 	ldr.w	r3, [r7, #156]	@ 0x9c
+ c78:	3307      	adds	r3, #7
+ c7a:	009b      	lsls	r3, r3, #2
+ c7c:	68fa      	ldr	r2, [r7, #12]
+ c7e:	4413      	add	r3, r2
+ c80:	681b      	ldr	r3, [r3, #0]
+ c82:	f8c7 3098 	str.w	r3, [r7, #152]	@ 0x98
+  unsigned padding = (psr >> 9) & 1u;
+ c86:	f8d7 3098 	ldr.w	r3, [r7, #152]	@ 0x98
+ c8a:	0a5b      	lsrs	r3, r3, #9
+ c8c:	f003 0301 	and.w	r3, r3, #1
+ c90:	f8c7 3094 	str.w	r3, [r7, #148]	@ 0x94
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ c94:	f8d7 3098 	ldr.w	r3, [r7, #152]	@ 0x98
+ c98:	f003 7380 	and.w	r3, r3, #16777216	@ 0x1000000
+ c9c:	2b00      	cmp	r3, #0
+ c9e:	d01b      	beq.n	cd8 <xf_frame+0x178>
+ ca0:	f8d7 309c 	ldr.w	r3, [r7, #156]	@ 0x9c
+ ca4:	3306      	adds	r3, #6
+ ca6:	009b      	lsls	r3, r3, #2
+ ca8:	68fa      	ldr	r2, [r7, #12]
+ caa:	4413      	add	r3, r2
+ cac:	681b      	ldr	r3, [r3, #0]
+ cae:	f003 0301 	and.w	r3, r3, #1
+ cb2:	2b00      	cmp	r3, #0
+ cb4:	d110      	bne.n	cd8 <xf_frame+0x178>
+ cb6:	f8d7 30a8 	ldr.w	r3, [r7, #168]	@ 0xa8
+ cba:	2b00      	cmp	r3, #0
+ cbc:	d006      	beq.n	ccc <xf_frame+0x16c>
+      (thread ? ((psr & 511u) != 0) : ((psr & 511u) == 0)))
+ cbe:	f8d7 3098 	ldr.w	r3, [r7, #152]	@ 0x98
+ cc2:	f3c3 0308 	ubfx	r3, r3, #0, #9
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ cc6:	2b00      	cmp	r3, #0
+ cc8:	d106      	bne.n	cd8 <xf_frame+0x178>
+ cca:	e007      	b.n	cdc <xf_frame+0x17c>
+      (thread ? ((psr & 511u) != 0) : ((psr & 511u) == 0)))
+ ccc:	f8d7 3098 	ldr.w	r3, [r7, #152]	@ 0x98
+ cd0:	f3c3 0308 	ubfx	r3, r3, #0, #9
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ cd4:	2b00      	cmp	r3, #0
+ cd6:	d101      	bne.n	cdc <xf_frame+0x17c>
+    return XF_FRAME;
+ cd8:	2304      	movs	r3, #4
+ cda:	e0c1      	b.n	e60 <xf_frame+0x300>
+  if ((align || extended) ? sp % 8 != 0 : padding != 0)
+ cdc:	f8d7 30c8 	ldr.w	r3, [r7, #200]	@ 0xc8
+ ce0:	2b00      	cmp	r3, #0
+ ce2:	d103      	bne.n	cec <xf_frame+0x18c>
+ ce4:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ ce8:	2b00      	cmp	r3, #0
+ cea:	d008      	beq.n	cfe <xf_frame+0x19e>
+ cec:	687b      	ldr	r3, [r7, #4]
+ cee:	f003 0307 	and.w	r3, r3, #7
+ cf2:	2b00      	cmp	r3, #0
+ cf4:	bf14      	ite	ne
+ cf6:	2301      	movne	r3, #1
+ cf8:	2300      	moveq	r3, #0
+ cfa:	b2db      	uxtb	r3, r3
+ cfc:	e006      	b.n	d0c <xf_frame+0x1ac>
+ cfe:	f8d7 3094 	ldr.w	r3, [r7, #148]	@ 0x94
+ d02:	2b00      	cmp	r3, #0
+ d04:	bf14      	ite	ne
+ d06:	2301      	movne	r3, #1
+ d08:	2300      	moveq	r3, #0
+ d0a:	b2db      	uxtb	r3, r3
+ d0c:	2b00      	cmp	r3, #0
+ d0e:	d001      	beq.n	d14 <xf_frame+0x1b4>
+    return XF_FRAME;
+ d10:	2304      	movs	r3, #4
+ d12:	e0a5      	b.n	e60 <xf_frame+0x300>
+  if (XF_MUTANT == 2)
+    padding = 0;
+  if (n < count + padding)
+ d14:	f8d7 20a0 	ldr.w	r2, [r7, #160]	@ 0xa0
+ d18:	f8d7 3094 	ldr.w	r3, [r7, #148]	@ 0x94
+ d1c:	4413      	add	r3, r2
+ d1e:	68ba      	ldr	r2, [r7, #8]
+ d20:	429a      	cmp	r2, r3
+ d22:	d201      	bcs.n	d28 <xf_frame+0x1c8>
+    return XF_SHORT;
+ d24:	2302      	movs	r3, #2
+ d26:	e09b      	b.n	e60 <xf_frame+0x300>
+  if (sp > UINT32_MAX - 4u * (count + padding))
+ d28:	f8d7 20a0 	ldr.w	r2, [r7, #160]	@ 0xa0
+ d2c:	f8d7 3094 	ldr.w	r3, [r7, #148]	@ 0x94
+ d30:	4413      	add	r3, r2
+ d32:	009b      	lsls	r3, r3, #2
+ d34:	43db      	mvns	r3, r3
+ d36:	687a      	ldr	r2, [r7, #4]
+ d38:	429a      	cmp	r2, r3
+ d3a:	d901      	bls.n	d40 <xf_frame+0x1e0>
+    return XF_FRAME;
+ d3c:	2304      	movs	r3, #4
+ d3e:	e08f      	b.n	e60 <xf_frame+0x300>
+  XfFrame r = {0};
+ d40:	f107 0314 	add.w	r3, r7, #20
+ d44:	2280      	movs	r2, #128	@ 0x80
+ d46:	2100      	movs	r1, #0
+ d48:	4618      	mov	r0, r3
+ d4a:	f000 f8af 	bl	eac <memset>
+  for (unsigned i = 0; i < 4; ++i)
+ d4e:	2300      	movs	r3, #0
+ d50:	f8c7 30b4 	str.w	r3, [r7, #180]	@ 0xb4
+ d54:	e014      	b.n	d80 <xf_frame+0x220>
+    r.r[i] = w[offset + i];
+ d56:	f8d7 209c 	ldr.w	r2, [r7, #156]	@ 0x9c
+ d5a:	f8d7 30b4 	ldr.w	r3, [r7, #180]	@ 0xb4
+ d5e:	4413      	add	r3, r2
+ d60:	009b      	lsls	r3, r3, #2
+ d62:	68fa      	ldr	r2, [r7, #12]
+ d64:	4413      	add	r3, r2
+ d66:	681a      	ldr	r2, [r3, #0]
+ d68:	f8d7 30b4 	ldr.w	r3, [r7, #180]	@ 0xb4
+ d6c:	009b      	lsls	r3, r3, #2
+ d6e:	33b8      	adds	r3, #184	@ 0xb8
+ d70:	443b      	add	r3, r7
+ d72:	f843 2ca4 	str.w	r2, [r3, #-164]
+  for (unsigned i = 0; i < 4; ++i)
+ d76:	f8d7 30b4 	ldr.w	r3, [r7, #180]	@ 0xb4
+ d7a:	3301      	adds	r3, #1
+ d7c:	f8c7 30b4 	str.w	r3, [r7, #180]	@ 0xb4
+ d80:	f8d7 30b4 	ldr.w	r3, [r7, #180]	@ 0xb4
+ d84:	2b03      	cmp	r3, #3
+ d86:	d9e6      	bls.n	d56 <xf_frame+0x1f6>
+  r.r12 = w[offset + 4];
+ d88:	f8d7 309c 	ldr.w	r3, [r7, #156]	@ 0x9c
+ d8c:	3304      	adds	r3, #4
+ d8e:	009b      	lsls	r3, r3, #2
+ d90:	68fa      	ldr	r2, [r7, #12]
+ d92:	4413      	add	r3, r2
+ d94:	681b      	ldr	r3, [r3, #0]
+ d96:	627b      	str	r3, [r7, #36]	@ 0x24
+  r.stacked_lr = w[offset + 5];
+ d98:	f8d7 309c 	ldr.w	r3, [r7, #156]	@ 0x9c
+ d9c:	3305      	adds	r3, #5
+ d9e:	009b      	lsls	r3, r3, #2
+ da0:	68fa      	ldr	r2, [r7, #12]
+ da2:	4413      	add	r3, r2
+ da4:	681b      	ldr	r3, [r3, #0]
+ da6:	62bb      	str	r3, [r7, #40]	@ 0x28
+  r.pc = w[offset + 6];
+ da8:	f8d7 309c 	ldr.w	r3, [r7, #156]	@ 0x9c
+ dac:	3306      	adds	r3, #6
+ dae:	009b      	lsls	r3, r3, #2
+ db0:	68fa      	ldr	r2, [r7, #12]
+ db2:	4413      	add	r3, r2
+ db4:	681b      	ldr	r3, [r3, #0]
+ db6:	62fb      	str	r3, [r7, #44]	@ 0x2c
+  r.xpsr = psr;
+ db8:	f8d7 3098 	ldr.w	r3, [r7, #152]	@ 0x98
+ dbc:	633b      	str	r3, [r7, #48]	@ 0x30
+  r.extended = extended;
+ dbe:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ dc2:	f8c7 3084 	str.w	r3, [r7, #132]	@ 0x84
+  r.thread = thread;
+ dc6:	f8d7 30a8 	ldr.w	r3, [r7, #168]	@ 0xa8
+ dca:	67fb      	str	r3, [r7, #124]	@ 0x7c
+  r.psp = psp;
+ dcc:	f8d7 30a4 	ldr.w	r3, [r7, #164]	@ 0xa4
+ dd0:	f8c7 3080 	str.w	r3, [r7, #128]	@ 0x80
+  r.hardware_words = count;
+ dd4:	f8d7 30a0 	ldr.w	r3, [r7, #160]	@ 0xa0
+ dd8:	f8c7 3090 	str.w	r3, [r7, #144]	@ 0x90
+  r.alignment_word = padding;
+ ddc:	f8d7 3094 	ldr.w	r3, [r7, #148]	@ 0x94
+ de0:	f8c7 308c 	str.w	r3, [r7, #140]	@ 0x8c
+  r.original_sp = sp + 4u * (count + padding);
+ de4:	f8d7 20a0 	ldr.w	r2, [r7, #160]	@ 0xa0
+ de8:	f8d7 3094 	ldr.w	r3, [r7, #148]	@ 0x94
+ dec:	4413      	add	r3, r2
+ dee:	009a      	lsls	r2, r3, #2
+ df0:	687b      	ldr	r3, [r7, #4]
+ df2:	4413      	add	r3, r2
+ df4:	67bb      	str	r3, [r7, #120]	@ 0x78
+  if (extended && (material || XF_MUTANT == 3)) {
+ df6:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
+ dfa:	2b00      	cmp	r3, #0
+ dfc:	d026      	beq.n	e4c <xf_frame+0x2ec>
+ dfe:	f8d7 30c4 	ldr.w	r3, [r7, #196]	@ 0xc4
+ e02:	2b00      	cmp	r3, #0
+ e04:	d022      	beq.n	e4c <xf_frame+0x2ec>
+    for (unsigned i = 0; i < 16; ++i)
+ e06:	2300      	movs	r3, #0
+ e08:	f8c7 30b0 	str.w	r3, [r7, #176]	@ 0xb0
+ e0c:	e013      	b.n	e36 <xf_frame+0x2d6>
+      r.fp[i] = w[8 + i];
+ e0e:	f8d7 30b0 	ldr.w	r3, [r7, #176]	@ 0xb0
+ e12:	3308      	adds	r3, #8
+ e14:	009b      	lsls	r3, r3, #2
+ e16:	68fa      	ldr	r2, [r7, #12]
+ e18:	4413      	add	r3, r2
+ e1a:	681a      	ldr	r2, [r3, #0]
+ e1c:	f8d7 30b0 	ldr.w	r3, [r7, #176]	@ 0xb0
+ e20:	3308      	adds	r3, #8
+ e22:	009b      	lsls	r3, r3, #2
+ e24:	33b8      	adds	r3, #184	@ 0xb8
+ e26:	443b      	add	r3, r7
+ e28:	f843 2ca4 	str.w	r2, [r3, #-164]
+    for (unsigned i = 0; i < 16; ++i)
+ e2c:	f8d7 30b0 	ldr.w	r3, [r7, #176]	@ 0xb0
+ e30:	3301      	adds	r3, #1
+ e32:	f8c7 30b0 	str.w	r3, [r7, #176]	@ 0xb0
+ e36:	f8d7 30b0 	ldr.w	r3, [r7, #176]	@ 0xb0
+ e3a:	2b0f      	cmp	r3, #15
+ e3c:	d9e7      	bls.n	e0e <xf_frame+0x2ae>
+    r.fpscr = w[24];
+ e3e:	68fb      	ldr	r3, [r7, #12]
+ e40:	3360      	adds	r3, #96	@ 0x60
+ e42:	681b      	ldr	r3, [r3, #0]
+ e44:	677b      	str	r3, [r7, #116]	@ 0x74
+    r.fp_materialized = 1;
+ e46:	2301      	movs	r3, #1
+ e48:	f8c7 3088 	str.w	r3, [r7, #136]	@ 0x88
+  }
+  *out = r;
+ e4c:	f8d7 30d0 	ldr.w	r3, [r7, #208]	@ 0xd0
+ e50:	4618      	mov	r0, r3
+ e52:	f107 0314 	add.w	r3, r7, #20
+ e56:	2280      	movs	r2, #128	@ 0x80
+ e58:	4619      	mov	r1, r3
+ e5a:	f000 f805 	bl	e68 <memcpy>
+  return XF_OK;
+ e5e:	2300      	movs	r3, #0
+}
+ e60:	4618      	mov	r0, r3
+ e62:	37b8      	adds	r7, #184	@ 0xb8
+ e64:	46bd      	mov	sp, r7
+ e66:	bd80      	pop	{r7, pc}
+
+00000e68 <memcpy>:
+#include <stddef.h>
+/* These original byte routines close compiler-generated memory calls. No
+ * external libc/compiler archive is linked. Their symbols are intentionally
+ * visible in the image map, rather than hidden by a no-library claim. */
+void *memcpy(void *d, const void *s, size_t n) {
+ e68:	b480      	push	{r7}
+ e6a:	b089      	sub	sp, #36	@ 0x24
+ e6c:	af00      	add	r7, sp, #0
+ e6e:	60f8      	str	r0, [r7, #12]
+ e70:	60b9      	str	r1, [r7, #8]
+ e72:	607a      	str	r2, [r7, #4]
+  unsigned char *a = d;
+ e74:	68fb      	ldr	r3, [r7, #12]
+ e76:	61bb      	str	r3, [r7, #24]
+  const unsigned char *b = s;
+ e78:	68bb      	ldr	r3, [r7, #8]
+ e7a:	617b      	str	r3, [r7, #20]
+  for (size_t i = 0; i < n; i++)
+ e7c:	2300      	movs	r3, #0
+ e7e:	61fb      	str	r3, [r7, #28]
+ e80:	e00a      	b.n	e98 <memcpy+0x30>
+    a[i] = b[i];
+ e82:	697a      	ldr	r2, [r7, #20]
+ e84:	69fb      	ldr	r3, [r7, #28]
+ e86:	441a      	add	r2, r3
+ e88:	69b9      	ldr	r1, [r7, #24]
+ e8a:	69fb      	ldr	r3, [r7, #28]
+ e8c:	440b      	add	r3, r1
+ e8e:	7812      	ldrb	r2, [r2, #0]
+ e90:	701a      	strb	r2, [r3, #0]
+  for (size_t i = 0; i < n; i++)
+ e92:	69fb      	ldr	r3, [r7, #28]
+ e94:	3301      	adds	r3, #1
+ e96:	61fb      	str	r3, [r7, #28]
+ e98:	69fa      	ldr	r2, [r7, #28]
+ e9a:	687b      	ldr	r3, [r7, #4]
+ e9c:	429a      	cmp	r2, r3
+ e9e:	d3f0      	bcc.n	e82 <memcpy+0x1a>
+  return d;
+ ea0:	68fb      	ldr	r3, [r7, #12]
+}
+ ea2:	4618      	mov	r0, r3
+ ea4:	3724      	adds	r7, #36	@ 0x24
+ ea6:	46bd      	mov	sp, r7
+ ea8:	bc80      	pop	{r7}
+ eaa:	4770      	bx	lr
+
+00000eac <memset>:
+void *memset(void *d, int v, size_t n) {
+ eac:	b480      	push	{r7}
+ eae:	b087      	sub	sp, #28
+ eb0:	af00      	add	r7, sp, #0
+ eb2:	60f8      	str	r0, [r7, #12]
+ eb4:	60b9      	str	r1, [r7, #8]
+ eb6:	607a      	str	r2, [r7, #4]
+  unsigned char *a = d;
+ eb8:	68fb      	ldr	r3, [r7, #12]
+ eba:	613b      	str	r3, [r7, #16]
+  for (size_t i = 0; i < n; i++)
+ ebc:	2300      	movs	r3, #0
+ ebe:	617b      	str	r3, [r7, #20]
+ ec0:	e008      	b.n	ed4 <memset+0x28>
+    a[i] = (unsigned char)v;
+ ec2:	693a      	ldr	r2, [r7, #16]
+ ec4:	697b      	ldr	r3, [r7, #20]
+ ec6:	4413      	add	r3, r2
+ ec8:	68ba      	ldr	r2, [r7, #8]
+ eca:	b2d2      	uxtb	r2, r2
+ ecc:	701a      	strb	r2, [r3, #0]
+  for (size_t i = 0; i < n; i++)
+ ece:	697b      	ldr	r3, [r7, #20]
+ ed0:	3301      	adds	r3, #1
+ ed2:	617b      	str	r3, [r7, #20]
+ ed4:	697a      	ldr	r2, [r7, #20]
+ ed6:	687b      	ldr	r3, [r7, #4]
+ ed8:	429a      	cmp	r2, r3
+ eda:	d3f2      	bcc.n	ec2 <memset+0x16>
+  return d;
+ edc:	68fb      	ldr	r3, [r7, #12]
+}
+ ede:	4618      	mov	r0, r3
+ ee0:	371c      	adds	r7, #28
+ ee2:	46bd      	mov	sp, r7
+ ee4:	bc80      	pop	{r7}
+ ee6:	4770      	bx	lr
+
+00000ee8 <df_memmanage>:
+.thumb
+.global df_memmanage
+.type df_memmanage,%function
+.thumb_func
+df_memmanage:
+ tst lr,#4
+ ee8:	f01e 0f04 	tst.w	lr, #4
+ ite eq
+ eec:	bf0c      	ite	eq
+ mrseq r0,msp
+ eee:	f3ef 8008 	mrseq	r0, MSP
+ mrsne r0,psp
+ ef2:	f3ef 8009 	mrsne	r0, PSP
+ mov r1,lr
+ ef6:	4671      	mov	r1, lr
+ b df_handler
+ ef8:	f7ff bc56 	b.w	7a8 <df_handler>
+
+00000efc <df_store>:
+.type df_store,%function
+.thumb_func
+df_store:
+.global df_fault_instruction
+df_fault_instruction:
+ str r0,[r1,#0]
+ efc:	6008      	str	r0, [r1, #0]
+
+00000efe <df_fault_resume>:
+.global df_fault_resume
+df_fault_resume:
+ bx lr
+ efe:	4770      	bx	lr
+ f00:	545f4644 	.word	0x545f4644
+ f04:	45475241 	.word	0x45475241
+ f08:	48435f54 	.word	0x48435f54
+ f0c:	3a4b4345 	.word	0x3a4b4345
+ f10:	78656e75 	.word	0x78656e75
+ f14:	74636570 	.word	0x74636570
+ f18:	762d6465 	.word	0x762d6465
+ f1c:	6f746365 	.word	0x6f746365
+ f20:	00000a72 	.word	0x00000a72
+ f24:	545f4644 	.word	0x545f4644
+ f28:	45475241 	.word	0x45475241
+ f2c:	48435f54 	.word	0x48435f54
+ f30:	3a4b4345 	.word	0x3a4b4345
+ f34:	746e6f63 	.word	0x746e6f63
+ f38:	74636172 	.word	0x74636172
+ f3c:	0000000a 	.word	0x0000000a
+ f40:	545f4644 	.word	0x545f4644
+ f44:	45475241 	.word	0x45475241
+ f48:	41505f54 	.word	0x41505f54
+ f4c:	613a5353 	.word	0x613a5353
+ f50:	61757463 	.word	0x61757463
+ f54:	504d2d6c 	.word	0x504d2d6c
+ f58:	69662055 	.word	0x69662055
+ f5c:	2d646578 	.word	0x2d646578
+ f60:	6f636572 	.word	0x6f636572
+ f64:	6f206472 	.word	0x6f206472
+ f68:	64656e77 	.word	0x64656e77
+ f6c:	6f74732d 	.word	0x6f74732d
+ f70:	63206572 	.word	0x63206572
+ f74:	75747061 	.word	0x75747061
+ f78:	2d646572 	.word	0x2d646572
+ f7c:	75204350 	.word	0x75204350
+ f80:	6168636e 	.word	0x6168636e
+ f84:	6465676e 	.word	0x6465676e
+ f88:	6175672d 	.word	0x6175672d
+ f8c:	69206472 	.word	0x69206472
+ f90:	6172746e 	.word	0x6172746e
+ f94:	6765722d 	.word	0x6765722d
+ f98:	2d6e6f69 	.word	0x2d6e6f69
+ f9c:	6f6c6c61 	.word	0x6f6c6c61
+ fa0:	0a646577 	.word	0x0a646577
+ fa4:	00000000 	.word	0x00000000
+
+00000fa8 <token>:
+ fa8:	00000001 00000000 00000000 00000000     ................
+	...
+ fc8:	33323130 37363534 62613938 66656463     0123456789abcdef
+ fd8:	00000000 435f4644 55545041 003a4552     ....DF_CAPTURE:.
+ fe8:	0000000a                                ....

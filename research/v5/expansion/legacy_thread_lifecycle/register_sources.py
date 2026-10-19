@@ -1,0 +1,21 @@
+"""Bounded source inspection register, separate from target execution."""
+import hashlib,json,pathlib
+HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+ROWS=[
+ ('CREATE','pthread_create.3','SYNOPSIS; RETURN VALUE; NOTES: status, scheduling and joinable lifetime'),
+ ('JOIN','pthread_join.3','DESCRIPTION; RETURN VALUE; ERRORS; NOTES: exclusive join, canceled joiner and termination'),
+ ('DETACH','pthread_detach.3','DESCRIPTION; RETURN VALUE; NOTES: detached attributes and resource retirement'),
+ ('CANCEL','pthread_cancel.3','DESCRIPTION: state/type, cleanup sequence and request/completion distinction'),
+ ('CLEANUP','pthread_cleanup_push.3','DESCRIPTION and VERSIONS: handler events, lexical pairing and early-leave restrictions'),
+ ('COND','pthread_cond_init.3','DESCRIPTION: atomic unlock/wait/relock; CANCELLATION: mutex reacquisition before cleanup')]
+def main():
+ rows=[]
+ for ident,leaf,locator in ROWS:
+  rows.append(dict(id='R-TLIFE-'+ident,title=leaf+' selected contract',authors=['Linux man-pages maintainers'],edition='Linux man-pages6.19 HTML, inspected2026-10-17',year=2026,kind='manual',url='https://man7.org/linux/man-pages/man3/'+leaf+'.html',access='Actual listed primary passages read',domains=['T25'],role='primary',reason='Thread identity, ownership and cancellation protocol',prerequisites=['C lifetime and mutex predicates'],locators=[locator],assignable=True,inspection=dict(date='2026-10-17',method='Actual primary HTML passage reading',scope=locator,limits='Bounded passages only; historical LinuxThreads implementation claims excluded. Exact POSIX edition unavailable.')))
+ for ident,edition,locators in [('1570','C11 committee draft2011',['7.26.1 paragraphs1-5; 7.26.5.1 creation; 7.26.5.6 joining','7.13.2.1 paragraph3: modified automatic locals across nonlocal return']),('3096','C23 working draft2023-04-01',['6.10.9.3 __STDC_NO_THREADS__; 7.28.1 paragraphs1-5; 7.28.5.1 creation; 7.28.5.6 joining'])]:
+  rows.append(dict(id='R-TLIFE-N'+ident,title='WG14 N'+ident+' bounded thread clauses',authors=['ISO/IEC JTC1/SC22/WG14'],edition=edition,year=2011 if ident=='1570' else 2023,kind='standard-draft',url='https://www.open-std.org/jtc1/sc22/wg14/www/docs/n'+ident+'.pdf',access='Actual listed PDF passages read',domains=['T25'],role='primary',reason='Explicit C/POSIX and draft-edition distinction',prerequisites=['C function types and object lifetime'],locators=locators,assignable=True,inspection=dict(date='2026-10-17',method='Primary PDF text inspected including cover identity',scope=locators,limits='Draft only; no exact published C17/C23 text claim.')))
+ rows.append(dict(id='R-TLIFE-GLIBC-CLEANUP',title='Installed glibc pthread cleanup macros',authors=['GNU C Library maintainers'],edition='Installed Ubuntu glibc2.43 header; exact hash recorded',year=2026,kind='source',url='https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/nptl/pthread.h',access='Actual installed header and preprocessor expansion read',domains=['T25'],role='primary',reason='Diagnose cancellation cleanup state under the selected C implementation',prerequisites=['C lifetime and nonlocal returns'],locators=['Installed /usr/include/pthread.h lines674-710; actual C17 preprocessor expansion of tl_detached_creator'],assignable=True,inspection=dict(date='2026-10-17',method='Actual local header and generated preprocessor text read',scope='Only listed cleanup macros and selected expansion',limits='Installed implementation evidence; not all POSIX runtimes or exact binary provenance.',source_path='/usr/include/pthread.h',source_sha256='5479c95276c6693fdd1baa448f5d457dee57fc02b31277bfa04df63cc0b26a94')))
+ (HERE/'resources.json').write_text(json.dumps(dict(resources=rows),indent=2)+'\n',encoding='utf8')
+ paths=[HERE/'resources.json',HERE/'sources.md',pathlib.Path(__file__)]
+ (HERE/'research_gate.json').write_text(json.dumps(dict(status='passage-inspected',scope='T25.01 bounded authoring; not independent review',resource_ids=[r['id'] for r in rows],research_input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},limitations=['Published C17/C23 and exact POSIX Issue8 pages remain unavailable; draft comparison is explicitly bounded.','No independent learner, reviewer or physical observation is inferred.']),indent=2)+'\n',encoding='utf8')
+if __name__=='__main__':main()

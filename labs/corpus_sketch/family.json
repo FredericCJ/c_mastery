@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "family": "corpus_sketch",
+  "title": "Count-Min, HyperLogLog and permutation MinHash",
+  "build_system": "cmake",
+  "assessor_root": "assessor/corpus_sketch",
+  "projects": [],
+  "units": [],
+  "exercises": [
+    {"id":"X-T15-005","project":"PR-T15-10","tests":["corpus_sketch.count_min"],"capabilities":["linux-c17"],"scope":"Nonnegative weighted Count-Min with checked partition merge"},
+    {"id":"X-T15-006","project":"PR-T15-10","tests":["corpus_sketch.hyperloglog"],"capabilities":["linux-c17"],"scope":"32-bit HyperLogLog with exact precision folding"},
+    {"id":"X-T15-007","project":"PR-T15-10","tests":["corpus_sketch.minhash"],"capabilities":["linux-c17"],"scope":"Explicit permutation MinHash and banded candidate transfer"}
+  ],
+  "campaign": {
+    "producer":"tools/run_corpus_sketch.py",
+    "receipt":"corpus_sketch_campaign.json",
+    "profiles":["gcc-debug","gcc-release","gcc-asan","clang-debug","clang-release","clang-asan"],
+    "mutants_per_anchor":2,
+    "assertion_marker":"SK_CHECK:",
+    "fixture_oracle":"assessor/corpus_sketch/oracle.py",
+    "oracle_driver":"sketch_driver"
+  },
+  "profile":"C",
+  "limitations":["Finite deterministic author tests do not establish probabilistic hash assumptions or independent learner mastery.","Hosted C17 numerical experiments; no physical device observations or implicit target runtime approval."]
+}

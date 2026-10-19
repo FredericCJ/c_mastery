@@ -45,6 +45,14 @@ def author(domain, rows):
                 criterion['security']=security_scopes[oid.rsplit('.',1)[0]]
             data['criteria'].append(criterion)
             solution+=['<a id="'+aid+'"></a>','## '+oid,'',analysis,'','Expected relation: '+expected,'','Withheld transfer discriminator: '+variant,'']
+        if pid == 'PR-T19-04':
+            import runpy
+            attach = runpy.run_path(str(ROOT/'research/v5/expansion/legacy_stream_followthrough/attach.py'))['attach']
+            data = attach(data)
+        if domain == 'T46':
+            import runpy
+            attach_vm = runpy.run_path(str(ROOT/'research/v5/expansion/legacy_vm_representation/author_support.py'))['attach']
+            data = attach_vm(data)
         dump(base/(pid+'.json'),data);write(ROOT/data['assessor_analysis'],'\n'.join(solution))
 
 

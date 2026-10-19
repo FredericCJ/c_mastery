@@ -1,0 +1,16 @@
+#include "foundation.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define CHECK(x) do{if(!(x)){fprintf(stderr,"MW_RESOURCE:%d:%s\n",__LINE__,#x);return 1;}}while(0)
+typedef struct {void *p[3];unsigned fail,after,acquisitions,releases,events[16],used,first,cleanup_fail;size_t live,peak;} Ledger;
+static const size_t sizes[]={32,48,16};
+static void release(void *v,unsigned i){Ledger *l=v;if(!l->p[i])abort();free(l->p[i]);l->p[i]=NULL;l->live-=sizes[i];l->events[l->used++]=10+i;l->releases++;if(l->cleanup_fail&&!l->first)l->first=900;}
+static int acquire(void *v,unsigned i){Ledger *l=v;if(l->fail==i+1&&!l->after){l->first=100+i;return 1;}l->p[i]=malloc(sizes[i]);if(!l->p[i]){l->first=200+i;return 1;}l->acquisitions++;l->live+=sizes[i];if(l->live>l->peak)l->peak=l->live;l->events[l->used++]=i;if(l->fail==i+1&&l->after){l->first=300+i;release(l,i);return 1;}return 0;}
+int main(void){unsigned cycles=0;size_t expected_before[]={0,32,80},expected_after[]={32,80,96};for(unsigned repeat=0;repeat<100;repeat++)for(unsigned after=0;after<2;after++)for(unsigned fail=1;fail<=4;fail++){Ledger l={0};l.fail=fail;l.after=after;l.cleanup_fail=1;unsigned owned=77;FStatus s=f_construct((FResources){&l,acquire,release},&owned);if(fail<4){CHECK(s==F_IO&&owned==77&&l.first==(after?300u:100u)+fail-1&&l.peak==(after?expected_after[fail-1]:expected_before[fail-1]));}else{CHECK(s==F_OK&&owned==7&&l.live==96);for(unsigned i=0;i<3;i++){CHECK(l.p[i]!=NULL);l.events[l.used++]=3+i;}/* Failure after all acquisitions, before publication. */l.first=400;for(unsigned i=3;i>0;i--)release(&l,i-1);CHECK(l.first==400);}CHECK(!l.live&&l.releases==l.acquisitions);unsigned previous=3;for(unsigned i=0;i<l.used;i++)if(l.events[i]>=10){CHECK(l.events[i]-10<previous);previous=l.events[i]-10;}cycles++;}
+ /* Child takes ownership before parent acquisition2 fails. Parent must not
+    release the transferred allocation; the child eventually releases it. */
+ Ledger parent={0},child={0};CHECK(acquire(&parent,0)==0);child.p[0]=parent.p[0];child.live=32;parent.p[0]=NULL;parent.live=0;parent.fail=2;CHECK(acquire(&parent,1)!=0&&!parent.live&&child.live==32);release(&child,0);CHECK(!child.live&&child.releases==1);
+ /* Epoch retirement is bounded by admission. Two live readers delay reclaim;
+    a third retired generation is refused until both relevant readers leave. */
+ unsigned readers[2]={1,1},retired[2]={1,1};size_t retained=64,peak=64;CHECK(retained==64&&readers[0]&&readers[1]);unsigned denied=retired[0]&&retired[1];CHECK(denied);readers[0]--;if(!readers[0]){retired[0]=0;retained-=32;}CHECK(retained==32);readers[1]--;if(!readers[1]){retired[1]=0;retained-=32;}CHECK(retained==0&&peak==64);size_t cache_live=0,cache_peak=0;unsigned cache_denied=0;for(unsigned i=0;i<100;i++){size_t request=i%2?24:16;if(request>16){cache_denied++;continue;}void *cache=malloc(request);CHECK(cache);cache_live+=request;if(cache_live>cache_peak)cache_peak=cache_live;CHECK(cache_live<=16);free(cache);cache_live-=request;}CHECK(cache_denied==50&&!cache_live&&cache_peak==16);puts("MW:cache:budget16:denied50:peak16:live0:borrow-events-recorded");printf("MW:resources:%u-prefix-cycles:32-80-96:reverse-cleanup:first-cause:child-transfer:epoch-bound64\n",cycles);return 0;}

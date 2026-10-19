@@ -1,0 +1,423 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_concurrency_followthrough/mechanisms_attempt3/arm-none-eabi-gcc-O3-m4.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00008000 <cf_ring_init>:
+    8000:	b1c8      	cbz	r0, 8036 <cf_ring_init+0x36>
+    8002:	f101 3cff 	add.w	ip, r1, #4294967295	@ 0xffffffff
+    8006:	f1bc 0f1f 	cmp.w	ip, #31
+    800a:	d814      	bhi.n	8036 <cf_ring_init+0x36>
+    800c:	ea11 0c0c 	ands.w	ip, r1, ip
+    8010:	d111      	bne.n	8036 <cf_ring_init+0x36>
+    8012:	b182      	cbz	r2, 8036 <cf_ring_init+0x36>
+    8014:	4291      	cmp	r1, r2
+    8016:	d30e      	bcc.n	8036 <cf_ring_init+0x36>
+    8018:	2b08      	cmp	r3, #8
+    801a:	d00e      	beq.n	803a <cf_ring_init+0x3a>
+    801c:	2b20      	cmp	r3, #32
+    801e:	d10a      	bne.n	8036 <cf_ring_init+0x36>
+    8020:	f8c0 c000 	str.w	ip, [r0]
+    8024:	f8c0 c040 	str.w	ip, [r0, #64]	@ 0x40
+    8028:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+    802c:	e9c0 1211 	strd	r1, r2, [r0, #68]	@ 0x44
+    8030:	64c3      	str	r3, [r0, #76]	@ 0x4c
+    8032:	2000      	movs	r0, #0
+    8034:	4770      	bx	lr
+    8036:	2003      	movs	r0, #3
+    8038:	4770      	bx	lr
+    803a:	f8c0 c000 	str.w	ip, [r0]
+    803e:	f8c0 c040 	str.w	ip, [r0, #64]	@ 0x40
+    8042:	23ff      	movs	r3, #255	@ 0xff
+    8044:	e7f2      	b.n	802c <cf_ring_init+0x2c>
+    8046:	bf00      	nop
+
+00008048 <cf_push>:
+    8048:	2800      	cmp	r0, #0
+    804a:	d03e      	beq.n	80ca <cf_push+0x82>
+    804c:	2900      	cmp	r1, #0
+    804e:	d03c      	beq.n	80ca <cf_push+0x82>
+    8050:	2a00      	cmp	r2, #0
+    8052:	d03a      	beq.n	80ca <cf_push+0x82>
+    8054:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+    8056:	4604      	mov	r4, r0
+    8058:	6c80      	ldr	r0, [r0, #72]	@ 0x48
+    805a:	4290      	cmp	r0, r2
+    805c:	d331      	bcc.n	80c2 <cf_push+0x7a>
+    805e:	f8d4 c000 	ldr.w	ip, [r4]
+    8062:	6c20      	ldr	r0, [r4, #64]	@ 0x40
+    8064:	f3bf 8f5b 	dmb	ish
+    8068:	6ce6      	ldr	r6, [r4, #76]	@ 0x4c
+    806a:	6ca5      	ldr	r5, [r4, #72]	@ 0x48
+    806c:	ebac 0000 	sub.w	r0, ip, r0
+    8070:	4030      	ands	r0, r6
+    8072:	4285      	cmp	r5, r0
+    8074:	d327      	bcc.n	80c6 <cf_push+0x7e>
+    8076:	1a2d      	subs	r5, r5, r0
+    8078:	4295      	cmp	r5, r2
+    807a:	d324      	bcc.n	80c6 <cf_push+0x7e>
+    807c:	eb0c 0502 	add.w	r5, ip, r2
+    8080:	6c62      	ldr	r2, [r4, #68]	@ 0x44
+    8082:	f102 3eff 	add.w	lr, r2, #4294967295	@ 0xffffffff
+    8086:	ebcc 724c 	rsb	r2, ip, ip, lsl #29
+    808a:	eb01 01c2 	add.w	r1, r1, r2, lsl #3
+    808e:	1d0f      	adds	r7, r1, #4
+    8090:	ea0e 020c 	and.w	r2, lr, ip
+    8094:	eb04 02c2 	add.w	r2, r4, r2, lsl #3
+    8098:	f851 003c 	ldr.w	r0, [r1, ip, lsl #3]
+    809c:	6510      	str	r0, [r2, #80]	@ 0x50
+    809e:	f857 003c 	ldr.w	r0, [r7, ip, lsl #3]
+    80a2:	6550      	str	r0, [r2, #84]	@ 0x54
+    80a4:	f10c 0c01 	add.w	ip, ip, #1
+    80a8:	4565      	cmp	r5, ip
+    80aa:	d1f1      	bne.n	8090 <cf_push+0x48>
+    80ac:	b113      	cbz	r3, 80b4 <cf_push+0x6c>
+    80ae:	9806      	ldr	r0, [sp, #24]
+    80b0:	4798      	blx	r3
+    80b2:	6ce6      	ldr	r6, [r4, #76]	@ 0x4c
+    80b4:	ea05 0206 	and.w	r2, r5, r6
+    80b8:	f3bf 8f5b 	dmb	ish
+    80bc:	6022      	str	r2, [r4, #0]
+    80be:	2000      	movs	r0, #0
+    80c0:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    80c2:	2003      	movs	r0, #3
+    80c4:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    80c6:	2001      	movs	r0, #1
+    80c8:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    80ca:	2003      	movs	r0, #3
+    80cc:	4770      	bx	lr
+    80ce:	bf00      	nop
+
+000080d0 <cf_pop>:
+    80d0:	b3a8      	cbz	r0, 813e <cf_pop+0x6e>
+    80d2:	b3a1      	cbz	r1, 813e <cf_pop+0x6e>
+    80d4:	b39a      	cbz	r2, 813e <cf_pop+0x6e>
+    80d6:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+    80d8:	4604      	mov	r4, r0
+    80da:	6c80      	ldr	r0, [r0, #72]	@ 0x48
+    80dc:	4290      	cmp	r0, r2
+    80de:	d32c      	bcc.n	813a <cf_pop+0x6a>
+    80e0:	f8d4 c040 	ldr.w	ip, [r4, #64]	@ 0x40
+    80e4:	6820      	ldr	r0, [r4, #0]
+    80e6:	f3bf 8f5b 	dmb	ish
+    80ea:	6ce6      	ldr	r6, [r4, #76]	@ 0x4c
+    80ec:	eba0 000c 	sub.w	r0, r0, ip
+    80f0:	4030      	ands	r0, r6
+    80f2:	4290      	cmp	r0, r2
+    80f4:	d325      	bcc.n	8142 <cf_pop+0x72>
+    80f6:	eb0c 0502 	add.w	r5, ip, r2
+    80fa:	6c62      	ldr	r2, [r4, #68]	@ 0x44
+    80fc:	f102 3eff 	add.w	lr, r2, #4294967295	@ 0xffffffff
+    8100:	ebcc 724c 	rsb	r2, ip, ip, lsl #29
+    8104:	eb01 01c2 	add.w	r1, r1, r2, lsl #3
+    8108:	1d0f      	adds	r7, r1, #4
+    810a:	ea0e 020c 	and.w	r2, lr, ip
+    810e:	eb04 02c2 	add.w	r2, r4, r2, lsl #3
+    8112:	6d10      	ldr	r0, [r2, #80]	@ 0x50
+    8114:	f841 003c 	str.w	r0, [r1, ip, lsl #3]
+    8118:	6d52      	ldr	r2, [r2, #84]	@ 0x54
+    811a:	f847 203c 	str.w	r2, [r7, ip, lsl #3]
+    811e:	f10c 0c01 	add.w	ip, ip, #1
+    8122:	4565      	cmp	r5, ip
+    8124:	d1f1      	bne.n	810a <cf_pop+0x3a>
+    8126:	b113      	cbz	r3, 812e <cf_pop+0x5e>
+    8128:	9806      	ldr	r0, [sp, #24]
+    812a:	4798      	blx	r3
+    812c:	6ce6      	ldr	r6, [r4, #76]	@ 0x4c
+    812e:	4035      	ands	r5, r6
+    8130:	f3bf 8f5b 	dmb	ish
+    8134:	6425      	str	r5, [r4, #64]	@ 0x40
+    8136:	2000      	movs	r0, #0
+    8138:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    813a:	2003      	movs	r0, #3
+    813c:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    813e:	2003      	movs	r0, #3
+    8140:	4770      	bx	lr
+    8142:	2002      	movs	r0, #2
+    8144:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+    8146:	bf00      	nop
+
+00008148 <cf_increment>:
+    8148:	b1e0      	cbz	r0, 8184 <cf_increment+0x3c>
+    814a:	b1d9      	cbz	r1, 8184 <cf_increment+0x3c>
+    814c:	b1d2      	cbz	r2, 8184 <cf_increment+0x3c>
+    814e:	2b10      	cmp	r3, #16
+    8150:	d818      	bhi.n	8184 <cf_increment+0x3c>
+    8152:	b530      	push	{r4, r5, lr}
+    8154:	6804      	ldr	r4, [r0, #0]
+    8156:	f1b4 3fff 	cmp.w	r4, #4294967295	@ 0xffffffff
+    815a:	f04f 0500 	mov.w	r5, #0
+    815e:	d018      	beq.n	8192 <cf_increment+0x4a>
+    8160:	3501      	adds	r5, #1
+    8162:	b98b      	cbnz	r3, 8188 <cf_increment+0x40>
+    8164:	f104 0c01 	add.w	ip, r4, #1
+    8168:	e850 3f00 	ldrex	r3, [r0]
+    816c:	42a3      	cmp	r3, r4
+    816e:	d103      	bne.n	8178 <cf_increment+0x30>
+    8170:	e840 ce00 	strex	lr, ip, [r0]
+    8174:	f1be 0f00 	cmp.w	lr, #0
+    8178:	461c      	mov	r4, r3
+    817a:	d10d      	bne.n	8198 <cf_increment+0x50>
+    817c:	600b      	str	r3, [r1, #0]
+    817e:	2000      	movs	r0, #0
+    8180:	6015      	str	r5, [r2, #0]
+    8182:	bd30      	pop	{r4, r5, pc}
+    8184:	2003      	movs	r0, #3
+    8186:	4770      	bx	lr
+    8188:	3b01      	subs	r3, #1
+    818a:	6804      	ldr	r4, [r0, #0]
+    818c:	f1b4 3fff 	cmp.w	r4, #4294967295	@ 0xffffffff
+    8190:	d1e6      	bne.n	8160 <cf_increment+0x18>
+    8192:	6015      	str	r5, [r2, #0]
+    8194:	2005      	movs	r0, #5
+    8196:	bd30      	pop	{r4, r5, pc}
+    8198:	1c63      	adds	r3, r4, #1
+    819a:	d0fa      	beq.n	8192 <cf_increment+0x4a>
+    819c:	3501      	adds	r5, #1
+    819e:	e7e1      	b.n	8164 <cf_increment+0x1c>
+
+000081a0 <cf_pool_init>:
+    81a0:	b1a0      	cbz	r0, 81cc <cf_pool_init+0x2c>
+    81a2:	1e4a      	subs	r2, r1, #1
+    81a4:	f06f 4360 	mvn.w	r3, #3758096384	@ 0xe0000000
+    81a8:	429a      	cmp	r2, r3
+    81aa:	d20f      	bcs.n	81cc <cf_pool_init+0x2c>
+    81ac:	f8c0 1080 	str.w	r1, [r0, #128]	@ 0x80
+    81b0:	2200      	movs	r2, #0
+    81b2:	fab2 f382 	clz	r3, r2
+    81b6:	095b      	lsrs	r3, r3, #5
+    81b8:	005b      	lsls	r3, r3, #1
+    81ba:	f043 0308 	orr.w	r3, r3, #8
+    81be:	f840 3b04 	str.w	r3, [r0], #4
+    81c2:	3201      	adds	r2, #1
+    81c4:	2a20      	cmp	r2, #32
+    81c6:	d1f4      	bne.n	81b2 <cf_pool_init+0x12>
+    81c8:	2000      	movs	r0, #0
+    81ca:	4770      	bx	lr
+    81cc:	2003      	movs	r0, #3
+    81ce:	4770      	bx	lr
+
+000081d0 <cf_take>:
+    81d0:	2800      	cmp	r0, #0
+    81d2:	d038      	beq.n	8246 <cf_take+0x76>
+    81d4:	2903      	cmp	r1, #3
+    81d6:	d836      	bhi.n	8246 <cf_take+0x76>
+    81d8:	2a01      	cmp	r2, #1
+    81da:	d834      	bhi.n	8246 <cf_take+0x76>
+    81dc:	b39b      	cbz	r3, 8246 <cf_take+0x76>
+    81de:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
+    81e2:	9c07      	ldr	r4, [sp, #28]
+    81e4:	2c00      	cmp	r4, #0
+    81e6:	d037      	beq.n	8258 <cf_take+0x88>
+    81e8:	f012 0f01 	tst.w	r2, #1
+    81ec:	bf14      	ite	ne
+    81ee:	2420      	movne	r4, #32
+    81f0:	2408      	moveq	r4, #8
+    81f2:	00ca      	lsls	r2, r1, #3
+    81f4:	eb04 04c1 	add.w	r4, r4, r1, lsl #3
+    81f8:	2500      	movs	r5, #0
+    81fa:	f012 011f 	ands.w	r1, r2, #31
+    81fe:	eb00 0681 	add.w	r6, r0, r1, lsl #2
+    8202:	d022      	beq.n	824a <cf_take+0x7a>
+    8204:	3501      	adds	r5, #1
+    8206:	f850 e021 	ldr.w	lr, [r0, r1, lsl #2]
+    820a:	f01e 0c07 	ands.w	ip, lr, #7
+    820e:	d11c      	bne.n	824a <cf_take+0x7a>
+    8210:	f3bf 8f5b 	dmb	ish
+    8214:	f02e 0807 	bic.w	r8, lr, #7
+    8218:	f048 0801 	orr.w	r8, r8, #1
+    821c:	e856 7f00 	ldrex	r7, [r6]
+    8220:	4577      	cmp	r7, lr
+    8222:	d106      	bne.n	8232 <cf_take+0x62>
+    8224:	e846 8900 	strex	r9, r8, [r6]
+    8228:	f1b9 0f00 	cmp.w	r9, #0
+    822c:	d1f6      	bne.n	821c <cf_take+0x4c>
+    822e:	f3bf 8f5b 	dmb	ish
+    8232:	d10a      	bne.n	824a <cf_take+0x7a>
+    8234:	08ff      	lsrs	r7, r7, #3
+    8236:	6018      	str	r0, [r3, #0]
+    8238:	e9c3 1701 	strd	r1, r7, [r3, #4]
+    823c:	9b07      	ldr	r3, [sp, #28]
+    823e:	4660      	mov	r0, ip
+    8240:	601d      	str	r5, [r3, #0]
+    8242:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+    8246:	2003      	movs	r0, #3
+    8248:	4770      	bx	lr
+    824a:	3201      	adds	r2, #1
+    824c:	4294      	cmp	r4, r2
+    824e:	d1d4      	bne.n	81fa <cf_take+0x2a>
+    8250:	9b07      	ldr	r3, [sp, #28]
+    8252:	2001      	movs	r0, #1
+    8254:	601d      	str	r5, [r3, #0]
+    8256:	e7f4      	b.n	8242 <cf_take+0x72>
+    8258:	2003      	movs	r0, #3
+    825a:	e7f2      	b.n	8242 <cf_take+0x72>
+
+0000825c <cf_publish>:
+    825c:	b084      	sub	sp, #16
+    825e:	f10d 0c10 	add.w	ip, sp, #16
+    8262:	e90c 000e 	stmdb	ip, {r1, r2, r3}
+    8266:	b108      	cbz	r0, 826c <cf_publish+0x10>
+    8268:	4288      	cmp	r0, r1
+    826a:	d002      	beq.n	8272 <cf_publish+0x16>
+    826c:	2003      	movs	r0, #3
+    826e:	b004      	add	sp, #16
+    8270:	4770      	bx	lr
+    8272:	4613      	mov	r3, r2
+    8274:	3a01      	subs	r2, #1
+    8276:	2a1e      	cmp	r2, #30
+    8278:	d8f8      	bhi.n	826c <cf_publish+0x10>
+    827a:	9a03      	ldr	r2, [sp, #12]
+    827c:	2a00      	cmp	r2, #0
+    827e:	d0f5      	beq.n	826c <cf_publish+0x10>
+    8280:	f8d0 1080 	ldr.w	r1, [r0, #128]	@ 0x80
+    8284:	428a      	cmp	r2, r1
+    8286:	d8f1      	bhi.n	826c <cf_publish+0x10>
+    8288:	f3bf 8f5b 	dmb	ish
+    828c:	00d2      	lsls	r2, r2, #3
+    828e:	f042 0101 	orr.w	r1, r2, #1
+    8292:	eb00 0083 	add.w	r0, r0, r3, lsl #2
+    8296:	f042 0202 	orr.w	r2, r2, #2
+    829a:	e850 3f00 	ldrex	r3, [r0]
+    829e:	428b      	cmp	r3, r1
+    82a0:	d104      	bne.n	82ac <cf_publish+0x50>
+    82a2:	e840 2c00 	strex	ip, r2, [r0]
+    82a6:	f1bc 0f00 	cmp.w	ip, #0
+    82aa:	d1f6      	bne.n	829a <cf_publish+0x3e>
+    82ac:	f3bf 8f5b 	dmb	ish
+    82b0:	bf0c      	ite	eq
+    82b2:	2001      	moveq	r0, #1
+    82b4:	2000      	movne	r0, #0
+    82b6:	0080      	lsls	r0, r0, #2
+    82b8:	f080 0004 	eor.w	r0, r0, #4
+    82bc:	e7d7      	b.n	826e <cf_publish+0x12>
+    82be:	bf00      	nop
+
+000082c0 <cf_cancel>:
+    82c0:	b084      	sub	sp, #16
+    82c2:	f10d 0c10 	add.w	ip, sp, #16
+    82c6:	e90c 000e 	stmdb	ip, {r1, r2, r3}
+    82ca:	b108      	cbz	r0, 82d0 <cf_cancel+0x10>
+    82cc:	4288      	cmp	r0, r1
+    82ce:	d002      	beq.n	82d6 <cf_cancel+0x16>
+    82d0:	2003      	movs	r0, #3
+    82d2:	b004      	add	sp, #16
+    82d4:	4770      	bx	lr
+    82d6:	4613      	mov	r3, r2
+    82d8:	3a01      	subs	r2, #1
+    82da:	2a1e      	cmp	r2, #30
+    82dc:	d8f8      	bhi.n	82d0 <cf_cancel+0x10>
+    82de:	9a03      	ldr	r2, [sp, #12]
+    82e0:	2a00      	cmp	r2, #0
+    82e2:	d0f5      	beq.n	82d0 <cf_cancel+0x10>
+    82e4:	f8d0 1080 	ldr.w	r1, [r0, #128]	@ 0x80
+    82e8:	428a      	cmp	r2, r1
+    82ea:	d8f1      	bhi.n	82d0 <cf_cancel+0x10>
+    82ec:	f3bf 8f5b 	dmb	ish
+    82f0:	ea4f 01c2 	mov.w	r1, r2, lsl #3
+    82f4:	bf18      	it	ne
+    82f6:	3201      	addne	r2, #1
+    82f8:	f041 0c01 	orr.w	ip, r1, #1
+    82fc:	bf0c      	ite	eq
+    82fe:	f041 0204 	orreq.w	r2, r1, #4
+    8302:	00d2      	lslne	r2, r2, #3
+    8304:	eb00 0083 	add.w	r0, r0, r3, lsl #2
+    8308:	e850 3f00 	ldrex	r3, [r0]
+    830c:	4563      	cmp	r3, ip
+    830e:	d103      	bne.n	8318 <cf_cancel+0x58>
+    8310:	e840 2100 	strex	r1, r2, [r0]
+    8314:	2900      	cmp	r1, #0
+    8316:	d1f7      	bne.n	8308 <cf_cancel+0x48>
+    8318:	f3bf 8f5b 	dmb	ish
+    831c:	bf0c      	ite	eq
+    831e:	2001      	moveq	r0, #1
+    8320:	2000      	movne	r0, #0
+    8322:	0080      	lsls	r0, r0, #2
+    8324:	f080 0004 	eor.w	r0, r0, #4
+    8328:	e7d3      	b.n	82d2 <cf_cancel+0x12>
+    832a:	bf00      	nop
+
+0000832c <cf_retire>:
+    832c:	b084      	sub	sp, #16
+    832e:	f10d 0c10 	add.w	ip, sp, #16
+    8332:	e90c 000e 	stmdb	ip, {r1, r2, r3}
+    8336:	b108      	cbz	r0, 833c <cf_retire+0x10>
+    8338:	4288      	cmp	r0, r1
+    833a:	d002      	beq.n	8342 <cf_retire+0x16>
+    833c:	2003      	movs	r0, #3
+    833e:	b004      	add	sp, #16
+    8340:	4770      	bx	lr
+    8342:	4613      	mov	r3, r2
+    8344:	3a01      	subs	r2, #1
+    8346:	2a1e      	cmp	r2, #30
+    8348:	d8f8      	bhi.n	833c <cf_retire+0x10>
+    834a:	9a03      	ldr	r2, [sp, #12]
+    834c:	2a00      	cmp	r2, #0
+    834e:	d0f5      	beq.n	833c <cf_retire+0x10>
+    8350:	f8d0 1080 	ldr.w	r1, [r0, #128]	@ 0x80
+    8354:	428a      	cmp	r2, r1
+    8356:	d8f1      	bhi.n	833c <cf_retire+0x10>
+    8358:	f3bf 8f5b 	dmb	ish
+    835c:	00d2      	lsls	r2, r2, #3
+    835e:	f042 0102 	orr.w	r1, r2, #2
+    8362:	eb00 0083 	add.w	r0, r0, r3, lsl #2
+    8366:	f042 0203 	orr.w	r2, r2, #3
+    836a:	e850 3f00 	ldrex	r3, [r0]
+    836e:	428b      	cmp	r3, r1
+    8370:	d104      	bne.n	837c <cf_retire+0x50>
+    8372:	e840 2c00 	strex	ip, r2, [r0]
+    8376:	f1bc 0f00 	cmp.w	ip, #0
+    837a:	d1f6      	bne.n	836a <cf_retire+0x3e>
+    837c:	f3bf 8f5b 	dmb	ish
+    8380:	bf0c      	ite	eq
+    8382:	2001      	moveq	r0, #1
+    8384:	2000      	movne	r0, #0
+    8386:	0080      	lsls	r0, r0, #2
+    8388:	f080 0004 	eor.w	r0, r0, #4
+    838c:	e7d7      	b.n	833e <cf_retire+0x12>
+    838e:	bf00      	nop
+
+00008390 <cf_reclaim>:
+    8390:	b084      	sub	sp, #16
+    8392:	f10d 0c10 	add.w	ip, sp, #16
+    8396:	e90c 000e 	stmdb	ip, {r1, r2, r3}
+    839a:	b108      	cbz	r0, 83a0 <cf_reclaim+0x10>
+    839c:	4288      	cmp	r0, r1
+    839e:	d002      	beq.n	83a6 <cf_reclaim+0x16>
+    83a0:	2003      	movs	r0, #3
+    83a2:	b004      	add	sp, #16
+    83a4:	4770      	bx	lr
+    83a6:	4613      	mov	r3, r2
+    83a8:	3a01      	subs	r2, #1
+    83aa:	2a1e      	cmp	r2, #30
+    83ac:	d8f8      	bhi.n	83a0 <cf_reclaim+0x10>
+    83ae:	9a03      	ldr	r2, [sp, #12]
+    83b0:	2a00      	cmp	r2, #0
+    83b2:	d0f5      	beq.n	83a0 <cf_reclaim+0x10>
+    83b4:	f8d0 1080 	ldr.w	r1, [r0, #128]	@ 0x80
+    83b8:	428a      	cmp	r2, r1
+    83ba:	d8f1      	bhi.n	83a0 <cf_reclaim+0x10>
+    83bc:	f3bf 8f5b 	dmb	ish
+    83c0:	ea4f 01c2 	mov.w	r1, r2, lsl #3
+    83c4:	bf18      	it	ne
+    83c6:	3201      	addne	r2, #1
+    83c8:	f041 0c03 	orr.w	ip, r1, #3
+    83cc:	bf0c      	ite	eq
+    83ce:	f041 0204 	orreq.w	r2, r1, #4
+    83d2:	00d2      	lslne	r2, r2, #3
+    83d4:	eb00 0083 	add.w	r0, r0, r3, lsl #2
+    83d8:	e850 3f00 	ldrex	r3, [r0]
+    83dc:	4563      	cmp	r3, ip
+    83de:	d103      	bne.n	83e8 <cf_reclaim+0x58>
+    83e0:	e840 2100 	strex	r1, r2, [r0]
+    83e4:	2900      	cmp	r1, #0
+    83e6:	d1f7      	bne.n	83d8 <cf_reclaim+0x48>
+    83e8:	f3bf 8f5b 	dmb	ish
+    83ec:	bf0c      	ite	eq
+    83ee:	2001      	moveq	r0, #1
+    83f0:	2000      	movne	r0, #0
+    83f2:	0080      	lsls	r0, r0, #2
+    83f4:	f080 0004 	eor.w	r0, r0, #4
+    83f8:	e7d3      	b.n	83a2 <cf_reclaim+0x12>
+    83fa:	bf00      	nop

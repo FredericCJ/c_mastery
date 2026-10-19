@@ -12,6 +12,89 @@ from common import ROOT, load, read_json
 from validate import project_allocation_error
 
 
+class UnitSourceLocators(unittest.TestCase):
+    def test_later_assessment_keeps_its_exact_rubric_and_laboratory(self):
+        from check_authored_v5 import required_assessment_errors
+        catalog = {r['id']: r for r in read_json(ROOT/'curriculum/v5/exercises.json')['exercises']}
+        for family, ident in [('object_runtime', 'LAB-OR-12'), ('replicated', 'LAB-RP-14')]:
+            unit = next(u for u in read_json(ROOT/'labs'/family/'family.json')['units'] if u['id']==ident)
+            self.assertEqual(required_assessment_errors(unit, catalog), [])
+            for field in ('objectives', 'prerequisite_exercises', 'criteria', 'family', 'tests', 'assessor_analysis', 'assessment'):
+                changed = deepcopy(unit)
+                stage = changed['required_exercise_assessments'][0]
+                stage[field] = [] if isinstance(stage[field], list) else ''
+                with self.subTest(unit=ident, field=field):
+                    self.assertTrue(required_assessment_errors(changed, catalog))
+            wrong = deepcopy(unit)
+            wrong['required_exercise_assessments'][0]['tests'] = unit['tests']
+            self.assertTrue(required_assessment_errors(wrong, catalog))
+
+    def test_unit_page_exposes_later_assessment_without_assessor_solution(self):
+        from publish_v4 import card
+        from common import anchor
+        generated = read_json(ROOT/'curriculum/v5/units.json')['units']
+        for family, ident in [('object_runtime', 'LAB-OR-12'), ('replicated', 'LAB-RP-14')]:
+            canonical = next(u for u in read_json(ROOT/'labs'/family/'family.json')['units'] if u['id']==ident)
+            unit = deepcopy(next(u for u in generated if u['id']==ident))
+            self.assertEqual(unit.get('required_exercise_assessments'), canonical['required_exercise_assessments'])
+            page = card(unit, edition=5)
+            stage = unit['required_exercise_assessments'][0]
+            for key in [stage['exercise'], *stage['prerequisite_exercises']]:
+                self.assertIn('{ref}`'+anchor(key)+'`', page)
+            self.assertIn(stage['assessment'], page)
+            for name in stage['tests']:
+                self.assertIn('`'+name+'`', page)
+            self.assertNotIn(stage['assessor_analysis'], page)
+
+    def test_authored_readings_use_verified_resource_classification(self):
+        import hashlib
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        import check_authored_v5 as checker
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            def put(name, value):
+                path = root/name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(value), encoding='utf8')
+                return hashlib.sha256(path.read_bytes()).hexdigest()
+            source = {'id': 'R', 'title': 'Inspected source', 'edition': 'Named edition',
+                      'inspection': {'scope': 'p1 only'}, 'locators': ['p1']}
+            put('references/resources.json', {'resources': []})
+            original = 'research/v5/expansion/base/resources.json'
+            digest = put(original, {'resources': [source]})
+            wrapper = 'research/v5/expansion/reuse/resources.json'
+            wrapped = {'resources': [{'path': original, 'sha256': digest,
+                                      'registered_passages': [{'id': 'R', 'locators': ['p1']}]}]}
+            put(wrapper, wrapped)
+            evidence = 'research/v5/expansion/evidence/resources.json'
+            evidence_digest = put(evidence, {'resources': [{'id': 'E', 'scope': 'Author observation only'}]})
+            put('research/v5/resource_merge_policy.json', {
+                'schema_version': 1, 'history_components': ['history', 'history_*', 'history-*'],
+                'pinned_wrappers': {wrapper: 'registered_passages'},
+                'evidence_only': {evidence: {'role': 'author-evidence-only', 'reason': 'No reading inspection',
+                                           'sha256': evidence_digest, 'ids': ['E']}}})
+            with patch.object(checker, 'ROOT', root):
+                self.assertEqual(checker.canonical_resources(), {'R': source})
+                wrapped['resources'][0]['sha256'] = 'stale'
+                put(wrapper, wrapped)
+                with self.assertRaisesRegex(ValueError, 'Stale pinned resource'):
+                    checker.canonical_resources()
+
+    def test_exact_inspected_passage_required_in_every_family(self):
+        from check_authored_v5 import unit_source_errors
+        source={'R':{'inspection':{'scope':'bounded'},'locators':['6.3.2.3p1-2']}}
+        unit={'id':'LAB-EX-01','references':[{'resource_id':'R','locator':'6.3.2.3p1-2'}]}
+        self.assertEqual(unit_source_errors([unit],source),[])
+        wrong=deepcopy(unit);wrong['references'][0]['locator']='6.3.2.3p1\u00c3\u00a2-2'
+        self.assertTrue(unit_source_errors([wrong],source))
+        self.assertTrue(unit_source_errors([unit],{}))
+        source['R']['inspection']={}
+        self.assertTrue(unit_source_errors([unit],source))
+
+
 class ExportedStubAssertions(unittest.TestCase):
     markers = {'systems_certificates': 'SC_CHECK:', 'serial_depth': 'SD_CHECK:',
                'ethernet_depth': 'ED_CHECK:', 'edu7_depth': 'E7_CHECK:',
@@ -178,6 +261,22 @@ class Recipes(unittest.TestCase):
         second['domain'].update(family='ports', prefix='PO')
         result = merge_domain_fragments(self.base, [('T57', self.fragment), ('T58', second)])
         self.assertEqual(result['fixture_oracles'], ['verify_linux_kernel.py'])
+
+    def test_explicit_shared_family_has_scoped_prefix_and_projects(self):
+        self.fragment['domain']['additional_laboratories']=[{'family':'higher_order','prefix':'HT','projects':['PR-T57-09'],'research_gate':'research/gate.json'}]
+        self.fragment['new_executable_counts']['HT']=1
+        self.assertEqual(self.merge()['new_executable_counts'],{'KL':2,'HT':1})
+        self.fragment['domain']['additional_laboratories'][0]['projects']=['PR-T58-09']
+        with self.assertRaisesRegex(ValueError,'project ownership'):self.merge()
+
+    def test_additional_prefix_does_not_bypass_collisions_or_gate(self):
+        extra={'family':'higher_order','prefix':'HT','projects':['PR-T57-09'],'research_gate':'research/gate.json'}
+        self.fragment['domain']['additional_laboratories']=[extra]
+        self.fragment['new_executable_counts']['HT']=1
+        self.base['domains']['T58']={'family':'ports','prefix':'HT','phase':10}
+        with self.assertRaisesRegex(ValueError,'collision'):self.merge()
+        self.base['domains']={};extra.pop('research_gate')
+        with self.assertRaisesRegex(ValueError,'research gate'):self.merge()
 
 
 class AuthoredUnits(unittest.TestCase):
@@ -514,6 +613,36 @@ class LegacyAssessments(unittest.TestCase):
         self.assertNotIn('Withheld discriminator:', rendered)
         self.assertNotIn(self.example['assessor_analysis'], rendered)
 
+    def test_successor_metadata_discloses_historical_scope_without_reading_solutions(self):
+        from unittest.mock import patch
+        from cmastery.assessments import learner_brief
+        data = deepcopy(self.example)
+        identifier = data['criteria'][0]['id']
+        name = 'research/v5/expansion/example/support.json'
+        data['successor_support'] = {'path': name, 'criterion_ids': [identifier]}
+        data['criteria'][0]['successor_support'] = {'path': name, 'id': identifier}
+        data['additional_successor_support'] = [{'path': 'research/v5/expansion/other/support.json',
+                                                'criterion_ids': [identifier]}]
+        with patch('pathlib.Path.read_text', side_effect=AssertionError('Must not open authoring material')):
+            rendered = learner_brief(data)
+        self.assertIn('## Current successor support', rendered)
+        self.assertIn('Recorded baseline fresh execution:', rendered)
+        self.assertIn('## Original validation status', rendered)
+        self.assertIn('Current criterion successor record: `' + name + '`', rendered)
+        self.assertIn('research/v5/expansion/other/support.json', rendered)
+        self.assertIn('presence alone does not establish', rendered)
+        self.assertNotIn('](' + name + ')', rendered)
+        self.assertNotIn(data['assessor_analysis'], rendered)
+
+    def test_successor_locator_rejects_solution_paths_traversal_and_markdown_injection(self):
+        from cmastery.assessments import successor_locator
+        for path in ('assessor/solution.c', 'research/../assessor/solution.json',
+                     'research/assessor/solution.json', '/research/support.json',
+                     'research\\support.json', 'research/`[answer](evil).json'):
+            self.assertIsNone(successor_locator({'path': path, 'id': 'AX-EXAMPLE'}))
+        self.assertEqual(successor_locator({'path': 'research/safe.json', 'id': '[answer](assessor/a)'}),
+                         '`research/safe.json`')
+
     def test_cli_export_carries_required_criteria_without_assessor_files(self):
         import tempfile
         from pathlib import Path
@@ -586,6 +715,380 @@ class LegacyAssessments(unittest.TestCase):
             self.assertEqual(meta['supplemental_assessment']['learner_assessment'], 'not-assessed')
             self.assertIn(new['criteria'][0]['task'], (workspace/'ASSESSMENT.md').read_text(encoding='utf-8'))
             self.assertFalse(any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*')))
+
+
+class IntegratedParentAdjudication(unittest.TestCase):
+    """Synthetic report controls; these do not represent an integrated run."""
+
+    def fixture(self):
+        import json
+        import hashlib
+        import validate_expansion_v5 as validator
+        original = read_json(ROOT / validator.PARENT_DECLARATIONS)
+        declared = validator.parent_declarations(original)
+        selected = [row for row in declared['updates'] if row['id'] in validator.PARENT_IDS]
+        blobs = [json.dumps(declared).encode(), json.dumps({'updates': selected}).encode()]
+        files = {name: hashlib.sha256(payload).hexdigest() for name, payload in
+                 zip((validator.PARENT_DECLARATIONS, validator.ACTIVE_DISPOSITIONS), blobs)}
+        identity = {'files': files, 'sha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()}
+        logs = {'reviews/fixture/' + name + '.log': (name + ' synthetic passed output').encode()
+                for name in validator.PARENT_CHECKS}
+        checks = [{'check': name, 'exit_code': 0, 'skipped': 0,
+                   'log': 'reviews/fixture/' + name + '.log',
+                   'log_sha256': hashlib.sha256(logs['reviews/fixture/' + name + '.log']).hexdigest()}
+                  for name in validator.PARENT_CHECKS]
+        report = {'passed': True, 'status': 'passed', 'input_sha256': identity['sha256'],
+                  'source_changed_during_run': False, 'checks': checks,
+                  'publication_current': True, 'historical_receipts_current': True,
+                  'campaign_summary': {'passed': True, 'source_current': True, 'families': 2,
+                                       'distinct_execution_receipts': 2, 'failed_families': []},
+                  'structure': {'passed': True, 'status': 'passed', 'input_sha256': identity['sha256']}}
+        return validator, report, identity, blobs, logs
+
+    def test_exact_three_parent_binding_passes_without_promoting_child_evidence(self):
+        validator, report, identity, blobs, logs = self.fixture()
+        result = validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)
+        self.assertTrue(result['passed'], result['errors'])
+        self.assertEqual([r['id'] for r in result['parents']], list(validator.PARENT_IDS))
+        for row in result['parents']:
+            self.assertEqual(row['active_row_sha256'], row['canonical_row_sha256'])
+            self.assertEqual(row['external_dimensions']['external_review']['state'], 'not-run')
+            self.assertEqual(row['external_dimensions']['independent_learner']['state'], 'not-assessed')
+
+    def test_declarative_delta_is_idempotent_and_preserves_all_other_claims(self):
+        import validate_expansion_v5 as validator
+        before = read_json(ROOT / validator.PARENT_DECLARATIONS)
+        after = validator.parent_declarations(before)
+        self.assertEqual(validator.parent_declarations(after), after)
+        for old, new in zip(before['updates'], after['updates']):
+            if old['id'] not in validator.PARENT_IDS:
+                self.assertEqual(old, new)
+                continue
+            for key in old:
+                if key not in ('dimensions', 'closure_rationale', 'integrated_validation'):
+                    self.assertEqual(old[key], new[key])
+            for dimension in old['dimensions']:
+                if dimension != 'author_validation':
+                    self.assertEqual(old['dimensions'][dimension], new['dimensions'][dimension])
+            self.assertEqual(old['dimensions']['author_validation']['evidence'],
+                             new['dimensions']['author_validation']['evidence'])
+
+    def test_failed_missing_duplicate_and_skipped_checks_reject(self):
+        for name, mutate in (
+                ('failed', lambda r: r['checks'][0].update(exit_code=1)),
+                ('missing', lambda r: r['checks'].pop()),
+                ('duplicate', lambda r: r['checks'].__setitem__(1, r['checks'][0])),
+                ('skipped', lambda r: r['checks'][1].update(skipped=1)),
+                ('failed-integrated', lambda r: r.update(passed=False, status='failed'))):
+            validator, report, identity, blobs, logs = self.fixture()
+            mutate(report)
+            with self.subTest(control=name):
+                self.assertFalse(validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)['passed'])
+
+    def test_merge_guard_rejects_extra_claim_changes_and_wrong_rows(self):
+        import validate_expansion_v5 as validator
+        previous = read_json(ROOT / validator.PARENT_DECLARATIONS)
+        current = validator.parent_declarations(previous)
+        selected = [r for r in current['updates'] if r['id'] in validator.PARENT_IDS]
+        self.assertEqual(validator.parent_delta_errors(previous, current, selected), [])
+        for mode in ('external-promotion', 'child-gap-removal', 'wrong-row', 'missing-row'):
+            changed, rows = deepcopy(current), deepcopy(selected)
+            target = next(r for r in changed['updates'] if r['id'] == validator.PARENT_IDS[0])
+            if mode == 'external-promotion':
+                target['dimensions']['external_review']['state'] = 'passed'
+            elif mode == 'child-gap-removal':
+                target['dimensions']['implementation']['state'] = 'unconditionally-complete'
+            elif mode == 'wrong-row':
+                rows[0]['id'] = 'G-UNRELATED'
+            else:
+                rows.pop()
+            with self.subTest(control=mode):
+                self.assertTrue(validator.parent_delta_errors(previous, changed, rows))
+
+    def test_missing_and_changed_actual_log_reject(self):
+        for missing in (True, False):
+            validator, report, identity, blobs, logs = self.fixture()
+            name = report['checks'][0]['log']
+            if missing:
+                del logs[name]
+            else:
+                logs[name] += b' changed'
+            self.assertFalse(validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)['passed'])
+
+    def test_another_checks_valid_log_is_not_substitutable(self):
+        validator, report, identity, blobs, logs = self.fixture()
+        report['checks'][0]['log'] = report['checks'][1]['log']
+        report['checks'][0]['log_sha256'] = report['checks'][1]['log_sha256']
+        self.assertFalse(validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)['passed'])
+
+    def test_final_source_change_invalidates_all_three_parent_results(self):
+        validator, report, identity, blobs, logs = self.fixture()
+        report['parent_adjudication'] = validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)
+        current = deepcopy(identity)
+        current['sha256'] = '0' * 64
+        validator.bind_final_source(report, identity, current)
+        self.assertFalse(report['passed'])
+        self.assertTrue(report['source_changed_during_run'])
+        self.assertFalse(report['parent_adjudication']['passed'])
+        self.assertTrue(all(row['result'] == 'failed-or-unbound' for row in report['parent_adjudication']['parents']))
+
+    def test_wrong_missing_duplicate_or_unmerged_parent_reject(self):
+        import json
+        import hashlib
+        for mode in ('wrong-id', 'missing', 'duplicate', 'unmerged', 'no-requirement'):
+            validator, report, identity, blobs, logs = self.fixture()
+            active = json.loads(blobs[1])
+            if mode == 'wrong-id':
+                active['updates'][0]['id'] = 'G-UNRELATED'
+            elif mode == 'missing':
+                active['updates'].pop()
+            elif mode == 'duplicate':
+                active['updates'].append(deepcopy(active['updates'][0]))
+            elif mode == 'unmerged':
+                active['updates'][0]['dimensions']['author_validation']['state'] = 'old-state'
+            else:
+                active['updates'][0].pop('integrated_validation')
+            blobs[1] = json.dumps(active).encode()
+            identity['files'][validator.ACTIVE_DISPOSITIONS] = hashlib.sha256(blobs[1]).hexdigest()
+            identity['sha256'] = hashlib.sha256(json.dumps(identity['files'], sort_keys=True).encode()).hexdigest()
+            report['input_sha256'] = report['structure']['input_sha256'] = identity['sha256']
+            with self.subTest(control=mode):
+                self.assertFalse(validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)['passed'])
+
+    def test_stale_source_identity_or_parent_bytes_reject(self):
+        for mode in ('current', 'report', 'mapping', 'parent-bytes'):
+            validator, report, identity, blobs, logs = self.fixture()
+            current = deepcopy(identity)
+            if mode == 'current':
+                current['sha256'] = '0' * 64
+            elif mode == 'report':
+                report['input_sha256'] = '0' * 64
+            elif mode == 'mapping':
+                identity['files'][validator.PARENT_DECLARATIONS] = '0' * 64
+            else:
+                blobs[0] += b'\n'
+            with self.subTest(control=mode):
+                self.assertFalse(validator.adjudicate_parents(report, identity, current, *blobs, logs.__getitem__)['passed'])
+
+    def test_failed_stale_missing_secondary_evidence_reject(self):
+        for name, mutate in (
+                ('publication', lambda r: r.update(publication_current=False)),
+                ('campaign-stale', lambda r: r['campaign_summary'].update(source_current=False)),
+                ('campaign-failed', lambda r: r['campaign_summary'].update(failed_families=['broken'])),
+                ('campaign-missing', lambda r: r.pop('campaign_summary')),
+                ('structure-stale', lambda r: r['structure'].update(input_sha256='0' * 64)),
+                ('history-failed', lambda r: r.update(historical_receipts_current=False))):
+            validator, report, identity, blobs, logs = self.fixture()
+            mutate(report)
+            with self.subTest(control=name):
+                self.assertFalse(validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)['passed'])
+
+
+class BaselinePublicationBindings(unittest.TestCase):
+    def binding(self, project):
+        data = read_json(ROOT / 'curriculum/v5/expansion/legacy_assessments' / (project + '.json'))
+        return deepcopy(next(row for row in data['baseline_binding']['files']
+                             if row['path'] == 'curriculum/projects/' + project + '.md'))
+
+    def test_two_current_projects_accept_exact_preserved_inspection_successor(self):
+        from check_legacy_assessments import baseline_inspection_matches
+        from common import sha
+        for project in ('PR-T28-06', 'PR-T29-04'):
+            with self.subTest(project=project):
+                binding = self.binding(project)
+                self.assertNotEqual(sha(ROOT / binding['path']), binding['sha256'])
+                self.assertTrue(baseline_inspection_matches(binding, ROOT / binding['path']))
+                self.assertEqual(binding, self.binding(project))
+
+    def test_wrong_historical_digest_and_other_project_rejected(self):
+        from check_legacy_assessments import baseline_inspection_matches
+        for project in ('PR-T28-06', 'PR-T29-04', 'PR-T28-05'):
+            with self.subTest(project=project):
+                binding = self.binding(project)
+                binding['sha256'] = '0' * 64
+                self.assertFalse(baseline_inspection_matches(binding, ROOT / binding['path']))
+
+    def test_semantic_or_asset_change_is_not_a_publication_successor(self):
+        import tempfile
+        from pathlib import Path
+        from check_legacy_assessments import baseline_inspection_matches
+        binding = self.binding('PR-T28-06')
+        raw = (ROOT / binding['path']).read_bytes()
+        for changed in (raw + b'\nAn unreviewed new requirement.\n',
+                        raw.replace(b'H745_ERRATA_UTF8.md', b'H745_ERRATA.md'),
+                        raw.replace(b'labs/firmware_lifecycle/targets/H745_ERRATA_UTF8.md',
+                                    b'assessor/firmware_lifecycle/targets/INACTIVE_INSTALL_ANALYSIS_UTF8.md'),
+                        raw.replace(b'completion_dispositions.json', b'unreviewed_version.json'),
+                        raw.replace(b'"hours":', b'"unreviewed_hours":')):
+            self.assertNotEqual(changed, raw)
+            with tempfile.TemporaryDirectory() as temp:
+                path = Path(temp) / 'project.md'
+                path.write_bytes(changed)
+                self.assertFalse(baseline_inspection_matches(binding, path))
+
+    def test_changed_original_inspection_bytes_rejected(self):
+        from unittest.mock import patch
+        import rebind_b06_documents as proof
+        from check_legacy_assessments import baseline_inspection_matches
+        binding = self.binding('PR-T28-06')
+        original_read = proof.read
+        previous = original_read(proof.PROJECTS)
+        previous['projects']['PR-T28-06'] += '\nChanged historical text.\n'
+        with patch.object(proof, 'read', side_effect=lambda name:
+                          previous if name == proof.PROJECTS else original_read(name)):
+            self.assertFalse(baseline_inspection_matches(binding, ROOT / binding['path']))
+
+    def test_incomplete_stale_or_inflated_proof_rejected(self):
+        from unittest.mock import patch
+        import rebind_b06_documents as proof
+        from check_legacy_assessments import baseline_inspection_matches
+        binding = self.binding('PR-T28-06')
+        original_read = proof.read
+        for label, mutate in (
+                ('missing-export', lambda report: report['exports'].pop()),
+                ('duplicate-export', lambda report: report['exports'].__setitem__(1, report['exports'][0])),
+                ('invented-execution', lambda report: report.update(new_C_execution=True)),
+                ('wrong-operation', lambda report: report.update(operation='unrestricted-rewrite')),
+                ('stale-source', lambda report: report['input_sha256'].update({proof.MAP: '0' * 64}))):
+            report = original_read(proof.REPORT)
+            mutate(report)
+            with self.subTest(control=label), patch.object(proof, 'read', side_effect=lambda name:
+                    report if name == proof.REPORT else original_read(name)):
+                self.assertFalse(baseline_inspection_matches(binding, ROOT / binding['path']))
+
+    def test_missing_proof_rejected(self):
+        from unittest.mock import patch
+        import rebind_b06_documents as proof
+        from check_legacy_assessments import baseline_inspection_matches
+        binding = self.binding('PR-T28-06')
+        with patch.object(proof, 'read', side_effect=FileNotFoundError('missing proof')):
+            self.assertFalse(baseline_inspection_matches(binding, ROOT / binding['path']))
+
+    def test_unchanged_inspection_does_not_need_a_successor(self):
+        import tempfile
+        import hashlib
+        from pathlib import Path
+        from check_legacy_assessments import baseline_inspection_matches
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'original.md'
+            path.write_bytes(b'Original inspected bytes.\r\n')
+            binding = {'path': 'curriculum/projects/PR-UNCHANGED.md',
+                       'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+            self.assertTrue(baseline_inspection_matches(binding, path))
+
+
+class InventoryParentLinks(unittest.TestCase):
+    """Exercise the real generator in a disposable, isolated source tree."""
+
+    def generate_fixture(self, documents, updates=None):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        import reconcile_implementation_v5 as reconciler
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            base = root / 'curriculum/v5/expansion'
+            base.mkdir(parents=True)
+            projects = root / 'curriculum/projects'
+            projects.mkdir(parents=True)
+            (projects / 'PR-T59-01.md').write_text('', encoding='utf-8')
+            if updates is not None:
+                (base / 'implementation_updates.json').write_text(
+                    json.dumps({'updates': updates}), encoding='utf-8')
+            for name, data in documents.items():
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(data), encoding='utf-8')
+            with patch.multiple(reconciler, ROOT=root, BASE=base), \
+                    patch.object(reconciler, 'discover_registers',
+                                 return_value=(deepcopy(documents), [])):
+                reconciler.generate()
+            return {row['id']: row for row in
+                    read_json(base / 'work_inventory.json')['obligations']}
+
+    def test_integrated_validation_declarations_roundtrip_and_reject_tampering(self):
+        import hashlib
+        import json
+        import validate_expansion_v5 as validator
+        updates = [{'id': ident, 'integrated_validation': validator.parent_report_requirement()}
+                   for ident in validator.PARENT_IDS]
+        rows = self.generate_fixture({'research/test/gap_ledger.json': {
+            'gaps': [{'id': ident} for ident in validator.PARENT_IDS]}}, updates)
+        for update in updates:
+            self.assertEqual(rows[update['id']].get('integrated_validation'),
+                             update['integrated_validation'])
+        # Feed the actual roundtrip result into the runtime binding gate. Even
+        # with freshly hashed active bytes, a missing or weakened declaration
+        # must not substitute for the exact canonical report requirements.
+        for mode in ('unchanged', 'missing', 'wrong-report', 'weakened-checks'):
+            _, report, identity, blobs, logs = IntegratedParentAdjudication().fixture()
+            active = json.loads(blobs[1])
+            for row in active['updates']:
+                row['integrated_validation'] = deepcopy(rows[row['id']]['integrated_validation'])
+            target = active['updates'][0]
+            if mode == 'missing':
+                target.pop('integrated_validation')
+            elif mode == 'wrong-report':
+                target['integrated_validation']['report'] = 'reviews/unrelated.json'
+            elif mode == 'weakened-checks':
+                target['integrated_validation']['required_checks'].pop()
+            blobs[1] = json.dumps(active).encode()
+            identity['files'][validator.ACTIVE_DISPOSITIONS] = hashlib.sha256(blobs[1]).hexdigest()
+            identity['sha256'] = hashlib.sha256(json.dumps(identity['files'], sort_keys=True).encode()).hexdigest()
+            report['input_sha256'] = report['structure']['input_sha256'] = identity['sha256']
+            with self.subTest(control=mode):
+                result = validator.adjudicate_parents(report, identity, identity, *blobs, logs.__getitem__)
+                self.assertEqual(result['passed'], mode == 'unchanged', result['errors'])
+
+    def test_flat_explicit_parent_preserves_links_and_inherited_context(self):
+        rows = self.generate_fixture({'research/test/gap_ledger.json': {'gaps': [
+            {'id': 'PARENT', 'project': 'PR-T59-01', 'objective': 'T59.01.a',
+             'prerequisites': ['inspect the selected target contract']},
+            {'id': 'CHILD', 'parent_ids': ['PARENT', 'PARENT'], 'task': 'Repair the rendition'}]}})
+        self.assertEqual(rows['CHILD']['parent_ids'], ['PARENT'])
+        self.assertEqual(rows['CHILD']['links']['projects'], ['PR-T59-01'])
+        self.assertEqual(rows['CHILD']['links']['objectives'], ['T59.01.a'])
+        self.assertEqual(rows['CHILD']['prerequisites'], ['inspect the selected target contract'])
+        self.assertTrue(all(value['state'] == 'unreconciled'
+                            for value in rows['CHILD']['dimensions'].values()))
+
+    def test_explicit_parents_union_with_traversal_and_repeated_origins(self):
+        rows = self.generate_fixture({
+            'research/a/gap_ledger.json': {'gaps': [
+                {'id': 'OUTER', 'gaps': [
+                    {'id': 'CHILD', 'parent_ids': ['OTHER', 'OUTER']}]},
+                {'id': 'OTHER'}, {'id': 'THIRD'}]},
+            'research/b/gap_ledger.json': {'gaps': [
+                {'id': 'CHILD', 'parent_ids': ['THIRD', 'OTHER']}]}})
+        self.assertEqual(rows['CHILD']['parent_ids'], ['OUTER', 'OTHER', 'THIRD'])
+
+    def test_actual_flat_document_children_retain_their_declared_parent(self):
+        origin = 'research/v5/expansion/b06_document_utf8/gap_ledger.json'
+        document = read_json(ROOT / origin)
+        children = [row for row in document['gaps'] if row.get('parent_ids')]
+        self.assertEqual(len(children), 10)
+        rows = self.generate_fixture({origin: document})
+        for child in children:
+            with self.subTest(child=child['id']):
+                self.assertEqual(rows[child['id']]['parent_ids'], child['parent_ids'])
+
+    def test_unknown_explicit_parent_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Unresolved parent: MISSING'):
+            self.generate_fixture({'research/test/gap_ledger.json': {'gaps': [
+                {'id': 'CHILD', 'parent_ids': ['MISSING']}]}})
+
+    def test_malformed_explicit_parent_lists_are_rejected(self):
+        for bad in ('PARENT', None, [''], ['  '], [7], {'id': 'PARENT'}):
+            with self.subTest(parent_ids=bad), \
+                    self.assertRaisesRegex(ValueError, 'Invalid parent_ids for CHILD'):
+                self.generate_fixture({'research/test/gap_ledger.json': {'gaps': [
+                    {'id': 'CHILD', 'parent_ids': bad}]}})
+
+    def test_explicit_self_parent_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Self parent: CHILD'):
+            self.generate_fixture({'research/test/gap_ledger.json': {'gaps': [
+                {'id': 'CHILD', 'parent_ids': ['CHILD']}]}})
 
 
 if __name__ == '__main__':

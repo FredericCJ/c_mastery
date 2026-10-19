@@ -1,0 +1,28 @@
+"""Bind exact original T68.01 criteria and variants to actual current evidence."""
+import json
+from common import ROOT,dump,read_json,sha
+from check_metaprog_owning_ring import REPORT,COST,check
+READINESS='research/v5/modern/metaprog_owning_ring_readiness.json'
+def main():
+    d,q=read_json(ROOT/REPORT),read_json(ROOT/COST);check(d,q)
+    brief='curriculum/v5/exercises/X-T68-001.md';m=json.loads((ROOT/brief).read_text(encoding='utf8').split('```json\n',1)[1].split('\n```',1)[0]);teaching=[brief,'labs/metaprog/CONTRACTS.md','labs/metaprog/owning_ring/OWNING.md','assessor/metaprog/owning_ring/ANALYSIS.md'];implementation=['assessor/metaprog/metaprog.c','assessor/metaprog/ring_template.inc','assessor/metaprog/owning_ring/owning_ring.c','assessor/metaprog/owning_ring/ring_template.inc','assessor/metaprog/owning_ring/manual.c','assessor/metaprog/owning_ring/erased.c','labs/metaprog/owning_ring/include/owning_ring.h','labs/metaprog/owning_ring/tests/tests.c','tools/verify_metaprog_owning_ring.py']
+    claims=[
+      'Actual repeated inclusion produces scalar/pair baseline and Blob/Words owning instances; exact preprocessed definitions and object exports distinguish generated types from callback resource laws. Parameters/private helpers are cleaned, collisions diagnosed, and no runtime ring library supplies the mechanism.',
+      'Head/capacity/count, occupied logical slots, vacant emptiness, partial-clone cleanup and unique pop transfer are derived. Actual GCC/Clang associated-type/private-macro diagnostics, guarded-template missing-definition and duplicate-definition failures have positive controls. Actual Rust1.93.1 associated-type E0053 and executed positive show signature enforcement without equating it to resource-law proof.',
+      'Six compiler profiles pass four anchors and normally reject eight compiled semantic controls, including retained tail/head mutants; four compiling learner stubs reject. Each profile matches9335 independent logical histories over three implementations, totaling134682 transitions. Two declaration-only C clients compile/link/run; one/two specialization versus manual/erased object sizes, symbols, helpers and preprocessing are actually observed at O0/O3.',
+      'Changed owning condition is implemented with typed Blob/Words and erased real typed storage. Clone failure before/after allocation cleans exactly once, full push has no callback effects, clear is FIFO and pop transfers ownership. An actual third Twin fixture acquires two resources, injects all four acquisition boundaries and verifies cleanup/transfer. Equal-contract typed/manual/erased samples use identical10000rounds/checksum100000 and40000drops; thirteen costs include caller erased scratch, code growth and callback dispatch. No unaided delayed result follows from author support.'
+    ]
+    criteria=[{**r,'author_readiness':'ready-bounded','demonstration':claim,'teaching':teaching,'implementation':implementation,'validation':[REPORT,COST],'independent_learner':'not-assessed','external_review':'not-run','physical_observation':'not-applicable-host-contract'} for r,claim in zip(m['rubric'],claims)]
+    updates=[]
+    for identity in ['X-T68-001','X-T68-001-DELAYED','T68-01-TRANSFER','T68-01-INVESTIGATION']+[r['id'] for r in m['rubric']]:
+        claim=next((r['demonstration'] for r in criteria if r['id']==identity),claims[3] if identity.endswith(('DELAYED','TRANSFER')) else ' '.join(claims))
+        updates.append(dict(id=identity,dimensions={'teaching':dict(state='complete',evidence=teaching),'implementation':dict(state='complete',evidence=implementation),'author_validation':dict(state='passed',evidence=[REPORT,COST,READINESS]),'external_review':dict(state='not-run',evidence=[]),'independent_learner':dict(state='not-assessed',evidence=[]),'physical_observation':dict(state='not-applicable-host-contract',evidence=[teaching[2]])},closure_rationale=claim+' Bounded author support only.'))
+    g=read_json(ROOT/'research/v5/modern/ad_mp_gap_ledger.json')
+    for row in g['gaps']:
+        if row['id'] in ['T68-01-TRANSFER','T68-01-INVESTIGATION']:row.update(status='author-support-implemented-and-source-validated; independent-learner-not-assessed',author_evidence=[READINESS,REPORT,COST],remaining_external=['Unaided delayed learner attempt and per-objective assessment','Non-author assessment','Exact published C17/C23 access gaps remain'])
+    dump(ROOT/'research/v5/modern/ad_mp_gap_ledger.json',g)
+    inputs={**d['input_sha256'],**q['input_sha256']}
+    for p in teaching+implementation+[REPORT,COST,'tools/build_metaprog_owning_readiness.py','tools/check_metaprog_owning_ring.py']:inputs[p]=sha(ROOT/p)
+    dump(ROOT/READINESS,dict(schema_version=1,domain='T68',criteria=criteria,variants=[dict(id='X-T68-001-DELAYED',author_support='implemented-and-author-validated',evidence=teaching+implementation+[REPORT,COST],independent_learner='not-assessed')],current_reports={p:sha(ROOT/p) for p in [REPORT,COST]},input_sha256=inputs,limits=['Serialized owning objects and matching nonreentrant callbacks are premises.','Private macro names can be guarded but arbitrary macro hygiene and callback laws are not established by C types.','Rust signature diagnostics, local ABI/code/timing and finite histories do not prove universal semantics or learner mastery.','Published C17/C23 remain inaccessible; no physical result or independent human review.']))
+    inputs[READINESS]=sha(ROOT/READINESS);dump(ROOT/'research/v5/modern/metaprog_owning_ring_completion_dispositions.json',dict(schema_version=1,updates=updates,current_reports=[REPORT,COST],input_sha256=inputs));print(json.dumps(dict(passed=True,criteria=4,updates=8)))
+if __name__=='__main__':main()

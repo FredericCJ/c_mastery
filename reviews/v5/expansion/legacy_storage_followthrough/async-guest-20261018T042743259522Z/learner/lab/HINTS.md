@@ -1,0 +1,15 @@
+# Progressive hints
+
+Read one level only after recording a failed experiment and its evidence.
+
+1. **Discovery and startup:** Draw every byte in MADT records. Prove each addition/range before reading it. Explain why the AP mailbox and trampoline must live below1MiB. Single-step real mode, protected mode and long mode separately; publish online only after per-CPU stacks/tables are ready.
+2. **Interrupts and exclusion:** Verify local timer and remote IPI counters on every CPU before scheduling. Mask the legacy PIC throughout APIC operation. Distinguish interrupt exclusion on this core from inter-core exclusion. A lock holder awaiting an IPI acknowledgement must not depend on that same lock in the acknowledgement handler. Draw APIC in-service priority while a reschedule IPI waits for a kernel lock that another CPU holds while waiting for a lower-priority device IRQ.
+3. **Threads:** Write the unique RUNNING-owner invariant. Explain what happens if a runnable thread is published before its frame/stack is safe. Separate per-CPU trap stack from migratable saved frame. Keep the one-CPU test: it exposes accidental reliance on another CPU to wake blocked tasks.
+4. **Blocking:** Under one scheduler/object lock, test predicate, enqueue waiter and stop running. Complete transitions before notifying peers. Specify full/empty/nonblocking/close/drain/destroy separately. Reuse the slot and replay an old handle.
+5. **Affinity and parallel work:** Pin to each online CPU and read back execution identity. Compare exact integer reduction results before timing. Publish completed jobs with release and read dependency results only after acquire. Exercise more jobs than workers and reuse a dispatch phase before adding DAG edges.
+6. **Address spaces:** Draw process versus thread ownership. Restrict fork to one live thread first. For COW, account for every present frame and every writable mapping. A recorded page fault can be stale by the time its CPU acquires the kernel lock. Explain why current permissions, not only the old error code, decide retry.
+7. **Exit:** Closing a process and observing its termination are separate transitions. Stop remote user execution before waking WAIT. Keep frames until no CPU can return to the process. Distinguish normal channel drain from unreachable orphan cleanup.
+8. **I/O:** Label descriptor, bounce buffer, request owner and waiter lifetimes. Submit and completion need different states. Do not overwrite a bounce buffer while an older DMA read owns it. Remove device interrupts: the completion gate must fail even if the used index changes. Keep timed-out DMA storage unavailable.
+9. **Services:** Trace one VM request through channel copy, owner transaction, commit, response and reboot. Remove the client's disk capability and demonstrate denial. An indeterminate response is not proof of rollback; recovery provides the durable answer.
+
+Do not replace failing guest mechanisms with host functions or expected PASS strings. A stage marker follows checked behavior; it is not an implementation.

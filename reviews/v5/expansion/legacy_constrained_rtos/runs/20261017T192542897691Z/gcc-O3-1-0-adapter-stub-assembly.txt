@@ -1,0 +1,531 @@
+
+/tmp/constrained-rtos-y9ehlca8/gcc-O3-1-0-adapter-stub/ownership.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <vectors>:
+   0:	00 00 01 20 d5 01 00 00 75 00 00 00 75 00 00 00     ... ....u...u...
+  10:	75 00 00 00 75 00 00 00 75 00 00 00 00 00 00 00     u...u...u.......
+	...
+  2c:	c1 04 00 00 75 00 00 00 00 00 00 00 e1 04 00 00     ....u...........
+  3c:	3d 05 00 00 69 05 00 00 77 05 00 00                 =...i...w...
+
+00000048 <cr_run>:
+  48:	b508      	push	{r3, lr}
+  4a:	2003      	movs	r0, #3
+  4c:	f000 f81c 	bl	88 <cr_fail>
+
+00000050 <cr_irq0_body>:
+  50:	b508      	push	{r3, lr}
+  52:	2004      	movs	r0, #4
+  54:	f000 f818 	bl	88 <cr_fail>
+
+00000058 <cr_irq1_body>:
+  58:	b508      	push	{r3, lr}
+  5a:	2005      	movs	r0, #5
+  5c:	f000 f814 	bl	88 <cr_fail>
+
+00000060 <finish>:
+  60:	4b03      	ldr	r3, [pc, #12]	@ (70 <finish+0x10>)
+  62:	b082      	sub	sp, #8
+  64:	e9cd 3000 	strd	r3, r0, [sp]
+  68:	4669      	mov	r1, sp
+  6a:	2020      	movs	r0, #32
+  6c:	beab      	bkpt	0x00ab
+  6e:	e7fe      	b.n	6e <finish+0xe>
+  70:	00020026 	.word	0x00020026
+
+00000074 <fault>:
+  74:	b508      	push	{r3, lr}
+  76:	4903      	ldr	r1, [pc, #12]	@ (84 <fault+0x10>)
+  78:	2004      	movs	r0, #4
+  7a:	beab      	bkpt	0x00ab
+  7c:	2002      	movs	r0, #2
+  7e:	f7ff ffef 	bl	60 <finish>
+  82:	bf00      	nop
+  84:	00000584 	.word	0x00000584
+
+00000088 <cr_fail>:
+  88:	b500      	push	{lr}
+  8a:	4602      	mov	r2, r0
+  8c:	4949      	ldr	r1, [pc, #292]	@ (1b4 <cr_fail+0x12c>)
+  8e:	b085      	sub	sp, #20
+  90:	2004      	movs	r0, #4
+  92:	beab      	bkpt	0x00ab
+  94:	4b48      	ldr	r3, [pc, #288]	@ (1b8 <cr_fail+0x130>)
+  96:	fba3 4002 	umull	r4, r0, r3, r2
+  9a:	08c0      	lsrs	r0, r0, #3
+  9c:	eb00 0c80 	add.w	r12, r0, r0, lsl #2
+  a0:	eba2 0c4c 	sub.w	r12, r2, r12, lsl #1
+  a4:	2100      	movs	r1, #0
+  a6:	f10c 0c30 	add.w	r12, r12, #48	@ 0x30
+  aa:	2a09      	cmp	r2, #9
+  ac:	f88d 100e 	strb.w	r1, [sp, #14]
+  b0:	f88d c00d 	strb.w	r12, [sp, #13]
+  b4:	d96d      	bls.n	192 <cr_fail+0x10a>
+  b6:	fba3 4c00 	umull	r4, r12, r3, r0
+  ba:	ea4f 0cdc 	mov.w	r12, r12, lsr #3
+  be:	eb0c 0e8c 	add.w	lr, r12, r12, lsl #2
+  c2:	eba0 004e 	sub.w	r0, r0, lr, lsl #1
+  c6:	3030      	adds	r0, #48	@ 0x30
+  c8:	2a63      	cmp	r2, #99	@ 0x63
+  ca:	f88d 000c 	strb.w	r0, [sp, #12]
+  ce:	d962      	bls.n	196 <cr_fail+0x10e>
+  d0:	fba3 400c 	umull	r4, r0, r3, r12
+  d4:	08c0      	lsrs	r0, r0, #3
+  d6:	eb00 0e80 	add.w	lr, r0, r0, lsl #2
+  da:	ebac 0c4e 	sub.w	r12, r12, lr, lsl #1
+  de:	f10c 0c30 	add.w	r12, r12, #48	@ 0x30
+  e2:	f5b2 7f7a 	cmp.w	r2, #1000	@ 0x3e8
+  e6:	f88d c00b 	strb.w	r12, [sp, #11]
+  ea:	d356      	bcc.n	19a <cr_fail+0x112>
+  ec:	fba3 4300 	umull	r4, r3, r3, r0
+  f0:	08db      	lsrs	r3, r3, #3
+  f2:	eb03 0c83 	add.w	r12, r3, r3, lsl #2
+  f6:	eba0 004c 	sub.w	r0, r0, r12, lsl #1
+  fa:	f242 7c0f 	movw	r12, #9999	@ 0x270f
+  fe:	3030      	adds	r0, #48	@ 0x30
+ 100:	4562      	cmp	r2, r12
+ 102:	f88d 000a 	strb.w	r0, [sp, #10]
+ 106:	d94a      	bls.n	19e <cr_fail+0x116>
+ 108:	200a      	movs	r0, #10
+ 10a:	fbb3 fcf0 	udiv	r12, r3, r0
+ 10e:	fb00 331c 	mls	r3, r0, r12, r3
+ 112:	3330      	adds	r3, #48	@ 0x30
+ 114:	f88d 3009 	strb.w	r3, [sp, #9]
+ 118:	4b28      	ldr	r3, [pc, #160]	@ (1bc <cr_fail+0x134>)
+ 11a:	429a      	cmp	r2, r3
+ 11c:	d941      	bls.n	1a2 <cr_fail+0x11a>
+ 11e:	fbbc f3f0 	udiv	r3, r12, r0
+ 122:	4c27      	ldr	r4, [pc, #156]	@ (1c0 <cr_fail+0x138>)
+ 124:	fb00 cc13 	mls	r12, r0, r3, r12
+ 128:	f10c 0c30 	add.w	r12, r12, #48	@ 0x30
+ 12c:	42a2      	cmp	r2, r4
+ 12e:	f88d c008 	strb.w	r12, [sp, #8]
+ 132:	d92c      	bls.n	18e <cr_fail+0x106>
+ 134:	fbb3 fcf0 	udiv	r12, r3, r0
+ 138:	fb00 331c 	mls	r3, r0, r12, r3
+ 13c:	3330      	adds	r3, #48	@ 0x30
+ 13e:	f88d 3007 	strb.w	r3, [sp, #7]
+ 142:	4b20      	ldr	r3, [pc, #128]	@ (1c4 <cr_fail+0x13c>)
+ 144:	429a      	cmp	r2, r3
+ 146:	d32e      	bcc.n	1a6 <cr_fail+0x11e>
+ 148:	fbbc f3f0 	udiv	r3, r12, r0
+ 14c:	4c1e      	ldr	r4, [pc, #120]	@ (1c8 <cr_fail+0x140>)
+ 14e:	fb00 cc13 	mls	r12, r0, r3, r12
+ 152:	f10c 0c30 	add.w	r12, r12, #48	@ 0x30
+ 156:	42a2      	cmp	r2, r4
+ 158:	f88d c006 	strb.w	r12, [sp, #6]
+ 15c:	d925      	bls.n	1aa <cr_fail+0x122>
+ 15e:	fbb3 fcf0 	udiv	r12, r3, r0
+ 162:	fb00 331c 	mls	r3, r0, r12, r3
+ 166:	4819      	ldr	r0, [pc, #100]	@ (1cc <cr_fail+0x144>)
+ 168:	3330      	adds	r3, #48	@ 0x30
+ 16a:	4282      	cmp	r2, r0
+ 16c:	f88d 3005 	strb.w	r3, [sp, #5]
+ 170:	d91d      	bls.n	1ae <cr_fail+0x126>
+ 172:	f10c 0c30 	add.w	r12, r12, #48	@ 0x30
+ 176:	f88d c004 	strb.w	r12, [sp, #4]
+ 17a:	ab01      	add	r3, sp, #4
+ 17c:	2004      	movs	r0, #4
+ 17e:	4419      	add	r1, r3
+ 180:	beab      	bkpt	0x00ab
+ 182:	4913      	ldr	r1, [pc, #76]	@ (1d0 <cr_fail+0x148>)
+ 184:	2004      	movs	r0, #4
+ 186:	beab      	bkpt	0x00ab
+ 188:	2001      	movs	r0, #1
+ 18a:	f7ff ff69 	bl	60 <finish>
+ 18e:	2104      	movs	r1, #4
+ 190:	e7f3      	b.n	17a <cr_fail+0xf2>
+ 192:	2109      	movs	r1, #9
+ 194:	e7f1      	b.n	17a <cr_fail+0xf2>
+ 196:	2108      	movs	r1, #8
+ 198:	e7ef      	b.n	17a <cr_fail+0xf2>
+ 19a:	2107      	movs	r1, #7
+ 19c:	e7ed      	b.n	17a <cr_fail+0xf2>
+ 19e:	2106      	movs	r1, #6
+ 1a0:	e7eb      	b.n	17a <cr_fail+0xf2>
+ 1a2:	2105      	movs	r1, #5
+ 1a4:	e7e9      	b.n	17a <cr_fail+0xf2>
+ 1a6:	2103      	movs	r1, #3
+ 1a8:	e7e7      	b.n	17a <cr_fail+0xf2>
+ 1aa:	2102      	movs	r1, #2
+ 1ac:	e7e5      	b.n	17a <cr_fail+0xf2>
+ 1ae:	2101      	movs	r1, #1
+ 1b0:	e7e3      	b.n	17a <cr_fail+0xf2>
+ 1b2:	bf00      	nop
+ 1b4:	00000594 	.word	0x00000594
+ 1b8:	cccccccd 	.word	0xcccccccd
+ 1bc:	0001869f 	.word	0x0001869f
+ 1c0:	000f423f 	.word	0x000f423f
+ 1c4:	00989680 	.word	0x00989680
+ 1c8:	05f5e0ff 	.word	0x05f5e0ff
+ 1cc:	3b9ac9ff 	.word	0x3b9ac9ff
+ 1d0:	000005a4 	.word	0x000005a4
+
+000001d4 <cl_reset>:
+ 1d4:	b538      	push	{r3, r4, r5, lr}
+ 1d6:	4c2c      	ldr	r4, [pc, #176]	@ (288 <cl_reset+0xb4>)
+ 1d8:	4b2c      	ldr	r3, [pc, #176]	@ (28c <cl_reset+0xb8>)
+ 1da:	429c      	cmp	r4, r3
+ 1dc:	d222      	bcs.n	224 <cl_reset+0x50>
+ 1de:	3b01      	subs	r3, #1
+ 1e0:	1b1b      	subs	r3, r3, r4
+ 1e2:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+ 1e6:	2b03      	cmp	r3, #3
+ 1e8:	4d29      	ldr	r5, [pc, #164]	@ (290 <cl_reset+0xbc>)
+ 1ea:	4622      	mov	r2, r4
+ 1ec:	f10e 0e01 	add.w	lr, lr, #1
+ 1f0:	d916      	bls.n	220 <cl_reset+0x4c>
+ 1f2:	ea4f 0c5e 	mov.w	r12, lr, lsr #1
+ 1f6:	462b      	mov	r3, r5
+ 1f8:	eb05 0ccc 	add.w	r12, r5, r12, lsl #3
+ 1fc:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 200:	3308      	adds	r3, #8
+ 202:	459c      	cmp	r12, r3
+ 204:	e9c2 0100 	strd	r0, r1, [r2]
+ 208:	f102 0208 	add.w	r2, r2, #8
+ 20c:	d1f6      	bne.n	1fc <cl_reset+0x28>
+ 20e:	f01e 0f01 	tst.w	lr, #1
+ 212:	d007      	beq.n	224 <cl_reset+0x50>
+ 214:	f02e 0e01 	bic.w	lr, lr, #1
+ 218:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+ 21c:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+ 220:	682b      	ldr	r3, [r5, #0]
+ 222:	6023      	str	r3, [r4, #0]
+ 224:	481b      	ldr	r0, [pc, #108]	@ (294 <cl_reset+0xc0>)
+ 226:	4b1c      	ldr	r3, [pc, #112]	@ (298 <cl_reset+0xc4>)
+ 228:	4298      	cmp	r0, r3
+ 22a:	d21b      	bcs.n	264 <cl_reset+0x90>
+ 22c:	3b01      	subs	r3, #1
+ 22e:	1a1a      	subs	r2, r3, r0
+ 230:	ea4f 0c92 	mov.w	r12, r2, lsr #2
+ 234:	2a03      	cmp	r2, #3
+ 236:	4603      	mov	r3, r0
+ 238:	f10c 0c01 	add.w	r12, r12, #1
+ 23c:	d910      	bls.n	260 <cl_reset+0x8c>
+ 23e:	ea4f 015c 	mov.w	r1, r12, lsr #1
+ 242:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+ 246:	2200      	movs	r2, #0
+ 248:	e9c3 2200 	strd	r2, r2, [r3]
+ 24c:	3308      	adds	r3, #8
+ 24e:	428b      	cmp	r3, r1
+ 250:	d1fa      	bne.n	248 <cl_reset+0x74>
+ 252:	f01c 0f01 	tst.w	r12, #1
+ 256:	d005      	beq.n	264 <cl_reset+0x90>
+ 258:	f02c 0c01 	bic.w	r12, r12, #1
+ 25c:	eb00 008c 	add.w	r0, r0, r12, lsl #2
+ 260:	2300      	movs	r3, #0
+ 262:	6003      	str	r3, [r0, #0]
+ 264:	f04f 22e0 	mov.w	r2, #3758153728	@ 0xe000e000
+ 268:	f8d2 3d88 	ldr.w	r3, [r2, #3464]	@ 0xd88
+ 26c:	f443 0370 	orr.w	r3, r3, #15728640	@ 0xf00000
+ 270:	f8c2 3d88 	str.w	r3, [r2, #3464]	@ 0xd88
+ 274:	f3bf 8f4f 	dsb	sy
+ 278:	f3bf 8f6f 	isb	sy
+ 27c:	f7ff fee4 	bl	48 <cr_run>
+ 280:	2009      	movs	r0, #9
+ 282:	f7ff ff01 	bl	88 <cr_fail>
+ 286:	bf00      	nop
+ 288:	20000000 	.word	0x20000000
+ 28c:	20000000 	.word	0x20000000
+ 290:	000005a8 	.word	0x000005a8
+ 294:	20000000 	.word	0x20000000
+ 298:	200000b4 	.word	0x200000b4
+
+0000029c <xTaskIncrementTick.part.0>:
+ 29c:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+ 2a0:	4b5b      	ldr	r3, [pc, #364]	@ (410 <xTaskIncrementTick.part.0+0x174>)
+ 2a2:	681a      	ldr	r2, [r3, #0]
+ 2a4:	f102 0e01 	add.w	lr, r2, #1
+ 2a8:	b083      	sub	sp, #12
+ 2aa:	f8c3 e000 	str.w	lr, [r3]
+ 2ae:	f1be 0f00 	cmp.w	lr, #0
+ 2b2:	f000 8084 	beq.w	3be <xTaskIncrementTick.part.0+0x122>
+ 2b6:	4957      	ldr	r1, [pc, #348]	@ (414 <xTaskIncrementTick.part.0+0x178>)
+ 2b8:	680b      	ldr	r3, [r1, #0]
+ 2ba:	459e      	cmp	lr, r3
+ 2bc:	d366      	bcc.n	38c <xTaskIncrementTick.part.0+0xf0>
+ 2be:	f8df 8164 	ldr.w	r8, [pc, #356]	@ 424 <xTaskIncrementTick.part.0+0x188>
+ 2c2:	f8d8 3000 	ldr.w	r3, [r8]
+ 2c6:	681b      	ldr	r3, [r3, #0]
+ 2c8:	2b00      	cmp	r3, #0
+ 2ca:	f000 8098 	beq.w	3fe <xTaskIncrementTick.part.0+0x162>
+ 2ce:	4b52      	ldr	r3, [pc, #328]	@ (418 <xTaskIncrementTick.part.0+0x17c>)
+ 2d0:	4f52      	ldr	r7, [pc, #328]	@ (41c <xTaskIncrementTick.part.0+0x180>)
+ 2d2:	f8df 915c 	ldr.w	r9, [pc, #348]	@ 430 <xTaskIncrementTick.part.0+0x194>
+ 2d6:	9300      	str	r3, [sp, #0]
+ 2d8:	f04f 0c00 	mov.w	r12, #0
+ 2dc:	9101      	str	r1, [sp, #4]
+ 2de:	e04b      	b.n	378 <xTaskIncrementTick.part.0+0xdc>
+ 2e0:	e9d3 2002 	ldrd	r2, r0, [r3, #8]
+ 2e4:	6959      	ldr	r1, [r3, #20]
+ 2e6:	6090      	str	r0, [r2, #8]
+ 2e8:	6042      	str	r2, [r0, #4]
+ 2ea:	684a      	ldr	r2, [r1, #4]
+ 2ec:	1d1d      	adds	r5, r3, #4
+ 2ee:	42aa      	cmp	r2, r5
+ 2f0:	f04f 0200 	mov.w	r2, #0
+ 2f4:	bf08      	it	eq
+ 2f6:	6048      	streq	r0, [r1, #4]
+ 2f8:	615a      	str	r2, [r3, #20]
+ 2fa:	680a      	ldr	r2, [r1, #0]
+ 2fc:	3a01      	subs	r2, #1
+ 2fe:	600a      	str	r2, [r1, #0]
+ 300:	6a99      	ldr	r1, [r3, #40]	@ 0x28
+ 302:	b179      	cbz	r1, 324 <xTaskIncrementTick.part.0+0x88>
+ 304:	e9d3 2007 	ldrd	r2, r0, [r3, #28]
+ 308:	6090      	str	r0, [r2, #8]
+ 30a:	6042      	str	r2, [r0, #4]
+ 30c:	684a      	ldr	r2, [r1, #4]
+ 30e:	f103 0418 	add.w	r4, r3, #24
+ 312:	42a2      	cmp	r2, r4
+ 314:	f04f 0200 	mov.w	r2, #0
+ 318:	bf08      	it	eq
+ 31a:	6048      	streq	r0, [r1, #4]
+ 31c:	629a      	str	r2, [r3, #40]	@ 0x28
+ 31e:	680a      	ldr	r2, [r1, #0]
+ 320:	3a01      	subs	r2, #1
+ 322:	600a      	str	r2, [r1, #0]
+ 324:	6ada      	ldr	r2, [r3, #44]	@ 0x2c
+ 326:	f8d9 a000 	ldr.w	r10, [r9]
+ 32a:	ebc2 01c2 	rsb	r1, r2, r2, lsl #3
+ 32e:	eb07 0681 	add.w	r6, r7, r1, lsl #2
+ 332:	f04f 0b01 	mov.w	r11, #1
+ 336:	6874      	ldr	r4, [r6, #4]
+ 338:	f857 0021 	ldr.w	r0, [r7, r1, lsl #2]
+ 33c:	609c      	str	r4, [r3, #8]
+ 33e:	fa0b fb02 	lsl.w	r11, r11, r2
+ 342:	ea4b 0b0a 	orr.w	r11, r11, r10
+ 346:	f8d4 a008 	ldr.w	r10, [r4, #8]
+ 34a:	f8c3 a00c 	str.w	r10, [r3, #12]
+ 34e:	f8ca 5004 	str.w	r5, [r10, #4]
+ 352:	60a5      	str	r5, [r4, #8]
+ 354:	615e      	str	r6, [r3, #20]
+ 356:	9b00      	ldr	r3, [sp, #0]
+ 358:	f8c9 b000 	str.w	r11, [r9]
+ 35c:	3001      	adds	r0, #1
+ 35e:	f847 0021 	str.w	r0, [r7, r1, lsl #2]
+ 362:	6819      	ldr	r1, [r3, #0]
+ 364:	f8d8 3000 	ldr.w	r3, [r8]
+ 368:	6ac9      	ldr	r1, [r1, #44]	@ 0x2c
+ 36a:	681b      	ldr	r3, [r3, #0]
+ 36c:	428a      	cmp	r2, r1
+ 36e:	bf88      	it	hi
+ 370:	f04c 0c01 	orrhi.w	r12, r12, #1
+ 374:	2b00      	cmp	r3, #0
+ 376:	d03d      	beq.n	3f4 <xTaskIncrementTick.part.0+0x158>
+ 378:	f8d8 3000 	ldr.w	r3, [r8]
+ 37c:	68db      	ldr	r3, [r3, #12]
+ 37e:	68db      	ldr	r3, [r3, #12]
+ 380:	685a      	ldr	r2, [r3, #4]
+ 382:	4596      	cmp	lr, r2
+ 384:	d2ac      	bcs.n	2e0 <xTaskIncrementTick.part.0+0x44>
+ 386:	9901      	ldr	r1, [sp, #4]
+ 388:	600a      	str	r2, [r1, #0]
+ 38a:	e004      	b.n	396 <xTaskIncrementTick.part.0+0xfa>
+ 38c:	4b22      	ldr	r3, [pc, #136]	@ (418 <xTaskIncrementTick.part.0+0x17c>)
+ 38e:	4f23      	ldr	r7, [pc, #140]	@ (41c <xTaskIncrementTick.part.0+0x180>)
+ 390:	9300      	str	r3, [sp, #0]
+ 392:	f04f 0c00 	mov.w	r12, #0
+ 396:	9b00      	ldr	r3, [sp, #0]
+ 398:	4a21      	ldr	r2, [pc, #132]	@ (420 <xTaskIncrementTick.part.0+0x184>)
+ 39a:	681b      	ldr	r3, [r3, #0]
+ 39c:	6812      	ldr	r2, [r2, #0]
+ 39e:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 3a0:	ebc3 03c3 	rsb	r3, r3, r3, lsl #3
+ 3a4:	f857 0023 	ldr.w	r0, [r7, r3, lsl #2]
+ 3a8:	2801      	cmp	r0, #1
+ 3aa:	bf98      	it	ls
+ 3ac:	2a00      	cmpls	r2, #0
+ 3ae:	bf14      	ite	ne
+ 3b0:	2001      	movne	r0, #1
+ 3b2:	2000      	moveq	r0, #0
+ 3b4:	ea40 000c 	orr.w	r0, r0, r12
+ 3b8:	b003      	add	sp, #12
+ 3ba:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, r10, r11, pc}
+ 3be:	4b19      	ldr	r3, [pc, #100]	@ (424 <xTaskIncrementTick.part.0+0x188>)
+ 3c0:	681a      	ldr	r2, [r3, #0]
+ 3c2:	6812      	ldr	r2, [r2, #0]
+ 3c4:	bb02      	cbnz	r2, 408 <xTaskIncrementTick.part.0+0x16c>
+ 3c6:	4a18      	ldr	r2, [pc, #96]	@ (428 <xTaskIncrementTick.part.0+0x18c>)
+ 3c8:	6818      	ldr	r0, [r3, #0]
+ 3ca:	6811      	ldr	r1, [r2, #0]
+ 3cc:	6019      	str	r1, [r3, #0]
+ 3ce:	4917      	ldr	r1, [pc, #92]	@ (42c <xTaskIncrementTick.part.0+0x190>)
+ 3d0:	6010      	str	r0, [r2, #0]
+ 3d2:	680a      	ldr	r2, [r1, #0]
+ 3d4:	3201      	adds	r2, #1
+ 3d6:	600a      	str	r2, [r1, #0]
+ 3d8:	681a      	ldr	r2, [r3, #0]
+ 3da:	6812      	ldr	r2, [r2, #0]
+ 3dc:	b922      	cbnz	r2, 3e8 <xTaskIncrementTick.part.0+0x14c>
+ 3de:	490d      	ldr	r1, [pc, #52]	@ (414 <xTaskIncrementTick.part.0+0x178>)
+ 3e0:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+ 3e4:	600b      	str	r3, [r1, #0]
+ 3e6:	e767      	b.n	2b8 <xTaskIncrementTick.part.0+0x1c>
+ 3e8:	681b      	ldr	r3, [r3, #0]
+ 3ea:	490a      	ldr	r1, [pc, #40]	@ (414 <xTaskIncrementTick.part.0+0x178>)
+ 3ec:	68db      	ldr	r3, [r3, #12]
+ 3ee:	681b      	ldr	r3, [r3, #0]
+ 3f0:	600b      	str	r3, [r1, #0]
+ 3f2:	e761      	b.n	2b8 <xTaskIncrementTick.part.0+0x1c>
+ 3f4:	9901      	ldr	r1, [sp, #4]
+ 3f6:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+ 3fa:	600b      	str	r3, [r1, #0]
+ 3fc:	e7cb      	b.n	396 <xTaskIncrementTick.part.0+0xfa>
+ 3fe:	4a06      	ldr	r2, [pc, #24]	@ (418 <xTaskIncrementTick.part.0+0x17c>)
+ 400:	4f06      	ldr	r7, [pc, #24]	@ (41c <xTaskIncrementTick.part.0+0x180>)
+ 402:	9200      	str	r2, [sp, #0]
+ 404:	469c      	mov	r12, r3
+ 406:	e7f6      	b.n	3f6 <xTaskIncrementTick.part.0+0x15a>
+ 408:	f241 2092 	movw	r0, #4754	@ 0x1292
+ 40c:	f7ff fe3c 	bl	88 <cr_fail>
+ 410:	20000018 	.word	0x20000018
+ 414:	20000004 	.word	0x20000004
+ 418:	200000b0 	.word	0x200000b0
+ 41c:	20000024 	.word	0x20000024
+ 420:	2000000c 	.word	0x2000000c
+ 424:	20000020 	.word	0x20000020
+ 428:	2000001c 	.word	0x2000001c
+ 42c:	20000008 	.word	0x20000008
+ 430:	20000014 	.word	0x20000014
+
+00000434 <xTaskIncrementTick>:
+ 434:	4b05      	ldr	r3, [pc, #20]	@ (44c <xTaskIncrementTick+0x18>)
+ 436:	681b      	ldr	r3, [r3, #0]
+ 438:	b90b      	cbnz	r3, 43e <xTaskIncrementTick+0xa>
+ 43a:	f7ff bf2f 	b.w	29c <xTaskIncrementTick.part.0>
+ 43e:	4a04      	ldr	r2, [pc, #16]	@ (450 <xTaskIncrementTick+0x1c>)
+ 440:	6813      	ldr	r3, [r2, #0]
+ 442:	3301      	adds	r3, #1
+ 444:	2000      	movs	r0, #0
+ 446:	6013      	str	r3, [r2, #0]
+ 448:	4770      	bx	lr
+ 44a:	bf00      	nop
+ 44c:	20000000 	.word	0x20000000
+ 450:	20000010 	.word	0x20000010
+
+00000454 <vTaskSwitchContext>:
+ 454:	b508      	push	{r3, lr}
+ 456:	4b15      	ldr	r3, [pc, #84]	@ (4ac <vTaskSwitchContext+0x58>)
+ 458:	681b      	ldr	r3, [r3, #0]
+ 45a:	b11b      	cbz	r3, 464 <vTaskSwitchContext+0x10>
+ 45c:	4b14      	ldr	r3, [pc, #80]	@ (4b0 <vTaskSwitchContext+0x5c>)
+ 45e:	2201      	movs	r2, #1
+ 460:	601a      	str	r2, [r3, #0]
+ 462:	bd08      	pop	{r3, pc}
+ 464:	4912      	ldr	r1, [pc, #72]	@ (4b0 <vTaskSwitchContext+0x5c>)
+ 466:	4a13      	ldr	r2, [pc, #76]	@ (4b4 <vTaskSwitchContext+0x60>)
+ 468:	600b      	str	r3, [r1, #0]
+ 46a:	6813      	ldr	r3, [r2, #0]
+ 46c:	fab3 f383 	clz	r3, r3
+ 470:	b2db      	uxtb	r3, r3
+ 472:	f1c3 031f 	rsb	r3, r3, #31
+ 476:	ebc3 03c3 	rsb	r3, r3, r3, lsl #3
+ 47a:	480f      	ldr	r0, [pc, #60]	@ (4b8 <vTaskSwitchContext+0x64>)
+ 47c:	009a      	lsls	r2, r3, #2
+ 47e:	eb00 0383 	add.w	r3, r0, r3, lsl #2
+ 482:	5881      	ldr	r1, [r0, r2]
+ 484:	b169      	cbz	r1, 4a2 <vTaskSwitchContext+0x4e>
+ 486:	6859      	ldr	r1, [r3, #4]
+ 488:	3208      	adds	r2, #8
+ 48a:	6849      	ldr	r1, [r1, #4]
+ 48c:	6059      	str	r1, [r3, #4]
+ 48e:	4402      	add	r2, r0
+ 490:	4291      	cmp	r1, r2
+ 492:	bf04      	itt	eq
+ 494:	68d9      	ldreq	r1, [r3, #12]
+ 496:	6059      	streq	r1, [r3, #4]
+ 498:	4b08      	ldr	r3, [pc, #32]	@ (4bc <vTaskSwitchContext+0x68>)
+ 49a:	68ca      	ldr	r2, [r1, #12]
+ 49c:	601a      	str	r2, [r3, #0]
+ 49e:	681b      	ldr	r3, [r3, #0]
+ 4a0:	bd08      	pop	{r3, pc}
+ 4a2:	f241 402f 	movw	r0, #5167	@ 0x142f
+ 4a6:	f7ff fdef 	bl	88 <cr_fail>
+ 4aa:	bf00      	nop
+ 4ac:	20000000 	.word	0x20000000
+ 4b0:	2000000c 	.word	0x2000000c
+ 4b4:	20000014 	.word	0x20000014
+ 4b8:	20000024 	.word	0x20000024
+ 4bc:	200000b0 	.word	0x200000b0
+
+000004c0 <vPortSVCHandler>:
+ 4c0:	4b06      	ldr	r3, [pc, #24]	@ (4dc <vPortSVCHandler+0x1c>)
+ 4c2:	6819      	ldr	r1, [r3, #0]
+ 4c4:	6808      	ldr	r0, [r1, #0]
+ 4c6:	e8b0 4ff0 	ldmia.w	r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+ 4ca:	f380 8809 	msr	PSP, r0
+ 4ce:	f3bf 8f6f 	isb	sy
+ 4d2:	f04f 0000 	mov.w	r0, #0
+ 4d6:	f380 8811 	msr	BASEPRI, r0
+ 4da:	4770      	bx	lr
+ 4dc:	200000b0 	.word	0x200000b0
+
+000004e0 <xPortPendSVHandler>:
+ 4e0:	f3ef 8009 	mrs	r0, PSP
+ 4e4:	f3bf 8f6f 	isb	sy
+ 4e8:	4b13      	ldr	r3, [pc, #76]	@ (538 <xPortPendSVHandler+0x58>)
+ 4ea:	681a      	ldr	r2, [r3, #0]
+ 4ec:	f01e 0f10 	tst.w	lr, #16
+ 4f0:	bf08      	it	eq
+ 4f2:	ed20 8a10 	vstmdbeq	r0!, {s16-s31}
+ 4f6:	e920 4ff0 	stmdb	r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+ 4fa:	6010      	str	r0, [r2, #0]
+ 4fc:	b409      	push	{r0, r3}
+ 4fe:	f04f 0080 	mov.w	r0, #128	@ 0x80
+ 502:	f380 8811 	msr	BASEPRI, r0
+ 506:	f3bf 8f4f 	dsb	sy
+ 50a:	f3bf 8f6f 	isb	sy
+ 50e:	f7ff ffa1 	bl	454 <vTaskSwitchContext>
+ 512:	f04f 0000 	mov.w	r0, #0
+ 516:	f380 8811 	msr	BASEPRI, r0
+ 51a:	bc09      	pop	{r0, r3}
+ 51c:	6819      	ldr	r1, [r3, #0]
+ 51e:	6808      	ldr	r0, [r1, #0]
+ 520:	e8b0 4ff0 	ldmia.w	r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+ 524:	f01e 0f10 	tst.w	lr, #16
+ 528:	bf08      	it	eq
+ 52a:	ecb0 8a10 	vldmiaeq	r0!, {s16-s31}
+ 52e:	f380 8809 	msr	PSP, r0
+ 532:	f3bf 8f6f 	isb	sy
+ 536:	4770      	bx	lr
+ 538:	200000b0 	.word	0x200000b0
+
+0000053c <xPortSysTickHandler>:
+ 53c:	b508      	push	{r3, lr}
+ 53e:	f04f 0380 	mov.w	r3, #128	@ 0x80
+ 542:	f383 8811 	msr	BASEPRI, r3
+ 546:	f3bf 8f6f 	isb	sy
+ 54a:	f3bf 8f4f 	dsb	sy
+ 54e:	f7ff ff71 	bl	434 <xTaskIncrementTick>
+ 552:	b128      	cbz	r0, 560 <xPortSysTickHandler+0x24>
+ 554:	f04f 23e0 	mov.w	r3, #3758153728	@ 0xe000e000
+ 558:	f04f 5280 	mov.w	r2, #268435456	@ 0x10000000
+ 55c:	f8c3 2d04 	str.w	r2, [r3, #3332]	@ 0xd04
+ 560:	2300      	movs	r3, #0
+ 562:	f383 8811 	msr	BASEPRI, r3
+ 566:	bd08      	pop	{r3, pc}
+
+00000568 <cr_irq0>:
+ 568:	4670      	mov	r0, lr
+ 56a:	f3ef 8108 	mrs	r1, MSP
+ 56e:	f3ef 8209 	mrs	r2, PSP
+ 572:	f7ff bd6d 	b.w	50 <cr_irq0_body>
+
+00000576 <cr_irq1>:
+ 576:	4670      	mov	r0, lr
+ 578:	f3ef 8108 	mrs	r1, MSP
+ 57c:	f3ef 8209 	mrs	r2, PSP
+ 580:	f7ff bd6a 	b.w	58 <cr_irq1_body>
+ 584:	4d5f5243 	.word	0x4d5f5243
+ 588:	41465f34 	.word	0x41465f34
+ 58c:	0a544c55 	.word	0x0a544c55
+ 590:	00000000 	.word	0x00000000
+ 594:	4d5f5243 	.word	0x4d5f5243
+ 598:	48435f34 	.word	0x48435f34
+ 59c:	3a4b4345 	.word	0x3a4b4345
+ 5a0:	00000000 	.word	0x00000000
+ 5a4:	0000000a 	.word	0x0000000a

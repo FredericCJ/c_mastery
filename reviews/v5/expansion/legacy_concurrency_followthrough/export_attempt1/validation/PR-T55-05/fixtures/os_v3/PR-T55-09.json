@@ -1,0 +1,33 @@
+{
+  "id": "PR-T55-09",
+  "description": "Concurrent histories and linearizability checking finite independent example",
+  "oracle": "history",
+  "input": {
+    "operations": [
+      [
+        "enq",
+        1,
+        0,
+        1
+      ],
+      [
+        "enq",
+        2,
+        2,
+        3
+      ],
+      [
+        "deq",
+        2,
+        4,
+        5
+      ]
+    ]
+  },
+  "expected": {
+    "linearizable": false
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A history records invocation, response, arguments and result for each operation. A linearization must preserve real-time order of nonoverlapping calls and satisfy the sequential object specification. A checker of small histories is a finite oracle, not proof of every possible execution.",
+  "required_observation": "Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample."
+}

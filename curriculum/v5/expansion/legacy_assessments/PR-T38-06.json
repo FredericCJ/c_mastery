@@ -4,7 +4,11 @@
   "domain": "T38",
   "title": "Independent depth assessment: RS-232 voltage and DTE/DCE boundary",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/transceivers/CONTRACTS.md",
+    "labs/serial_followthrough/transceivers/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/serial_variants/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -117,6 +121,64 @@
         "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
         "PR-T38-06: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-TR-MAX",
+      "path": "research/v5/expansion/legacy_serial_transceivers/resources.json",
+      "passages": [
+        "Printed3\u20136: pins, recommended operating conditions, driver/receiver guaranteed extrema and switching test conditions",
+        "Printed10\u201312: inversion/open state, Figure9-1 circuit visually inspected and Table9-1 capacitor selection"
+      ]
+    },
+    {
+      "id": "R-TR-DRIVER",
+      "path": "research/v5/expansion/legacy_serial_transceivers/resources.json",
+      "passages": [
+        "Printed3\u20136: selected SOIC pin diagram visually inspected, recommended operating limits and output/load conditions",
+        "Printed10\u201313: enable truth table, one-driver termination and declared example limitations; pin-table5V label differs from3.0..3.6V operating table"
+      ]
+    },
+    {
+      "id": "R-TR-RECEIVER",
+      "path": "research/v5/expansion/legacy_serial_transceivers/resources.json",
+      "passages": [
+        "Printed2\u20136: revision removal of short/terminated failsafe, selected SOIC pin diagram visually inspected, differential/common-mode and threshold limits",
+        "Printed8\u20139: open-input guarantee and enabled/disabled/indeterminate truth table"
+      ]
+    },
+    {
+      "id": "R-SV-RP2040",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed421 section4.2.3.2.1: divisor16-bit integer/six-bit fraction, formula and rounding",
+        "Printed432 tables430/431: IBRD/FBRD widths; table432 word/parity and stop-bit distinctions"
+      ]
+    },
+    {
+      "id": "R-SV-RM21",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed994 section30.3.7 Table147: M/PCE word and parity placement",
+        "Printed997\u2013998 section30.3.9: synchronous master CK and setup/hold premise",
+        "Printed1017 CR2 LBCL: last eighth/ninth hardware word bit",
+        "Printed1117\u20131118 section32.9.4: list/mask and16/32-bit scale"
+      ]
+    },
+    {
+      "id": "R-SV-THVD1450",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Web PDF page indexes8/9, sections7.4/7.7: terminal/differential limits, threshold extrema and minimum hysteresis footnote",
+        "Web PDF page indexes18/23, Table2 and section10.2.1.4: enabled/open/short/idle behavior and hysteresis explanation"
+      ]
+    },
+    {
+      "id": "R-SV-CAN2024",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed31\u201333 section6.6.10: SRR, r0/r1 and FD-tolerant protocol exception rules",
+        "Printed42\u201344 sections6.6.13\u20136.6.18: dynamic stuffing, receiver/transmitter final EOF validation and protocol-exception counter preservation"
+      ]
     }
   ],
   "reference_gaps": [
@@ -126,13 +188,61 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T38-06.json",
     "curriculum/projects/PR-T38-06.md",
-    "labs/serial_depth/CONTRACTS.md"
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/transceivers/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/transceivers/CONTRACTS.md",
+    "labs/serial_followthrough/transceivers/guest.c",
+    "labs/serial_followthrough/transceivers/learner.c",
+    "labs/serial_followthrough/transceivers/native.c",
+    "labs/serial_followthrough/transceivers/target_build.py",
+    "labs/serial_followthrough/transceivers/tests.c",
+    "labs/serial_followthrough/transceivers/transceivers.h",
+    "labs/serial_followthrough/uart/uart_depth.h",
+    "labs/serial_followthrough/uart/learner.c",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/network_followthrough/driver/target.S",
+    "labs/serial_followthrough/can/can.h",
+    "labs/serial_followthrough/can/learner.c",
+    "labs/serial_variants/CONTRACTS.md",
+    "labs/serial_variants/freestanding/string.h",
+    "labs/serial_variants/guest.c",
+    "labs/serial_variants/learner.c",
+    "labs/serial_variants/native.c",
+    "labs/serial_variants/target.ld",
+    "labs/serial_variants/target_build.py",
+    "labs/serial_variants/tests.c",
+    "labs/serial_variants/variants.h"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Retain polarity/direction fixture; new three-state electrical C decisions.",
     "tests": [],
-    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied."
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "transceiver_successor": {
+      "path": "research/v5/expansion/legacy_serial_transceivers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-06-T38.07.a",
+        "AX-PR-T38-06-T38.07.b",
+        "AX-PR-T38-06-T38.07.c"
+      ],
+      "scope": "Original six criterion/V1 pairs; selected-source core, real UART composition and explicitly synthetic captures; physical and independent gates remain."
+    },
+    "serial_variants_successor": {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-06-T38.07.a",
+        "AX-PR-T38-06-T38.07.b",
+        "AX-PR-T38-06-T38.07.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
   },
   "criteria": [
     {
@@ -353,12 +463,32 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T38-06.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Source-bound selected-device core, actual UART composition and Thumb synthetic-sample execution; physical line captures and independent attempts remain separately required.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Actual selected MAX3232 datasheet, connector identity and physical line measurements remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_transceivers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-06-T38.07.a",
+        "AX-PR-T38-06-T38.07.b",
+        "AX-PR-T38-06-T38.07.c"
+      ],
+      "scope": "Original six criterion/V1 pairs; selected-source core, real UART composition and explicitly synthetic captures; physical and independent gates remain."
+    },
+    {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-06-T38.07.a",
+        "AX-PR-T38-06-T38.07.b",
+        "AX-PR-T38-06-T38.07.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
+  ]
 }

@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "family": "concurrency_lifecycle_depth",
+  "title": "Copied messages, ownership transfer and quiescent teardown",
+  "build_system": "cmake",
+  "assessor_root": "assessor/concurrency_lifecycle_depth",
+  "assessment_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/PR-T51-06.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T51-14.json"
+  ],
+  "projects": [
+    {
+      "id": "PR-T51-06",
+      "tests": [
+        "concurrency_lifecycle_depth.queue",
+        "concurrency_lifecycle_depth.pool",
+        "concurrency_lifecycle_depth.ack",
+        "concurrency_lifecycle_depth.threaded",
+        "concurrency_lifecycle_depth.waiting"
+      ],
+      "scope": "Copied-byte FIFO, owned/fragmented storage and application acknowledgements; actual hosted comparison, no new MCU execution claim."
+    },
+    {
+      "id": "PR-T51-14",
+      "tests": [
+        "concurrency_lifecycle_depth.life",
+        "concurrency_lifecycle_depth.record",
+        "concurrency_lifecycle_depth.waiting",
+        "concurrency_lifecycle_depth.robust"
+      ],
+      "scope": "Generation leases, dependency restart and owner-death repair; actual Linux robust comparison and joined timer."
+    }
+  ],
+  "units": [],
+  "tests": [
+    "concurrency_lifecycle_depth.queue",
+    "concurrency_lifecycle_depth.pool",
+    "concurrency_lifecycle_depth.life",
+    "concurrency_lifecycle_depth.record",
+    "concurrency_lifecycle_depth.ack",
+    "concurrency_lifecycle_depth.threaded",
+    "concurrency_lifecycle_depth.waiting",
+    "concurrency_lifecycle_depth.robust"
+  ],
+  "campaign": {
+    "producer": "tools/run_concurrency_lifecycle_depth.py",
+    "receipt": "concurrency_lifecycle_depth_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "gcc-tsan",
+      "clang-tsan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "CL_CHECK:"
+  },
+  "limits": [
+    "Preserves retained execution family, project identities and accepted units.",
+    "Core requires caller exclusion and live stable registry; hosted POSIX adapter is distinct from profile E target dependencies.",
+    "No physical timing, lock-free progress, fairness or independent learner assessment inferred."
+  ],
+  "supplemental_campaigns": [
+    {
+      "id": "cortex-m4-core",
+      "producer": "tools/run_concurrency_lifecycle_target.py",
+      "report": "reviews/v5/expansion/legacy_concurrency_lifecycle/target.json",
+      "contract": "labs/concurrency_lifecycle_depth/CONTRACTS.md",
+      "scope": "Actual serialized core execution under isolated Cortex-M4 QEMU with strict helper/link closure; no CMX blocking/IRQ integration."
+    },
+    {
+      "id": "generational-cmx-wait",
+      "producer": "tools/run_wait_adapter.py",
+      "report": "reviews/v5/expansion/legacy_concurrency_wait/campaign.json",
+      "contract": "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+      "scope": "Exact T51.01/T51.13; actual CMX import, finite oracle and two-CPU pthread adapter."
+    },
+    {
+      "id": "wait-irq-target",
+      "producer": "tools/run_wait_target.py",
+      "report": "reviews/v5/expansion/legacy_concurrency_wait/target.json",
+      "contract": "labs/concurrency_lifecycle_depth/wait/IRQ.md",
+      "scope": "Actual isolated Cortex-M4 IRQ0 and saved-mask nesting with declared course memory helpers."
+    }
+  ]
+}

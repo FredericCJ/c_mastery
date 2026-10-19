@@ -1,0 +1,122 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T28-01-T28.01.a",
+      "objective": "T28.01.a",
+      "task": "Build a register table for the original adapter: address/offset, permitted width, reset value, writable/reserved masks and read/write effects. Reject a 16 bit access to a 32 bit-only control register and preserve state on rejection.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.01.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Change the peripheral revision's reserved-bit policy and identify code/mask tests that must change."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.01.b",
+      "objective": "T28.01.b",
+      "task": "Model status 15 with W1C acknowledgment5, yielding10, and a DATA read that consumes one byte. Compare a broken read-modify-write acknowledgment with a direct mask write while another flag arrives.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.01.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a read-to-clear status register and redesign diagnostics so inspecting status does not accidentally acknowledge it twice."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.01.c",
+      "objective": "T28.01.c",
+      "task": "Derive a controller state machine from the selected register sequence with guards, writes, wait budgets and terminal outputs. Feed ready, stalled and illegal-order traces and reject a data write before readiness.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.01.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace polling with interrupts while preserving the same state transitions and ownership rules."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.02.a",
+      "objective": "T28.02.a",
+      "task": "Implement a documented volatile register adapter with explicit widths and offsets, then inspect generated loads/stores and structure-offset assertions. Keep host simulation behind function calls rather than casting host RAM into evidence of device semantics.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.02.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Change compiler or endianness and rerun the offset/access-width audit before reusing the adapter."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.02.b",
+      "objective": "T28.02.b",
+      "task": "Separate four claims for one transfer: observable compiler access, atomic hardware transaction, CPU ordering and ownership synchronization. Give a counterexample where volatile status polling does not publish ordinary payload safely.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.02.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Move the payload to another core's cached memory and derive added publication/coherency requirements."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.02.c",
+      "objective": "T28.02.c",
+      "task": "Start ODR at 3, schedule an interrupt setting bit3 between a foreground ODR read and write, and demonstrate the lost update. Repair the foreground bit2 set/bit0 reset using BSRR; reject overlapping masks by the service policy.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.02.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Allow the interrupt to write the entire ODR and explain why BSRR cannot enforce application-level ownership against that conflicting writer."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.04.a",
+      "objective": "T28.04.a",
+      "task": "Produce a pin table separating mode, alternate-function selection, output type, pull and verified board routing. Model an open-drain bus and reject driving an unknown external circuit or assuming an internal pull satisfies electrical requirements.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.04.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Move the service to another package where the same peripheral uses a different available pin mapping."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.04.b",
+      "objective": "T28.04.b",
+      "task": "Implement one BSRR transaction for a set/reset mask, verifying no ODR read and no unrelated-bit modification in the adapter log. Test bit15, empty mask and rejected out-of-range/overlap input.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.04.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Require a synchronized multi-port update and explain why per-port BSRR cannot supply cross-port atomicity."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T28-01-T28.04.c",
+      "objective": "T28.04.c",
+      "task": "Implement a stable-sample debounce state machine over samples0,1,0,1,1,1 with threshold3, then compare edge interrupt notification and polling. Count one accepted transition and define initialization/overflow behavior.",
+      "delayed": {
+        "id": "AX-PR-T28-01-T28.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace fixed-rate sampling with irregular timestamps and derive a duration-based filter instead of reusing a sample count."
+      },
+      "teaching": "labs/peripheral_depth/mmio/CONTRACTS.md",
+      "analysis": "assessor/peripheral_depth/mmio/ANALYSIS.md",
+      "source_register": "research/v5/expansion/legacy_advanced_mmio/resources.json"
+    }
+  ],
+  "remaining": "T28.03/.05–.12 required; physical/source/learner/reviewer evidence separate"
+}

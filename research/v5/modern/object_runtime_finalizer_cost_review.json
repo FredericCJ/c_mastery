@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-009",
+  "status": "author-measured-host-scope",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_finalizer_probe.json",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed ORFHeap360, ORWeak72 and handle2 bytes on Linux x86-64; callback and context pointers dominate the added owner."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Sixteen typed identities, four conditional pairs, two 16-bit obligation bitmaps. No heap allocation by the driver; borrowed callback/context storage is external and must remain live."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Generation1..3 then retirement4 bounds48 admissions. Boolean roots require coordinated aliases; finalized identities cannot run twice. Whole-owner close requires quiescence."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Callbacks may commit root/edge/allocation changes even when returning failure. Outputs are disjoint and callbacks cannot bypass APIs. Nested collection/drain/cleanup/close are rejected."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "new scans at most16slots, publishes only on admission; injected and exhausted failure preserve output/state. Callback allocation follows the same contract."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Collection stages actual72-byte ORWeak state; other fields stay in stationary owner. Ephemeron closure has at most16 new reachable identities, each pass visits bounded edges/pairs."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Exactly once synthetic resource close; bounded cleanup budget limits entries per call, not callback execution time. Explicit close releases remaining resources without promising every finalizer."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual indirect callback dispatch appears in both O2 disassemblies. Finalizer driver calls original or_final_next and or_weak_collect; GCC cleanup calls close_resource, Clang inlines it."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Single-thread owner with reentry exclusion, not a lock. No TSan result makes concurrent use legal; driver callbacks must return normally and cannot asynchronously abandon obligations."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Driver OR_OK and callback failure are separate observations. Resource cleanup remains mandatory after error and resurrection. Admission rollback does not roll back callback side effects."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "GCC/Clang O0/O2/O3 clean/no-change/header rebuild commands and elapsed times retained. O2 clean/no-change/header seconds: GCC0.71845/0.04313/0.66181; Clang0.54347/0.04616/0.43826. Host observation only."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 text/data/bss GCC13885/616/16, Clang16556/608/16. collect/run_one/cleanup frames GCC128/80/24, Clang104/56/0 bytes; original weak_collect80/200 respectively. GCC has stack-check helper; these are not freestanding or call-chain bounds."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Native callbacks are trusted borrowed function/context pairs; no C-enforced ownership or dynamic lifetime proof. Synthetic resource bits do not establish real descriptor/firmware cleanup behavior."
+    }
+  ],
+  "observation": "360 retained samples and24 warmups,1000 complete lifetime cycles/sample. With16objects O2 budget1/budget16 median nanoseconds: GCC611118/556284, Clang515635/430355. All variants execute identical callbacks/resource closes/reclamations; measurement includes every checked phase. No universal ranking or callback latency bound.",
+  "sealed_decision": {
+    "choice": "Use explicit budgeted cleanup and a separate deterministic owner close; keep callbacks outside collection.",
+    "reason": "Failure and resurrection must not suppress external-resource obligations, while callers control cleanup scheduling.",
+    "reopen_when": "Introduce real fallible resources, concurrent callbacks, unbounded heaps or stronger latency requirements."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_finalizer_probe.json": "d38b232f16961c249c41f0f0b2980b7597b6ae054c4efa6944b0a15c10318b3a",
+    "curriculum/v5/exercises/X-T74-009.md": "195669f9dce551a04c8b090b36b1283080a4eb7540749d599b78e8995534fa73",
+    "labs/object_runtime/FINALIZER_EXTENSIONS.md": "4c10c62d5fae6ab39e156d51b6f4e3ecdc35b5ef39894d8f38e518827ab70e7e",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

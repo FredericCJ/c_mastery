@@ -1,0 +1,141 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T03:04:55.045437+00:00",
+  "system": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "filesystem": {
+    "command": [
+      "findmnt",
+      "-T",
+      "/home/frede/cmastery-b06-tools/experiments",
+      "-J"
+    ],
+    "returncode": 0,
+    "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/\",\n         \"source\": \"/dev/sdd\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime,discard,errors=remount-ro,data=ordered\"\n      }\n   ]\n}\n"
+  },
+  "input_sha256": {
+    "tools/run_b06_direct_io.py": "77d2b1619f520588056164162df882ef6fbf5777f3be6174a8c63321d2c8eb54",
+    "labs/linux_io_depth/targets/direct_probe.c": "9fa53e5493efea6e3b5ed73ceb4a6a35a3fa0bb79d58ebaa27b0f4b49170c65e",
+    "labs/linux_io_depth/targets/transfer.h": "a9b00c797d99dc7698b9cb3a6f15d23e93ea4f800eb903b538d7790b19c5f375",
+    "labs/linux_io_depth/targets/DIRECT_IO.md": "aa75498805557237247aca3df0468025bb82d8900f90824a365fc6dcd6b20ead",
+    "assessor/linux_io_depth/targets/transfer.c": "9ed3298d4be17ef7325292fd90074c8d83d5c639952874607472657c17987fca"
+  },
+  "checks": [
+    {
+      "label": "gcc-debug build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-qn9glrph/gcc-debug"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute",
+      "command": [
+        "/tmp/b06-direct-build-qn9glrph/gcc-debug"
+      ],
+      "environment": {
+        "B06_DIRECT_PARENT": "/home/frede/cmastery-b06-tools/experiments"
+      },
+      "returncode": 0,
+      "stdout": "direct_alignment memory=4 offset_length=512 mask=14143\nsample trial=0 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=5351590\nsample trial=0 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1076726\nsample trial=1 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1134592\nsample trial=1 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1152612\nsample trial=2 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=992624\nsample trial=2 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1357944\nsample trial=3 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1262702\nsample trial=3 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1297158\nsample trial=4 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1044589\nsample trial=4 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1081990\nsample trial=5 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1092431\nsample trial=5 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1211496\nsample trial=6 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1030152\nsample trial=6 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=930513\nsample trial=7 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1077267\nsample trial=7 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1201293\nB06_DIRECT_PASS equivalent_content_and_sync_contract samples=16\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-qn9glrph/gcc-release"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute",
+      "command": [
+        "/tmp/b06-direct-build-qn9glrph/gcc-release"
+      ],
+      "environment": {
+        "B06_DIRECT_PARENT": "/home/frede/cmastery-b06-tools/experiments"
+      },
+      "returncode": 0,
+      "stdout": "direct_alignment memory=4 offset_length=512 mask=14143\nsample trial=0 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=6495719\nsample trial=0 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1427032\nsample trial=1 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1135227\nsample trial=1 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1170716\nsample trial=2 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=980957\nsample trial=2 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1076252\nsample trial=3 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1007815\nsample trial=3 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1007717\nsample trial=4 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=987501\nsample trial=4 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=983776\nsample trial=5 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=946710\nsample trial=5 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1141112\nsample trial=6 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1551235\nsample trial=6 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1332588\nsample trial=7 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1085852\nsample trial=7 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1230526\nB06_DIRECT_PASS equivalent_content_and_sync_contract samples=16\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-qn9glrph/clang-sanitize"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute",
+      "command": [
+        "/tmp/b06-direct-build-qn9glrph/clang-sanitize"
+      ],
+      "environment": {
+        "B06_DIRECT_PARENT": "/home/frede/cmastery-b06-tools/experiments"
+      },
+      "returncode": 0,
+      "stdout": "direct_alignment memory=4 offset_length=512 mask=14143\nsample trial=0 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=5542654\nsample trial=0 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1373720\nsample trial=1 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1760487\nsample trial=1 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1403113\nsample trial=2 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1024836\nsample trial=2 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1261042\nsample trial=3 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=966929\nsample trial=3 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1281817\nsample trial=4 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1066545\nsample trial=4 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1182406\nsample trial=5 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1080906\nsample trial=5 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1338394\nsample trial=6 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1009542\nsample trial=6 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1684378\nsample trial=7 path=direct bytes=4096 transfer_fdatasync_directory_fsync_ns=1125527\nsample trial=7 path=buffered-fallback bytes=4096 transfer_fdatasync_directory_fsync_ns=1325963\nB06_DIRECT_PASS equivalent_content_and_sync_contract samples=16\n",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Selected private experiment filesystem only; statx alignment and actual successful direct writes recorded, not generalized to other filesystems",
+    "Direct and buffered use separate files and equal fdatasync plus directory fsync obligations",
+    "No physical power-loss claim or universal performance ordering; timing includes synchronization and changes in cache/device state",
+    "No privileged cache dropping, device access or system setting modification"
+  ]
+}

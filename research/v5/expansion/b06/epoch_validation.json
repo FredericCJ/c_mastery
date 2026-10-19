@@ -1,0 +1,406 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T02:57:58.251622+00:00",
+  "input_sha256": {
+    "labs/kernel_lifecycle/guest/epoch.h": "509ab14315a650cd2cd910c596d98d32a7f28ea02fda7a7fd6248227e7acd3ab",
+    "labs/kernel_lifecycle/guest/epoch.c": "b6a3825eb0a71d8e8144ffb3033677ccb017b3fe1ae28d10c1ccf4614a5b1276",
+    "labs/kernel_lifecycle/guest/epoch_test.c": "3964f4cde7668533de8516f99f64a2d8dc712926c7b62d2e79bf3955777c8dbb",
+    "assessor/kernel_lifecycle/guest/epoch.c": "22384baebebb430dd78b69f2cc5515a9fec971e776e80fe19674a9dcf58ab0b6",
+    "labs/kernel_lifecycle/guest/README.md": "8c6d09b13e66c39ddaa0d46bfec8f87a9f7ed7419d38c867065bdc5216905243",
+    "assessor/kernel_lifecycle/guest/ANALYSIS.md": "402b82bb072873c6a7de31facec23c8cd4fdc33f4eab38092df57bd802ac36ce",
+    "tools/run_b06_epoch.py": "78c40e1c25e4ed98e1485fe644ec47753e067100584590245f185aea42eb9285"
+  },
+  "checks": [
+    {
+      "label": "gccreference build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-reference"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccreference semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-reference"
+      ],
+      "returncode": 0,
+      "stdout": "B06_EPOCH_PASS old_reader_positions=8 continuous_new_epoch=64 wrap=refused\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccwait_all build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-DKE_WAIT_ALL",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-wait_all"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccwait_all semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-wait_all"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_reclaim(&s)&&s.reader[fresh]==2\n",
+      "passed": true
+    },
+    {
+      "label": "gccstale_generation build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-DKE_STALE",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-stale_generation"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccstale_generation semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-stale_generation"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 !ke_requeue(&s,1)\n",
+      "passed": true
+    },
+    {
+      "label": "gcclearner_stub build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-learner_stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcclearner_stub semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-learner_stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_enter(&s,old)\n",
+      "passed": true
+    },
+    {
+      "label": "gccreference build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-reference"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccreference semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-reference"
+      ],
+      "returncode": 0,
+      "stdout": "B06_EPOCH_PASS old_reader_positions=8 continuous_new_epoch=64 wrap=refused\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccwait_all build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-DKE_WAIT_ALL",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-wait_all"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccwait_all semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-wait_all"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_reclaim(&s)&&s.reader[fresh]==2\n",
+      "passed": true
+    },
+    {
+      "label": "gccstale_generation build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-DKE_STALE",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-stale_generation"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gccstale_generation semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-stale_generation"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 !ke_requeue(&s,1)\n",
+      "passed": true
+    },
+    {
+      "label": "gcclearner_stub build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/gcc-learner_stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcclearner_stub semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/gcc-learner_stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_enter(&s,old)\n",
+      "passed": true
+    },
+    {
+      "label": "clangreference build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/clang-reference"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clangreference semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/clang-reference"
+      ],
+      "returncode": 0,
+      "stdout": "B06_EPOCH_PASS old_reader_positions=8 continuous_new_epoch=64 wrap=refused\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clangwait_all build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DKE_WAIT_ALL",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/clang-wait_all"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clangwait_all semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/clang-wait_all"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_reclaim(&s)&&s.reader[fresh]==2\n",
+      "passed": true
+    },
+    {
+      "label": "clangstale_generation build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DKE_STALE",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/clang-stale_generation"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clangstale_generation semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/clang-stale_generation"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 !ke_requeue(&s,1)\n",
+      "passed": true
+    },
+    {
+      "label": "clanglearner_stub build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/kernel_lifecycle/guest/epoch_test.c",
+        "-o",
+        "/tmp/b06-epoch-g6qp5nhx/clang-learner_stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clanglearner_stub semantic",
+      "command": [
+        "/tmp/b06-epoch-g6qp5nhx/clang-learner_stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_EPOCH_ASSERT line=5 ke_enter(&s,old)\n",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Serialized finite epoch model; not a C memory-model implementation or proof of Linux RCU internals",
+    "Reader epoch is distinct from a retained object reference",
+    "No external review, learner transfer, or physical observation"
+  ]
+}

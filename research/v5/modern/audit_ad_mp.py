@@ -26,7 +26,15 @@ def main():
         gaps.append(dict(id=domain+'-MEASUREMENTS',kind='performance-research',required=True,status='partially-executed',task='Complete measured thirteen-dimension comparisons under equal contracts; compiler stack/object reports exist, workload latency/throughput and all changed conditions do not.'))
     dump('research/v5/modern/ad_mp_depth_audit.json',dict(domains=['T67','T68'],baseline='Previously planned domain mechanisms were not exercise coverage; this batch authors concrete contracts and objective-specific assessments.',expansion={'projects':20,'leaf_objectives':80,'units':40,'exercises':20,'glossary_terms':40,'recall_variants':60,'compiled_semantic_mutants':40},traceability=rows,completion_claim='Authored and bounded host-executable coverage; no absolute mastery, independent learner assessment or full required-experiment completion.'))
     dump('research/v5/modern/ad_mp_gap_ledger.json',dict(gaps=gaps,required_open=len(gaps),comprehensive_complete=False))
-    dump('research/v5/modern/ad_mp_remaining_work.json',dict(domains=['T67','T68'],authoring_status='delivered with explicit required investigation gaps',learner_status='not-assessed',required_open_gaps=[g['id'] for g in gaps],remaining_domains=['T76'],preserve_prior_gap_ledgers=True,comprehensive_complete=False))
+    dump('research/v5/modern/ad_mp_remaining_work.json',dict(domains=['T67','T68'],authoring_status='Initial authored obligations; current source-bound overlays follow',learner_status='not-assessed',required_open_gaps=[g['id'] for g in gaps],remaining_domains=['T67','T68'],scope='Only this AD/MP register; other modern domains have separate records.',preserve_prior_gap_ledgers=True,comprehensive_complete=False))
     print(json.dumps(dict(traceability_rows=len(rows),required_open_gaps=len(gaps))))
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    main()
+    import subprocess,sys
+    for producer in sorted((ROOT/'tools').glob('build_adt_*_readiness.py')):
+        subprocess.run([sys.executable,str(producer)],cwd=ROOT,check=True)
+    for producer in sorted((ROOT/'tools').glob('build_metaprog_*_readiness.py')):
+        subprocess.run([sys.executable,str(producer)],cwd=ROOT,check=True)
+    if (ROOT/'research/v5/modern/adt_measurement_closure_validation.json').exists():
+        subprocess.run([sys.executable,str(ROOT/'tools/reconcile_ad_mp_readiness.py')],cwd=ROOT,check=True)

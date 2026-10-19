@@ -12,7 +12,8 @@ from v5_common import RECEIPTS, python_command, pins
 PINNED = ['tools/accept_v4.py', 'tools/accept_v5.py', 'tools/package_v4.py', 'tools/package_v5.py',
           'tools/run_targets_v4.py', 'tools/run_targets_v5.py', 'tools/run_legacy_matrix_v4.py',
           'tools/run_legacy_matrix_v5.py', 'tools/check_release_v4.py', 'tools/check_release_v5.py',
-          'tools/run_release_guards_v5.py']
+          'tools/run_release_guards_v5.py', 'tools/expansion_evidence.py',
+          'tools/check_receipt_preservation.py', 'tools/check_candidate_exports_v5.py']
 
 
 def main():

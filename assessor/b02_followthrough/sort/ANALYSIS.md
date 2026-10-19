@@ -1,0 +1,9 @@
+# Stable sort variant analysis
+
+Three obligations must remain distinct: key order, identity permutation, and original tie order. Taking right on equality is valid sorting but fails stability. The retained recursive implementation and new bottom-up variant move only scalar B2Item values; neither licenses moving a self-referential owning record by an ordinary struct copy. The delayed permutation keeps all owning records stationary and transfers no resources. Indices alone do not extend their lifetime.
+
+For each pass, width<n and each run length is min(width,remaining). Both endpoints are formed by adding an admitted length no greater than the remaining extent. Width advances to n when doubling would exceed n, otherwise the sum is representable because2*width<=n. This proof applies at SIZE_MAX; the finite64-record implementation bound only limits actual storage/counters. All failure conditions are checked before any element/work publication. No callback or asynchronous cancellation interrupts the nonfailing sort region.
+
+The exact policy copies unpaired tail records too, giving2*n*ceil(log2(n)) writes for n>=2. Index initialization adds n writes; zero owner/payload writes does not remove index traffic, key reads, output storage or later pointer chasing. Compare record/index sizeof under a named ABI. The exhaustive small alphabet oracle independently supplies stable order; the full-width scalar oracle checks arithmetic without constructing impossible arrays. Four96-byte actual malloc-backed resources test lifetime and one-time release separately from target static backing.
+
+The four compiled controls distinguish both tie rules, failure admission and permutation loss. The reference is an author aid, not independent assessment or proof of arbitrary C implementations. Exact published ISO edition access and physical observations remain separate evidence obligations.

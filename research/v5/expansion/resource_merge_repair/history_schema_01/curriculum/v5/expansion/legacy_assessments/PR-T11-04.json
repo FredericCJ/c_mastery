@@ -1,0 +1,714 @@
+{
+  "schema_version": 1,
+  "project": "PR-T11-04",
+  "domain": "T11",
+  "title": "Refusing environment adapter — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T11.md",
+        "sha256": "ce9487e8a8630837bba4c3f6935ba69396971727a1d4ab53929e5acf67e203ea",
+        "passages": [
+          "Topic teaching passages and reading guidance for T11.07, T11.08"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T11-04.md",
+        "sha256": "b519551bbd1a3ab706908f388df6a0bc0d3164c84a11e67ac56cfe6286c9a9c6",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T11-04.json",
+        "sha256": "0778ccdd2d7762f1c1238c68dc006747eea7b2cbbf856307a4936f6d3b996d99",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T11.md",
+        "anchors": [
+          "T11.07",
+          "T11.08"
+        ]
+      }
+    ],
+    "units": [
+      "U-T11-04-01",
+      "U-T11-04-02",
+      "U-T11-04-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "C",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-CLANG-FREE",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Language and Target-Independent Features: Freestanding Builds, lines 842-862"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.16 -l order; -nostartfiles; -nodefaultlibs; -nostdlib; -pie; -static-pie; -static; -shared"
+      ]
+    },
+    {
+      "id": "R-LFREE-N1570",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "4p6 PDF25/printed8;5.1.2–5.1.2.1 PDF29/printed12"
+      ]
+    },
+    {
+      "id": "R-LFREE-N3096",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "4p6–7 PDF26/printed8;5.1.2–5.1.2.1 PDF29/printed11"
+      ]
+    },
+    {
+      "id": "R-LFREE-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "nostartfiles/nodefaultlibs/nostdlib paragraphs; linker-output/LTO controls"
+      ]
+    },
+    {
+      "id": "R-LFREE-CLANG-FREE",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Freestanding Builds lines983–1007"
+      ]
+    },
+    {
+      "id": "R-LFREE-CLANG-RUNTIME",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Runtime and atomics lines116–197; sanitizer runtime235–245"
+      ]
+    },
+    {
+      "id": "R-LFREE-LLVM-DIV",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Complete149-line file"
+      ]
+    },
+    {
+      "id": "R-LFREE-LLVM-WRAP",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Complete22-line file"
+      ]
+    },
+    {
+      "id": "R-LFREE-LLVM-ABI",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Lines15–31 ABI macros;98–109 helper declarations"
+      ]
+    },
+    {
+      "id": "R-LFREE-LLVM-TYPES",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Lines22–114 integer widths, TI types and limb unions"
+      ]
+    },
+    {
+      "id": "R-LFREE-ARM-RT",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Long long helpers1108–1181;32-bit division1190–1288;memory helpers1311–1378"
+      ]
+    },
+    {
+      "id": "R-LFREE-SEMI",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Trap/register interface281–340;exit674–788;WRITEC/WRITE0 1331–1378"
+      ]
+    },
+    {
+      "id": "R-LFREE-QEMU-UART",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "Register definitions28–47;baud validation67–89;transmit181–215;write225–281"
+      ]
+    },
+    {
+      "id": "R-LFREE-QEMU-MAP",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "RAM193–197;UART268–291"
+      ]
+    },
+    {
+      "id": "R-LFREE-NEWLIB",
+      "path": "research/v5/expansion/legacy_systems_freestanding/resources.json",
+      "passages": [
+        "newlib/libc/reent/writer.c: Complete file",
+        "newlib/libc/reent/sbrkr.c: Complete file",
+        "newlib/libc/stdio/printf.c: Complete file",
+        "newlib/libc/stdio/makebuf.c: Lines1–140 buffer allocation/fallback",
+        "newlib/libc/stdio/stdio.c: Lines1–130 output/seek/close wrappers",
+        "newlib/libc/stdio/findfp.c: Lines1–260 standard FILE state, dynamic glue and initialization",
+        "newlib/libc/stdio/nano-vfprintf.c: Lines1–160 service contract;170–290 string-only growth contrast;330–490 actual stream emitter/init",
+        "newlib/libc/stdio/fflush.c: Lines1–150 API and core entry;210–300 actual partial-write loop and error propagation"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T11-04.md",
+    "fixtures/systems/PR-T11-04.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/machine_image/freestanding_depth/audit_image.py",
+    "labs/machine_image/freestanding_depth/CONTRACTS.md",
+    "labs/machine_image/freestanding_depth/free.c",
+    "labs/machine_image/freestanding_depth/free.h",
+    "labs/machine_image/freestanding_depth/m4.ld",
+    "labs/machine_image/freestanding_depth/m4_start.S",
+    "labs/machine_image/freestanding_depth/run_m4.py",
+    "labs/machine_image/freestanding_depth/service_tests.c",
+    "labs/machine_image/freestanding_depth/services.c",
+    "labs/machine_image/freestanding_depth/services.h",
+    "labs/machine_image/freestanding_depth/SOURCES.md",
+    "labs/machine_image/freestanding_depth/target_port.h",
+    "labs/machine_image/freestanding_depth/tests.c"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contract with synthetic fixture",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T11-04-T11.07.a",
+      "title": "Specify the services required by a selected embedded C library.",
+      "objective": "T11.07.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Choose a concrete embedded library version and list every required environment service for a tiny formatted-output proposal. Distinguish documented retarget hooks from uninspected implementation dependencies and refuse claims until source/objects are available.",
+      "purpose": "Including a small embedded library automatically supplies heap, files and output devices.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Including a small embedded library automatically supplies heap, files and output devices. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Including a small embedded library automatically supplies heap, files and output devices.",
+        "D2": "Choose a concrete embedded library version and list every required environment service for a tiny formatted-output proposal. Distinguish documented retarget hooks from uninspected implementation dependencies and refuse claims until source/objects are available.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace formatted output with a bounded raw-byte service and identify which environment obligations disappear and which remain."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The service boundary is library/version-specific; a missing reference is an open requirement, not permission to invent hook semantics.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The service boundary is library/version-specific; a missing reference is an open requirement, not permission to invent hook semantics. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace formatted output with a bounded raw-byte service and identify which environment obligations disappear and which remain. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Enumerate the environment services the proposed library really calls.",
+        "A refusing backend must preserve state and expose unsupported work instead of fabricating successful progress."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace formatted output with a bounded raw-byte service and identify which environment obligations disappear and which remain."
+        }
+      ],
+      "assessor_anchor": "#t1107a",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.07.a"
+      }
+    },
+    {
+      "id": "AX-PR-T11-04-T11.07.b",
+      "title": "Examine syscall retargeting, heap extension, and stream backends.",
+      "objective": "T11.07.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Implement an original adapter with caller-owned24-byte storage, explicit output callback and a heap-extension operation that always returns UNSUPPORTED without changing state. Inject output refusal/short progress and verify exact ownership and status propagation.",
+      "purpose": "Returning a fake success from an absent OS hook is a harmless stub.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Returning a fake success from an absent OS hook is a harmless stub. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Returning a fake success from an absent OS hook is a harmless stub.",
+        "D2": "Implement an original adapter with caller-owned24-byte storage, explicit output callback and a heap-extension operation that always returns UNSUPPORTED without changing state. Inject output refusal/short progress and verify exact ownership and status propagation.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a bounded arena allocation service with alignment/overflow checks and compare exhaustion behavior with the refusing policy."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Unsupported acquisition must remain visible and preserve state; transport partial progress cannot be reported as full completion. The adapter is not an implementation of every libc hook.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Unsupported acquisition must remain visible and preserve state; transport partial progress cannot be reported as full completion. The adapter is not an implementation of every libc hook. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a bounded arena allocation service with alignment/overflow checks and compare exhaustion behavior with the refusing policy. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Enumerate the environment services the proposed library really calls.",
+        "A refusing backend must preserve state and expose unsupported work instead of fabricating successful progress."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a bounded arena allocation service with alignment/overflow checks and compare exhaustion behavior with the refusing policy."
+        }
+      ],
+      "assessor_anchor": "#t1107b",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.07.b"
+      }
+    },
+    {
+      "id": "AX-PR-T11-04-T11.07.c",
+      "title": "Distinguish semihosting dependencies from standalone board operation.",
+      "objective": "T11.07.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create separate declared transport backends for host logging, debugger-dependent semihosting and standalone UART/emulator output; identify each dependency and availability. Only run supported local models, with no hardware flashing.",
+      "purpose": "Output seen under a debugger proves standalone firmware transport works.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Output seen under a debugger proves standalone firmware transport works. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Output seen under a debugger proves standalone firmware transport works.",
+        "D2": "Create separate declared transport backends for host logging, debugger-dependent semihosting and standalone UART/emulator output; identify each dependency and availability. Only run supported local models, with no hardware flashing.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Specify behavior when the debugger service is absent at reset and ensure the firmware contract does not silently block forever."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Debugger transport is an external service and can disappear; model success is not physical UART or standalone-board evidence.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Debugger transport is an external service and can disappear; model success is not physical UART or standalone-board evidence. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Specify behavior when the debugger service is absent at reset and ensure the firmware contract does not silently block forever. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Enumerate the environment services the proposed library really calls.",
+        "A refusing backend must preserve state and expose unsupported work instead of fabricating successful progress."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Specify behavior when the debugger service is absent at reset and ensure the firmware contract does not silently block forever."
+        }
+      ],
+      "assessor_anchor": "#t1107c",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.07.c"
+      }
+    },
+    {
+      "id": "AX-PR-T11-04-T11.08.a",
+      "title": "Specify initialized RAM, stack, exception state, and entry arguments.",
+      "objective": "T11.08.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Build an original startup-state model containing stack bounds, data load/run intervals, BSS range and entry arguments. Validate nonoverlap/extent/alignment before a bounded copy/zero simulation; real exception state remains target-specific.",
+      "purpose": "Initializing C globals is solely a language declaration effect even before runtime exists.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Initializing C globals is solely a language declaration effect even before runtime exists. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Initializing C globals is solely a language declaration effect even before runtime exists.",
+        "D2": "Build an original startup-state model containing stack bounds, data load/run intervals, BSS range and entry arguments. Validate nonoverlap/extent/alignment before a bounded copy/zero simulation; real exception state remains target-specific.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a reset during initialization and specify which state can be safely reinitialized and which retained region must survive."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Startup owns explicit initialization in the declared environment; the model checks interval responsibilities without proving an actual board reset path.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Startup owns explicit initialization in the declared environment; the model checks interval responsibilities without proving an actual board reset path. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a reset during initialization and specify which state can be safely reinitialized and which retained region must survive. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign one initialization owner to every retained runtime service.",
+        "Validate ranges and initialization order before letting hooks or tasks observe the state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a reset during initialization and specify which state can be safely reinitialized and which retained region must survive."
+        }
+      ],
+      "assessor_anchor": "#t1108a",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.08.a"
+      }
+    },
+    {
+      "id": "AX-PR-T11-04-T11.08.b",
+      "title": "Define responsibility for TLS and initialization hooks when retained.",
+      "objective": "T11.08.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Define which owner creates TLS and walks initialization hooks in a custom runtime; provide one original hook that requires a ready service and reject a schedule invoking it too early. Do not borrow hosted TLS implicitly.",
+      "purpose": "Keeping TLS or constructors requires only retaining their sections.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Keeping TLS or constructors requires only retaining their sections. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Keeping TLS or constructors requires only retaining their sections.",
+        "D2": "Define which owner creates TLS and walks initialization hooks in a custom runtime; provide one original hook that requires a ready service and reject a schedule invoking it too early. Do not borrow hosted TLS implicitly.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add multiple tasks and define separate TLS instance lifetime, initialization and reclamation responsibilities."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Metadata retention, storage creation and ordered invocation are separate mechanisms; each callback has a restricted service/ownership contract.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Metadata retention, storage creation and ordered invocation are separate mechanisms; each callback has a restricted service/ownership contract. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add multiple tasks and define separate TLS instance lifetime, initialization and reclamation responsibilities. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign one initialization owner to every retained runtime service.",
+        "Validate ranges and initialization order before letting hooks or tasks observe the state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add multiple tasks and define separate TLS instance lifetime, initialization and reclamation responsibilities."
+        }
+      ],
+      "assessor_anchor": "#t1108b",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.08.b"
+      }
+    },
+    {
+      "id": "AX-PR-T11-04-T11.08.c",
+      "title": "Make unsupported hosted services fail visibly rather than accidentally work.",
+      "objective": "T11.08.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For the refusing runtime call each unsupported service through its public API and require a distinct error with no writes or acquired resources. Include an initialization-state guard for a service that becomes available later.",
+      "purpose": "An absent service can return a plausible default because callers should not use it.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T11.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T11-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "An absent service can return a plausible default because callers should not use it. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: An absent service can return a plausible default because callers should not use it.",
+        "D2": "For the refusing runtime call each unsupported service through its public API and require a distinct error with no writes or acquired resources. Include an initialization-state guard for a service that becomes available later.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Compose a client that retries a temporarily unavailable service and distinguish retryable NOT_READY from permanent UNSUPPORTED."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Visible refusal and unchanged state expose contract violations; a default success value can silently corrupt later reasoning.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Visible refusal and unchanged state expose contract violations; a default success value can silently corrupt later reasoning. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Compose a client that retries a temporarily unavailable service and distinguish retryable NOT_READY from permanent UNSUPPORTED. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign one initialization owner to every retained runtime service.",
+        "Validate ranges and initialization order before letting hooks or tasks observe the state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T11-04-T11.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compose a client that retries a temporarily unavailable service and distinguish retryable NOT_READY from permanent UNSUPPORTED."
+        }
+      ],
+      "assessor_anchor": "#t1108c",
+      "facet_scope": {
+        "teaching": "Retained substantive T11.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T11-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+        "criterion_id": "AX-PR-T11-04-T11.08.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T11-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_systems_freestanding/support.json",
+    "criterion_ids": [
+      "AX-PR-T11-04-T11.07.a",
+      "AX-PR-T11-04-T11.07.b",
+      "AX-PR-T11-04-T11.07.c",
+      "AX-PR-T11-04-T11.08.a",
+      "AX-PR-T11-04-T11.08.b",
+      "AX-PR-T11-04-T11.08.c"
+    ],
+    "scope": "Source-bound author experiments and assessor transfer package; independent learner evidence remains separate."
+  }
+}

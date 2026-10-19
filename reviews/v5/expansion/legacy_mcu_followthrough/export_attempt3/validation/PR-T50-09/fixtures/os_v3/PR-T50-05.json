@@ -1,0 +1,29 @@
+{
+  "id": "PR-T50-05",
+  "description": "Timers and an absolute-deadline queue finite independent example",
+  "oracle": "periodic",
+  "input": {
+    "phase": 0,
+    "period": 10,
+    "work": [
+      3,
+      6,
+      2
+    ]
+  },
+  "expected": {
+    "absolute_releases": [
+      10,
+      20,
+      30
+    ],
+    "relative_releases": [
+      10,
+      23,
+      39
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Delay-until maintains a release phase; repeated delay-after-work accumulates execution time as drift. A modular clock comparison is valid only when compared distances stay within half the counter range. Timer cancellation needs identity, not just a pointer into a recycled slot.",
+  "required_observation": "Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces."
+}

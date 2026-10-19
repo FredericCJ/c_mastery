@@ -1,0 +1,44 @@
+Test project /tmp/b02-fixed_point-export-5rl6hg5k/learner
+    Start 1: b02_followthrough.q7
+1/7 Test #1: b02_followthrough.q7 .............***Failed    0.00 sec
+BF_CHECK:7:b2_q7(NULL,NULL,0,&out)==B2_OK&&out==0
+
+    Start 2: b02_followthrough.even
+2/7 Test #2: b02_followthrough.even ...........***Failed    0.00 sec
+BF_CHECK:8:bf_q7_even(&values[i],&gain,1,&out)==B2_OK&&out==expected[i]
+
+    Start 3: b02_followthrough.q11
+3/7 Test #3: b02_followthrough.q11 ............***Failed    0.00 sec
+BF_CHECK:9:bf_q11(a,b,65536,&out)==B2_OK&&out==32767
+
+    Start 4: b02_followthrough.units
+4/7 Test #4: b02_followthrough.units ..........***Failed    0.00 sec
+BF_CHECK:10:bf_signal(samples,gains,2,&s)==B2_OK&&s.product_sum==128&&s.rounded_raw==1&&s.output==1&&!s.clipped&&s.error_numerator==0
+
+    Start 5: b02_followthrough.scale16
+5/7 Test #5: b02_followthrough.scale16 ........***Failed    0.00 sec
+BF_CHECK:13:bf_mul16(a[i],b[i],BF_AWAY,&s)==B2_OK&&s.output==expected[i]&&s.clipped==(i==2)
+
+    Start 6: b02_followthrough.mixed
+6/7 Test #6: b02_followthrough.mixed ..........***Failed    0.00 sec
+BF_CHECK:14:bf_mix16_32(16,32,BF_AWAY,&s)==B2_OK&&s.output==32&&s.raw_numerator==64&&s.raw_denominator==2&&!s.clipped
+
+    Start 7: b02_followthrough.cascade
+7/7 Test #7: b02_followthrough.cascade ........***Failed    0.00 sec
+BF_CHECK:15:bf_two16(3,8,127,BF_AWAY,&c)==B2_OK&&c.first.output==2&&c.second.output==16&&c.error_numerator==1048&&c.bound_numerator==1144&&c.bounded
+
+
+0% tests passed, 7 tests failed out of 7
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	  1 - b02_followthrough.q7 (Failed)
+	  2 - b02_followthrough.even (Failed)
+	  3 - b02_followthrough.q11 (Failed)
+	  4 - b02_followthrough.units (Failed)
+	  5 - b02_followthrough.scale16 (Failed)
+	  6 - b02_followthrough.mixed (Failed)
+	  7 - b02_followthrough.cascade (Failed)
+
+Errors while running CTest

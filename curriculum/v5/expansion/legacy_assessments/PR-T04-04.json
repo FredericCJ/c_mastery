@@ -4,7 +4,8 @@
   "domain": "T04",
   "title": "PR-T04-04 objective-specific depth assessment supplement",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/float_contract/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -107,22 +108,72 @@
       "path": "research/v5/expansion/b01/b01_resources.json",
       "passages": [
         "5.1.1.3p1 Diagnostics",
-        "6.2.4p1\u20138 Storage durations of objects",
-        "6.2.6.1p4\u20138 Representations",
-        "6.2.8p1\u20137 Alignment",
-        "6.3.1.1p1\u20133 Integer promotions",
-        "6.3.1.3p1\u20133 Integer conversion",
+        "6.2.4p1–8 Storage durations of objects",
+        "6.2.6.1p4–8 Representations",
+        "6.2.8p1–7 Alignment",
+        "6.3.1.1p1–3 Integer promotions",
+        "6.3.1.3p1–3 Integer conversion",
         "6.3.1.8p1 Usual arithmetic conversions",
-        "6.5p1\u20137 Expressions and effective type",
-        "6.5.6p7\u20139 Pointer arithmetic",
-        "6.5.7p2\u20135 Shifts",
-        "6.7.3.1p1\u20136 Restrict",
+        "6.5p1–7 Expressions and effective type",
+        "6.5.6p7–9 Pointer arithmetic",
+        "6.5.7p2–5 Shifts",
+        "6.7.3.1p1–6 Restrict",
         "6.2.5p9 Unsigned arithmetic",
         "6.5.2.2p10 Function execution sequencing",
-        "6.5.13p3\u20134 Logical AND",
+        "6.5.13p3–4 Logical AND",
         "6.5.16.1p1 Simple assignment constraints",
-        "7.20.1.1p1\u20133 Exact-width integer types",
+        "7.20.1.1p1–3 Exact-width integer types",
         "7.20.1.5p1 Greatest-width integer types"
+      ]
+    },
+    {
+      "id": "R-FF-N1570-2026-01",
+      "path": "research/v5/expansion/legacy_float_contract/resources.json",
+      "passages": [
+        "5.2.4.2.2 floating formats and evaluation",
+        "7.6 and7.6.1 environment conventions and FENV_ACCESS",
+        "7.6.4 save/hold/restore environment",
+        "7.12.2 contraction pragma",
+        "7.12.3.1 semantic-type classification",
+        "7.12.13.1 fma one rounding"
+      ]
+    },
+    {
+      "id": "R-FF-GCC15-2026-01",
+      "path": "research/v5/expansion/legacy_float_contract/resources.json",
+      "passages": [
+        "-fexcess-precision=standard/fast",
+        "-ffast-math and implied finite/signed-zero/rounding assumptions",
+        "-frounding-math experimental limitations",
+        "-ffp-contract"
+      ]
+    },
+    {
+      "id": "R-FF-MPFR422-2026-01",
+      "path": "research/v5/expansion/legacy_float_contract/resources.json",
+      "passages": [
+        "4.4 nearest-even/directed rounding and ternary values",
+        "5.3 mpfr_set_d,mpfr_set_ui exact input versus already-rounded C constants",
+        "5.4 mpfr_get_d final rounding",
+        "5.5 mpfr_sum directed correctly-rounded sum",
+        "Section7 absence of native subnormals"
+      ]
+    },
+    {
+      "id": "R-FF-INTEL-FTZ2025-2026-01",
+      "path": "research/v5/expansion/legacy_float_contract/resources.json",
+      "passages": [
+        "Set the FTZ and DAZ Flags, lines1566-1594: result/input distinction, SSE/AVX scope, explicit macros and limitations"
+      ]
+    },
+    {
+      "id": "R-FF-CLANG211-2026-01",
+      "path": "research/v5/expansion/legacy_float_contract/resources.json",
+      "passages": [
+        "ffast-math assumptions and implied flags",
+        "fhonor-nans/ffinite-math-only",
+        "frounding-math and strict model",
+        "crtfastmath.o global FTZ/DAZ effect"
       ]
     }
   ],
@@ -133,13 +184,37 @@
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T04-04.md",
-    "fixtures/language/PR-T04-04.json"
+    "fixtures/language/PR-T04-04.json",
+    "labs/float_contract/CONTRACTS.md",
+    "labs/float_contract/float_contract.h",
+    "labs/float_contract/learner.c",
+    "labs/float_contract/observations_template.c",
+    "labs/float_contract/run.py",
+    "labs/float_contract/tests.c"
   ],
   "execution_support": {
     "kind": "retained partial baseline support",
     "scope": "Retain concrete T04 project constructions and exact synthetic fixtures; B01 extent and B02 numerical controls are bounded support, not execution of every new numeric experiment.",
     "tests": [],
-    "fresh_execution": "not-run in this audit wave"
+    "fresh_execution": "not-run in this audit wave",
+    "float_contract_successor": {
+      "path": "research/v5/expansion/legacy_float_contract/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T04-04-T04.09.a",
+        "AX-PR-T04-04-T04.09.b",
+        "AX-PR-T04-04-T04.09.c",
+        "AX-PR-T04-04-T04.10.a",
+        "AX-PR-T04-04-T04.10.b",
+        "AX-PR-T04-04-T04.10.c",
+        "AX-PR-T04-04-T04.11.a",
+        "AX-PR-T04-04-T04.11.b",
+        "AX-PR-T04-04-T04.11.c",
+        "AX-PR-T04-04-T04.12.a",
+        "AX-PR-T04-04-T04.12.b",
+        "AX-PR-T04-04-T04.12.c"
+      ],
+      "scope": "Twelve unchanged ordinary and twelve delayed tasks; exact numerical contracts, compiler/environment variants and independent oracles; no learner/physical claim"
+    }
   },
   "criteria": [
     {
@@ -994,5 +1069,25 @@
       "No complete-domain mastery claim from authoring",
       "Actual unit and physical evidence remain separately bounded"
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_float_contract/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T04-04-T04.09.a",
+        "AX-PR-T04-04-T04.09.b",
+        "AX-PR-T04-04-T04.09.c",
+        "AX-PR-T04-04-T04.10.a",
+        "AX-PR-T04-04-T04.10.b",
+        "AX-PR-T04-04-T04.10.c",
+        "AX-PR-T04-04-T04.11.a",
+        "AX-PR-T04-04-T04.11.b",
+        "AX-PR-T04-04-T04.11.c",
+        "AX-PR-T04-04-T04.12.a",
+        "AX-PR-T04-04-T04.12.b",
+        "AX-PR-T04-04-T04.12.c"
+      ],
+      "scope": "Twelve unchanged ordinary and twelve delayed tasks; exact numerical contracts, compiler/environment variants and independent oracles; no learner/physical claim"
+    }
+  ]
 }

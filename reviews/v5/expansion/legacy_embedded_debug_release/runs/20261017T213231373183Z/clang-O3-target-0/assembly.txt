@@ -1,0 +1,1129 @@
+
+/tmp/debug-release-3crgyg3v/clang-O3-target-0/release.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dt_vectors>:
+}
+int dt_irq_take(DtTrace*q,DtCritical c,DtRecord*out){
+ if(!q||!out||!c.enter||!c.leave)return DT_INVALID;
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+}
+int dt_duration(const DtInterval*v,size_t n,DtDuration*out){
+   0:	00 00 01 20 09 0a 00 00 75 01 00 00 75 01 00 00     ... ....u...u...
+	...
+ DtDuration r={0};if(!out||!v||!n||n>8)return DT_INVALID;
+ for(size_t i=0;i<n;i++){
+  if(!v[i].width||v[i].width>32||!v[i].frequency)return DT_INVALID;
+  40:	ed 02 00 00 3d 03 00 00                             ....=...
+
+00000048 <dt_output>:
+#include "target.h"
+extern uint32_t dt_stack_top,dt_data_start,dt_data_end,dt_data_load,dt_bss_start,dt_bss_end;
+extern void dt_boot(void);
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  48:	4601      	mov	r1, r0
+  4a:	2004      	movs	r0, #4
+  4c:	beab      	bkpt	0x00ab
+  4e:	4770      	bx	lr
+
+00000050 <dt_hex>:
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  50:	b083      	sub	sp, #12
+  52:	f640 2228 	movw	r2, #2600	@ 0xa28
+  56:	0f01      	lsrs	r1, r0, #28
+  58:	f2c0 0200 	movt	r2, #0
+  5c:	5c51      	ldrb	r1, [r2, r1]
+  5e:	f3c0 6303 	ubfx	r3, r0, #24, #4
+  62:	f88d 1003 	strb.w	r1, [sp, #3]
+  66:	f3c0 5103 	ubfx	r1, r0, #20, #4
+  6a:	5cd3      	ldrb	r3, [r2, r3]
+  6c:	5c51      	ldrb	r1, [r2, r1]
+  6e:	f88d 3004 	strb.w	r3, [sp, #4]
+  72:	f3c0 4303 	ubfx	r3, r0, #16, #4
+  76:	f88d 1005 	strb.w	r1, [sp, #5]
+  7a:	f3c0 3103 	ubfx	r1, r0, #12, #4
+  7e:	5cd3      	ldrb	r3, [r2, r3]
+  80:	5c51      	ldrb	r1, [r2, r1]
+  82:	f88d 3006 	strb.w	r3, [sp, #6]
+  86:	f3c0 2303 	ubfx	r3, r0, #8, #4
+  8a:	f88d 1007 	strb.w	r1, [sp, #7]
+  8e:	f3c0 1103 	ubfx	r1, r0, #4, #4
+  92:	f000 000f 	and.w	r0, r0, #15
+  96:	5c10      	ldrb	r0, [r2, r0]
+  98:	5cd3      	ldrb	r3, [r2, r3]
+  9a:	5c51      	ldrb	r1, [r2, r1]
+  9c:	f88d 000a 	strb.w	r0, [sp, #10]
+  a0:	2000      	movs	r0, #0
+  a2:	f88d 3008 	strb.w	r3, [sp, #8]
+  a6:	f88d 1009 	strb.w	r1, [sp, #9]
+  aa:	f88d 000b 	strb.w	r0, [sp, #11]
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  ae:	2004      	movs	r0, #4
+  b0:	f10d 0103 	add.w	r1, sp, #3
+  b4:	beab      	bkpt	0x00ab
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  b6:	b003      	add	sp, #12
+  b8:	4770      	bx	lr
+	...
+
+000000bc <dt_reset>:
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+  bc:	b082      	sub	sp, #8
+  be:	f240 0004 	movw	r0, #4
+  c2:	f240 0100 	movw	r1, #0
+  c6:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+  ca:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+  ce:	4281      	cmp	r1, r0
+  d0:	d219      	bcs.n	106 <dt_reset+0x4a>
+  d2:	f640 22f8 	movw	r2, #2808	@ 0xaf8
+  d6:	f2c0 0200 	movt	r2, #0
+  da:	bf00      	nop
+  dc:	6813      	ldr	r3, [r2, #0]
+  de:	f841 3b04 	str.w	r3, [r1], #4
+  e2:	4281      	cmp	r1, r0
+  e4:	d20f      	bcs.n	106 <dt_reset+0x4a>
+  e6:	6853      	ldr	r3, [r2, #4]
+  e8:	f841 3b04 	str.w	r3, [r1], #4
+  ec:	4281      	cmp	r1, r0
+  ee:	d20a      	bcs.n	106 <dt_reset+0x4a>
+  f0:	6893      	ldr	r3, [r2, #8]
+  f2:	f841 3b04 	str.w	r3, [r1], #4
+  f6:	4281      	cmp	r1, r0
+  f8:	d205      	bcs.n	106 <dt_reset+0x4a>
+  fa:	68d3      	ldr	r3, [r2, #12]
+  fc:	3210      	adds	r2, #16
+  fe:	f841 3b04 	str.w	r3, [r1], #4
+ 102:	4281      	cmp	r1, r0
+ 104:	d3ea      	bcc.n	dc <dt_reset+0x20>
+ 106:	f240 5000 	movw	r0, #1280	@ 0x500
+ 10a:	f240 0104 	movw	r1, #4
+ 10e:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 112:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+ 116:	4281      	cmp	r1, r0
+ 118:	d210      	bcs.n	13c <dt_reset+0x80>
+ 11a:	2200      	movs	r2, #0
+ 11c:	f841 2b04 	str.w	r2, [r1], #4
+ 120:	4281      	cmp	r1, r0
+ 122:	d20b      	bcs.n	13c <dt_reset+0x80>
+ 124:	f841 2b04 	str.w	r2, [r1], #4
+ 128:	4281      	cmp	r1, r0
+ 12a:	d207      	bcs.n	13c <dt_reset+0x80>
+ 12c:	f841 2b04 	str.w	r2, [r1], #4
+ 130:	4281      	cmp	r1, r0
+ 132:	d203      	bcs.n	13c <dt_reset+0x80>
+ 134:	f841 2b04 	str.w	r2, [r1], #4
+ 138:	4281      	cmp	r1, r0
+ 13a:	d3ef      	bcc.n	11c <dt_reset+0x60>
+ 13c:	f000 f924 	bl	388 <dt_target>
+ 140:	4602      	mov	r2, r0
+ 142:	2800      	cmp	r0, #0
+ 144:	f640 2039 	movw	r0, #2617	@ 0xa39
+ 148:	f640 2153 	movw	r1, #2643	@ 0xa53
+ 14c:	f2c0 0000 	movt	r0, #0
+ 150:	f2c0 0100 	movt	r1, #0
+ 154:	bf18      	it	ne
+ 156:	2201      	movne	r2, #1
+ 158:	bf18      	it	ne
+ 15a:	4601      	movne	r1, r0
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 15c:	2004      	movs	r0, #4
+ 15e:	beab      	bkpt	0x00ab
+ 160:	2026      	movs	r0, #38	@ 0x26
+ 162:	f2c0 0002 	movt	r0, #2
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 166:	e9cd 0200 	strd	r0, r2, [sp]
+ 16a:	2020      	movs	r0, #32
+ 16c:	4669      	mov	r1, sp
+ 16e:	beab      	bkpt	0x00ab
+ 170:	bf30      	wfi
+ 172:	e7fd      	b.n	170 <dt_reset+0xb4>
+
+00000174 <failed>:
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+ 174:	b082      	sub	sp, #8
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 176:	f640 2193 	movw	r1, #2707	@ 0xa93
+ 17a:	2004      	movs	r0, #4
+ 17c:	f2c0 0100 	movt	r1, #0
+ 180:	beab      	bkpt	0x00ab
+ 182:	2026      	movs	r0, #38	@ 0x26
+ 184:	f2c0 0002 	movt	r0, #2
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 188:	9000      	str	r0, [sp, #0]
+ 18a:	2001      	movs	r0, #1
+ 18c:	9001      	str	r0, [sp, #4]
+ 18e:	2020      	movs	r0, #32
+ 190:	4669      	mov	r1, sp
+ 192:	beab      	bkpt	0x00ab
+ 194:	bf30      	wfi
+ 196:	e7fd      	b.n	194 <failed+0x20>
+
+00000198 <dt_irq_emit>:
+int dt_irq_emit(DtTrace*q,DtCritical c,uint32_t k,uint32_t t,uint32_t p){
+ 198:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
+ 19c:	b081      	sub	sp, #4
+ if(!q||!c.enter||!c.leave)return DT_INVALID;
+ 19e:	2800      	cmp	r0, #0
+ 1a0:	f04f 0701 	mov.w	r7, #1
+ 1a4:	bf18      	it	ne
+ 1a6:	2a00      	cmpne	r2, #0
+ 1a8:	d104      	bne.n	1b4 <dt_irq_emit+0x1c>
+}
+ 1aa:	4638      	mov	r0, r7
+ 1ac:	b001      	add	sp, #4
+ 1ae:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ 1b2:	bf00      	nop
+ 1b4:	461c      	mov	r4, r3
+ if(!q||!c.enter||!c.leave)return DT_INVALID;
+ 1b6:	2b00      	cmp	r3, #0
+ 1b8:	d0f7      	beq.n	1aa <dt_irq_emit+0x12>
+ 1ba:	4606      	mov	r6, r0
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 1bc:	4608      	mov	r0, r1
+ 1be:	460d      	mov	r5, r1
+ 1c0:	4790      	blx	r2
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 1c2:	6bb3      	ldr	r3, [r6, #56]	@ 0x38
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 1c4:	4601      	mov	r1, r0
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 1c6:	2b02      	cmp	r3, #2
+ 1c8:	d802      	bhi.n	1d0 <dt_irq_emit+0x38>
+ 1ca:	6bf2      	ldr	r2, [r6, #60]	@ 0x3c
+ if(!valid(q))return DT_INVALID;
+ 1cc:	2a03      	cmp	r2, #3
+ 1ce:	d907      	bls.n	1e0 <dt_irq_emit+0x48>
+ 1d0:	2701      	movs	r7, #1
+ uint32_t saved=c.enter(c.context);int result=dt_emit(q,k,t,p);c.leave(c.context,DT_MUTANT==2?0:saved);return result;
+ 1d2:	4628      	mov	r0, r5
+ 1d4:	47a0      	blx	r4
+}
+ 1d6:	4638      	mov	r0, r7
+ 1d8:	b001      	add	sp, #4
+ 1da:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ 1de:	bf00      	nop
+ if(q->next==UINT32_MAX)return DT_EXHAUSTED;
+ 1e0:	6b37      	ldr	r7, [r6, #48]	@ 0x30
+ 1e2:	f117 0901 	adds.w	r9, r7, #1
+ 1e6:	d009      	beq.n	1fc <dt_irq_emit+0x64>
+ if(q->count==3){if(q->dropped==UINT32_MAX)return DT_EXHAUSTED;q->dropped++;if(DT_MUTANT!=1)q->next++;return DT_FULL;}
+ 1e8:	2a03      	cmp	r2, #3
+ 1ea:	d109      	bne.n	200 <dt_irq_emit+0x68>
+ 1ec:	6b72      	ldr	r2, [r6, #52]	@ 0x34
+ 1ee:	3201      	adds	r2, #1
+ 1f0:	bf2e      	itee	cs
+ 1f2:	2704      	movcs	r7, #4
+ 1f4:	e9c6 920c 	strdcc	r9, r2, [r6, #48]	@ 0x30
+ 1f8:	2702      	movcc	r7, #2
+ 1fa:	e7ea      	b.n	1d2 <dt_irq_emit+0x3a>
+ 1fc:	2704      	movs	r7, #4
+ 1fe:	e7e8      	b.n	1d2 <dt_irq_emit+0x3a>
+ unsigned at=(q->head+q->count)%3;q->records[at]=(DtRecord){q->next,kind,timestamp,payload};q->next++;q->count++;return DT_OK;
+ 200:	4413      	add	r3, r2
+ 202:	1ed8      	subs	r0, r3, #3
+ 204:	bf38      	it	cc
+ 206:	4618      	movcc	r0, r3
+ 208:	f8dd c028 	ldr.w	ip, [sp, #40]	@ 0x28
+ 20c:	e9dd 8e08 	ldrd	r8, lr, [sp, #32]
+ 210:	eb06 1300 	add.w	r3, r6, r0, lsl #4
+ 214:	0100      	lsls	r0, r0, #4
+ 216:	5037      	str	r7, [r6, r0]
+ 218:	1c50      	adds	r0, r2, #1
+ 21a:	2700      	movs	r7, #0
+ 21c:	e9c3 8e01 	strd	r8, lr, [r3, #4]
+ 220:	f8c3 c00c 	str.w	ip, [r3, #12]
+ 224:	f8c6 9030 	str.w	r9, [r6, #48]	@ 0x30
+ 228:	63f0      	str	r0, [r6, #60]	@ 0x3c
+ 22a:	e7d2      	b.n	1d2 <dt_irq_emit+0x3a>
+
+0000022c <dt_irq_take>:
+int dt_irq_take(DtTrace*q,DtCritical c,DtRecord*out){
+ 22c:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+ 230:	f04f 0701 	mov.w	r7, #1
+ if(!q||!out||!c.enter||!c.leave)return DT_INVALID;
+ 234:	b3a8      	cbz	r0, 2a2 <dt_irq_take+0x76>
+ 236:	f8dd 8018 	ldr.w	r8, [sp, #24]
+ 23a:	f1b8 0f00 	cmp.w	r8, #0
+ 23e:	d030      	beq.n	2a2 <dt_irq_take+0x76>
+ 240:	b37a      	cbz	r2, 2a2 <dt_irq_take+0x76>
+ 242:	461c      	mov	r4, r3
+ 244:	b36b      	cbz	r3, 2a2 <dt_irq_take+0x76>
+ 246:	4606      	mov	r6, r0
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 248:	4608      	mov	r0, r1
+ 24a:	460d      	mov	r5, r1
+ 24c:	4790      	blx	r2
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 24e:	6bb2      	ldr	r2, [r6, #56]	@ 0x38
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 250:	4601      	mov	r1, r0
+static int valid(const DtTrace*q){return q&&q->head<3&&q->count<=3;}
+ 252:	2a02      	cmp	r2, #2
+ 254:	d822      	bhi.n	29c <dt_irq_take+0x70>
+ 256:	6bf0      	ldr	r0, [r6, #60]	@ 0x3c
+ if(!valid(q)||!out)return DT_INVALID;
+ 258:	2803      	cmp	r0, #3
+ 25a:	d81f      	bhi.n	29c <dt_irq_take+0x70>
+ if(!q->count)return DT_EMPTY;
+ 25c:	b320      	cbz	r0, 2a8 <dt_irq_take+0x7c>
+ *out=q->records[q->head];q->head=(q->head+1)%3;q->count--;return DT_OK;
+ 25e:	eb06 1002 	add.w	r0, r6, r2, lsl #4
+ 262:	68c7      	ldr	r7, [r0, #12]
+ 264:	e9d0 3001 	ldrd	r3, r0, [r0, #4]
+ 268:	0112      	lsls	r2, r2, #4
+ 26a:	f8c8 700c 	str.w	r7, [r8, #12]
+ 26e:	e9c8 3001 	strd	r3, r0, [r8, #4]
+ 272:	58b0      	ldr	r0, [r6, r2]
+ 274:	f64a 23ab 	movw	r3, #43691	@ 0xaaab
+ 278:	f8c8 0000 	str.w	r0, [r8]
+ 27c:	e9d6 020e 	ldrd	r0, r2, [r6, #56]	@ 0x38
+ 280:	f6ca 23aa 	movt	r3, #43690	@ 0xaaaa
+ 284:	3001      	adds	r0, #1
+ 286:	fba0 3703 	umull	r3, r7, r0, r3
+ 28a:	087b      	lsrs	r3, r7, #1
+ 28c:	eb03 0343 	add.w	r3, r3, r3, lsl #1
+ 290:	1ac0      	subs	r0, r0, r3
+ 292:	3a01      	subs	r2, #1
+ 294:	2700      	movs	r7, #0
+ 296:	e9c6 020e 	strd	r0, r2, [r6, #56]	@ 0x38
+ 29a:	e000      	b.n	29e <dt_irq_take+0x72>
+ 29c:	2701      	movs	r7, #1
+ uint32_t saved=c.enter(c.context);int result=dt_take(q,out);c.leave(c.context,saved);return result;
+ 29e:	4628      	mov	r0, r5
+ 2a0:	47a0      	blx	r4
+}
+ 2a2:	4638      	mov	r0, r7
+ 2a4:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+ 2a8:	2703      	movs	r7, #3
+ 2aa:	e7f8      	b.n	29e <dt_irq_take+0x72>
+
+000002ac <dt_record>:
+ if(!out||bytes<8||offset>bytes-8||base&3u||offset&3u)return DT_INVALID;
+ if(bytes>UINT32_MAX-base)return DT_RANGE;
+ DtImage r={base+offset,base+bytes};*out=r;return DT_OK;
+}
+int dt_record(DtRetained*r,uint32_t image,uint32_t code){
+ if(!r||!image)return DT_INVALID;
+ 2ac:	2800      	cmp	r0, #0
+ 2ae:	f04f 0301 	mov.w	r3, #1
+ 2b2:	bf18      	it	ne
+ 2b4:	2900      	cmpne	r1, #0
+ 2b6:	d101      	bne.n	2bc <dt_record+0x10>
+ *r=(DtRetained){1,0x44545231u,image,code,image^code^0x72657431u};return DT_OK;
+}
+ 2b8:	4618      	mov	r0, r3
+ 2ba:	4770      	bx	lr
+ 2bc:	b580      	push	{r7, lr}
+ 2be:	f247 4331 	movw	r3, #29745	@ 0x7431
+ *r=(DtRetained){1,0x44545231u,image,code,image^code^0x72657431u};return DT_OK;
+ 2c2:	ea81 0c02 	eor.w	ip, r1, r2
+ 2c6:	f2c7 2365 	movt	r3, #29285	@ 0x7265
+ 2ca:	f245 2e31 	movw	lr, #21041	@ 0x5231
+ 2ce:	ea83 030c 	eor.w	r3, r3, ip
+ 2d2:	f04f 0c01 	mov.w	ip, #1
+ 2d6:	f2c4 4e54 	movt	lr, #17492	@ 0x4454
+ 2da:	e8e0 ce02 	strd	ip, lr, [r0], #8
+ 2de:	c00e      	stmia	r0!, {r1, r2, r3}
+ 2e0:	2300      	movs	r3, #0
+ 2e2:	e8bd 4080 	ldmia.w	sp!, {r7, lr}
+}
+ 2e6:	4618      	mov	r0, r3
+ 2e8:	4770      	bx	lr
+	...
+
+000002ec <dt_irq0>:
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ return mask;
+}
+static void leave(void*v,uint32_t mask){(void)v;__asm__ volatile("msr primask,%0"::"r"(mask):"memory");}
+static DtCritical port={0,enter,leave};
+void dt_irq0(void){injected=1;if(dt_irq_emit(&trace,port,1,100,10)!=DT_OK)done=99;else done|=1;}
+ 2ec:	b510      	push	{r4, lr}
+ 2ee:	b084      	sub	sp, #16
+ 2f0:	f240 44b4 	movw	r4, #1204	@ 0x4b4
+ 2f4:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+ 2f8:	2101      	movs	r1, #1
+ 2fa:	4620      	mov	r0, r4
+ 2fc:	2264      	movs	r2, #100	@ 0x64
+ 2fe:	f840 1b0c 	str.w	r1, [r0], #12
+ 302:	e9cd 1200 	strd	r1, r2, [sp]
+ 306:	f640 1279 	movw	r2, #2425	@ 0x979
+ 30a:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ 30e:	f04f 0c0a 	mov.w	ip, #10
+ 312:	f2c0 0200 	movt	r2, #0
+ 316:	f2c0 0300 	movt	r3, #0
+ 31a:	2100      	movs	r1, #0
+ 31c:	f8cd c008 	str.w	ip, [sp, #8]
+ 320:	f7ff ff3a 	bl	198 <dt_irq_emit>
+ 324:	b120      	cbz	r0, 330 <dt_irq0+0x44>
+ 326:	2063      	movs	r0, #99	@ 0x63
+ 328:	6060      	str	r0, [r4, #4]
+ 32a:	b004      	add	sp, #16
+ 32c:	bd10      	pop	{r4, pc}
+ 32e:	bf00      	nop
+ 330:	6860      	ldr	r0, [r4, #4]
+ 332:	f040 0001 	orr.w	r0, r0, #1
+ 336:	6060      	str	r0, [r4, #4]
+ 338:	b004      	add	sp, #16
+ 33a:	bd10      	pop	{r4, pc}
+
+0000033c <dt_irq1>:
+void dt_irq1(void){if(dt_irq_emit(&trace,port,2,101,20)!=DT_OK)done=99;else done|=2;}
+ 33c:	b510      	push	{r4, lr}
+ 33e:	b084      	sub	sp, #16
+ 340:	f240 44b4 	movw	r4, #1204	@ 0x4b4
+ 344:	2065      	movs	r0, #101	@ 0x65
+ 346:	2102      	movs	r1, #2
+ 348:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+ 34c:	f640 1279 	movw	r2, #2425	@ 0x979
+ 350:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ 354:	f04f 0c14 	mov.w	ip, #20
+ 358:	e9cd 1000 	strd	r1, r0, [sp]
+ 35c:	f104 000c 	add.w	r0, r4, #12
+ 360:	f2c0 0200 	movt	r2, #0
+ 364:	f2c0 0300 	movt	r3, #0
+ 368:	2100      	movs	r1, #0
+ 36a:	f8cd c008 	str.w	ip, [sp, #8]
+ 36e:	f7ff ff13 	bl	198 <dt_irq_emit>
+ 372:	b118      	cbz	r0, 37c <dt_irq1+0x40>
+ 374:	2063      	movs	r0, #99	@ 0x63
+ 376:	6060      	str	r0, [r4, #4]
+ 378:	b004      	add	sp, #16
+ 37a:	bd10      	pop	{r4, pc}
+ 37c:	6860      	ldr	r0, [r4, #4]
+ 37e:	f040 0002 	orr.w	r0, r0, #2
+ 382:	6060      	str	r0, [r4, #4]
+ 384:	b004      	add	sp, #16
+ 386:	bd10      	pop	{r4, pc}
+
+00000388 <dt_target>:
+__attribute__((noinline)) static uint32_t workload(unsigned mode){
+ uint32_t sum=0;DtRecord record;
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ return sum;
+}
+int dt_target(void){
+ 388:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 38c:	b087      	sub	sp, #28
+ if(cookie!=42||zero)return 1;
+ 38e:	f240 0000 	movw	r0, #0
+ 392:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 396:	6800      	ldr	r0, [r0, #0]
+ 398:	282a      	cmp	r0, #42	@ 0x2a
+ 39a:	d105      	bne.n	3a8 <dt_target+0x20>
+ 39c:	f240 47b4 	movw	r7, #1204	@ 0x4b4
+ 3a0:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+ 3a4:	68b8      	ldr	r0, [r7, #8]
+ 3a6:	b118      	cbz	r0, 3b0 <dt_target+0x28>
+ 3a8:	2001      	movs	r0, #1
+ timer[0]=0;*(volatile uint32_t*)0xe000e180u=3;
+ if(dt_record(&retained,42,123)!=DT_OK)return 1;
+ if(DT_TARGET_MUTANT==2)retained.version=2;
+ __asm__ volatile("dsb":::"memory");*(volatile uint32_t*)0xe000ed0cu=0x05fa0004u;__asm__ volatile("dsb":::"memory");
+ for(;;)__asm__ volatile("wfi");
+}
+ 3aa:	b007      	add	sp, #28
+ 3ac:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ if(retained.valid){
+ 3b0:	f240 5400 	movw	r4, #1280	@ 0x500
+ 3b4:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+ 3b8:	6860      	ldr	r0, [r4, #4]
+ 3ba:	b1e8      	cbz	r0, 3f8 <dt_target+0x70>
+  if(retained.version!=1||retained.image!=42||retained.code!=123||retained.check!=(42u^123u^0x72657431u))return 1;
+ 3bc:	6820      	ldr	r0, [r4, #0]
+ 3be:	2801      	cmp	r0, #1
+ 3c0:	f04f 0001 	mov.w	r0, #1
+ 3c4:	d1f1      	bne.n	3aa <dt_target+0x22>
+ 3c6:	68a1      	ldr	r1, [r4, #8]
+ 3c8:	292a      	cmp	r1, #42	@ 0x2a
+ 3ca:	d1ee      	bne.n	3aa <dt_target+0x22>
+ 3cc:	68e1      	ldr	r1, [r4, #12]
+ 3ce:	297b      	cmp	r1, #123	@ 0x7b
+ 3d0:	d1eb      	bne.n	3aa <dt_target+0x22>
+ 3d2:	6921      	ldr	r1, [r4, #16]
+ 3d4:	f247 4260 	movw	r2, #29792	@ 0x7460
+ 3d8:	f2c7 2265 	movt	r2, #29285	@ 0x7265
+ 3dc:	4291      	cmp	r1, r2
+ 3de:	d1e4      	bne.n	3aa <dt_target+0x22>
+  dt_output("DT_RESET:retained-v1-current-token data42 bss0\n");retained.valid=0;return 0;
+ 3e0:	f640 20b6 	movw	r0, #2742	@ 0xab6
+ 3e4:	f2c0 0000 	movt	r0, #0
+ 3e8:	f7ff fe2e 	bl	48 <dt_output>
+ 3ec:	2000      	movs	r0, #0
+ 3ee:	6060      	str	r0, [r4, #4]
+}
+ 3f0:	b007      	add	sp, #28
+ 3f2:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 3f6:	bf00      	nop
+ 3f8:	f64e 52fc 	movw	r2, #60924	@ 0xedfc
+ 3fc:	f241 0004 	movw	r0, #4100	@ 0x1004
+ 400:	f2ce 0200 	movt	r2, #57344	@ 0xe000
+ 404:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+ uint32_t original=*ctrl,a=0,b=0;*demcr|=1u<<24;
+ 408:	f850 4c04 	ldr.w	r4, [r0, #-4]
+ 40c:	6811      	ldr	r1, [r2, #0]
+ 40e:	2600      	movs	r6, #0
+ 410:	f041 7180 	orr.w	r1, r1, #16777216	@ 0x1000000
+ 414:	6011      	str	r1, [r2, #0]
+ if(!(original&(1u<<25))){*cycles=0;*ctrl=original|1u;a=*cycles;for(volatile unsigned i=0;i<1000;i++){}b=*cycles;}
+ 416:	01a1      	lsls	r1, r4, #6
+ 418:	f04f 0500 	mov.w	r5, #0
+ 41c:	d427      	bmi.n	46e <dt_target+0xe6>
+ 41e:	f044 0101 	orr.w	r1, r4, #1
+ 422:	6006      	str	r6, [r0, #0]
+ 424:	f840 1c04 	str.w	r1, [r0, #-4]
+ 428:	6805      	ldr	r5, [r0, #0]
+ 42a:	9603      	str	r6, [sp, #12]
+ 42c:	9903      	ldr	r1, [sp, #12]
+ 42e:	08c9      	lsrs	r1, r1, #3
+ 430:	297c      	cmp	r1, #124	@ 0x7c
+ 432:	d81b      	bhi.n	46c <dt_target+0xe4>
+ 434:	9903      	ldr	r1, [sp, #12]
+ 436:	3101      	adds	r1, #1
+ 438:	9103      	str	r1, [sp, #12]
+ 43a:	9903      	ldr	r1, [sp, #12]
+ 43c:	08c9      	lsrs	r1, r1, #3
+ 43e:	297c      	cmp	r1, #124	@ 0x7c
+ 440:	d814      	bhi.n	46c <dt_target+0xe4>
+ 442:	9903      	ldr	r1, [sp, #12]
+ 444:	3101      	adds	r1, #1
+ 446:	9103      	str	r1, [sp, #12]
+ 448:	9903      	ldr	r1, [sp, #12]
+ 44a:	08c9      	lsrs	r1, r1, #3
+ 44c:	297c      	cmp	r1, #124	@ 0x7c
+ 44e:	d80d      	bhi.n	46c <dt_target+0xe4>
+ 450:	9903      	ldr	r1, [sp, #12]
+ 452:	3101      	adds	r1, #1
+ 454:	9103      	str	r1, [sp, #12]
+ 456:	9903      	ldr	r1, [sp, #12]
+ 458:	08c9      	lsrs	r1, r1, #3
+ 45a:	297c      	cmp	r1, #124	@ 0x7c
+ 45c:	d806      	bhi.n	46c <dt_target+0xe4>
+ 45e:	9903      	ldr	r1, [sp, #12]
+ 460:	3101      	adds	r1, #1
+ 462:	9103      	str	r1, [sp, #12]
+ 464:	9903      	ldr	r1, [sp, #12]
+ 466:	f5b1 7f7a 	cmp.w	r1, #1000	@ 0x3e8
+ 46a:	d3e3      	bcc.n	434 <dt_target+0xac>
+ 46c:	6806      	ldr	r6, [r0, #0]
+ dt_output("DT_DWT:");dt_hex(original);dt_output(":");dt_hex(a);dt_output(":");dt_hex(b);dt_output("\n");
+ 46e:	f640 20e6 	movw	r0, #2790	@ 0xae6
+ 472:	f24e 1b00 	movw	fp, #57600	@ 0xe100
+ 476:	f2c0 0000 	movt	r0, #0
+ 47a:	f2ce 0b00 	movt	fp, #57344	@ 0xe000
+ 47e:	f7ff fde3 	bl	48 <dt_output>
+ 482:	4620      	mov	r0, r4
+ 484:	f7ff fde4 	bl	50 <dt_hex>
+ 488:	f640 24f5 	movw	r4, #2805	@ 0xaf5
+ 48c:	f2c0 0400 	movt	r4, #0
+ 490:	4620      	mov	r0, r4
+ 492:	f7ff fdd9 	bl	48 <dt_output>
+ 496:	4628      	mov	r0, r5
+ 498:	f7ff fdda 	bl	50 <dt_hex>
+ 49c:	4620      	mov	r0, r4
+ 49e:	f7ff fdd3 	bl	48 <dt_output>
+ 4a2:	4630      	mov	r0, r6
+ 4a4:	f7ff fdd4 	bl	50 <dt_hex>
+ 4a8:	f640 20e4 	movw	r0, #2788	@ 0xae4
+ 4ac:	f2c0 0000 	movt	r0, #0
+ 4b0:	f7ff fdca 	bl	48 <dt_output>
+ 4b4:	2080      	movs	r0, #128	@ 0x80
+ *(volatile uint8_t*)0xe000e400u=0x80;*(volatile uint8_t*)0xe000e401u=0x40;
+ 4b6:	f88b 0300 	strb.w	r0, [fp, #768]	@ 0x300
+ 4ba:	f24e 4001 	movw	r0, #58369	@ 0xe401
+ 4be:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+ 4c2:	2140      	movs	r1, #64	@ 0x40
+ 4c4:	7001      	strb	r1, [r0, #0]
+ 4c6:	2003      	movs	r0, #3
+ *(volatile uint32_t*)0xe000e100u=3;*(volatile uint32_t*)0xe000e200u=1;
+ 4c8:	f8cb 0000 	str.w	r0, [fp]
+ 4cc:	2001      	movs	r0, #1
+ 4ce:	f8cb 0100 	str.w	r0, [fp, #256]	@ 0x100
+ __asm__ volatile("cpsie i\ndsb\nisb":::"memory");
+ 4d2:	b662      	cpsie	i
+ 4d4:	f3bf 8f4f 	dsb	sy
+ 4d8:	f3bf 8f6f 	isb	sy
+ for(unsigned i=0;done!=3&&i<100000;i++)__asm__ volatile("nop":::"memory");
+ 4dc:	6878      	ldr	r0, [r7, #4]
+ 4de:	2803      	cmp	r0, #3
+ 4e0:	d00c      	beq.n	4fc <dt_target+0x174>
+ 4e2:	f248 619f 	movw	r1, #34463	@ 0x869f
+ 4e6:	2000      	movs	r0, #0
+ 4e8:	f2c0 0101 	movt	r1, #1
+ 4ec:	bf00      	nop
+ 4ee:	687a      	ldr	r2, [r7, #4]
+ 4f0:	2a03      	cmp	r2, #3
+ 4f2:	d003      	beq.n	4fc <dt_target+0x174>
+ 4f4:	4288      	cmp	r0, r1
+ 4f6:	f100 0001 	add.w	r0, r0, #1
+ 4fa:	d3f7      	bcc.n	4ec <dt_target+0x164>
+ if(done!=3)return 1;
+ 4fc:	6878      	ldr	r0, [r7, #4]
+ 4fe:	2803      	cmp	r0, #3
+ 500:	f47f af52 	bne.w	3a8 <dt_target+0x20>
+ DtRecord record;if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=1)return 1;
+ 504:	f107 090c 	add.w	r9, r7, #12
+ 508:	f640 1279 	movw	r2, #2425	@ 0x979
+ 50c:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ 510:	ad03      	add	r5, sp, #12
+ 512:	f2c0 0200 	movt	r2, #0
+ 516:	f2c0 0300 	movt	r3, #0
+ 51a:	4648      	mov	r0, r9
+ 51c:	2100      	movs	r1, #0
+ 51e:	9500      	str	r5, [sp, #0]
+ 520:	f7ff fe84 	bl	22c <dt_irq_take>
+ 524:	2800      	cmp	r0, #0
+ 526:	f47f af3f 	bne.w	3a8 <dt_target+0x20>
+ 52a:	9804      	ldr	r0, [sp, #16]
+ 52c:	2801      	cmp	r0, #1
+ 52e:	f47f af3b 	bne.w	3a8 <dt_target+0x20>
+ if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=2)return 1;
+ 532:	f640 1279 	movw	r2, #2425	@ 0x979
+ 536:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ 53a:	f2c0 0200 	movt	r2, #0
+ 53e:	f2c0 0300 	movt	r3, #0
+ 542:	4648      	mov	r0, r9
+ 544:	2100      	movs	r1, #0
+ 546:	9500      	str	r5, [sp, #0]
+ 548:	f7ff fe70 	bl	22c <dt_irq_take>
+ 54c:	2800      	cmp	r0, #0
+ 54e:	f47f af2b 	bne.w	3a8 <dt_target+0x20>
+ 552:	9804      	ldr	r0, [sp, #16]
+ 554:	2802      	cmp	r0, #2
+ 556:	f47f af27 	bne.w	3a8 <dt_target+0x20>
+ 55a:	2600      	movs	r6, #0
+ 55c:	2004      	movs	r0, #4
+ if(dt_irq_emit(&trace,port,4,0,0)!=DT_OK)return 1;
+ 55e:	f640 1279 	movw	r2, #2425	@ 0x979
+ 562:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ __asm__ volatile("cpsid i":::"memory");
+ 566:	b672      	cpsid	i
+ if(dt_irq_emit(&trace,port,4,0,0)!=DT_OK)return 1;
+ 568:	e9cd 0600 	strd	r0, r6, [sp]
+ 56c:	f2c0 0200 	movt	r2, #0
+ 570:	f2c0 0300 	movt	r3, #0
+ 574:	4648      	mov	r0, r9
+ 576:	2100      	movs	r1, #0
+ 578:	9602      	str	r6, [sp, #8]
+ 57a:	f7ff fe0d 	bl	198 <dt_irq_emit>
+ 57e:	2800      	cmp	r0, #0
+ 580:	f47f af12 	bne.w	3a8 <dt_target+0x20>
+ uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));if(mask!=1)return 1;
+ 584:	f3ef 8010 	mrs	r0, PRIMASK
+ 588:	2801      	cmp	r0, #1
+ 58a:	f47f af0d 	bne.w	3a8 <dt_target+0x20>
+ (void)dt_irq_take(&trace,port,&record);
+ 58e:	f640 1279 	movw	r2, #2425	@ 0x979
+ 592:	f640 13a9 	movw	r3, #2473	@ 0x9a9
+ 596:	2404      	movs	r4, #4
+ 598:	f2c0 0200 	movt	r2, #0
+ 59c:	f2c0 0300 	movt	r3, #0
+ 5a0:	4648      	mov	r0, r9
+ 5a2:	2100      	movs	r1, #0
+ 5a4:	f2c4 0400 	movt	r4, #16384	@ 0x4000
+ 5a8:	9500      	str	r5, [sp, #0]
+ 5aa:	2500      	movs	r5, #0
+ 5ac:	f7ff fe3e 	bl	22c <dt_irq_take>
+ 5b0:	f04f 4080 	mov.w	r0, #1073741824	@ 0x40000000
+ 5b4:	f06f 417f 	mvn.w	r1, #4278190080	@ 0xff000000
+ volatile uint32_t*timer=(volatile uint32_t*)0x40000000u;timer[0]=0;timer[2]=0x00ffffffu;timer[3]=1;timer[0]=1;
+ 5b8:	6005      	str	r5, [r0, #0]
+ 5ba:	6061      	str	r1, [r4, #4]
+ 5bc:	2101      	movs	r1, #1
+ 5be:	60a1      	str	r1, [r4, #8]
+ 5c0:	6001      	str	r1, [r0, #0]
+ 5c2:	f240 0004 	movw	r0, #4
+ 5c6:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 5ca:	3074      	adds	r0, #116	@ 0x74
+ for(unsigned i=0;i<300;i++)values[i]=i;
+ 5cc:	1c69      	adds	r1, r5, #1
+ 5ce:	f840 5c74 	str.w	r5, [r0, #-116]
+ 5d2:	f840 1c70 	str.w	r1, [r0, #-112]
+ 5d6:	1ca9      	adds	r1, r5, #2
+ 5d8:	f840 1c6c 	str.w	r1, [r0, #-108]
+ 5dc:	1ce9      	adds	r1, r5, #3
+ 5de:	f840 1c68 	str.w	r1, [r0, #-104]
+ 5e2:	1d29      	adds	r1, r5, #4
+ 5e4:	f840 1c64 	str.w	r1, [r0, #-100]
+ 5e8:	1d69      	adds	r1, r5, #5
+ 5ea:	f840 1c60 	str.w	r1, [r0, #-96]
+ 5ee:	1da9      	adds	r1, r5, #6
+ 5f0:	f840 1c5c 	str.w	r1, [r0, #-92]
+ 5f4:	1de9      	adds	r1, r5, #7
+ 5f6:	f840 1c58 	str.w	r1, [r0, #-88]
+ 5fa:	f105 0108 	add.w	r1, r5, #8
+ 5fe:	f840 1c54 	str.w	r1, [r0, #-84]
+ 602:	f105 0109 	add.w	r1, r5, #9
+ 606:	f840 1c50 	str.w	r1, [r0, #-80]
+ 60a:	f105 010a 	add.w	r1, r5, #10
+ 60e:	f840 1c4c 	str.w	r1, [r0, #-76]
+ 612:	f105 010b 	add.w	r1, r5, #11
+ 616:	f840 1c48 	str.w	r1, [r0, #-72]
+ 61a:	f105 010c 	add.w	r1, r5, #12
+ 61e:	f840 1c44 	str.w	r1, [r0, #-68]
+ 622:	f105 010d 	add.w	r1, r5, #13
+ 626:	f840 1c40 	str.w	r1, [r0, #-64]
+ 62a:	f105 010e 	add.w	r1, r5, #14
+ 62e:	f840 1c3c 	str.w	r1, [r0, #-60]
+ 632:	f105 010f 	add.w	r1, r5, #15
+ 636:	f840 1c38 	str.w	r1, [r0, #-56]
+ 63a:	f105 0110 	add.w	r1, r5, #16
+ 63e:	f840 1c34 	str.w	r1, [r0, #-52]
+ 642:	f105 0111 	add.w	r1, r5, #17
+ 646:	f840 1c30 	str.w	r1, [r0, #-48]
+ 64a:	f105 0112 	add.w	r1, r5, #18
+ 64e:	f840 1c2c 	str.w	r1, [r0, #-44]
+ 652:	f105 0113 	add.w	r1, r5, #19
+ 656:	f840 1c28 	str.w	r1, [r0, #-40]
+ 65a:	f105 0114 	add.w	r1, r5, #20
+ 65e:	f840 1c24 	str.w	r1, [r0, #-36]
+ 662:	f105 0115 	add.w	r1, r5, #21
+ 666:	f840 1c20 	str.w	r1, [r0, #-32]
+ 66a:	f105 0116 	add.w	r1, r5, #22
+ 66e:	f840 1c1c 	str.w	r1, [r0, #-28]
+ 672:	f105 0117 	add.w	r1, r5, #23
+ 676:	f840 1c18 	str.w	r1, [r0, #-24]
+ 67a:	f105 0118 	add.w	r1, r5, #24
+ 67e:	f840 1c14 	str.w	r1, [r0, #-20]
+ 682:	f105 0119 	add.w	r1, r5, #25
+ 686:	f840 1c10 	str.w	r1, [r0, #-16]
+ 68a:	f105 011a 	add.w	r1, r5, #26
+ 68e:	f840 1c0c 	str.w	r1, [r0, #-12]
+ 692:	f105 011b 	add.w	r1, r5, #27
+ 696:	f840 1c08 	str.w	r1, [r0, #-8]
+ 69a:	f105 011c 	add.w	r1, r5, #28
+ 69e:	f840 1c04 	str.w	r1, [r0, #-4]
+ 6a2:	f105 011d 	add.w	r1, r5, #29
+ 6a6:	351e      	adds	r5, #30
+ 6a8:	6001      	str	r1, [r0, #0]
+ 6aa:	f5b5 7f96 	cmp.w	r5, #300	@ 0x12c
+ 6ae:	f100 0078 	add.w	r0, r0, #120	@ 0x78
+ 6b2:	d18b      	bne.n	5cc <dt_target+0x244>
+ 6b4:	f640 28f5 	movw	r8, #2805	@ 0xaf5
+ 6b8:	2500      	movs	r5, #0
+ 6ba:	f2c0 0800 	movt	r8, #0
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 6be:	4648      	mov	r0, r9
+ 6c0:	2140      	movs	r1, #64	@ 0x40
+ 6c2:	f000 f975 	bl	9b0 <__aeabi_memclr4>
+ 6c6:	2404      	movs	r4, #4
+ 6c8:	f2c4 0400 	movt	r4, #16384	@ 0x4000
+ 6cc:	f8d4 a000 	ldr.w	sl, [r4]
+ 6d0:	2000      	movs	r0, #0
+ 6d2:	f000 f8bb 	bl	84c <workload>
+ 6d6:	6826      	ldr	r6, [r4, #0]
+  if(sum!=44850||before<after||before==after)return 1;
+ 6d8:	f64a 7132 	movw	r1, #44850	@ 0xaf32
+ 6dc:	4288      	cmp	r0, r1
+ 6de:	f47f ae63 	bne.w	3a8 <dt_target+0x20>
+ 6e2:	45b2      	cmp	sl, r6
+ 6e4:	f67f ae60 	bls.w	3a8 <dt_target+0x20>
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 6e8:	f640 20ee 	movw	r0, #2798	@ 0xaee
+ 6ec:	f2c0 0000 	movt	r0, #0
+ 6f0:	f7ff fcaa 	bl	48 <dt_output>
+ 6f4:	4628      	mov	r0, r5
+ 6f6:	f7ff fcab 	bl	50 <dt_hex>
+ 6fa:	4640      	mov	r0, r8
+ 6fc:	f7ff fca4 	bl	48 <dt_output>
+ 700:	2000      	movs	r0, #0
+ 702:	f7ff fca5 	bl	50 <dt_hex>
+ 706:	4640      	mov	r0, r8
+ 708:	f7ff fc9e 	bl	48 <dt_output>
+ 70c:	ebaa 0006 	sub.w	r0, sl, r6
+ 710:	f7ff fc9e 	bl	50 <dt_hex>
+ 714:	4640      	mov	r0, r8
+ 716:	f7ff fc97 	bl	48 <dt_output>
+ 71a:	6c38      	ldr	r0, [r7, #64]	@ 0x40
+ 71c:	f7ff fc98 	bl	50 <dt_hex>
+ 720:	f640 20e4 	movw	r0, #2788	@ 0xae4
+ 724:	f2c0 0000 	movt	r0, #0
+ 728:	f7ff fc8e 	bl	48 <dt_output>
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 72c:	4648      	mov	r0, r9
+ 72e:	2140      	movs	r1, #64	@ 0x40
+ 730:	f000 f93e 	bl	9b0 <__aeabi_memclr4>
+ 734:	2404      	movs	r4, #4
+ 736:	f2c4 0400 	movt	r4, #16384	@ 0x4000
+ 73a:	6826      	ldr	r6, [r4, #0]
+ 73c:	2001      	movs	r0, #1
+ 73e:	f000 f885 	bl	84c <workload>
+ 742:	6824      	ldr	r4, [r4, #0]
+  if(sum!=44850||before<after||before==after)return 1;
+ 744:	f64a 7132 	movw	r1, #44850	@ 0xaf32
+ 748:	4288      	cmp	r0, r1
+ 74a:	f47f ae2d 	bne.w	3a8 <dt_target+0x20>
+ 74e:	42a6      	cmp	r6, r4
+ 750:	f67f ae2a 	bls.w	3a8 <dt_target+0x20>
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 754:	f640 20ee 	movw	r0, #2798	@ 0xaee
+ 758:	f2c0 0000 	movt	r0, #0
+ 75c:	f7ff fc74 	bl	48 <dt_output>
+ 760:	4628      	mov	r0, r5
+ 762:	f7ff fc75 	bl	50 <dt_hex>
+ 766:	4640      	mov	r0, r8
+ 768:	f7ff fc6e 	bl	48 <dt_output>
+ 76c:	2001      	movs	r0, #1
+ 76e:	f7ff fc6f 	bl	50 <dt_hex>
+ 772:	4640      	mov	r0, r8
+ 774:	f7ff fc68 	bl	48 <dt_output>
+ 778:	1b30      	subs	r0, r6, r4
+ 77a:	f7ff fc69 	bl	50 <dt_hex>
+ 77e:	4640      	mov	r0, r8
+ 780:	f7ff fc62 	bl	48 <dt_output>
+ 784:	6c38      	ldr	r0, [r7, #64]	@ 0x40
+ 786:	f7ff fc63 	bl	50 <dt_hex>
+ 78a:	f640 20e4 	movw	r0, #2788	@ 0xae4
+ 78e:	f2c0 0000 	movt	r0, #0
+ 792:	f7ff fc59 	bl	48 <dt_output>
+  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+ 796:	4648      	mov	r0, r9
+ 798:	2140      	movs	r1, #64	@ 0x40
+ 79a:	f000 f909 	bl	9b0 <__aeabi_memclr4>
+ 79e:	2404      	movs	r4, #4
+ 7a0:	f2c4 0400 	movt	r4, #16384	@ 0x4000
+ 7a4:	6826      	ldr	r6, [r4, #0]
+ 7a6:	2002      	movs	r0, #2
+ 7a8:	f000 f850 	bl	84c <workload>
+ 7ac:	6824      	ldr	r4, [r4, #0]
+  if(sum!=44850||before<after||before==after)return 1;
+ 7ae:	f64a 7132 	movw	r1, #44850	@ 0xaf32
+ 7b2:	4288      	cmp	r0, r1
+ 7b4:	f47f adf8 	bne.w	3a8 <dt_target+0x20>
+ 7b8:	42a6      	cmp	r6, r4
+ 7ba:	f67f adf5 	bls.w	3a8 <dt_target+0x20>
+  dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
+ 7be:	f640 20ee 	movw	r0, #2798	@ 0xaee
+ 7c2:	f2c0 0000 	movt	r0, #0
+ 7c6:	f7ff fc3f 	bl	48 <dt_output>
+ 7ca:	4628      	mov	r0, r5
+ 7cc:	f7ff fc40 	bl	50 <dt_hex>
+ 7d0:	4640      	mov	r0, r8
+ 7d2:	f7ff fc39 	bl	48 <dt_output>
+ 7d6:	2002      	movs	r0, #2
+ 7d8:	f7ff fc3a 	bl	50 <dt_hex>
+ 7dc:	4640      	mov	r0, r8
+ 7de:	f7ff fc33 	bl	48 <dt_output>
+ 7e2:	1b30      	subs	r0, r6, r4
+ 7e4:	f7ff fc34 	bl	50 <dt_hex>
+ 7e8:	4640      	mov	r0, r8
+ 7ea:	f7ff fc2d 	bl	48 <dt_output>
+ 7ee:	6c38      	ldr	r0, [r7, #64]	@ 0x40
+ 7f0:	f7ff fc2e 	bl	50 <dt_hex>
+ 7f4:	f640 20e4 	movw	r0, #2788	@ 0xae4
+ 7f8:	f2c0 0000 	movt	r0, #0
+ 7fc:	f7ff fc24 	bl	48 <dt_output>
+ for(unsigned sample=0;sample<7;sample++)for(unsigned mode=0;mode<3;mode++){
+ 800:	3501      	adds	r5, #1
+ 802:	2d07      	cmp	r5, #7
+ 804:	f47f af5b 	bne.w	6be <dt_target+0x336>
+ 808:	f04f 4080 	mov.w	r0, #1073741824	@ 0x40000000
+ 80c:	2100      	movs	r1, #0
+ timer[0]=0;*(volatile uint32_t*)0xe000e180u=3;
+ 80e:	6001      	str	r1, [r0, #0]
+ 810:	2003      	movs	r0, #3
+ 812:	f8cb 0080 	str.w	r0, [fp, #128]	@ 0x80
+ if(dt_record(&retained,42,123)!=DT_OK)return 1;
+ 816:	f240 5000 	movw	r0, #1280	@ 0x500
+ 81a:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 81e:	212a      	movs	r1, #42	@ 0x2a
+ 820:	227b      	movs	r2, #123	@ 0x7b
+ 822:	f7ff fd43 	bl	2ac <dt_record>
+ 826:	2800      	cmp	r0, #0
+ 828:	f47f adbe 	bne.w	3a8 <dt_target+0x20>
+ 82c:	2004      	movs	r0, #4
+ __asm__ volatile("dsb":::"memory");*(volatile uint32_t*)0xe000ed0cu=0x05fa0004u;__asm__ volatile("dsb":::"memory");
+ 82e:	f64e 51fc 	movw	r1, #60924	@ 0xedfc
+ 832:	f2c0 50fa 	movt	r0, #1530	@ 0x5fa
+ 836:	f2ce 0100 	movt	r1, #57344	@ 0xe000
+ 83a:	f3bf 8f4f 	dsb	sy
+ 83e:	f841 0cf0 	str.w	r0, [r1, #-240]
+ 842:	f3bf 8f4f 	dsb	sy
+ 846:	bf00      	nop
+ for(;;)__asm__ volatile("wfi");
+ 848:	bf30      	wfi
+ 84a:	e7fd      	b.n	848 <dt_target+0x4c0>
+
+0000084c <workload>:
+__attribute__((noinline)) static uint32_t workload(unsigned mode){
+ 84c:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 850:	b087      	sub	sp, #28
+ 852:	b398      	cbz	r0, 8bc <workload+0x70>
+ 854:	f240 0904 	movw	r9, #4
+ 858:	2600      	movs	r6, #0
+ 85a:	f2c2 0900 	movt	r9, #8192	@ 0x2000
+ 85e:	f04f 0a03 	mov.w	sl, #3
+ 862:	2802      	cmp	r0, #2
+ 864:	d13c      	bne.n	8e0 <workload+0x94>
+ 866:	f240 40b4 	movw	r0, #1204	@ 0x4b4
+ 86a:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 86e:	f640 1879 	movw	r8, #2425	@ 0x979
+ 872:	f640 17a9 	movw	r7, #2473	@ 0x9a9
+ 876:	f100 050c 	add.w	r5, r0, #12
+ 87a:	f2c0 0800 	movt	r8, #0
+ 87e:	f2c0 0700 	movt	r7, #0
+ 882:	f10d 0b0c 	add.w	fp, sp, #12
+ 886:	2400      	movs	r4, #0
+ for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
+ 888:	f859 0026 	ldr.w	r0, [r9, r6, lsl #2]
+ 88c:	2100      	movs	r1, #0
+ 88e:	4404      	add	r4, r0
+ 890:	4628      	mov	r0, r5
+ 892:	4642      	mov	r2, r8
+ 894:	463b      	mov	r3, r7
+ 896:	e9cd a600 	strd	sl, r6, [sp]
+ 89a:	9602      	str	r6, [sp, #8]
+ 89c:	f7ff fc7c 	bl	198 <dt_irq_emit>
+ 8a0:	4628      	mov	r0, r5
+ 8a2:	2100      	movs	r1, #0
+ 8a4:	4642      	mov	r2, r8
+ 8a6:	463b      	mov	r3, r7
+ 8a8:	f8cd b000 	str.w	fp, [sp]
+ 8ac:	f7ff fcbe 	bl	22c <dt_irq_take>
+ 8b0:	3601      	adds	r6, #1
+ 8b2:	f5b6 7f96 	cmp.w	r6, #300	@ 0x12c
+ 8b6:	d1e7      	bne.n	888 <workload+0x3c>
+ 8b8:	e05a      	b.n	970 <workload+0x124>
+ 8ba:	bf00      	nop
+ 8bc:	4241      	negs	r1, r0
+ 8be:	f011 0203 	ands.w	r2, r1, #3
+ 8c2:	d02f      	beq.n	924 <workload+0xd8>
+ 8c4:	f240 0104 	movw	r1, #4
+ 8c8:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+ 8cc:	f851 3020 	ldr.w	r3, [r1, r0, lsl #2]
+ 8d0:	2a01      	cmp	r2, #1
+ 8d2:	eb03 0400 	add.w	r4, r3, r0
+ 8d6:	f100 0301 	add.w	r3, r0, #1
+ 8da:	d125      	bne.n	928 <workload+0xdc>
+ 8dc:	4618      	mov	r0, r3
+ 8de:	e031      	b.n	944 <workload+0xf8>
+ 8e0:	f240 40b4 	movw	r0, #1204	@ 0x4b4
+ 8e4:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+ 8e8:	f640 1879 	movw	r8, #2425	@ 0x979
+ 8ec:	f640 17a9 	movw	r7, #2473	@ 0x9a9
+ 8f0:	f100 050c 	add.w	r5, r0, #12
+ 8f4:	f2c0 0800 	movt	r8, #0
+ 8f8:	f2c0 0700 	movt	r7, #0
+ 8fc:	2400      	movs	r4, #0
+ 8fe:	bf00      	nop
+ 900:	f859 0026 	ldr.w	r0, [r9, r6, lsl #2]
+ 904:	2100      	movs	r1, #0
+ 906:	4404      	add	r4, r0
+ 908:	4628      	mov	r0, r5
+ 90a:	4642      	mov	r2, r8
+ 90c:	463b      	mov	r3, r7
+ 90e:	e9cd a600 	strd	sl, r6, [sp]
+ 912:	9602      	str	r6, [sp, #8]
+ 914:	f7ff fc40 	bl	198 <dt_irq_emit>
+ 918:	3601      	adds	r6, #1
+ 91a:	f5b6 7f96 	cmp.w	r6, #300	@ 0x12c
+ 91e:	d1ef      	bne.n	900 <workload+0xb4>
+ 920:	e026      	b.n	970 <workload+0x124>
+ 922:	bf00      	nop
+ 924:	4604      	mov	r4, r0
+ 926:	e00d      	b.n	944 <workload+0xf8>
+ 928:	f851 3023 	ldr.w	r3, [r1, r3, lsl #2]
+ 92c:	2a02      	cmp	r2, #2
+ 92e:	441c      	add	r4, r3
+ 930:	f100 0202 	add.w	r2, r0, #2
+ 934:	d102      	bne.n	93c <workload+0xf0>
+ 936:	4610      	mov	r0, r2
+ 938:	e004      	b.n	944 <workload+0xf8>
+ 93a:	bf00      	nop
+ 93c:	f851 1022 	ldr.w	r1, [r1, r2, lsl #2]
+ 940:	3003      	adds	r0, #3
+ 942:	440c      	add	r4, r1
+ 944:	f240 0204 	movw	r2, #4
+ 948:	f2c2 0200 	movt	r2, #8192	@ 0x2000
+ 94c:	f5a0 7196 	sub.w	r1, r0, #300	@ 0x12c
+ 950:	eb02 0080 	add.w	r0, r2, r0, lsl #2
+ 954:	3810      	subs	r0, #16
+ 956:	bf00      	nop
+ 958:	f850 2f10 	ldr.w	r2, [r0, #16]!
+ 95c:	3104      	adds	r1, #4
+ 95e:	6843      	ldr	r3, [r0, #4]
+ 960:	4422      	add	r2, r4
+ 962:	6887      	ldr	r7, [r0, #8]
+ 964:	441a      	add	r2, r3
+ 966:	68c3      	ldr	r3, [r0, #12]
+ 968:	443a      	add	r2, r7
+ 96a:	eb03 0402 	add.w	r4, r3, r2
+ 96e:	d1f3      	bne.n	958 <workload+0x10c>
+ return sum;
+ 970:	4620      	mov	r0, r4
+ 972:	b007      	add	sp, #28
+ 974:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+00000978 <enter>:
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ 978:	f240 41b4 	movw	r1, #1204	@ 0x4b4
+ (void)v;uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));
+ 97c:	f3ef 8010 	mrs	r0, PRIMASK
+ if(DT_TARGET_MUTANT!=1)__asm__ volatile("cpsid i":::"memory");
+ 980:	b672      	cpsid	i
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ 982:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+ 986:	680a      	ldr	r2, [r1, #0]
+ 988:	2a00      	cmp	r2, #0
+ return mask;
+ 98a:	bf08      	it	eq
+ 98c:	4770      	bxeq	lr
+ 98e:	2200      	movs	r2, #0
+ if(injected){injected=0;*(volatile uint32_t*)0xe000e200u=2;__asm__ volatile("dsb\nisb":::"memory");}
+ 990:	600a      	str	r2, [r1, #0]
+ 992:	f24e 2100 	movw	r1, #57856	@ 0xe200
+ 996:	f2ce 0100 	movt	r1, #57344	@ 0xe000
+ 99a:	2202      	movs	r2, #2
+ 99c:	600a      	str	r2, [r1, #0]
+ 99e:	f3bf 8f4f 	dsb	sy
+ 9a2:	f3bf 8f6f 	isb	sy
+ return mask;
+ 9a6:	4770      	bx	lr
+
+000009a8 <leave>:
+static void leave(void*v,uint32_t mask){(void)v;__asm__ volatile("msr primask,%0"::"r"(mask):"memory");}
+ 9a8:	f381 8810 	msr	PRIMASK, r1
+ 9ac:	4770      	bx	lr
+	...
+
+000009b0 <__aeabi_memclr4>:
+    a[i] = b[i];
+  return d;
+}
+void *memset(void *d, int v, size_t n) {
+  unsigned char *a = d;
+  for (size_t i = 0; i < n; i++)
+ 9b0:	2900      	cmp	r1, #0
+    }
+  }
+  return d;
+}
+void __aeabi_memclr(void *d, size_t n) { memset(d, 0, n); }
+void __aeabi_memclr4(void *d, size_t n) { memset(d, 0, n); }
+ 9b2:	bf08      	it	eq
+ 9b4:	4770      	bxeq	lr
+ 9b6:	b5b0      	push	{r4, r5, r7, lr}
+  for (size_t i = 0; i < n; i++)
+ 9b8:	f001 0c03 	and.w	ip, r1, #3
+ 9bc:	0889      	lsrs	r1, r1, #2
+ 9be:	f04f 0e00 	mov.w	lr, #0
+ 9c2:	d00e      	beq.n	9e2 <__aeabi_memclr4+0x32>
+ 9c4:	1c43      	adds	r3, r0, #1
+ 9c6:	ebae 0181 	sub.w	r1, lr, r1, lsl #2
+ 9ca:	f06f 0203 	mvn.w	r2, #3
+ 9ce:	bf00      	nop
+    a[i] = (unsigned char)v;
+ 9d0:	189c      	adds	r4, r3, r2
+  for (size_t i = 0; i < n; i++)
+ 9d2:	3204      	adds	r2, #4
+ 9d4:	188d      	adds	r5, r1, r2
+ 9d6:	3504      	adds	r5, #4
+    a[i] = (unsigned char)v;
+ 9d8:	f8c4 e003 	str.w	lr, [r4, #3]
+  for (size_t i = 0; i < n; i++)
+ 9dc:	d1f8      	bne.n	9d0 <__aeabi_memclr4+0x20>
+ 9de:	f102 0e04 	add.w	lr, r2, #4
+ 9e2:	f1bc 0f00 	cmp.w	ip, #0
+ 9e6:	d00b      	beq.n	a00 <__aeabi_memclr4+0x50>
+ 9e8:	2100      	movs	r1, #0
+ 9ea:	f1bc 0f01 	cmp.w	ip, #1
+    a[i] = (unsigned char)v;
+ 9ee:	f800 100e 	strb.w	r1, [r0, lr]
+  for (size_t i = 0; i < n; i++)
+ 9f2:	d005      	beq.n	a00 <__aeabi_memclr4+0x50>
+    a[i] = (unsigned char)v;
+ 9f4:	4470      	add	r0, lr
+  for (size_t i = 0; i < n; i++)
+ 9f6:	f1bc 0f02 	cmp.w	ip, #2
+    a[i] = (unsigned char)v;
+ 9fa:	7041      	strb	r1, [r0, #1]
+ 9fc:	bf18      	it	ne
+ 9fe:	7081      	strbne	r1, [r0, #2]
+ a00:	e8bd 40b0 	ldmia.w	sp!, {r4, r5, r7, lr}
+void __aeabi_memclr4(void *d, size_t n) { memset(d, 0, n); }
+ a04:	4770      	bx	lr
+	...
+
+00000a08 <dt_boot>:
+.thumb
+.global dt_boot
+.type dt_boot,%function
+.thumb_func
+dt_boot:
+  cpsid i
+ a08:	b672      	cpsid	i
+  ldr r0,=dt_data_start
+ a0a:	4805      	ldr	r0, [pc, #20]	@ (a20 <dt_boot+0x18>)
+  ldr r1,=dt_bss_end
+ a0c:	4905      	ldr	r1, [pc, #20]	@ (a24 <dt_boot+0x1c>)
+  ldr r2,=0xa5a5a5a5
+ a0e:	f04f 32a5 	mov.w	r2, #2779096485	@ 0xa5a5a5a5
+1: cmp r0,r1
+ a12:	4288      	cmp	r0, r1
+  bhs 2f
+ a14:	d202      	bcs.n	a1c <dt_boot+0x14>
+  str r2,[r0],#4
+ a16:	f840 2b04 	str.w	r2, [r0], #4
+  b 1b
+ a1a:	e7fa      	b.n	a12 <dt_boot+0xa>
+2: b dt_reset
+ a1c:	f7ff bb4e 	b.w	bc <dt_reset>
+ a20:	20000000 	.word	0x20000000
+ a24:	20000500 	.word	0x20000500
+ a28:	33323130 	.word	0x33323130
+ a2c:	37363534 	.word	0x37363534
+ a30:	62613938 	.word	0x62613938
+ a34:	66656463 	.word	0x66656463
+ a38:	5f544400 	.word	0x5f544400
+ a3c:	47524154 	.word	0x47524154
+ a40:	435f5445 	.word	0x435f5445
+ a44:	4b434548 	.word	0x4b434548
+ a48:	6e6f633a 	.word	0x6e6f633a
+ a4c:	63617274 	.word	0x63617274
+ a50:	44000a74 	.word	0x44000a74
+ a54:	41545f54 	.word	0x41545f54
+ a58:	54454752 	.word	0x54454752
+ a5c:	5341505f 	.word	0x5341505f
+ a60:	63613a53 	.word	0x63613a53
+ a64:	6c617574 	.word	0x6c617574
+ a68:	746e692d 	.word	0x746e692d
+ a6c:	75727265 	.word	0x75727265
+ a70:	702d7470 	.word	0x702d7470
+ a74:	696c6275 	.word	0x696c6275
+ a78:	69746163 	.word	0x69746163
+ a7c:	612d6e6f 	.word	0x612d6e6f
+ a80:	732d646e 	.word	0x732d646e
+ a84:	7774666f 	.word	0x7774666f
+ a88:	2d657261 	.word	0x2d657261
+ a8c:	65736572 	.word	0x65736572
+ a90:	44000a74 	.word	0x44000a74
+ a94:	41545f54 	.word	0x41545f54
+ a98:	54454752 	.word	0x54454752
+ a9c:	4548435f 	.word	0x4548435f
+ aa0:	753a4b43 	.word	0x753a4b43
+ aa4:	7078656e 	.word	0x7078656e
+ aa8:	65746365 	.word	0x65746365
+ aac:	65762d64 	.word	0x65762d64
+ ab0:	726f7463 	.word	0x726f7463
+ ab4:	5444000a 	.word	0x5444000a
+ ab8:	5345525f 	.word	0x5345525f
+ abc:	723a5445 	.word	0x723a5445
+ ac0:	69617465 	.word	0x69617465
+ ac4:	2d64656e 	.word	0x2d64656e
+ ac8:	632d3176 	.word	0x632d3176
+ acc:	65727275 	.word	0x65727275
+ ad0:	742d746e 	.word	0x742d746e
+ ad4:	6e656b6f 	.word	0x6e656b6f
+ ad8:	74616420 	.word	0x74616420
+ adc:	20323461 	.word	0x20323461
+ ae0:	30737362 	.word	0x30737362
+ ae4:	5444000a 	.word	0x5444000a
+ ae8:	5457445f 	.word	0x5457445f
+ aec:	5444003a 	.word	0x5444003a
+ af0:	534f435f 	.word	0x534f435f
+ af4:	00003a54 	.word	0x00003a54
+arm-none-eabi-objdump: DWARF error: mangled line number section (bad file number)

@@ -1,0 +1,26 @@
+{
+  "id": "PR-T50-07",
+  "description": "Nested interrupt masks and ISR handoff finite independent example",
+  "oracle": "masks",
+  "input": {
+    "encoding": "BASEPRI, zero means unmasked; smaller nonzero threshold is stronger",
+    "initial": 0,
+    "enter_masks": [
+      80,
+      48
+    ]
+  },
+  "expected": {
+    "during": [
+      80,
+      48
+    ],
+    "after_exit": [
+      80,
+      0
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Restore the incoming interrupt mask rather than blindly enabling interrupts at critical-section exit. An ISR may publish bounded work and request rescheduling; it must not call a blocking API. BASEPRI priority values use implemented priority bits and cannot be compared naively with arbitrary numerical labels.",
+  "required_observation": "Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound."
+}

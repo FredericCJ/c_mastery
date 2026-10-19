@@ -1,0 +1,625 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T54-01-T54.01.a",
+      "objective": "T54.01.a",
+      "project": "PR-T54-01",
+      "original_task": "Compare M7 flash08000000/RAM20000000 with M4 flash08100000/RAM30000000 and shared30040000.",
+      "original_expected": "Private images must not overlap and shared access is a memory-master fact; M7 TCM is not automatically M4-accessible. Existing build reserves private ranges and checks static storage plus handler stack.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-01-T54.01.a-V1",
+          "minimum_days": 7,
+          "task": "Move shared data to a different SRAM/power domain and revisit both linker and bus-access premises."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-01.md",
+      "mechanism_checks": [
+        "gcc-O0-images",
+        "transport-gcc-O0",
+        "transport-gcc-O3"
+      ],
+      "evidence_scope": "Native range/owner ledger plus actual separate ELF placement; no bus observation."
+    },
+    {
+      "id": "AX-PR-T54-01-T54.01.b",
+      "objective": "T54.01.b",
+      "project": "PR-T54-01",
+      "original_task": "Build both images with their actual core flags and inspect every undefined/link dependency.",
+      "original_expected": "Two successful ELF links establish code/placement evidence only. No libgcc, libc, libatomic, HAL or OpenAMP may silently implement target mechanisms; original runtime helpers need inspection.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-01-T54.01.b-V1",
+          "minimum_days": 7,
+          "task": "Enable an operation that introduces an implicit helper and either implement/audit it or reject the dependency explicitly."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-01.md",
+      "mechanism_checks": [
+        "transport-gcc-O0",
+        "dual-pipeline-clang-O3",
+        "dependency-gcc-O0-imports",
+        "dependency-clang-O3-reject"
+      ],
+      "evidence_scope": "Actual objects, linked maps and intentional unresolved-helper rejection."
+    },
+    {
+      "id": "AX-PR-T54-01-T54.01.c",
+      "objective": "T54.01.c",
+      "project": "PR-T54-01",
+      "original_task": "Assign one owner for each clock/peripheral and diagnose both cores initializing one device.",
+      "original_expected": "A common register address does not confer coordinated ownership. Conflicting initialization can destroy another core state; an ownership table must include shared clock/reset operations.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-01-T54.01.c-V1",
+          "minimum_days": 7,
+          "task": "Move telemetry ownership to M4 and derive changed interrupts, peripheral access and resource costs before any authorized physical run."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-01.md",
+      "mechanism_checks": [
+        "gcc-O0-images",
+        "gcc-O0-doorbell",
+        "qemu-local-gcc-O3"
+      ],
+      "evidence_scope": "Ownership derivation and actual selected bank/model/task-placement checks."
+    },
+    {
+      "id": "AX-PR-T54-02-T54.02.a",
+      "objective": "T54.02.a",
+      "project": "PR-T54-02",
+      "original_task": "Replay shared ready/ack from a previous boot while protocol layout changed.",
+      "original_expected": "Ready alone is insufficient: match layout/version and fresh incarnation before access. Retained board.c uses magic plus epoch1 and global reset premises; it is not general negotiation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-02-T54.02.a-V1",
+          "minimum_days": 7,
+          "task": "Change one payload field width and require rejection before either image reads the changed layout."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-02.md",
+      "mechanism_checks": [
+        "gcc-O0-boot",
+        "gcc-AF_MUTANT1",
+        "gcc-O0-recovery"
+      ],
+      "evidence_scope": "Concrete stale-prefix/layout tests and target static ABI checks."
+    },
+    {
+      "id": "AX-PR-T54-02-T54.02.b",
+      "objective": "T54.02.b",
+      "project": "PR-T54-02",
+      "original_task": "Delay M4 indefinitely after M7 release and compare each core wait path.",
+      "original_expected": "M4 has a bounded spin count; M7 service returns while ack differs and has no bounded handshake failure policy. Add an elapsed-time state/terminal result without mistaking spins for milliseconds.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-02-T54.02.b-V1",
+          "minimum_days": 7,
+          "task": "Use an independently wrapping monotonic timer and prove the admitted timeout interval bound."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-02.md",
+      "mechanism_checks": [
+        "gcc-O0-boot",
+        "gcc-O0-recovery"
+      ],
+      "evidence_scope": "Checked wrap arithmetic and compiled bounded wait paths; no physical timer calibration."
+    },
+    {
+      "id": "AX-PR-T54-02-T54.02.c",
+      "objective": "T54.02.c",
+      "project": "PR-T54-02",
+      "original_task": "Reset only M4 after publication while M7 survives.",
+      "original_expected": "Do not clear shared state from both cores or reaccept old epoch1. Establish trusted quiescence, new nonwrapping epoch and explicit uncertainty; cold reset code does not implement this.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-02-T54.02.c-V1",
+          "minimum_days": 7,
+          "task": "Interrupt recovery after every publication stage and derive idempotent restart or fail-stop outcomes."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-02.md",
+      "mechanism_checks": [
+        "gcc-O0-recovery",
+        "qemu-pipeline-gcc-O0",
+        "ledger-gcc-O0"
+      ],
+      "evidence_scope": "Actual header transitions, native pending-work classification and single-core emulated rendezvous; no physical reset execution."
+    },
+    {
+      "id": "AX-PR-T54-03-T54.03.a",
+      "objective": "T54.03.a",
+      "project": "PR-T54-03",
+      "original_task": "Let uint32 head1 and tailFFFFFFFE with capacity16; then add a second producer.",
+      "original_expected": "Bounded modular distance is3, but single-writer ownership is essential. A second producer can reserve the same slot even if every index access is individually atomic.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-03-T54.03.a-V1",
+          "minimum_days": 7,
+          "task": "Batch four records and prove all payload bytes precede one admitted publication without overwriting unread slots."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-03.md",
+      "mechanism_checks": [
+        "gcc-O0-ring",
+        "gcc-O3-threaded",
+        "clang-O3-threaded"
+      ],
+      "evidence_scope": "C17 ownership argument plus real single-producer/single-consumer threads, not an all-interleaving proof."
+    },
+    {
+      "id": "AX-PR-T54-03-T54.03.b",
+      "objective": "T54.03.b",
+      "project": "PR-T54-03",
+      "original_task": "Move head publication before payload stores and compare volatile with barrier semantics.",
+      "original_expected": "Volatile access alone supplies neither ISO C thread synchronization nor a full inter-image device memory contract. The target uses selected compiler/Arm barriers and noncacheable placement; explain both layers.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-03-T54.03.b-V1",
+          "minimum_days": 7,
+          "task": "Compile at changed optimization and inspect emitted ordering while retaining source-level ownership obligations."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-03.md",
+      "mechanism_checks": [
+        "analyses",
+        "transport-gcc-O0",
+        "transport-clang-O3"
+      ],
+      "evidence_scope": "Finite event counterexample and actual compiler ordering artifacts."
+    },
+    {
+      "id": "AX-PR-T54-03-T54.03.c",
+      "objective": "T54.03.c",
+      "project": "PR-T54-03",
+      "original_task": "Fill16 slots, reject the next packet, then wrap and drain numbered records.",
+      "original_expected": "Accepted messages preserve sequence; rejected submission changes no unread slot. Epoch and sequence are separate checks; host ordering tests do not establish board cache behavior.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-03-T54.03.c-V1",
+          "minimum_days": 7,
+          "task": "Use bounded variable-length messages and reject insufficient receive capacity without consuming the next record."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-03.md",
+      "mechanism_checks": [
+        "gcc-O0-ring",
+        "clang-O3-ring",
+        "clang-O3-threaded"
+      ],
+      "evidence_scope": "Actual C queue/payload behavior; physical caches remain separate."
+    },
+    {
+      "id": "AX-PR-T54-04-T54.04.a",
+      "objective": "T54.04.a",
+      "project": "PR-T54-04",
+      "original_task": "Publish three packets while notification is masked, then observe one pending interrupt.",
+      "original_expected": "The queue contains three accepted records even if interrupt count isone. Drain authoritative head/tail state; IRQ count cannot be a message count.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-04-T54.04.a-V1",
+          "minimum_days": 7,
+          "task": "Mask/rearm at every empty-check boundary and show either a visible queue or a guaranteed wake."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-04.md",
+      "mechanism_checks": [
+        "gcc-O0-doorbell",
+        "clang-O3-doorbell"
+      ],
+      "evidence_scope": "Exact coalescing/rearm register model and task service code; no silicon interrupt timing."
+    },
+    {
+      "id": "AX-PR-T54-04-T54.04.b",
+      "objective": "T54.04.b",
+      "project": "PR-T54-04",
+      "original_task": "Attempt HSEM release after a failed ownership readback; clear the wrong core interrupt bank.",
+      "original_expected": "Only the matching core/process owner may release; wrong-bank acknowledgement cannot establish notification completion. Verify selected source offsets and exact board contract before target use.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-04-T54.04.b-V1",
+          "minimum_days": 7,
+          "task": "Change the semaphore assignment and derive both producer release and receiver mask/clear paths."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-04.md",
+      "mechanism_checks": [
+        "gcc-O0-doorbell",
+        "gcc-AF_DOOR_MUTANT1",
+        "gcc-AF_DOOR_MUTANT2"
+      ],
+      "evidence_scope": "Actual adapter function executed against bounded register model; manual offsets and image code separately bound."
+    },
+    {
+      "id": "AX-PR-T54-04-T54.04.c",
+      "objective": "T54.04.c",
+      "project": "PR-T54-04",
+      "original_task": "Compare board.c one-packet service call with a loop draining to empty.",
+      "original_expected": "Periodic service can eventually drain despite coalesced IRQs; it is not one-packet-per-interrupt logic. A drain loop needs a work budget so other tasks progress under sustained load.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-04-T54.04.c-V1",
+          "minimum_days": 7,
+          "task": "Choose a bounded drain budget and calculate worst backlog under a declared arrival/service curve."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-04.md",
+      "mechanism_checks": [
+        "gcc-O0-doorbell",
+        "gcc-AF_DOOR_MUTANT3",
+        "analyses"
+      ],
+      "evidence_scope": "Concrete budget tests and explicit arrival/service algebra; no unstated stability assumption."
+    },
+    {
+      "id": "AX-PR-T54-05-T54.05.a",
+      "objective": "T54.05.a",
+      "project": "PR-T54-05",
+      "original_task": "Round address3004001F length2 to32-byte lines and place unrelated dirty data beside it.",
+      "original_expected": "Maintenance range30040000..30040040 covers64 bytes, including unrelated bytes. Alignment of the logical payload alone does not grant ownership of entire affected lines.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-05-T54.05.a-V1",
+          "minimum_days": 7,
+          "task": "Change line width to64 and derive overflow-safe rounding and required allocation isolation."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-05.md",
+      "mechanism_checks": [
+        "gcc-O0-cache",
+        "analyses"
+      ],
+      "evidence_scope": "Native overflow/range tests and explicit dirty-neighbor model."
+    },
+    {
+      "id": "AX-PR-T54-05-T54.05.b",
+      "objective": "T54.05.b",
+      "project": "PR-T54-05",
+      "original_task": "Clean after ringing the peer, then substitute DMB for invalidating a stale consumer line.",
+      "original_expected": "Notification must follow data visibility; a barrier does not clean or invalidate cache contents. Clean/invalidate direction and ownership are distinct from ordering.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-05-T54.05.b-V1",
+          "minimum_days": 7,
+          "task": "Use a receive buffer dirty before DMA and define pre/post-transfer maintenance without discarding unrelated dirty state."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-05.md",
+      "mechanism_checks": [
+        "gcc-O0-buffers",
+        "gcc-PD_MUTANT3",
+        "gcc-PD_MUTANT6",
+        "analyses"
+      ],
+      "evidence_scope": "Actual Pd callback order and bounded cache-state counterexample; not physical DMA visibility."
+    },
+    {
+      "id": "AX-PR-T54-05-T54.05.c",
+      "objective": "T54.05.c",
+      "project": "PR-T54-05",
+      "original_task": "Assess the cold noncacheable baseline as evidence for a cached M7/M4 transfer.",
+      "original_expected": "It avoids that cache path and cannot prove its correctness. Required cached experiment must record placement, line operations, barriers, checksums and observations; absent hardware remains not-run.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-05-T54.05.c-V1",
+          "minimum_days": 7,
+          "task": "Retain the same protocol on a coherent machine and identify which maintenance steps become unnecessary while ownership still matters."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-05.md",
+      "mechanism_checks": [
+        "dual-pipeline-gcc-O0",
+        "transport-gcc-O0",
+        "analyses"
+      ],
+      "evidence_scope": "Actual cached-path image construction and coherent/noncoherent premise comparison; no board result."
+    },
+    {
+      "id": "AX-PR-T54-06-T54.06.a",
+      "objective": "T54.06.a",
+      "project": "PR-T54-06",
+      "original_task": "Trace FREE,FILLING,DEVICE,COMPLETED,CONSUMING,FREE and inject CPU writes during DEVICE.",
+      "original_expected": "Submission transfers exclusive buffer access; a completion interrupt is only evidence to inspect terminal device state and visibility. State labels alone do not implement DMA.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-06-T54.06.a-V1",
+          "minimum_days": 7,
+          "task": "Use ping-pong buffers and derive maximum admitted producer burst without reusing device-owned storage."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-06.md",
+      "mechanism_checks": [
+        "gcc-O0-buffers",
+        "dual-pipeline-gcc-O0"
+      ],
+      "evidence_scope": "Concrete ownership adapter and actual linked DMA2 port; native device observations are simulated."
+    },
+    {
+      "id": "AX-PR-T54-06-T54.06.b",
+      "objective": "T54.06.b",
+      "project": "PR-T54-06",
+      "original_task": "Observe timeout and a late completion for an old generation after cancellation.",
+      "original_expected": "Timeout is not device quiescence. Preserve storage until trusted stop/completion; an old generation cannot publish success into a new request.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-06-T54.06.b-V1",
+          "minimum_days": 7,
+          "task": "Inject an error completion with valid ownership return and distinguish recyclable storage from successful payload data."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-06.md",
+      "mechanism_checks": [
+        "gcc-O0-buffers",
+        "clang-O3-buffers"
+      ],
+      "evidence_scope": "Mechanism-specific Pd/Xd completion and visibility checks; no timeout-as-quiescence inference."
+    },
+    {
+      "id": "AX-PR-T54-06-T54.06.c",
+      "objective": "T54.06.c",
+      "project": "PR-T54-06",
+      "original_task": "Place a buffer in inaccessible RAM and compare a host-model pass with target bus behavior.",
+      "original_expected": "The memory-master ledger and linker map must prove reachability before submission. Host arrays cannot demonstrate bus access or cache visibility.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-06-T54.06.c-V1",
+          "minimum_days": 7,
+          "task": "Move to another DMA engine and rederive reachable regions, alignment, maximum extent and error flags."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-06.md",
+      "mechanism_checks": [
+        "gcc-O0-buffers",
+        "gcc-O0-images",
+        "dual-pipeline-clang-O0"
+      ],
+      "evidence_scope": "Actual selected engine validation plus linked target source; no physical reachability measurement."
+    },
+    {
+      "id": "AX-PR-T54-07-T54.07.a",
+      "objective": "T54.07.a",
+      "project": "PR-T54-07",
+      "original_task": "Subtract M4 counter900 from M7 counter1000 with unrelated clock origins.",
+      "original_expected": "The difference100 has no latency meaning without a mapping and uncertainty. Same-core elapsed counts or a common external capture avoid that invalid subtraction.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-07-T54.07.a-V1",
+          "minimum_days": 7,
+          "task": "Fit an offset/rate interval from synchronization exchanges and propagate asymmetric-delay uncertainty."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-07.md",
+      "mechanism_checks": [
+        "analyses"
+      ],
+      "evidence_scope": "Exact rational interval derivation from declared synthetic exchanges, not measured oscillator calibration."
+    },
+    {
+      "id": "AX-PR-T54-07-T54.07.b",
+      "objective": "T54.07.b",
+      "project": "PR-T54-07",
+      "original_task": "Convert48000 cycles at480MHz and account for32-bit wrap and probe overhead.",
+      "original_expected": "Nominal100 microseconds is valid only for that fixed frequency and unambiguous elapsed interval. Subtracting probe cost needs measured bounds and cannot produce negative physical time.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-07-T54.07.b-V1",
+          "minimum_days": 7,
+          "task": "Change frequency during the interval and integrate piecewise rates rather than applying one endpoint frequency."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-07.md",
+      "mechanism_checks": [
+        "analyses",
+        "gcc-O0-boot"
+      ],
+      "evidence_scope": "Exact arithmetic and explicit frequency/probe premises; no invented timing sample."
+    },
+    {
+      "id": "AX-PR-T54-07-T54.07.c",
+      "objective": "T54.07.c",
+      "project": "PR-T54-07",
+      "original_task": "Compare an observed maximum over1000 samples with a claimed WCET bound.",
+      "original_expected": "A sample maximum and tail distribution are observations, not a universal worst-case guarantee. Record dropped samples, resolution, interference and exact image identity.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-07-T54.07.c-V1",
+          "minimum_days": 7,
+          "task": "Introduce a rare interrupt burst and reassess the measurement design rather than presenting the old average."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-07.md",
+      "mechanism_checks": [
+        "analyses",
+        "qemu-burst-clang-O3"
+      ],
+      "evidence_scope": "Finite counterexample plus actual emulated interference execution, not a physical WCET observation."
+    },
+    {
+      "id": "AX-PR-T54-08-T54.08.a",
+      "objective": "T54.08.a",
+      "project": "PR-T54-08",
+      "original_task": "A peer performs an effect then resets before its reply; timeout fires.",
+      "original_expected": "Outcome is uncertain, not proof of no effect. Replaying without durable/application deduplication can repeat it; transport epoch only rejects stale transport identities.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-08-T54.08.a-V1",
+          "minimum_days": 7,
+          "task": "Make a command idempotent by operation ID and state what persists across peer versus full-machine reset."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-08.md",
+      "mechanism_checks": [
+        "gcc-O0-receipt",
+        "gcc-O0-recovery"
+      ],
+      "evidence_scope": "Actual application receipt transition/cut tests with explicit retention horizon."
+    },
+    {
+      "id": "AX-PR-T54-08-T54.08.b",
+      "objective": "T54.08.b",
+      "project": "PR-T54-08",
+      "original_task": "Restart epoch1 to2, reuse sequence1 and deliver ACK(1,1) beforeACK(2,1).",
+      "original_expected": "The old ACK cannot complete the new request. Nonwrapping epoch exhaustion and trusted quiescence precede storage reuse; the additive model does not provide actual reset control.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-08-T54.08.b-V1",
+          "minimum_days": 7,
+          "task": "Pause recovery after reset observation but before new readiness and prove no application traffic is admitted."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-08.md",
+      "mechanism_checks": [
+        "gcc-O0-boot",
+        "gcc-O0-recovery",
+        "ledger-gcc-O0",
+        "ack-gcc-O0"
+      ],
+      "evidence_scope": "Concrete epoch/gate and per-record stale-ack checks; physical reset authority not inferred."
+    },
+    {
+      "id": "AX-PR-T54-08-T54.08.c",
+      "objective": "T54.08.c",
+      "project": "PR-T54-08",
+      "original_task": "Compare board.c mismatch fail-stop with a claimed warm recovery demonstration.",
+      "original_expected": "Fail-stop detects a fault but does not recover shared ownership or reconcile results. Require new state machine, reset/ready trace and source/image hashes for the stronger claim.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-08-T54.08.c-V1",
+          "minimum_days": 7,
+          "task": "Recover only one peer while survivor has queued work and classify every item completed, rejected or uncertain."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-08.md",
+      "mechanism_checks": [
+        "qemu-pipeline-gcc-O0",
+        "ledger-gcc-O0"
+      ],
+      "evidence_scope": "Actual single-core emulated drained rendezvous and separate native pending-work recovery model."
+    },
+    {
+      "id": "AX-PR-T54-09-T54.09.a",
+      "objective": "T54.09.a",
+      "project": "PR-T54-09",
+      "original_task": "Use hop costs10,20,30 microseconds and queues2,4,8 with no interference.",
+      "original_expected": "Uncontended cost sum60 and total slots14 do not bound queued or preempted response time. Every hop needs its own capacity and overload/ownership policy.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-09-T54.09.a-V1",
+          "minimum_days": 7,
+          "task": "Add a downstream pause longer than upstream capacity and derive exactly which sequence IDs reject or remain retained."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-09.md",
+      "mechanism_checks": [
+        "analyses",
+        "qemu-pipeline-gcc-O0"
+      ],
+      "evidence_scope": "Executable event schedule and actual bounded task queue composition; costs are explicit model premises."
+    },
+    {
+      "id": "AX-PR-T54-09-T54.09.b",
+      "objective": "T54.09.b",
+      "project": "PR-T54-09",
+      "original_task": "Perform parsing in the acquisition ISR while M7 high-priority compute delays response.",
+      "original_expected": "Unbounded ISR work compromises local scheduling; priority on one core cannot by itself bound delay on the other. Move bounded messages to task context.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-09-T54.09.b-V1",
+          "minimum_days": 7,
+          "task": "Inject high-priority interrupts on M4 only and locate the first accumulating queue from an end-to-end ledger."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-09.md",
+      "mechanism_checks": [
+        "analyses",
+        "qemu-burst-gcc-O0",
+        "dual-pipeline-clang-O0"
+      ],
+      "evidence_scope": "Actual interrupt/task separation plus explicit per-stage interference schedules; no cross-core measured bound."
+    },
+    {
+      "id": "AX-PR-T54-09-T54.09.c",
+      "objective": "T54.09.c",
+      "project": "PR-T54-09",
+      "original_task": "Reconcile100 accepted inputs with90 completions,5 declared drops and5 outstanding across a reset.",
+      "original_expected": "The ledger balances only if outstanding ownership and epoch are recorded; throughput averages cannot hide those five. Cross-clock timestamps need calibration.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-09-T54.09.c-V1",
+          "minimum_days": 7,
+          "task": "Move one stage to the other core and recompute traffic, queue occupancy and interference before comparing performance."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-09.md",
+      "mechanism_checks": [
+        "ledger-gcc-O0",
+        "analyses",
+        "qemu-local-gcc-O3"
+      ],
+      "evidence_scope": "Exact accepted-input ledger and actual same-correctness moved-task experiment."
+    },
+    {
+      "id": "AX-PR-T54-10-T54.10.a",
+      "objective": "T54.10.a",
+      "project": "PR-T54-10",
+      "original_task": "Match ELF/source hashes, shared layout and board revision before interpreting success markers.",
+      "original_expected": "A marker from a different image or layout cannot validate current source. Cross-build proves neither flashed identity nor physical parallel progress.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-10-T54.10.a-V1",
+          "minimum_days": 7,
+          "task": "Change optimization and regenerate maps/disassembly and actual run evidence while preserving prior historical receipts."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-10.md",
+      "mechanism_checks": [
+        "transport-gcc-O0",
+        "transport-clang-O3",
+        "qemu-pipeline-clang-O3"
+      ],
+      "evidence_scope": "Source-bound native/image/emulator receipts and immutable attempts."
+    },
+    {
+      "id": "AX-PR-T54-10-T54.10.b",
+      "objective": "T54.10.b",
+      "project": "PR-T54-10",
+      "original_task": "Run periodic acquisition, parallel compute, bounded overload and peer restart under one resource ledger.",
+      "original_expected": "Account for both private images and shared storage, accepted/rejected/completed/uncertain messages, CPU/I/O costs and measurement uncertainty. Cold1000-packet success alone omits required fault paths.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-10-T54.10.b-V1",
+          "minimum_days": 7,
+          "task": "Move the compute service while keeping equal correctness and workload contracts, then explain changed resource costs."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-10.md",
+      "mechanism_checks": [
+        "dual-pipeline-gcc-O0",
+        "qemu-burst-gcc-O3",
+        "qemu-local-clang-O3"
+      ],
+      "evidence_scope": "Actual source composition, separate dual-image audit and single-core machine execution."
+    },
+    {
+      "id": "AX-PR-T54-10-T54.10.c",
+      "objective": "T54.10.c",
+      "project": "PR-T54-10",
+      "original_task": "No board is available but all hosted and image gates pass.",
+      "original_expected": "Record physicalnot-run explicitly; retain useful narrower evidence and provide the executable experiment/instrumentation plan. Neither a simulation nor a text report closes physical mastery.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T54-10-T54.10.c-V1",
+          "minimum_days": 7,
+          "task": "After later authorized board access, execute the exact source-bound experiment and identify assumptions falsified by actual traces."
+        }
+      ],
+      "teaching": "labs/amp_followthrough/units/PR-T54-10.md",
+      "mechanism_checks": [
+        "analyses",
+        "dual-pipeline-clang-O3"
+      ],
+      "evidence_scope": "Prepared board experiment and strict missing-evidence rejection; no physical or independent learner completion."
+    }
+  ]
+}

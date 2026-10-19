@@ -2,10 +2,18 @@
   "schema_version": 1,
   "project": "PR-T26-05",
   "domain": "T26",
-  "title": "Optional advanced object study — explicit depth assessments",
+  "title": "Optional advanced object study \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/advanced_concurrency_depth/identity/CONTRACTS.md",
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/reclamation/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/history/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/grace/CONTRACTS.md",
+    "labs/execution/targets/README.md",
+    "labs/api_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -92,8 +100,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     },
     {
@@ -101,14 +109,93 @@
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
         "Memory-management assumptions",
-        "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+        "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
+      ]
+    },
+    {
+      "id": "R-AG-LINUX",
+      "path": "research/v5/expansion/legacy_advanced_grace/resources.json",
+      "passages": [
+        "Documentation/RCU/whatisRCU.rst: core APIs, lines150\u2013250 and390\u2013435",
+        "include/linux/rcupdate.h: rcu_read_lock contract, lines800\u2013845",
+        "Documentation/RCU/rcubarrier.rst: unloadable module callback ownership, lines1\u201365",
+        "include/linux/hrtimer.h: HARD and PINNED mode contract, lines23\u201355"
+      ]
+    },
+    {
+      "id": "R-AG-CMX",
+      "path": "research/v5/expansion/legacy_advanced_grace/resources.json",
+      "passages": [
+        "labs/execution/README.md: global ownership and T55 paragraph",
+        "assessor/execution/concurrent.c: cmx_epoch_init/enter/leave/advance",
+        "assessor/execution/advanced.c: cmx_rcu_init/read/leave/publish/quiescent",
+        "labs/execution/targets/README.md: strict build and original byte support paragraph",
+        "assessor/execution/support.c: original byte loops and AEABI aliases"
+      ]
+    },
+    {
+      "id": "R-AG-API",
+      "path": "research/v5/expansion/legacy_advanced_grace/resources.json",
+      "passages": [
+        "labs/api_depth/CONTRACTS.md: api_depth.registry and Assessment and limitations",
+        "assessor/api_depth/api_depth.c: api_registry_init, add/remove/dispatch/destroy and release_slot"
+      ]
+    },
+    {
+      "id": "R-AI-MICHAEL",
+      "path": "research/v5/expansion/legacy_advanced_identity/resources.json",
+      "passages": [
+        "Section2.3 ABA and still-live node reinsertion, printed493",
+        "Section3.3 continuous protection condition, printed494\u2013496",
+        "Section4 adaptation outline, printed496\u2013497"
+      ]
+    },
+    {
+      "id": "R-AI-MS-ABA",
+      "path": "research/v5/expansion/legacy_advanced_identity/resources.json",
+      "passages": [
+        "Introduction ABA/tag-width/index-encoding discussion, PDF page2"
+      ]
+    },
+    {
+      "id": "R-AI-N1570",
+      "path": "research/v5/expansion/legacy_advanced_identity/resources.json",
+      "passages": [
+        "7.17.5 paragraphs1\u20132",
+        "7.17.5.1 paragraphs1\u20133"
+      ]
+    },
+    {
+      "id": "R-AP-MICHAEL",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "Sections2.1\u20132.3: asynchronous model and ABA, printed492\u2013493",
+        "Section3: figures1\u20134, protection condition and scan/registration lemmas, printed493\u2013496",
+        "Section4.1: figures5\u20137 complete queue adaptation and protection argument, printed496\u2013498"
+      ]
+    },
+    {
+      "id": "R-AP-MS",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "Opening memory-management assumptions",
+        "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
+      ]
+    },
+    {
+      "id": "R-AP-N1570",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "7.17.2.2 paragraphs1\u20135 atomic initialization",
+        "7.17.3 paragraphs1\u20137 and12: orders, SC total order, RMW predecessor",
+        "7.17.7.4 paragraphs1\u20135 atomic compare exchange"
       ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims.",
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims.",
     "Full hazard/epoch/RCU proof literature and the exact selected LKMM/RCU passages require separate inspection beyond corrected queue pseudocode and retained implementation contracts.",
     "Disposable-VM kernel execution remains required but unavailable in this wave; host models are not guest evidence."
   ],
@@ -116,13 +203,79 @@
     "curriculum/projects/PR-T26-05.md",
     "fixtures/systems/PR-T26-05.json",
     "tools/verify_systems_fixtures.py",
-    "labs/execution/README.md"
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/identity/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/identity/atomic_width.c",
+    "labs/advanced_concurrency_depth/identity/identity.h",
+    "labs/advanced_concurrency_depth/identity/learner.c",
+    "labs/advanced_concurrency_depth/identity/retained_learner.c",
+    "labs/advanced_concurrency_depth/identity/tests.c",
+    "labs/advanced_concurrency_depth/identity/width_driver.c",
+    "labs/execution/include/cmx.h",
+    "labs/execution/include/cmx_advanced.h",
+    "labs/advanced_concurrency_depth/reclamation/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/reclamation/history_tests.c",
+    "labs/advanced_concurrency_depth/reclamation/learner.c",
+    "labs/advanced_concurrency_depth/reclamation/reclamation.h",
+    "labs/advanced_concurrency_depth/reclamation/reservation.h",
+    "labs/advanced_concurrency_depth/reclamation/reservation_learner.c",
+    "labs/advanced_concurrency_depth/reclamation/reservation_tests.c",
+    "labs/advanced_concurrency_depth/reclamation/retained_learner.c",
+    "labs/advanced_concurrency_depth/reclamation/tests.c",
+    "labs/advanced_concurrency_depth/history/history.h",
+    "labs/advanced_concurrency_depth/history/learner.c",
+    "labs/advanced_concurrency_depth/history/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/grace/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/grace/grace.h",
+    "labs/advanced_concurrency_depth/grace/guest/Makefile",
+    "labs/advanced_concurrency_depth/grace/guest/ag_rcu_stub.c",
+    "labs/advanced_concurrency_depth/grace/learner.c",
+    "labs/advanced_concurrency_depth/grace/retained_learner.c",
+    "labs/advanced_concurrency_depth/grace/tests.c",
+    "labs/execution/targets/README.md",
+    "labs/execution/src/support.c",
+    "labs/api_depth/include/api_depth.h",
+    "labs/api_depth/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "advanced_identity_successor": {
+      "path": "research/v5/expansion/legacy_advanced_identity/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.05.a",
+        "AX-PR-T26-05-T26.05.b",
+        "AX-PR-T26-05-T26.05.c"
+      ],
+      "scope": "Only original T26.05 ordinary and delayed identity obligations; no concurrent-pool or universal logical-ABA guarantee."
+    },
+    "advanced_reclamation_successor": {
+      "path": "research/v5/expansion/legacy_advanced_reclamation/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.04.a",
+        "AX-PR-T26-05-T26.04.b",
+        "AX-PR-T26-05-T26.04.c",
+        "AX-PR-T26-05-T26.06.a",
+        "AX-PR-T26-05-T26.06.b",
+        "AX-PR-T26-05-T26.06.c"
+      ],
+      "scope": "Only original T26.04/.06 ordinary and delayed mechanisms; no independent review, unrestricted participant departures or universal progress claim."
+    },
+    "advanced_grace_successor": {
+      "path": "research/v5/expansion/legacy_advanced_grace/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.07.a",
+        "AX-PR-T26-05-T26.07.b",
+        "AX-PR-T26-05-T26.07.c",
+        "AX-PR-T26-05-T26.08.a",
+        "AX-PR-T26-05-T26.08.b",
+        "AX-PR-T26-05-T26.08.c"
+      ],
+      "scope": "Original T26.07/.08 ordinary and delayed mechanisms; serialized user model and pinned Linux guest remain separate. No independent review, learner or physical claim."
+    }
   },
   "criteria": [
     {
@@ -143,8 +296,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -152,7 +305,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -187,7 +340,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Additional participants require helpable link/head transitions and a safe reclamation protocol; the original pseudocode allocator assumption cannot be replaced by ordinary free. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Implement the required bounded adaptation in PR-T26-05 with an explicit rejection when storage is retained by hazards. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -233,8 +386,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -242,11 +395,11 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
-      "task": "Implement the bounded dummy-node MPMC queue with the retained four-participant/32-node contract and permitted failure statuses; preserve a finite history recorder and validate real-time FIFO ordering. For this leaf, add an executable control or finite model witness specifically for the following obligation: Compare a reservation queue where producerA reserves then stalls before publication with the Michael–Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
+      "task": "Implement the bounded dummy-node MPMC queue with the retained four-participant/32-node contract and permitted failure statuses; preserve a finite history recorder and validate real-time FIFO ordering. For this leaf, add an executable control or finite model witness specifically for the following obligation: Compare a reservation queue where producerA reserves then stalls before publication with the Michael\u2013Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
       "purpose": "Reservation automatically equals publication and guarantees consumer progress.",
       "prerequisites": {
         "knowledge": [
@@ -265,7 +418,7 @@
       ],
       "deliverables": {
         "D1": "Pre-experiment prediction and causal argument addressing: Reservation automatically equals publication and guarantees consumer progress.",
-        "D2": "Implement the bounded dummy-node MPMC queue with the retained four-participant/32-node contract and permitted failure statuses; preserve a finite history recorder and validate real-time FIFO ordering. For this leaf, add an executable control or finite model witness specifically for the following obligation: Compare a reservation queue where producerA reserves then stalls before publication with the Michael–Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
+        "D2": "Implement the bounded dummy-node MPMC queue with the retained four-participant/32-node contract and permitted failure statuses; preserve a finite history recorder and validate real-time FIFO ordering. For this leaf, add an executable control or finite model witness specifically for the following obligation: Compare a reservation queue where producerA reserves then stalls before publication with the Michael\u2013Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
         "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
         "D4": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Add producer cancellation and derive how a consumer distinguishes a canceled slot from merely delayed publication."
       },
@@ -277,7 +430,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "An unpublished reservation may block FIFO progress; cancellation needs a visible tombstone/helping protocol or a documented stall limitation. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Add producer cancellation and derive how a consumer distinguishes a canceled slot from merely delayed publication. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -323,8 +476,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -332,7 +485,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -367,7 +520,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "A total atomic order cannot supply missing unique reservation or ownership of a slot. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Introduce a second consumer and identify the separate read/reuse ownership collision. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -412,8 +565,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -421,7 +574,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -456,7 +609,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Lifetime transitions distinguish incarnations even when addresses repeat; a stale CAS can pass an insufficient identity test. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Use an index pool rather than pointers and show the same ABA defect with slot reuse. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -501,8 +654,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -510,7 +663,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -545,7 +698,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Identity checking and protection of a live dereference are different obligations; tags do not keep an object alive by themselves. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Require compact 32 bit handles and derive an explicit retirement policy when the generation field saturates. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -590,8 +743,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -599,7 +752,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -634,7 +787,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Wrap reintroduces equality unless reuse is bounded or forbidden; wider atomic support is platform-specific. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Allow unbounded service uptime under a fixed-memory cap and state the availability tradeoff of permanent retirement. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -680,8 +833,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -689,7 +842,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -724,7 +877,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Protection publication must be validated against removal; retirement is distinct from reclamation. The memory-order proof must match the actual implementation. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Weaken one SC operation only after deriving a complete proof; a clean stress run alone cannot justify the change. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -770,8 +923,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -779,7 +932,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -814,7 +967,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Unreclaimable retired nodes consume physical storage; the bound depends on scan/protection rules and pool size. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Increase participant count without increasing the pool and predict which progress/resource claim fails first. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -860,8 +1013,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -869,7 +1022,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -904,7 +1057,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "A delayed live reader may still dereference; forced clearance violates safety. Failed participants can cause retained-memory growth without an explicit revocation protocol. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Reuse a participant ID and derive a generation or registration handshake preventing stale hazard publication into the new slot. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -951,7 +1104,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -986,7 +1139,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Eligibility derives from participant states, not clock duration; the added old reader prevents reclamation that was previously eligible. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Permit nested read sections and derive the outermost-exit rule for publishing quiescence. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1033,7 +1186,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -1068,7 +1221,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Ordering does not revoke references; reclamation requires participant/lifetime evidence. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Allow an asynchronous callback to retain a pointer beyond its read section and repair the API ownership contract. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1115,7 +1268,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -1150,7 +1303,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The protected set/grace scope changes retention; safety may be preserved by refusing allocation even when availability suffers. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Model participant failure recovery and identify what external termination/fencing evidence is necessary before reclaiming. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1231,7 +1384,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Publication and grace completion are separate events; immutable readers still own temporary lifetime rights. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Add a second writer and derive serialization or an update protocol before treating the single-writer model as sufficient. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1312,7 +1465,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Model names do not transfer implementation guarantees; exact environment/API rules and uninspected passages remain separate. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Move a reader into an interrupt context and require newly inspected context-specific rules before executing it. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1393,7 +1546,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The grace protocol may reclaim immediately after the protected interval; later borrowing requires another ownership mechanism. The required construction gate includes source, a criterion-specific failing control, ownership/resource accounting and a history/model witness. A checksum-only stress result or copied awareness explanation does not pass. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Apply the changed condition to the learner implementation, preserving its original regression corpus: Compose the versioned object with a refcounted callback registry and derive release order across both abstractions. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1425,7 +1578,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T26-05.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -1433,5 +1586,40 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_grace/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.07.a",
+        "AX-PR-T26-05-T26.07.b",
+        "AX-PR-T26-05-T26.07.c",
+        "AX-PR-T26-05-T26.08.a",
+        "AX-PR-T26-05-T26.08.b",
+        "AX-PR-T26-05-T26.08.c"
+      ],
+      "scope": "Original T26.07/.08 ordinary and delayed mechanisms; serialized user model and pinned Linux guest remain separate. No independent review, learner or physical claim."
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_identity/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.05.a",
+        "AX-PR-T26-05-T26.05.b",
+        "AX-PR-T26-05-T26.05.c"
+      ],
+      "scope": "Only original T26.05 ordinary and delayed identity obligations; no concurrent-pool or universal logical-ABA guarantee."
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_reclamation/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-05-T26.04.a",
+        "AX-PR-T26-05-T26.04.b",
+        "AX-PR-T26-05-T26.04.c",
+        "AX-PR-T26-05-T26.06.a",
+        "AX-PR-T26-05-T26.06.b",
+        "AX-PR-T26-05-T26.06.c"
+      ],
+      "scope": "Only original T26.04/.06 ordinary and delayed mechanisms; no independent review, unrestricted participant departures or universal progress claim."
+    }
+  ]
 }

@@ -1,0 +1,254 @@
+{
+  "criteria": [
+    {
+      "id": "AX-PR-CAP-MCU-01-T20.01.b",
+      "objective": "T20.01.b",
+      "task": "Design register adapter, acquisition driver, scheduler and portable framing interfaces for the F439 teaching firmware. Compare a superloop and an interrupt-to-foreground queue. Enumerate execution contexts, permitted reentrancy and ownership for each buffer. Keep register addresses, IRQ control and Linux descriptors out of the portable interface. Compare plain status/out-parameters with the registered errors.result fixed tagged-value contract. Select one representation and state exactly what C diagnostics, runtime tags and discipline enforce; inspect strict-target header/object dependencies before any actual import.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-01-T20.01.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace polling acquisition with DMA completion after cancellation. Revise buffer reuse and foreground handoff without exposing registers in the core."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.0",
+        "gcc.O0.representation",
+        "gcc.result-default-reject",
+        "gcc.result-header",
+        "gcc.result-full.undefined"
+      ],
+      "changed_checks": [
+        "gcc.O0.reference.1",
+        "clang.asan.reference.1"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t20-01-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-01-T30.07.b",
+      "objective": "T30.07.b",
+      "task": "Derive the exact synthetic RAM ledger in boundaries.json, including two DMA buffers and two nested exception allowances. Compare its total with4096 and then2048 bytes. Add one160-byte nested frame and decide admission before publishing an enabled configuration. Replace symbolic entries with actual map/stack/helper evidence for the selected target.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-01-T30.07.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Enable floating-point context preservation or change interrupt nesting; identify new ABI/core documentation and stack evidence required before recomputing the bound."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.4",
+        "gcc.O0.normal.size",
+        "clang.O3.f439.size"
+      ],
+      "changed_checks": [
+        "gcc.O3.reference.4",
+        "gcc.O0.normal.symbols",
+        "clang.O3.normal.symbols"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t30-07-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-01-T35.01.a",
+      "objective": "T35.01.a",
+      "task": "Model unauthorized command bytes, valid high-rate telemetry, stalled acquisition and reset as separate threats/faults. Define safe outputs and a trusted authorization boundary outside CRC framing. Use synthetic accepted-message and actuator-state integers only; compare boot, RUNNING, RECOVERING and SAFE_STOP states.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-01-T35.01.a-DELAYED",
+        "minimum_days": 7,
+        "task": "The input transport can replay an earlier authorized command. Define sequence/idempotency policy without claiming CRC prevents replay."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.0",
+        "gcc.O0.authority.0",
+        "clang.asan.reference.2"
+      ],
+      "changed_checks": [
+        "clang.O3.reference.0",
+        "gcc.O0.transfer"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t35-01-a"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-02-T27.10.b",
+      "objective": "T27.10.b",
+      "task": "Audit the target startup chain before deployment: initial vector addresses, stack alignment/range, copy/zero regions, clock-ready timeout and entry symbol. Seed one wrong vector, one data-copy bound and one omitted bss initialization in separate build/model variants. Classify each using image/map/disassembly and a predeclared observation, not a fabricated board log.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-02-T27.10.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Change linker section ordering or add an initialized object that crosses an alignment boundary; regenerate the copy-table and map argument."
+      },
+      "ordinary_checks": [
+        "gcc.O0.normal.run",
+        "gcc.O0.copy.run",
+        "gcc.O0.bss.run",
+        "gcc.O0.vector.binary",
+        "gcc.O0.f439.link"
+      ],
+      "changed_checks": [
+        "gcc.O0.reorder.run",
+        "clang.O3.reorder.run"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t27-10-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-02-T28.11.b",
+      "objective": "T28.11.b",
+      "task": "Run the identical accepted-frame sequence through a host scripted adapter and the selected firmware service adapter. Inject acquisition timeout, queue-full and late DMA completion; a timeout publishes no sample and does not count as watchdog progress. Document which register side effects the mock implements and which board timing/ordering observations remain required.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-02-T28.11.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Model a status register with W1C and read-clear fields and show why a generic read-modify-write helper is invalid for one operation."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.0",
+        "gcc.O0.reference.1",
+        "gcc.O0.normal.run",
+        "gcc.O0.f439.symbols",
+        "clang.O3.f439.undefined"
+      ],
+      "changed_checks": [
+        "gcc.O0.reference.7",
+        "gcc.O0.status.7"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t28-11-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-02-T31.08.b",
+      "objective": "T31.08.b",
+      "task": "Produce a release evidence manifest tying core-source digest, target ELF, binary, map, vector address, compiler/link settings and symbols. Deliberately pair a stale ELF with the new binary and reject the bundle before any deployment. Define a dedicated-board verify/power-cycle procedure and separate host/model observations from physical acceptance.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-02-T31.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Strip the deployment image while preserving an external symbol file and prove the debug identity association without relying on filenames."
+      },
+      "ordinary_checks": [
+        "gcc.O0.normal.release",
+        "gcc.O0.f439.release"
+      ],
+      "changed_checks": [
+        "gcc.O0.normal.debug.binary",
+        "gcc.O0.normal.release",
+        "gcc.O0.f439.debug.binary",
+        "gcc.O0.f439.release"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t31-08-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-03-T31.09.b",
+      "objective": "T31.09.b",
+      "task": "Implement the two-slot update selection model from boundaries.json and enumerate every cut before/after payload, metadata, CRC, verification and final commit. Keep old committed slot A generation7 untouched while candidate B generation8 is incomplete. Add invalid compatibility and untrusted signer-verdict inputs; document the exact atomic-write and generation assumptions.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-03-T31.09.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Make commit writes tear or generations wrap; provide an explicit encoding/order policy and counterexamples to naive comparison."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.3",
+        "gcc.O0.trust.3"
+      ],
+      "changed_checks": [
+        "clang.asan.reference.3"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t31-09-b"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-03-T31.10.c",
+      "objective": "T31.10.c",
+      "task": "Compose acquisition, processing, watchdog and recovery as an epoch machine. Required progress mask is3; use complete epoch observations1,3,2,3 and reset progress after each feed. Inject a processing stall while acquisition continues, then repeated recoverable faults with a two-attempt budget. Keep synthetic outputs safe and preserve first-fault identity when capture is incomplete.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-03-T31.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "A reset can occur during crash-record commit. Define record validity/sequence and distinguish absent/incomplete capture from no fault."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.2",
+        "gcc.O0.watchdog.2",
+        "gcc.O0.transfer"
+      ],
+      "changed_checks": [
+        "clang.asan.reference.2"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t31-10-c"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-03-T35.08.c",
+      "objective": "T35.08.c",
+      "task": "Compare logical C modules, an MPU partition design and the actual deployed privilege configuration. Draw readable/writable/executable regions and DMA masters separately. In the host model, deliberately pass an ordinary pointer across a purported module boundary and show that an opaque API is not an enforced isolation boundary.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-03-T35.08.c-DELAYED",
+        "minimum_days": 7,
+        "task": "A privileged interrupt handler receives an untrusted request buffer. Define validated copy-in, lifetime and privilege-transition obligations before claiming isolation."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.5",
+        "gcc.O0.normal.run",
+        "gcc.O0.mpu.run"
+      ],
+      "changed_checks": [
+        "clang.O3.normal.run",
+        "clang.O3.reference.5"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t35-08-c"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-04-T30.10.c",
+      "objective": "T30.10.c",
+      "task": "Defend timing evidence with columns for requirement, analytical assumptions, measured maximum, timer resolution, clock configuration and interference. Recompute irq.json elapsed ticks across wrap, then perturb the clock or interrupt workload. Preserve actual command/build/board identities and keep cycle counts, elapsed time and WCET claims distinct.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-04-T30.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "A counter can wrap more than once between samples. Identify the missing bound or extra epoch state required before interpreting the difference."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.6",
+        "gcc.O0.normal.release"
+      ],
+      "changed_checks": [
+        "clang.asan.reference.6",
+        "gcc.O0.f439.release"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t30-10-c"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-04-T33.10.c",
+      "objective": "T33.10.c",
+      "task": "Create a final host/model/cross-build/physical evidence matrix for parser validity, helper closure, DMA lifetime, startup, reset recovery and safe outputs. Challenge a dossier claiming physical GPIO timing from host timestamps and deployed-byte verification from an ELF checksum. Retain each unsupported claim as a required open gate.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-04-T33.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Use a different emulator model with incomplete peripheral support and identify which previously modeled claims lose support."
+      },
+      "ordinary_checks": [
+        "gcc.O0.normal.release",
+        "gcc.O0.f439.release"
+      ],
+      "changed_checks": [
+        "gcc.O0.normal.release"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t33-10-c"
+    },
+    {
+      "id": "AX-PR-CAP-MCU-04-T35.12.b",
+      "objective": "T35.12.b",
+      "task": "Conduct a sealed final review of original firmware using malformed/unauthorized frame, budget exhaustion, stale DMA completion, interrupted update and repeated recovery cases. Record attacker capabilities, residual physical/debug authority, source gaps and independent-review status. Perform the delayed variant without prior implementation and preserve the shared protocol source identity.",
+      "variant": {
+        "id": "AX-PR-CAP-MCU-04-T35.12.b-DELAYED",
+        "minimum_days": 7,
+        "task": "The assessor changes completion order and adds a valid payload containing A5. Reconstruct resynchronization and ownership arguments without copying the original solution."
+      },
+      "ordinary_checks": [
+        "gcc.O0.reference.0",
+        "gcc.O0.reference.1",
+        "gcc.O0.reference.2",
+        "gcc.O0.reference.3",
+        "gcc.O0.reference.4",
+        "gcc.O0.transfer"
+      ],
+      "changed_checks": [
+        "clang.asan.transfer"
+      ],
+      "assessment": "assessor/capstone_followthrough/firmware_analysis.md#t35-12-b"
+    }
+  ],
+  "limits": [
+    "Physical F439 execution, deployed-byte verification, electrical timing/reset and board qualification remain required and unperformed.",
+    "Independent seven-day delayed learner defense and external acceptance remain unperformed.",
+    "Final published C17/C23 text access remains a source gap.",
+    "Signature verification and flash programming are outside the explicitly trusted-verdict/RAM-cut model; no physical persistence or cryptographic result is inferred."
+  ]
+}

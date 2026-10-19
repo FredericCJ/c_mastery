@@ -1,0 +1,274 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/facilities-companion-20261018T072900978295Z/m4-clang-O3/facilities.c.o:     file format elf32-littlearm
+
+
+Disassembly of section .text.lf_add:
+
+00000000 <lf_add>:
+   0:	b16a      	cbz	r2, 1e <lf_add+0x1e>
+   2:	2901      	cmp	r1, #1
+   4:	db04      	blt.n	10 <lf_add+0x10>
+   6:	f06f 4300 	mvn.w	r3, #2147483648	@ 0x80000000
+   a:	404b      	eors	r3, r1
+   c:	4298      	cmp	r0, r3
+   e:	dc06      	bgt.n	1e <lf_add+0x1e>
+  10:	f1b1 3fff 	cmp.w	r1, #4294967295	@ 0xffffffff
+  14:	dc06      	bgt.n	24 <lf_add+0x24>
+  16:	f1c1 4300 	rsb	r3, r1, #2147483648	@ 0x80000000
+  1a:	4298      	cmp	r0, r3
+  1c:	da02      	bge.n	24 <lf_add+0x24>
+  1e:	2001      	movs	r0, #1
+  20:	4770      	bx	lr
+  22:	bf00      	nop
+  24:	4408      	add	r0, r1
+  26:	6010      	str	r0, [r2, #0]
+  28:	2000      	movs	r0, #0
+  2a:	4770      	bx	lr
+
+Disassembly of section .text.lf_mixed:
+
+00000000 <lf_mixed>:
+   0:	b1b2      	cbz	r2, 30 <lf_mixed+0x30>
+   2:	4684      	mov	ip, r0
+   4:	f1b0 3fff 	cmp.w	r0, #4294967295	@ 0xffffffff
+   8:	dd18      	ble.n	3c <lf_mixed+0x3c>
+   a:	2000      	movs	r0, #0
+   c:	ebb0 4f1c 	cmp.w	r0, ip, lsr #16
+  10:	f04f 0001 	mov.w	r0, #1
+  14:	d110      	bne.n	38 <lf_mixed+0x38>
+  16:	f64f 73ff 	movw	r3, #65535	@ 0xffff
+  1a:	eba3 030c 	sub.w	r3, r3, ip
+  1e:	4299      	cmp	r1, r3
+  20:	bf88      	it	hi
+  22:	4770      	bxhi	lr
+  24:	eb01 000c 	add.w	r0, r1, ip
+  28:	2100      	movs	r1, #0
+  2a:	ebb1 4f10 	cmp.w	r1, r0, lsr #16
+  2e:	d001      	beq.n	34 <lf_mixed+0x34>
+  30:	2001      	movs	r0, #1
+  32:	4770      	bx	lr
+  34:	8010      	strh	r0, [r2, #0]
+  36:	2000      	movs	r0, #0
+  38:	4770      	bx	lr
+  3a:	bf00      	nop
+  3c:	f1cc 0000 	rsb	r0, ip, #0
+  40:	4281      	cmp	r1, r0
+  42:	bf3c      	itt	cc
+  44:	2001      	movcc	r0, #1
+  46:	4770      	bxcc	lr
+  48:	e7ec      	b.n	24 <lf_mixed+0x24>
+
+Disassembly of section .text.lf_bits:
+
+00000000 <lf_bits>:
+   0:	2900      	cmp	r1, #0
+   2:	bf04      	itt	eq
+   4:	2001      	moveq	r0, #1
+   6:	4770      	bxeq	lr
+   8:	b580      	push	{r7, lr}
+   a:	b1d8      	cbz	r0, 44 <lf_bits+0x44>
+   c:	fab0 fe80 	clz	lr, r0
+  10:	07c3      	lsls	r3, r0, #31
+  12:	f1ce 0c20 	rsb	ip, lr, #32
+  16:	d121      	bne.n	5c <lf_bits+0x5c>
+  18:	2301      	movs	r3, #1
+  1a:	bf00      	nop
+  1c:	0782      	lsls	r2, r0, #30
+  1e:	d40a      	bmi.n	36 <lf_bits+0x36>
+  20:	0742      	lsls	r2, r0, #29
+  22:	d423      	bmi.n	6c <lf_bits+0x6c>
+  24:	0702      	lsls	r2, r0, #28
+  26:	d429      	bmi.n	7c <lf_bits+0x7c>
+  28:	06c2      	lsls	r2, r0, #27
+  2a:	ea4f 1010 	mov.w	r0, r0, lsr #4
+  2e:	f103 0304 	add.w	r3, r3, #4
+  32:	d5f3      	bpl.n	1c <lf_bits+0x1c>
+  34:	3b01      	subs	r3, #1
+  36:	2000      	movs	r0, #0
+  38:	e9c1 e300 	strd	lr, r3, [r1]
+  3c:	f8c1 c008 	str.w	ip, [r1, #8]
+  40:	bd80      	pop	{r7, pc}
+  42:	bf00      	nop
+  44:	f04f 0c00 	mov.w	ip, #0
+  48:	f04f 0e20 	mov.w	lr, #32
+  4c:	2320      	movs	r3, #32
+  4e:	2000      	movs	r0, #0
+  50:	e9c1 e300 	strd	lr, r3, [r1]
+  54:	f8c1 c008 	str.w	ip, [r1, #8]
+  58:	bd80      	pop	{r7, pc}
+  5a:	bf00      	nop
+  5c:	2300      	movs	r3, #0
+  5e:	2000      	movs	r0, #0
+  60:	e9c1 e300 	strd	lr, r3, [r1]
+  64:	f8c1 c008 	str.w	ip, [r1, #8]
+  68:	bd80      	pop	{r7, pc}
+  6a:	bf00      	nop
+  6c:	3301      	adds	r3, #1
+  6e:	2000      	movs	r0, #0
+  70:	e9c1 e300 	strd	lr, r3, [r1]
+  74:	f8c1 c008 	str.w	ip, [r1, #8]
+  78:	bd80      	pop	{r7, pc}
+  7a:	bf00      	nop
+  7c:	3302      	adds	r3, #2
+  7e:	2000      	movs	r0, #0
+  80:	e9c1 e300 	strd	lr, r3, [r1]
+  84:	f8c1 c008 	str.w	ip, [r1, #8]
+  88:	bd80      	pop	{r7, pc}
+
+Disassembly of section .text.lf_div:
+
+00000000 <lf_div>:
+   0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+   4:	ea52 0703 	orrs.w	r7, r2, r3
+   8:	f04f 0c01 	mov.w	ip, #1
+   c:	f000 80c5 	beq.w	19a <lf_div+0x19a>
+  10:	9f09      	ldr	r7, [sp, #36]	@ 0x24
+  12:	2f00      	cmp	r7, #0
+  14:	f000 80c1 	beq.w	19a <lf_div+0x19a>
+  18:	2400      	movs	r4, #0
+  1a:	f04f 0c3c 	mov.w	ip, #60	@ 0x3c
+  1e:	2600      	movs	r6, #0
+  20:	f04f 0e00 	mov.w	lr, #0
+  24:	f04f 0a00 	mov.w	sl, #0
+  28:	0077      	lsls	r7, r6, #1
+  2a:	ea47 78d4 	orr.w	r8, r7, r4, lsr #31
+  2e:	f10c 0703 	add.w	r7, ip, #3
+  32:	f1cc 051d 	rsb	r5, ip, #29
+  36:	fa01 f505 	lsl.w	r5, r1, r5
+  3a:	fa20 f707 	lsr.w	r7, r0, r7
+  3e:	433d      	orrs	r5, r7
+  40:	f1bc 071d 	subs.w	r7, ip, #29
+  44:	bf58      	it	pl
+  46:	fa21 f507 	lsrpl.w	r5, r1, r7
+  4a:	f005 0501 	and.w	r5, r5, #1
+  4e:	ea45 0b44 	orr.w	fp, r5, r4, lsl #1
+  52:	2e00      	cmp	r6, #0
+  54:	f04f 0400 	mov.w	r4, #0
+  58:	bf48      	it	mi
+  5a:	2401      	movmi	r4, #1
+  5c:	ebbb 0902 	subs.w	r9, fp, r2
+  60:	f04f 0500 	mov.w	r5, #0
+  64:	eb78 0703 	sbcs.w	r7, r8, r3
+  68:	bf28      	it	cs
+  6a:	2501      	movcs	r5, #1
+  6c:	ea54 0605 	orrs.w	r6, r4, r5
+  70:	ea4f 058a 	mov.w	r5, sl, lsl #2
+  74:	ea45 759e 	orr.w	r5, r5, lr, lsr #30
+  78:	ea4f 048e 	mov.w	r4, lr, lsl #2
+  7c:	ea4f 0585 	mov.w	r5, r5, lsl #2
+  80:	ea45 7a94 	orr.w	sl, r5, r4, lsr #30
+  84:	bf04      	itt	eq
+  86:	46d9      	moveq	r9, fp
+  88:	4647      	moveq	r7, r8
+  8a:	007d      	lsls	r5, r7, #1
+  8c:	f366 0441 	bfi	r4, r6, #1, #1
+  90:	ea45 7ed9 	orr.w	lr, r5, r9, lsr #31
+  94:	f10c 0502 	add.w	r5, ip, #2
+  98:	f1cc 061e 	rsb	r6, ip, #30
+  9c:	fa01 f606 	lsl.w	r6, r1, r6
+  a0:	fa20 f505 	lsr.w	r5, r0, r5
+  a4:	4335      	orrs	r5, r6
+  a6:	f1bc 061e 	subs.w	r6, ip, #30
+  aa:	bf58      	it	pl
+  ac:	fa21 f506 	lsrpl.w	r5, r1, r6
+  b0:	f005 0501 	and.w	r5, r5, #1
+  b4:	ea45 0849 	orr.w	r8, r5, r9, lsl #1
+  b8:	2f00      	cmp	r7, #0
+  ba:	f04f 0600 	mov.w	r6, #0
+  be:	bf48      	it	mi
+  c0:	2601      	movmi	r6, #1
+  c2:	ebb8 0702 	subs.w	r7, r8, r2
+  c6:	f04f 0500 	mov.w	r5, #0
+  ca:	eb7e 0903 	sbcs.w	r9, lr, r3
+  ce:	bf28      	it	cs
+  d0:	2501      	movcs	r5, #1
+  d2:	4335      	orrs	r5, r6
+  d4:	eb04 0b05 	add.w	fp, r4, r5
+  d8:	f10c 0501 	add.w	r5, ip, #1
+  dc:	f1cc 041f 	rsb	r4, ip, #31
+  e0:	fa01 f404 	lsl.w	r4, r1, r4
+  e4:	fa20 f505 	lsr.w	r5, r0, r5
+  e8:	ea45 0504 	orr.w	r5, r5, r4
+  ec:	bf04      	itt	eq
+  ee:	46f1      	moveq	r9, lr
+  f0:	4647      	moveq	r7, r8
+  f2:	f1bc 041f 	subs.w	r4, ip, #31
+  f6:	bf58      	it	pl
+  f8:	fa21 f504 	lsrpl.w	r5, r1, r4
+  fc:	f005 0501 	and.w	r5, r5, #1
+ 100:	ea4f 0649 	mov.w	r6, r9, lsl #1
+ 104:	ea45 0847 	orr.w	r8, r5, r7, lsl #1
+ 108:	f1b9 0f00 	cmp.w	r9, #0
+ 10c:	f04f 0500 	mov.w	r5, #0
+ 110:	ea46 7ed7 	orr.w	lr, r6, r7, lsr #31
+ 114:	bf48      	it	mi
+ 116:	2501      	movmi	r5, #1
+ 118:	ebb8 0402 	subs.w	r4, r8, r2
+ 11c:	f04f 0700 	mov.w	r7, #0
+ 120:	eb7e 0603 	sbcs.w	r6, lr, r3
+ 124:	bf28      	it	cs
+ 126:	2701      	movcs	r7, #1
+ 128:	432f      	orrs	r7, r5
+ 12a:	ea4f 098b 	mov.w	r9, fp, lsl #2
+ 12e:	f367 0941 	bfi	r9, r7, #1, #1
+ 132:	bf04      	itt	eq
+ 134:	4644      	moveq	r4, r8
+ 136:	4676      	moveq	r6, lr
+ 138:	0077      	lsls	r7, r6, #1
+ 13a:	f1cc 0520 	rsb	r5, ip, #32
+ 13e:	ea47 7ed4 	orr.w	lr, r7, r4, lsr #31
+ 142:	fa20 f70c 	lsr.w	r7, r0, ip
+ 146:	fa01 f505 	lsl.w	r5, r1, r5
+ 14a:	433d      	orrs	r5, r7
+ 14c:	f1bc 0720 	subs.w	r7, ip, #32
+ 150:	bf58      	it	pl
+ 152:	fa21 f507 	lsrpl.w	r5, r1, r7
+ 156:	f005 0501 	and.w	r5, r5, #1
+ 15a:	ea45 0844 	orr.w	r8, r5, r4, lsl #1
+ 15e:	2e00      	cmp	r6, #0
+ 160:	f04f 0700 	mov.w	r7, #0
+ 164:	bf48      	it	mi
+ 166:	2701      	movmi	r7, #1
+ 168:	ebb8 0402 	subs.w	r4, r8, r2
+ 16c:	f04f 0500 	mov.w	r5, #0
+ 170:	eb7e 0603 	sbcs.w	r6, lr, r3
+ 174:	bf28      	it	cs
+ 176:	2501      	movcs	r5, #1
+ 178:	433d      	orrs	r5, r7
+ 17a:	f1ac 0c04 	sub.w	ip, ip, #4
+ 17e:	bf04      	itt	eq
+ 180:	4676      	moveq	r6, lr
+ 182:	4644      	moveq	r4, r8
+ 184:	f11c 0704 	adds.w	r7, ip, #4
+ 188:	eb09 0e05 	add.w	lr, r9, r5
+ 18c:	f47f af4c 	bne.w	28 <lf_div+0x28>
+ 190:	9809      	ldr	r0, [sp, #36]	@ 0x24
+ 192:	f04f 0c00 	mov.w	ip, #0
+ 196:	e9c0 ea00 	strd	lr, sl, [r0]
+ 19a:	4660      	mov	r0, ip
+ 19c:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+Disassembly of section .text.lf_select:
+
+00000000 <lf_select>:
+   0:	4603      	mov	r3, r0
+   2:	2901      	cmp	r1, #1
+   4:	f04f 0001 	mov.w	r0, #1
+   8:	bf98      	it	ls
+   a:	2b1f      	cmpls	r3, #31
+   c:	d900      	bls.n	10 <lf_select+0x10>
+   e:	4770      	bx	lr
+  10:	2a00      	cmp	r2, #0
+  12:	bf08      	it	eq
+  14:	4770      	bxeq	lr
+  16:	f06f 001f 	mvn.w	r0, #31
+  1a:	2900      	cmp	r1, #0
+  1c:	bf08      	it	eq
+  1e:	f06f 000f 	mvneq.w	r0, #15
+  22:	4318      	orrs	r0, r3
+  24:	3001      	adds	r0, #1
+  26:	fab0 f080 	clz	r0, r0
+  2a:	0940      	lsrs	r0, r0, #5
+  2c:	6010      	str	r0, [r2, #0]
+  2e:	2000      	movs	r0, #0
+  30:	4770      	bx	lr

@@ -1,0 +1,28 @@
+{
+  "id": "PR-T54-01",
+  "description": "Dual images and static peripheral ownership finite independent example",
+  "oracle": "ranges",
+  "input": {
+    "ranges": [
+      [
+        134217728,
+        134283264
+      ],
+      [
+        135266304,
+        135331840
+      ],
+      [
+        939524096,
+        939528192
+      ]
+    ]
+  },
+  "expected": {
+    "overlap": false,
+    "total_bytes": 135168
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The H745 M7 and M4 run separate images with different core capabilities and memory access paths. Define an address map and a single owner for each peripheral, clock-control operation and shared region. An M7 TCM pointer is not automatically an M4-accessible buffer.",
+  "required_observation": "Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded."
+}

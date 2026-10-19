@@ -9,8 +9,25 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 from technical_guidance import HINTS
+from research.v5.expansion.legacy_posix_followthrough.author_support import attach as attach_posix_followthrough
+from research.v5.expansion.legacy_posix_mapping.author_support import attach as attach_posix_mapping
+from research.v5.expansion.legacy_posix_namespace.author_support import attach as attach_posix_namespace
+from research.v5.expansion.legacy_posix_io.author_support import attach as attach_posix_io
+from research.v5.expansion.legacy_posix_terminal.author_support import attach as attach_posix_terminal
+from research.v5.expansion.legacy_posix_retry.author_support import attach as attach_posix_retry
+from research.v5.expansion.legacy_posix_workload.author_support import attach as attach_posix_workload
+from research.v5.expansion.legacy_posix_context.author_support import attach as attach_posix_context
+from research.v5.expansion.legacy_events.author_support import attach as attach_events
+from research.v5.expansion.legacy_framing.author_support import attach as attach_framing
+from research.v5.expansion.legacy_reactor.author_support import attach as attach_reactor
+from research.v5.expansion.legacy_timers.author_support import attach as attach_timers
+from research.v5.expansion.legacy_can.author_support import attach as attach_can
+from research.v5.expansion.legacy_completion_io.author_support import attach as attach_completion
+from research.v5.expansion.legacy_threads.author_support import attach as attach_threads
+from research.v5.expansion.legacy_advanced.author_support import attach as attach_advanced
 
 DOMAINS = [f'T{n}' for n in range(23, 30)]
 REGISTERS = ['research/v5/expansion/legacy_runtime/resources.json',
@@ -172,11 +189,12 @@ def main():
     baseline_binding=dict(files=bindings,teaching=[dict(path=module.relative_to(ROOT).as_posix(),anchors=m['topics'])],units=[u['id'] for u in pu],inspection_limits=['All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.','Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.','Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles.']),
     environment=dict(language='Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.',target=target,profile=m['profile'],dependencies='Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.',toolchain=['Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.','Device/VM/tool unavailability is a missing observation, not a passing result.']),source_records=sources,reference_gaps=gaps,supplied_artifacts=supplied,execution_support=execution,criteria=criteria,assessor_analysis='assessor/legacy_depth/'+pid+'.md',
     status=dict(content='authored',execution='Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.',independent_review='not-run',learner_assessment='not-assessed',limitations=['Finite tests do not prove absolute mastery.','Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.','Historical optional labels do not exclude required expansion work.']))
+   record=attach_advanced(record)
    f=read(fixture);kind=f.get('oracle_type',f.get('input',{}).get('kind','declared model'))
    audit.append(dict(project=pid,objectives=list(objectives),baseline_bindings=bindings,teaching='Substantive retained topic passages',construction='Concrete retained implementation contract; historically elective T26 construction made required in additive supplement',boundary='Named bounded baseline cases plus broader authored project obligations',independent_assessment_before='General acceptance/transfer and topic checklist, lacking explicit per-leaf four-level rubric',expansion='Distinct leaf investigations, misconception controls, two hints, expected arguments and delayed variants',tests=tests,fixture_limit=kind+' is only its declared synthetic model; no platform observation inferred.'))
    # Publish the audit before the supplement, preserving authoring order.
    write(HERE/(domain+'_audit.json'),dict(domain=domain,status='author passage/depth audit',projects=audit,limitations=['No independent human review or fresh full baseline campaign.']))
-   write(ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json'),record)
+   write(ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json'),attach_completion(attach_can(attach_timers(attach_reactor(attach_framing(attach_threads(attach_events(attach_posix_context(attach_posix_workload(attach_posix_retry(attach_posix_terminal(attach_posix_io(attach_posix_namespace(attach_posix_mapping(attach_posix_followthrough(record))))))))))))))))
    ap=ROOT/record['assessor_analysis'];ap.parent.mkdir(parents=True,exist_ok=True)
    ap.write_text('\n'.join(analysis)+'\n',encoding='utf-8',newline='\n')
   assert seen==set(cards),(domain,set(cards)-seen)

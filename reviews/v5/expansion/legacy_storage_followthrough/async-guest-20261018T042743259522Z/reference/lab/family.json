@@ -1,0 +1,301 @@
+{
+  "version": 1,
+  "family": "kernel_smp",
+  "module": "T53",
+  "modules": [
+    "T53",
+    "T56"
+  ],
+  "title": "CMK2 freestanding SMP and bounded operating system",
+  "build_system": "cmake",
+  "default": "Learner stubs compile; no guest behavior is implemented until learner completes it.",
+  "assessor_root": "assessor/kernel_smp",
+  "default_target": "x86-smp",
+  "targets": {
+    "x86-smp": {
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "evidence_kind": "emulator",
+      "cpu_counts": [
+        1,
+        2,
+        4
+      ],
+      "default_cpus": 4
+    }
+  },
+  "projects": [
+    {
+      "id": "PR-T53-01",
+      "tests": [
+        "kernel_smp_madt",
+        "kernel_smp_guest_madt"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Bounded MADT parser plus actual guest discovery."
+    },
+    {
+      "id": "PR-T53-02",
+      "tests": [
+        "kernel_smp_guest_startup"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Real INIT/SIPI AP startup."
+    },
+    {
+      "id": "PR-T53-03",
+      "tests": [
+        "kernel_smp_guest_startup"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Per-CPU GDT/TSS/IDT and stacks."
+    },
+    {
+      "id": "PR-T53-04",
+      "tests": [
+        "kernel_smp_guest_apic"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Actual APIC timer and IPI delivery before workload."
+    },
+    {
+      "id": "PR-T53-05",
+      "tests": [
+        "kernel_smp_guest_threads"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Spinlock-protected original kernel-thread workload."
+    },
+    {
+      "id": "PR-T53-06",
+      "tests": [
+        "kernel_smp_guest_threads"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Cooperative per-CPU ready queues and assembly context switch."
+    },
+    {
+      "id": "PR-T53-07",
+      "tests": [
+        "kernel_smp_guest_channel"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Cross-core channel wait/wake and bounded message accounting."
+    },
+    {
+      "id": "PR-T53-08",
+      "tests": [
+        "kernel_smp_guest_affinity"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "SMP ring-3 scheduler migration; bounded shared global run queue."
+    },
+    {
+      "id": "PR-T53-09",
+      "tests": [
+        "kernel_smp_guest_tlb"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Dedicated IPI/CR3 reload acknowledgement barrier; demand/COW permission transitions tested in T56."
+    },
+    {
+      "id": "PR-T53-10",
+      "tests": [
+        "kernel_smp_guest_reduction"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Native atomic reduction over 257 integer jobs; sequential oracle and all-CPU execution mask. Requires T56 thread substrate."
+    },
+    {
+      "id": "PR-T53-11",
+      "tests": [
+        "kernel_smp_guest_pool"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Two dispatch rounds through a reusable pinned bounded user workpool. Requires T56 thread substrate."
+    },
+    {
+      "id": "PR-T53-12",
+      "tests": [
+        "kernel_smp_guest_dag"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "16-node dependency graph with acquire/release publication and serial oracle. Requires T56 thread substrate; emulator TSC is not physical speedup evidence."
+    },
+    {
+      "id": "PR-T56-01",
+      "tests": [
+        "kernel_smp_guest_userthreads"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Separate process address-space and thread execution state."
+    },
+    {
+      "id": "PR-T56-02",
+      "tests": [
+        "kernel_smp_guest_spawn"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Read-only archive spawn, last-thread process exit and parent wait."
+    },
+    {
+      "id": "PR-T56-03",
+      "tests": [
+        "kernel_smp_guest_zero"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Actual demand-zero page faults."
+    },
+    {
+      "id": "PR-T56-04",
+      "tests": [
+        "kernel_smp_guest_cow"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Restricted single-live-thread COW fork and wait."
+    },
+    {
+      "id": "PR-T56-05",
+      "tests": [
+        "kernel_smp_channel",
+        "kernel_smp_guest_ipc"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Bounded blocking channels and stale handle rejection."
+    },
+    {
+      "id": "PR-T56-06",
+      "tests": [
+        "kernel_smp_guest_shared"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Refcounted shared-memory mapping lifetime across process fork."
+    },
+    {
+      "id": "PR-T56-07",
+      "tests": [
+        "kernel_smp_guest_async"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Real virtio MSI-X completion, bounded submit/wait and poisoned-device deadline."
+    },
+    {
+      "id": "PR-T56-08",
+      "tests": [
+        "kernel_archive"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Bounded read-only boot archive parser; actual ELF use in guest regression."
+    },
+    {
+      "id": "PR-T56-09",
+      "tests": [
+        "kernel_integration"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "VM client process exchanges requests over channels with store owner; explicit runtime/store dependencies required."
+    },
+    {
+      "id": "PR-T56-10",
+      "tests": [
+        "kernel_integration"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Separate store owner retains sole disk capability; VM client denied it."
+    },
+    {
+      "id": "PR-T56-11",
+      "tests": [
+        "kernel_integration"
+      ],
+      "capabilities": [
+        "qemu_x86",
+        "grub"
+      ],
+      "scope": "Commit plus indeterminate reply and next-boot recovery of stored42."
+    }
+  ],
+  "commands": {
+    "configure": "cmake -S . -B build -G Ninja",
+    "build": "cmake --build build",
+    "test": "ctest --test-dir build --output-on-failure"
+  },
+  "capabilities": {
+    "host": "Linux C17 GCC/Clang",
+    "guest": "QEMU pc-i440fx-10.2 with 1, 2 or 4 CPUs, multi-thread TCG, GNU GRUB and xorriso",
+    "physical": "not claimed"
+  },
+  "integration": "Runtime/store paths must be explicitly supplied; no auto-download or hidden reference fallback.",
+  "dependencies": [
+    "runtime",
+    "storage"
+  ]
+}

@@ -4,7 +4,11 @@
   "domain": "T40",
   "title": "Independent depth assessment: Two-segment RS-485 grant scheduler and measured adapter",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/edu7_followthrough/physical/CONTRACTS.md",
+    "labs/edu7_depth/CONTRACTS.md",
+    "labs/serial_followthrough/rs485/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -111,6 +115,45 @@
         "curriculum/modules/T40.md: eight Study sequence and teaching subsections",
         "PR-T40-02: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-EP-1400",
+      "path": "research/v5/expansion/legacy_edu7_physical/resources.json",
+      "passages": [
+        "Printed3 pin identities/polarities; printed5 recommended load/voltage conditions; printed7 THVD1400 condition-specific enable/disable times"
+      ]
+    },
+    {
+      "id": "R-EP-1410",
+      "path": "research/v5/expansion/legacy_edu7_physical/resources.json",
+      "passages": [
+        "Printed5 SOIC/VSSOP pins and enable polarity; printed10 electrical conditions and printed11 THVD1410 enable/disable timing"
+      ]
+    },
+    {
+      "id": "R-EDU7-PHYSICAL-RM21",
+      "path": "research/v5/expansion/legacy_edu7_physical/resources.json",
+      "passages": [
+        "Printed67 USART2/3 APB1 register boundary mapping; printed187 USART2/3 gate bits",
+        "Printed284 mode/output type and printed288\u2013289 alternate-function offsets/encoding; printed1021 USART register-map offsets"
+      ]
+    },
+    {
+      "id": "R-EP-DS14",
+      "path": "research/v5/expansion/legacy_edu7_physical/resources.json",
+      "passages": [
+        "Printed57 Table10 PA1/PA2 with LQFP144 columns; printed75 Table12 AF header and PA1/PA2/PA3 AF7 functions"
+      ]
+    },
+    {
+      "id": "R-EP-LOCAL",
+      "path": "research/v5/expansion/legacy_edu7_physical/resources.json",
+      "passages": [
+        "Original T40 family L1 grant timing, topology and96-octet bound",
+        "assessor/peripheral_depth/uart/uart.c: complete pu_open/pu_submit/pu_cancel/pu_step and matching public contract",
+        "assessor/serial_followthrough/rs485/channel.c: r5_delays and selected port.c; actual16-byte cap",
+        "assessor/edu7_depth/edu7_depth.c: e7_grant_begin/first/finish/tick and e7_link_admit; labs/edu7_depth/CONTRACTS.md grant/admission section"
+      ]
     }
   ],
   "reference_gaps": [
@@ -120,13 +163,52 @@
   "supplied_artifacts": [
     "fixtures/networking/PR-T40-02.json",
     "curriculum/projects/PR-T40-02.md",
-    "labs/communications/README.md"
+    "labs/communications/README.md",
+    "fixtures/edu7_foundation/original_t40.json",
+    "labs/communications/include/com_edu7.h",
+    "labs/communications/include/com_http.h",
+    "labs/communications/include/com_mcu.h",
+    "labs/communications/include/com_net.h",
+    "labs/communications/include/v4_com.h",
+    "labs/edu7_depth/CONTRACTS.md",
+    "labs/edu7_depth/include/edu7_depth.h",
+    "labs/edu7_followthrough/foundation/CONTRACTS.md",
+    "labs/edu7_followthrough/foundation/foundation.h",
+    "labs/edu7_followthrough/physical/BOARD_CAPTURE.md",
+    "labs/edu7_followthrough/physical/CONTRACTS.md",
+    "labs/edu7_followthrough/physical/freestanding/string.h",
+    "labs/edu7_followthrough/physical/guest.c",
+    "labs/edu7_followthrough/physical/learner.c",
+    "labs/edu7_followthrough/physical/mapped.c",
+    "labs/edu7_followthrough/physical/native.c",
+    "labs/edu7_followthrough/physical/physical.h",
+    "labs/edu7_followthrough/physical/port_learner.c",
+    "labs/edu7_followthrough/physical/prerequisite_stubs.c",
+    "labs/edu7_followthrough/physical/target.ld",
+    "labs/edu7_followthrough/physical/target_build.py",
+    "labs/edu7_followthrough/physical/tests.c",
+    "labs/network_followthrough/driver/target.S",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_followthrough/rs485/CONTRACTS.md",
+    "labs/serial_followthrough/rs485/channel.h",
+    "labs/serial_followthrough/uart/uart_depth.h"
   ],
   "execution_support": {
     "kind": "retained-implementation-with-explicit-gaps",
     "scope": "DE/TC/guard C helper and finite timing fixture; complete grant scheduler and physical bench absent.",
     "tests": [],
-    "fresh_execution": "No retained campaign rerun by these assessment sidecars; any new executable supplement has its own exact source-bound receipt."
+    "fresh_execution": "No retained campaign rerun by these assessment sidecars; any new executable supplement has its own exact source-bound receipt.",
+    "physical_successor": {
+      "path": "research/v5/expansion/legacy_edu7_physical/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T40-02-T40.02.a",
+        "AX-PR-T40-02-T40.02.b",
+        "AX-PR-T40-02-T40.02.c"
+      ],
+      "scope": "Three unchanged criterion/V1 pairs: actual UART/frame ownership, two-port and grant adapters with required physical evidence separate."
+    }
   },
   "criteria": [
     {
@@ -347,12 +429,23 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T40-02.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Actual EDU7 full-frame UART, two-port and grant author evidence with explicit remaining whole-stack and physical obligations.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Master-grant scheduler, echo/fault integration and required measured two-segment evidence remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_edu7_physical/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T40-02-T40.02.a",
+        "AX-PR-T40-02-T40.02.b",
+        "AX-PR-T40-02-T40.02.c"
+      ],
+      "scope": "Three unchanged criterion/V1 pairs: actual UART/frame ownership, two-port and grant adapters with required physical evidence separate."
+    }
+  ]
 }

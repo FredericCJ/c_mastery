@@ -1,0 +1,137 @@
+# X-T69-003: Dictionary passing, specialization and effect-sensitive folds
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for containers.array, measurement.capture; prerequisite exercises: X-T69-001. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement ds_fold for0–16 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.
+
+Supplied artifacts: labs/dispatch/include/dispatch.h, deliberately incomplete labs/dispatch/src/dispatch.c, executable anchors, fixture PR-T69-03.json and the shared CONTRACTS.md. Expected example: Folding subtraction over[3,2] from10 yields5; specialized addition yields15. Empty input with initial7 yields7 without callback invocation. A later rejected negative value preserves caller output99 even after an earlier successful callback.
+
+## Necessity
+
+A generic callback signature does not grant associativity, purity or commutativity. Comparing a checked left fold with unchecked specialized addition measures different semantics.
+
+## Reasoning
+
+T69.03.a: Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.
+
+T69.03.b: Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.
+
+T69.03.c: Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.
+
+T69.03.d: Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dispatch -B build/dispatch` then build and `ctest --test-dir build/dispatch -R "^dispatch.dictionary$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. Subtraction exposes argument reversal immediately.
+2. Record the trace before invoking an effectful operation.
+3. Distinguish a type parameter from a parameter whose value is itself a type constructor.
+
+## Variants
+
+X-T69-003-DELAYED: introduce a saturating signed policy and parallel tree reduction. Produce a minimal associativity counterexample and either retain fold order or narrow the algebraic contract before optimizing.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+
+## Completion stage: traces, kinds and an actual parallel regrouping
+
+Implement dispatch_dictionary.h from its learner stub and follow the shared ordered-dictionary/saturation contract. The harness drives1092 exact operand/status traces through actual ds_fold and compares an independent Python left-fold model, then checks prefix overflow that later cancellation cannot repair. D3 requires the trace, output preservation and the first rejected operation, not just equal final numbers. The safe constructor-tag counterexample and actual higher_order concrete carriers delimit the kind-checking comparison for R4: valid C callback signatures do not enforce an arbitrary type-constructor relation.
+
+For X-T69-003-DELAYED, implement both the left and balanced signed-saturating reductions. With `[INT_MAX,1,-1]`, independently derive INT_MAX-1 versus INT_MAX, then run the supplied two-worker pthread tree and join before reading either result. Do not describe regrouping as a valid optimization of the unrestricted left-fold contract. Either retain order or prove the narrower nonnegative algebra before enabling the tree. `dispatch.reduction` includes the finite dictionary histories, saturation edges and actual workers; both compiled reduction mutants must reject. R1/R2 assess the law and implementation contracts, R3 the failure traces, and R4 still requires the separate runtime-selected dictionary cost investigation. Learner-independent delayed assessment remains unperformed by the author campaign.
+
+## Reproducible cost and changed-ABI investigation
+
+Run tools/run_dispatch_costs.py and tools/run_dispatch_stack.py with explicit report paths under reviews/v5/expansion. The supplied1000-object workload compares the direct, embedded and external-view representations; fixed/runtime/per-element dictionary workloads keep different algebraic policies in separately comparable groups. The real two-entry cache is measured under one, two and four cyclic type pairs. Read research/v5/modern/dispatch_cost_analysis.md and the13-dimension dispatch_cost_review.json as author evidence, then reproduce and explain your own results. Retain all trials, compiler options, clean/incremental timings, symbols, disassembly, stack files and linker maps. Explain why link-time inlining or hoisting makes timing an optimizer-dependent whole-workload result, not an instruction latency.
+
+The additional ABI control compiles and actually runs the exact extracted core/public types as an original static i386 Linux process, with a documented integer-limits subset and syscall entry adapter. It checks33 values, failure-output behavior, exact sizes/alignments/offset and no unresolved link helpers. Compare its4-byte pointer and8-byte view with the observed8-byte pointer and16-byte view on x86-64. The current WSL compatibility run is not another physical CPU, a board run, or a complete32-bit hosted libc. Keep those limits, the initial missing-header failure and the corrected explicit adapter in the evidence. These measurements support the relevant author cost/ABI obligations; independent defense and delayed transfer remain separately assessed.
+
+## Objective-specific assessment anchors
+
+### X-T69-003-R1 / T69.03.a
+
+Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-003-R2 / T69.03.b
+
+Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-003-R3 / T69.03.c
+
+Exhaust lengths0 through5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-003-R4 / T69.03.d
+
+Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T69-03
+
+Required earlier exercises: X-T69-001
+
+Required baseline units: none
+
+Required artifact imports: containers.array, measurement.capture
+
+
+- [R-MOD-DISPATCH-KINDS](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html): 4.1.1 Kinds; 4.1.2 Syntax of Types: type application and examples; 4.1.4 Semantics: Functor f type expression
+- [R-MOD-DISPATCH-TRAIT-DECL](https://doc.rust-lang.org/reference/items/traits.html): items.traits.intro and impls; items.traits.dyn-compatible: receiver and method restrictions
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T69-003-DELAYED.
+
+Contract SHA-256: ba2354915671a6cab034ebc081713efeccd8f045c365a6d4ea9bea03b8d75e23

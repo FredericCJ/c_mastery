@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-LLPC-01",
+      "title": "Linux EEVDF scheduler documentation",
+      "authors": [
+        "Linux documentation contributors"
+      ],
+      "url": "https://docs.kernel.org/scheduler/sched-eevdf.html",
+      "edition": "Primary live documentation inspected 2026-10-17; exact executed source/configuration recorded separately",
+      "locators": [
+        "EEVDF Scheduler paragraphs on lag eligibility, virtual deadlines and deferred dequeue"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate fair ordering, reservation/admission, static priority, supervision and observed timing contracts.",
+      "prerequisites": [
+        "Periodic workloads, scheduler classes, monotonic clocks and process ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual opened primary documentation passages before authoring; exact selected kernel source/configuration inspected separately in source_access.json.",
+        "scope": "Eligible tasks have nonnegative lag and selection uses virtual deadline. Fairness accounting is not an application wall-clock completion guarantee.",
+        "limits": "Selected passages only; no full kernel proof, physical timing or PREEMPT_RT claim."
+      }
+    },
+    {
+      "id": "R-LLPC-02",
+      "title": "Linux SCHED_DEADLINE documentation",
+      "authors": [
+        "Linux documentation contributors"
+      ],
+      "url": "https://docs.kernel.org/scheduler/sched-deadline.html",
+      "edition": "Primary live documentation inspected 2026-10-17; exact executed source/configuration recorded separately",
+      "locators": [
+        "2.1 main CBS algorithm",
+        "3.4 relationship with task parameters",
+        "5 CPU affinity"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate fair ordering, reservation/admission, static priority, supervision and observed timing contracts.",
+      "prerequisites": [
+        "Periodic workloads, scheduler classes, monotonic clocks and process ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual opened primary documentation passages before authoring; exact selected kernel source/configuration inspected separately in source_access.json.",
+        "scope": "Runtime depletion throttles until replenishment; task temporal requirements must be related to admitted runtime/deadline/period.; Ordinary affinity restriction smaller than the root domain is not a valid way to pin SCHED_DEADLINE. A refusal must remain an observed unavailable experiment unless a separate owned-guest partition is deliberately configured.",
+        "limits": "Selected passages only; no full kernel proof, physical timing or PREEMPT_RT claim."
+      }
+    },
+    {
+      "id": "R-LLPC-03",
+      "title": "Linux sched(7) manual",
+      "authors": [
+        "Linux documentation contributors"
+      ],
+      "url": "https://man7.org/linux/man-pages/man7/sched.7.html",
+      "edition": "Primary live documentation inspected 2026-10-17; exact executed source/configuration recorded separately",
+      "locators": [
+        "SCHED_FIFO and SCHED_RR rules",
+        "Privileges and resource limits",
+        "Limiting CPU usage of real-time/deadline processes"
+      ],
+      "domains": [
+        "T52"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Separate fair ordering, reservation/admission, static priority, supervision and observed timing contracts.",
+      "prerequisites": [
+        "Periodic workloads, scheduler classes, monotonic clocks and process ownership"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual opened primary documentation passages before authoring; exact selected kernel source/configuration inspected separately in source_access.json.",
+        "scope": "FIFO has no timeslice; RR rotates at a quantum. Real-time static priority differs from application deadlines.; A bounded supervisor needs a real opportunity to run and per-process resource limits; a harness timeout alone is not recovery.",
+        "limits": "Selected passages only; no full kernel proof, physical timing or PREEMPT_RT claim."
+      }
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 texts and physical CPU/board timing remain separate obligations.",
+    "The original finite selector omits actual kernel hierarchy, placement, buddy and slice-protection mechanisms."
+  ],
+  "exact_kernel_inspection": "research/v5/expansion/legacy_realtime_linux/source_access.json"
+}

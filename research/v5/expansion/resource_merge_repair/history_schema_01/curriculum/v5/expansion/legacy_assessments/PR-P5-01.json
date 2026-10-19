@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "project": "PR-P5-01",
+  "domain": "INTEGRATION",
+  "title": "Concurrent ownership and backpressure — explicit composition assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_linux_followthrough/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-P5-01.md",
+        "sha256": "6fb3fdda71aaffe2288a9e1340cdceb0eca46043dd48b3b18938661a2d1b1ae3",
+        "passages": [
+          "Complete metadata, contract, inputs, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "curriculum/guides/integrations.md",
+        "sha256": "43146288b2a8b00d74a5bfe913ae1e4080d2d0e283463a195a45c77ee8fafe22",
+        "passages": [
+          "P5 shared cross-component contract and protocol requirements"
+        ]
+      },
+      {
+        "path": "curriculum/guides/audit.md",
+        "sha256": "909396c9e47065f1c1aff93e463e0fbeb6b5518db58abe8ce6fe0828918e8104",
+        "passages": [
+          "Dependency/ownership/evidence audit rules"
+        ]
+      },
+      {
+        "path": "fixtures/integration/pressure.json",
+        "sha256": "d6fbec02eac1c7bad180dfa89a9741e3599feac53d7badaade37a28a285c48fd",
+        "passages": [
+          "Complete synthetic input and expected model output"
+        ]
+      },
+      {
+        "path": "tools/verify_integration_fixtures.py",
+        "sha256": "6e1986a3769f4af30bf2d7325595d62b520cb0d7470f71fdb78e6708be5cdddc",
+        "passages": [
+          "Independent queue/binary/wire/irq/pressure/fir computation branches"
+        ]
+      },
+      {
+        "path": "labs/integration/CONTRACTS.md",
+        "sha256": "e3e3c4a08f929ff6874826ccf0d85b08b2d210f355461018645ff599e16c979d",
+        "passages": [
+          "P5 handoff contract and common live-object/nonoverlap/ownership requirements"
+        ]
+      },
+      {
+        "path": "labs/integration/include/integration.h",
+        "sha256": "1b6e642a886930a886d43ce8ca867a3c7841f4758b96bbf12c2e3192999245a9",
+        "passages": [
+          "Complete public orchestrator types and function declarations"
+        ]
+      },
+      {
+        "path": "labs/integration/tests/contracts.c",
+        "sha256": "d0c18f29f84497134037b15d4720cf37ef120a9410cf2cc850e5597049860c0a",
+        "passages": [
+          "P5 positive and negative test scopes; not the full checkpoint implementation"
+        ]
+      },
+      {
+        "path": "assessor/integration/integration.c",
+        "sha256": "ab82014687e4bbe5081de5415ec14c4e3bbbfb1a9e1ff5ce96356c4bfe89d82b",
+        "passages": [
+          "P5 actual orchestrator source and component ownership/progress handoffs"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "All assigned checkpoint unit objective/import/export/test mappings"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T18.md",
+        "sha256": "1631bb2dab47efc7a794855a8805d8bb9084d3490d5a1df7fc9ee196762282b2",
+        "passages": [
+          "Substantive teaching sections T18.04"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T24.md",
+        "sha256": "9f8a7a963ad452b0032c33cb3d354c4d9f10bcb9a9c5e3d28bb05706cae21186",
+        "passages": [
+          "Substantive teaching sections T24.08"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T25.md",
+        "sha256": "a71a96c3f032d0feb423291018a3c870931629aeb38a8e9e39fa2f4b1330edd8",
+        "passages": [
+          "Substantive teaching sections T25.02"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T18.md",
+        "anchors": [
+          "T18.04"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T24.md",
+        "anchors": [
+          "T24.08"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T25.md",
+        "anchors": [
+          "T25.02"
+        ]
+      }
+    ],
+    "units": [
+      "U-P5-01-01",
+      "U-P5-01-02",
+      "U-P5-01-03"
+    ],
+    "inspection_limits": [
+      "Complete parent brief, actual assigned teaching sections, shared integration guide, six synthetic fixtures and complete orchestrator/header/contracts/tests inspected.",
+      "Assigned unit objective/import/export/test mappings inspected; no historical learner portfolio or complete target campaign was audited.",
+      "Only exact primary passages in source_records are assigned; no bibliography-only inspection claim."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is explicitly a C11 draft comparison; compiler extensions, ABI/OS/ISA/library and board contracts remain separate authorities.",
+    "target": "Original Linux pthread/epoll service using bounded local synthetic inputs; no external endpoints or credentials. Deterministic models and actual threaded runs are separate.",
+    "profile": "A",
+    "dependencies": "Keep the retained profile and producer restrictions. Implement the taught mechanism from permitted primitives; no container/parser/allocator/filter library substitutes. Strict target images audit implicit helpers and all resolved providers. Python/zlib/oracles and diagnostic tools are host verification only. Modern hosted adapter revisits remain separate dependency scopes.",
+    "toolchain": [
+      "Record compiler/version/flags/optimization/data model and actual linker map/symbol closure.",
+      "Record OS/ABI/ISA/emulator/board and clock evidence for the specific claim; unavailable tools or targets remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-B06-EPOLL",
+      "path": "research/v5/b06_resources.json",
+      "passages": [
+        "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+      ]
+    },
+    {
+      "id": "R-LRUN-THREAD",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS",
+        "NOTES: scheduling order, joinable/detached resources and stack defaults"
+      ]
+    },
+    {
+      "id": "R-LRUN-COND",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+      ]
+    },
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1–14 Order and consistency",
+        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-LCP-C11",
+      "path": "research/v5/expansion/legacy_checkpoints/resources.json",
+      "passages": [
+        "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
+        "6.2.8 paragraphs1–7: alignment requirements",
+        "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+      ]
+    },
+    {
+      "id": "R-P5-COND",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "DESCRIPTION: atomic release/enrollment, mutex reacquisition and dynamic binding; predicate recheck, spurious wakeups, timed wait and MONOTONIC clock; RATIONALE Condition Wait Semantics"
+      ]
+    },
+    {
+      "id": "R-P5-EPOLL",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "DESCRIPTION LT/ET nonblocking/drain policy; Questions and answers open file description identity; Possible pitfalls ready lists and stale event caches"
+      ]
+    },
+    {
+      "id": "R-P5-CLOSE",
+      "path": "research/v5/expansion/legacy_checkpoint_linux/resources.json",
+      "passages": [
+        "CAVEATS multithreaded close and error returns; early descriptor retirement, retry hazard, Linux versus POSIX editions"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Current exact published C17/C23 passages beyond the inspected C11 draft remain separate research obligations.",
+    "Learner prerequisite artifact hashes and acceptance receipts are required at attempt time; no supplied learner portfolio was inspected.",
+    "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign.",
+    "No new complete checkpoint implementation campaign, independent human assessment or delayed learner attempt is claimed."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-P5-01.md",
+    "fixtures/integration/pressure.json",
+    "fixtures/legacy_checkpoints/P5.json",
+    "curriculum/guides/integrations.md",
+    "labs/integration/README.md",
+    "labs/integration/include/integration.h",
+    "tools/verify_legacy_checkpoint_fixtures.py",
+    "fixtures/legacy_checkpoints/P1.json",
+    "fixtures/legacy_checkpoints/P2.json",
+    "fixtures/legacy_checkpoints/P3.json",
+    "fixtures/legacy_checkpoints/P4.json",
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_linux_followthrough/bridge.h",
+    "labs/checkpoint_linux_followthrough/bridge_stub.c",
+    "labs/checkpoint_linux_followthrough/bridge_tests.c",
+    "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+    "labs/checkpoint_linux_followthrough/run.py",
+    "labs/checkpoint_depth/include/checkpoint_async.h",
+    "labs/checkpoint_depth/include/checkpoint_channel.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_linux.h",
+    "labs/checkpoint_depth/include/checkpoint_memory.h",
+    "labs/checkpoint_depth/include/checkpoint_numeric.h",
+    "labs/checkpoint_depth/include/checkpoint_operation.h",
+    "labs/checkpoint_depth/include/checkpoint_vector.h",
+    "labs/checkpoint_depth/include/checkpoint_writer.h",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/include/v4_foundation.h",
+    "labs/algorithms/include/algo.h",
+    "labs/algorithms/include/v4_algo.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/src/checkpoint_async.c",
+    "labs/checkpoint_depth/src/checkpoint_linux.c",
+    "labs/checkpoint_depth/src/checkpoint_operation.c",
+    "labs/checkpoint_depth/tests/async.c",
+    "labs/checkpoint_depth/tests/linux.c",
+    "labs/checkpoint_depth/tests/operation.c"
+  ],
+  "prerequisite_artifacts": [
+    "PR-T18-02/accepted-component-and-dossier",
+    "PR-T24-04/accepted-component-and-dossier",
+    "PR-T25-01/accepted-component-and-dossier",
+    "PR-P1-02/accepted-component-and-dossier",
+    "PR-P3-02/accepted-component-and-dossier",
+    "PR-P1-02 bounded storage/queue interfaces and owner ledger",
+    "PR-P3-02 full CRC-frame/streaming component with delivery/backpressure contract",
+    "PR-P5-01 learner source, headers and source-bound component dossier",
+    "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+  ],
+  "additional_required_projects": [
+    "PR-P1-02",
+    "PR-P3-02"
+  ],
+  "execution_support": {
+    "kind": "Retained bounded integration anchor plus new independent synthetic host model",
+    "scope": "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign.",
+    "tests": [
+      "integration.p5"
+    ],
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "linux_followthrough_successor": {
+      "path": "research/v5/expansion/legacy_checkpoint_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P5-01-T24.08.b",
+        "AX-PR-P5-01-T25.02.b",
+        "AX-PR-P5-01-T25.02.c",
+        "AX-PR-P5-01-T18.04.c"
+      ],
+      "scope": "Exact original P5 ordinary/delayed tasks with actual readiness/callback/ownership/changed-condition and failure behavior; actual learner/physical evidence separate"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-P5-01-T24.08.b",
+      "title": "Handle registration changes, descriptor reuse, and stale events.",
+      "objective": "T24.08.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        },
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LCP-C11",
+          "path": "research/v5/expansion/legacy_checkpoints/resources.json",
+          "passages": [
+            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1–7: alignment requirements",
+            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+          ]
+        }
+      ],
+      "task": "Integrate a bounded Linux reader with the P3 decoder and queue using connection(slot,generation), not bare descriptor identity. Close fd7 for generation1, reuse7 for generation2, then deliver the old readiness event; require rejection before accessing the new connection. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "A descriptor number is a permanent connection identity.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T24.08, T25.02, T18.04 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T18-02/accepted-component-and-dossier",
+          "PR-T24-04/accepted-component-and-dossier",
+          "PR-T25-01/accepted-component-and-dossier",
+          "PR-P1-02/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P1-02 bounded storage/queue interfaces and owner ledger",
+          "PR-P3-02 full CRC-frame/streaming component with delivery/backpressure contract",
+          "PR-P5-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "A descriptor number is a permanent connection identity. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: A descriptor number is a permanent connection identity.",
+        "D2": "Integrate a bounded Linux reader with the P3 decoder and queue using connection(slot,generation), not bare descriptor identity. Close fd7 for generation1, reuse7 for generation2, then deliver the old readiness event; require rejection before accessing the new connection. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Switch from level to edge triggering and derive how a full downstream queue resumes without a lost edge."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Event identity must validate live registration/lifetime. Readiness is permission to attempt bounded progress, not a complete frame or ownership transfer. Edge-triggered draining needs a rearm/backpressure plan when the output queue fills.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Event identity must validate live registration/lifetime. Readiness is permission to attempt bounded progress, not a complete frame or ownership transfer. Edge-triggered draining needs a rearm/backpressure plan when the output queue fills. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Switch from level to edge triggering and derive how a full downstream queue resumes without a lost edge. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Count all live message representations, including parser and worker ownership outside the queue.",
+        "Validate descriptor/slot generation before dereferencing context; copy or transfer payload ownership before resetting the parser buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P5-01-T24.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Switch from level to edge triggering and derive how a full downstream queue resumes without a lost edge.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2408b",
+      "facet_scope": {
+        "teaching": "Actual T24.08 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T24.08.b"
+      }
+    },
+    {
+      "id": "AX-PR-P5-01-T25.02.b",
+      "title": "Define ownership of work items and shutdown messages.",
+      "objective": "T25.02.b",
+      "families": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        },
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LCP-C11",
+          "path": "research/v5/expansion/legacy_checkpoints/resources.json",
+          "passages": [
+            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1–7: alignment requirements",
+            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+          ]
+        }
+      ],
+      "task": "Reproduce pressure fixture accepted1,2,3,5; rejected4,6; consumed1,2,3,5. Extend it with parser-held, queued, worker-owned and completed message states. Under reject-newest, return/release rejected ownership exactly once and count all retained buffers toward the cap. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "Queue occupancy alone is the service memory ceiling.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T24.08, T25.02, T18.04 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T18-02/accepted-component-and-dossier",
+          "PR-T24-04/accepted-component-and-dossier",
+          "PR-T25-01/accepted-component-and-dossier",
+          "PR-P1-02/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P1-02 bounded storage/queue interfaces and owner ledger",
+          "PR-P3-02 full CRC-frame/streaming component with delivery/backpressure contract",
+          "PR-P5-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "Queue occupancy alone is the service memory ceiling. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: Queue occupancy alone is the service memory ceiling.",
+        "D2": "Reproduce pressure fixture accepted1,2,3,5; rejected4,6; consumed1,2,3,5. Extend it with parser-held, queued, worker-owned and completed message states. Under reject-newest, return/release rejected ownership exactly once and count all retained buffers toward the cap. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Change to blocking backpressure and analyze whether the producer holds any mutex/resource needed by the consumer."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Parser output, active read buffer and worker-owned items consume storage outside the queue. Conservation accounts for every accepted/rejected object and its owner; no hidden dynamically growing backlog is permitted.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Parser output, active read buffer and worker-owned items consume storage outside the queue. Conservation accounts for every accepted/rejected object and its owner; no hidden dynamically growing backlog is permitted. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Change to blocking backpressure and analyze whether the producer holds any mutex/resource needed by the consumer. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Count all live message representations, including parser and worker ownership outside the queue.",
+        "Validate descriptor/slot generation before dereferencing context; copy or transfer payload ownership before resetting the parser buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P5-01-T25.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change to blocking backpressure and analyze whether the producer holds any mutex/resource needed by the consumer.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2502b",
+      "facet_scope": {
+        "teaching": "Actual T25.02 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T25.02.b"
+      }
+    },
+    {
+      "id": "AX-PR-P5-01-T25.02.c",
+      "title": "Prefer reduced sharing before introducing fine-grained synchronization.",
+      "objective": "T25.02.c",
+      "families": [
+        "A",
+        "B",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        },
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LCP-C11",
+          "path": "research/v5/expansion/legacy_checkpoints/resources.json",
+          "passages": [
+            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1–7: alignment requirements",
+            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+          ]
+        }
+      ],
+      "task": "Compare one immutable copied-message queue with a shared mutable message design for the same workload. Identify exactly which fields are thread-owned, immutable, synchronized or transferred; implement the reduced-sharing design and retain publication/consumption edges. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "Every field visible to two threads needs a separate fine-grained lock.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T24.08, T25.02, T18.04 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T18-02/accepted-component-and-dossier",
+          "PR-T24-04/accepted-component-and-dossier",
+          "PR-T25-01/accepted-component-and-dossier",
+          "PR-P1-02/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P1-02 bounded storage/queue interfaces and owner ledger",
+          "PR-P3-02 full CRC-frame/streaming component with delivery/backpressure contract",
+          "PR-P5-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "Every field visible to two threads needs a separate fine-grained lock. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: Every field visible to two threads needs a separate fine-grained lock.",
+        "D2": "Compare one immutable copied-message queue with a shared mutable message design for the same workload. Identify exactly which fields are thread-owned, immutable, synchronized or transferred; implement the reduced-sharing design and retain publication/consumption edges. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Introduce multiple processing workers and revise completion ownership without making decoder state shared unnecessarily."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Immutable data still needs publication and lifetime, while private mutable state needs no sharing lock. Reduced sharing shrinks synchronization obligations but does not eliminate the queue/control-state protocol. The synchronous p5 anchor cannot prove the concurrent design.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Immutable data still needs publication and lifetime, while private mutable state needs no sharing lock. Reduced sharing shrinks synchronization obligations but does not eliminate the queue/control-state protocol. The synchronous p5 anchor cannot prove the concurrent design. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Introduce multiple processing workers and revise completion ownership without making decoder state shared unnecessarily. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Count all live message representations, including parser and worker ownership outside the queue.",
+        "Validate descriptor/slot generation before dereferencing context; copy or transfer payload ownership before resetting the parser buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P5-01-T25.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce multiple processing workers and revise completion ownership without making decoder state shared unnecessarily.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t2502c",
+      "facet_scope": {
+        "teaching": "Actual T25.02 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T25.02.c"
+      }
+    },
+    {
+      "id": "AX-PR-P5-01-T18.04.c",
+      "title": "Replace ambiguous lifetime rules with handles or explicit protocols.",
+      "objective": "T18.04.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        },
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LCP-C11",
+          "path": "research/v5/expansion/legacy_checkpoints/resources.json",
+          "passages": [
+            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1–7: alignment requirements",
+            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+          ]
+        }
+      ],
+      "task": "Give the worker a generation-checked message handle whose owner persists through processing and callbacks. Reset/reuse parser input after queue acceptance and verify the worker retains stable bytes through copy or explicit transfer. Deliver a stale completion after slot reuse. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "purpose": "A borrowed parser slice stays valid because the service remains alive.",
+      "prerequisites": {
+        "knowledge": [
+          "The parent topics T24.08, T25.02, T18.04 and their retained prerequisite chain",
+          "C17 bounds/lifetime/ownership, chosen dependency profile, and the distinction among ISO C, ABI, OS, library, ISA and board rules"
+        ],
+        "artifacts": [
+          "PR-T18-02/accepted-component-and-dossier",
+          "PR-T24-04/accepted-component-and-dossier",
+          "PR-T25-01/accepted-component-and-dossier",
+          "PR-P1-02/accepted-component-and-dossier",
+          "PR-P3-02/accepted-component-and-dossier",
+          "PR-P1-02 bounded storage/queue interfaces and owner ledger",
+          "PR-P3-02 full CRC-frame/streaming component with delivery/backpressure contract",
+          "PR-P5-01 learner source, headers and source-bound component dossier",
+          "For every reused component: producer project ID, source hash, public contract revision, dependency profile and actual acceptance evidence; missing evidence remains a prerequisite gap."
+        ]
+      },
+      "reasoning": [
+        "A borrowed parser slice stays valid because the service remains alive. Identify the smallest state or trace that refutes this explanation.",
+        "State input/output representations, valid extents, preconditions, postconditions, owner/borrow transitions and commit points. Preserve each producer contract or specify an explicit adapter.",
+        "Derive failure/partial-progress/cleanup behavior and the relevant time, storage and work bounds. Explain genuinely inapplicable quantities instead of asserting invented guarantees."
+      ],
+      "deliverables": {
+        "D1": "Sealed prediction, ownership/state diagram and causal argument for: A borrowed parser slice stays valid because the service remains alive.",
+        "D2": "Give the worker a generation-checked message handle whose owner persists through processing and callbacks. Reset/reuse parser input after queue acceptance and verify the worker retains stable bytes through copy or explicit transfer. Deliver a stale completion after slot reuse. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
+        "D4": "Change payload size beyond inline capacity and define allocation failure and ownership of an external buffer."
+      },
+      "verification": {
+        "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
+        "expected": "Parser buffer reuse invalidates the slice even while the service exists. Ownership transfer or copying must occur before reuse; handle validation uses live metadata and cannot legalize an expired raw pointer. Callback quiescence is part of reclamation.",
+        "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
+        "limits": "integration.p5 is a synchronous cancellation/completion/discard anchor; it does not establish the concurrent Linux reader/decoder/worker or load/shutdown campaign. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
+      },
+      "rubric": {
+        "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
+        "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
+        "2": "Parser buffer reuse invalidates the slice even while the service exists. Ownership transfer or copying must occur before reuse; handle validation uses live metadata and cannot legalize an expired raw pointer. Callback quiescence is part of reclamation. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "3": "Change payload size beyond inline capacity and define allocation failure and ownership of an external buffer. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
+      },
+      "hints": [
+        "Count all live message representations, including parser and worker ownership outside the queue.",
+        "Validate descriptor/slot generation before dereferencing context; copy or transfer payload ownership before resetting the parser buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-P5-01-T18.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change payload size beyond inline capacity and define allocation failure and ownership of an external buffer.",
+          "prerequisite_artifacts": []
+        }
+      ],
+      "assessor_anchor": "#t1804c",
+      "facet_scope": {
+        "teaching": "Actual T18.04 module section, parent contract and listed inspected source passages.",
+        "implementation_or_analysis": "The parent implementation stays required. This criterion explicitly assesses the component interaction in task and D2; it adds no historical unit/hour.",
+        "boundary_adversarial": "The concrete refused, partial, stale, misaligned, exhausted, delayed or numerically changed case in task has its own expected causal argument.",
+        "independent_assessment": "Level2 requires this objective evidence; level3 requires the named changed-condition attempt after at least seven days with actual assistance/reviewer provenance. No independence result is inferred from authorship.",
+        "remaining": "Full learner construction/diagnosis and its evidence review, unavailable target/source obligations and delayed transfer remain unattempted."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P5-01-T18.04.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-P5-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "Bounded fixture models actually checked separately; no new full learner/checkpoint target execution.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Accepted identities, unit bytes, descriptive historical hours and receipts are preserved.",
+      "Authored delayed opportunities are not completed assessments.",
+      "Finite passing tests do not prove absolute mastery."
+    ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P5-01",
+    "criterion_ids": [
+      "AX-PR-P5-01-T24.08.b",
+      "AX-PR-P5-01-T25.02.b",
+      "AX-PR-P5-01-T25.02.c",
+      "AX-PR-P5-01-T18.04.c"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P5-01-T24.08.b",
+        "AX-PR-P5-01-T25.02.b",
+        "AX-PR-P5-01-T25.02.c",
+        "AX-PR-P5-01-T18.04.c"
+      ],
+      "scope": "Exact original P5 ordinary/delayed tasks with actual readiness/callback/ownership/changed-condition and failure behavior; actual learner/physical evidence separate"
+    }
+  ]
+}

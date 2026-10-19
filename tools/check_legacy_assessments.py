@@ -7,6 +7,7 @@ hash, source-inspection and assessor-separation checks are additional obligation
 from __future__ import annotations
 
 from collections import Counter
+import hashlib
 from pathlib import PurePosixPath
 import re
 
@@ -65,6 +66,45 @@ def meaningful(value):
             isinstance(value, list) and bool(value) and all(meaningful(v) for v in value))
 
 
+def baseline_inspection_matches(binding, path):
+    """Keep inspected digests; qualify only proved, explicitly scoped successors.
+
+    These two retained projects received additive UTF-8 document assets. Their
+    original text and inspection remain unchanged in the document proof; this
+    qualifies only the documented current asset attachment, not a fresh baseline
+    or source inspection or a claim that historical bytes are still current.
+    The two fixture verifiers have a separate proof retaining every original
+    model dependency; only the explicitly named inspected branches qualify.
+    """
+    current = path.read_bytes()
+    if hashlib.sha256(current).hexdigest() == binding['sha256']:
+        return True
+    if binding['path'] in {'tools/verify_embedded_fixtures.py', 'tools/verify_networking_fixtures.py'}:
+        from fixture_inspection_successor import qualifies
+        # Original model branches and their dependencies must remain byte-exact;
+        # current CLI/category checks have their own validation. This does not
+        # relabel the historical whole-file digest or extend inspection scope.
+        return qualifies(binding, path, root=ROOT)
+    allowed = {'curriculum/projects/PR-T28-06.md': 'PR-T28-06',
+               'curriculum/projects/PR-T29-04.md': 'PR-T29-04'}
+    project = allowed.get(binding['path'])
+    if project is None:
+        return False
+    try:
+        import rebind_b06_documents as proof
+        original = proof.read(proof.PROJECTS)['projects'][project]
+        if hashlib.sha256(original.encode('utf-8')).hexdigest() != binding['sha256']:
+            return False
+        if current != proof.project_text(project, original).encode('utf-8'):
+            return False
+        # Validates exact literal byte corrections, every historical source pin,
+        # active assets, current project text, and all eighteen export records.
+        return not proof.validate(proof.read(proof.PACKET), proof.read(proof.REPORT),
+                                  proof.read(proof.MAP))
+    except (OSError, KeyError, TypeError, ValueError, UnicodeError):
+        return False
+
+
 def validate(data, schema, projects, objectives, units):
     errors = schema_errors(data, schema)
     if errors:
@@ -98,7 +138,7 @@ def validate(data, schema, projects, objectives, units):
             errors.append('no inspected baseline files')
         for binding in baseline_files:
             path = local_path(binding['path'])
-            if sha(path) != binding['sha256'] or not binding.get('passages'):
+            if not baseline_inspection_matches(binding, path) or not binding.get('passages'):
                 errors.append('changed or unlocated baseline inspection: ' + binding['path'])
         if f'curriculum/projects/{project}.md' not in {b['path'] for b in baseline_files}:
             errors.append('parent project text is not pinned')
@@ -195,7 +235,10 @@ def check():
     report = {'schema_version': 1, 'status': 'failed' if failures else 'passed', 'failures': failures,
               'counts': {'projects': len({r['project'] for r in records}), 'criteria': len(records),
                          'objectives': len({r['objective'] for r in records})},
-              'scope': 'Structural integrity, current baseline/source bindings and explicit rubric traceability. '
+              'scope': 'Structural integrity, current or exactly proved publication or unchanged-model successor baseline bindings, '
+                       'current source bindings and explicit rubric traceability. Historical inspection digests '
+                       'remain historical when an exactly scoped successor is admitted; unchanged-model qualification '
+                       'covers only the named inspected branches, not the revised file as a whole. '
                        'No experiment, independent review, learner assessment or absolute mastery is inferred.',
               'criteria': records}
     if not failures:

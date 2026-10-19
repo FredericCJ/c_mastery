@@ -1,0 +1,11 @@
+# T52.11 assessor technical analysis
+
+Use the public per-objective rubric and exact campaign scopes. The two adapters share numeric queue and boundary-count contracts, not implementation identity. CMX's later `task.result` is distinct from re-entering its operation. Its selected effective priority recomputes after releasing the contested mutex; FreeRTOS V11.2.0 `xTaskPriorityDisinherit` waits until `uxMutexesHeld` reaches zero. Holding an unrelated second mutex is the minimal useful counterexample, and both valid reports must be retained.
+
+Notifications plus `vTaskSuspendAll` make the worker release point deterministic. The controller priority4 sleeps while urgency1 attempts the mutex; then the inherited low worker outranks the medium worker. Low-release/high-acquire/medium trace1,2,3 tests causal ordering rather than elapsed-time guesses. Replacing the contested mutex with a binary semaphore breaks inheritance. The low worker's base priority is restored only after its second give. Static task/control/storage allocations are visible in the M4 map; the POSIX port independently allocates host event objects and pthread resources.
+
+The21ms example distinguishes floor2 and ceil3 at100Hz, while both give21 at1000Hz. Tick phase remains a separate bound: neither result claims exact real elapsed duration. The public integer oracle checks invalid input leaves the sentinel unchanged, including multiplication overflow. Mapping urgency1 directly to vendor priority1 reverses the intended order and is rejected.
+
+The actual M4 IRQ sends one777 value using the ISR-safe queue operation. The higher-priority controller is waiting before the low worker pends IRQ0. A missing `portYIELD_FROM_ISR` lets the low worker's next instruction set `isr_after`, so the assertion distinguishes a real ISR handoff from eventual ordinary scheduling. Device timing is instruction-count emulation only. Task deletion and queue/mutex deletion happen after the worker protocol drains; this does not supply a generic FreeRTOS close or forced-cancellation guarantee.
+
+Assessor source remains separate; both public stubs intentionally omit the mechanism. Never replace the learner scaffold with these implementations during publication/export. Physical port timings, arbitrary nesting, FPU-task context and independent delayed learner performance remain outside the author evidence.

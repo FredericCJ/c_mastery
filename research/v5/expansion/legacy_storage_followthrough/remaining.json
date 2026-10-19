@@ -1,0 +1,1463 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "complete": false,
+  "author_support_complete": true,
+  "rows": [
+    {
+      "id": "AX-PR-T47-01-T47.01.a",
+      "objective": "T47.01.a",
+      "project": "PR-T47-01",
+      "kind": "ordinary",
+      "task": "Independently encode one empty leaf and one maximum-length key/value page from FORMAT.md, checking every offset,unused byte and CRC. Decode from an intentionally unaligned byte span without casting to a native struct.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.codec",
+        "storage.initial_image"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Independent Python encodes the complete empty and seven-entry maximum CST2 leaf, including every zero/CRC octet; actual retained C encoder matches byte-for-byte and unaligned decode preserves semantic fields. Native struct padding is not serialized. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-01-T47.01.a-DELAYED",
+      "objective": "T47.01.a",
+      "project": "PR-T47-01",
+      "kind": "changed-condition",
+      "task": "Change format version and define migration versus rejection rather than reinterpret old bytes.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Original CST3L leaf version and exact field table are implemented, with actual CST2 decoder/encoder adapters, canonical round trips for counts0..7, full-width generation, unknown-version refusal and internal-node migration rejection. No whole-image migration is inferred. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-01-T47.01.b",
+      "objective": "T47.01.b",
+      "project": "PR-T47-01",
+      "kind": "ordinary",
+      "task": "Mutate key/value lengths,page identity,count and child reference independently, resealing CRC where necessary so structural checks are exercised. Snapshot caller outputs and ensure references are not followed before validation.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.codec",
+        "storage.initial_image"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual retained decoder rejects independently CRC-resealed magic/generation/page/count/key/value/next/child mutations with unchanged node output before references are followed. Tests separate checksum consistency from structural admission. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-01-T47.01.b-DELAYED",
+      "objective": "T47.01.b",
+      "project": "PR-T47-01",
+      "kind": "changed-condition",
+      "task": "Add overlapping logical fields in a future variable-offset format.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The original variable-offset decoder admits subtraction-bounded extents, rejects all positive overlap, accepts reordered disjoint placement and empty one-past values, validates strict key order before staged publication, and supports byte/output overlap. Independent Python sets exhaust1024 selected offset/length combinations; compiled omitted-overlap and early-publication controls are rejected. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-01-T47.01.c",
+      "objective": "T47.01.c",
+      "project": "PR-T47-01",
+      "kind": "ordinary",
+      "task": "Compare fresh format with reopen of established images containing a short page,wrong magic,changed identity and torn checkpoint. Preserve the original failure image and prohibit fallback to an empty tree.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.codec",
+        "storage.initial_image"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "An established nonempty actual store is reopened after wrong checkpoint magic, CRC-resealed leaf identity corruption, partial/error read and a torn older checkpoint. All failure images remain byte-identical with zero writes; only the valid newest checkpoint permits successful preserved-data reopen. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-01-T47.01.c-DELAYED",
+      "objective": "T47.01.c",
+      "project": "PR-T47-01",
+      "kind": "changed-condition",
+      "task": "Interrupt initial formatting and specify a separate disposable-image retry protocol.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A fresh-image factory owns candidate disposal and output publication. Actual store_format/open execute every38 write/flush failure cuts and every5 verification-read failures; each rejects unchanged output and discards exactly once, then retries a different fresh identity. Acquisition failure retains no candidate. No established image is supplied and no physical durability is claimed. Bounded author support only; delayed learner administration remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/codec_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.a",
+      "objective": "T47.02.a",
+      "project": "PR-T47-02",
+      "kind": "ordinary",
+      "task": "Trace physical pages colliding in the four-entry clean cache while dirty transaction nodes remain in separate typed scratch. Verify exact tags on hit and derive fixed cache plus scratch memory costs.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.cache"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual retained physical-page-tag cache and successor direct policy execute1,1,5,1 with three backend reads and one hit. Actual transactional scratch remains separate; scratch lookup induces no backend write. Native cache/entry/scratch sizes and actual compiler stack/import closure are recorded. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.a-DELAYED",
+      "objective": "T47.02.a",
+      "project": "PR-T47-02",
+      "kind": "changed-condition",
+      "task": "Use a two-way cache and compare replacement policy without changing transaction ownership.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A real four-entry two-way LRU policy replaces only the least recent way, updates recency on successful hit and preserves ownership. The original parent pinned-root variant also uses exactly four payload pages with three conflict slots, not an extra page. Exact five-read traces and the independent policy model distinguish replacements. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.b",
+      "objective": "T47.02.b",
+      "project": "PR-T47-02",
+      "kind": "ordinary",
+      "task": "Prime a home-page cache entry,commit a changed value,read through the WAL view,checkpoint and read again. Remove each invalidation separately and retain the smallest stale-generation counterexample.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.cache"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual store commit/checkpoint are exercised, and each separately omitted invalidation is rejected by its explicit empty-cache postcondition. The companion comparisons expose that physical tags plus the other invalidation mask stale bytes for the selected valid trace. Combined omission demonstrates old raw generation0 at current generation1; actual store_get contains it as STORE_CORRUPT with unchanged value/length. This is an explicit bounded correction to overstated individual stale-value wording, not invented execution. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.b-DELAYED",
+      "objective": "T47.02.b",
+      "project": "PR-T47-02",
+      "kind": "changed-condition",
+      "task": "Reuse a physical page after deletion and add generation to the cache identity analysis.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual20-key insert, full deletion and another20-key insertion free and reallocate page2 while generation advances1 to3. Exact owner/generation/physical tuple prevents the repeated WAL slot from hitting old bytes. Separate image and home/WAL changes are tested; supplied current authority remains a trusted caller premise. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.c",
+      "objective": "T47.02.c",
+      "project": "PR-T47-02",
+      "kind": "ordinary",
+      "task": "Count hits and backend reads on repeated and conflict traces with a known cold cache. Report page bytes and fixed memory separately from actual filesystem/device traffic.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.cache"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The independent Python cache/tag/replacement model checks7203 four-operation histories and28812transitions across direct, two-way and root-pinned policies, including changed image/generation/view and partial-read failures. Observed cache attempts/hits, fixed memory and copied pages remain distinct from unmeasured filesystem/device traffic. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.c-DELAYED",
+      "objective": "T47.02.c",
+      "project": "PR-T47-02",
+      "kind": "changed-condition",
+      "task": "Run a scan larger than the cache and compare with a point-lookup workload.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual eight-page double scan produces16reads/0hits for direct/two-way and15reads/1hit with the root pinned; sixteen repeated root point reads produce1read/15hits under every policy. Each workload begins with a cold cache and the same four-page payload budget. No physical latency conclusion is inferred. Bounded author support; independent learner/human evidence remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.a",
+      "objective": "T47.03.a",
+      "project": "PR-T47-03",
+      "kind": "ordinary",
+      "task": "Derive unsigned length-delimited ordering for empty-invalid keys,embedded zero,prefix pairs and high-bit octets. At every separator equality show why descent selects the right child.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.lookup"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual retained tree inserts92 binary records under a changed permutation, validates after each update, retrieves every record and queries every internal separator equality. Embedded zeros, prefix pairs and high-bit unsigned ordering match an independent Python byte map; the actual retained wrong-equality control is rejected. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.a-DELAYED",
+      "objective": "T47.03.a",
+      "project": "PR-T47-03",
+      "kind": "changed-condition",
+      "task": "Change collation to case-folded text under a new key-normalization contract.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The original printable-ASCII normalization facade stages bytes/length, folds only A..Z, rejects noncanonical preexisting stores, and calls real bind/put/get/scan operations. Case collisions replace one canonical key, invalid input preserves output and overlap normalization is idempotent. All65793 empty/one/two-octet inputs are compared independently; length16/17 bounds are separately exercised. No locale/Unicode equivalence is claimed. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.b",
+      "objective": "T47.03.b",
+      "project": "PR-T47-03",
+      "kind": "ordinary",
+      "task": "Test lower-bound scans starting before,at,between and after keys with callbacks stopping after zero,one or several accepted records. Verify NOT_FOUND/FULL leave get outputs unchanged and define callback borrow lifetime.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.lookup"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual scans probe before/at/between/after keys and exact binary prefixes, with zero/one/three accepted-record stops and complete map comparison. Actual get NOT_FOUND/FULL/invalid-key outcomes preserve caller bytes/length. Invocation count is distinguished from accepted records; transient callback borrows require copying. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.b-DELAYED",
+      "objective": "T47.03.b",
+      "project": "PR-T47-03",
+      "kind": "changed-condition",
+      "task": "Permit callback reentry only after deriving a new serialization/lifetime contract.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "An actual owned217-record inline snapshot first validates the source then finishes copying before client callbacks. The reentry fixture deletes92 source keys, validates each update, captures a separate91-record snapshot in the first callback, and still receives all92 original outer records. Source generation/staged status are descriptive; copying supplies lifetime independence without claiming concurrent shared-page readers. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.c",
+      "objective": "T47.03.c",
+      "project": "PR-T47-03",
+      "kind": "ordinary",
+      "task": "Cross-check tree traversal,leaf chain and allocation bitmap after each update. Inject a dangling child,a leaf cycle and an allocated unreachable page; require bounded rejection before following more than the page limit.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.lookup"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual tree checker cross-validates tree traversal, leaf links and allocation after each insert/delete. Independently injected out-of-range child, leaf cycle and unreachable allocated page reject boundedly before copied-snapshot publication. Actual dangling/cycle scan errors are checked; active typed fixtures require no backend reads. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-03-T47.03.c-DELAYED",
+      "objective": "T47.03.c",
+      "project": "PR-T47-03",
+      "kind": "changed-condition",
+      "task": "Add a shared subtree and explain why a tree ownership invariant rejects it even without a cycle.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A valid tree is changed into an acyclic shared-subtree graph by duplicating a root child. The actual visited-page ownership check rejects reuse of the child and snapshot capture preserves prior output. This explicitly distinguishes exclusive tree ownership from absence of cycles and from a superficially ordered leaf-chain scan. Bounded author support only; independent learner transfer remains unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/lookup_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.a",
+      "objective": "T47.04.a",
+      "project": "PR-T47-04",
+      "kind": "ordinary",
+      "task": "Hand-derive a seven-key leaf overflow into private eight-entry scratch,then a cascading internal split and root growth. Check copied versus promoted separator behavior,child intervals and leaf links after each step.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.insertion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual capacity7 fork preserves eight-record scratch, leaf4/4 split with copied right minimum, internal4/promoted/3 split and cascading root growth. The first-split fixture checks exact records/child links; twelve mutation schedules verify every prefix map, ownership, leaf depth and actual equality separator descent. Separate assessor derivation distinguishes records from separator copies. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.a-DELAYED",
+      "objective": "T47.04.a",
+      "project": "PR-T47-04",
+      "kind": "changed-condition",
+      "task": "Use descending and alternating-end insertion to change split direction while preserving invariants.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual ascending, descending and alternating-end insertion schedules produce complete checked maps at both capacities; each followed by independent deletion/reinsertion. The changed-order explanation and delayed learner rubric are authored separately; the author run is not a delayed learner assessment. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.b",
+      "objective": "T47.04.b",
+      "project": "PR-T47-04",
+      "kind": "ordinary",
+      "task": "Inject page-allocation failure at every split-propagation allocation. Compare replacement of an existing key with insertion of a new key and preserve the parent's whole-transaction abort policy on capacity exhaustion.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.insertion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The exact original source copy exposes an explicit admission-only verification port at actual page allocation. Committed0..34, staged key0=99 and insertion35 exercise leaf/internal/new-root allocation refusals1/2/3; each original operation aborts the entire transaction and recovers committed key0=0. Natural full-pool refusal and zero-allocation replacement are executed too. Generated source bytes/recipe are archived and reproduced; retained provider remains unchanged. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.b-DELAYED",
+      "objective": "T47.04.b",
+      "project": "PR-T47-04",
+      "kind": "changed-condition",
+      "task": "Design operation-level rollback instead of transaction abort and enumerate required undo state.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual StTxn adapter copies the complete typed engine workspace before active mutation. Each split refusal restores prior staged key0=99 and active root/bitmap/scratch, then retry succeeds after the injection is removed. Full-pool refusal also preserves the current map and permits a replacement. Whole-workspace undo and its no-IO/no-external-owner premise are explicit, not a claim that native copying reverses external effects. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.c",
+      "objective": "T47.04.c",
+      "project": "PR-T47-04",
+      "kind": "ordinary",
+      "task": "Kill a wrong-separator propagation mutant using a minimized insertion sequence and compare every key/value with an independent ordered map. Instrument full separator refresh and report its O(P) cost.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.insertion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A compiled wrong-subtree-minimum propagation control fails the first leaf split at eight inserts (four in changed capacity); shorter prefixes have no internal separator. All records are independently compared, and full-recursive repair records44760 capacity7 visits on the twelve schedules. The harness also rejects wrong equality descent. Logical counts and O(P) argument are not timing claims. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-04-T47.04.c-DELAYED",
+      "objective": "T47.04.c",
+      "project": "PR-T47-04",
+      "kind": "changed-condition",
+      "task": "Replace full refresh with ancestor-path updates and prove the exact affected minima.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual per-operation touched list includes original ancestors, split outputs/new root and both borrow/merge participants, skipping freed pages. Child0 minimum descent ignores stale separator caches, permitting arbitrary repair order. Omitting sibling marks is a compiled rejected control. The explicit proof bounds repair O(M*B*H), hence O(B*H^2), not O(H); allocation/resident/commit costs remain separately charged. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.a",
+      "objective": "T47.05.a",
+      "project": "PR-T47-05",
+      "kind": "ordinary",
+      "task": "Derive left borrow,right borrow,merge and root contraction from exact leaf/internal minima. Include deleting a subtree minimum without underflow and update the ancestor separator.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.deletion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual left/right borrow and merge are separately asserted at both leaf and internal levels, with root contraction and every-prefix invariant checks. Deleting key20 from0..26 changes a valid non-underflow leaf minimum to21; suppressing separator repair is rejected. Whole map/scan results remain independent of the structural checker. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.a-DELAYED",
+      "objective": "T47.05.a",
+      "project": "PR-T47-05",
+      "kind": "changed-condition",
+      "task": "Change node capacities and derive new minima/split rules before reusing tests.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual changed capacity3 derives h=2 leaf minimum and h-1=1 internal minimum; four leaf records split2/2 and four internal separators promote index2 leaving2/1. Distinct CST4 magic prevents silent mixing with capacity7 CST2; independent complete page bytes and cross-profile unchanged-output rejection execute. Separate native ABI/unchanged array footprint are explicit. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.b",
+      "objective": "T47.05.b",
+      "project": "PR-T47-05",
+      "kind": "ordinary",
+      "task": "Track allocation bitmap and all tree/leaf references when merging and reusing a page. Reject reuse until no authoritative reference names the freed page; inject a stale leaf-link mutant.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.deletion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual merges update authoritative child/leaf references before the next serialized public operation; the checker requires exact reachable/allocated bitmap equality. All pages collapse back to the sole root leaf, then reinsertion reuses released capacity. A stale leaf-link control is rejected before reuse. This closes only ordinary ownership, not the required generation-tagged reference variant. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.b-DELAYED",
+      "objective": "T47.05.b",
+      "project": "PR-T47-05",
+      "kind": "changed-condition",
+      "task": "Add generation-tagged page references under a versioned format.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/references_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual separately versioned CST5 tree persists allocation incarnations for all positions including free/retired ones, carries tags with root/child/next references through splits and both redistribution/merge directions, and validates node-own/outgoing/root identity. Exact page2 ABA reuse rejects the old observation; MAX issues once, then allocator skips the retired slot and uses later capacity. Full redo/checkpoint/reopen preserves free counters. Whole abort restores only unexposed provisional identities; observational mint/read refuses active/poisoned owners. Three compiled controls reject omitted equality, retired-slot wrap and lost free counters. Complete independent leaf/metadata pages, foreign-format rejection,3495 map histories and ordinary persistence/tree schedules execute. Original provider is unchanged; native ABI and external reference lifetime restrictions are explicit. Bounded author support only; external human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/references_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.c",
+      "objective": "T47.05.c",
+      "project": "PR-T47-05",
+      "kind": "ordinary",
+      "task": "Run the parent's92-key deletion permutation with whole-map checks after every step,then derive a separate adversarial trace forcing both redistribution directions and multilevel merge. Reinsert to expose leaked page capacity.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.deletion"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual92-key (37*i)%92 deletion permutation and nine fixed shuffled schedules check all128 queried keys plus ordered scan and structural ownership after every step. Both redistribution directions/internal merges and repeated reinsertion execute; commit/open/delete/reuse also preserves the selected RAM-model maps. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-05-T47.05.c-DELAYED",
+      "objective": "T47.05.c",
+      "project": "PR-T47-05",
+      "kind": "changed-condition",
+      "task": "Mix replacement,missing deletion and new insertion under a fixed seed.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual seeded4096-operation workload covers replacement, new insertion, present and missing deletion with complete map checks after every prefix. Independent Python enumeration supplies3495 histories/10725 transitions across the four capacity/repair executables. These finite observations do not establish arbitrary-history correctness or learner transfer. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/tree_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.a",
+      "objective": "T47.06.a",
+      "project": "PR-T47-06",
+      "kind": "ordinary",
+      "task": "Derive memory ownership for clean cache,committed WAL view,transaction scratch,I/O buffers and call stack. Enforce one serialized caller including readers and prove dirty private nodes cannot escape to home pages.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.transaction"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual no-steal workload separates committed image, clean cache, active typed scratch, temporary operation undo and persistent savepoint workspace. Put/delete/readback change no backend byte or IO count before publication. Actual native store/wrapper/scratch/cache sizes, compiler stack and object import closure are captured. One externally serialized caller including readers remains required; snapshot-reader machinery is a distinct delayed obligation. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.a-DELAYED",
+      "objective": "T47.06.a",
+      "project": "PR-T47-06",
+      "kind": "changed-condition",
+      "task": "Design snapshot readers and list the additional version/reclamation machinery.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual two-slot copied snapshot retention composes SlSnapshot under a hub mutex, publishes exact owner/slot/nonwrapping serial and preserves versions across later commits, source poison and close. MAX retires only after cleanup; stale/double release cannot consume a reused slot. Close retains readers until release, with joined callers required before mutex destruction. The contract/analysis explicitly derives additional root/page-version/reader-registration/reclamation machinery a zero-copy design would need. This is implemented full-copy retention, not a claim of page-level MVCC. Bounded author support only; external human/learner evidence is not observed.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.b",
+      "objective": "T47.06.b",
+      "project": "PR-T47-06",
+      "kind": "ordinary",
+      "task": "Exercise nested begin,commit without begin,explicit abort,input rejection and capacity-induced abort. Compare committed map and staged earlier updates after each result according to the exact parent policy.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.transaction"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual original and facade state machines execute nested begin, commit without begin, explicit abort, input rejection preserving earlier staged work, injected cascade failure and natural capacity failure. Original whole-transaction abort is distinguished from the changed operation-preserving adapter, and values/active state are checked after every outcome. The independent729-history/2187-transition map model separately covers nine operations. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.b-DELAYED",
+      "objective": "T47.06.b",
+      "project": "PR-T47-06",
+      "kind": "changed-condition",
+      "task": "Introduce a savepoint and specify its bounded undo representation.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "One actual savepoint stores a bounded complete typed workspace with exact live owner and nonwrapping serial. Rollback/release consume it; stale/double tokens reject; MAX issues once without blocking cleanup. Every admitted commit outcome invalidates it. First-write and final-flush failures reopen selected old/new RAM-model states, proving undo must not override potentially durable IO. No physical failed-flush theorem is claimed. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.c",
+      "objective": "T47.06.c",
+      "project": "PR-T47-06",
+      "kind": "ordinary",
+      "task": "Diagnose a deliberately leaked uncommitted update by tracing whether bytes came from private scratch,clean cache,home or committed WAL. Use equal logical page IDs with distinct authoritative generations.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.transaction"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A compiled original teaching control leaks a private dirty leaf to its home page and is rejected by whole-image/IO observations. The correct adapter leaves home unchanged during staging; after commit the same logical leaf1 remains generation1 at physical home3 while authoritative generation2 is at redo35. Actual store_page_read/get follow the WAL authority and return the new value. Shared two-handle cache design remains a distinct delayed obligation. Bounded author support only; independent human/learner evidence is unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-06-T47.06.c-DELAYED",
+      "objective": "T47.06.c",
+      "project": "PR-T47-06",
+      "kind": "changed-condition",
+      "task": "Add a cache shared by two store handles and reassess serialization assumptions.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Two actual original store handles share the same ScCache through their real page IO callbacks under one POSIX mutex. Publication advances trusted cache revision before checkpoint and reconstructs the reader metadata/private cache. Exact shared-hit/physical-page checks and compiled omitted-revision/omitted-refresh controls distinguish cache-byte identity from handle authority. Native competing writer/reader threads, retained copied reads, IO failure poison and drain execute in eight C17 profiles including both thread sanitizers; finite216-history/648-transition oracle is separately bounded. Bounded author support only; external human/learner evidence is not observed.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.a",
+      "objective": "T47.07.a",
+      "project": "PR-T47-07",
+      "kind": "ordinary",
+      "task": "Enumerate persistence cuts around old-marker invalidation/flush,all after-image writes/flush and new-marker write/flush. Derive why each surviving authoritative marker implies complete required data under the declared model.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.publish"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual 37-event commit trace is checked against an independent expected sequence;259 cuts across seven declared modes distinguish invalidation, complete after-images and marker publication. Full-map queries/scan/checker and poisoned-handle refusal establish the bounded authority result. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.a-DELAYED",
+      "objective": "T47.07.a",
+      "project": "PR-T47-07",
+      "kind": "changed-condition",
+      "task": "Allow a flush to lie and identify exactly which implication fails.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Two actual lying-flush counterexamples separate false final acknowledgment recovering old state from false after-image-flush success followed by marker-only persistence and corruption rejection. The violated successful-flush premise is explicit. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.b",
+      "objective": "T47.07.b",
+      "project": "PR-T47-07",
+      "kind": "ordinary",
+      "task": "Inject errors before publication,during marker publication and after complete persistence but before acknowledgment. Verify definite abort versus INDETERMINATE and poisoned-handle behavior; require reopen/reconciliation before further work.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.publish"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Before-publication STORE_IO versus marker-publication STORE_INDETERMINATE is tested at each cut; poisoned handles refuse further begin. A real persisted-but-delayed error acknowledgment recovers the complete new map only after callback completion and join. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.b-DELAYED",
+      "objective": "T47.07.b",
+      "project": "PR-T47-07",
+      "kind": "changed-condition",
+      "task": "Expose the operation through a non-idempotent application service and add an operation identifier.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual Vh service3 increments with atomic versioned operation ID/delta/result receipt. Revalidated original74cut host/foreign-target experiment and real kernel case34 lost response/restart; exact retry observes result42 without applying delta again. New workflow also retries participant IDs after uncertain journal/participant publication. No global exactly-once or physical persistence claim. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.c",
+      "objective": "T47.07.c",
+      "project": "PR-T47-07",
+      "kind": "ordinary",
+      "task": "Compile the omitted-commit-flush mutant and find a cut where it acknowledges success but recovery returns old state. Contrast with a lost acknowledgment that leaves the complete new map durable.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.publish"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The separately compiled omitted-commit-flush control is killed by acknowledged-success recovery to the old map; the correct source passes the same schedules. The late-acknowledgment counterpart persists the new map before returning an uncertain error. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-07-T47.07.c-DELAYED",
+      "objective": "T47.07.c",
+      "project": "PR-T47-07",
+      "kind": "changed-condition",
+      "task": "Delay the flush acknowledgment after persistence and test the caller's recovery path.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "An actual pthread worker blocks inside the final flush callback after persistence. Store/backend/gate storage remains owned until release and join; caller then observes INDETERMINATE, poisoning and exclusive reopen reconciliation. Both thread-sanitizer profiles execute this scope. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.a",
+      "objective": "T47.08.a",
+      "project": "PR-T47-08",
+      "kind": "ordinary",
+      "task": "Corrupt the last committed after-image while earlier images remain valid. Verify complete batch validation occurs before any home write; then test interrupted full-page installation with intact WAL evidence.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint_order"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The actual original raw32-page validation is retained and a bounded unpublished candidate-view structural check runs before any home write. Eight malformed committed-input classes preserve the failed image; the original comparison concretely demonstrates four resealed structural defects that formerly wrote homes before rejection. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.a-DELAYED",
+      "objective": "T47.08.a",
+      "project": "PR-T47-08",
+      "kind": "changed-condition",
+      "task": "Use a streaming validator with bounded scratch and prove how it still validates the full batch first.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The first pass streams all raw after-images; a local store plus4096-byte metadata scratch and actual bounded checker validates structure in the second pass. Compiler stack/dependency records bind the implementation. The unchanged-exclusive-backend premise between passes and additional read cost are explicit. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.b",
+      "objective": "T47.08.b",
+      "project": "PR-T47-08",
+      "kind": "ordinary",
+      "task": "Trace both checkpoint slots through torn replacement,highest-valid selection,generation exhaustion and WAL reclamation. Keep old metadata plus newer valid WAL as a recoverable state.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint_order"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual alternating checkpoints,259 interrupted checkpoint schedules, highest-valid selection, retained newer WAL and UINT64_MAX commit refusal exercise generation/reclamation authority without wrap or premature home authority. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.b-DELAYED",
+      "objective": "T47.08.b",
+      "project": "PR-T47-08",
+      "kind": "changed-condition",
+      "task": "Add a third metadata slot and derive selection under the same fault model.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Distinct CST6 has three slots, shifted homes/WAL/marker and unique magic. Six actual checkpoints cycle1,2,0twice,259 cuts recover via old metadata/new WAL, and exhausted generation refuses before IO. Compiled lowest-generation selection is rejected; no CST2 migration is claimed. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.c",
+      "objective": "T47.08.c",
+      "project": "PR-T47-08",
+      "kind": "ordinary",
+      "task": "Kill early-WAL-reclamation by interrupting checkpoint after some homes change but before new metadata is durable. Demonstrate loss of the only complete explanation and repair the order.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint_order"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The early-marker-reclamation compiled control is killed on interrupted checkpoint. Correct source retains the marker until complete homes and discoverable checkpoint are durable; the reduced model emits a shortest early-reclaim counterexample. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-08-T47.08.c-DELAYED",
+      "objective": "T47.08.c",
+      "project": "PR-T47-08",
+      "kind": "changed-condition",
+      "task": "Interrupt the repaired recovery itself and repeat reopen.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "All1369 pairs of actual recovery interruptions execute even-subset then middle-tear modes. Final recovery returns the complete new map/canonical homes, and another open changes no page byte or write count. This bounded campaign is distinct from the repeated-cut finite model. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.a",
+      "objective": "T47.09.a",
+      "project": "PR-T47-09",
+      "kind": "ordinary",
+      "task": "Reopen images with old checkpoint/new marker,wrong generation,count mismatch,invalid after-image and short read. Validate all required bytes before replay and preserve the original failed image.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.capacity",
+        "storage.corruption",
+        "storage.format",
+        "storage.recovery",
+        "storage.tree"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Old-checkpoint/new-marker recovery executes actual raw/structural validation before installation. Invalid last after-image, wrong generation/count, future marker gap and37 failed short-read locations refuse without modifying stable evidence; original structural behavior remains separately observed. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.a-DELAYED",
+      "objective": "T47.09.a",
+      "project": "PR-T47-09",
+      "kind": "changed-condition",
+      "task": "Add a stale valid marker older than the selected checkpoint and justify its treatment.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "An actual resealed valid older marker is ignored under the already selected checkpoint and produces the old complete map without writes. The contract explains generation authority rather than treating all checksum-valid markers as current. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.b",
+      "objective": "T47.09.b",
+      "project": "PR-T47-09",
+      "kind": "ordinary",
+      "task": "Cut recovery at each home write and flush,then restart recovery again. Prove full-page redo idempotence at the byte and application-map levels while retaining the marker until installation is durable.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.capacity",
+        "storage.corruption",
+        "storage.format",
+        "storage.recovery",
+        "storage.tree"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual full-page redo survives1369 double interruptions and produces byte-identical32home pages to clean recovery. A further open preserves all67image pages and issues no write. Inactive marker bytes may differ across histories; this is not falsely claimed to be global image canonicalization. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.b-DELAYED",
+      "objective": "T47.09.b",
+      "project": "PR-T47-09",
+      "kind": "changed-condition",
+      "task": "Replace after-images with logical operations and design sequence/deduplication metadata.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/logical_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Implemented distinct SLR1 logical ADD WAL containing operation ID, predecessor and delta, with no resulting-counter after-image. Applied-ID, total and last delta share one sealed alternating checkpoint; equal-ID recovery skips replay and conflicting payload is rejected.28commit cuts,28checkpoint cuts,112repeated interruptions,1093reopen-and-duplicate histories per profile; checked signed extrema, maximum-ID disk fixture, resealed gap/overflow/equal-ID disagreement and partial read failures. Independent Python checks1093integer sums,28phase outcomes and a complete4096-byte negative-delta command. Five compiled semantic controls distinguish missing flush, duplicate replay, early output, conflicting ID and defined wrapping addition. Latest same-ID lost-response retry yields17; blind new-ID retry yields24. Exact bounded sequential-client counter semantics only, not arbitrary B+tree redo or external effects. Bounded author support only; no physical persistence, human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/logical_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.c",
+      "objective": "T47.09.c",
+      "project": "PR-T47-09",
+      "kind": "ordinary",
+      "task": "Separate admitted torn unsynchronized writes from corruption after acknowledged persistence. Inject each class and require the corresponding old/new recovery or corruption rejection,without broadening the fault model after failure.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.capacity",
+        "storage.corruption",
+        "storage.format",
+        "storage.recovery",
+        "storage.tree"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Admitted unsynchronized tears are separately classified from post-acknowledgment committed corruption; selected old/new schedules pass and malformed committed candidates reject before home writes. IO failure poisoning and preservation are required, not broadened away after failure. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-09-T47.09.c-DELAYED",
+      "objective": "T47.09.c",
+      "project": "PR-T47-09",
+      "kind": "changed-condition",
+      "task": "Construct a CRC collision analysis and explain why checksum validity cannot authenticate data.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "A host GF(2) oracle constructs two original synthetic4096-byte pages with the same storedCRC2329055228 and values165/164; actual C decoder accepts both. Explicit local attacker capabilities and repair/residual limits distinguish checksum/structure from authentication without any external target. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.a",
+      "objective": "T47.10.a",
+      "project": "PR-T47-10",
+      "kind": "ordinary",
+      "task": "Audit stable/pending state in the simulated medium with tiny page histories: no persistence,partial persistence,reordered pending writes,tear and error after persistence. Give each schedule a replayable identity.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint",
+        "storage.crash",
+        "storage.differential",
+        "storage.recovery"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual stable/pending medium implements named no-persist, reverse even/odd subsets, prefix/suffix/middle tears, all-persist-despite-error and selected-subset transitions. Independent raw-page oracle checks12cases; exact cut/mode identities and success-flush premises are recorded. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.a-DELAYED",
+      "objective": "T47.10.a",
+      "project": "PR-T47-10",
+      "kind": "changed-condition",
+      "task": "Enumerate all pending subsets for a reduced two-page toy protocol.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "All four subsets of two pending pages execute against the actual medium and independent expected bytes. The reduced protocol model additionally explores all unchanged/full/invalid-torn outcomes for each pending page at every cut. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.b",
+      "objective": "T47.10.b",
+      "project": "PR-T47-10",
+      "kind": "ordinary",
+      "task": "Compare the entire recovered key/value map against an independent transaction oracle across commit,checkpoint and repeated-recovery cuts. Include deletion and replacement so partial mixtures cannot pass a single-key check.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint",
+        "storage.crash",
+        "storage.differential",
+        "storage.recovery"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The three explicit maps include deletion and replacement. Each recovery verifies all16keys, unchanged missing outputs, complete ordered scan and structural checker. Independent expected commit outcome rows bind259schedules, with checkpoint/repeated-recovery map obligations separately exercised. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.b-DELAYED",
+      "objective": "T47.10.b",
+      "project": "PR-T47-10",
+      "kind": "changed-condition",
+      "task": "Add two successive transactions with overlapping keys and distinguish their allowed durable prefixes.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Two actual overlapping transactions produce the three stated maps. All259 second-transaction cut schedules permit only the first or second durable prefix and never the pre-first map, while preserving success/error outcome implications. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.c",
+      "objective": "T47.10.c",
+      "project": "PR-T47-10",
+      "kind": "ordinary",
+      "task": "Publish exact selected cuts,persistence modes,mutants and uncovered schedules. Minimize a failing cut to its first invalid persistence transition and derive an additional schedule class beyond the five representative modes.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.checkpoint",
+        "storage.crash",
+        "storage.differential",
+        "storage.recovery"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The source-bound report records exact modes, cuts, compiled semantic controls and raw outcomes. Odd-subset/middle-tear classes extend the retained five-mode model. The finite checker provides shortest BFS witnesses, with physical tears, CRC collisions and arbitrary executions explicitly excluded from its abstraction. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-10-T47.10.c-DELAYED",
+      "objective": "T47.10.c",
+      "project": "PR-T47-10",
+      "kind": "changed-condition",
+      "task": "Use a bounded model checker for a reduced protocol and state the abstraction relation to CST2.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The implemented finite explicit-state model explores135states/332transitions/16terminals with arbitrary repeated cut/reopen cycles within its finite state space. Three protocol mutations produce counterexamples; independently checked actual37-event C traces support the two-after-image abstraction. This is not an arbitrary-C or physical-storage proof. Bounded author support under the declared model only; physical durability, external human review and learner mastery remain unobserved.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.a",
+      "objective": "T47.11.a",
+      "project": "PR-T47-11",
+      "kind": "ordinary",
+      "task": "Inject every positive short transfer,EINTR,zero and terminal error into one4096-byte page operation. Check offset arithmetic and exact bytes; distinguish partial read failure from a complete page.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.corruption",
+        "storage.file"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual unchanged original store_file.c is linked with syscall wrappers;40954histories cover every positive first short1..4095, EINTR before/after progress, zero/error at every prefix0..4095 and both directions. Offsets reach logicalUINT32_MAX-1 under the explicit64-bit-off_t profile. Failed raw reads retain their accepted prefix rather than falsely promising unchanged output. Bounded author support only; no physical persistence, human-independent review or learner mastery is inferred.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.a-DELAYED",
+      "objective": "T47.11.a",
+      "project": "PR-T47-11",
+      "kind": "changed-condition",
+      "task": "Change to a nonblocking backend with explicit readiness and retry budget.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Implemented staged SfiOp carries exact-owner/nonwrapping generation, copied writes, unpublished read scratch, prefix count, terminal/release state and per-step callback budget. AGAIN requires fresh readiness; cancellation retains write progress and read output. Actual O_NONBLOCK pipe/poll executes EAGAIN,13/4083-byte progress and hangup. This is a single ordered page operation, not a seekable network block service. Bounded author support only; no physical persistence, human-independent review or learner mastery is inferred.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.b",
+      "objective": "T47.11.b",
+      "project": "PR-T47-11",
+      "kind": "ordinary",
+      "task": "Commit,close and reopen a disposable preallocated image through the actual file adapter,recording fsync status and platform identity. Inject a failed sync separately and preserve uncertainty.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.corruption",
+        "storage.file"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual original preallocated Linux file adapter formats, commits, closes and reopens with complete value checks. Real fsync plus injected EINTR and persisted-before-EIO final-sync outcome execute poisoning/reconciliation. Kernel/filesystem/off_t and accepted-byte observations are recorded separately from physical durability. Bounded author support only; no physical persistence, human-independent review or learner mastery is inferred.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.b-DELAYED",
+      "objective": "T47.11.b",
+      "project": "PR-T47-11",
+      "kind": "changed-condition",
+      "task": "Create the file during the operation and add the directory-entry durability obligation.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual Linux constructor creates only a new simple component in an exclusive private directory, preallocates, formats through the retained adapter and performs file then directory fsync before output publication. Failed directory synchronization retains named evidence, consumes the descriptor once and preserves output. A post-close EINTR control verifies no retry by descriptor number; Linux versus POSIX.1-2024 scope is explicit. Bounded author support only; no physical persistence, human-independent review or learner mastery is inferred.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.c",
+      "objective": "T47.11.c",
+      "project": "PR-T47-11",
+      "kind": "ordinary",
+      "task": "Calculate exact logical page reads,writes and flushes for a small value update,then compare with accepted bytes and useful changed payload. Keep filesystem/device traffic and elapsed time separate.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.corruption",
+        "storage.file"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "The correctness-checked one-byte hot-root update derives and observes commit0reads/34writes/3flushes and checkpoint65reads/34writes/3flushes. Independent oracle checks139264commit write bytes and266240read/139264write checkpoint bytes against one useful byte, with actual original provider/syscall counters. Filesystem/device traffic and timing are explicitly outside these logical measurements. Bounded author support only; no physical persistence, human-independent review or learner mastery is inferred.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-11-T47.11.c-DELAYED",
+      "objective": "T47.11.c",
+      "project": "PR-T47-11",
+      "kind": "changed-condition",
+      "task": "Implement changed-page redo under a new protocol and compare correctness-equivalent amplification.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/delta_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Implemented distinct SDW1 full/sparse redo with the same32raw-page atomic API, capacity, generation and failure semantics.315commit cuts,315checkpoint cuts,1433repeated interruptions and complete32-page recovery checks per profile; candidate-corruption/read-failure preflight; maximum-generation disk fixture; four semantic mutants. Independent Python checks315phase outcomes,two4096-byte markers and equal-contract costs: for3useful bytes sparse commit0/5/3 and checkpoint36/5/3 versus full0/34/3 and65/34/3 reads/writes/flushes. This is a new protocol, not CST2 compatibility or physical-I/O equivalence. Bounded author support only; no physical persistence, human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/delta_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.a",
+      "objective": "T47.12.a",
+      "project": "PR-T47-12",
+      "kind": "ordinary",
+      "task": "Bind narrow VM services to the fixed-key integer store adapter with checked byte encoding and distinct host-budget,capacity and commit outcomes. Reject unknown service IDs without exposing native paths/pointers.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.vm"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual CVM OP_HOST composes retained CST2/store_host and Vh. New full103-record capacity fixture distinguishes zero host budget (no callback), enabled unknown service (STORE_INVALID) and valid service at capacity (STORE_FULL, zero I/O, unchanged map/output). Revalidated provider policies and explicit LEGACY4/VERSIONED5 byte codecs; no pointer/path authority exposed by the integer service. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.a-DELAYED",
+      "objective": "T47.12.a",
+      "project": "PR-T47-12",
+      "kind": "changed-condition",
+      "task": "Add a read-modify-write service with operation IDs and reconciliation.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Actual versioned read-modify-write service records operation identity, argument and result in the same store transaction. Existing203-check provider campaign and actual kernel case34 are source/artifact revalidated, not claimed freshly executed; conflicting IDs and pre/post-publication outcomes remain distinct. New coordinator calls that real provider and reopens before retry. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.b",
+      "objective": "T47.12.b",
+      "project": "PR-T47-12",
+      "kind": "ordinary",
+      "task": "Adapt the original kernel whole-page device API to an exclusive image slice. Check user-buffer permissions,checked slice bounds,complete transfer and flush semantics before claiming CST2 compatibility.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.vm"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Inspected actual whole-page syscall adapter maps only logical0..66 to physical16..82 with checked admission; original kernel user-copy permissions precede device submission and completed reads precede user copy. Revalidated16 exact GCC/Clang guest reports including invalid buffer, changed geometry, full raw-page FLUSH/restart, no-FLUSH clean-restart limit and actual CVM/store service recovery. Prior actual executions remain labeled as reused; this is selected original kernel/device profile, not generic block durability. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.b-DELAYED",
+      "objective": "T47.12.b",
+      "project": "PR-T47-12",
+      "kind": "changed-condition",
+      "task": "Replace the device with asynchronous queued I/O and derive buffer retention/cancellation rules.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/async_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Implemented SaRead over the actual unchanged CMK2 queued READ syscall: positive submission retains4096-byte user destination, abandonment only suppresses delivery, positive wait grants completion, explicit release authorizes reuse. Actual original kernel/user suite plus additive adapter passes1/2/4CPU QEMU TCG, with guest semantic rejection of premature abandonment-release, wrong delivery status and compiling learner scaffold. Nonzero wait quarantines storage without retry/reset authority; native fake-backend error branch is explicitly separate from actual device completion. Independent model matches21840 histories/123792 transitions in each of six C17 profiles; three native semantic controls and three compiling learner anchors reject. Selected read-lifetime/serialization adapter and derivation, not a claim of asynchronous CST2 transactions, physical late writes or a cancellation acknowledgement. Bounded author support; independent learner evidence remains unassessed.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/async_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.c",
+      "objective": "T47.12.c",
+      "project": "PR-T47-12",
+      "kind": "ordinary",
+      "task": "Execute write,lost-response failure,restart and read through the same application boundary. Compare prepublication abort with postpublication uncertainty and reconcile before any non-idempotent retry.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "existing_evidence": [
+        "storage.vm"
+      ],
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Revalidated actual application boundary case33 assignment lost-response/restart, case34 atomic increment receipt/retry and case35 precommit refusal, with read-only authority checked before store I/O. Preserves old/new/uncertain distinctions and exact operation reconciliation. No response error is treated as proof of rollback; no clean restart without FLUSH is called durability. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    },
+    {
+      "id": "AX-PR-T47-12-T47.12.c-DELAYED",
+      "objective": "T47.12.c",
+      "project": "PR-T47-12",
+      "kind": "changed-condition",
+      "task": "Transfer the protocol to a two-step application workflow with compensation.",
+      "required": true,
+      "status": "ready-bounded-author-support",
+      "author_evidence": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "limits": "Implemented SwFlow durable three-image two-step debit/credit coordinator with explicit PREPARED/DEBITED/COMPENSATING/FINISHED/REVERSED records. Reconciles participant ID1 before phase publication; compensation uses distinct debit ID2 only after a declared decline, never automatically after uncertain credit.962 participant/journal cut schedules and74 intent-creation cuts per profile; six workflows and15 phase/balance/intent rows independently checked. Four compiled controls and four compiling learner stubs reject. Compensation is an additional effect under exclusive synthetic-image ownership, not atomic visibility or external rollback. Bounded author support; no human-independent review or learner mastery.",
+      "resolved_descendants": [
+        "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json"
+      ]
+    }
+  ],
+  "input_sha256": {
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-01.json": "b1537e6254be96097c719915ddf506a13d177e5f96ca15e42b57ad5d3ab3a1de",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json": "9a9155123537c0c9eda1b74f541306cdc4a23caf206220205ed1d06cd4be6446",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-03.json": "a0b5409964e67dae351864d0fbde3faf387a5ebfcabe46aaa902a90c9d724620",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-04.json": "72768f16da7ed796996189ff792f8769afe3cb777fca546609a145c77010ad4e",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-05.json": "37146e99080d8cce92a8ea071a0c58d17a7b7df1cb52e7876a479567eb221225",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-06.json": "72d9b41af3548091292a596dd6c16d6ab1b1860534c4a244e2656f9b667f96d2",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-07.json": "cd5496ff13d51a1a816724e5460adcb29a3cee5093ccc6740a359bab749bdcd2",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-08.json": "36c52c8316b931fce374e53ff9172f9ea8f7cb8ff512c42ca658177fb4775672",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-09.json": "5b4765e162499497530432d38cb2496c633c52957a57472ab60a7ef775b11645",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-10.json": "679fcce1fd05720f7de23a0a9d15bebfa1557d6afc3b5c006768927447c5c28b",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-11.json": "c6574b24bfd5449133e179ab12156693cb20a2310a8a0f895473a00dba85b32f",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-12.json": "fddf1158e8fe0a0d339c54cb958612bf8c2792c070ba99140214dae1a1c22aca"
+  },
+  "counts": {
+    "original_ids": 72,
+    "ready_bounded_author": 72,
+    "remaining_author": 0
+  },
+  "limits": [
+    "All72original IDs remain in scope; batches are dependency order, not exclusions.",
+    "Resolved descendants preserve original tasks and do not close external review or learner evidence.",
+    "author_support_complete is bounded authored/validated support only; complete remains false because it must not imply external assessment or physical evidence."
+  ]
+}

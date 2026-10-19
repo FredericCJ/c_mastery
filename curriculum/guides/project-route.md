@@ -549,67 +549,69 @@ Each accepted artifact carries its source revision, interface, ownership contrac
 | 541 | {ref}`PR-T69-09` | Authority attenuation, revocation and the limits of C tokens | {ref}`PR-T18-01` | dispatch |
 | 542 | {ref}`PR-T69-10` | Versioned plugin objects and borrowed code lifetime | {ref}`PR-T18-01` | dispatch |
 | 543 | {ref}`PR-T69-11` | Quiescent hot reload with staged state handoff and retirement | {ref}`PR-T18-01` | dispatch |
-| 544 | {ref}`PR-T70-01` | Hot and cold columns with transactional numeric updates | {ref}`PR-T18-01` | dod |
-| 545 | {ref}`PR-T70-02` | Inline bytes, allocator failure and explicit relocation | {ref}`PR-T18-01` | dod |
-| 546 | {ref}`PR-T70-03` | Four saturating byte lanes without cross-lane carries | {ref}`PR-T18-01` | dod |
-| 547 | {ref}`PR-T70-04` | Stable typed slots, dense iteration and finite identity | {ref}`PR-T18-01` | dod |
-| 548 | {ref}`PR-T70-05` | Archetype migration with capacity admission and row repair | {ref}`PR-T18-01` | dod |
-| 549 | {ref}`PR-T70-06` | Path copying, zipper contexts and retained-version costs | {ref}`PR-T18-01` | dod |
-| 550 | {ref}`PR-T70-07` | Bitmap rank, full-hash collisions and persistent map updates | {ref}`PR-T18-01` | dod |
-| 551 | {ref}`PR-T70-08` | Shared text DAGs, editing alternatives and coordinate meaning | {ref}`PR-T18-01` | dod |
-| 552 | {ref}`PR-T71-01` | Consuming typestate and explicit recovery after partial device writes |  | protocols |
-| 553 | {ref}`PR-T71-02` | Staged builders, presence masks and cross-field admission | {ref}`PR-T71-01` | protocols |
-| 554 | {ref}`PR-T71-03` | Dual binary session automata with bounded dialogue | {ref}`PR-T71-02` | protocols |
-| 555 | {ref}`PR-T71-04` | Hierarchical run-to-completion transitions and observable entry order | {ref}`PR-T71-03` | protocols |
-| 556 | {ref}`PR-T71-05` | Bounded active-object queue and failure-preserving dispatch | {ref}`PR-T71-04` | protocols |
-| 557 | {ref}`PR-T71-06` | Stackless resumable functions with persistent explicit state | {ref}`PR-T71-05` | protocols |
-| 558 | {ref}`PR-T71-07` | Memory behavior trees, running-child ownership and abort | {ref}`PR-T71-06` | protocols |
-| 559 | {ref}`PR-T71-08` | Typestate firmware driver with uncertain DMA ownership | {ref}`PR-T71-07` | protocols |
-| 560 | {ref}`PR-T72-01` | Lazy fused pull pipelines and typed early termination |  | coroutines |
-| 561 | {ref}`PR-T72-02` | Volcano scan/filter/group operators with pull backpressure | {ref}`PR-T72-01` | coroutines |
-| 562 | {ref}`PR-T72-03` | Allocated coroutine frames and generator ownership | {ref}`PR-T72-02` | coroutines |
-| 563 | {ref}`PR-T72-04` | Actual x86-64 stack switching, ABI state and sanitizer fibers | {ref}`PR-T72-03` | coroutines |
-| 564 | {ref}`PR-T72-05` | Defunctionalized continuations and a budgeted trampoline | {ref}`PR-T72-04` | coroutines |
-| 565 | {ref}`PR-T72-06` | Cursor parser combinators with rollback and progress checks | {ref}`PR-T72-05` | coroutines |
-| 566 | {ref}`PR-T72-07` | Packrat success and failure memoization with explicit cache identity | {ref}`PR-T72-06` | coroutines |
-| 567 | {ref}`PR-T72-08` | Readiness-based async frames and lost readiness notifications | {ref}`PR-T72-07` | coroutines |
-| 568 | {ref}`PR-T72-09` | Single-shot resumable effects with explicit continuation ownership | {ref}`PR-T72-08` | coroutines |
-| 569 | {ref}`PR-T73-01` | Scope-owned child tasks and cooperative cancellation | {ref}`PR-T66-06`, {ref}`PR-T72-04` | messaging |
-| 570 | {ref}`PR-T73-02` | Bounded CSP channels, rendezvous and atomic select | {ref}`PR-T73-01` | messaging |
-| 571 | {ref}`PR-T73-03` | Senders, receivers and immovable operation-state lifetimes | {ref}`PR-T73-02` | messaging |
-| 572 | {ref}`PR-T73-04` | Actor incarnations, copied mailboxes and failure boundaries | {ref}`PR-T73-03` | messaging |
-| 573 | {ref}`PR-T73-05` | Supervision trees with restart budgets and ordered quiescence | {ref}`PR-T73-04` | messaging |
-| 574 | {ref}`PR-T73-06` | Bounded work stealing with an explicit C memory-order proof | {ref}`PR-T73-05` | messaging |
-| 575 | {ref}`PR-T73-07` | TL2-style software transactions over actual C17 atomics | {ref}`PR-T73-06` | messaging |
-| 576 | {ref}`PR-T73-08` | Multiversion visibility, reader pins and bounded reclamation | {ref}`PR-T73-07` | messaging |
-| 577 | {ref}`PR-T73-09` | Sequence validation without racing ordinary C payloads | {ref}`PR-T73-08` | messaging |
-| 578 | {ref}`PR-T73-10` | Demand signaling, terminal events and bounded reentrancy | {ref}`PR-T73-09` | messaging |
-| 579 | {ref}`PR-T74-01` | Pointer tags, NaN payloads and representation trust boundaries |  | object_runtime |
-| 580 | {ref}`PR-T74-02` | Owned binary interning and collision-safe symbol identity | {ref}`PR-T74-01` | object_runtime |
-| 581 | {ref}`PR-T74-03` | Immutable hidden classes and reusable property transitions | {ref}`PR-T74-02` | object_runtime |
-| 582 | {ref}`PR-T74-04` | Monomorphic and polymorphic inline-cache guards | {ref}`PR-T74-03` | object_runtime |
-| 583 | {ref}`PR-T74-05` | Incremental marking and root/store write barriers | {ref}`PR-T74-04` | object_runtime |
-| 584 | {ref}`PR-T74-06` | Semispace evacuation, forwarding and promotion failure | {ref}`PR-T74-05` | object_runtime |
-| 585 | {ref}`PR-T74-07` | Card marking and conservative remembered roots | {ref}`PR-T74-06` | object_runtime |
-| 586 | {ref}`PR-T74-08` | Handle-based compaction and forwarding aliases | {ref}`PR-T74-07` | object_runtime |
-| 587 | {ref}`PR-T74-09` | Ephemeron fixed points and staged finalization | {ref}`PR-T74-08` | object_runtime |
-| 588 | {ref}`PR-T74-10` | Trial deletion for reference-counted cycles | {ref}`PR-T74-09` | object_runtime |
-| 589 | {ref}`PR-T74-11` | Precise root maps and derived-reference relocation | {ref}`PR-T74-10` | object_runtime |
-| 590 | {ref}`PR-T75-01` | Cancellation trees and budgets across clock domains | {ref}`PR-T18-01` | resilience |
-| 591 | {ref}`PR-T75-02` | Five overload policies and bounded pending producers | {ref}`PR-T18-01` | resilience |
-| 592 | {ref}`PR-T75-03` | Hashed timer-wheel collisions, cancellation and expiry work | {ref}`PR-T18-01` | resilience |
-| 593 | {ref}`PR-T75-04` | Overflow-safe token buckets and competing rate contracts | {ref}`PR-T18-01` | resilience |
-| 594 | {ref}`PR-T75-05` | Jittered retry schedules with a shared deadline and attempt budget | {ref}`PR-T18-01` | resilience |
-| 595 | {ref}`PR-T75-06` | Health breakers, bulkheads and stale completions | {ref}`PR-T18-01` | resilience |
-| 596 | {ref}`PR-T75-07` | Hedged responses and ownership of losing work | {ref}`PR-T18-01` | resilience |
-| 597 | {ref}`PR-T75-08` | Idempotent effects, finite deduplication and storage fencing | {ref}`PR-T18-01` | resilience |
-| 598 | {ref}`PR-T75-09` | Resilient telemetry admission, committed effects and draining | {ref}`PR-T18-01` | resilience |
-| 599 | {ref}`PR-T76-01` | Positioned event logs and persistent snapshot roots |  | replicated |
-| 600 | {ref}`PR-T76-02` | CQRS projection admission and atomic position advancement | {ref}`PR-T76-01` | replicated |
-| 601 | {ref}`PR-T76-03` | Lamport, vector and hybrid logical clock boundaries | {ref}`PR-T76-02` | replicated |
-| 602 | {ref}`PR-T76-04` | Join-semilattice counters and deterministic registers | {ref}`PR-T76-03` | replicated |
-| 603 | {ref}`PR-T76-05` | Observed-remove sets and replayable delta state | {ref}`PR-T76-04` | replicated |
-| 604 | {ref}`PR-T76-06` | Replicated sequence identities and contextual transformation | {ref}`PR-T76-05` | replicated |
-| 605 | {ref}`PR-T76-07` | Merkle commitments and bounded anti-entropy | {ref}`PR-T76-06` | replicated |
-| 606 | {ref}`PR-T76-08` | Field tags, minimal varints and canonical bytes | {ref}`PR-T76-07` | replicated |
-| 607 | {ref}`PR-T76-09` | Pure reducers, explicit effects and rollback replay | {ref}`PR-T76-08` | replicated |
+| 544 | {ref}`PR-T69-12` | Typed final interpretation and higher-order carrier boundaries | {ref}`PR-T69-03`, {ref}`PR-T69-04`, {ref}`PR-T69-09` | higher_order |
+| 545 | {ref}`PR-T70-01` | Hot and cold columns with transactional numeric updates | {ref}`PR-T18-01` | dod |
+| 546 | {ref}`PR-T70-02` | Inline bytes, allocator failure and explicit relocation | {ref}`PR-T18-01` | dod |
+| 547 | {ref}`PR-T70-03` | Four saturating byte lanes without cross-lane carries | {ref}`PR-T18-01` | dod |
+| 548 | {ref}`PR-T70-04` | Stable typed slots, dense iteration and finite identity | {ref}`PR-T18-01` | dod |
+| 549 | {ref}`PR-T70-05` | Archetype migration with capacity admission and row repair | {ref}`PR-T18-01` | dod |
+| 550 | {ref}`PR-T70-06` | Path copying, zipper contexts and retained-version costs | {ref}`PR-T18-01` | dod |
+| 551 | {ref}`PR-T70-07` | Bitmap rank, full-hash collisions and persistent map updates | {ref}`PR-T18-01` | dod |
+| 552 | {ref}`PR-T70-08` | Shared text DAGs, editing alternatives and coordinate meaning | {ref}`PR-T18-01` | dod |
+| 553 | {ref}`PR-T71-01` | Consuming typestate and explicit recovery after partial device writes |  | protocols |
+| 554 | {ref}`PR-T71-02` | Staged builders, presence masks and cross-field admission | {ref}`PR-T71-01` | protocols |
+| 555 | {ref}`PR-T71-03` | Dual binary session automata with bounded dialogue | {ref}`PR-T71-02` | protocols |
+| 556 | {ref}`PR-T71-04` | Hierarchical run-to-completion transitions and observable entry order | {ref}`PR-T71-03` | protocols |
+| 557 | {ref}`PR-T71-05` | Bounded active-object queue and failure-preserving dispatch | {ref}`PR-T71-04` | protocols |
+| 558 | {ref}`PR-T71-06` | Stackless resumable functions with persistent explicit state | {ref}`PR-T71-05` | protocols |
+| 559 | {ref}`PR-T71-07` | Memory behavior trees, running-child ownership and abort | {ref}`PR-T71-06` | protocols |
+| 560 | {ref}`PR-T71-08` | Typestate firmware driver with uncertain DMA ownership | {ref}`PR-T71-07` | protocols |
+| 561 | {ref}`PR-T72-01` | Lazy fused pull pipelines and typed early termination |  | coroutines |
+| 562 | {ref}`PR-T72-02` | Volcano scan/filter/group operators with pull backpressure | {ref}`PR-T72-01` | coroutines |
+| 563 | {ref}`PR-T72-03` | Allocated coroutine frames and generator ownership | {ref}`PR-T72-02` | coroutines |
+| 564 | {ref}`PR-T72-04` | Actual x86-64 stack switching, ABI state and sanitizer fibers | {ref}`PR-T72-03` | coroutines |
+| 565 | {ref}`PR-T72-05` | Defunctionalized continuations and a budgeted trampoline | {ref}`PR-T72-04` | coroutines |
+| 566 | {ref}`PR-T72-06` | Cursor parser combinators with rollback and progress checks | {ref}`PR-T72-05` | coroutines |
+| 567 | {ref}`PR-T72-07` | Packrat success and failure memoization with explicit cache identity | {ref}`PR-T72-06` | coroutines |
+| 568 | {ref}`PR-T72-08` | Readiness-based async frames and lost readiness notifications | {ref}`PR-T72-07` | coroutines |
+| 569 | {ref}`PR-T72-09` | Single-shot resumable effects with explicit continuation ownership | {ref}`PR-T72-08` | coroutines |
+| 570 | {ref}`PR-T72-10` | Free effect construction, transactional bind and multiple interpreters | {ref}`PR-T69-03`, {ref}`PR-T72-09` | higher_order |
+| 571 | {ref}`PR-T73-01` | Scope-owned child tasks and cooperative cancellation | {ref}`PR-T66-06`, {ref}`PR-T72-04` | messaging |
+| 572 | {ref}`PR-T73-02` | Bounded CSP channels, rendezvous and atomic select | {ref}`PR-T73-01` | messaging |
+| 573 | {ref}`PR-T73-03` | Senders, receivers and immovable operation-state lifetimes | {ref}`PR-T73-02` | messaging |
+| 574 | {ref}`PR-T73-04` | Actor incarnations, copied mailboxes and failure boundaries | {ref}`PR-T73-03` | messaging |
+| 575 | {ref}`PR-T73-05` | Supervision trees with restart budgets and ordered quiescence | {ref}`PR-T73-04` | messaging |
+| 576 | {ref}`PR-T73-06` | Bounded work stealing with an explicit C memory-order proof | {ref}`PR-T73-05` | messaging |
+| 577 | {ref}`PR-T73-07` | TL2-style software transactions over actual C17 atomics | {ref}`PR-T73-06` | messaging |
+| 578 | {ref}`PR-T73-08` | Multiversion visibility, reader pins and bounded reclamation | {ref}`PR-T73-07` | messaging |
+| 579 | {ref}`PR-T73-09` | Sequence validation without racing ordinary C payloads | {ref}`PR-T73-08` | messaging |
+| 580 | {ref}`PR-T73-10` | Demand signaling, terminal events and bounded reentrancy | {ref}`PR-T73-09` | messaging |
+| 581 | {ref}`PR-T74-01` | Pointer tags, NaN payloads and representation trust boundaries |  | object_runtime |
+| 582 | {ref}`PR-T74-02` | Owned binary interning and collision-safe symbol identity | {ref}`PR-T74-01` | object_runtime |
+| 583 | {ref}`PR-T74-03` | Immutable hidden classes and reusable property transitions | {ref}`PR-T74-02` | object_runtime |
+| 584 | {ref}`PR-T74-04` | Monomorphic and polymorphic inline-cache guards | {ref}`PR-T74-03` | object_runtime |
+| 585 | {ref}`PR-T74-05` | Incremental marking and root/store write barriers | {ref}`PR-T74-04` | object_runtime |
+| 586 | {ref}`PR-T74-06` | Semispace evacuation, forwarding and promotion failure | {ref}`PR-T74-05` | object_runtime |
+| 587 | {ref}`PR-T74-07` | Card marking and conservative remembered roots | {ref}`PR-T74-06` | object_runtime |
+| 588 | {ref}`PR-T74-08` | Handle-based compaction and forwarding aliases | {ref}`PR-T74-07` | object_runtime |
+| 589 | {ref}`PR-T74-09` | Ephemeron fixed points and staged finalization | {ref}`PR-T74-08` | object_runtime |
+| 590 | {ref}`PR-T74-10` | Trial deletion for reference-counted cycles | {ref}`PR-T74-09` | object_runtime |
+| 591 | {ref}`PR-T74-11` | Precise root maps and derived-reference relocation | {ref}`PR-T74-10` | object_runtime |
+| 592 | {ref}`PR-T75-01` | Cancellation trees and budgets across clock domains | {ref}`PR-T18-01` | resilience |
+| 593 | {ref}`PR-T75-02` | Five overload policies and bounded pending producers | {ref}`PR-T18-01` | resilience |
+| 594 | {ref}`PR-T75-03` | Hashed timer-wheel collisions, cancellation and expiry work | {ref}`PR-T18-01` | resilience |
+| 595 | {ref}`PR-T75-04` | Overflow-safe token buckets and competing rate contracts | {ref}`PR-T18-01` | resilience |
+| 596 | {ref}`PR-T75-05` | Jittered retry schedules with a shared deadline and attempt budget | {ref}`PR-T18-01` | resilience |
+| 597 | {ref}`PR-T75-06` | Health breakers, bulkheads and stale completions | {ref}`PR-T18-01` | resilience |
+| 598 | {ref}`PR-T75-07` | Hedged responses and ownership of losing work | {ref}`PR-T18-01` | resilience |
+| 599 | {ref}`PR-T75-08` | Idempotent effects, finite deduplication and storage fencing | {ref}`PR-T18-01` | resilience |
+| 600 | {ref}`PR-T75-09` | Resilient telemetry admission, committed effects and draining | {ref}`PR-T18-01` | resilience |
+| 601 | {ref}`PR-T76-01` | Positioned event logs and persistent snapshot roots |  | replicated |
+| 602 | {ref}`PR-T76-02` | CQRS projection admission and atomic position advancement | {ref}`PR-T76-01` | replicated |
+| 603 | {ref}`PR-T76-03` | Lamport, vector and hybrid logical clock boundaries | {ref}`PR-T76-02` | replicated |
+| 604 | {ref}`PR-T76-04` | Join-semilattice counters and deterministic registers | {ref}`PR-T76-03` | replicated |
+| 605 | {ref}`PR-T76-05` | Observed-remove sets and replayable delta state | {ref}`PR-T76-04` | replicated |
+| 606 | {ref}`PR-T76-06` | Replicated sequence identities and contextual transformation | {ref}`PR-T76-05` | replicated |
+| 607 | {ref}`PR-T76-07` | Merkle commitments and bounded anti-entropy | {ref}`PR-T76-06` | replicated |
+| 608 | {ref}`PR-T76-08` | Field tags, minimal varints and canonical bytes | {ref}`PR-T76-07` | replicated |
+| 609 | {ref}`PR-T76-09` | Pure reducers, explicit effects and rollback replay | {ref}`PR-T76-08` | replicated |

@@ -1,0 +1,26 @@
+{
+  "review_kind": "bounded author-team read-only source review",
+  "reviewer": "cli_exercises agent",
+  "input_sha256": {
+    "labs/replicated/replay_depth/replay_depth.h": "5aaa9c1315f7ccbba30b941c61c6c581bcc4862a68977615c14e2e8e0677c211",
+    "labs/replicated/replay_depth/replay_sink.h": "4a68828139db88c577c476032d6f2caa9f9b863b7b215541ee0c9f82e698e74e",
+    "assessor/replicated/replay_depth/replay_core.c": "1482cf3a735c41ab1080d02222e55298c8183983fd8abf0f39a858f07a0f2a5e",
+    "assessor/replicated/replay_depth/replay_store.c": "c16eb9803b101d56a7613b5eb006bfe8e6806a6281fcf340117b5ff0bed57aaa",
+    "assessor/replicated/replay_depth/replay_sink.c": "6cd64ae3c3509c3ba1faecf969589f732de37e1760a7af12a579ca7dfd97d449",
+    "assessor/api_depth/architecture/effects.c": "343a6f14d309604e3005435ea1189cfa01af59698767e5b68eda7b1e66673695"
+  },
+  "findings": [],
+  "scope": "Confirmed-prefix effects and staged durable publication; imported ar_feedback body inspected.",
+  "observations": [
+    "Confirmed known inputs are immutable; later corrections cannot change a pending effect snapshot.",
+    "prepare retries exact timeline/tick/value; feedback validates all three.",
+    "Durable wrappers publish session and outputs only after commit; uncertainty leaves caller outputs unpublished.",
+    "Sink ordered exact-prefix identity requires separate exclusive live log."
+  ],
+  "limitations": [
+    "No codec, tests or oracle inspection in this review.",
+    "No campaign execution or rereading complete store/RplLog internals.",
+    "No concurrency, physical effects, whole-protocol proof or independent-human claim."
+  ],
+  "followup": "Reviewer rechecked default-zero mutation guards12/13 in replay_sink.c; production prefix/content checks remain active. No campaign rerun or scope widening in review."
+}

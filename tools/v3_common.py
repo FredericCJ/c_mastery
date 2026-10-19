@@ -30,7 +30,16 @@ def check_v3_migration(taxonomy, projects, migration=None):
             errors.append('Unexplained v3 project migration: '+row['old_id'])
         if row.get('disposition')=='retained':
             project=projects.get(row['old_id'])
-            if row.get('new_ids')!=[row['old_id']] or not project or sha(project['path'])!=row['baseline_sha256']:
+            unchanged = project and sha(project['path']) == row['baseline_sha256']
+            if project and not unchanged:
+                # The accepted inspection remains the exact predecessor. Only
+                # the two fully proved public B06 asset attachments qualify;
+                # this is not a new baseline inspection or execution claim.
+                from check_v5 import publication_successor_covers
+                name = 'curriculum/projects/' + row['old_id'] + '.md'
+                unchanged = (project['path'].resolve() == (ROOT / name).resolve()
+                             and publication_successor_covers(name, row['baseline_sha256']))
+            if row.get('new_ids')!=[row['old_id']] or not unchanged:
                 errors.append('Retained v2 project changed: '+row['old_id'])
     if not set(base['domains'])<={d['id'] for d in taxonomy}: errors.append('Prior domain omitted')
     return errors

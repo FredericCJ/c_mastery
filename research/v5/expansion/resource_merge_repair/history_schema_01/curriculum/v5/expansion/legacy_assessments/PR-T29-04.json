@@ -1,0 +1,775 @@
+{
+  "schema_version": 1,
+  "project": "PR-T29-04",
+  "domain": "T29",
+  "title": "DMA cancellation and visibility — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/interrupt_depth/lease/CONTRACTS.md",
+    "curriculum/guides/interrupt-lease-board-protocol.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T29.md",
+        "sha256": "d586c395b8cb597620cd78132ff54e8a4875f3311def463424edcb96f217f520",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T29-04.md",
+        "sha256": "52d8b848f348cb0c0bed113158456143a6d221d5e8c6d623d323f4f2747a6f1d",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T29-04.json",
+        "sha256": "3075b9f951f28ad13b9420c7d2adb4f763376bd553a56b693e5d807e6ffd36a7",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T29.md",
+        "anchors": [
+          "T29.07",
+          "T29.08"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-FW-09",
+      "U-T29-04-02",
+      "U-T29-04-03"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "E",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-B06-STIPC",
+      "path": "research/v5/b06_resources.json",
+      "passages": [
+        "Rev2 sections2.1 and2.2, PDFpp3-6"
+      ]
+    },
+    {
+      "id": "R-LRUN-CM4",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.2.4 Software ordering of memory accesses",
+        "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+        "2.3.7 Exception entry and return including frame and EXC_RETURN"
+      ]
+    },
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-XD-DDI",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF230–231 complete DMB/DSB definitions including SY encoding and completion/context effects"
+      ]
+    },
+    {
+      "id": "R-XD-RM0090",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF68 SRAM/CCM access;82–84 Flash ART and literal-pool data cache",
+        "PDF322–326 FIFO flush after EN clear, TC/NDTR, partial widths, configuration and error behavior"
+      ]
+    },
+    {
+      "id": "R-XD-RM0399",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF136–137 SRAM3 normal WBWA map and M4 code alias/DTCM distinction;140–141 DMA2/system maps",
+        "PDF689–690 FIFO drain, TC, stop/resume and remaining-byte limitations"
+      ]
+    },
+    {
+      "id": "R-XD-PM0253",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "PDF219–220 cache line encoding: eight words",
+        "PDF240–244 privilege, PoC registers, reset/init, DSB/ISB, asynchronous faults and completion requirements"
+      ]
+    },
+    {
+      "id": "R-XD-GCC",
+      "path": "research/v5/expansion/legacy_advanced_lease/resources.json",
+      "passages": [
+        "6.48.2.6 memory clobber is compiler read/write ordering; explicitly does not prevent speculative processor reads"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T29-04.md",
+    "fixtures/embedded/PR-T29-04.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md",
+    "labs/interrupt_depth/lease/board_build.py",
+    "labs/interrupt_depth/lease/bridge.c",
+    "labs/interrupt_depth/lease/bridge.h",
+    "labs/interrupt_depth/lease/CONTRACTS.md",
+    "labs/interrupt_depth/lease/lease.c",
+    "labs/interrupt_depth/lease/lease.h",
+    "labs/interrupt_depth/lease/order.c",
+    "labs/interrupt_depth/lease/order.h",
+    "labs/interrupt_depth/lease/run.py",
+    "labs/interrupt_depth/lease/target.c",
+    "labs/interrupt_depth/lease/target_build.py",
+    "labs/interrupt_depth/lease/tests.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/handoff/target.S",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/target.c",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/h745_cache.h",
+    "labs/firmware_lifecycle/targets/h745_cache.c",
+    "labs/firmware_lifecycle/targets/h745_port.c",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/firmware_lifecycle/targets/H745_ERRATA.md",
+    "curriculum/guides/interrupt-lease-board-protocol.md",
+    "fixtures/embedded/interrupt_lease_capture.json",
+    "tools/check_interrupt_lease_capture.py"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "firmware_io.dma"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "interrupt_lease_successor": {
+      "path": "research/v5/expansion/legacy_advanced_lease/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-04-T29.07.a",
+        "AX-PR-T29-04-T29.07.b",
+        "AX-PR-T29-04-T29.07.c",
+        "AX-PR-T29-04-T29.08.a",
+        "AX-PR-T29-04-T29.08.b",
+        "AX-PR-T29-04-T29.08.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed cancellation/visibility/reset/target tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T29-04-T29.07.a",
+      "title": "Model CPU-owned, device-owned, complete, and cancelled buffer states.",
+      "objective": "T29.07.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Implement CPU-owned, device-owned, service-complete and canceled/quiesced states with generation tickets. Replay submit,cancel_request,complete,stop_confirm,reclaim and publish exactly one terminal completion.",
+      "purpose": "Requesting cancellation immediately makes the buffer CPU-owned.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Requesting cancellation immediately makes the buffer CPU-owned. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Requesting cancellation immediately makes the buffer CPU-owned.",
+        "D2": "Implement CPU-owned, device-owned, service-complete and canceled/quiesced states with generation tickets. Replay submit,cancel_request,complete,stop_confirm,reclaim and publish exactly one terminal completion.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Make confirmed stop arrive before completion and reject the late stale callback without changing the chosen terminal result."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Cancel is a request until completion/confirmed stop; late completion can win the declared race while later stop becomes idempotent.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Cancel is a request until completion/confirmed stop; late completion can win the declared race while later stop becomes idempotent. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Make confirmed stop arrive before completion and reject the late stale callback without changing the chosen terminal result. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Represent completion and confirmed stop as competing terminal transitions.",
+        "A generation check rejects stale callbacks only while its identity cannot repeat; release ownership once, after quiescence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Make confirmed stop arrive before completion and reject the late stale callback without changing the chosen terminal result."
+        }
+      ],
+      "assessor_anchor": "#t2907a",
+      "facet_scope": {
+        "teaching": "Retained T29.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T29-04-T29.07.b",
+      "title": "Specify when data and descriptors become visible to each participant.",
+      "objective": "T29.07.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Draw visibility edges for CPU descriptor/payload writes, device fetch, device result writes and CPU observation. Assign compiler barrier, architectural ordering and any cache maintenance only to edges they actually satisfy.",
+      "purpose": "One DSB establishes every cache, ownership and device-completion property.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "One DSB establishes every cache, ownership and device-completion property. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: One DSB establishes every cache, ownership and device-completion property.",
+        "D2": "Draw visibility edges for CPU descriptor/payload writes, device fetch, device result writes and CPU observation. Assign compiler barrier, architectural ordering and any cache maintenance only to edges they actually satisfy.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Use a noncoherent cache-equipped target and derive line alignment plus clean/invalidate ownership to avoid corrupting adjacent CPU data."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Ordering, cache visibility and device progress differ; a barrier does not acknowledge transfer completion or revoke ownership.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Ordering, cache visibility and device progress differ; a barrier does not acknowledge transfer completion or revoke ownership. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a noncoherent cache-equipped target and derive line alignment plus clean/invalidate ownership to avoid corrupting adjacent CPU data. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Represent completion and confirmed stop as competing terminal transitions.",
+        "A generation check rejects stale callbacks only while its identity cannot repeat; release ownership once, after quiescence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a noncoherent cache-equipped target and derive line alignment plus clean/invalidate ownership to avoid corrupting adjacent CPU data."
+        }
+      ],
+      "assessor_anchor": "#t2907b",
+      "facet_scope": {
+        "teaching": "Retained T29.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T29-04-T29.07.c",
+      "title": "Prevent reuse before transfer and reclamation conditions are satisfied.",
+      "objective": "T29.07.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Cancel generation7, keep its buffer unavailable until quiescence, then reuse for 8 and deliver a delayed callback7. Reject it before modifying current state and prove no old DMA actor can still write after reuse.",
+      "purpose": "Generation checking alone prevents all stale device writes.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Generation checking alone prevents all stale device writes. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Generation checking alone prevents all stale device writes.",
+        "D2": "Cancel generation7, keep its buffer unavailable until quiescence, then reuse for 8 and deliver a delayed callback7. Reject it before modifying current state and prove no old DMA actor can still write after reuse.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Let reset clear software state while the device remains active and design a reset-domain handshake before reusing storage."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "A token can reject software callbacks but cannot stop a device holding an address; hardware quiescence and identity validation are both needed.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "A token can reject software callbacks but cannot stop a device holding an address; hardware quiescence and identity validation are both needed. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Let reset clear software state while the device remains active and design a reset-domain handshake before reusing storage. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Represent completion and confirmed stop as competing terminal transitions.",
+        "A generation check rejects stale callbacks only while its identity cannot repeat; release ownership once, after quiescence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Let reset clear software state while the device remains active and design a reset-domain handshake before reusing storage."
+        }
+      ],
+      "assessor_anchor": "#t2907c",
+      "facet_scope": {
+        "teaching": "Retained T29.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T29-04-T29.08.a",
+      "title": "Distinguish compiler ordering, CPU ordering, cache maintenance, and mutual exclusion.",
+      "objective": "T29.08.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        }
+      ],
+      "task": "For a shared DMA buffer classify four proposed fixes: compiler memory clobber, DMB/DSB, cache clean/invalidate and interrupt masking. Give a failing trace for each when used in place of another required mechanism.",
+      "purpose": "Ordering, cache maintenance and mutual exclusion are synonyms.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Ordering, cache maintenance and mutual exclusion are synonyms. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Ordering, cache maintenance and mutual exclusion are synonyms.",
+        "D2": "For a shared DMA buffer classify four proposed fixes: compiler memory clobber, DMB/DSB, cache clean/invalidate and interrupt masking. Give a failing trace for each when used in place of another required mechanism.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Compose all required mechanisms for one declared target and remove a redundant operation only with a source-backed argument and measurement."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Each addresses a different visibility/exclusion obligation; none independently grants buffer lifetime or confirms device stop.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Each addresses a different visibility/exclusion obligation; none independently grants buffer lifetime or confirms device stop. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Compose all required mechanisms for one declared target and remove a redundant operation only with a source-backed argument and measurement. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify compiler order, CPU order, cache visibility and device completion separately.",
+        "A barrier cannot flush arbitrary dirty cache lines or prove a DMA engine has stopped touching a buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Compose all required mechanisms for one declared target and remove a redundant operation only with a source-backed argument and measurement."
+        }
+      ],
+      "assessor_anchor": "#t2908a",
+      "facet_scope": {
+        "teaching": "Retained T29.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T29-04-T29.08.b",
+      "title": "Study barriers and cache operations only for applicable hardware.",
+      "objective": "T29.08.b",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        }
+      ],
+      "task": "Audit the F439 SRAM/DMA path and refuse fictitious core-data-cache flush calls. Explain the actual barrier purpose and separately identify Flash acceleration as a different subsystem; consult complete instruction definitions before prescribing sequences.",
+      "purpose": "Every Arm target needs the same cache-maintenance recipe.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Every Arm target needs the same cache-maintenance recipe. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Every Arm target needs the same cache-maintenance recipe.",
+        "D2": "Audit the F439 SRAM/DMA path and refuse fictitious core-data-cache flush calls. Explain the actual barrier purpose and separately identify Flash acceleration as a different subsystem; consult complete instruction definitions before prescribing sequences.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Move to a verified Cortex-M7 target and inspect its cache-line, region and DMA-coherency requirements anew."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Applicable hardware features and memory attributes determine required operations; generic core names do not establish a cache policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Applicable hardware features and memory attributes determine required operations; generic core names do not establish a cache policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Move to a verified Cortex-M7 target and inspect its cache-line, region and DMA-coherency requirements anew. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify compiler order, CPU order, cache visibility and device completion separately.",
+        "A barrier cannot flush arbitrary dirty cache lines or prove a DMA engine has stopped touching a buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move to a verified Cortex-M7 target and inspect its cache-line, region and DMA-coherency requirements anew."
+        }
+      ],
+      "assessor_anchor": "#t2908b",
+      "facet_scope": {
+        "teaching": "Retained T29.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T29-04-T29.08.c",
+      "title": "Compare cache-equipped and cacheless target assumptions explicitly.",
+      "objective": "T29.08.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-CM4",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.2.4 Software ordering of memory accesses",
+            "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
+            "2.3.7 Exception entry and return including frame and EXC_RETURN"
+          ]
+        }
+      ],
+      "task": "Compare cacheless F439 SRAM, a synthetic write-back noncoherent cache and the retained H745 shared-memory contract. Track CPU dirty lines, device visibility and ownership at each transition.",
+      "purpose": "A cache-equipped target differs only by adding one flush at submit.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T29.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T29-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A cache-equipped target differs only by adding one flush at submit. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A cache-equipped target differs only by adding one flush at submit.",
+        "D2": "Compare cacheless F439 SRAM, a synthetic write-back noncoherent cache and the retained H745 shared-memory contract. Track CPU dirty lines, device visibility and ownership at each transition.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Make unrelated CPU state share a cache line with a receive buffer and derive a placement/API restriction that prevents corruption."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Direction, line sharing, completion and invalidation timing affect correctness; clean/invalidate at the wrong time can lose data.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Direction, line sharing, completion and invalidation timing affect correctness; clean/invalidate at the wrong time can lose data. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Make unrelated CPU state share a cache line with a receive buffer and derive a placement/API restriction that prevents corruption. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify compiler order, CPU order, cache visibility and device completion separately.",
+        "A barrier cannot flush arbitrary dirty cache lines or prove a DMA engine has stopped touching a buffer."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T29-04-T29.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Make unrelated CPU state share a cache line with a receive buffer and derive a placement/API restriction that prevents corruption."
+        }
+      ],
+      "assessor_anchor": "#t2908c",
+      "facet_scope": {
+        "teaching": "Retained T29.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T29-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_lease/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-04-T29.07.a",
+        "AX-PR-T29-04-T29.07.b",
+        "AX-PR-T29-04-T29.07.c",
+        "AX-PR-T29-04-T29.08.a",
+        "AX-PR-T29-04-T29.08.b",
+        "AX-PR-T29-04-T29.08.c"
+      ],
+      "scope": "Original ordinary and unchanged delayed cancellation/visibility/reset/target tasks, actual author references; physical/external/learner dimensions remain separate"
+    }
+  ]
+}

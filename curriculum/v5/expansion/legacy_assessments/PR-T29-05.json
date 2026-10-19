@@ -5,7 +5,9 @@
   "title": "Coherent time and delayed-service validation — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/interrupt_depth/time/CONTRACTS.md",
+    "curriculum/guides/interrupt-time-board-protocol.md"
   ],
   "baseline_binding": {
     "files": [
@@ -105,6 +107,30 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-XK-N1570",
+      "path": "research/v5/expansion/legacy_advanced_time/resources.json",
+      "passages": [
+        "7.17.2.1/.2 atomic initialization and concurrent-access restrictions",
+        "7.17.3 paragraphs1–6 all-SC ordering/load rules; adjacent paragraphs7–11 read"
+      ]
+    },
+    {
+      "id": "R-XK-CMSDK",
+      "path": "research/v5/expansion/legacy_advanced_time/resources.json",
+      "passages": [
+        "Intro timer IRQ transition1->0, one-clock zero, reload and unmodeled EXTIN",
+        "Lines76–175 VALUE ptimer_get_count, CTRL/RELOAD write and INTSTATUS W1C"
+      ]
+    },
+    {
+      "id": "R-XK-MPS2",
+      "path": "research/v5/expansion/legacy_advanced_time/resources.json",
+      "passages": [
+        "SYSCLK_FRQ25000000 line104",
+        "Timer loop around371:40000000+i*1000, IRQ8+i, pclk=sysclk"
+      ]
     }
   ],
   "reference_gaps": [
@@ -117,13 +143,45 @@
     "curriculum/projects/PR-T29-05.md",
     "fixtures/embedded/PR-T29-05.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/interrupt_depth/time/claim_cases.json",
+    "labs/interrupt_depth/time/clock.h",
+    "labs/interrupt_depth/time/CONTRACTS.md",
+    "labs/interrupt_depth/time/run.py",
+    "labs/interrupt_depth/time/target.c",
+    "labs/interrupt_depth/time/target.S",
+    "labs/interrupt_depth/time/target_build.py",
+    "labs/interrupt_depth/time/tests.c",
+    "labs/interrupt_depth/time/time.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/handoff/handoff.h",
+    "labs/interrupt_depth/lease/lease.h",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/embedded_debug_depth/peripheral/peripheral.h",
+    "labs/machine_image/freestanding_depth/free.h",
+    "curriculum/guides/interrupt-time-board-protocol.md",
+    "fixtures/embedded/interrupt_time_capture.json",
+    "tools/check_interrupt_time_capture.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "interrupt_time_successor": {
+      "path": "research/v5/expansion/legacy_advanced_time/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-05-T29.09.a",
+        "AX-PR-T29-05-T29.09.b",
+        "AX-PR-T29-05-T29.09.c",
+        "AX-PR-T29-05-T29.10.a",
+        "AX-PR-T29-05-T29.10.b",
+        "AX-PR-T29-05-T29.10.c"
+      ],
+      "scope": "Original coherence/event/uncertainty and controlled experiment tasks; actual author references; physical/external/learner dimensions separate"
+    }
   },
   "criteria": [
     {
@@ -670,7 +728,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T29-05.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -678,5 +736,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_time/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-05-T29.09.a",
+        "AX-PR-T29-05-T29.09.b",
+        "AX-PR-T29-05-T29.09.c",
+        "AX-PR-T29-05-T29.10.a",
+        "AX-PR-T29-05-T29.10.b",
+        "AX-PR-T29-05-T29.10.c"
+      ],
+      "scope": "Original coherence/event/uncertainty and controlled experiment tasks; actual author references; physical/external/learner dimensions separate"
+    }
+  ]
 }

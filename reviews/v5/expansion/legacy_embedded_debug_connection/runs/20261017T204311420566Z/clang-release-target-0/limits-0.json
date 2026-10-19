@@ -1,0 +1,144 @@
+{
+  "kind": "limits",
+  "rows": [
+    {
+      "command": "break dc_checkpoint",
+      "ok": true,
+      "output": "Breakpoint 1 at 0x40: file /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c, line 5.\n",
+      "elapsed_ns": 996173
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1659733
+    },
+    {
+      "label": "initialized",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936448,
+      "lr": 223,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "x/4ub dc_bytes",
+      "ok": true,
+      "output": "0x20000000 <dc_bytes>:\t1\t2\t3\t4\n",
+      "elapsed_ns": 186649
+    },
+    {
+      "command": "x/wx 0xe000ed00",
+      "ok": true,
+      "output": "0xe000ed00:\t0x410fc240\n",
+      "elapsed_ns": 100450
+    },
+    {
+      "command": "info registers",
+      "ok": true,
+      "output": "r0             0x0                 0\nr1             0x20000014          536870932\nr2             0x0                 0\nr3             0x0                 0\nr4             0x20000000          536870912\nr5             0x0                 0\nr6             0x0                 0\nr7             0x0                 0\nr8             0x0                 0\nr9             0x0                 0\nr10            0x0                 0\nr11            0x0                 0\nr12            0x0                 0\nsp             0x20010000          0x20010000\nlr             0xdf                223\npc             0x40                0x40 <dc_checkpoint>\nxpsr           0x61000000          1627389952\nfpscr          0x0                 0\nmsp            0x20010000          536936448\npsp            0x0                 0\nprimask        0x0                 0\ncontrol        0x0                 0\nbasepri        0x0                 0\nfaultmask      0x0                 0\n",
+      "elapsed_ns": 413713
+    },
+    {
+      "command": "set remote hardware-watchpoint-limit 2",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 33580
+    },
+    {
+      "command": "set remote hardware-watchpoint-length-limit 4",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 39747
+    },
+    {
+      "command": "show remote hardware-watchpoint-limit",
+      "ok": true,
+      "output": "The maximum number of target hardware watchpoints is 2.\n",
+      "elapsed_ns": 31046
+    },
+    {
+      "command": "show remote hardware-watchpoint-length-limit",
+      "ok": true,
+      "output": "The maximum length (in bytes) of a target hardware watchpoint is 4.\n",
+      "elapsed_ns": 9166
+    },
+    {
+      "command": "awatch *(unsigned long long *)&dc_counter",
+      "ok": false,
+      "output": "Expression cannot be implemented with read/access watchpoint.",
+      "elapsed_ns": 3368981
+    },
+    {
+      "command": "awatch dc_counter",
+      "ok": true,
+      "output": "Hardware access (read/write) watchpoint 2: dc_counter\n",
+      "elapsed_ns": 176570
+    },
+    {
+      "command": "awatch dc_output",
+      "ok": true,
+      "output": "Hardware access (read/write) watchpoint 3: dc_output\n",
+      "elapsed_ns": 147622
+    },
+    {
+      "command": "awatch dc_input",
+      "ok": false,
+      "output": "There are not enough available hardware resources for this watchpoint.",
+      "elapsed_ns": 158175
+    },
+    {
+      "command": "info watchpoints",
+      "ok": true,
+      "output": "Num     Type           Disp Enb Address    What\n2       acc watchpoint keep y              dc_counter\n3       acc watchpoint keep y              dc_output\n",
+      "elapsed_ns": 22359
+    },
+    {
+      "command": "detach",
+      "ok": true,
+      "output": "[Inferior 1 (process 1) detached]\n",
+      "elapsed_ns": 139973
+    }
+  ],
+  "debugger_command": [
+    "/mnt/f/Learning/Curricula/c_mastery/build/debugger-tools/root/usr/bin/gdb-multiarch",
+    "-nx",
+    "--batch",
+    "-x",
+    "<owned-script>"
+  ],
+  "qemu_command": [
+    "qemu-system-arm",
+    "-M",
+    "mps2-an386",
+    "-cpu",
+    "cortex-m4",
+    "-nographic",
+    "-monitor",
+    "none",
+    "-serial",
+    "none",
+    "-nic",
+    "none",
+    "-kernel",
+    "/tmp/debug-connection-25av3cvk/clang-release-target-0/debug.elf",
+    "-chardev",
+    "socket,path=/tmp/dc-probe-ih6irjv7/gdb.sock,server=on,wait=off,id=gdb0",
+    "-gdb",
+    "chardev:gdb0",
+    "-S"
+  ],
+  "script": "set pagination off\nset confirm off\nset debuginfod enabled off\nfile /tmp/debug-connection-25av3cvk/clang-release-target-0/debug.elf\ntarget remote /tmp/dc-probe-ih6irjv7/gdb.sock\npython\nKIND='limits'\nREPORT='/tmp/dc-probe-ih6irjv7/observed.json'\nimport gdb,json,time\nrows=[]\ndef execute(command):\n start=time.monotonic_ns()\n try:\n  value=gdb.execute(command,to_string=True);rows.append({'command':command,'ok':True,'output':value,'elapsed_ns':time.monotonic_ns()-start});return value\n except gdb.error as error:\n  rows.append({'command':command,'ok':False,'output':str(error),'elapsed_ns':time.monotonic_ns()-start});return None\ndef capture(label):\n values={}\n for name in ('dc_output','dc_counter','dc_done','dc_input'):\n  try:values[name]=int(gdb.parse_and_eval(name))\n  except gdb.error as error:values[name]={'unavailable':str(error)}\n rows.append({'label':label,'values':values,'pc':int(gdb.parse_and_eval('$pc')),'sp':int(gdb.parse_and_eval('$sp')),'lr':int(gdb.parse_and_eval('$lr')),'symbol':gdb.execute('info symbol $pc',to_string=True)})\nexecute('break dc_checkpoint')\nexecute('continue');capture('initialized')\nexecute('x/4ub dc_bytes');execute('x/wx 0xe000ed00');execute('info registers')\nif KIND=='result':\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed');execute('continue');execute('continue');execute('continue');capture('finished')\nelif KIND=='state':\n execute('break dc_checksum');execute('continue');capture('checksum-entry')\n execute('info locals');execute('info args');execute('disassemble /s dc_checksum');execute('stepi');execute('info locals');execute('info line *$pc');execute('delete 2')\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed')\n execute('continue');execute('continue')\n execute('break dc_leaf');execute('continue');capture('tail-leaf');execute('bt');execute('info frame');execute('frame 1');execute('info frame');execute('frame 0');execute('disassemble dc_tail');execute('delete 3')\n execute('continue');capture('finished')\nelif KIND=='access':\n execute('continue');execute('continue')\n execute('awatch dc_counter');execute('info watchpoints');execute('continue');capture('first-write');execute('x/i $pc');execute('continue');capture('first-write-checkpoint');execute('continue');capture('same-value-write');execute('x/i $pc')\nelif KIND=='limits':\n execute('set remote hardware-watchpoint-limit 2');execute('set remote hardware-watchpoint-length-limit 4');execute('show remote hardware-watchpoint-limit');execute('show remote hardware-watchpoint-length-limit')\n execute('awatch *(unsigned long long *)&dc_counter');execute('awatch dc_counter');execute('awatch dc_output');execute('awatch dc_input');execute('info watchpoints')\nelif KIND=='change':\n execute('continue');execute('continue');execute('watch dc_counter');execute('continue');capture('changed-write');execute('continue');capture('first-checkpoint');execute('continue');capture('same-value-skipped-to-checkpoint')\nexecute('detach')\nwith open(REPORT,'w') as output:json.dump({'kind':KIND,'rows':rows},output,indent=2)\n\nend\nquit\n",
+  "debugger_output": "cl_reset () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:8\n8\t uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n",
+  "transport": {
+    "kind": "owned UNIX-domain QEMU GDB endpoint",
+    "added_delay_ms_per_chunk": 0,
+    "credentials": "none",
+    "timing": "actual host monotonic command elapsed; added chunk delay is not physical network latency"
+  }
+}

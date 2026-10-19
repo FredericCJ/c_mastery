@@ -48,8 +48,9 @@ Every API call and backend callback is serialized. `read`, `arm`, `disarm` and
 cleanup must not call the adapter recursively. `arm` establishes the frame's
 borrow; `disarm` must return only when callbacks and queued notifications no
 longer reference it. This is a backend prerequisite, not a promise made by a
-generation token. Tests emulate that quiescence explicitly. Cancellation of a
-concurrent OS operation is not demonstrated by this serialized port.
+generation token. The original tests emulate that quiescence explicitly. The
+Linux extension below supplies it with a joined readiness worker; it does not
+cancel a blocked system call or allow simultaneous owner calls.
 
 Poll returns `MSG_BUSY` while pending, without publishing bytes or notifying
 the receiver. Complete input copies exactly the requested bytes to the output,
@@ -66,8 +67,94 @@ The two-attempt read/recheck behavior and generation admission come from the
 actual `COAsync` implementation. There is no new scheduler, implicit thread
 synchronization or language-enforced immovability. Each poll is bounded by two
 backend attempts plus at most8 copied bytes; backend latency itself is an
-explicit external assumption. No real I/O, credentials or external target is
-used by the supplied tests.
+explicit external assumption. The original tests use synthetic port replies;
+the Linux extension uses only local socket pairs and synthetic bytes.
+
+## Five-resource recovery (MC-FALLIBLE-CLOSE)
+
+`recovery.h` extends X-T66-011 with three actual `OwOwner` cells and two opaque
+external resources. `mc_recovery_init` receives empty destination storage and
+non-null open/close callbacks. All calls are serialized. Callbacks must not
+reenter, mutate the owner, retain borrowed storage, perform a nonlocal jump or
+return an invalid result. Successful open returns a fresh owned identity;
+failed open transfers no resource. Identities remain unique until release.
+
+Close returns one of three outcomes: `MC_RELEASED` leaves no obligation;
+`MC_RETAINED` means no release occurred and retry is permitted;
+`MC_RELEASED_ERROR` means release occurred with a diagnostic and the identity
+must never be retried. Linux `close` can report later errors after the
+descriptor number is reusable. This is not an ISO C or universal POSIX rule.
+The teaching port injects a failure before close, or a diagnostic after an
+actual successful close of a local `/dev/null` descriptor. It does not force
+a kernel close error or establish filesystem durability.
+
+`mc_publish_recoverable` first parses and stages three cells with the actual
+earlier parser and counting allocator, then opens resources in order 0,1.
+Precommit failure preserves current pointers and values. Its staged owner is
+retained in `pending` if cleanup cannot finish. Successful publication commits
+the complete staged owner, then attempts to retire the prior one. Both paths
+release resources in reverse order and retain all three cells until both
+external resources have been released. A diagnostic count is distinct from
+`cleanup_pending`; it never authorizes retry of a released identity.
+
+While recovery is pending, publication rejects without calls or state changes.
+`mc_recover` accepts only the current token and preserves its error output on
+a stale/repeated request. It returns 1 only when cleanup is complete.
+`mc_retire_current` moves current ownership to recovery and returns a token;
+it performs no close itself. Generations never wrap: publication rejects at
+`UINT32_MAX-1` to reserve a final retirement token; retirement rejects at
+`UINT32_MAX`. Empty final state is valid but cannot be reused after exhaustion.
+Finish pending recovery before discarding storage. Repeated retained failure
+can prevent progress indefinitely.
+
+Input `2:3` followed by `7:9` gives sums5 then16. Enumerate allocation failure
+0..3 and open failure0..2 for the second update. The independent fixture records
+live cells/resources, releases, opens, attempts, generation and pending state.
+Allocation failures preserve three cells/two resources. Retained retirement
+after successful commit retains six cells/four resources; second-open failure
+can retain six cells/three resources while keeping sum5. Peak storage is six
+typed cells and four descriptors plus fixed owner records. Parsing is O(n),
+each cleanup attempt has at most two closes, and retry count is unbounded.
+
+## Linux readiness and cancellation (MC-REAL-IO)
+
+`linux_port.h` extends X-T73-011. Initialize `McLinuxPort` once at its final
+address with a live `McRead` and borrowed nonblocking file descriptor. Retain
+that descriptor until terminal completion. Initialization owns a wake pipe,
+mutex and condition variable; failure releases created resources but leaves
+destination storage unspecified. Do not copy or reinitialize a live object.
+
+Exactly one owner thread invokes public adapter/COAsync operations. A private
+worker polls input and wake pipe. Readiness permits retrying a nonblocking
+read, not declaring completion: partial data, EAGAIN, EOF and error remain
+separate. The worker queues at most one notification under the mutex, takes a
+reference for it and waits for consumption or stop. Only the owner dispatches
+the notice through `co_async_notify`; the worker never changes `COAsync`.
+
+`mc_linux_request_cancel` records stop intent and wakes the worker. It returns
+without joining or releasing a queued borrow. `mc_linux_finish_cancel` joins
+the worker, discards a remaining notice, establishes zero references, then
+invokes `mc_read_cancel`. Synchronous disarm uses the same quiescence operation.
+A join failure is not successful reclamation: the teaching void-disarm adapter
+terminates instead of continuing with unsafe cleanup. This fail-stop limit is
+distinct from normal cancellation recovery. No host security setting changes
+or external peers are involved.
+
+Cleanup follows quiescence and may destroy the port. The receiver follows
+cleanup and may free the enclosing port/frame immediately; no later access is
+allowed. Test cancellation without data and with an undispatched queued notice,
+fragmented completion, partial EOF, and data available before first poll. For
+each, retain or free the owner inside the receiver. Require
+queued=consumed+discarded, joins=worker exits, zero references at cleanup,
+one terminal notification and unchanged output unless all bytes were read.
+Counters observe bounded tests; they are not nonwrapping correctness tokens.
+One worker, two owned pipe descriptors and at most two references bound resources.
+Join latency depends on host scheduling; no real-time bound is asserted.
+
+Seal a predicted ownership trace before opening assessor analysis. Delayed
+variants change acknowledgement ordering or close outcome semantics, not only
+constants. Independent learner execution and non-author assessment remain
+separate evidence.
 
 ## Evidence and containment
 

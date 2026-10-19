@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "source_stable": true,
+  "input_sha256": {
+    "tools/measure_corpus_treiber.py": "eded4218ab32f8c1490beda95e36eb17d9df7d9073c2d77e24487d16894e9461",
+    "labs/corpus_treiber/treiber.h": "d15b812fd3945acc4ba57be4c145f00d736c868f68dbe50532677a92cfea8274",
+    "labs/corpus_treiber/CONTRACTS.md": "119c51363563446b05fdf8381f47256e977736bc4a2a1422e92f6bcd5f32b17b",
+    "labs/corpus_treiber/tests.c": "701c7b89a08322faef66992ef096cbe6dd172af554b803fe5f8ce7b895714998",
+    "assessor/corpus_treiber/treiber.c": "390d7b43ae31c779abd516812d6ded8893a7d11d20e582be61d309f2911d9b68"
+  },
+  "executions": [
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DTS_GEN_MAX=1073741823",
+        "-Ilabs/corpus_treiber",
+        "assessor/corpus_treiber/treiber.c",
+        "labs/corpus_treiber/tests.c",
+        "-pthread",
+        "-o",
+        "/tmp/treiber-cost-6kd6netb/1073741823"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "command": [
+        "/tmp/treiber-cost-6kd6netb/1073741823",
+        "reclaim"
+      ],
+      "exit_code": 0,
+      "stdout": "TS_PASS gen=1073741823 stack=120 node=12 pop=24\n",
+      "passed": true
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DTS_GEN_MAX=3",
+        "-Ilabs/corpus_treiber",
+        "assessor/corpus_treiber/treiber.c",
+        "labs/corpus_treiber/tests.c",
+        "-pthread",
+        "-o",
+        "/tmp/treiber-cost-6kd6netb/3"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "command": [
+        "/tmp/treiber-cost-6kd6netb/3",
+        "reclaim"
+      ],
+      "exit_code": 0,
+      "stdout": "TS_PASS gen=3 stack=120 node=12 pop=24\n",
+      "passed": true
+    }
+  ],
+  "observations": [
+    {
+      "gen": 1073741823,
+      "stack": 120,
+      "node": 12,
+      "pop": 24
+    },
+    {
+      "gen": 3,
+      "stack": 120,
+      "node": 12,
+      "pop": 24
+    }
+  ],
+  "model": {
+    "head_work": "O(1) uncontended; retries depend on interference",
+    "core_storage": "O(N+P), zero allocation",
+    "claim_collect": "O(N) claim scan, O(NP) collection",
+    "comparison": "Same LIFO contract; generation3 refuses reuse after four lifetimes instead of wrapping."
+  },
+  "limits": [
+    "Actual native ABI sizes; target emitted frames/sections are separately recorded by the main campaign.",
+    "No physical timing, arbitrary-history proof, weakest-order claim or complete-domain speed claim."
+  ]
+}

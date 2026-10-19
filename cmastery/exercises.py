@@ -57,6 +57,34 @@ def required_text(value, label):
         raise ValueError("Exercise needs nonempty " + label)
 
 
+def delay_policy(value):
+    """Honor both authored names; conflicting contracts must never bypass delay.
+
+    delayed_transfer is the original workflow field. Modern authoring also used
+    delayed_assessment for the same contract. Preserve canonical metadata and
+    historical events, while applying the same gate to either spelling.
+    """
+    policies = []
+    for name in ("delayed_transfer", "delayed_assessment"):
+        if name not in value:
+            continue
+        policy = value[name]
+        if (not isinstance(policy, dict)
+                or type(policy.get("minimum_days")) is not int
+                or policy["minimum_days"] < 1
+                or not isinstance(policy.get("variant_ids"), list)
+                or not policy["variant_ids"]
+                or any(not isinstance(identifier, str) or not identifier.strip()
+                       for identifier in policy["variant_ids"])
+                or len(set(policy["variant_ids"])) != len(policy["variant_ids"])):
+            raise ValueError("Delayed transfer needs a positive minimum_days and distinct named variants")
+        policies.append(policy)
+    if len(policies) == 2 and (policies[0]["minimum_days"] != policies[1]["minimum_days"]
+                               or set(policies[0]["variant_ids"]) != set(policies[1]["variant_ids"])):
+        raise ValueError("Conflicting delayed_transfer and delayed_assessment contracts")
+    return policies[0] if policies else None
+
+
 def validate(value, body, *, projects=None, objectives=None, artifacts=None, units=None):
     """Validate specified obligations, never infer that they were performed."""
     missing = set(FIELDS) - set(value)
@@ -176,12 +204,10 @@ def validate(value, body, *, projects=None, objectives=None, artifacts=None, uni
     for key in ("content", "execution", "independent_review", "limitations"):
         if key not in status or not status[key]:
             raise ValueError("Status needs explicit evidence limitations and " + key)
-    delay = value.get("delayed_transfer")
+    delay = delay_policy(value)
     if delay is not None:
-        if type(delay.get("minimum_days")) is not int or delay["minimum_days"] < 1 or not delay.get("variant_ids"):
-            raise ValueError("Delayed transfer needs a positive minimum_days and named variants")
         section = re.search(r"^## Variants\s*\n(.*?)(?=^## |\Z)", body, re.M | re.S)
-        if len(set(delay["variant_ids"])) != len(delay["variant_ids"]) or any(not isinstance(key, str) or key not in section[1] for key in delay["variant_ids"]):
+        if section is None or any(key not in section[1] for key in delay["variant_ids"]):
             raise ValueError("Delayed variants must resolve to distinct labels in Variants")
 
 
@@ -326,9 +352,10 @@ def learner_brief(value, *, inline_shared=False):
         source = next(r for r in register.get("resources", register.get("sources", [])) if r["id"] == row["id"])
         label = "[" + row["id"] + "](" + source["url"] + ")" if source.get("url") else row["id"]
         lines += ["- " + label + ": " + "; ".join(row["passages"])]
-    if value.get("delayed_transfer"):
-        lines += ["", "Delayed transfer: wait at least " + str(value["delayed_transfer"]["minimum_days"]) +
-                  " days after the first recorded study of this contract; select " + ", ".join(value["delayed_transfer"]["variant_ids"]) + "."]
+    delay = delay_policy(value)
+    if delay:
+        lines += ["", "Delayed transfer: wait at least " + str(delay["minimum_days"]) +
+                  " days after the first recorded study of this contract; select " + ", ".join(delay["variant_ids"]) + "."]
     lines += ["", "Contract SHA-256: " + learning.digest(value), ""]
     if inline_shared:
         for name in value["shared_contracts"]:
@@ -386,7 +413,8 @@ def assess(value, assessment, workspace=None, retained=None):
         raise ValueError("Assessment exercise contract differs")
     for key in ("explanation", "transfer", "transfer_variant"):
         required_text(assessment.get(key), key)
-    if value.get("delayed_transfer") and assessment["transfer_variant"] not in value["delayed_transfer"]["variant_ids"]:
+    delay = delay_policy(value)
+    if delay and assessment["transfer_variant"] not in delay["variant_ids"]:
         raise ValueError("Select a declared delayed transfer variant")
     independence = assessment.get("independence", {})
     if independence.get("unaided") is not True or independence.get("assistance") != []:
@@ -432,7 +460,7 @@ def accepted(profile):
             study = next((row for row in history if row["id"] == entry.get("study_event")), None)
             if not study or study["kind"] != "exercise-studied" or study.get("exercise") != identifier or study.get("exercise_contract") != entry["exercise_contract"]:
                 raise ValueError("Original current-contract study binding missing")
-            minimum = value.get("delayed_transfer", {}).get("minimum_days", 0)
+            minimum = (delay_policy(value) or {}).get("minimum_days", 0)
             if learning.instant(entry["at"]) - learning.instant(study["at"]) < timedelta(days=minimum):
                 raise ValueError("Delayed transfer acceptance predates the required interval")
             if set(entry.get("prerequisites", {})) != set(value["prerequisite_exercises"]):
@@ -492,7 +520,7 @@ def acceptance(profile, workspace, identifier, assessment_file):
     if not studies:
         raise ValueError("Record the current exercise as studied before acceptance")
     study = studies[0]
-    delay = value.get("delayed_transfer", {}).get("minimum_days", 0)
+    delay = (delay_policy(value) or {}).get("minimum_days", 0)
     earliest = learning.instant(study["at"]) + timedelta(days=delay)
     if learning.clock() < earliest:
         raise ValueError("Delayed independent transfer pending until " + learning.stamp(earliest) + "; practice and checks remain available")

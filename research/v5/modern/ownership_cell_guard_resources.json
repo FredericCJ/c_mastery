@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-OCG-POSIX2017-LOCK",
+      "title": "POSIX.1-2017 pthread_mutex_lock identified specification reprint",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "edition": "IEEE Std1003.1-2017, Issue7/2018 edition; not inaccessible2024 origin",
+      "year": 2017,
+      "kind": "manual",
+      "url": "https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html",
+      "access": "Actual identified reproduction of primary specification read",
+      "domains": [
+        "T66"
+      ],
+      "role": "hosted-lifetime-contract",
+      "reason": "Bound synchronization, callback lock ownership and joined-caller destruction.",
+      "prerequisites": [
+        "C object lifetime and POSIX threads"
+      ],
+      "locators": [
+        "DESCRIPTION: ownership, exclusion, mutex types and unlock; RETURN VALUE and ERRORS"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Read identified reproduction lines30-174, including normal/default recursion and selected error behavior.",
+        "scope": "Only the exact registered passages",
+        "limits": "Official2024 endpoints returned403; this is the identified2017 reproduction, not a current POSIX conformance or implementation audit."
+      }
+    },
+    {
+      "id": "R-OCG-POSIX2017-DESTROY",
+      "title": "POSIX.1-2017 pthread_mutex_destroy identified specification reprint",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "edition": "IEEE Std1003.1-2017, Issue7/2018 edition; not inaccessible2024 origin",
+      "year": 2017,
+      "kind": "manual",
+      "url": "https://man7.org/linux/man-pages/man3/pthread_mutex_destroy.3p.html",
+      "access": "Actual identified reproduction of primary specification read",
+      "domains": [
+        "T66"
+      ],
+      "role": "hosted-lifetime-contract",
+      "reason": "Bound synchronization, callback lock ownership and joined-caller destruction.",
+      "prerequisites": [
+        "C object lifetime and POSIX threads"
+      ],
+      "locators": [
+        "DESCRIPTION: initialization and destruction preconditions; Alternate Implementations Possible: noncopyable representation"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Read identified reproduction lines30-93 and125-140, including no active/waiting users at destruction.",
+        "scope": "Only the exact registered passages",
+        "limits": "Official2024 endpoints returned403; this is the identified2017 reproduction, not a current POSIX conformance or implementation audit."
+      }
+    },
+    {
+      "id": "R-OCG-POSIX2017-JOIN",
+      "title": "POSIX.1-2017 pthread_join identified specification reprint",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "edition": "IEEE Std1003.1-2017, Issue7/2018 edition; not inaccessible2024 origin",
+      "year": 2017,
+      "kind": "manual",
+      "url": "https://man7.org/linux/man-pages/man3/pthread_join.3p.html",
+      "access": "Actual identified reproduction of primary specification read",
+      "domains": [
+        "T66"
+      ],
+      "role": "hosted-lifetime-contract",
+      "reason": "Bound synchronization, callback lock ownership and joined-caller destruction.",
+      "prerequisites": [
+        "C object lifetime and POSIX threads"
+      ],
+      "locators": [
+        "DESCRIPTION and RETURN VALUE: successful single join observes terminated worker; RATIONALE: reclamation after termination"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Read identified reproduction lines26-60 and119-129; attribution169-187 identifies IEEE2017 text.",
+        "scope": "Only the exact registered passages",
+        "limits": "Official2024 endpoints returned403; this is the identified2017 reproduction, not a current POSIX conformance or implementation audit."
+      }
+    }
+  ],
+  "reused_inspected_records": [
+    {
+      "id": "R-MOD-REFCELL",
+      "path": "research/v5/modern/ownership_resources.json",
+      "passages": [
+        "borrow and try_borrow",
+        "borrow_mut and try_borrow_mut",
+        "replace",
+        "get_mut",
+        "try_borrow_unguarded"
+      ],
+      "scope": "Existing inspected guarded runtime borrowing comparison; no C lifetime equivalence."
+    }
+  ],
+  "inspected_artifacts": [
+    {
+      "path": "assessor/ownership/ownership.c",
+      "sha256": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+      "passages": [
+        "Actual ow_cell_read/write/replace with ow_borrow/release; OW_MUTANT5/15"
+      ]
+    },
+    {
+      "path": "labs/ownership/CONTRACTS.md",
+      "sha256": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+      "passages": [
+        "Exact cell range, guards and single-threaded boundary"
+      ]
+    },
+    {
+      "path": "assessor/ownership/analyses/X-T66-005.md",
+      "sha256": "32313ce775d77319cb9c2b229505d199509fabd51dbe5de977637b1db8ed6fca",
+      "passages": [
+        "Reentry and concurrent guard-lifetime transfer"
+      ]
+    },
+    {
+      "path": "curriculum/v5/exercises/X-T66-005.md",
+      "sha256": "b7ee5e4d3c39c3129320bf31c683a6392b24b71d8beaf5d0366f04823975efa9",
+      "passages": [
+        "Original four criteria and delayed multi-threading"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17 remains inaccessible.",
+    "Official POSIX2024 lock/destroy/join endpoints returned403 on2026-10-18; identified2017 reprints inspected instead.",
+    "No independent human/learner or physical execution evidence."
+  ]
+}

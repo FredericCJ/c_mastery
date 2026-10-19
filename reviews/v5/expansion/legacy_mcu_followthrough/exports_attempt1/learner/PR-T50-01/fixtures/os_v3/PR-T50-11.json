@@ -1,0 +1,17 @@
+{
+  "id": "PR-T50-11",
+  "description": "Tickless idle and wakeup accounting finite independent example",
+  "oracle": "timer_counts",
+  "input": {
+    "microseconds": 101,
+    "frequency": 32768
+  },
+  "expected": {
+    "counts": 4,
+    "actual_us_numerator": 4000000,
+    "actual_us_denominator": 32768
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Tickless operation programs the next relevant deadline instead of counting every periodic tick. Reading time, checking work and entering sleep form a race-sensitive protocol: an interrupt between the check and sleep must still cause progress. Rounding hardware timer counts must not produce early expiry.",
+  "required_observation": "Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness."
+}

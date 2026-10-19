@@ -1,0 +1,43 @@
+GenMC v0.19.0 (LLVM 21.1.8)
+Copyright (C) 2024 MPI-SWS. All rights reserved.
+
+*** Compilation complete.
+*** Transformation complete.
+Error: Non-atomic race!
+Event (1, 9) conflicts with event (2, 1) in graph:
+<-1, 0>:
+	(0, 1): Wna (destructions, 0) model.c:37
+	(0, 2): Wna (reclamations, 0) model.c:37
+	(0, 3): Wna (refs.strong, 2) model.c:37
+	(0, 4): Wna (refs.weak, 1) model.c:37
+	(0, 5): Wna (refs.destroy, 94499270834360) model.c:37
+	(0, 6): Wna (refs.release, 94499271027096) model.c:37
+	(0, 7): Wna (refs.context, 0) model.c:37
+	(0, 8): Wna (payload[0], 0) model.c:37
+	(0, 9): THREAD_CREATE [thread 1] pthread.h:146
+	(0, 10): THREAD_CREATE [thread 2] pthread.h:146
+	(0, 11): BLOCK[join]
+<0, 1> one:
+	(1, 1): Wna (payload[0], 1) model.c:29
+	(1, 2): URrlx (refs.strong, 1) [(2, 3)] atomic_provider.c:30
+	(1, 3): UWrlx (refs.strong, 0) atomic_provider.c:30
+	(1, 4): Facq atomic_provider.c:31
+	(1, 5): Rna (refs.destroy, 94499270834360) [(0, 5)] atomic_provider.c:32
+	(1, 6): Rna (refs.destroy, 94499270834360) [(0, 5)] atomic_provider.c:32
+	(1, 7): Rna (refs.context, 0) [(0, 7)] atomic_provider.c:32
+	(1, 8): Rna (payload[0], 1) [(1, 1)] model.c:27
+	(1, 9): Rna (payload[1], 2) [(2, 1)] model.c:27
+<0, 2> two:
+	(2, 1): Wna (payload[1], 2) model.c:30
+	(2, 2): URrlx (refs.strong, 2) [(0, 3)] atomic_provider.c:30
+	(2, 3): UWrlx (refs.strong, 1) atomic_provider.c:30
+	(2, 4): THREAD_END
+Coherence:
+payload[0]: [ (0, 8): Wna (G#(0, 40), 0) (1, 1): Wna (G#(0, 40), 1) ]
+refs.strong: [ (0, 3): Wna (G#(0, 8), 2) (2, 3): UWrlx (G#(0, 8), 1) (1, 3): UWrlx (G#(0, 8), 0) ]
+
+
+*** Verification unsuccesful.
+Number of complete executions explored: 0
+Total wall-clock time: 0.09s
+

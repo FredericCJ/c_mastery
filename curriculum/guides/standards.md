@@ -46,3 +46,28 @@ This establishes only those snippets in that installation. Clang was not install
 Label each reasoning statement as ISO guarantee, implementation-defined choice, unspecified outcome, undefined behavior, extension, ABI convention, libc behavior, POSIX/Linux contract or hardware constraint. Save the authority and configuration. For example, a C pointer does not gain a valid lifetime from an integer address that looks plausible; x86 behavior is not a portable object-model rule. A `volatile` access does not establish an ISO interthread happens-before edge. A device barrier is not a mutex.
 
 Old-source porting is an investigation rather than a global C89 restriction. Keep the baseline modern and portable, compare edition-sensitive mechanisms in {ref}`T05`, and document deliberate extensions at the interface boundary.
+
+## Required POSIX edition companions
+
+The [close and reader-admission exercises](../../labs/posix_edition/CONTRACTS.md) compare actual inspected POSIX Issue7/Issue8 passages with the separate Linux close contract. Implement the pure classifier, preserve ownership uncertainty, and explain why an OS standard version is not selected by `-std=c17`. These required companions retain the original T23/T51 tasks and modern fallible-cleanup integration. Source and execution evidence are tracked in `research/v5/expansion/source_reconciliation/`.
+
+## Required reclamation comparison
+
+The [guard lifetime companion](../../labs/guard_comparison/CONTRACTS.md) binds
+X-T55-003 to an inspected, versioned language/library comparison and separate
+ordinary and delayed reasoning assessments.
+
+## Required allocation reading comparison
+
+The [allocation ownership reading](../../labs/source_readings/realloc_ownership.md)
+compares the assigned second-edition passage with the C17 recoverable container
+contract and preserves its exact source and edition limits.
+
+## Required firmware and image-format comparisons
+
+The [firmware authority reading](../../labs/source_readings/firmware_authority.md)
+separates inspected ACPI entry fields from parser capacity and board assumptions.
+The [Intel HEX comparison](../../labs/systems_source_followthrough/CONTRACTS.md)
+implements record validation, transactional publication and the different linear
+and segment wrap rules, with separate entry metadata and delayed transfer. Its
+original cases and source register extend the T09 format objectives.

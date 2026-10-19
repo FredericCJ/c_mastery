@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T26-04",
   "domain": "T26",
-  "title": "Optional SPSC component — explicit depth assessments",
+  "title": "Optional SPSC component \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/execution/README.md"
   ],
   "baseline_binding": {
     "files": [
@@ -80,15 +82,31 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-ASPSC-N1570",
+      "path": "research/v5/expansion/legacy_advanced_spsc/resources.json",
+      "passages": [
+        "6.2.5 paragraph9",
+        "5.1.2.4 paragraphs5\u201325",
+        "7.17.3 paragraphs1\u201316"
+      ]
+    },
+    {
+      "id": "R-ASPSC-CIRCULAR",
+      "path": "research/v5/expansion/legacy_advanced_spsc/resources.json",
+      "passages": [
+        "Complete article lines15\u2013138: exclusivity, N\u22121 convention, one-sided bounds, producer/consumer barrier examples"
       ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims.",
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims.",
     "Full hazard/epoch/RCU proof literature and the exact selected LKMM/RCU passages require separate inspection beyond corrected queue pseudocode and retained implementation contracts.",
     "Disposable-VM kernel execution remains required but unavailable in this wave; host models are not guest evidence."
   ],
@@ -96,13 +114,29 @@
     "curriculum/projects/PR-T26-04.md",
     "fixtures/systems/PR-T26-04.json",
     "tools/verify_systems_fixtures.py",
-    "labs/execution/README.md"
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/spsc/helper_probe.c",
+    "labs/advanced_concurrency_depth/spsc/learner.c",
+    "labs/advanced_concurrency_depth/spsc/retained_learner.c",
+    "labs/advanced_concurrency_depth/spsc/spsc.h",
+    "labs/advanced_concurrency_depth/spsc/tests.c",
+    "labs/execution/include/cmx.h"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "advanced_spsc_successor": {
+      "path": "research/v5/expansion/legacy_advanced_spsc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-04-T26.03.a",
+        "AX-PR-T26-04-T26.03.b",
+        "AX-PR-T26-04-T26.03.c"
+      ],
+      "scope": "Only original T26.03.a/b/c ordinary and delayed SPSC obligations; author execution, not learner or other advanced-concurrency completion."
+    }
   },
   "criteria": [
     {
@@ -123,8 +157,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -159,7 +193,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The two participants own distinct indices and transfer slot rights through publication/reuse; the separate construction gate must be completed, not inferred from this model. Construction passes only with the corresponding learner source, bounded model comparison, generated-code closure and ownership argument; the earlier awareness dossier alone fails. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Independently revise the implemented queue and rerun its controls under this changed condition: Move producer execution into a reentrant callback and show why the one-producer precondition is violated. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -205,12 +239,12 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
-      "task": "Implement separate release/acquire publication and reuse edges with ordinary multiword slot payload. Add a controlled producer/consumer schedule at both edges, a real two-thread run and a model counterexample for weakening either edge. Keep any native racy mutant out of the correctness oracle. Use the earlier analysis as a prediction, not as a substitute for these implementation artifacts. For a reused slot, draw payload-write→release-head→acquire-head→payload-read and payload-read→release-tail→acquire-tail→next-write. Pause each side at the cross-over and reject early overwrite.",
+      "task": "Implement separate release/acquire publication and reuse edges with ordinary multiword slot payload. Add a controlled producer/consumer schedule at both edges, a real two-thread run and a model counterexample for weakening either edge. Keep any native racy mutant out of the correctness oracle. Use the earlier analysis as a prediction, not as a substitute for these implementation artifacts. For a reused slot, draw payload-write\u2192release-head\u2192acquire-head\u2192payload-read and payload-read\u2192release-tail\u2192acquire-tail\u2192next-write. Pause each side at the cross-over and reject early overwrite.",
       "purpose": "Only ordering the initial payload before head is necessary.",
       "prerequisites": {
         "knowledge": [
@@ -229,7 +263,7 @@
       ],
       "deliverables": {
         "D1": "Pre-experiment prediction and causal argument addressing: Only ordering the initial payload before head is necessary.",
-        "D2": "Implement separate release/acquire publication and reuse edges with ordinary multiword slot payload. Add a controlled producer/consumer schedule at both edges, a real two-thread run and a model counterexample for weakening either edge. Keep any native racy mutant out of the correctness oracle. Use the earlier analysis as a prediction, not as a substitute for these implementation artifacts. For a reused slot, draw payload-write→release-head→acquire-head→payload-read and payload-read→release-tail→acquire-tail→next-write. Pause each side at the cross-over and reject early overwrite.",
+        "D2": "Implement separate release/acquire publication and reuse edges with ordinary multiword slot payload. Add a controlled producer/consumer schedule at both edges, a real two-thread run and a model counterexample for weakening either edge. Keep any native racy mutant out of the correctness oracle. Use the earlier analysis as a prediction, not as a substitute for these implementation artifacts. For a reused slot, draw payload-write\u2192release-head\u2192acquire-head\u2192payload-read and payload-read\u2192release-tail\u2192acquire-tail\u2192next-write. Pause each side at the cross-over and reject early overwrite.",
         "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
         "D4": "Independently revise the implemented queue and rerun its controls under this changed condition: Change to a multiword payload and retain the same ownership proof rather than relying on naturally atomic scalar loads."
       },
@@ -241,7 +275,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Both forward publication and reverse reuse protect ordinary payload lifetime/access. Fixed storage removes deallocation, not data races. Construction passes only with the corresponding learner source, bounded model comparison, generated-code closure and ownership argument; the earlier awareness dossier alone fails. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Independently revise the implemented queue and rerun its controls under this changed condition: Change to a multiword payload and retain the same ownership proof rather than relying on naturally atomic scalar loads. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -287,8 +321,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -323,7 +357,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The occupancy/distance invariant makes modular arithmetic meaningful; padding affects performance separately from correctness. Construction passes only with the corresponding learner source, bounded model comparison, generated-code closure and ownership argument; the earlier awareness dossier alone fails. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Independently revise the implemented queue and rerun its controls under this changed condition: Change to N-1 modulo-index capacity and re-derive full/empty rules instead of reusing the counter-distance proof. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -355,7 +389,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T26-04.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -363,5 +397,16 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_spsc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-04-T26.03.a",
+        "AX-PR-T26-04-T26.03.b",
+        "AX-PR-T26-04-T26.03.c"
+      ],
+      "scope": "Only original T26.03.a/b/c ordinary and delayed SPSC obligations; author execution, not learner or other advanced-concurrency completion."
+    }
+  ]
 }

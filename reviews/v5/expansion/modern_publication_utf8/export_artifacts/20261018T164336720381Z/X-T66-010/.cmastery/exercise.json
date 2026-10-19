@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "X-T66-010",
+  "title": "A checked façade around a trusted core: bounded tenant-isolation failure",
+  "project": "PR-T66-10",
+  "domain": "T66",
+  "objectives": [
+    "T66.10.a",
+    "T66.10.b",
+    "T66.10.c",
+    "T66.10.d"
+  ],
+  "families": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T66-009"
+  ],
+  "prerequisite_artifacts": [
+    "memory.pool",
+    "containers.array",
+    "testing.faults",
+    "bytes.checked",
+    "io.async",
+    "errors.result"
+  ],
+  "profile": "A",
+  "environment": {
+    "language": "ISO C17; C11 draft comparisons explicitly bounded",
+    "target": "Hosted Linux x86-64",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python",
+      "POSIX pthread harness"
+    ],
+    "dependencies": "Implement mechanisms locally using declared typed storage/callbacks; hosted harness and diagnostic runtimes are separate. See laboratory contract for exact dependencies."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-REFCELL",
+      "path": "research/v5/modern/ownership_resources.json",
+      "passages": [
+        "borrow and try_borrow",
+        "borrow_mut and try_borrow_mut",
+        "replace",
+        "get_mut",
+        "try_borrow_unguarded"
+      ]
+    },
+    {
+      "id": "R-B01-N1570-OBJECT-ARITH",
+      "path": "research/v5/expansion/b01/b01_resources.json",
+      "passages": [
+        "6.2.5p9 Unsigned arithmetic"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "ownership",
+    "tests": [
+      "ownership.facade",
+      "ownership.authority_defect",
+      "ownership.authority_bounds",
+      "ownership.authority_wire",
+      "ownership.authority_rights",
+      "ownership.authority_revoke",
+      "ownership.authority_atomic"
+    ],
+    "scaffold": "labs/ownership"
+  },
+  "fixtures": [
+    "fixtures/ownership/PR-T66-10.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "curriculum/v5/exercises/modern-cost-contract.md",
+    "labs/ownership/CONTRACTS.md",
+    "labs/ownership/authority_boundary/AUTHORITY.md"
+  ],
+  "assessor_analysis": "assessor/ownership/analyses/X-T66-010.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Exact published C17 text remains an access gap.",
+      "Public anchors do not establish all written independent or delayed obligations."
+    ]
+  },
+  "objective_coverage": [
+    {
+      "objective": "T66.10.a",
+      "teaching": [
+        "#problem",
+        "#necessity",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T66-010-R1"
+      ],
+      "assessed_claim": "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+      "scope": "Authored assessment obligations, not an assertion that a learner has demonstrated them."
+    },
+    {
+      "objective": "T66.10.b",
+      "teaching": [
+        "#problem",
+        "#necessity",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T66-010-R2"
+      ],
+      "assessed_claim": "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+      "scope": "Authored assessment obligations, not an assertion that a learner has demonstrated them."
+    },
+    {
+      "objective": "T66.10.c",
+      "teaching": [
+        "#problem",
+        "#necessity",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D3"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T66-010-R3"
+      ],
+      "assessed_claim": "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+      "scope": "Authored assessment obligations, not an assertion that a learner has demonstrated them."
+    },
+    {
+      "objective": "T66.10.d",
+      "teaching": [
+        "#problem",
+        "#necessity",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D4"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T66-010-R4"
+      ],
+      "assessed_claim": "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights.",
+      "scope": "Authored assessment obligations, not an assertion that a learner has demonstrated them."
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T66-010-R1",
+      "objective": "T66.10.a",
+      "criterion": "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      }
+    },
+    {
+      "id": "X-T66-010-R2",
+      "objective": "T66.10.b",
+      "criterion": "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      }
+    },
+    {
+      "id": "X-T66-010-R3",
+      "objective": "T66.10.c",
+      "criterion": "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      }
+    },
+    {
+      "id": "X-T66-010-R4",
+      "objective": "T66.10.d",
+      "criterion": "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T66-010-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T66-010.md",
+  "brief_sha256": "84db859003933d6312d5838f10212a5f06a29083fdbc94ae2a2d6d47bf0762de",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/ownership/PR-T66-10.json": "b97dc16dcbeabc1155b2edd53de02207d5cd4d6c11bcc75ff7436c85b656c44f",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/authority_boundary/AUTHORITY.md": "ec1b541b38c858c584d03ec8dfe9b19089a9dafdde9ec59c20c4d372d50d7633",
+    "research/v5/expansion/b01/b01_resources.json": "14a6668a0f74a577b03c365ac059cfc39070da744bb36d55b7752ea739536f79",
+    "research/v5/modern/ownership_resources.json": "c2f8efce3bc0958dbffd16b6c5e72b2d4cb446a577ee4c9791f3362c8a231451"
+  }
+}

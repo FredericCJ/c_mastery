@@ -2,10 +2,14 @@
   "schema_version": 1,
   "project": "PR-T26-01",
   "domain": "T26",
-  "title": "Histories, progress and SPSC awareness — explicit depth assessments",
+  "title": "Histories, progress and SPSC awareness \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/history/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/reclamation/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -83,8 +87,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     },
     {
@@ -92,14 +96,79 @@
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
         "Memory-management assumptions",
-        "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+        "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
+      ]
+    },
+    {
+      "id": "R-AH-HW",
+      "path": "research/v5/expansion/legacy_advanced_history/resources.json",
+      "passages": [
+        "Sections2.1\u20132.2, printed467\u2013469: histories, well-formed participants, real-time order, pending-response extensions"
+      ]
+    },
+    {
+      "id": "R-AH-MS-CORRECTED",
+      "path": "research/v5/expansion/legacy_advanced_history/resources.json",
+      "passages": [
+        "Introductory corrected-version and type-preserving allocator premises",
+        "Complete nonblocking pseudocode initialize,E1\u2013E17,D1\u2013D20"
+      ]
+    },
+    {
+      "id": "R-AH-MS-PROOF",
+      "path": "research/v5/expansion/legacy_advanced_history/resources.json",
+      "passages": [
+        "Section2 Algorithms and section3.1 Safety, PDF pages3\u20135",
+        "Sections3.2 Linearizability and3.3 Liveness, PDF pages5\u20136"
+      ]
+    },
+    {
+      "id": "R-AP-MICHAEL",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "Sections2.1\u20132.3: asynchronous model and ABA, printed492\u2013493",
+        "Section3: figures1\u20134, protection condition and scan/registration lemmas, printed493\u2013496",
+        "Section4.1: figures5\u20137 complete queue adaptation and protection argument, printed496\u2013498"
+      ]
+    },
+    {
+      "id": "R-AP-MS",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "Opening memory-management assumptions",
+        "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
+      ]
+    },
+    {
+      "id": "R-AP-N1570",
+      "path": "research/v5/expansion/legacy_advanced_reclamation/resources.json",
+      "passages": [
+        "7.17.2.2 paragraphs1\u20135 atomic initialization",
+        "7.17.3 paragraphs1\u20137 and12: orders, SC total order, RMW predecessor",
+        "7.17.7.4 paragraphs1\u20135 atomic compare exchange"
+      ]
+    },
+    {
+      "id": "R-ASPSC-N1570",
+      "path": "research/v5/expansion/legacy_advanced_spsc/resources.json",
+      "passages": [
+        "6.2.5 paragraph9",
+        "5.1.2.4 paragraphs5\u201325",
+        "7.17.3 paragraphs1\u201316"
+      ]
+    },
+    {
+      "id": "R-ASPSC-CIRCULAR",
+      "path": "research/v5/expansion/legacy_advanced_spsc/resources.json",
+      "passages": [
+        "Complete article lines15\u2013138: exclusivity, N\u22121 convention, one-sided bounds, producer/consumer barrier examples"
       ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims.",
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims.",
     "Full hazard/epoch/RCU proof literature and the exact selected LKMM/RCU passages require separate inspection beyond corrected queue pseudocode and retained implementation contracts.",
     "Disposable-VM kernel execution remains required but unavailable in this wave; host models are not guest evidence."
   ],
@@ -107,13 +176,66 @@
     "curriculum/projects/PR-T26-01.md",
     "fixtures/systems/PR-T26-01.json",
     "tools/verify_systems_fixtures.py",
-    "labs/execution/README.md"
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/spsc/helper_probe.c",
+    "labs/advanced_concurrency_depth/spsc/learner.c",
+    "labs/advanced_concurrency_depth/spsc/retained_learner.c",
+    "labs/advanced_concurrency_depth/spsc/spsc.h",
+    "labs/advanced_concurrency_depth/spsc/tests.c",
+    "labs/execution/include/cmx.h",
+    "labs/advanced_concurrency_depth/history/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/history/allocator_probe.c",
+    "labs/advanced_concurrency_depth/history/history.h",
+    "labs/advanced_concurrency_depth/history/learner.c",
+    "labs/advanced_concurrency_depth/history/retained_learner.c",
+    "labs/advanced_concurrency_depth/history/tests.c",
+    "labs/advanced_concurrency_depth/reclamation/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/reclamation/history_tests.c",
+    "labs/advanced_concurrency_depth/reclamation/learner.c",
+    "labs/advanced_concurrency_depth/reclamation/reclamation.h",
+    "labs/advanced_concurrency_depth/reclamation/reservation.h",
+    "labs/advanced_concurrency_depth/reclamation/reservation_learner.c",
+    "labs/advanced_concurrency_depth/reclamation/reservation_tests.c",
+    "labs/advanced_concurrency_depth/reclamation/retained_learner.c",
+    "labs/advanced_concurrency_depth/reclamation/tests.c",
+    "labs/execution/include/cmx_advanced.h"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "advanced_spsc_successor": {
+      "path": "research/v5/expansion/legacy_advanced_spsc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.03.a",
+        "AX-PR-T26-01-T26.03.b",
+        "AX-PR-T26-01-T26.03.c"
+      ],
+      "scope": "Only original T26.03.a/b/c ordinary and delayed SPSC obligations; author execution, not learner or other advanced-concurrency completion."
+    },
+    "advanced_history_successor": {
+      "path": "research/v5/expansion/legacy_advanced_history/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.01.a",
+        "AX-PR-T26-01-T26.01.b",
+        "AX-PR-T26-01-T26.01.c",
+        "AX-PR-T26-01-T26.02.a",
+        "AX-PR-T26-01-T26.02.b",
+        "AX-PR-T26-01-T26.02.c"
+      ],
+      "scope": "Only original T26.01/.02 ordinary and delayed history/progress obligations; author evidence, not independent learner or other construction completion."
+    },
+    "advanced_reclamation_successor": {
+      "path": "research/v5/expansion/legacy_advanced_reclamation/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.04.a",
+        "AX-PR-T26-01-T26.04.b",
+        "AX-PR-T26-01-T26.04.c"
+      ],
+      "scope": "Only original T26.04/.06 ordinary and delayed mechanisms; no independent review, unrestricted participant departures or universal progress claim."
+    }
   },
   "criteria": [
     {
@@ -133,7 +255,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -168,7 +290,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Overlapping operations permit alternative orderings, while real-time precedence of nonoverlap must hold; returning B first after completed A then B violates FIFO. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Include one pending operation and define legal history completion before using a bounded checker. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -213,7 +335,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -248,7 +370,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Memory consistency and abstract operation semantics are distinct; either can fail independently. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Choose a set instead of a queue and derive why the same return order may satisfy a different sequential specification. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -293,11 +415,11 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
-      "task": "Trace the corrected Michael–Scott enqueue link CAS, optional tail advance, dequeue head CAS and empty observation. Identify successful-operation linearization candidates and reject tail movement as the mandatory enqueue point.",
+      "task": "Trace the corrected Michael\u2013Scott enqueue link CAS, optional tail advance, dequeue head CAS and empty observation. Identify successful-operation linearization candidates and reject tail movement as the mandatory enqueue point.",
       "purpose": "Every operation linearizes at its final atomic instruction.",
       "prerequisites": {
         "knowledge": [
@@ -316,7 +438,7 @@
       ],
       "deliverables": {
         "D1": "Pre-experiment prediction and causal argument addressing: Every operation linearizes at its final atomic instruction.",
-        "D2": "Trace the corrected Michael–Scott enqueue link CAS, optional tail advance, dequeue head CAS and empty observation. Identify successful-operation linearization candidates and reject tail movement as the mandatory enqueue point.",
+        "D2": "Trace the corrected Michael\u2013Scott enqueue link CAS, optional tail advance, dequeue head CAS and empty observation. Identify successful-operation linearization candidates and reject tail movement as the mandatory enqueue point.",
         "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
         "D4": "Add a failed-capacity result to a bounded adaptation and define its linearization and resource-reclamation meaning."
       },
@@ -328,7 +450,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Helping can advance Tail after another operation is already logically complete; the decisive state transition must fit every permitted history. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a failed-capacity result to a bounded adaptation and define its linearization and resource-reclamation meaning. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -372,8 +494,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -381,7 +503,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -416,7 +538,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "System-wide progress, per-operation progress and obstruction freedom differ; labels need explicit assumptions. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a bounded retry cap returning RETRY and determine whether that is completion of the specified operation or only abandonment. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -460,8 +582,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -469,7 +591,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -504,7 +626,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Progress composes only if every required operation supports the claim; a bounded pool can return FULL while abstract slots appear available. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace fixed storage with malloc and identify the changed progress and failure guarantees. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -548,8 +670,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -557,7 +679,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -592,7 +714,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Per-participant starvation and reclamation pressure can coexist with useful system progress. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Require per-request service bounds and explain which stronger algorithm/scheduler obligations must be added. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -638,8 +760,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -674,7 +796,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The two participants own distinct indices and transfer slot rights through publication/reuse; the separate construction gate must be completed, not inferred from this model. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Move producer execution into a reentrant callback and show why the one-producer precondition is violated. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -720,12 +842,12 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
-      "task": "For a reused slot, draw payload-write→release-head→acquire-head→payload-read and payload-read→release-tail→acquire-tail→next-write. Pause each side at the cross-over and reject early overwrite.",
+      "task": "For a reused slot, draw payload-write\u2192release-head\u2192acquire-head\u2192payload-read and payload-read\u2192release-tail\u2192acquire-tail\u2192next-write. Pause each side at the cross-over and reject early overwrite.",
       "purpose": "Only ordering the initial payload before head is necessary.",
       "prerequisites": {
         "knowledge": [
@@ -744,7 +866,7 @@
       ],
       "deliverables": {
         "D1": "Pre-experiment prediction and causal argument addressing: Only ordering the initial payload before head is necessary.",
-        "D2": "For a reused slot, draw payload-write→release-head→acquire-head→payload-read and payload-read→release-tail→acquire-tail→next-write. Pause each side at the cross-over and reject early overwrite.",
+        "D2": "For a reused slot, draw payload-write\u2192release-head\u2192acquire-head\u2192payload-read and payload-read\u2192release-tail\u2192acquire-tail\u2192next-write. Pause each side at the cross-over and reject early overwrite.",
         "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
         "D4": "Change to a multiword payload and retain the same ownership proof rather than relying on naturally atomic scalar loads."
       },
@@ -756,7 +878,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Both forward publication and reverse reuse protect ordinary payload lifetime/access. Fixed storage removes deallocation, not data races. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change to a multiword payload and retain the same ownership proof rather than relying on naturally atomic scalar loads. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -802,8 +924,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -838,7 +960,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The occupancy/distance invariant makes modular arithmetic meaningful; padding affects performance separately from correctness. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change to N-1 modulo-index capacity and re-derive full/empty rules instead of reusing the counter-distance proof. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -884,8 +1006,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -893,7 +1015,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -928,7 +1050,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Additional participants require helpable link/head transitions and a safe reclamation protocol; the original pseudocode allocator assumption cannot be replaced by ordinary free. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Implement the required bounded adaptation in PR-T26-05 with an explicit rejection when storage is retained by hazards. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -974,8 +1096,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -983,11 +1105,11 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
-      "task": "Compare a reservation queue where producerA reserves then stalls before publication with the Michael–Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
+      "task": "Compare a reservation queue where producerA reserves then stalls before publication with the Michael\u2013Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
       "purpose": "Reservation automatically equals publication and guarantees consumer progress.",
       "prerequisites": {
         "knowledge": [
@@ -1006,7 +1128,7 @@
       ],
       "deliverables": {
         "D1": "Pre-experiment prediction and causal argument addressing: Reservation automatically equals publication and guarantees consumer progress.",
-        "D2": "Compare a reservation queue where producerA reserves then stalls before publication with the Michael–Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
+        "D2": "Compare a reservation queue where producerA reserves then stalls before publication with the Michael\u2013Scott linking point. Let producerB publish and show whether the consumer can pass A under each declared FIFO contract.",
         "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
         "D4": "Add producer cancellation and derive how a consumer distinguishes a canceled slot from merely delayed publication."
       },
@@ -1018,7 +1140,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "An unpublished reservation may block FIFO progress; cancellation needs a visible tombstone/helping protocol or a documented stall limitation. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add producer cancellation and derive how a consumer distinguishes a canceled slot from merely delayed publication. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1064,8 +1186,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -1073,7 +1195,7 @@
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
             "Memory-management assumptions",
-            "Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20"
+            "Non-Blocking Concurrent Queue Algorithm: initialize, E1\u2013E17 and D1\u2013D20"
           ]
         }
       ],
@@ -1108,7 +1230,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "A total atomic order cannot supply missing unique reservation or ownership of a slot. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Introduce a second consumer and identify the separate read/reuse ownership collision. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1140,7 +1262,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T26-01.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -1148,5 +1270,37 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_history/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.01.a",
+        "AX-PR-T26-01-T26.01.b",
+        "AX-PR-T26-01-T26.01.c",
+        "AX-PR-T26-01-T26.02.a",
+        "AX-PR-T26-01-T26.02.b",
+        "AX-PR-T26-01-T26.02.c"
+      ],
+      "scope": "Only original T26.01/.02 ordinary and delayed history/progress obligations; author evidence, not independent learner or other construction completion."
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_reclamation/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.04.a",
+        "AX-PR-T26-01-T26.04.b",
+        "AX-PR-T26-01-T26.04.c"
+      ],
+      "scope": "Only original T26.04/.06 ordinary and delayed mechanisms; no independent review, unrestricted participant departures or universal progress claim."
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_spsc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-01-T26.03.a",
+        "AX-PR-T26-01-T26.03.b",
+        "AX-PR-T26-01-T26.03.c"
+      ],
+      "scope": "Only original T26.03.a/b/c ordinary and delayed SPSC obligations; author execution, not learner or other advanced-concurrency completion."
+    }
+  ]
 }

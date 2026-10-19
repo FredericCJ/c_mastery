@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-LRPORT-CMX",
+      "title": "Retained CMX serialized task lifecycle and sleep source",
+      "authors": [
+        "C Mastery course authors"
+      ],
+      "url": "assessor/execution/cmx.c",
+      "locators": [
+        "valid/callable/due/wait_on: admission, full sequence refusal and deadline checks",
+        "cmx_task_add/cmx_schedule: raw slot generation and fixed-priority state selection",
+        "cmx_sleep/cmx_tick/cmx_cancel: exact sleep admission, due wake and cancellation",
+        "cmx_exit/cmx_reap: retained owner refusal, EXITED state and generation increment"
+      ],
+      "domains": [
+        "T50",
+        "T52"
+      ],
+      "kind": "implementation",
+      "edition": "Retained repository source, C17 plus explicit Cortex/GNU conventions",
+      "access": "Repository source inspected directly; assessor implementation stays restricted",
+      "role": "oracle",
+      "assignable": false,
+      "reason": "Compose the actual task/exception producer rather than substituting a simulation.",
+      "prerequisites": [
+        "CMX lifecycle and single-core serialization"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual named source bodies and declarations, then inspect their compilation/guest behavior separately.",
+        "scope": "valid/callable/due/wait_on: admission, full sequence refusal and deadline checks; cmx_task_add/cmx_schedule: raw slot generation and fixed-priority state selection; cmx_sleep/cmx_tick/cmx_cancel: exact sleep admission, due wake and cancellation; cmx_exit/cmx_reap: retained owner refusal, EXITED state and generation increment",
+        "limits": "Actual bounded function bodies read; not a new review of every synchronization implementation in this file."
+      }
+    },
+    {
+      "id": "R-LRPORT-CORTEX",
+      "title": "Retained course Cortex-M exception/PSP runtime",
+      "authors": [
+        "C Mastery course authors"
+      ],
+      "url": "assessor/execution/cortex_port.c",
+      "locators": [
+        "Complete cortex_port.c: task stack construction, saved masks, task-return trampoline, choose, tick hook ordering and finish",
+        "Complete startup.S: private reset, vector table and entry",
+        "Complete context.S: SVC/PendSV PSP save/restore and exception return"
+      ],
+      "domains": [
+        "T50",
+        "T52"
+      ],
+      "kind": "implementation",
+      "edition": "Retained repository source, C17 plus explicit Cortex/GNU conventions",
+      "access": "Repository source inspected directly; assessor implementation stays restricted",
+      "role": "oracle",
+      "assignable": false,
+      "reason": "Compose the actual task/exception producer rather than substituting a simulation.",
+      "prerequisites": [
+        "CMX lifecycle and single-core serialization"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual named source bodies and declarations, then inspect their compilation/guest behavior separately.",
+        "scope": "Complete cortex_port.c: task stack construction, saved masks, task-return trampoline, choose, tick hook ordering and finish; Complete startup.S: private reset, vector table and entry; Complete context.S: SVC/PendSV PSP save/restore and exception return",
+        "limits": "Actual complete named runtime files read; board.c only QEMU no-op branch and selected initialization context inspected. No physical board observation or external Arm manual inspection is implied."
+      }
+    }
+  ]
+}

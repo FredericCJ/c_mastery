@@ -53,3 +53,4 @@ endforeach()
 
 add_test(NAME messaging.threads COMMAND messaging-tests threads)
 set_tests_properties(messaging.threads PROPERTIES TIMEOUT 60)
+add_subdirectory(followthrough)

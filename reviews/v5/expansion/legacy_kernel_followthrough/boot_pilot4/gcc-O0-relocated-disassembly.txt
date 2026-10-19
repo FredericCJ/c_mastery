@@ -1,0 +1,382 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_kernel_followthrough/boot_pilot4/gcc-O0-relocated/kernel.elf:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000601000 <_start>:
+  601000:	fa                   	cli
+  601001:	fc                   	cld
+  601002:	a3 00 90 60 00 89 1d 	movabs %eax,0x90041d8900609000
+  601009:	04 90 
+  60100b:	60                   	(bad)
+  60100c:	00 bc 10 d0 60 00 b8 	add    %bh,-0x47ff9f30(%rax,%rdx,1)
+  601013:	00 40 60             	add    %al,0x60(%rax)
+  601016:	00 83 c8 03 a3 00    	add    %al,0xa303c8(%rbx)
+  60101c:	30 60 00             	xor    %ah,0x0(%rax)
+  60101f:	31 c9                	xor    %ecx,%ecx
+  601021:	89 c8                	mov    %ecx,%eax
+  601023:	c1 e0 0c             	shl    $0xc,%eax
+  601026:	05 00 50 60 00       	add    $0x605000,%eax
+  60102b:	83 c8 03             	or     $0x3,%eax
+  60102e:	89 04 cd 00 40 60 00 	mov    %eax,0x604000(,%rcx,8)
+  601035:	41 83 f9 04          	cmp    $0x4,%r9d
+  601039:	75 e6                	jne    601021 <_start+0x21>
+  60103b:	31 c9                	xor    %ecx,%ecx
+  60103d:	89 c8                	mov    %ecx,%eax
+  60103f:	c1 e0 15             	shl    $0x15,%eax
+  601042:	0d 83 00 00 00       	or     $0x83,%eax
+  601047:	89 04 cd 00 50 60 00 	mov    %eax,0x605000(,%rcx,8)
+  60104e:	41 81 f9 00 08 00 00 	cmp    $0x800,%r9d
+  601055:	75 e6                	jne    60103d <_start+0x3d>
+  601057:	0f 20 e0             	mov    %cr4,%rax
+  60105a:	83 c8 20             	or     $0x20,%eax
+  60105d:	0f 22 e0             	mov    %rax,%cr4
+  601060:	b8 00 30 60 00       	mov    $0x603000,%eax
+  601065:	0f 22 d8             	mov    %rax,%cr3
+  601068:	b9 80 00 00 c0       	mov    $0xc0000080,%ecx
+  60106d:	0f 32                	rdmsr
+  60106f:	0d 00 09 00 00       	or     $0x900,%eax
+  601074:	0f 30                	wrmsr
+  601076:	0f 01 15 18 20 60 00 	lgdt   0x602018(%rip)        # c03095 <kernel_end+0x5f607d>
+  60107d:	0f 20 c0             	mov    %cr0,%rax
+  601080:	0d 00 00 01 80       	or     $0x80010000,%eax
+  601085:	0f 22 c0             	mov    %rax,%cr0
+
+0000000000601088 <kf_mode_boundary>:
+  601088:	ea                   	(bad)
+  601089:	8f                   	(bad)
+  60108a:	10 60 00             	adc    %ah,0x0(%rax)
+  60108d:	08 00                	or     %al,(%rax)
+
+000000000060108f <long_start>:
+  60108f:	66 b8 10 00          	mov    $0x10,%ax
+  601093:	8e d8                	mov    %eax,%ds
+  601095:	8e c0                	mov    %eax,%es
+  601097:	8e d0                	mov    %eax,%ss
+  601099:	31 c0                	xor    %eax,%eax
+  60109b:	8e e0                	mov    %eax,%fs
+  60109d:	8e e8                	mov    %eax,%gs
+  60109f:	48 c7 c4 10 d0 60 00 	mov    $0x60d010,%rsp
+  6010a6:	8b 3d 54 7f 00 00    	mov    0x7f54(%rip),%edi        # 609000 <boot_magic>
+  6010ac:	8b 35 52 7f 00 00    	mov    0x7f52(%rip),%esi        # 609004 <boot_info>
+  6010b2:	e8 04 00 00 00       	call   6010bb <kernel_main>
+  6010b7:	fa                   	cli
+  6010b8:	f4                   	hlt
+  6010b9:	eb fc                	jmp    6010b7 <long_start+0x28>
+
+00000000006010bb <kernel_main>:
+  6010bb:	48 89 25 4e bf 00 00 	mov    %rsp,0xbf4e(%rip)        # 60d010 <kf_entry_rsp>
+  6010c2:	e9 b9 01 00 00       	jmp    601280 <kf_boot_check>
+
+00000000006010c7 <out>:
+  6010c7:	55                   	push   %rbp
+  6010c8:	48 89 e5             	mov    %rsp,%rbp
+  6010cb:	48 83 ec 08          	sub    $0x8,%rsp
+  6010cf:	89 fa                	mov    %edi,%edx
+  6010d1:	89 f0                	mov    %esi,%eax
+  6010d3:	66 89 55 fc          	mov    %dx,-0x4(%rbp)
+  6010d7:	88 45 f8             	mov    %al,-0x8(%rbp)
+  6010da:	0f b6 45 f8          	movzbl -0x8(%rbp),%eax
+  6010de:	0f b7 55 fc          	movzwl -0x4(%rbp),%edx
+  6010e2:	ee                   	out    %al,(%dx)
+  6010e3:	90                   	nop
+  6010e4:	c9                   	leave
+  6010e5:	c3                   	ret
+
+00000000006010e6 <in>:
+  6010e6:	55                   	push   %rbp
+  6010e7:	48 89 e5             	mov    %rsp,%rbp
+  6010ea:	48 83 ec 18          	sub    $0x18,%rsp
+  6010ee:	89 f8                	mov    %edi,%eax
+  6010f0:	66 89 45 ec          	mov    %ax,-0x14(%rbp)
+  6010f4:	0f b7 45 ec          	movzwl -0x14(%rbp),%eax
+  6010f8:	89 c2                	mov    %eax,%edx
+  6010fa:	ec                   	in     (%dx),%al
+  6010fb:	88 45 ff             	mov    %al,-0x1(%rbp)
+  6010fe:	0f b6 45 ff          	movzbl -0x1(%rbp),%eax
+  601102:	c9                   	leave
+  601103:	c3                   	ret
+
+0000000000601104 <serial>:
+  601104:	f3 0f 1e fa          	endbr64
+  601108:	55                   	push   %rbp
+  601109:	48 89 e5             	mov    %rsp,%rbp
+  60110c:	be 00 00 00 00       	mov    $0x0,%esi
+  601111:	bf f9 03 00 00       	mov    $0x3f9,%edi
+  601116:	e8 ac ff ff ff       	call   6010c7 <out>
+  60111b:	be 80 00 00 00       	mov    $0x80,%esi
+  601120:	bf fb 03 00 00       	mov    $0x3fb,%edi
+  601125:	e8 9d ff ff ff       	call   6010c7 <out>
+  60112a:	be 01 00 00 00       	mov    $0x1,%esi
+  60112f:	bf f8 03 00 00       	mov    $0x3f8,%edi
+  601134:	e8 8e ff ff ff       	call   6010c7 <out>
+  601139:	be 00 00 00 00       	mov    $0x0,%esi
+  60113e:	bf f9 03 00 00       	mov    $0x3f9,%edi
+  601143:	e8 7f ff ff ff       	call   6010c7 <out>
+  601148:	be 03 00 00 00       	mov    $0x3,%esi
+  60114d:	bf fb 03 00 00       	mov    $0x3fb,%edi
+  601152:	e8 70 ff ff ff       	call   6010c7 <out>
+  601157:	be c7 00 00 00       	mov    $0xc7,%esi
+  60115c:	bf fa 03 00 00       	mov    $0x3fa,%edi
+  601161:	e8 61 ff ff ff       	call   6010c7 <out>
+  601166:	be 0b 00 00 00       	mov    $0xb,%esi
+  60116b:	bf fc 03 00 00       	mov    $0x3fc,%edi
+  601170:	e8 52 ff ff ff       	call   6010c7 <out>
+  601175:	90                   	nop
+  601176:	5d                   	pop    %rbp
+  601177:	c3                   	ret
+
+0000000000601178 <text>:
+  601178:	f3 0f 1e fa          	endbr64
+  60117c:	55                   	push   %rbp
+  60117d:	48 89 e5             	mov    %rsp,%rbp
+  601180:	48 83 ec 18          	sub    $0x18,%rsp
+  601184:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
+  601188:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+  60118f:	eb 53                	jmp    6011e4 <text+0x6c>
+  601191:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%rbp)
+  601198:	eb 04                	jmp    60119e <text+0x26>
+  60119a:	83 45 f8 01          	addl   $0x1,-0x8(%rbp)
+  60119e:	bf fd 03 00 00       	mov    $0x3fd,%edi
+  6011a3:	e8 3e ff ff ff       	call   6010e6 <in>
+  6011a8:	0f b6 c0             	movzbl %al,%eax
+  6011ab:	83 e0 20             	and    $0x20,%eax
+  6011ae:	85 c0                	test   %eax,%eax
+  6011b0:	75 09                	jne    6011bb <text+0x43>
+  6011b2:	81 7d f8 9f 86 01 00 	cmpl   $0x1869f,-0x8(%rbp)
+  6011b9:	76 df                	jbe    60119a <text+0x22>
+  6011bb:	81 7d f8 a0 86 01 00 	cmpl   $0x186a0,-0x8(%rbp)
+  6011c2:	74 3c                	je     601200 <text+0x88>
+  6011c4:	8b 55 fc             	mov    -0x4(%rbp),%edx
+  6011c7:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  6011cb:	48 01 d0             	add    %rdx,%rax
+  6011ce:	0f b6 00             	movzbl (%rax),%eax
+  6011d1:	0f b6 c0             	movzbl %al,%eax
+  6011d4:	89 c6                	mov    %eax,%esi
+  6011d6:	bf f8 03 00 00       	mov    $0x3f8,%edi
+  6011db:	e8 e7 fe ff ff       	call   6010c7 <out>
+  6011e0:	83 45 fc 01          	addl   $0x1,-0x4(%rbp)
+  6011e4:	8b 55 fc             	mov    -0x4(%rbp),%edx
+  6011e7:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  6011eb:	48 01 d0             	add    %rdx,%rax
+  6011ee:	0f b6 00             	movzbl (%rax),%eax
+  6011f1:	84 c0                	test   %al,%al
+  6011f3:	74 0c                	je     601201 <text+0x89>
+  6011f5:	81 7d fc 9f 00 00 00 	cmpl   $0x9f,-0x4(%rbp)
+  6011fc:	76 93                	jbe    601191 <text+0x19>
+  6011fe:	eb 01                	jmp    601201 <text+0x89>
+  601200:	90                   	nop
+  601201:	c9                   	leave
+  601202:	c3                   	ret
+
+0000000000601203 <hex>:
+  601203:	f3 0f 1e fa          	endbr64
+  601207:	55                   	push   %rbp
+  601208:	48 89 e5             	mov    %rsp,%rbp
+  60120b:	48 83 ec 28          	sub    $0x28,%rsp
+  60120f:	48 89 7d d8          	mov    %rdi,-0x28(%rbp)
+  601213:	c6 45 fa 0a          	movb   $0xa,-0x6(%rbp)
+  601217:	c6 45 fb 00          	movb   $0x0,-0x5(%rbp)
+  60121b:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+  601222:	eb 2c                	jmp    601250 <hex+0x4d>
+  601224:	b8 0f 00 00 00       	mov    $0xf,%eax
+  601229:	2b 45 fc             	sub    -0x4(%rbp),%eax
+  60122c:	c1 e0 02             	shl    $0x2,%eax
+  60122f:	48 8b 55 d8          	mov    -0x28(%rbp),%rdx
+  601233:	89 c1                	mov    %eax,%ecx
+  601235:	48 d3 ea             	shr    %cl,%rdx
+  601238:	48 89 d0             	mov    %rdx,%rax
+  60123b:	83 e0 0f             	and    $0xf,%eax
+  60123e:	0f b6 90 20 20 60 00 	movzbl 0x602020(%rax),%edx
+  601245:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  601248:	88 54 05 ea          	mov    %dl,-0x16(%rbp,%rax,1)
+  60124c:	83 45 fc 01          	addl   $0x1,-0x4(%rbp)
+  601250:	83 7d fc 0f          	cmpl   $0xf,-0x4(%rbp)
+  601254:	76 ce                	jbe    601224 <hex+0x21>
+  601256:	48 8d 45 ea          	lea    -0x16(%rbp),%rax
+  60125a:	48 89 c7             	mov    %rax,%rdi
+  60125d:	e8 16 ff ff ff       	call   601178 <text>
+  601262:	90                   	nop
+  601263:	c9                   	leave
+  601264:	c3                   	ret
+
+0000000000601265 <stop>:
+  601265:	f3 0f 1e fa          	endbr64
+  601269:	55                   	push   %rbp
+  60126a:	48 89 e5             	mov    %rsp,%rbp
+  60126d:	48 83 ec 08          	sub    $0x8,%rsp
+  601271:	89 f8                	mov    %edi,%eax
+  601273:	88 45 fc             	mov    %al,-0x4(%rbp)
+  601276:	0f b6 45 fc          	movzbl -0x4(%rbp),%eax
+  60127a:	e7 f4                	out    %eax,$0xf4
+  60127c:	fa                   	cli
+  60127d:	f4                   	hlt
+  60127e:	eb fc                	jmp    60127c <stop+0x17>
+
+0000000000601280 <kf_boot_check>:
+  601280:	f3 0f 1e fa          	endbr64
+  601284:	55                   	push   %rbp
+  601285:	48 89 e5             	mov    %rsp,%rbp
+  601288:	48 83 ec 48          	sub    $0x48,%rsp
+  60128c:	89 7d bc             	mov    %edi,-0x44(%rbp)
+  60128f:	89 75 b8             	mov    %esi,-0x48(%rbp)
+  601292:	9c                   	pushf
+  601293:	58                   	pop    %rax
+  601294:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+  601298:	0f 20 c0             	mov    %cr0,%rax
+  60129b:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  60129f:	0f 20 d8             	mov    %cr3,%rax
+  6012a2:	48 89 45 e0          	mov    %rax,-0x20(%rbp)
+  6012a6:	0f 20 e0             	mov    %cr4,%rax
+  6012a9:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+  6012ad:	66 8c c8             	mov    %cs,%ax
+  6012b0:	66 89 45 d6          	mov    %ax,-0x2a(%rbp)
+  6012b4:	b8 80 00 00 c0       	mov    $0xc0000080,%eax
+  6012b9:	89 c1                	mov    %eax,%ecx
+  6012bb:	0f 32                	rdmsr
+  6012bd:	89 45 d0             	mov    %eax,-0x30(%rbp)
+  6012c0:	89 55 cc             	mov    %edx,-0x34(%rbp)
+  6012c3:	e8 3c fe ff ff       	call   601104 <serial>
+  6012c8:	bf 31 20 60 00       	mov    $0x602031,%edi
+  6012cd:	e8 a6 fe ff ff       	call   601178 <text>
+  6012d2:	8b 45 bc             	mov    -0x44(%rbp),%eax
+  6012d5:	48 89 c7             	mov    %rax,%rdi
+  6012d8:	e8 26 ff ff ff       	call   601203 <hex>
+  6012dd:	bf 43 20 60 00       	mov    $0x602043,%edi
+  6012e2:	e8 91 fe ff ff       	call   601178 <text>
+  6012e7:	8b 45 b8             	mov    -0x48(%rbp),%eax
+  6012ea:	48 89 c7             	mov    %rax,%rdi
+  6012ed:	e8 11 ff ff ff       	call   601203 <hex>
+  6012f2:	bf 49 20 60 00       	mov    $0x602049,%edi
+  6012f7:	e8 7c fe ff ff       	call   601178 <text>
+  6012fc:	48 8b 05 0d bd 00 00 	mov    0xbd0d(%rip),%rax        # 60d010 <kf_entry_rsp>
+  601303:	48 89 c7             	mov    %rax,%rdi
+  601306:	e8 f8 fe ff ff       	call   601203 <hex>
+  60130b:	bf 54 20 60 00       	mov    $0x602054,%edi
+  601310:	e8 63 fe ff ff       	call   601178 <text>
+  601315:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+  601319:	48 89 c7             	mov    %rax,%rdi
+  60131c:	e8 e2 fe ff ff       	call   601203 <hex>
+  601321:	bf 59 20 60 00       	mov    $0x602059,%edi
+  601326:	e8 4d fe ff ff       	call   601178 <text>
+  60132b:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  60132f:	48 89 c7             	mov    %rax,%rdi
+  601332:	e8 cc fe ff ff       	call   601203 <hex>
+  601337:	bf 5e 20 60 00       	mov    $0x60205e,%edi
+  60133c:	e8 37 fe ff ff       	call   601178 <text>
+  601341:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  601345:	48 89 c7             	mov    %rax,%rdi
+  601348:	e8 b6 fe ff ff       	call   601203 <hex>
+  60134d:	bf 63 20 60 00       	mov    $0x602063,%edi
+  601352:	e8 21 fe ff ff       	call   601178 <text>
+  601357:	8b 45 cc             	mov    -0x34(%rbp),%eax
+  60135a:	48 c1 e0 20          	shl    $0x20,%rax
+  60135e:	48 89 c2             	mov    %rax,%rdx
+  601361:	8b 45 d0             	mov    -0x30(%rbp),%eax
+  601364:	48 09 d0             	or     %rdx,%rax
+  601367:	48 89 c7             	mov    %rax,%rdi
+  60136a:	e8 94 fe ff ff       	call   601203 <hex>
+  60136f:	81 7d bc 89 62 d7 36 	cmpl   $0x36d76289,-0x44(%rbp)
+  601376:	75 10                	jne    601388 <kf_boot_check+0x108>
+  601378:	83 7d b8 00          	cmpl   $0x0,-0x48(%rbp)
+  60137c:	74 0a                	je     601388 <kf_boot_check+0x108>
+  60137e:	8b 45 b8             	mov    -0x48(%rbp),%eax
+  601381:	83 e0 07             	and    $0x7,%eax
+  601384:	85 c0                	test   %eax,%eax
+  601386:	74 14                	je     60139c <kf_boot_check+0x11c>
+  601388:	bf 69 20 60 00       	mov    $0x602069,%edi
+  60138d:	e8 e6 fd ff ff       	call   601178 <text>
+  601392:	bf 11 00 00 00       	mov    $0x11,%edi
+  601397:	e8 c9 fe ff ff       	call   601265 <stop>
+  60139c:	48 8b 05 6d bc 00 00 	mov    0xbc6d(%rip),%rax        # 60d010 <kf_entry_rsp>
+  6013a3:	83 e0 0f             	and    $0xf,%eax
+  6013a6:	48 83 f8 08          	cmp    $0x8,%rax
+  6013aa:	74 14                	je     6013c0 <kf_boot_check+0x140>
+  6013ac:	bf 7c 20 60 00       	mov    $0x60207c,%edi
+  6013b1:	e8 c2 fd ff ff       	call   601178 <text>
+  6013b6:	bf 11 00 00 00       	mov    $0x11,%edi
+  6013bb:	e8 a5 fe ff ff       	call   601265 <stop>
+  6013c0:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+  6013c4:	25 00 04 00 00       	and    $0x400,%eax
+  6013c9:	48 85 c0             	test   %rax,%rax
+  6013cc:	75 43                	jne    601411 <kf_boot_check+0x191>
+  6013ce:	66 83 7d d6 08       	cmpw   $0x8,-0x2a(%rbp)
+  6013d3:	75 3c                	jne    601411 <kf_boot_check+0x191>
+  6013d5:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  6013d9:	25 01 00 01 80       	and    $0x80010001,%eax
+  6013de:	48 89 c2             	mov    %rax,%rdx
+  6013e1:	b8 01 00 01 80       	mov    $0x80010001,%eax
+  6013e6:	48 39 c2             	cmp    %rax,%rdx
+  6013e9:	75 26                	jne    601411 <kf_boot_check+0x191>
+  6013eb:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  6013ef:	83 e0 20             	and    $0x20,%eax
+  6013f2:	48 85 c0             	test   %rax,%rax
+  6013f5:	74 1a                	je     601411 <kf_boot_check+0x191>
+  6013f7:	8b 45 d0             	mov    -0x30(%rbp),%eax
+  6013fa:	25 00 0d 00 00       	and    $0xd00,%eax
+  6013ff:	3d 00 0d 00 00       	cmp    $0xd00,%eax
+  601404:	75 0b                	jne    601411 <kf_boot_check+0x191>
+  601406:	b8 00 30 60 00       	mov    $0x603000,%eax
+  60140b:	48 39 45 e0          	cmp    %rax,-0x20(%rbp)
+  60140f:	74 14                	je     601425 <kf_boot_check+0x1a5>
+  601411:	bf 95 20 60 00       	mov    $0x602095,%edi
+  601416:	e8 5d fd ff ff       	call   601178 <text>
+  60141b:	bf 11 00 00 00       	mov    $0x11,%edi
+  601420:	e8 40 fe ff ff       	call   601265 <stop>
+  601425:	48 8b 05 d4 1b 00 00 	mov    0x1bd4(%rip),%rax        # 603000 <boot_pml4>
+  60142c:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  601430:	48 89 c2             	mov    %rax,%rdx
+  601433:	b8 00 40 60 00       	mov    $0x604000,%eax
+  601438:	48 83 c8 03          	or     $0x3,%rax
+  60143c:	48 39 c2             	cmp    %rax,%rdx
+  60143f:	74 14                	je     601455 <kf_boot_check+0x1d5>
+  601441:	bf a3 20 60 00       	mov    $0x6020a3,%edi
+  601446:	e8 2d fd ff ff       	call   601178 <text>
+  60144b:	bf 11 00 00 00       	mov    $0x11,%edi
+  601450:	e8 10 fe ff ff       	call   601265 <stop>
+  601455:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+  60145c:	eb 43                	jmp    6014a1 <kf_boot_check+0x221>
+  60145e:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  601461:	48 8b 04 c5 00 40 60 	mov    0x604000(,%rax,8),%rax
+  601468:	00 
+  601469:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  60146d:	48 89 c2             	mov    %rax,%rdx
+  601470:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  601473:	c1 e0 0c             	shl    $0xc,%eax
+  601476:	89 c1                	mov    %eax,%ecx
+  601478:	b8 00 50 60 00       	mov    $0x605000,%eax
+  60147d:	48 83 c0 03          	add    $0x3,%rax
+  601481:	48 01 c8             	add    %rcx,%rax
+  601484:	48 39 c2             	cmp    %rax,%rdx
+  601487:	74 14                	je     60149d <kf_boot_check+0x21d>
+  601489:	bf b1 20 60 00       	mov    $0x6020b1,%edi
+  60148e:	e8 e5 fc ff ff       	call   601178 <text>
+  601493:	bf 11 00 00 00       	mov    $0x11,%edi
+  601498:	e8 c8 fd ff ff       	call   601265 <stop>
+  60149d:	83 45 fc 01          	addl   $0x1,-0x4(%rbp)
+  6014a1:	83 7d fc 03          	cmpl   $0x3,-0x4(%rbp)
+  6014a5:	76 b7                	jbe    60145e <kf_boot_check+0x1de>
+  6014a7:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%rbp)
+  6014ae:	eb 3c                	jmp    6014ec <kf_boot_check+0x26c>
+  6014b0:	8b 45 f8             	mov    -0x8(%rbp),%eax
+  6014b3:	48 8b 04 c5 00 50 60 	mov    0x605000(,%rax,8),%rax
+  6014ba:	00 
+  6014bb:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  6014bf:	48 89 c2             	mov    %rax,%rdx
+  6014c2:	8b 45 f8             	mov    -0x8(%rbp),%eax
+  6014c5:	48 c1 e0 15          	shl    $0x15,%rax
+  6014c9:	48 05 83 00 00 00    	add    $0x83,%rax
+  6014cf:	48 39 c2             	cmp    %rax,%rdx
+  6014d2:	74 14                	je     6014e8 <kf_boot_check+0x268>
+  6014d4:	bf bf 20 60 00       	mov    $0x6020bf,%edi
+  6014d9:	e8 9a fc ff ff       	call   601178 <text>
+  6014de:	bf 11 00 00 00       	mov    $0x11,%edi
+  6014e3:	e8 7d fd ff ff       	call   601265 <stop>
+  6014e8:	83 45 f8 01          	addl   $0x1,-0x8(%rbp)
+  6014ec:	81 7d f8 ff 07 00 00 	cmpl   $0x7ff,-0x8(%rbp)
+  6014f3:	76 bb                	jbe    6014b0 <kf_boot_check+0x230>
+  6014f5:	bf d0 20 60 00       	mov    $0x6020d0,%edi
+  6014fa:	e8 79 fc ff ff       	call   601178 <text>
+  6014ff:	bf 10 00 00 00       	mov    $0x10,%edi
+  601504:	e8 5c fd ff ff       	call   601265 <stop>

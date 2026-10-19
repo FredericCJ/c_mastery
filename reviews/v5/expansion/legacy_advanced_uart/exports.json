@@ -1,0 +1,164 @@
+{
+  "passed": true,
+  "errors": [],
+  "commands": [
+    {
+      "label": "actual init",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "cmastery",
+        "init",
+        "PR-T28-02",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\n  \"project\": \"PR-T28-02\",\n  \"workspace\": \"/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z\",\n  \"family\": \"firmware_io\",\n  \"status\": \"not-run\",\n  \"next\": \"Implement the assigned boundary, then run cmastery check.\",\n  \"limits\": \"Instantiation does not establish implementation or mastery.\"\n}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled core stub rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/core-stub"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PU_CHECK:",
+      "stdout": "PU_CHECK:104:pu_rates(&c, &rates) == PU_OK && rates.apb1 == 42000000 && rates.timer1 == 84000000 && rates.timer2 == 168000000\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled dependency stub rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/peripheral_depth/uart/uart.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/serial-stub"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PU_CHECK:",
+      "stdout": "PU_CHECK:118:pu_open(&d, io, &c, 115200, 0, 2) == PU_TIMEOUT && !d.ready && m.writes == 0\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "explicit external references",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/peripheral_depth/uart/uart.c",
+        "--serial-source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/serial_depth/serial_depth.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/core-ref"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "PU_PASS",
+      "stdout": "PU_PASS\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled target stub rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/target-stub"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PU_TARGET_REJECT",
+      "stdout": "{'passed': False, 'missing': ['0x40004800', '0x40004804', '0x40004808', '0x4000480c', '0x40004814', '0x40020c18', '0x40026058', '0x4002605c', '0x40026060', '0x40026064'], 'narrow': [], 'observed': [], 'limits': 'Linear constant reconstruction is a structural check, not a control-flow or device-semantic proof; separate native mapping controls are required.'}\nPU_TARGET_REJECT missing mapping or wrong imports\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "external target reference",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/peripheral_depth/uart/target.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/target-ref"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "PU_TARGET_PASS",
+      "stdout": "{'passed': True, 'missing': [], 'narrow': [], 'observed': [{'address': '0x40004800', 'instruction': 'ldr'}, {'address': '0x40004800', 'instruction': 'str'}, {'address': '0x40004804', 'instruction': 'ldr'}, {'address': '0x40004804', 'instruction': 'str'}, {'address': '0x40004808', 'instruction': 'str'}, {'address': '0x4000480c', 'instruction': 'ldr'}, {'address': '0x4000480c', 'instruction': 'str'}, {'address': '0x40004810', 'instruction': 'str'}, {'address': '0x40004814', 'instruction': 'str'}, {'address': '0x40020c00', 'instruction': 'ldr'}, {'address': '0x40020c00', 'instruction': 'str'}, {'address': '0x40020c04', 'instruction': 'ldr'}, {'address': '0x40020c04', 'instruction': 'str'}, {'address': '0x40020c08', 'instruction': 'ldr'}, {'address': '0x40020c08', 'instruction': 'str'}, {'address': '0x40020c0c', 'instruction': 'ldr'}, {'address': '0x40020c0c', 'instruction': 'str'}, {'address': '0x40020c18', 'instruction': 'str'}, {'address': '0x40020c24', 'instruction': 'ldr'}, {'address': '0x40020c24', 'instruction': 'str'}, {'address': '0x40023800', 'instruction': 'ldr'}, {'address': '0x40023808', 'instruction': 'ldr'}, {'address': '0x40023820', 'instruction': 'ldr'}, {'address': '0x40023820', 'instruction': 'str'}, {'address': '0x40023830', 'instruction': 'ldr'}, {'address': '0x40023830', 'instruction': 'str'}, {'address': '0x40023840', 'instruction': 'ldr'}, {'address': '0x40023840', 'instruction': 'str'}, {'address': '0x40026000', 'instruction': 'ldr'}, {'address': '0x40026008', 'instruction': 'str'}, {'address': '0x40026058', 'instruction': 'ldr'}, {'address': '0x40026058', 'instruction': 'str'}, {'address': '0x4002605c', 'instruction': 'ldr'}, {'address': '0x4002605c', 'instruction': 'str'}, {'address': '0x40026060', 'instruction': 'str'}, {'address': '0x40026064', 'instruction': 'str'}, {'address': '0x4002606c', 'instruction': 'str'}], 'limits': 'Linear constant reconstruction is a structural check, not a control-flow or device-semantic proof; separate native mapping controls are required.'}\nPU_TARGET_PASS structural mapping/import audit only; not semantic or physical proof\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled wrong UART base rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/labs/peripheral_depth/uart/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z-wrong-base.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/uart-exports/20261018T124040716137Z/target-wrong"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PU_TARGET_REJECT",
+      "stdout": "{'passed': False, 'missing': ['0x40004800', '0x40004804', '0x40004808', '0x4000480c', '0x40004814'], 'narrow': [], 'observed': [{'address': '0x40004c00', 'instruction': 'ldr'}, {'address': '0x40004c00', 'instruction': 'str'}, {'address': '0x40004c04', 'instruction': 'ldr'}, {'address': '0x40004c04', 'instruction': 'str'}, {'address': '0x40004c08', 'instruction': 'str'}, {'address': '0x40004c0c', 'instruction': 'ldr'}, {'address': '0x40004c0c', 'instruction': 'str'}, {'address': '0x40004c10', 'instruction': 'str'}, {'address': '0x40004c14', 'instruction': 'str'}, {'address': '0x40020c00', 'instruction': 'ldr'}, {'address': '0x40020c00', 'instruction': 'str'}, {'address': '0x40020c04', 'instruction': 'ldr'}, {'address': '0x40020c04', 'instruction': 'str'}, {'address': '0x40020c08', 'instruction': 'ldr'}, {'address': '0x40020c08', 'instruction': 'str'}, {'address': '0x40020c0c', 'instruction': 'ldr'}, {'address': '0x40020c0c', 'instruction': 'str'}, {'address': '0x40020c18', 'instruction': 'str'}, {'address': '0x40020c24', 'instruction': 'ldr'}, {'address': '0x40020c24', 'instruction': 'str'}, {'address': '0x40023800', 'instruction': 'ldr'}, {'address': '0x40023808', 'instruction': 'ldr'}, {'address': '0x40023820', 'instruction': 'ldr'}, {'address': '0x40023820', 'instruction': 'str'}, {'address': '0x40023830', 'instruction': 'ldr'}, {'address': '0x40023830', 'instruction': 'str'}, {'address': '0x40023840', 'instruction': 'ldr'}, {'address': '0x40023840', 'instruction': 'str'}, {'address': '0x40026000', 'instruction': 'ldr'}, {'address': '0x40026008', 'instruction': 'str'}, {'address': '0x40026058', 'instruction': 'ldr'}, {'address': '0x40026058', 'instruction': 'str'}, {'address': '0x4002605c', 'instruction': 'ldr'}, {'address': '0x4002605c', 'instruction': 'str'}, {'address': '0x40026060', 'instruction': 'str'}, {'address': '0x40026064', 'instruction': 'str'}, {'address': '0x4002606c', 'instruction': 'str'}], 'limits': 'Linear constant reconstruction is a structural check, not a control-flow or device-semantic proof; separate native mapping controls are required.'}\nPU_TARGET_REJECT missing mapping or wrong imports\n",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "input_sha256": {
+    "labs/peripheral_depth/uart/uart.h": "c4c9ff898ec735c7f428780f7b025db5419400cff0dba5ae4f24bb9e27390ed9",
+    "labs/peripheral_depth/uart/uart.c": "40ed4d8a92b4ed43e5a73f962724f13fd2a5a05b37f4b19bb9858889dc3b6032",
+    "cmastery/project_assets.py": "430035f9a53f0578f7afa5209fd0ed08ae702428c9afde967d016d8cde01dd5e",
+    "research/v5/expansion/legacy_advanced_uart/attachment_PR-T28-02.json": "734ba3049068d9cb9b5df61ba2166350845e37b4c809cc4f9131a4c081c415bc",
+    "cmastery/cli.py": "d78da291ac1d7eba4459a534ecfc9c5d1cb6e45ba8ee93c6e36314305a2b2f62",
+    "labs/peripheral_depth/uart/run.py": "7ec2a3b3d9a6e9e85598ab4ff26b2d332813ff4ced3a6c7d75c32a585255d86d",
+    "tools/envelope_export_inputs.py": "dc629725e2b6ab5baa319865578746c2d2a2dc732abb36768a044b52195d8a77",
+    "labs/peripheral_depth/uart/tests.c": "6321f29d9576fb6abc085d998a505aa7e8a6628ce04f74296e14446a87871f31",
+    "labs/peripheral_depth/uart/target.c": "d73dff38912f12a2a4598c88987befa537a5dfdc9e38fb70849e787a7761d73d",
+    "cmastery/assessments.py": "a75d66e7bf136ad29bf782498c7948f982c47644e3d2fa273da1a301af061b02",
+    "labs/peripheral_depth/uart/BOARD_CAPTURE.md": "940fb75f2dd7c86324fb200912c4e6cd84e759879dde6b2f8dfdb02e258400d4",
+    "curriculum/v5/expansion/legacy_assessments/PR-T28-02.json": "6827a70421fcfd769dc7b32a374d21b42f3ff80fc32943512ff3303d28a4dc7f",
+    "labs/peripheral_depth/uart/CONTRACTS.md": "9b25943fca8dbdff88741422d19b74be6e77a90edf145bac4cd5fe1ec5ff029a",
+    "labs/serial_depth/README.md": "8c56dd69bb3f59bb4476c0eb59f90a46f9c9fe0795e2cbacdc6d1d059681507d",
+    "labs/firmware_io/include/firmware_io.h": "9670b6dbf07d778d80ddf14c7356d8a9a50814b44d8d6855bc0069682c28fd67",
+    "labs/peripheral_depth/uart/board_capture.json": "ee9deb1070e7362c8e72a6cab9f982cb9d4c3d51aa267a9ef36fbb798e6e1669",
+    "labs/peripheral_depth/uart/audit_target.py": "d5641b35133b65db3913e4b700dc5bbc689a5384a81d4e08d790dea33e5353d9",
+    "labs/serial_depth/src/serial_depth.c": "553853edd84d6999ab2b3ffeb49a50afea75ff68a042868b47b0184d75ab9cbd",
+    "labs/firmware_io/CONTRACTS.md": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+    "cmastery/learning.py": "d888b616ee42824f3d82ff6cd04eacbd90b0861c374735bad0f4c878fd9227cb",
+    "curriculum/projects/PR-T28-02.md": "66c0c7f7583d96620757045746b585808da9fce1ed5307425e9a811adbf08f96",
+    "cmastery/exercises.py": "1b9cbae00cf5f25c6c4064fb3b90477faa138765d9b19f4d1969f1129597519c",
+    "labs/serial_depth/include/serial_depth.h": "6c3f7737a64896fedb766c72582ac0fdec29657d35d1a6baac01801103e205b0",
+    "tools/check_uart_exports.py": "4fe4b2a53b4b542c96037aece7a0ca5af8bedf0a4bbcfdda5982346869d09efa",
+    "labs/serial_depth/CONTRACTS.md": "91a2f51feb63205f85999af1f3188bae5aeb23a07c6dff9f02847a65bcf86116",
+    "labs/firmware_io/README.md": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293"
+  },
+  "limits": [
+    "Assessor references explicitly selected; no learner or physical evidence.",
+    "Target structural rejection complements the private actual register mapping controls."
+  ]
+}

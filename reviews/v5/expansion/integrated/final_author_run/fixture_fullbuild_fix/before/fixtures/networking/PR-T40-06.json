@@ -1,0 +1,77 @@
+{
+  "id": "FX-NET-T40-06",
+  "description": "Finite token-pending, duplicate effect and retained-versus-reboot trace.",
+  "input": {
+    "case_kind": "session_trace",
+    "initial_holder": 17,
+    "epoch": 9,
+    "events": [
+      {
+        "type": "data",
+        "sender": 17,
+        "checkpoint": 1,
+        "payload_hex": "aa"
+      },
+      {
+        "type": "data",
+        "sender": 17,
+        "checkpoint": 1,
+        "payload_hex": "aa"
+      },
+      {
+        "type": "data",
+        "sender": 17,
+        "checkpoint": 1,
+        "payload_hex": "bb"
+      },
+      {
+        "type": "token_send"
+      },
+      {
+        "type": "data",
+        "sender": 17,
+        "checkpoint": 2,
+        "payload_hex": "cc"
+      },
+      {
+        "type": "token_complete",
+        "new_holder": 51
+      },
+      {
+        "type": "resume",
+        "retained": true,
+        "epoch": 9
+      },
+      {
+        "type": "resume",
+        "retained": false,
+        "epoch": 9
+      },
+      {
+        "type": "resume",
+        "retained": true,
+        "epoch": 10
+      }
+    ]
+  },
+  "expected": {
+    "events": [
+      "commit",
+      "duplicate",
+      "error_changed_duplicate",
+      "token_pending",
+      "blocked",
+      "token_committed",
+      "resumed",
+      "resume_refused",
+      "resume_refused"
+    ],
+    "effects": 1,
+    "last_checkpoint": 1,
+    "holder": 51,
+    "token_pending": false,
+    "header_bytes": 7,
+    "durable": false
+  },
+  "verification_method": "Fold the supplied abstract events against holder/checkpoint rules; no general session implementation or durable guarantee."
+}

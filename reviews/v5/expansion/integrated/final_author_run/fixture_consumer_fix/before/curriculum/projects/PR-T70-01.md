@@ -1,0 +1,53 @@
+```json
+{
+  "id": "PR-T70-01",
+  "title": "Hot and cold columns with transactional numeric updates",
+  "module": "T70",
+  "topics": [
+    "T70.01"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dod/PR-T70-01.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T70-01: Hot and cold columns with transactional numeric updates
+
+## Contract
+
+Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.
+
+The full required exercise is {ref}`X-T70-001`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.
+
+## Steps
+
+- **T70.01:** Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract. For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.
+
+## Acceptance and evidence
+
+- **T70.01:** For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Write the mathematical result before choosing a layout. Separate admission of all results from publication. A field list can generate declarations and visitors, but layout still follows C object rules.
+
+## Transfer challenge
+
+X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle.

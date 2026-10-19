@@ -26,3 +26,9 @@ context variant and an RCU lookup/removal variant; supply actual lookup protecti
 and grace-period evidence. This reference is not an RCU or hard-IRQ implementation.
 Do not infer privilege escalation from a crash. Harmless success is an owned
 synthetic buffer, exact release count and quiescent unload.
+
+## Implemented continuation
+
+The required [concrete continuation](../guest/README.md) supplies the additional source,
+fixtures, failure controls, objective criteria and bounded author execution.
+Its evidence does not replace independent learner or physical obligations.

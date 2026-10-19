@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T48-01-T48.01.a",
+      "objective": "T48.01.a",
+      "original_task": "Annotate every state transition in boot.S from GRUB entry to kernel_main, including retained magic/info, direction flag, GDT, CR3, EFER, CR0 and stack alignment. Give the first instruction invalidated by one missing prerequisite.",
+      "original_expected": "2048 large-page entries cover four GiB; each control-register and far-transfer dependency has an explicit architectural source or unresolved authority.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-01-T48.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the load address and derive every relocation, identity-map and reserved-range obligation."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/boot/README.md",
+      "mechanism_checks": [
+        "gcc-O0-correct-guest",
+        "clang-O2-correct-guest",
+        "gcc-O2-correct-gdb",
+        "clang-O2-correct-gdb",
+        "gcc-O2-relocated-guest",
+        "clang-O2-relocated-guest"
+      ]
+    },
+    {
+      "id": "AX-PR-T48-01-T48.01.b",
+      "objective": "T48.01.b",
+      "original_task": "Build only the boot-smoke milestone using learner assembly and C. Retain linker script, header location/checksum, ELF/map, undefined symbols, disassembly and actual serial C-entry marker; compare GCC and Clang object dependencies.",
+      "original_expected": "The exact image named by the launch command reaches its own C marker; hosted startup and implicit unreviewed helpers are absent.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-01-T48.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change link section ordering and preserve a discoverable aligned Multiboot header."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/boot/README.md",
+      "mechanism_checks": [
+        "gcc-O0-correct-undefined",
+        "clang-O2-correct-undefined",
+        "gcc-O2-reordered-guest",
+        "clang-O2-reordered-guest"
+      ]
+    },
+    {
+      "id": "AX-PR-T48-01-T48.01.c",
+      "objective": "T48.01.c",
+      "original_task": "In a disposable copy omit saving EBX, then separately omit the far jump. Predict the first divergence, capture register/serial evidence and repair one cause at a time; keep the good image as a control.",
+      "original_expected": "Each mutation is distinguished by supported machine state; repairing its cause restores the same smoke gate without relaxing expectations.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-01-T48.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Diagnose a reviewer-selected stack alignment fault after seven days."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/boot/README.md",
+      "mechanism_checks": [
+        "gcc-O2-omit-info-gdb",
+        "gcc-O2-omit-info-guest",
+        "clang-O2-omit-far-gdb",
+        "clang-O2-omit-far-guest",
+        "gcc-O2-misaligned-guest",
+        "clang-O2-misaligned-guest",
+        "gcc-O2-baseline-guest"
+      ]
+    }
+  ]
+}

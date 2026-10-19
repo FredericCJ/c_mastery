@@ -1,0 +1,24 @@
+"""Canonical additive owning-ring registration; retains original exercise IDs."""
+import json
+from common import ROOT,dump,read_json,sha
+ANCHORS=['mono_base','owning_failure','owning_transfer','owning_erased']
+MARKERS=['MPO_BASE actual-two-instances wrap FIFO fields','MPO_FAILURE before-and-after-allocation rollback cleanup full-no-effects','MPO_TRANSFER two-owning-types FIFO-drop empty-output unique-move','MPO_ERASED actual-typed-storage scratch cleanup equivalent-effects']
+def register():
+    contract='labs/metaprog/owning_ring/OWNING.md';source='research/v5/modern/metaprog_owning_ring_resources.json';gate='research/v5/modern/metaprog_owning_ring_research_gate.json'
+    f=read_json(ROOT/'labs/metaprog/family.json');tests=['metaprog.'+a for a in ANCHORS]
+    for row in f.get('projects',[])+f.get('exercises',[]):
+        if row['id'] in ['PR-T68-01','X-T68-001']:row['tests']=list(dict.fromkeys(row['tests']+tests))
+    f['tests']=list(dict.fromkeys(f.get('tests',[])+tests));f.setdefault('campaign',{}).update(owning_ring_producer='tools/run_metaprog_owning_ring.py',owning_ring_report='research/v5/modern/metaprog_owning_ring_validation.json');dump(ROOT/'labs/metaprog/family.json',f)
+    p=ROOT/'labs/metaprog/CMakeLists.txt';body=p.read_text(encoding='utf8');line='include("${CMAKE_CURRENT_SOURCE_DIR}/owning_ring/CMakeLists.txt")'
+    if line not in body:p.write_text(body.rstrip()+'\n'+line+'\n',encoding='utf8')
+    dump(ROOT/source,dict(schema_version=1,resources=[],reused_sources=[dict(id=i,path='research/v5/modern/metaprog_resources.json',passages=[locator],bounded_reinspection=dict(date='2026-10-18',method='Opened and read the named primary Rust Reference web sections',limits='Associated type declarations/definitions/Container and const parameter rules only; no whole-language inspection or runtime certification.')) for i,locator in [('R-ADMP-ASSOCIATED','Associated types declaration, definition and Container example'),('R-ADMP-GENERICS','Const generics introduction, allowed types and standalone use restrictions')]],inspected_artifacts=[dict(path=p,sha256=sha(ROOT/p),passages=parts) for p,parts in [('labs/algorithms/SPEC.md',['representation prerequisites and Ring row']),('assessor/metaprog/metaprog.c',['scalar/pair repeated template inclusions']),('assessor/metaprog/ring_template.inc',['full template']),('labs/metaprog/include/metaprog.h',['MPU32Ring and MPPairRing declarations']),('curriculum/v5/exercises/X-T68-001.md',['R1-R4 and required changed-condition ownership variant'])]],reference_gaps=['Published C17 and C23 standards remain inaccessible; N1570 is not relabeled.']))
+    # The brief is a registered artifact, but exclude its self-changing metadata from the gate.
+    dump(ROOT/gate,dict(status='passage-inspected',domains=['T68'],reviewer='author only; no independent human assessment',research_input_sha256={p:sha(ROOT/p) for p in [source,contract,'research/v5/modern/metaprog_resources.json']}))
+    p=ROOT/'curriculum/v5/exercises/X-T68-001.md';body=p.read_text(encoding='utf8');a,rest=body.split('```json\n',1);raw,b=rest.split('\n```',1);m=json.loads(raw);m['lab']['tests']=list(dict.fromkeys(m['lab']['tests']+tests));m['shared_contracts']=list(dict.fromkeys(m['shared_contracts']+[contract]));heading='\n## Required owning specialization and erased comparison\n';b=b.split(heading,1)[0].rstrip()+heading+'\n[OWNING.md](../../../labs/metaprog/owning_ring/OWNING.md) supplies typed Blob/Words rings, fallible clone cleanup, FIFO destruction, real typed erased storage, the two-resource delayed support fixture, independent ownership histories, compiler diagnostics and equal-contract cost measurements. Original rubric and delayed identities remain required.\n';p.write_text(a+'```json\n'+json.dumps(m,indent=2,ensure_ascii=False)+'\n```'+b,encoding='utf8')
+    # Refresh the inspected brief pin after additive integration.
+    data=read_json(ROOT/source)
+    for row in data['inspected_artifacts']:row['sha256']=sha(ROOT/row['path'])
+    dump(ROOT/source,data);data=read_json(ROOT/gate);data['research_input_sha256'][source]=sha(ROOT/source);dump(ROOT/gate,data)
+    imports=['labs/metaprog/CONTRACTS.md','labs/metaprog/include/metaprog.h','labs/metaprog/src/metaprog.c','assessor/metaprog/metaprog.c','assessor/metaprog/ring_template.inc','labs/algorithms/SPEC.md',source,gate,'tools/register_metaprog_owning_ring.py']
+    dump(ROOT/'labs/metaprog/owning_ring/campaign.json',dict(module='owning_ring',target='metaprog-owning_ring',learner_option='CMASTERY_MPO_LEARNER',anchors=ANCHORS,control_count=8,observation_markers=MARKERS,oracle='tools/verify_metaprog_owning_ring.py',metrics=['metrics'],object_sources=['owning_ring.c','erased.c','manual.c','metaprog.c'],producer='tools/run_metaprog_owning_ring.py',report='research/v5/modern/metaprog_owning_ring_validation.json',imports=imports))
+if __name__=='__main__':register()

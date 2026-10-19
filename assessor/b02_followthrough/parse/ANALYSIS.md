@@ -1,0 +1,9 @@
+# Counted parser assessor analysis
+
+The streaming representation does not need a count proportional to input length: first-digit, leading-zero and sign flags recognize the canonical grammar, and magnitude stops updating after overflow. Invalid remains sticky. This avoids both overflow in a token-length counter and a requirement to retain the whole token. An invalid suffix must still override a numeric range failure. Reset clears both flags; cancellation suppresses the tentative result without implying resource rollback.
+
+The hosted implementation shares no target parser calls. It uses a separate grammar pass and actual `strtol` with checked end pointer, errno and destination width. It is an adapter with allocation, not a first-principles parser. The native locale/long observations are a measured harness profile; they do not prove all ISO C implementations behave identically. ASCII numeric wire values remain separate from execution character assumptions in the hosted adapter.
+
+Mutant1 changes status precedence;2 admits leading/negative zero;3 uses defined unsigned wrapping accumulation and loses range authority;4 fails to clear errno;5 leaks the prior invalid-token state through reset. They must fail semantic assertions, not merely crash. Range tests include an invalid byte after1000 admitted digits, so a shortcut that stops reading on overflow is falsified.
+
+The111751-row oracle uses Python's independent byte alphabet admission and arbitrary-precision integer conversion. It compares original B02, new one-shot radix, hosted adapter and streaming finish under each tested split. Root/rubric readiness must also bind the lifecycle, libc behavior, target audit and exported scaffold, not only the row count. The original strict decimal specification and previous campaign remain unchanged. No human-independent review, learner result, physically measured target behavior or exact published-standard access is inferred.

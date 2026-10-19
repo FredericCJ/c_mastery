@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "family": "corpus_storage",
+  "title": "Ordered randomized/versioned/merge storage",
+  "build_system": "cmake",
+  "assessor_root": "assessor/corpus_storage",
+  "projects": [],
+  "units": [],
+  "modules": [
+    "T14",
+    "T15"
+  ],
+  "dependencies": [],
+  "tests": [
+    "corpus_storage.skip",
+    "corpus_storage.tree",
+    "corpus_storage.lsm"
+  ],
+  "exercises": [
+    {
+      "id": "X-T14-015",
+      "project": "PR-T14-09",
+      "tests": [
+        "corpus_storage.skip"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Skip-list ordering, deterministic state and probabilistic limits"
+    },
+    {
+      "id": "X-T14-016",
+      "project": "PR-T14-09",
+      "tests": [
+        "corpus_storage.tree"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Path-copy B-tree versions, retained roots and tombstone vacuum"
+    },
+    {
+      "id": "X-T15-017",
+      "project": "PR-T15-10",
+      "tests": [
+        "corpus_storage.lsm"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Ordered runs, versioned merge and tombstone-safe compaction"
+    }
+  ],
+  "contract": "labs/corpus_storage/CONTRACTS.md",
+  "fixture": "fixtures/corpus_storage/cases.json",
+  "campaign": {
+    "producer": "tools/run_corpus_storage.py",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "assertion_marker": "SS_ASSERT:",
+    "mutants_per_anchor": 2,
+    "fixture_oracle": "assessor/corpus_storage/oracle.py",
+    "oracle_driver": "storage_driver"
+  }
+}

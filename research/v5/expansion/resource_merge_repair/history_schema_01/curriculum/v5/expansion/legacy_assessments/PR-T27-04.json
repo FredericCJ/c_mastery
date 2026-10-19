@@ -1,0 +1,834 @@
+{
+  "schema_version": 1,
+  "project": "PR-T27-04",
+  "domain": "T27",
+  "title": "Minimal startup replacement — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/bringup_depth/CONTRACTS.md",
+    "labs/bringup_depth/BOARD_CAPTURE.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T27.md",
+        "sha256": "e809dd06bc724518f8101506b7e9ed4cb285da9708028209a013ed562a99b990",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T27-04.md",
+        "sha256": "96e5219dc8e8bc88390242155a77703203ca8eb2cbc5de78ddcfa0b5b12b50f8",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T27-04.json",
+        "sha256": "19eddc58c7fe9dd0bfb62275a0fe3c523fc6e4a892afbe2b5b21f2772830da4c",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T27.md",
+        "anchors": [
+          "T27.06",
+          "T27.08"
+        ]
+      }
+    ],
+    "units": [
+      "U-T27-04-01",
+      "U-T27-04-02",
+      "U-T27-04-03"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "E",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-LSYS-LD-KEEP",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.6.4.4 Input Section and Garbage Collection, complete short page"
+      ]
+    },
+    {
+      "id": "R-LSYS-LD-LMA",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.6.8.2 Output Section LMA, complete short page"
+      ]
+    },
+    {
+      "id": "R-BU-RM21",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.3.1 pp68;2.4 Table2 p69",
+        "6.2.1–6.2.3 pp156–157;RCC_CR p164;RCC_PLLCFGR p165",
+        "RCC_CSR reset flag and LSI fields pp202–204",
+        "21.1–21.4.5 IWDG startup, debug, keys, prescaler, update flags and register map pp711–715"
+      ]
+    },
+    {
+      "id": "R-BU-PM10",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.3 exception model pp38–44; rendered Figure12 p43",
+        "4.2.4–4.2.10 MPU pp199–206, including conflicting SIZE prose versus formula/Table43 p205",
+        "ICSR p225;4.6.6 enabling FPU p257"
+      ]
+    },
+    {
+      "id": "R-BU-H745",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.1.1–2.1.7 pp110–112",
+        "2.4–2.6 pp143–145; rendered Tables8–9 p144",
+        "Hold boot pp362–363;RCC_GCR p477"
+      ]
+    },
+    {
+      "id": "R-BU-DS14",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "3.4–3.8 pp22–23",
+        "3.14–3.15 pp25–26",
+        "8 Ordering information p226"
+      ]
+    },
+    {
+      "id": "R-BU-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "7.3–7.4 pp17–22",
+        "7.8.1 p26 MCO/crystal/bypass source and bridge configurations",
+        "8.1 p73 physical product/PCB/assembly markings"
+      ]
+    },
+    {
+      "id": "R-BU-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "Summary Table3 core limitations p2",
+        "2.1.1 interrupted SP loads p7",
+        "2.1.2 VDIV/VSQRT and lazy context p7–8",
+        "2.1.3 buffered store/exception return p8 beginning"
+      ]
+    },
+    {
+      "id": "R-BU-VENDOR",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "F429 reset template lines26–120;F439 template lines26–260",
+        "F429ZI linker script complete197 logical web lines; local full text including CCM warning and discard clauses"
+      ]
+    },
+    {
+      "id": "R-BU-QEMU",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "source lines97–247 memory aliases, fixed clocks,32 IRQs, modeled interfaces",
+        "master manual AN386 identification and differences lines5–83; version line98"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T27-04.md",
+    "fixtures/embedded/PR-T27-04.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md",
+    "labs/bringup_depth/authority_cases.json",
+    "labs/bringup_depth/board_capture.json",
+    "labs/bringup_depth/BOARD_CAPTURE.md",
+    "labs/bringup_depth/bringup.c",
+    "labs/bringup_depth/bringup.h",
+    "labs/bringup_depth/check_capture.py",
+    "labs/bringup_depth/check_image.py",
+    "labs/bringup_depth/CONTRACTS.md",
+    "labs/bringup_depth/run.py",
+    "labs/bringup_depth/target/image.ld.in",
+    "labs/bringup_depth/target/reset.S",
+    "labs/bringup_depth/target/run.py",
+    "labs/bringup_depth/tests.c",
+    "labs/bringup_depth/lifecycle.c",
+    "labs/bringup_depth/lifecycle.h",
+    "labs/bringup_depth/lifecycle_tests.c"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "bringup_successor": {
+      "path": "research/v5/expansion/legacy_advanced_bringup/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T27-04-T27.06.a",
+        "AX-PR-T27-04-T27.06.b",
+        "AX-PR-T27-04-T27.06.c",
+        "AX-PR-T27-04-T27.08.a",
+        "AX-PR-T27-04-T27.08.b",
+        "AX-PR-T27-04-T27.08.c"
+      ],
+      "scope": "Exact original T27 criteria, separate host/model/MPS2/cross-build/physical dimensions; no other project closed by association"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T27-04-T27.06.a",
+      "title": "Configure only required clocks, memory access, and core state.",
+      "objective": "T27.06.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Implement an early-clock state machine with enable, bounded ready polling and dependent-hook entry. Test ready-on-last-permitted-poll and never-ready; retain a fallback/fail-stop policy before any UART diagnostic dependency.",
+      "purpose": "Enabling an oscillator means it is stable immediately.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Enabling an oscillator means it is stable immediately. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Enabling an oscillator means it is stable immediately.",
+        "D2": "Implement an early-clock state machine with enable, bounded ready polling and dependent-hook entry. Test ready-on-last-permitted-poll and never-ready; retain a fallback/fail-stop policy before any UART diagnostic dependency.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change oscillator source from crystal to external bypass and identify new hardware/configuration evidence needed."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Readiness and selected clock source are distinct states; later initialization cannot assume an unsuccessful switch completed.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Readiness and selected clock source are distinct states; later initialization cannot assume an unsuccessful switch completed. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change oscillator source from crystal to external bypass and identify new hardware/configuration evidence needed. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List the dependencies of the first diagnostic instruction.",
+        "Clock readiness must be bounded, and the fallback cannot use a peripheral whose prerequisites failed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change oscillator source from crystal to external bypass and identify new hardware/configuration evidence needed."
+        }
+      ],
+      "assessor_anchor": "#t2706a",
+      "facet_scope": {
+        "teaching": "Retained T27.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T27-04-T27.06.b",
+      "title": "Account for floating-point and privilege configuration where needed.",
+      "objective": "T27.06.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Audit whether startup and early C use floating-point instructions before enabling the required FPU access. Inspect actual object attributes/disassembly and define privilege transitions explicitly; do not execute unsupported instructions as a test oracle.",
+      "purpose": "Selecting a hard-float ABI automatically enables the hardware FPU.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Selecting a hard-float ABI automatically enables the hardware FPU. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Selecting a hard-float ABI automatically enables the hardware FPU.",
+        "D2": "Audit whether startup and early C use floating-point instructions before enabling the required FPU access. Inspect actual object attributes/disassembly and define privilege transitions explicitly; do not execute unsupported instructions as a test oracle.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Build soft-float and hard-float variants and identify both call-boundary and early-runtime dependencies."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Compiler ABI choice, implemented FPU and permission/core state are different contracts.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Compiler ABI choice, implemented FPU and permission/core state are different contracts. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Build soft-float and hard-float variants and identify both call-boundary and early-runtime dependencies. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List the dependencies of the first diagnostic instruction.",
+        "Clock readiness must be bounded, and the fallback cannot use a peripheral whose prerequisites failed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Build soft-float and hard-float variants and identify both call-boundary and early-runtime dependencies."
+        }
+      ],
+      "assessor_anchor": "#t2706b",
+      "facet_scope": {
+        "teaching": "Retained T27.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T27-04-T27.06.c",
+      "title": "Respect device-specific ordering and readiness conditions.",
+      "objective": "T27.06.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Trace configure-PLL-while-disabled, enable, wait-ready and clock selection under RM21; reject configuration changes while the modeled PLL is active. Include a timeout with no dependent peripheral activation.",
+      "purpose": "A volatile register write completes every clock-tree transition synchronously.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A volatile register write completes every clock-tree transition synchronously. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A volatile register write completes every clock-tree transition synchronously.",
+        "D2": "Trace configure-PLL-while-disabled, enable, wait-ready and clock selection under RM21; reject configuration changes while the modeled PLL is active. Include a timeout with no dependent peripheral activation.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Insert a clock failure after startup and define how dependent timing configuration is invalidated and recovered."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Device sequencing/readiness semantics govern transitions; ordering instructions cannot manufacture oscillator stability.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Device sequencing/readiness semantics govern transitions; ordering instructions cannot manufacture oscillator stability. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Insert a clock failure after startup and define how dependent timing configuration is invalidated and recovered. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List the dependencies of the first diagnostic instruction.",
+        "Clock readiness must be bounded, and the fallback cannot use a peripheral whose prerequisites failed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Insert a clock failure after startup and define how dependent timing configuration is invalidated and recovered."
+        }
+      ],
+      "assessor_anchor": "#t2706c",
+      "facet_scope": {
+        "teaching": "Retained T27.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T27-04-T27.08.a",
+      "title": "Read and annotate vendor startup before replacing selected parts.",
+      "objective": "T27.08.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-KEEP",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.4.4 Input Section and Garbage Collection, complete short page"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-LMA",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.8.2 Output Section LMA, complete short page"
+          ]
+        }
+      ],
+      "task": "Annotate an actual selected vendor startup/linker pair by reset, vector, copy/zero, clock, hooks and entry responsibilities. Distinguish generated declarations from inspected implementation and preserve the exact version/hash.",
+      "purpose": "A vendor startup is self-explanatory and portable across all boards.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A vendor startup is self-explanatory and portable across all boards. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A vendor startup is self-explanatory and portable across all boards.",
+        "D2": "Annotate an actual selected vendor startup/linker pair by reset, vector, copy/zero, clock, hooks and entry responsibilities. Distinguish generated declarations from inspected implementation and preserve the exact version/hash.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change toolchain runtime conventions and identify which vendor hooks no longer match the image contract."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Vendor code encodes target/runtime assumptions requiring explicit mapping before replacement; uninspected source remains a prerequisite gap.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Vendor code encodes target/runtime assumptions requiring explicit mapping before replacement; uninspected source remains a prerequisite gap. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change toolchain runtime conventions and identify which vendor hooks no longer match the image contract. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Annotate each startup responsibility before replacing vendor code.",
+        "Compare your resulting image and link closure with the responsibility map; source resemblance is not behavioral equivalence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change toolchain runtime conventions and identify which vendor hooks no longer match the image contract."
+        }
+      ],
+      "assessor_anchor": "#t2708a",
+      "facet_scope": {
+        "teaching": "Retained T27.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T27-04-T27.08.b",
+      "title": "Implement a minimal startup with explicit linker symbols.",
+      "objective": "T27.08.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-KEEP",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.4.4 Input Section and Garbage Collection, complete short page"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-LMA",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.8.2 Output Section LMA, complete short page"
+          ]
+        }
+      ],
+      "task": "Replace only vector/copy/zero/entry pieces with original assembly/C and linker symbols, retaining declared unsupported services. Compare actual ELF/map/undefined-symbol evidence and run only a matching available emulator.",
+      "purpose": "A minimal startup can omit any service without changing application assumptions.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A minimal startup can omit any service without changing application assumptions. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A minimal startup can omit any service without changing application assumptions.",
+        "D2": "Replace only vector/copy/zero/entry pieces with original assembly/C and linker symbols, retaining declared unsupported services. Compare actual ELF/map/undefined-symbol evidence and run only a matching available emulator.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a second initialized RAM bank and a retained record without copying a complete vendor runtime."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Removing a dependency requires revising every caller and entry precondition; the final closure must match the supported subset.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Removing a dependency requires revising every caller and entry precondition; the final closure must match the supported subset. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a second initialized RAM bank and a retained record without copying a complete vendor runtime. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Annotate each startup responsibility before replacing vendor code.",
+        "Compare your resulting image and link closure with the responsibility map; source resemblance is not behavioral equivalence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a second initialized RAM bank and a retained record without copying a complete vendor runtime."
+        }
+      ],
+      "assessor_anchor": "#t2708b",
+      "facet_scope": {
+        "teaching": "Retained T27.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T27-04-T27.08.c",
+      "title": "Compare symbols, image layout, and observable reset behavior.",
+      "objective": "T27.08.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-KEEP",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.4.4 Input Section and Garbage Collection, complete short page"
+          ]
+        },
+        {
+          "id": "R-LSYS-LD-LMA",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "3.6.8.2 Output Section LMA, complete short page"
+          ]
+        }
+      ],
+      "task": "Compare vendor and original images using vector bytes, section addresses, symbol ownership, before-entry RAM sentinels and reset markers. Explain differences instead of requiring accidental binary equality.",
+      "purpose": "Equal final application output proves identical startup behavior.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T27.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T27-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Equal final application output proves identical startup behavior. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Equal final application output proves identical startup behavior.",
+        "D2": "Compare vendor and original images using vector bytes, section addresses, symbol ownership, before-entry RAM sentinels and reset markers. Explain differences instead of requiring accidental binary equality.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Remove debugger initialization and repeat the available cold-emulator path; keep physical power-cycle evidence separate."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Startup defects may be masked by debugger state or unused memory; discriminating pre-entry observations are necessary.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Startup defects may be masked by debugger state or unused memory; discriminating pre-entry observations are necessary. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Remove debugger initialization and repeat the available cold-emulator path; keep physical power-cycle evidence separate. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Annotate each startup responsibility before replacing vendor code.",
+        "Compare your resulting image and link closure with the responsibility map; source resemblance is not behavioral equivalence."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T27-04-T27.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Remove debugger initialization and repeat the available cold-emulator path; keep physical power-cycle evidence separate."
+        }
+      ],
+      "assessor_anchor": "#t2708c",
+      "facet_scope": {
+        "teaching": "Retained T27.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T27-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_bringup/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T27-04-T27.06.a",
+        "AX-PR-T27-04-T27.06.b",
+        "AX-PR-T27-04-T27.06.c",
+        "AX-PR-T27-04-T27.08.a",
+        "AX-PR-T27-04-T27.08.b",
+        "AX-PR-T27-04-T27.08.c"
+      ],
+      "scope": "Exact original T27 criteria, separate host/model/MPS2/cross-build/physical dimensions; no other project closed by association"
+    }
+  ]
+}

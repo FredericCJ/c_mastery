@@ -1,17 +1,46 @@
 """Validate, stage and reproduce v4 exports before replacing final bundles."""
 from datetime import datetime, timezone
+import hashlib
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import zipfile
 import accept_v4
-from common import ROOT, read_json, sha, dump
+from common import ROOT, read_json, dump
 from v2_common import source_identity
 from package import write_zip
 
 ARCHIVES = ('c_mastery_v4_sources.zip', 'c_mastery_v4_learner.zip',
             'c_mastery_v4_assessor.zip', 'c_mastery_v4_html.zip')
+
+
+def sha(path):
+    """Bound memory while hashing retained execution inputs and large ZIPs."""
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def source_files(identity, receipts):
+    """Select source and evidence without ingesting this packaging run's outputs.
+
+    Scoped package_validation/guard records are assessment evidence. Only the
+    two files this producer rewrites during packaging must be excluded; a
+    basename prefix would silently remove required provider evidence.
+    """
+    changing = {ROOT / receipts / name for name in ('package_report.json', 'package_build.log')}
+    files = [ROOT / p for p in identity['files']]
+    for folder in ('planning', 'reviews'):
+        files += [p for p in (ROOT / folder).rglob('*')
+                  if p.is_file() and not {'private', '__pycache__'} & set(p.relative_to(ROOT).parts)
+                  and p not in changing]
+    for name in ('serve.ps1', 'c_programming_mastery_curriculum.md',
+                 'c_programming_mastery_curriculum_prompt.md',
+                 'c_programming_mastery_curriculum_prompt_expanded.md',
+                 'c_programming_mastery_fine_grained_taxonomy.md'):
+        if (ROOT / name).exists():
+            files.append(ROOT / name)
+    return sorted(set(files))
 
 
 def bounded_directory(relative):
@@ -58,7 +87,8 @@ def promote(archives, dist, candidate):
 
 
 def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_prefix='v4_',
-            build_script='tools/build_v4.py', schema_version=4, fixed_point=(), learner_filter=None):
+            build_script='tools/build_v4.py', schema_version=4, fixed_point=(), learner_filter=None,
+            author_environment_manifest=None):
     # Reviews and execution receipts are deliberately outside canonical identity.
     # Re-evaluate them, including their current status, before creating exports.
     (accept or accept_v4.main)()
@@ -72,18 +102,18 @@ def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_pre
     if candidate.resolve().parent != candidates.resolve():
         raise ValueError('Unsafe release candidate')
     candidate.mkdir(exist_ok=False)
-    files = [ROOT / p for p in identity['files']]
-    for folder in ['planning', 'reviews']:
-        files += [p for p in (ROOT / folder).rglob('*')
-                  if p.is_file() and not {'private', '__pycache__'} & set(p.relative_to(ROOT).parts)
-                  and not p.name.startswith('package')]
-    for name in ['serve.ps1', 'c_programming_mastery_curriculum.md',
-                 'c_programming_mastery_curriculum_prompt.md',
-                 'c_programming_mastery_curriculum_prompt_expanded.md',
-                 'c_programming_mastery_fine_grained_taxonomy.md']:
-        if (ROOT / name).exists():
-            files.append(ROOT / name)
-    files = sorted(set(files))
+    files = source_files(identity, receipts)
+    author_environment=None
+    environment_report={'provisioned':False,'files':0}
+    if author_environment_manifest is not None:
+        from candidate_author_environment import discover,validate_manifest,stage,verify_staged
+        manifest_path=(ROOT/author_environment_manifest).absolute()
+        if manifest_path.resolve()!=manifest_path or not manifest_path.is_relative_to(ROOT.resolve()) or not manifest_path.is_file():
+            raise ValueError('Author environment manifest must be a regular unredirected repository file')
+        author_environment=read_json(manifest_path)
+        archive_names={p.relative_to(ROOT).as_posix() for p in files}
+        expected_environment=discover(ROOT,identity,archive_names)
+        validate_manifest(author_environment,expected_environment)
     source, learner, assessor, html_zip = [candidate / name for name in archives]
     source_entries = write_zip(source, files, ROOT)
     learner_files = [p for p in files if 'assessor' not in p.relative_to(ROOT).parts
@@ -119,11 +149,17 @@ def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_pre
     for relative, digest in identity['files'].items():
         if sha(check / relative) != digest:
             raise ValueError('Archive differs from accepted source: ' + relative)
+    if author_environment is not None:
+        environment_report=stage(ROOT,check,author_environment,expected_environment,archive_names)
+        environment_report.update(manifest=manifest_path.relative_to(ROOT).as_posix(),manifest_file_sha256=sha(manifest_path))
+        dump(candidate/'author_environment_manifest.json',author_environment)
+        dump(candidate/'author_environment.json',environment_report)
     run = subprocess.run([sys.executable, '-X', 'utf8', str(check / build_script)],
                          cwd=check, capture_output=True, text=True, encoding='utf-8')
     (ROOT / receipts / 'package_build.log').write_text(run.stdout + '\n' + run.stderr, encoding='utf-8')
     if run.returncode:
         raise ValueError('Extracted-source build failed; see package_build.log')
+    if author_environment is not None:verify_staged(ROOT,check,author_environment)
     rebuilt = check / 'build/html'
     rebuilt_files = [p for p in rebuilt.rglob('*') if p.is_file() and '.doctrees' not in p.parts
                      and p.name not in {'.buildinfo', '.buildinfo.bak'}]
@@ -160,7 +196,8 @@ def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_pre
               'learner_excludes_assessor': True, 'fresh_extracted_source_rebuild': True,
               'reproduced_html_files': len(original_map), 'standalone_sha256': sha(check / markdown),
               'extraction': check.relative_to(ROOT).as_posix(),
-              'scope': 'Fresh source rebuild with existing locked publishing environment. '
+              'author_environment':environment_report,
+              'scope': 'Fresh source rebuild with existing locked publishing environment and any explicitly recorded local author inputs; provisioned inputs remain outside the ZIPs, so that result is not self-contained archive reproduction. '
                        'Hardware and learner mastery are not asserted.'}
     promote(staged, dist, candidate)
     return report

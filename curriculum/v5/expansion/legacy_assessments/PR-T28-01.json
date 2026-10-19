@@ -5,7 +5,9 @@
   "title": "Side-effect MMIO and GPIO — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -114,6 +116,36 @@
       "passages": [
         "6.11.2 Volatile; Output Operands; Input Operands; Clobbers and Scratch Registers, through line 569"
       ]
+    },
+    {
+      "id": "R-PM-RM21",
+      "path": "research/v5/expansion/legacy_advanced_mmio/resources.json",
+      "passages": [
+        "8.3.1–8.3.12 pp272–281 including one-shot/set-priority and open-drain behavior",
+        "8.4.1–8.4.11 pp284–290 including specific IDR/lock widths, BSRR and offsets"
+      ]
+    },
+    {
+      "id": "R-PM-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_mmio/resources.json",
+      "passages": [
+        "7.5–7.6 p25 LD1 PB0/PA5 bridges, LD2/LD3 and user-button routing"
+      ]
+    },
+    {
+      "id": "R-PM-DS14",
+      "path": "research/v5/expansion/legacy_advanced_mmio/resources.json",
+      "passages": [
+        "Table10 p53 column ordering; pp58–59 PA5/PB0 rows for LQFP100/LQFP144"
+      ]
+    },
+    {
+      "id": "R-PM-N1570",
+      "path": "research/v5/expansion/legacy_advanced_mmio/resources.json",
+      "passages": [
+        "6.7.3p6–7 PDFp140/printed122",
+        "5.1.2.4p4–5 PDF35–36 andp25 PDF38"
+      ]
     }
   ],
   "reference_gaps": [
@@ -126,7 +158,15 @@
     "curriculum/projects/PR-T28-01.md",
     "fixtures/embedded/PR-T28-01.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/peripheral_depth/mmio/mmio.c",
+    "labs/peripheral_depth/mmio/mmio.h",
+    "labs/peripheral_depth/mmio/run.py",
+    "labs/peripheral_depth/mmio/target.c",
+    "labs/peripheral_depth/mmio/tests.c",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -134,7 +174,22 @@
     "tests": [
       "firmware_io.gpio"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "mmio_gpio_successor": {
+      "path": "research/v5/expansion/legacy_advanced_mmio/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-01-T28.01.a",
+        "AX-PR-T28-01-T28.01.b",
+        "AX-PR-T28-01-T28.01.c",
+        "AX-PR-T28-01-T28.02.a",
+        "AX-PR-T28-01-T28.02.b",
+        "AX-PR-T28-01-T28.02.c",
+        "AX-PR-T28-01-T28.04.a",
+        "AX-PR-T28-01-T28.04.b",
+        "AX-PR-T28-01-T28.04.c"
+      ],
+      "scope": "Only T28.01/.02/.04 nine ordinary+nine delayed; original FW-03 reference composition; other T28 tasks remain required"
+    }
   },
   "criteria": [
     {
@@ -981,7 +1036,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-01.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -989,5 +1044,22 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_mmio/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-01-T28.01.a",
+        "AX-PR-T28-01-T28.01.b",
+        "AX-PR-T28-01-T28.01.c",
+        "AX-PR-T28-01-T28.02.a",
+        "AX-PR-T28-01-T28.02.b",
+        "AX-PR-T28-01-T28.02.c",
+        "AX-PR-T28-01-T28.04.a",
+        "AX-PR-T28-01-T28.04.b",
+        "AX-PR-T28-01-T28.04.c"
+      ],
+      "scope": "Only T28.01/.02/.04 nine ordinary+nine delayed; original FW-03 reference composition; other T28 tasks remain required"
+    }
+  ]
 }

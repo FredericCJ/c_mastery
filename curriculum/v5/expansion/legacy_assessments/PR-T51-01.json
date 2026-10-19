@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T51-01",
   "domain": "T51",
-  "title": "Atomic wait enrollment and lost-wakeup prevention — explicit depth assessments",
+  "title": "Atomic wait enrollment and lost-wakeup prevention \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/wait/IRQ.md"
   ],
   "baseline_binding": {
     "files": [
@@ -123,8 +125,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     }
   ],
@@ -137,7 +139,23 @@
     "curriculum/projects/PR-T51-01.md",
     "fixtures/os_v3/PR-T51-01.json",
     "labs/execution/README.md",
-    "curriculum/guides/concurrent-system-contracts.md"
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/wait/irq.c",
+    "labs/concurrency_lifecycle_depth/wait/irq.h",
+    "labs/concurrency_lifecycle_depth/wait/IRQ.md",
+    "labs/concurrency_lifecycle_depth/wait/m4.c",
+    "labs/concurrency_lifecycle_depth/wait/model.py",
+    "labs/concurrency_lifecycle_depth/wait/native.c",
+    "labs/concurrency_lifecycle_depth/wait/run_wait.py",
+    "labs/concurrency_lifecycle_depth/wait/tests.c",
+    "labs/concurrency_lifecycle_depth/wait/trace.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.h",
+    "labs/execution/include/cmx.h",
+    "labs/execution/src/cmx.c",
+    "labs/execution/src/support.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -179,8 +197,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -243,6 +261,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.a"
       }
     },
     {
@@ -278,8 +300,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -342,6 +364,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.b"
       }
     },
     {
@@ -377,8 +403,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -441,6 +467,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.c"
       }
     }
   ],
@@ -455,5 +485,17 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+      "project": "PR-T51-01",
+      "criterion_ids": [
+        "AX-PR-T51-01-T51.01.a",
+        "AX-PR-T51-01-T51.01.b",
+        "AX-PR-T51-01-T51.01.c"
+      ],
+      "scope": "Actual CMX import, generation wrapper, finite oracle, pinned pthread and isolated M4 IRQ observations; no physical or independent learner claim."
+    }
+  ]
 }

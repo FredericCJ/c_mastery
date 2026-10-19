@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "DISPATCH-PUBLICATION-ENCODING-01",
+  "status": "required-publication-repair-pending-coordinated-reconciliation",
+  "detected": "2026-10-18",
+  "provider": "labs/dispatch/CONTRACTS.md",
+  "provider_sha256": "8859396a98aff069e557d87f7f975c9e8843bd3786a0d3d6b03f761ca242a718",
+  "exact_affected_lines": [
+    {
+      "line": 11,
+      "exact_text": "ds_fold admits0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“16 ints and a nonnull DSCombine callback, folds left from initial, and publishes only after all callbacks succeed. A null input is valid only for length0. Callback effects are retained if a later callback fails; output preservation is not effect rollback. ds_sum is a direct specialized checked-add alternative under the same prefix-overflow policy. Values that overflow an intermediate prefix reject even if the final mathematical sum would fit. Operand order matters for a noncommutative dictionary."
+    },
+    {
+      "line": 25,
+      "exact_text": "`capture.h` extends the original erased anchor with 1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“8 signed 32-bit values. This hosted codec requires CHAR_BIT=8 and 32-bit int, checked by translation-time assertions. Encode each value in four little-endian octets, interpreting negative values modulo 2^32. Decode each into an actual int32_t local: words above INT32_MAX become `-1 - (int32_t)(UINT32_MAX-word)`. Never cast capture storage to int32_t*. Call adds all decoded values and the argument in int64_t, checks the final sum against INT32_MIN/MAX and publishes once; intermediate int32 overflow is irrelevant to this specified final-sum policy. Rejection leaves output unchanged. Length0 or above8 rejects; unsupported over-aligned, self-referential or arbitrary C object captures have no implicit codec. The safe self-reference counterexample copies a live pointer whose referent remains the original object's member, not the copy's member."
+    },
+    {
+      "line": 27,
+      "exact_text": "`ds_capture_i32` borrows its input only during construction. Successful construction owns encoded copies and transfers the optional resource destructor obligation; failure leaves the resource with the caller. Captures of1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“4 values use DSmall's inline16 bytes;5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“8 values spill. `ds_borrowed_i32` performs the same final-sum calculation without copying, owning or retaining input. Its caller keeps the complete input alive and unchanged for the synchronous call. It makes no asynchronous lifetime guarantee."
+    },
+    {
+      "line": 29,
+      "exact_text": "The explicit `ds_counted_bytes` adapter imports **the actual T66 OwAllocator**, not another allocator with similar counters. A nonnull, zero-initialized/live OwAllocator stays at one address through all allocations/releases. The adapter admits1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“64 bytes, requests ceil(n/sizeof(int32_t)) elements from its actual V4Allocator and returns a character pointer to the complete allocated int32_t[16] row object. Byte use is access to that complete array's representation, not a conversion creating arbitrary typed objects. Zero/above64 requests return null before upstream allocation and are outside this adapter's capacity; the general DSmall128-byte limit does not enlarge it. Eight live rows exhaust the actual pool; failed requests transfer no ownership. Release accepts only a currently owned row returned by the adapter. Host tooling and the supplied allocator are explicit dependencies; no target allocator or freestanding claim follows."
+    },
+    {
+      "line": 31,
+      "exact_text": "`DSTypedCapture` is the separately implemented concrete typed alternative: a union holds int32_t local[4] or an actual allocator-provided int32_t array, with count, spill tag and V4Allocator. Init/drop require live nonnull storage; assign requires empty initialized destination and1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“8 disjoint input values. Missing allocation callbacks reject a spill; allocation failure leaves destination empty. Move requires distinct empty destination and nonempty source, transfers the allocator/representation and clears source; drop releases one spilled allocation and is idempotent. Copying owning structs is outside the ownership contract. Neither alternative automatically demotes a spill on a call. DSmall truncation retains capacity until explicit compact, so a separate threshold oscillation experiment must distinguish retention from compact-every-time churn."
+    },
+    {
+      "line": 47,
+      "exact_text": "DSAuthority owns a synthetic counter, rights bits0(read)/1(add) and epoch1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“3, then retired4. Issue admits only a subset of current rights. Attenuation can only remove rights from the given capability, preserving owner/epoch. Add requires matching live owner/epoch and add rights in both root and capability, then performs checked int addition. Revoke increments epoch, including retirement at4; later issue denies and further revoke returns DS_FULL. Old capabilities reject with DS_STALE. This is an original local cooperative API threat model: attacker chooses requests and receives legitimately issued values, but cannot fabricate pointers/struct fields, mutate the authority or read arbitrary process memory. C data alone is not an unforgeable hardware or language capability. The exercise separately requires this counterexample and a boundary design that can enforce it."
+    },
+    {
+      "line": 53,
+      "exact_text": "DSLoaded initially empty; open failure leaves it empty. Acquire returns a borrowed API pointer and increments a bounded borrow count0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“4. Release decrements a matching held borrow; the caller clears every derived callback pointer before release. Close rejects with DS_BUSY while borrows remain; after successful dlclose it clears handle/API. An unloaded function pointer must never be called. Logical invalidation is required even when a loader keeps an image mapped. A failed close retains ownership for explicit recovery."
+    },
+    {
+      "line": 55,
+      "exact_text": "DSHost has current and one retired module, state and non-wrapping generation0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“3. Reload requires a live unborrowed candidate, quiescent current, empty retired slot and generation<3. Candidate migrate receives old schema (0 for no current) and old integer state. Only after successful migration does host transfer current to retired, candidate to current, clear candidate and publish state/generation. Failure retains all ownership/state. Collect closes retired separately; failed collection retains it and blocks another reload. The original plugin1 preserves state and plugin2 doubles it, accepting source schema0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“2 and state0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“500. apply admits state0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“1000 and amount0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“100, then returns their sum. No asynchronous callbacks, thread-local plugin state, external registration or resource pointers survive quiescence in this model. Their addition is a required changed-condition protocol, not covered by the smoke test."
+    }
+  ],
+  "affected_current_pinned_consumers": [
+    {
+      "path": "research/v5/modern/dispatch_objective_readiness.json",
+      "sha256": "8df5697e22afe3ecc1a3d3e546967ab54a61b16d6c136864ba9603ab13c98d95",
+      "criteria": [
+        "X-T69-001-R1",
+        "X-T69-001-R2",
+        "X-T69-001-R3",
+        "X-T69-001-R4",
+        "X-T69-002-R1",
+        "X-T69-002-R2",
+        "X-T69-002-R3",
+        "X-T69-002-R4",
+        "X-T69-003-R1",
+        "X-T69-003-R2",
+        "X-T69-003-R3",
+        "X-T69-003-R4",
+        "X-T69-004-R1",
+        "X-T69-004-R2",
+        "X-T69-004-R3",
+        "X-T69-004-R4",
+        "X-T69-005-R1",
+        "X-T69-005-R2",
+        "X-T69-005-R3",
+        "X-T69-005-R4",
+        "X-T69-005-R5",
+        "X-T69-006-R1",
+        "X-T69-006-R2",
+        "X-T69-006-R3",
+        "X-T69-006-R4",
+        "X-T69-007-R1",
+        "X-T69-007-R2",
+        "X-T69-007-R3",
+        "X-T69-007-R4",
+        "X-T69-008-R1",
+        "X-T69-008-R2",
+        "X-T69-008-R3",
+        "X-T69-008-R4",
+        "X-T69-009-R1",
+        "X-T69-009-R2",
+        "X-T69-009-R3",
+        "X-T69-009-R4",
+        "X-T69-010-R1",
+        "X-T69-010-R2",
+        "X-T69-010-R3",
+        "X-T69-010-R4",
+        "X-T69-011-R1",
+        "X-T69-011-R2",
+        "X-T69-011-R3",
+        "X-T69-011-R4"
+      ],
+      "binding": "exact current provider hash"
+    },
+    {
+      "path": "research/v5/modern/dod_objective_readiness.json",
+      "sha256": "3d776c6f63f69768a0982827d1f74a931deca24b2a09516313c5f37caa924013",
+      "criteria": [
+        "X-T70-002-R1"
+      ],
+      "binding": "exact current provider hash"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+      "sha256": "34d319e1c2ff9d8b1952c8d51cc2304c6a6b9a0a06dd67de2f1a549632ada17c",
+      "bindings": [
+        {
+          "location": "/inspected_paths/labs/dispatch/CONTRACTS.md",
+          "value": "8859396a98aff069e557d87f7f975c9e8843bd3786a0d3d6b03f761ca242a718"
+        }
+      ]
+    }
+  ],
+  "additional_traceability": "research/v5/modern/dispatch_completion_dispositions.json names the provider as teaching evidence; historical integrated receipts also retain earlier pins and must not be overwritten. This is a scoped current-consumer inventory, not an exhaustive transitive closure.",
+  "proposed_strategy": [
+    "Keep the frozen provider and observed receipts unchanged during active consumers.",
+    "At coordinated reconciliation, locate and repair maintained canonical author text or recipe; replace corrupted numeric range separators with explicit ASCII through wording after comparing implementation bounds. No semantic range changes.",
+    "Create a versioned correction record preserving old/new provider hashes and line mapping. Re-run affected source-bound campaign, guards, readiness producers and actual exports against corrected text; preserve prior observations as historical evidence.",
+    "Refresh current disposition and publication links only from the new executed reports; do not replace hash fields inside historical receipts or infer executions. Recheck descendants from the exact changed path."
+  ],
+  "implementation_semantics_changed": false,
+  "repair_executed": false,
+  "limitations": [
+    "Text defect does not itself establish an implementation failure. Source-bound current evidence remains bound to the displayed corrupted text until the coordinated correction."
+  ],
+  "additional_current_inspection_consumer": {
+    "path": "research/v5/modern/ownership_authority_boundary_resources.json",
+    "sha256": "bc70af83e089436b70354092e9143f37791f7ed496b97b6ae8ada0a4ce4e47e9",
+    "binding": "inspected_artifacts entry for dispatch/CONTRACTS.md, cooperative threat-model comparison only; not an executable import or reverse prerequisite",
+    "refresh_required": "After versioned text correction, re-read exact corrected clause and refresh this resource gate plus its source-bound authority packet report/readiness honestly."
+  },
+  "required_work": [
+    {
+      "id": "DISPATCH-PUBLICATION-ENCODING-01",
+      "domains": [
+        "T69",
+        "T70",
+        "T66"
+      ],
+      "requirement": "Repair eight corrupted numeric-range teaching lines through a versioned correction; preserve historical source/receipt identities and regenerate/revalidate current affected publication, source gates, readiness and exports.",
+      "origins": [
+        "research/v5/modern/dispatch_publication_text_issue.json"
+      ],
+      "current_artifacts": [
+        "labs/dispatch/CONTRACTS.md"
+      ],
+      "prerequisites": [
+        "Freeze active dispatch/DOD/ownership consumers; inspect source bounds before text correction"
+      ],
+      "affected_consumers": [
+        {
+          "path": "research/v5/modern/dispatch_objective_readiness.json",
+          "sha256": "8df5697e22afe3ecc1a3d3e546967ab54a61b16d6c136864ba9603ab13c98d95",
+          "criteria": [
+            "X-T69-001-R1",
+            "X-T69-001-R2",
+            "X-T69-001-R3",
+            "X-T69-001-R4",
+            "X-T69-002-R1",
+            "X-T69-002-R2",
+            "X-T69-002-R3",
+            "X-T69-002-R4",
+            "X-T69-003-R1",
+            "X-T69-003-R2",
+            "X-T69-003-R3",
+            "X-T69-003-R4",
+            "X-T69-004-R1",
+            "X-T69-004-R2",
+            "X-T69-004-R3",
+            "X-T69-004-R4",
+            "X-T69-005-R1",
+            "X-T69-005-R2",
+            "X-T69-005-R3",
+            "X-T69-005-R4",
+            "X-T69-005-R5",
+            "X-T69-006-R1",
+            "X-T69-006-R2",
+            "X-T69-006-R3",
+            "X-T69-006-R4",
+            "X-T69-007-R1",
+            "X-T69-007-R2",
+            "X-T69-007-R3",
+            "X-T69-007-R4",
+            "X-T69-008-R1",
+            "X-T69-008-R2",
+            "X-T69-008-R3",
+            "X-T69-008-R4",
+            "X-T69-009-R1",
+            "X-T69-009-R2",
+            "X-T69-009-R3",
+            "X-T69-009-R4",
+            "X-T69-010-R1",
+            "X-T69-010-R2",
+            "X-T69-010-R3",
+            "X-T69-010-R4",
+            "X-T69-011-R1",
+            "X-T69-011-R2",
+            "X-T69-011-R3",
+            "X-T69-011-R4"
+          ],
+          "binding": "exact current provider hash"
+        },
+        {
+          "path": "research/v5/modern/dod_objective_readiness.json",
+          "sha256": "3d776c6f63f69768a0982827d1f74a931deca24b2a09516313c5f37caa924013",
+          "criteria": [
+            "X-T70-002-R1"
+          ],
+          "binding": "exact current provider hash"
+        },
+        {
+          "path": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+          "sha256": "34d319e1c2ff9d8b1952c8d51cc2304c6a6b9a0a06dd67de2f1a549632ada17c",
+          "bindings": [
+            {
+              "location": "/inspected_paths/labs/dispatch/CONTRACTS.md",
+              "value": "8859396a98aff069e557d87f7f975c9e8843bd3786a0d3d6b03f761ca242a718"
+            }
+          ]
+        },
+        {
+          "path": "research/v5/modern/ownership_authority_boundary_resources.json",
+          "sha256": "bc70af83e089436b70354092e9143f37791f7ed496b97b6ae8ada0a4ce4e47e9",
+          "binding": "inspected_artifacts entry for dispatch/CONTRACTS.md, cooperative threat-model comparison only; not an executable import or reverse prerequisite",
+          "refresh_required": "After versioned text correction, re-read exact corrected clause and refresh this resource gate plus its source-bound authority packet report/readiness honestly."
+        }
+      ],
+      "completion_criteria": [
+        "Readable exact numeric bounds match actual providers",
+        "Versioned old/new source mapping preserved",
+        "Current consumer source-bound evidence and actual exports pass; historical receipts unchanged"
+      ],
+      "required_environment": "Author host, established dispatch/DOD/ownership and publication producers",
+      "state": "required-authoring-and-validation",
+      "external_blockers": []
+    }
+  ]
+}

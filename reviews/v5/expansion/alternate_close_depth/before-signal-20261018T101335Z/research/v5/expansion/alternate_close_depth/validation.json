@@ -1,0 +1,2794 @@
+{
+  "schema_version": 1,
+  "scope": "C17 host reference/seam/cancellation plus licensed QNX8 build probe; no alternate OS execution",
+  "input_sha256": {
+    "assessor/alternate_close_depth/ANALYSIS.md": "bbb7615829b9c3396b05d3a442971301df1e4ec8a04d6c440478ca6ca7cc3cc1",
+    "assessor/alternate_close_depth/close_owner.c": "08978b2ccfd73cadcec3bc678c44fb75fb7b97888d84693f98ac43bcdcf882d9",
+    "labs/alternate_close_depth/CONTRACTS.md": "951788ff1fd43e537444bc52729e3d202b217e23b79fff97314c3dbbd44d64e0",
+    "labs/alternate_close_depth/QNX_TARGET.md": "14e55b03da5a89d3d3b9f6790a5065152cfec7da36ee0f3fe3af5b4bb060e619",
+    "labs/alternate_close_depth/capture.py": "7662b34c38d9e0ff75910c75f27fc70ae4535578d962782820f8bd5f6853c5a6",
+    "labs/alternate_close_depth/close_owner.h": "3e1644cb94f8d2686b97d9bbc77fb2dbb6339b0619fe677e32c3b475f0dcdafb",
+    "labs/alternate_close_depth/learner.c": "34417ddc722f0942a1c41290c388be981ba4b3d9c9035655b2fd0d2ed5c14cd4",
+    "labs/alternate_close_depth/probe.c": "63e624ddfae61b5f20e26e2e4c518a7a4c2079bb65a7827ee2239de1eb1c1838",
+    "labs/alternate_close_depth/qnx_build.py": "432038e17328a9a8cb14808e06c71d54f90bc6bf0b847c29df4fa664e739f4cb",
+    "labs/alternate_close_depth/qnx_manager.c": "f65898ca56f9a202d6179c02887ae1c1f4ffb40dcfadf56760452a52379a0cb4",
+    "labs/alternate_close_depth/qnx_probe.c": "067dfa40d6f7ea268bc77b97863e3da9111d634f523cfb40206bdd7e682a7f30",
+    "labs/alternate_close_depth/run.py": "a88d87f2234de9553d1f8549ce62d11a59c2d6c167e7aa2dd5881658b4728bc0",
+    "labs/alternate_close_depth/tests.c": "ec4c67b635d1d36866b60600e206a87a6dc8218f94cc3699d8bbd7bc955709e3",
+    "research/v5/expansion/alternate_close_depth/research_gate.json": "600ec4a78405dc5b1508cf18c42d9b8a5e31bc1332cead279fb716b51621eee7",
+    "research/v5/expansion/alternate_close_depth/resources.json": "7371ea9a6a4a9a9338b4016c9818f8115a564ef33bef19217681fb8428e0bcc5",
+    "tools/run_alternate_close_depth.py": "57a99ed64208657a303e5398bff5641e19843084a1ad02207327377efbae1670",
+    "tools/verify_alternate_close_depth.py": "8820a09228e466ee4d11ef91e849f0c7df7a56a9997ddd37694d827370261e03"
+  },
+  "commands": [
+    {
+      "label": "gcc-debug version",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug reference build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug oracle build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant1 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant2 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant3 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant4 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant5 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant6 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug learner build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release version",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release reference build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release oracle build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant1 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant2 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant3 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant4 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant5 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant6 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release learner build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan version",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan reference build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan oracle build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant1 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant2 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant3 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant4 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant5 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant6 build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan learner build",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-asan learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug version",
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug reference build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug oracle build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant1 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant2 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant3 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant4 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant5 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant6 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "clang-debug learner build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-g",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-debug learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release version",
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release reference build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release oracle build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant1 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant2 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant3 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant4 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant5 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant6 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "clang-release learner build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-release learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan version",
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan reference build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan core",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-test",
+        "core"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:core",
+      "stdout": "QC_OK:core\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan native",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-test",
+        "native"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:native-seam-linux",
+      "stdout": "QC_OK:native-seam-linux\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan cancel",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-test",
+        "cancel"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan oracle build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/probe.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan oracle",
+      "argv": [
+        "/usr/bin/python3",
+        "tools/verify_alternate_close_depth.py",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-probe"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\"passed\": true, \"cases\": 1305, \"eintr\": 4, \"trace_sha256\": \"99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f\", \"scope\": \"Five result classes times261 errno values; not target OS execution\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant1 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=1",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant1"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant1 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant1",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant2 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=2",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant2"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant2 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant2",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant3 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=3",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant3"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant3 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant3",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:20:qc_once(&o,scripted,&s,&v)==QC_AGAIN&&s.calls==1&&s.fd==7&&o.fd==7&&o.state==QC_RETRY&&v.error==EINTR\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant4 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=4",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant4"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant4 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant4",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:32:qc_handoff(&q,&fd)==QC_TERMINAL&&fd==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant5 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=5",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant5"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant5 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant5",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:23:qc_once(&o,scripted,&s,&v)==QC_TERMINAL&&s.calls==3&&v.error==99\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant6 build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "-DQC_MUTATION=6",
+        "labs/alternate_close_depth/tests.c",
+        "assessor/alternate_close_depth/close_owner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant6"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan mutant6 reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant6",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:31:qc_once(&q,scripted,&s,&v)==QC_UNKNOWN&&q.state==QC_QUARANTINED&&q.fd==9&&s.calls==n+1\n",
+      "passed": true
+    },
+    {
+      "label": "clang-asan learner build",
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-pie",
+        "-no-pie",
+        "-Ilabs/alternate_close_depth",
+        "labs/alternate_close_depth/tests.c",
+        "labs/alternate_close_depth/learner.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-learner"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-asan learner reject",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-learner",
+        "core"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\n",
+      "passed": true
+    },
+    {
+      "label": "qnx_probe.c host refusal",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Ilabs/alternate_close_depth",
+        "-fsyntax-only",
+        "labs/alternate_close_depth/qnx_probe.c"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QNX_SDP8_TARGET_REQUIRED",
+      "stdout": "",
+      "stderr": "labs/alternate_close_depth/qnx_probe.c:3:2: error: #error QNX_SDP8_TARGET_REQUIRED\n    3 | #error QNX_SDP8_TARGET_REQUIRED\n      |  ^~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "qnx_manager.c host refusal",
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Ilabs/alternate_close_depth",
+        "-fsyntax-only",
+        "labs/alternate_close_depth/qnx_manager.c"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QNX_SDP8_TARGET_REQUIRED",
+      "stdout": "",
+      "stderr": "labs/alternate_close_depth/qnx_manager.c:3:2: error: #error QNX_SDP8_TARGET_REQUIRED\n    3 | #error QNX_SDP8_TARGET_REQUIRED\n      |  ^~~~~\nlabs/alternate_close_depth/qnx_manager.c:8:10: fatal error: sys/iofunc.h: No such file or directory\n    8 | #include <sys/iofunc.h>\n      |          ^~~~~~~~~~~~~~\ncompilation terminated.\n",
+      "passed": true
+    },
+    {
+      "label": "actual SDK availability/build",
+      "argv": [
+        "/usr/bin/python3",
+        "labs/alternate_close_depth/qnx_build.py",
+        "--source",
+        "assessor/alternate_close_depth/close_owner.c",
+        "--out",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/qnx"
+      ],
+      "exit_code": 2,
+      "expected": 2,
+      "marker": "qcc unavailable",
+      "stdout": "{\"status\": \"not-built\", \"passed\": false, \"blocker\": \"QNX SDP8 qcc unavailable; valid myQNX license/deployed SDK and target image required\"}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "isolated learner export",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/run.py",
+        "--out",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/export-learner"
+      ],
+      "exit_code": 1,
+      "expected": 1,
+      "marker": "QC_CHECK:",
+      "stdout": "",
+      "stderr": "QC_CHECK:17:qc_init(&o,7)==QC_OK\nTraceback (most recent call last):\n  File \"/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/run.py\", line 10, in <module>\n    if __name__=='__main__':main()\n                            ~~~~^^\n  File \"/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/run.py\", line 9, in main\n    for case in ['core','native','cancel']:subprocess.run([str(binary),case],check=True)\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/subprocess.py\", line 578, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/export-learner/close-owner', 'core']' returned non-zero exit status 1.\n",
+      "passed": true
+    },
+    {
+      "label": "isolated explicit reference export",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/run.py",
+        "--out",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/export-reference",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/alternate_close_depth/close_owner.c"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "marker": "QC_OK:cancellation-handoff",
+      "stdout": "QC_OK:core\nQC_OK:native-seam-linux\nQC_OK:cancellation-handoff\n",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "profiles": [
+    {
+      "name": "gcc-debug",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    },
+    {
+      "name": "gcc-release",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    },
+    {
+      "name": "gcc-asan",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    },
+    {
+      "name": "clang-debug",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    },
+    {
+      "name": "clang-release",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    },
+    {
+      "name": "clang-asan",
+      "passed": true,
+      "oracle": {
+        "passed": true,
+        "cases": 1305,
+        "eintr": 4,
+        "trace_sha256": "99570ae5253ab0765d4126f349b1d0759e93df2c1cc5febb1d95aa0245fa606f",
+        "scope": "Five result classes times261 errno values; not target OS execution"
+      },
+      "mutants": 6,
+      "learner_rejected": true
+    }
+  ],
+  "passed": true,
+  "target_execution": "not-run",
+  "external_review": "not-run",
+  "independent_learner": "not-assessed",
+  "physical_observation": "not-run",
+  "target_build": {
+    "path": "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/qnx/build.json",
+    "sha256": "004f00435ac7585f843c01a6bc94ec2e3c21604a4d7406c5a9b7b07ca44e4527",
+    "status": "not-built",
+    "reason": "QNX SDP8 qcc unavailable; valid myQNX license/deployed SDK and target image required"
+  },
+  "source_stable": true,
+  "outputs_sha256": {
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/1.json": "2f6f8ef58de63f6e6f9aa3c54ee1c6a1d93751f24c6526295d209cf16e83ba20",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/10.json": "e1e8ce798f086a64369918448563a116df25da83e7355b45809eeeafd9c9955d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/100.json": "6e57fdbaf7fbb04556d8f9768526295142dc6047db3bd0cb531d52ec25bbe373",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/101.json": "0eafd2da569cd781cca74b7f4994acc4c97da65437fc1b8624a4759046a1ecdd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/102.json": "9018d18a5c6db6b003999233f51d3700d49e8051e296070196a0604b683c37ce",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/103.json": "f3859cef63062488dcc93055684ea2e014b3461a1259d81f66f163481f191f15",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/104.json": "ff6d7525040573e1ae4974e1be1def3e0a79ce10fb32207bf90e399b368dc432",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/105.json": "36d1d9e5773f744e40e020403cf437cf74424633d388badac8d8a3f53b6654b8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/106.json": "841765176f65b2d1bce7e35e9280323fc16ea573b6d730e2614d37bdc7020aa9",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/107.json": "ec1c26624c80159be3e2cad8d8aa45d72e5d0cc1bbcb96c915a10bcd21fe8097",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/108.json": "a498239b15032b21815527f6aefd61426366f8854ac8e95f0c13916e6df0ea92",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/109.json": "d9624adaa45ab70d7078d014f35c3c0b5ad4de5a3ecc5e2c85c16a16e33a22b2",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/11.json": "b80cec68839465dd471cb425ef6a853b7c860352e9a960542c6e21b2d8fe8fd3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/110.json": "76bee8328cf6b1d84a4628530b079b7f797e1d64e26daf3167f28da697d2eb22",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/111.json": "1b3c84209537ff85747b8e40f61c59c043964f9a2a1a50f8b63e5bacbacb2455",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/112.json": "c22f625d200a0bf0e0c053f50a288e5f34f8722ce27bc11973eb77afc134057d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/113.json": "b4a795e819b6b68054dd68f86d6b7ac4d48640de814729902d4109e5fc09eac2",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/114.json": "1aaef406b11d700288e98ceeadad3f2f187c065f332a3bb34525afed77243670",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/115.json": "ffa716b31308c027ad43c421ea90313ed3e4e99c708f9d88e90cf925d0805b1d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/116.json": "be7b411247a0fc4f7cfcb6bbde35017a91237ed02e68048ea3543036b596b018",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/117.json": "368f30d3305bb0cc9969bc2bf0c6746a5cd7022e67c67feb1dc5f3edfdc73c0b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/118.json": "d47a150947572223e74dc6d97d4d0a034e9a9a75cce48c39eb0300141d29dcd3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/119.json": "70f6a13c3d505701be3d5d7810d3fd8f558812d762b0a2e3d3997ffda9c5372a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/12.json": "fee5149e33a20f7c8662d60e05b7f91cad1631a345dd6ce0c3ba4ad7110748c7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/120.json": "14dd3f29f73df106d7cb4db2823c8c82dddb23f5f25f0de83fee0a5d89e3803e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/121.json": "88510fbbcd5652b500edd7a1e52ae999d4eadc55d5b1c242ffaa6c7a3f61857a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/122.json": "3ffe31068acaa34f917a1ee3f9a4b07223c2a10832b1c82deda0ef19f904a5a5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/123.json": "8daccbcc0c3a8e7dec64d9308868be741a5c721d0e88658982b520c615e1d70e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/124.json": "c312fe30a535d07b59568e6dfc7512551014435111fb10514bd9044b27da0b37",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/125.json": "0741c2c1e122b31f6b75d6b6c3dce61fb6990ac2a61df6ffbc642bf5fdff31e9",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/126.json": "df0f7b71e66a5e1559d429e13f3e16e85fed8f8f140892791110dd888aa83f82",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/127.json": "451381c861207609fb0309fba69da49f2936344585b98459aec94bff2c411b65",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/128.json": "7c4ceb6d050a87e8ae346ec1122ab28439219fe8db276f6c6f45c865026b81be",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/129.json": "231fc3e3a27da178c1f2a56a5ffa7d8114c8d36c8c96eebe8d7f4090f9617077",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/13.json": "6ce6ff161e3cf943cae6dc88a174af3bfa157d982975aef7b5d26c63222f5ef0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/130.json": "d8cbceb8baf8ac8990b649f7a423f4a52d4d5a5c0c7aa092be873d3cb1bf0da8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/131.json": "3a287d2d1c3460808f07e6f65b9f29a1e5982eb4ae6588b90a401943cc1cb596",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/14.json": "888e8468e78a3f15a31603ae283c0dfc7d4cd20569fc0e13fc94aa2e22e06706",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/15.json": "6ec1f1a16c5f7bda2c131d30b575c342735b728ab1717be01ca92afaf5082bda",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/16.json": "428efe27d11950a1c85ead4451335bbfc6509db18813c09aba925059cc3d68ae",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/17.json": "ad8a47b83f1a2762be5683e8c636b4cb4f82eb6c17cca3c846c9f302d3fe25b5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/18.json": "1804c71822fb7a6fd85e8abec86371060a8705a32f8a9df9db7cc2d549432458",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/19.json": "e880e72637334415d3a3bb49d9b3b5fafb70e879349f2d286c7385dd0c42a384",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/2.json": "40694bb0d956b71bcca566bf77b9253fdec3ac130a0207f5d23eb50d396edc9e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/20.json": "8f27338815ecdd47d38ff1f6f68f478aa6df70c109937cfbe15d7c896b0391cd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/21.json": "39f640cf55c98d387b199c7d4a4bb75e2ba57b8be53bceb5c9f74ad5f5d22a74",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/22.json": "8e059e71e174e4f8522f5191c6b8221e0f9581d90cc43716f5ba0a9ab70fa982",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/23.json": "82051796dffcf8ea46e29d88c46cee6636b3fd8643e3578000b8e0d5019776bd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/24.json": "2def85244fecad64e1f3dfcb570943b3293818636c07c68e9b8d7cdd0b4ef677",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/25.json": "50be5ed1dde44c493d68cfddaad87c0fa2884adf5a4d8f76efb8b20948b59389",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/26.json": "54cb26bfffe234c119ac2c11a90d9a71542461ac402229b40da489e94b81b00b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/27.json": "c2c2676b1262f2a347fa682a17a930bf19232910bb6d2929cd9112d3008061ed",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/28.json": "198c58ee70bb23be8e030309011dae1aa22ed15de89bc7672a4a8e653244050a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/29.json": "12d79af769a650b49255e5611270e69ae8b164d549b3221301ffabf7de10233f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/3.json": "ee1c654794327ac309caf771095234ba4523b0711650a5762f94c8197eb55ad6",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/30.json": "bdf5d75c778f317b127a19b75f16d98b66332394d89c97c0a79335ce0dcd7d0b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/31.json": "231aee111c7203d231c63ebc430637a91bbe48df67ff1b41bb0f77de25ecd514",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/32.json": "92bb92c83aab076bd19f36b8c983b827a2c0d76c83ba4c0f34179054c2daf604",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/33.json": "17e77925563d0f6360d359742fb6c93388a495b067ace9da6848d2b1bd486bb4",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/34.json": "9b21e412a19eb013c6f9d44d252dc3a1aa7e55f934f9040aee2031c4b94ba6bc",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/35.json": "125f4346c62c5dc94ad49f2b10c773022dc56ca3118f0bea650fd1c792f31ebe",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/36.json": "4e1738eecff2475b886bd884877cb926fb05ea917d7894391eb25b9549b13ff9",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/37.json": "3a44505a70d80306bd3ca7506e297fc78fa503b107fa62c15530516c4a8995e5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/38.json": "cc6d14f837e9b9d8f0e164e298eb780a8c34d1861d0de4f2f1c852ea95e48e8a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/39.json": "7f5e0687b2bdd797c9fee9d4f34b7e35e6580538b9b2c8d6f5543aee1f0a1484",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/4.json": "3fbf0380114af801ae29d068b101755ebfb1462167d0a554e4a11a82f122620e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/40.json": "923555bf786247da6435e3f482df84738fb68d0cde064072308550aee80eaad3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/41.json": "3204de4874d8edc98dac9d23b94605df87b76896518bb3c1f564d545163338de",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/42.json": "c4e9ca15562721c07d71de31d0afb832c1c103713e9542f75a46faee4c12cddb",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/43.json": "40b6e4f6c753d7fbf43713366c8771d438337db236a3af03f40fe97dfcdac129",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/44.json": "28b85e09de8e94e5570885b9add532973bad9d9f4d9ec7db1badd1c8a547da34",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/45.json": "ca1a83c32949af8943a53d9c8841a76571b4bfe247599b04e43cd84684548cc8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/46.json": "c2445a074332220b9104659303df5139d7ee5acd39d5b671183f5c9ccd3190ec",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/47.json": "b98e3e78c980bf2983e8d0342f1f5b9f5d978d5a9829a8a4a879903cee842060",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/48.json": "7e7925eda6cd29d1b6895f9f04f3d106d84f1e23f0e70940dd19e1e2d64067e3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/49.json": "ef6d7a504c1fa738c46198db2c48673c595ed75192009191abc88552d4cc4326",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/5.json": "38572051ab11defe7fc0ad161a2151b18337d743bcf9e6b29fd55bc53a2d02c8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/50.json": "1f7615e7d4da3823579b663635646d9ef96aa7e027dacaf1eb45e3165f0f84fa",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/51.json": "3220b35032e47aa979917b4fd1263357648f80dca4dc69e00dcae9240dda77a5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/52.json": "6c2d8a70ef78344dfdaa13f1a78db64b37f4e22970b1a7b570da7c579433aaf1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/53.json": "f037db0d33771ae94d71053902e76fe3fa99b514a5df347b10b175bb3d0ce43a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/54.json": "22208d053946369ea143d99bd77af6d585d217cd1725f5a0d05931f104bf7425",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/55.json": "8b7f7a09633eeba694b80d5db1b6b0df525ee6d673b5f99ae5682d97b149beeb",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/56.json": "da43c2f0ec3ba9f5526d5ed312781399f69b087f0030e6d4267ea1e4ee704b3b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/57.json": "39e6d5e2d3345cd88180fb5a69745ab9a924520083b2074009756295c190d2dd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/58.json": "7fff1c026b53cd4ae941b79451ba18a3d5e950353666994d49c8d5dabfb29ca8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/59.json": "a592c89c9ee0fdab06e0b25fc9d67b090a3d9a7d0838a1e50256483f08215639",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/6.json": "cccc6d080401a2b249614165b9db6d423641c70b63e98736d54255d772cc26f7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/60.json": "053d0fe44a4a02b35b6541481076bf65e5316a00c9a62948569a726b44c269c1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/61.json": "3815df6ed554d527439eb8565f110fc1f749bc2d8a4e9439465cf311ec21bb8f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/62.json": "ec81d4614d38649fb1ed986502a435eb9f4256cb93f5cb1e14fffcad7439db2f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/63.json": "c7072063c5fbe8985333862dbd2c397ebd23b58ddc671d85122f7ee48e057c15",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/64.json": "fb412f5966bb16ff06dd60a66a59cbdd8744c961a36608c3b4ebf1134c77fde7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/65.json": "e15b50895b6788de68d89a9e9a71618d1f997aa8b4ede80f867362d4631f330c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/66.json": "36d2fa01a5b8819d4befd8d9f9b8ec6ce229d290eb710732c2f5f949692b7945",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/67.json": "560d6e2cdbb9cfe068b08941c3f92e3d1476eca5edb2bd8e8f79600e10cd23f9",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/68.json": "4c6469e204fce6a02ee7df481c9b387580cbae4384c45e0718969f519264bca7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/69.json": "d66b628bb94b535e63dc5be2d2f415ab58b75efb681e0611f3cf0d0ccb49132c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/7.json": "6469600367e5ab5093c0cff71edfcf7e8a9e4dc0522120be032d458b0a36ff33",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/70.json": "f89930dcd3cfb9eeef829c81b7dfda592bc5fcf7b42fccc08e2756e3e5bf1734",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/71.json": "f99788f477f28e3868ebccfe25ab9518068e09c5100857924261e1eda9e366c0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/72.json": "c07f19f03395b6d766596ed6ea8c314dbdc8d1d95ddde00ce800ae91beb4da91",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/73.json": "432b868fcdaed8a79616dc9792c866e573164da00b38e7b6003dff866b9d2519",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/74.json": "0bd095d175e99351504dd6a2ccf0d8027ce753a43b9ed1a1e92e03a99df89c4b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/75.json": "3d84495db061f17c84f9946d8134ad3e31b04a7242eb5895e52975ac3c0da84c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/76.json": "2003e774d2cc7d16005409368eb9236e2a36e5a2dc1b43d1ce20ea2a89fe8894",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/77.json": "d2415ad7b3e9fd088f4d2dd5b7649d35b0a9cc13724125d4c5a805c3e37271d2",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/78.json": "241bf28ec5ed44e5c9f31dbe48e8a12a282c91aef67ba32daf23053118cd749a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/79.json": "dac0ee4d2e785908de18cc031653ce77f93650547bb3471065405e333c9004b8",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/8.json": "c6fd4f613edf6c7989c28a826a92d7053a55b44d172a3fc5a44252a92bcf3a87",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/80.json": "c35f005a3a0c5e1bd00c5faad0365d780a101dcdbe422a050725fb80efb1e984",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/81.json": "7cdfe54e43a1478d86fd183a6e69aff619fa4855b679e7fa38c2578e1b1d6794",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/82.json": "7909c97131024169828e780f6cae0e0734a2abc889c538d7f19336d352de7a9a",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/83.json": "d6d9bc0ae6cb60daf0ede3e8d51fdb4e1d81678868cffcfb7d09b7fa34e74fe5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/84.json": "ca2404d0ecdbbe5ab37fd48fefd5829f551e5766599d917d101fc37790eedcc5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/85.json": "b309bd0edcd03471ce6db854f0ac9d7b7cc15b8a407e698b49dab7d6d4571c76",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/86.json": "3f4f170177890e24d777bafa9ec0be2e717ce72bc505f76ec467a40102b9a932",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/87.json": "20ab61bf0b44b807aceeb0838c164db6e3e29cca7729f1dd30c61aacbefa8c70",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/88.json": "55f1d94778a137b1187b89ea06b80e70d494eb423c0515dd6caf9799a9b1d816",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/89.json": "77ee605f1f798b5596d0d3a970c8a7a2d427814f077c350f8bcebf837b82e122",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/9.json": "c328dfa5b10839f7440839c165b1bcb05d911f148b328e3add2d95a28ab0bd2c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/90.json": "f30660e9e0f8a881792eabdff5e788ff3195306dce2bf185548ed81f854af37d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/91.json": "ce568779a00f223b107943726e1b6fe7c6bb1b618498a4d363f00135a92fbc63",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/92.json": "2cd1d2244264a3cb8ee3b8e58c84639acb42881241607e8ccbc2b6585f1aa1b7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/93.json": "e40f28a3605dd3e9aa94cc5610e87af7e19663c22588a381678cce9683753e46",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/94.json": "042616c8d1e54d30ca6c4ded6773db14ec524bbb20c08652e5bcd660f39aee7c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/95.json": "c6a84ee565f87f6c80d9db3f52c1a035f6b04b0952e4ad0deda094d5ba390bd4",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/96.json": "0fd87508d850841db258d9cc71f80242673818724fb694401fda6d57c56f4593",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/97.json": "7dd2548b76cc81b7b96fe43c6b17d8ef95a34f438e6099c4e29153a6aeb33129",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/98.json": "f77dc438bee0761e786da7ea5c21c23883f4387082d80c4ef8db154c1bb622fd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/99.json": "df0ed9aaa2d73f53c3430096ca2490b712320690f7046a4b4efafb3b51a73b27",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-learner": "dc9095deb177a57555c6487a9fc155db2f80d11bf44fbf558ae009aaf0575edf",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant1": "4e145fce1cde3529aaa51b2fe6478986c7407df649df0f08677fb2edd41813cf",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant2": "40b1ceb3b160a0ff1a2590d881a0f64ff2b5f8f1e5913da2534927911225e7f0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant3": "5fdd96b56ae91413d682feba1d6c92ed29dcd03735ca25b2fc7e7340576abae9",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant4": "50af0d50e60c13932b24481839a0ad176a9008c234c1e1d4ee29690c3859cd62",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant5": "b1efab38bf415dc4ab93cb67853cc72ab30aa8c7a6cfc27d5e38bd10645a80a1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-mutant6": "9f367cf6486695fa02c9e175a57faf34af9efe02d1ad3b4e2f2853de5ed44f80",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-probe": "fd7c096209dfe43d70f179f0fc5f2a4cf687ecbaed32d723e17432aa568ecc42",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-asan-test": "b7832e6d32331c4ff989b1c89e8bf647c65ad4ef2a4c9689064f169c09d5b37e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-learner": "96d32db0f455100e1db48af44593a3424af8e38695f5678d2b5b7048c4ff4ea1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant1": "a747df5755be5ca289d276fffa6aa0ca22dde9b2f5c4e4bd2a73bb95217d7c50",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant2": "25ac9713fa8fb68590116d8bf7b710d13ba1e07305bab09b56ba8b9a85695012",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant3": "1de9272029ad5bb6a18f8d16320c388869dfd44d17c83fbac4e8f840f618f75d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant4": "be0598a2fbea01f4066044e659aafac5c622db6200dc18a5d11be3ff15a078c0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant5": "d559d9eb9c1148206659bbe8ce15d9ee22e5e6a1c43a6c663125c21242b04b3c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-mutant6": "9595580fd2056b140c889fe6b0441c0225ffff43096f5b87cbad519dc882cebd",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-probe": "d33bbe8850d48e1a467637cd760b3ce8952b639846311b81169603e0688fb9d1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-debug-test": "35314aa005c5cd812cd047c4cec8449c3920656ea72b8671ec08a47d42f75f9d",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-learner": "d05598e92129076040bfc49cc029b712cf99819577be6d177e2ccb3a465f5326",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant1": "119d341bdb723f40b08bee6ee98b1fe78de5a31bc5071c1707c48be47b3c9699",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant2": "56bf0a499c7108962d9a5580569660a62fd578864819a03dfb0bfc2ee9f00cb1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant3": "ec38d6e603a0f865ed25bb8c5513e148ec0a625251c2c247a9e07cacddba9cd7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant4": "137c5a5fe5407abe8055b41497f7e1914c4f93cd0cc85a7d6c4b0a4c06eb22c7",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant5": "9ce0dea39cf737da7f6ba1a5ee56eb792580d30d8abdc34a72ac23c928902dbb",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-mutant6": "925e4c6550b304c70309607f5b83490e4d621822910812f3425ed68675b36f40",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-probe": "a2cc211af5187447f72b5da3ba888d0931a34b255433199e1f11a7e1e6e6ddef",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/clang-release-test": "0b46621dca8addd73d001996e613a0eef1d9808a0bca497a167030f50d8f02af",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-learner": "47363bc0f13c6a12b3105d5a025f40bd38292b4b37be45bcf1573ddab1132635",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant1": "da007e067016f878b2d3c1a45a85a94ffe137b6f618f48db5f79805ce8a2275f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant2": "01ccd142767fdc31194f3b7ab35db6b644a192692bd3a5984aeaf27c5b4b5f32",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant3": "aa30bbe73025d0b00d1ea381be3b2a19b6413ad83a492f75fce2bc3b3b2181ee",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant4": "89d43d2d3f2931d2967505cef67c2224fe62a0c71b4ecfcadb37e7677c24400e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant5": "5e37f38c1b624de65fdc750d47a5f66c65723154f06be2af4e7234b62b93029f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-mutant6": "eefde36d8bb94d1606b113757e2ee9f69f96c3ad02e1c4ba9d59be8dd70b9c5f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-probe": "b9be922356c8f0b1302f031759807e162a73b865c1020a06c2eb64025aeeefc5",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-asan-test": "cbdb6238ed42e8cd36f6a3f0c6cb54461163b694bb530e6a2a8792a11c9b25a2",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-learner": "0bda31cbb700f49cbe9676a0aba959475d6c840cf0a3080344bfcef14f355c50",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant1": "2cd39a4b6b4268a9b5a947c4a1c2b31965ba5b37e001c46133d5447d477fc26c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant2": "01a06ef21a8118555d1bcb702c5fe8800f4d38dafcd99f596915e9e7fd4dd254",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant3": "1611d8cec96e77ddadd957b215900e2a83c4e5737b55fd0c5b28ee64f483b788",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant4": "296714859b47a1008d8b43237050ceb46596d45cc50c6cf506523d0b5ab373c1",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant5": "2ace16ca0e4b5d634370abc336f24af01fc958fa5037f44619963515ab5b9002",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-mutant6": "e8b87134c663999eb6da3613a62d1e21ded352b987a882086ea19c790298320b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-probe": "38b4a43ad86ac17c37a80a76687bf942fd5f79957e4dd158f1aec27e6f51cde3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-debug-test": "f75f30fc9baba41c385ad2152a2baf2901b0d3b639ee54776278c7f16021727c",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-learner": "f1ac16b53356db65f02fd086c586ee298fc32bb830fd7c0bd0b57bc7231f5080",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant1": "8d07cc32850f10d0841ed61c6d4e72733330a675691c2cfa08b4f14f647b673f",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant2": "b78005239cf0fc723c4a84ad92ca3d3718946f5c8f3c2632937b2f9b22f06869",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant3": "badcf6f718de498b7a15c1096a085bd70a0af29ab863efe4854ada8b104e980e",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant4": "ba1c0bd27597fe80994345004d3578258ca38a5028698ff2bd71d27f0b84b096",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant5": "8bc8ef14b20826414f80649ee5d6c2d3cc4be5f604968f0accecbe729adc0331",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-mutant6": "5381f75cee8dc1926d48859181a05c11c366071fb25bf34a2ea5a297323d124b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-probe": "9ed6d308da8f9bb8493afad77a20352ccc0987f61775ada5789aeca1c9e5cb4b",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/gcc-release-test": "d525a43f0959d8f2794113751678063c92d4e17e0386ac21b5f902ee1b856452",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/export-learner/close-owner": "f1ac16b53356db65f02fd086c586ee298fc32bb830fd7c0bd0b57bc7231f5080",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/export-reference/close-owner": "d525a43f0959d8f2794113751678063c92d4e17e0386ac21b5f902ee1b856452",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/capture.py": "7662b34c38d9e0ff75910c75f27fc70ae4535578d962782820f8bd5f6853c5a6",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/close_owner.h": "3e1644cb94f8d2686b97d9bbc77fb2dbb6339b0619fe677e32c3b475f0dcdafb",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/CONTRACTS.md": "951788ff1fd43e537444bc52729e3d202b217e23b79fff97314c3dbbd44d64e0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/learner.c": "34417ddc722f0942a1c41290c388be981ba4b3d9c9035655b2fd0d2ed5c14cd4",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/probe.c": "63e624ddfae61b5f20e26e2e4c518a7a4c2079bb65a7827ee2239de1eb1c1838",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/qnx_build.py": "432038e17328a9a8cb14808e06c71d54f90bc6bf0b847c29df4fa664e739f4cb",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/qnx_manager.c": "f65898ca56f9a202d6179c02887ae1c1f4ffb40dcfadf56760452a52379a0cb4",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/qnx_probe.c": "067dfa40d6f7ea268bc77b97863e3da9111d634f523cfb40206bdd7e682a7f30",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/QNX_TARGET.md": "14e55b03da5a89d3d3b9f6790a5065152cfec7da36ee0f3fe3af5b4bb060e619",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/run.py": "a88d87f2234de9553d1f8549ce62d11a59c2d6c167e7aa2dd5881658b4728bc0",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/public/tests.c": "ec4c67b635d1d36866b60600e206a87a6dc8218f94cc3699d8bbd7bc955709e3",
+    "reviews/v5/expansion/alternate_close_depth/20261018T100219909343Z/qnx/build.json": "004f00435ac7585f843c01a6bc94ec2e3c21604a4d7406c5a9b7b07ca44e4527"
+  },
+  "limits": [
+    "Host injected EINTR is not a QNX kernel event.",
+    "QNX8 target sources remain uncompiled/unexecuted without authorized SDK/guest.",
+    "Controlled resource-manager error trigger is not actual signal interruption.",
+    "No independent review, delayed learner attempt, whole-domain closure or physical claim."
+  ],
+  "finished_utc": "2026-10-18T10:03:15.663657+00:00"
+}

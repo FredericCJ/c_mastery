@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-011",
+  "status": "author-measured-host-scope",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_vm_probe.json",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "compiler_experiment": "reviews/v5/expansion/modern_completion/object_runtime_statepoints.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed Cvm3216, ORVM288, ORVStats40, ORVDerived16 and actual algo_pool144 bytes on Linux x86-64. Full32-bit generation is preserved outside the compact ORFrame identity index."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "At most16 pairs,32strong fields and216 active value slots. Uninitialized locals and integer lookalikes do not enter the root graph; registered scalars still consume registration capacity."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "VM/control/registered objects have explicit nested borrow lifetimes. Pool ticket high32 generations retire at maximum. Moved values receive destination generation plus one; retired destinations are skipped. No raw heap address survives collection."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Every usable copy is registered or belongs to an explicit VM root class. Staging precedes publication. Callback status failure preserves public output while already-completed VM effects remain; hidden argument roots are removed on every normal return."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "No native heap allocation in adapter; actual cvm_pair admits typed pairs, actual algo_pool admits registrations. A collecting pair operation requires the exact argument objects registered and preflights a free cell before invoking the baseline allocator."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Stages full3216-byte VM, up to216 value addresses,16 derived values and finite graph/map data. Stable relocation updates all fields and every mapped copy. Current color-array marking gives O(H squared+R) worst-case time for variable capacities."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Collector reclaims unreachable logical pairs and preserves physical generation history. Registration release invalidates its ticket. Foreign callbacks cannot escape using longjmp or retain pointers to their local argument copies."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual compiler and CVM execute the three-frame program; collection then occurs at stopped boundaries or the new allocating foreign boundary. It is not an instruction-level poll insertion or arbitrary failed-instruction resumption engine. The compiler-managed statepoint experiment is separate."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "All adapter access is externally serialized. paused is an asserted ownership boundary, not a thread-stopping mechanism. The family TSan profile covers actual other threaded adapters; it does not prove a concurrent CVM collector."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Four injected stages and budget0 verify unchanged VM/derived roots/metrics. Registration second-admission rollback, callback error after allocation, generation/counter exhaustion and stale-ticket refusal are independently asserted."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Actual GCC/Clang O0/O2/O3 source-bound builds include clean, unchanged and one-header rebuild. Executed O2 assembly calls actual or_mark_begin/step and or_safepoint; Clang emits hosted memcpy, GCC a stack-check helper. These are declared hosted dependencies."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "GCC/Clang O2 whole-probe text36171/42315, data752/624, bss16/16 bytes. orv_collect compiler frame5792/5704; orv_call192/104; orv_pair112/120; baseline cvm_collect96/48. Nested frame sums and callers need separate whole-call-chain accounting."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Imported runtime/pool source is pinned. Fault/measurement imports are concrete extensions of their producer contracts, not nonexistent APIs. LLVM statepoint stack mutation is explicitly x86-64 ABI/compiler behavior, not ISO C automatic root tracking."
+    }
+  ],
+  "observation": {
+    "scope": "720 retained samples plus48 first-sample warmups; four admitted object counts, two policies,1000full lifecycles per sample; identical logical surviving fields, different physical placements. Includes construction/admission/verification, not collection-only timing.",
+    "O2": [
+      {
+        "compiler": "gcc",
+        "objects": 16,
+        "mode": "baseline-nonmoving",
+        "retained_samples": 15,
+        "lifecycles_per_sample": 1000,
+        "minimum_ns": 291000,
+        "median_ns": 294755,
+        "maximum_ns": 315056
+      },
+      {
+        "compiler": "gcc",
+        "objects": 16,
+        "mode": "explicit-moving",
+        "retained_samples": 15,
+        "lifecycles_per_sample": 1000,
+        "minimum_ns": 490716,
+        "median_ns": 495697,
+        "maximum_ns": 522150
+      },
+      {
+        "compiler": "clang",
+        "objects": 16,
+        "mode": "baseline-nonmoving",
+        "retained_samples": 15,
+        "lifecycles_per_sample": 1000,
+        "minimum_ns": 181668,
+        "median_ns": 185633,
+        "maximum_ns": 198918
+      },
+      {
+        "compiler": "clang",
+        "objects": 16,
+        "mode": "explicit-moving",
+        "retained_samples": 15,
+        "lifecycles_per_sample": 1000,
+        "minimum_ns": 350576,
+        "median_ns": 367093,
+        "maximum_ns": 710224
+      }
+    ],
+    "limits": "Single-host variation and source-specific sizes; no physical cache events, real-time bound, arbitrary heap scaling or independent learner claim."
+  },
+  "sealed_decision": {
+    "choice": "Keep baseline nonmoving CVM unchanged; use an explicit stopped-state moving adapter with transactional staging when relocation is the studied requirement.",
+    "reason": "This makes generation and complete-root obligations executable while retaining a separate actual reference collector. Measured staging costs and a roughly5.7KiB collection frame preclude treating it as a free drop-in embedded replacement.",
+    "reopen_when": "A dispatch-integrated cooperative poll, concurrent collector, larger heap, smaller stack budget or production compiler stack-map subset is required."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_vm_probe.json": "e6be17d29fde168e183d3f934f6d184de9fbda614140729dabdd021916258526",
+    "reviews/v5/expansion/modern_completion/object_runtime_statepoints.json": "fb0d8dd10692e50ae29c4b5e6aec149579a6ca6efbd8918f53ad6b3b878dd4a2",
+    "labs/object_runtime/VM_ADAPTER.md": "838d0bad74a18c08d086d298b665a64b34d983e07798e48469b58031a3e80aff",
+    "tools/run_object_runtime_vm_probe.py": "2fc0d6923f8f524d2c4fdde8f0f3cc42a7f502f6376a1ef62092735af1ac6aa5",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

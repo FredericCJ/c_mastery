@@ -1,0 +1,4263 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "scope": "30 ordinary/30 changed T10 criteria, LSYS-EXEC-T10 and precise source-access successor",
+  "source_sha256": {
+    "labs/machine_image/startup_depth/CONTRACTS.md": "32bc1495530608aa575ce4924e45933f6c33ab494a337b4e752f9bf64b99b528",
+    "assessor/legacy_systems/startup_depth/ANALYSIS.md": "c97ae2cd0bd1069ec5a1435bd3440c81078cfbc7ad08f753cda2675eb14f68b7",
+    "reviews/v5/expansion/legacy_systems_startup/full_validation.json": "c5ec82dc3743432c924218477551699005e2dc8516fd5a9e731a01878d088690",
+    "reviews/v5/expansion/legacy_systems_startup/validation_check.json": "6ddf4b2f2778cb4cbe87a38f41913c6180eb674b6193396fc618bc7cb94419a2",
+    "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json": "579f6266891afa59a7117eec337c67aa64ac0e0526d16eb88674c6e71f42a96d",
+    "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json": "a1ee56c2af309e30632ed2d0e442473dbc44b422f33c67ca9f11f660b46aa89f",
+    "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json": "fb749c521c63a513068bd36ba7170172762643eb41ea7e0b1b4a7c0ff2e91e96",
+    "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json": "6f86c479cc811bd905c0063d334e4755ff697db2a43e4f3ea73308b9776a80d1",
+    "research/v5/expansion/legacy_systems_startup/resources.json": "5b1165cd9ca9cc4f18ce0131d1a199cee6ba3af3110aad40d9764d069549274e",
+    "research/v5/expansion/legacy_systems_startup/provisioning.json": "f317d6129154449296dd35e6c905b5fbbff541362392b316165c810c5d174111"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T10-01-T10.01.a",
+      "objective": "T10.01.a",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Inspect original dynamic and no-interpreter ELF images, mapping e_entry, PT_INTERP, load segments and AT_ENTRY in a controlled debugger run. Draw the first executed entry separately from the application's entry.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.01.a",
+        "variant": false,
+        "claim": "GDB first instruction, AT_ENTRY and application entry compared for dynamic/PIE/static originals",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.01.a",
+        "variant": true,
+        "claim": "Actual static-PIE entry reaches self-relocation before main",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.b",
+      "objective": "T10.01.b",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Assign mapping, zero-fill, interpreter loading, symbol relocation, TLS setup and main invocation to kernel, loader or runtime using inspected evidence. Mark any uninspected implementation step explicitly.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.01.b",
+        "variant": false,
+        "claim": "Kernel ELF map/zero-fill/AT_ENTRY and runtime relocation/TLS/init/main ownership linked to inspected bodies",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.01.b",
+        "variant": true,
+        "claim": "Original no-interpreter image refuses TLS/stream/heap and explicitly owns its initialization hook",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.c",
+      "objective": "T10.01.c",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "At the original no-libc entry capture the initial stack pointer before alignment, then call a C helper through a correctly aligned assembly bridge and exit explicitly. Inspect the return-address difference at each boundary.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.01.c",
+        "variant": false,
+        "claim": "Raw assembly preserves original stack, establishes call, and exits42 without returning through argc",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.01.c",
+        "variant": true,
+        "claim": "Helper early failure73 still terminates explicitly",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.a",
+      "objective": "T10.02.a",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Decode the supplied initial-stack fixture, then create a bounded byte/word decoder with argc, argv-null, envp-null and AT_NULL checks. Keep string pointer lookup in a separate supplied synthetic memory map; reject truncated tables.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.02.a",
+        "variant": false,
+        "claim": "Original96-byte table and all bounded argument/environment/auxiliary table truncations validated",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.02.a",
+        "variant": true,
+        "claim": "Empty environment and reordered/gapped immutable string map preserve table/address semantics",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.b",
+      "objective": "T10.02.b",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Translate fixture addresses into offsets under an explicit64-bit little-endian entry model; derive every table boundary without casting arbitrary bytes to native pointers. Compare with a real entry snapshot only after recording its ABI.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.02.b",
+        "variant": false,
+        "claim": "Explicit unaligned LE byte decoding derives96-byte64-bit table without host pointer casts",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.02.b",
+        "variant": true,
+        "claim": "Same table decoded as32-bit labels changes widths/offsets while retaining terminators",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.c",
+      "objective": "T10.02.c",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Capture rsp at initial entry and after the bridge alignment; preserve the original pointer for argument decoding. Explain memory ownership and prohibit returning pointers to expired helper-local storage.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.02.c",
+        "variant": false,
+        "claim": "Actual initial/call/helper stack pointers satisfy preserved-pointer and return-address equations",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.02.c",
+        "variant": true,
+        "claim": "32-byte aligned aggregate handoff and original argc retained across stronger alignment",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.a",
+      "objective": "T10.03.a",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Inventory actual startup objects selected by the driver for native dynamic, static and PIE modes, recording resolved paths, hashes and relevant symbols. Mark missing modes unavailable.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.03.a",
+        "variant": false,
+        "claim": "Driver traces resolve/hash actual CRT objects in dynamic/static/PIE/static-PIE links",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.03.a",
+        "variant": true,
+        "claim": "Actual private musl static and dynamic images execute TLS/constructor/errno probe",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.b",
+      "objective": "T10.03.b",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "For each selected startup object classify entry stub, initialization fragment, compiler support or other actual role. Correlate one object symbol with disassembly and identify the handoff to runtime initialization.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.03.b",
+        "variant": false,
+        "claim": "CRT symbol/disassembly inventories identify entry and initialization fragments",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.03.b",
+        "variant": true,
+        "claim": "Removing actual crti loses DT_INIT and original init-fragment obligation rejects97 despite successful link",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.c",
+      "objective": "T10.03.c",
+      "project": "PR-T10-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "task": "Compare the inspected glibc start.S prefix with the actual driver object and document which interfaces are ABI/platform conventions versus ISO C program startup requirements.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.03.c",
+        "variant": false,
+        "claim": "Installed glibc CRT entry correlated with versioned x86-64 start.S handoff",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.03.c",
+        "variant": true,
+        "claim": "Original custom start.S uses the same basename with a deliberately narrower runtime contract",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.a",
+      "objective": "T10.04.a",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "Trace inspected musl __init_libc through environment/auxv processing, TLS/stack-protector initialization and stage2 init hooks/main. Contrast with the bounded glibc entry-prefix evidence and label unavailable deeper glibc steps.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.04.a",
+        "variant": false,
+        "claim": "Inspected musl and glibc bodies distinguish auxv, TLS/guards, initialization and main/exit",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.04.a",
+        "variant": true,
+        "claim": "Proposed pre-startup errno rejected: inspected archive member uses fs TLS and initialization is absent",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.b",
+      "objective": "T10.04.b",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "Define an original custom runtime supporting only argument decoding, bounded byte output and explicit exit. Produce a service table refusing malloc, stdio streams, TLS and constructors unless separately implemented; compile a forbidden-call negative control.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.04.b",
+        "variant": false,
+        "claim": "Only bounded decode/output/explicit exit admitted by original raw target",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.04.b",
+        "variant": true,
+        "claim": "Restricted original initialization hook writes private state without runtime dependencies",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.c",
+      "objective": "T10.04.c",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "Choose a proposed retained library call, list its documented and implementation initialization assumptions, and trace actual linked origins. If an assumption is uninspected or unmet, reject that service from the runnable custom image.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.04.c",
+        "variant": false,
+        "claim": "Resolved errno origin is inspected without running an image whose TLS prerequisites are unmet",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.04.c",
+        "variant": true,
+        "claim": "Caller-owned explicit result adapter replaces errno service; raw image contains no libc origin",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.a",
+      "objective": "T10.05.a",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "In separate original hosted processes compare return from main, exit and _Exit using a fully buffered stream and an atexit marker; compare a no-libc raw exit path separately. State ISO versus Linux behavior explicitly.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.05.a",
+        "variant": false,
+        "claim": "Separate processes distinguish main return/exit BAX from immediate empty output",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.05.a",
+        "variant": true,
+        "claim": "Raw thread exit retains a worker; exit_group terminates the original blocked worker",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.b",
+      "objective": "T10.05.b",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "Register two local termination handlers with distinct markers and buffer an output byte before normal exit. Predict order and flushing, then repeat immediate exit in a fresh child with a bounded timeout.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.05.b",
+        "variant": false,
+        "claim": "Reverse handler marker order is observed separately from buffered X flush",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.05.b",
+        "variant": true,
+        "claim": "Handlers use raw descriptor writes, so markers do not depend on stdio flushing",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.c",
+      "objective": "T10.05.c",
+      "project": "PR-T10-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "task": "Implement the assembly bridge's no-return finish path with a declared exit code and an explicit terminal fallback for an impossible return. Analyze a ret-only entry as invalid without running it as a correct-output case.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.05.c",
+        "variant": false,
+        "claim": "Raw finish translates helper result and retains explicit ud2 terminal fallback",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.05.c",
+        "variant": true,
+        "claim": "Failure before argument decoding takes deterministic exit73",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.a",
+      "objective": "T10.06.a",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "Map a synthetic six-argument Linux x86-64 syscall to registers and clobbers, then inspect the existing write wrapper. Test only harmless original descriptor operations; no arbitrary syscall-number fuzzer is used.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.06.a",
+        "variant": false,
+        "claim": "Six-argument raw x86-64 mmap validates flags/fd/nonzero offset and original mapping contents",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.06.a",
+        "variant": true,
+        "claim": "Arm64 x8 number and x0..x5 argument bridge cross-assembles; no target execution claimed",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.b",
+      "objective": "T10.06.b",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "Draw side-by-side normal C call and raw syscall transitions for the same six logical arguments. Explain stack alignment, register ownership and which layer translates the interface.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.06.b",
+        "variant": false,
+        "claim": "Actual assembly translates C argument registers/stack to rax/rdi/rsi/rdx/r10/r8/r9",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.06.b",
+        "variant": true,
+        "claim": "Documented ARM EABI aligned64 pair includes padding and independently recombines offset",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.c",
+      "objective": "T10.06.c",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "For raw results0,7,-9 and-4 produce a conversion table to an explicit {status,value,error} result without global errno. Explain how libc syscall() differs and ensure legitimate success values are not confused with errors under the chosen syscall contract.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.06.c",
+        "variant": false,
+        "claim": "Explicit result object distinguishes raw Linux success/error without global errno",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.06.c",
+        "variant": true,
+        "claim": "Actual mmap address success and -EBADF use reserved error range, not sign alone",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.a",
+      "objective": "T10.07.a",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "For payload ABCDEFG and scripted writes [2,EINTR,3,2], record each submitted suffix, accepted prefix and retry. Implement progress preservation and reject a backend reporting more bytes than requested.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.07.a",
+        "variant": false,
+        "claim": "Script2,EINTR,3,2 submits offsets0,2,2,5 and accepts ABCDEFG exactly once",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.07.a",
+        "variant": true,
+        "claim": "EAGAIN preserves offset2 and borrower lifetime before resumption",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.b",
+      "objective": "T10.07.b",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "Run scripts [0], [2,0], [2,EAGAIN], [EINTR,EINTR,3] for bounded reads/writes with an explicit retry budget. Distinguish read EOF from write zero progress and preserve accepted byte counts on every stop.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.07.b",
+        "variant": false,
+        "claim": "Read EOF differs from stalled write; partial-zero and bounded EINTR scripts retain exact prefixes",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.07.b",
+        "variant": true,
+        "claim": "Cancellation after accepted2 bytes stops future calls and cannot retract receiver data",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.c",
+      "objective": "T10.07.c",
+      "project": "PR-T10-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "task": "Keep raw syscall translation separate from a reusable transfer-state machine with {buffer,length,offset,status}. Supply a scripted host backend and the real target adapter through one explicit contract; audit target closure separately.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.07.c",
+        "variant": false,
+        "claim": "Same state machine runs scripted backend and actual raw syscall descriptor backend",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.07.c",
+        "variant": true,
+        "claim": "Owned length-prefixed frame survives real pipe EAGAIN and partial writes without duplicate prefix",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.a",
+      "objective": "T10.08.a",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Build supported dynamic, static and static-PIE versions of one original output program; inventory interpreter, needed libraries, relocations and startup origins. Report unavailable toolchain modes as gaps.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.08.a",
+        "variant": false,
+        "claim": "Dynamic/static/static-PIE metadata and actual execution retain distinct runtime ownership",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.08.a",
+        "variant": true,
+        "claim": "TLS original executes in all modes using their real C runtime initialization",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.b",
+      "objective": "T10.08.b",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Build the existing custom-entry output image with an explicit allowlist and verify exact4096-byte output and exit42. Record code/data/stack bounds and dependencies instead of using smallest file size as the pass condition.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.08.b",
+        "variant": false,
+        "claim": "4096 exact patterned output bytes and exit42 verified across GCC/Clang O0/O2",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.08.b",
+        "variant": true,
+        "claim": "Bounded maximum decimal formatting adds exact10 bytes with inspected final closure",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.c",
+      "objective": "T10.08.c",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Audit both object and final ELF using undefined symbols, link map origins, dynamic tags, program headers and disassembly. Include a deliberately statically resolved forbidden helper in an original negative artifact.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.08.c",
+        "variant": false,
+        "claim": "Object and final symbols, code, dynamic headers and map origins are separately retained",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "transfer_observation": {
+        "objective": "T10.08.c",
+        "variant": true,
+        "claim": "LTO static forbidden provider remains rejected despite empty final undefined-symbol set",
+        "evidence": [
+          "startup-runtime"
+        ],
+        "limitations": [],
+        "group": "startup-runtime"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.a",
+      "objective": "T10.09.a",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Extend the minimal image with an unsigned decimal parser accepting1..10 digits up to UINT32_MAX and a caller-owned11-byte formatter buffer. Reject empty/sign/overflow input without partial output; use no libc parser/formatter.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.09.a",
+        "variant": false,
+        "claim": "Unsigned parser rejects unsupported/overflow spans unchanged;65536+edge formatted values match hosted independent oracle",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.09.a",
+        "variant": true,
+        "claim": "Nonterminated span format uses exact digit capacity without retaining a NUL contract",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.b",
+      "objective": "T10.09.b",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Retain a before/after link and symbol manifest for parser then formatter additions under O0/O2. Attribute every new helper, code byte and storage object; investigate any unexpected divide helper.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.09.b",
+        "variant": false,
+        "claim": "O0/O2 parser/formatter increments retain code size, symbols, link maps and stack-usage artifacts",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.09.b",
+        "variant": true,
+        "claim": "Division and bounded subtraction variants satisfy same maximum-output contract with separate image manifests",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.c",
+      "objective": "T10.09.c",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Publish a service table for the expanded image: decimal input, bounded formatting, byte output, errors and termination. Include explicit unsupported locale, Unicode digits, heap growth and retry policies with rejection tests.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.09.c",
+        "variant": false,
+        "claim": "Service bounds reject signs/space/non-ASCII/separators and overflow explicitly",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "transfer_observation": {
+        "objective": "T10.09.c",
+        "variant": true,
+        "claim": "Signed INT32_MIN parse/format uses checked unsigned magnitude without signed negation overflow",
+        "evidence": [
+          "startup-core"
+        ],
+        "limitations": [],
+        "group": "startup-core"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.a",
+      "objective": "T10.10.a",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Use an entry breakpoint on the original custom image before any C helper. Record original rsp, entry PC, code bytes and first handoff; diagnose a deliberately wrong saved-stack pointer through inspection.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.10.a",
+        "variant": false,
+        "claim": "GDB stops before C and records actual entry bytes, original stack and call boundary",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.10.a",
+        "variant": true,
+        "claim": "Stripped image keeps entry identity and matched companion recovers entry analysis",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.b",
+      "objective": "T10.10.b",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Prepare separate original variants with incorrect bridge alignment, omitted initialized-data setup and a mismatched relocation assumption. Analyze or run only within an explicitly bounded process/emulator and identify one cause per variant.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.10.b",
+        "variant": false,
+        "claim": "Separate controlled alignment, omitted ROM copy and unrelocated static-PIE specimens reject distinct invariants",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.10.b",
+        "variant": true,
+        "claim": "Two-defect PIE rejects alignment first; its repair exposes relocation failure before dereference",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.c",
+      "objective": "T10.10.c",
+      "project": "PR-T10-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "task": "Minimize one startup discrepancy to entry assembly, one C helper and a recorded link command; retain the failing artifact before reducing. Verify the minimal case still violates the same invariant rather than a new missing-symbol error.",
+      "teaching": [
+        "labs/machine_image/startup_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/startup_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T10-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T10.10.c",
+        "variant": false,
+        "claim": "Wrong saved pointer minimized to original assembly bridge and checked helper boundary",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "transfer_observation": {
+        "objective": "T10.10.c",
+        "variant": true,
+        "claim": "GCC and Clang O0/O2 reject same saved-pointer invariant with exit71",
+        "evidence": [
+          "startup-entry"
+        ],
+        "limitations": [],
+        "group": "startup-entry"
+      },
+      "independent_assessment": "not-assessed; original minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_startup/full_validation.json"
+    }
+  ],
+  "updates": [
+    {
+      "id": "AX-PR-T10-01-T10.01.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "GDB first instruction, AT_ENTRY and application entry compared for dynamic/PIE/static originals",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual static-PIE entry reaches self-relocation before main",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Kernel ELF map/zero-fill/AT_ENTRY and runtime relocation/TLS/init/main ownership linked to inspected bodies",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Original no-interpreter image refuses TLS/stream/heap and explicitly owns its initialization hook",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Raw assembly preserves original stack, establishes call, and exits42 without returning through argc",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.01.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.01.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Helper early failure73 still terminates explicitly",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Original96-byte table and all bounded argument/environment/auxiliary table truncations validated",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Empty environment and reordered/gapped immutable string map preserve table/address semantics",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Explicit unaligned LE byte decoding derives96-byte64-bit table without host pointer casts",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Same table decoded as32-bit labels changes widths/offsets while retaining terminators",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual initial/call/helper stack pointers satisfy preserved-pointer and return-address equations",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.02.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.02.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "32-byte aligned aggregate handoff and original argc retained across stronger alignment",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Driver traces resolve/hash actual CRT objects in dynamic/static/PIE/static-PIE links",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.a",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual private musl static and dynamic images execute TLS/constructor/errno probe",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "CRT symbol/disassembly inventories identify entry and initialization fragments",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.b",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Removing actual crti loses DT_INIT and original init-fragment obligation rejects97 despite successful link",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Installed glibc CRT entry correlated with versioned x86-64 start.S handoff",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-01-T10.03.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+      "original_objective": "T10.03.c",
+      "project": "PR-T10-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Original custom start.S uses the same basename with a deliberately narrower runtime contract",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.a",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Inspected musl and glibc bodies distinguish auxv, TLS/guards, initialization and main/exit",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.a",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Proposed pre-startup errno rejected: inspected archive member uses fs TLS and initialization is absent",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.b",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Only bounded decode/output/explicit exit admitted by original raw target",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.b",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Restricted original initialization hook writes private state without runtime dependencies",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.c",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Resolved errno origin is inspected without running an image whose TLS prerequisites are unmet",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.04.c",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Caller-owned explicit result adapter replaces errno service; raw image contains no libc origin",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.a",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Separate processes distinguish main return/exit BAX from immediate empty output",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.a",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Raw thread exit retains a worker; exit_group terminates the original blocked worker",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.b",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Reverse handler marker order is observed separately from buffered X flush",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.b",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Handlers use raw descriptor writes, so markers do not depend on stdio flushing",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.c",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Raw finish translates helper result and retains explicit ud2 terminal fallback",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+      "original_objective": "T10.05.c",
+      "project": "PR-T10-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-02.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Failure before argument decoding takes deterministic exit73",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.a",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Six-argument raw x86-64 mmap validates flags/fd/nonzero offset and original mapping contents",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.a",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Arm64 x8 number and x0..x5 argument bridge cross-assembles; no target execution claimed",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.b",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual assembly translates C argument registers/stack to rax/rdi/rsi/rdx/r10/r8/r9",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.b",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Documented ARM EABI aligned64 pair includes padding and independently recombines offset",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.c",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Explicit result object distinguishes raw Linux success/error without global errno",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.06.c",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual mmap address success and -EBADF use reserved error range, not sign alone",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.a",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Script2,EINTR,3,2 submits offsets0,2,2,5 and accepts ABCDEFG exactly once",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.a",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "EAGAIN preserves offset2 and borrower lifetime before resumption",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.b",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Read EOF differs from stalled write; partial-zero and bounded EINTR scripts retain exact prefixes",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.b",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Cancellation after accepted2 bytes stops future calls and cannot retract receiver data",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.c",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Same state machine runs scripted backend and actual raw syscall descriptor backend",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+      "original_objective": "T10.07.c",
+      "project": "PR-T10-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-03.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Owned length-prefixed frame survives real pipe EAGAIN and partial writes without duplicate prefix",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Dynamic/static/static-PIE metadata and actual execution retain distinct runtime ownership",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "TLS original executes in all modes using their real C runtime initialization",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "4096 exact patterned output bytes and exit42 verified across GCC/Clang O0/O2",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Bounded maximum decimal formatting adds exact10 bytes with inspected final closure",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Object and final symbols, code, dynamic headers and map origins are separately retained",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.08.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.08.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "LTO static forbidden provider remains rejected despite empty final undefined-symbol set",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Unsigned parser rejects unsupported/overflow spans unchanged;65536+edge formatted values match hosted independent oracle",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Nonterminated span format uses exact digit capacity without retaining a NUL contract",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "O0/O2 parser/formatter increments retain code size, symbols, link maps and stack-usage artifacts",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Division and bounded subtraction variants satisfy same maximum-output contract with separate image manifests",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Service bounds reject signs/space/non-ASCII/separators and overflow explicitly",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.09.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.09.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Signed INT32_MIN parse/format uses checked unsigned magnitude without signed negation overflow",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "GDB stops before C and records actual entry bytes, original stack and call boundary",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.a",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Stripped image keeps entry identity and matched companion recovers entry analysis",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Separate controlled alignment, omitted ROM copy and unrelocated static-PIE specimens reject distinct invariants",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.b",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Two-defect PIE rejects alignment first; its repair exposes relocation failure before dereference",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Wrong saved pointer minimized to original assembly bridge and checked helper boundary",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T10-04-T10.10.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+      "original_objective": "T10.10.c",
+      "project": "PR-T10-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-04.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/entry.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "GCC and Clang O0/O2 reject same saved-pointer invariant with exit71",
+      "required_environment": "Linux x86-64 GCC/Clang/binutils/GDB; private musl/strace; Arm GCC/Clang cross-assembly only.",
+      "validation_method": "Criterion-specific real entry/CRT/syscall/transfers plus independent bounded core oracle, actual forbidden-origin/control failures and source/binary identities.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "LSYS-EXEC-T10",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-with-exact-published-ISO-reference-gap",
+          "evidence": [
+            "labs/machine_image/startup_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T10-01.json",
+            "assessor/legacy_systems/startup_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/startup_depth/core.py",
+            "assessor/legacy_systems/startup_depth/entry.py",
+            "assessor/legacy_systems/startup_depth/runtime.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_startup/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_startup/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-declared-host-or-compile-only-contract",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "All30 original ordinary and30 changed requirements have separate mapped observations and implemented assessor support.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ],
+      "criteria": [
+        "AX-PR-T10-01-T10.01.a",
+        "AX-PR-T10-01-T10.01.b",
+        "AX-PR-T10-01-T10.01.c",
+        "AX-PR-T10-01-T10.02.a",
+        "AX-PR-T10-01-T10.02.b",
+        "AX-PR-T10-01-T10.02.c",
+        "AX-PR-T10-01-T10.03.a",
+        "AX-PR-T10-01-T10.03.b",
+        "AX-PR-T10-01-T10.03.c",
+        "AX-PR-T10-02-T10.04.a",
+        "AX-PR-T10-02-T10.04.b",
+        "AX-PR-T10-02-T10.04.c",
+        "AX-PR-T10-02-T10.05.a",
+        "AX-PR-T10-02-T10.05.b",
+        "AX-PR-T10-02-T10.05.c",
+        "AX-PR-T10-03-T10.06.a",
+        "AX-PR-T10-03-T10.06.b",
+        "AX-PR-T10-03-T10.06.c",
+        "AX-PR-T10-03-T10.07.a",
+        "AX-PR-T10-03-T10.07.b",
+        "AX-PR-T10-03-T10.07.c",
+        "AX-PR-T10-04-T10.08.a",
+        "AX-PR-T10-04-T10.08.b",
+        "AX-PR-T10-04-T10.08.c",
+        "AX-PR-T10-04-T10.09.a",
+        "AX-PR-T10-04-T10.09.b",
+        "AX-PR-T10-04-T10.09.c",
+        "AX-PR-T10-04-T10.10.a",
+        "AX-PR-T10-04-T10.10.b",
+        "AX-PR-T10-04-T10.10.c"
+      ]
+    },
+    {
+      "id": "LSYS-RUNTIME-HOST-243",
+      "original_source": "research/v5/expansion/legacy_systems_elf/gap_ledger.json",
+      "parent_id": "LSYS-RUNTIME",
+      "closure_rationale": "Authorized matching Ubuntu glibc-source2.43-2ubuntu2.4 package obtained; named startup, static-PIE, TLS and DSO-init passages inspected with package/body/patch hashes. Earlier2.42 evidence stays historical.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-named-source-version-correlation",
+          "evidence": [
+            "research/v5/expansion/legacy_systems_startup/resources.json"
+          ]
+        },
+        "implementation": {
+          "state": "not-applicable-source-access-obligation",
+          "evidence": [
+            "research/v5/expansion/legacy_systems_startup/provisioning.json"
+          ]
+        },
+        "author_validation": {
+          "state": "verified-source-access-and-bounded-inspection",
+          "evidence": [
+            "research/v5/expansion/legacy_systems_startup/resources.json",
+            "research/v5/expansion/legacy_systems_startup/provisioning.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-applicable-source-access",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-source-access",
+          "evidence": []
+        }
+      },
+      "evidence_limits": [
+        "Matching version and inspected body are not a reproduced build or proof of source-to-binary equivalence. No whole-loader audit is claimed."
+      ]
+    }
+  ],
+  "source_records": [
+    {
+      "id": "R-LSTART-KERNEL",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "padzero118–129; create_elf_tables153–341; elf_map347–381; elf_load387–430; load_elf_binary778–1295"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-ENTRY",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "sysdeps/x86_64/start.S31–126"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-INIT",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "csu/libc-start.c153–203 and222–360; sysdeps/nptl/libc_start_call_main.h complete body"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-PIE",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "elf/dl-reloc-static-pie.c complete92-line file; matching git-updates.diff hunk"
+      ]
+    },
+    {
+      "id": "R-LSTART-GLIBC-TLS",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "elf/dl-tls.c467–800; elf/dl-init.c20–76"
+      ]
+    },
+    {
+      "id": "R-LSTART-MUSL-INIT",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "src/env/__libc_start_main.c complete file"
+      ]
+    },
+    {
+      "id": "R-LSTART-MUSL-ERRNO",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "src/errno/__errno_location.c complete file; arch/x86_64/pthread_arch.h complete file; src/internal/pthread_impl.h first4400characters through TLS/self definitions"
+      ]
+    },
+    {
+      "id": "R-LSTART-SYSCALL",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "Description lines35–51; ARM EABI aligned64 example64–103; architecture/argument tables106–236"
+      ]
+    },
+    {
+      "id": "R-LSTART-N1570",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "5.1.2,5.1.2.1,5.1.2.2.1–.3 printed12–14;7.22.4.2/.4/.5 printed350–352"
+      ]
+    },
+    {
+      "id": "R-LSTART-AMD64",
+      "path": "research/v5/expansion/legacy_systems_startup/resources.json",
+      "passages": [
+        "Previously inspected T08:3.2.2–3.2.3 stack/argument classes; newly read3.4.1–3.4.3 printed27–32/PDF28–33 initial state, stack and auxiliary vector"
+      ]
+    }
+  ]
+}

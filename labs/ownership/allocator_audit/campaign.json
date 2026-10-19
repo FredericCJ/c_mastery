@@ -1,0 +1,54 @@
+{
+  "module": "allocator_audit",
+  "target": "ownership-allocator_audit",
+  "learner_option": "CMASTERY_OAA_LEARNER",
+  "anchors": [
+    "allocator_audit_base",
+    "allocator_audit_resize",
+    "allocator_audit_rollback",
+    "allocator_audit_poison",
+    "allocator_audit_counters",
+    "allocator_audit_consumers",
+    "allocator_audit_recursive"
+  ],
+  "control_count": 6,
+  "observation_markers": [
+    "OAA_BASE actual-OwAllocator",
+    "OAA_RESIZE actual-upstream",
+    "OAA_ROLLBACK injection-and-upstream-failure",
+    "OAA_POISON observer-before-upstream-release",
+    "OAA_COUNTERS allocation-refuses",
+    "OAA_CONSUMERS actual-frontier-COW-failure-sweeps",
+    "OAA_RECURSIVE actual-T65-error-format"
+  ],
+  "oracle": "tools/verify_ownership_allocator_audit.py",
+  "metrics": [
+    "metrics"
+  ],
+  "object_sources": [
+    "allocator_audit.c",
+    "consumers.c",
+    "ownership.c",
+    "v4_algo.c",
+    "errors.c"
+  ],
+  "producer": "tools/run_ownership_allocator_audit.py",
+  "report": "research/v5/modern/ownership_allocator_audit_validation.json",
+  "imports": [
+    "labs/ownership/CONTRACTS.md",
+    "labs/ownership/include/ownership.h",
+    "labs/ownership/include/imports/v4_algo.h",
+    "labs/ownership/src/ownership.c",
+    "assessor/ownership/ownership.c",
+    "labs/algorithms/include/v4_algo.h",
+    "labs/algorithms/src/v4_algo.c",
+    "assessor/algorithms/v4_algo.c",
+    "labs/errors/include/errors.h",
+    "labs/errors/src/errors.c",
+    "labs/errors/CONTRACTS.md",
+    "assessor/errors/errors.c",
+    "research/v5/modern/ownership_allocator_audit_resources.json",
+    "research/v5/modern/ownership_allocator_audit_research_gate.json",
+    "tools/register_ownership_allocator_audit.py"
+  ]
+}

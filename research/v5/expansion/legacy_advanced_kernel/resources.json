@@ -1,0 +1,121 @@
+{
+  "resources": [
+    {
+      "id": "R-AK-LINUX",
+      "title": "Pinned Linux work, context, LKMM and DMA contracts",
+      "authors": [
+        "Linux contributors"
+      ],
+      "edition": "Selected Linux7.0.14 source",
+      "year": 2026,
+      "kind": "implementation-documentation",
+      "url": "https://docs.kernel.org/core-api/workqueue.html",
+      "access": "Listed actual passages inspected",
+      "domains": [
+        "T26"
+      ],
+      "role": "primary",
+      "reason": "Separate C ordering, kernel context/drain and device ownership contracts",
+      "prerequisites": [
+        "T25 memory model",
+        "T26 queue and lifetime"
+      ],
+      "locators": [
+        "kernel/workqueue.c: cancel_work_sync lines4479\u20134499",
+        "include/linux/uaccess.h: residual/zero-padding contract lines53\u201391",
+        "Documentation/locking/locktypes.rst: raw_spinlock_t/spinlock_t and PREEMPT_RT sections",
+        "tools/memory-model/linux-kernel.cat: basic relations through propagation",
+        "tools/memory-model/litmus-tests/MP+pooncerelease+poacquireonce.litmus: complete marked MP test",
+        "tools/memory-model/litmus-tests/MP+poonceonces.litmus: complete weak MP test",
+        "Documentation/memory-barriers.txt: DMA barriers lines1914\u20131957 and default MMIO ordering lines2570\u20132620",
+        "Documentation/core-api/dma-api-howto.rst: coherent/streaming mapping distinction lines350\u2013405"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Direct source reads; N1570 private cached PDF pypdf prose extraction, not title inference",
+        "scope": "kernel/workqueue.c: cancel_work_sync lines4479\u20134499; include/linux/uaccess.h: residual/zero-padding contract lines53\u201391; Documentation/locking/locktypes.rst: raw_spinlock_t/spinlock_t and PREEMPT_RT sections; tools/memory-model/linux-kernel.cat: basic relations through propagation; tools/memory-model/litmus-tests/MP+pooncerelease+poacquireonce.litmus: complete marked MP test; tools/memory-model/litmus-tests/MP+poonceonces.litmus: complete weak MP test; Documentation/memory-barriers.txt: DMA barriers lines1914\u20131957 and default MMIO ordering lines2570\u20132620; Documentation/core-api/dma-api-howto.rst: coherent/streaming mapping distinction lines350\u2013405",
+        "limits": "Exact selected fragment only; N1570 is not C17/C23, no general LKMM interpreter or physical/RT execution claim.",
+        "external_source_sha256": {
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/kernel/workqueue.c": "95b1f70644f37a8502fa954f9a14a3e705b81c3ed31283a11ebd0067f0773342",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/include/linux/uaccess.h": "2fe3e5d4c78699814dbbe29284a631b6b90d38938619975fcc67da75ac24891c",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/Documentation/locking/locktypes.rst": "fc6356c30a24bfa92888d814d18fd68a5f33ed9cc871ac66826d001507de9919",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/tools/memory-model/linux-kernel.cat": "250207709250d308e0a0a6f391c4eda0bbf4876cbc55eccbfbcd495676a179be",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/tools/memory-model/litmus-tests/MP+pooncerelease+poacquireonce.litmus": "fbfcb4210aa3593ab07e564b2c362734cfaf670c1cb34dad1c6b483f7f41d8c3",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/tools/memory-model/litmus-tests/MP+poonceonces.litmus": "15f94aa6220215d31f238a9f9713aea53a396186f17be7a3a0f7ed8ba4724456",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/Documentation/memory-barriers.txt": "090db2834c75aff44a528204c8072640e01efe51f1ac44e54a1d89efe1714a5c",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/Documentation/core-api/dma-api-howto.rst": "92070ca3b5e150580c26d39be990b109053951a767fb3fd1d695aece478bbff2"
+        }
+      }
+    },
+    {
+      "id": "R-AK-PRODUCERS",
+      "title": "Actual T57 copied ownership and ASQueue producer",
+      "authors": [
+        "C Mastery curriculum authors"
+      ],
+      "edition": "Current frozen producer",
+      "year": 2026,
+      "kind": "implementation-documentation",
+      "url": "https://github.com/FredericCJ/c_mastery",
+      "access": "Listed actual passages inspected",
+      "domains": [
+        "T26"
+      ],
+      "role": "primary",
+      "reason": "Separate C ordering, kernel context/drain and device ownership contracts",
+      "prerequisites": [
+        "T25 memory model",
+        "T26 queue and lifetime"
+      ],
+      "locators": [
+        "assessor/kernel_lifecycle/guest/b06_owner.c: complete copied request, lookup, work and closure functions",
+        "assessor/kernel_lifecycle/guest/b06_irq.c: complete primary/threaded context and teardown functions",
+        "labs/kernel_lifecycle/guest/probe.c: complete original user-copy/context probe",
+        "labs/advanced_concurrency_depth/spsc/spsc.h and CONTRACTS.md: actual queue interface/ownership",
+        "assessor/advanced_concurrency_depth/spsc/spsc.c: as_init/as_push/as_pop"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Direct source reads; N1570 private cached PDF pypdf prose extraction, not title inference",
+        "scope": "assessor/kernel_lifecycle/guest/b06_owner.c: complete copied request, lookup, work and closure functions; assessor/kernel_lifecycle/guest/b06_irq.c: complete primary/threaded context and teardown functions; labs/kernel_lifecycle/guest/probe.c: complete original user-copy/context probe; labs/advanced_concurrency_depth/spsc/spsc.h and CONTRACTS.md: actual queue interface/ownership; assessor/advanced_concurrency_depth/spsc/spsc.c: as_init/as_push/as_pop",
+        "limits": "Exact selected fragment only; N1570 is not C17/C23, no general LKMM interpreter or physical/RT execution claim."
+      }
+    },
+    {
+      "id": "R-AK-N1570",
+      "title": "WG14 N1570 C11 draft publication and data race clauses",
+      "authors": [
+        "WG14"
+      ],
+      "edition": "C11 committee draft N1570",
+      "year": 2011,
+      "kind": "standards-draft",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Listed actual passages inspected",
+      "domains": [
+        "T26"
+      ],
+      "role": "primary",
+      "reason": "Separate C ordering, kernel context/drain and device ownership contracts",
+      "prerequisites": [
+        "T25 memory model",
+        "T26 queue and lifetime"
+      ],
+      "locators": [
+        "5.1.2.4 paragraphs5\u201325, printed pages18\u201320: synchronization, happens-before, atomic visibility and data race"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Direct source reads; N1570 private cached PDF pypdf prose extraction, not title inference",
+        "scope": "5.1.2.4 paragraphs5\u201325, printed pages18\u201320: synchronization, happens-before, atomic visibility and data race",
+        "limits": "Exact selected fragment only; N1570 is not C17/C23, no general LKMM interpreter or physical/RT execution claim.",
+        "external_source_sha256": {
+          "/home/frede/cmastery-freestanding-tools/inspected/N1570.txt": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e"
+        }
+      }
+    }
+  ]
+}

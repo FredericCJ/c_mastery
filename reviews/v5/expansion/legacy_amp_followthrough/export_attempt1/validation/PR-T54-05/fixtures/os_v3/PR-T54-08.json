@@ -1,0 +1,29 @@
+{
+  "id": "PR-T54-08",
+  "description": "Peer failure and protocol recovery finite independent example",
+  "oracle": "epochs",
+  "input": {
+    "current": 6,
+    "message_epochs": [
+      5,
+      6,
+      6,
+      4,
+      7
+    ]
+  },
+  "expected": {
+    "accepted_indices": [
+      1,
+      2
+    ],
+    "rejected_indices": [
+      0,
+      3,
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A peer reset invalidates its in-flight operation identities and potentially leaves buffers owned by an absent participant. Recovery must establish a new epoch before reusing shared storage. Exactly-once external effects require application-level deduplication, not merely a transport retry.",
+  "required_observation": "Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset."
+}

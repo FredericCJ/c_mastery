@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T53-03",
   "domain": "T53",
-  "title": "Per-CPU execution state and stacks — explicit depth assessments",
+  "title": "Per-CPU execution state and stacks \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/smp_depth/percpu/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -122,9 +123,9 @@
       "id": "R-LCON-INTEL",
       "path": "research/v5/expansion/legacy_concurrency/resources.json",
       "passages": [
-        "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-        "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-        "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+        "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+        "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+        "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
         "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
       ]
     }
@@ -140,7 +141,19 @@
     "curriculum/projects/PR-T53-03.md",
     "fixtures/os_v3/PR-T53-03.json",
     "labs/kernel_smp/README.md",
-    "curriculum/guides/concurrent-system-contracts.md"
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/smp_depth/percpu/CONTRACTS.md",
+    "labs/smp_depth/percpu/abi_probe.c",
+    "labs/smp_depth/percpu/audit.py",
+    "labs/smp_depth/percpu/cost.c",
+    "labs/smp_depth/percpu/guest.py",
+    "labs/smp_depth/percpu/oracle.py",
+    "labs/smp_depth/percpu/percpu.c",
+    "labs/smp_depth/percpu/percpu.h",
+    "labs/smp_depth/percpu/percpu_frames.S",
+    "labs/smp_depth/percpu/percpu_guest.c",
+    "labs/smp_depth/percpu/tests.c",
+    "labs/smp_depth/percpu/trace.c"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -168,9 +181,9 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
@@ -233,6 +246,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.a"
       }
     },
     {
@@ -252,9 +269,9 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
@@ -317,6 +334,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.b"
       }
     },
     {
@@ -336,9 +357,9 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
@@ -401,6 +422,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+        "id": "AX-PR-T53-03-T53.03.c"
       }
     }
   ],
@@ -415,5 +440,16 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_smp_percpu/support.json",
+      "criterion_ids": [
+        "AX-PR-T53-03-T53.03.a",
+        "AX-PR-T53-03-T53.03.b",
+        "AX-PR-T53-03-T53.03.c"
+      ],
+      "scope": "Actual private storage, known nested faults, register/SIMD preservation, changed-ABI finite frame calculation and equivalent-contract padding measurements."
+    }
+  ]
 }

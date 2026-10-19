@@ -1,0 +1,38 @@
+{
+  "id": "PR-T55-02",
+  "description": "Compare-and-swap and progress classifications finite independent example",
+  "oracle": "cas",
+  "input": {
+    "initial": 4,
+    "attempts": [
+      [
+        3,
+        9
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        5,
+        7
+      ]
+    ]
+  },
+  "expected": {
+    "results": [
+      false,
+      true,
+      false,
+      true
+    ],
+    "final": 7
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A CAS operation can fail because another thread changed the value; weak CAS may also fail spuriously. Retry loops need updated observations and a proof of what successful interference means. Lock-free system progress differs from wait-free per-operation bounds and from merely avoiding a mutex API.",
+  "required_observation": "Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free."
+}

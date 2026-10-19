@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "corrections": [
+    {
+      "id": "LSYS-T11-CARRY-2026-01",
+      "objective": "T11.04.c",
+      "origin": "research/v5/expansion/legacy_systems/t11_cards.py: original ROWS snapshot",
+      "defect": "The original expected explanation says the zero-initialized, exactly128-step single-numerator division needs a transient129th remainder bit.",
+      "derivation": "Before iteration k (0<=k<128), the processed numerator prefix is less than2^k and remainder is at most that prefix. Thus remainder<2^127 before every shift. Its top carry bit is always zero. Removing that redundant branch is an equivalent mutation for this domain; no honest test can reject it as incorrect.",
+      "transfer": "Streaming continuation admits arbitrary remainder r<divisor. With r=2^127+3,d=2^127+7 and bit1, (2r+1) divmod d is (1,2^127). A129th temporary carry is necessary unless another mathematically equivalent representation is used.",
+      "active_task": "Derive the exact128-step quotient/remainder invariant for the existing mi_divide contract and prove whether a high carry can occur. Then implement fr_divmod128 and the full-width streaming fr_divstep128 extension. Compare original local, declared compiler-runtime and explicit unsupported policies with code/stack/operation/time evidence under equal contracts where possible.",
+      "active_expected": "In ordinary zero-initialized single-numerator division, r<=processed_prefix<2^127 before each shift, so high carry is unreachable; its removal is equivalent. Streaming r<divisor can have a129th temporary bit and needs an appropriate representation. mi_divide returns0 on divisor0; fr_divmod128 refuses without changing outputs; emitted C division has no defined divisor0 semantics. Compare only equivalent nonzero domains when reporting overhead.",
+      "preservation": "Accepted mi_divide, historical criteria/receipts and original ROWS text remain unchanged. Active supplement regeneration uses this explicit successor correction; assessor explanation and source-bound evidence identify it."
+    }
+  ]
+}

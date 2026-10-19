@@ -24,5 +24,7 @@ Write ADAPTER_EVIDENCE.md with exact producer source revisions, export contracts
 conversion code, lifetime diagrams and composition tests. Export
 `rt.object_model` only after representation/intern/shape/cache checks, and
 `rt.incremental_gc` only after root/store barriers, collection and VM-root
-integration are assessed. These adapters are learner work; they are not
-implemented or automatically copied from assessor artifacts by this scaffold.
+integration are assessed. `VM_ADAPTER.md` now specifies a concrete adapter,
+public compiling stub, independent oracle and separate assessor implementation
+using actual CVM and algo_pool sources. Learners implement and assess their own
+adapters; assessor artifacts are not automatically copied into the scaffold.

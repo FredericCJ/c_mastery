@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "updates": [
+    {
+      "id": "LRS-RTOS-SERVER-PORT",
+      "project": "PR-T52-05",
+      "original_source": "research/v5/expansion/legacy_realtime_server/support.json",
+      "original_record": {
+        "id": "LRS-RTOS-SERVER-PORT",
+        "required": true,
+        "state": "unimplemented",
+        "task": "Compose a server with an actual scheduler/task/interrupt adapter and retain policy-specific accounting and preemption evidence; logical tick execution alone is insufficient."
+      },
+      "criterion_ids": [
+        "AX-PR-T52-05-T52.05.a",
+        "AX-PR-T52-05-T52.05.b",
+        "AX-PR-T52-05-T52.05.c"
+      ],
+      "closure_rationale": "Actual retained CMX SVC/PendSV/SysTick dispatch now composes the completed budget ledger with generation-bound task sleeps, conservative controlled-quantum charge, stronger preemption and close/exit/detach/reap. Actual five-wrap masking witness falsifies accounting outside its stated environment. This closes the exact bounded runtime-adapter author obligation, not arbitrary elapsed-service or physical timing guarantees.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-bounded-runtime-contract",
+          "evidence": [
+            "labs/realtime_depth/port/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-bounded-runtime-contract",
+          "evidence": [
+            "assessor/legacy_realtime/port.c",
+            "labs/realtime_depth/port/workload.c",
+            "labs/realtime_depth/port/oracle.py",
+            "research/v5/expansion/legacy_realtime_server/support.json",
+            "research/v5/expansion/legacy_realtime_cohort/support.json"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-hosted-oracle-and-actual-emulated-task-dispatch",
+          "evidence": [
+            "reviews/v5/expansion/legacy_realtime_port/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-emulator-only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Owned Cortex-M4 QEMU mps2-an386 guest, instruction-count mode, three real PSP contexts, fixed-priority saturated server with short masking and no voluntary payload block/yield. Hosted independent oracle under six GCC/Clang profiles.",
+      "external_blockers": [
+        "Independent human review and unaided learner assessment.",
+        "Actual physical timing/stack/masking observations before any hardware timing claim."
+      ],
+      "evidence_limits": [
+        "The long-mask scenario intentionally violates the premise; observing five wraps and one charge is a falsification witness, not successful enforcement.",
+        "No arbitrary-blocking accounting clock, current POSIX implementation, SMP port, literal classical-server theorem or physical WCET is claimed.",
+        "Reference observations do not establish universal mastery; predecessor polling/cohort/ledger/overload scopes remain distinct."
+      ]
+    }
+  ],
+  "predecessor_supports": [
+    "research/v5/expansion/legacy_realtime_server/support.json",
+    "research/v5/expansion/legacy_realtime_cohort/support.json"
+  ],
+  "source_records": [
+    {
+      "id": "R-LRPORT-CMX",
+      "path": "research/v5/expansion/legacy_realtime_port/resources.json",
+      "passages": [
+        "valid/callable/due/wait_on: admission, full sequence refusal and deadline checks",
+        "cmx_task_add/cmx_schedule: raw slot generation and fixed-priority state selection",
+        "cmx_sleep/cmx_tick/cmx_cancel: exact sleep admission, due wake and cancellation",
+        "cmx_exit/cmx_reap: retained owner refusal, EXITED state and generation increment"
+      ]
+    },
+    {
+      "id": "R-LRPORT-CORTEX",
+      "path": "research/v5/expansion/legacy_realtime_port/resources.json",
+      "passages": [
+        "Complete cortex_port.c: task stack construction, saved masks, task-return trampoline, choose, tick hook ordering and finish",
+        "Complete startup.S: private reset, vector table and entry",
+        "Complete context.S: SVC/PendSV PSP save/restore and exception return"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "labs/realtime_depth/port/CONTRACTS.md": "14ee516ee4df17ce773385ddb7d5ef3c7624ecf0b9073f28979927a867af21b2",
+    "reviews/v5/expansion/legacy_realtime_port/campaign.json": "7d54410c3f77d3fa2fe168978da8e9ffded485b73c4017a29c7cfd4973508d49",
+    "curriculum/v5/expansion/legacy_assessments/PR-T52-05.json": "6bcea9e39e36337e47a8bfe62e88827ea98fdfc4ee482a88a0d3e38917a93fa1",
+    "tools/check_server_port.py": "5388beed25f8b7346a3d76a77a3c99411a5a358114b19f0db57f1729100e57c6",
+    "research/v5/expansion/legacy_realtime_port/author_support.py": "8c7eaa1747c65ab140d378a90805ffa6999bf80130d52c676b292e6a298fa29a",
+    "research/v5/expansion/legacy_realtime_port/resources.json": "87619eac69e0e53a2ff4e932efe7a2d73a628ccc80a380ef58961843bc0d56b6",
+    "research/v5/expansion/legacy_realtime_port/research_gate.json": "6e7905e80994bfc50d4e8185abe73927c6c0e58abf69cb0d3066949da12347aa"
+  },
+  "campaigns": [
+    {
+      "producer": "tools/run_server_port.py",
+      "report": "reviews/v5/expansion/legacy_realtime_port/campaign.json"
+    }
+  ],
+  "remaining_author_work": [],
+  "remaining_external_work": [
+    "Physical timing/masking validation, independent human review and independent learner attempt."
+  ],
+  "scope": "Only exact LRS-RTOS-SERVER-PORT author obligation under its explicit finite single-core contract. No rewrite or replacement of earlier task evidence."
+}

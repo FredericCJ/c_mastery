@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "id": "X-T69-002",
+  "title": "Fat views, embedded tables and unsafe qualifier substitution",
+  "project": "PR-T69-02",
+  "domain": "T69",
+  "objectives": [
+    "T69.02.a",
+    "T69.02.b",
+    "T69.02.c",
+    "T69.02.d"
+  ],
+  "families": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "F",
+    "H",
+    "I"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T69-001"
+  ],
+  "prerequisite_artifacts": [
+    "containers.array",
+    "measurement.capture"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DISPATCH-TRAIT",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "type.trait-object.intro and unsized: implementor pointer and virtual method table",
+        "type.trait-object.lifetime-bounds"
+      ]
+    },
+    {
+      "id": "R-MOD-DISPATCH-LAYOUT",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "layout.pointer.unsized: guarantees and non-guaranteed two-word observation",
+        "layout.tuple.unit and layout.closure",
+        "layout.repr.rust.struct-zst"
+      ]
+    },
+    {
+      "id": "R-MOD-DISPATCH-C-POINTERS",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "6.3.2.3p1–2 and7–8 Pointer conversions",
+        "6.7.2.1p14–17 Structure/union layout and initial member",
+        "6.5.16.1p1 and6 Assignment qualifiers and unsafe double-pointer example"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dispatch",
+    "tests": [
+      "dispatch.fat",
+      "dispatch.subobjects"
+    ],
+    "scaffold": "labs/dispatch"
+  },
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-02.json",
+    "fixtures/dispatch/qualifier_reject.c",
+    "fixtures/dispatch/empty_struct_reject.c",
+    "fixtures/dispatch/laws.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dispatch/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dispatch/analyses/X-T69-002.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/b07/dispatch_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T69.02.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-002-R1"
+      ]
+    },
+    {
+      "objective": "T69.02.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-002-R2"
+      ]
+    },
+    {
+      "objective": "T69.02.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-002-R3"
+      ]
+    },
+    {
+      "objective": "T69.02.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-002-R4"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T69-002-R1",
+      "objective": "T69.02.a",
+      "criterion": "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-002-R2",
+      "objective": "T69.02.b",
+      "criterion": "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-002-R3",
+      "objective": "T69.02.c",
+      "criterion": "Validate both representations against the same direct implementation and compile the double-pointer qualifier counterexample under strict C17; diagnose why one-level qualifier addition does not generalize recursively.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-002-R4",
+      "objective": "T69.02.d",
+      "criterion": "Compare Rust trait-object representation and lifetime bounds with the C pair, then change to a borrowed subobject and multiple interfaces. Recompute pointer adjustment, owner storage and invalidation; no automatic variance or lifetime proof is inherited. Compile the supplied empty-struct probe under strict C17 and compare a one-byte marker field with the inspected Rust zero-sized marker rules. Record extension diagnostics and actual size separately; no zero-size or no-cost C guarantee follows.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T69-002-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T69-002.md",
+  "brief_sha256": "c35ae724e260b8a54c06750df17203ab1c0eab67cc69a10751a2ad83ab8dbb36",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dispatch/PR-T69-02.json": "2aafb2c7044af9d0213a883ffb9b44d215c10daa1d78bced4993288ddeeebcaa",
+    "fixtures/dispatch/empty_struct_reject.c": "7e57da18907401f8c07c9a1af6c814e1641180cd9c5c1a98609973ed2f260f56",
+    "fixtures/dispatch/laws.json": "441c1add95eaed52e456abb9605e7c9bd52095c1423a56f35141135239a1346d",
+    "fixtures/dispatch/qualifier_reject.c": "816eae400393a0e131d3fee7203e8d3f0811c609d519ef8856edbf626f59a6c0",
+    "labs/dispatch/CONTRACTS.md": "46353fb78346148e82a553da4764838dd1d078462c6f1b054aff77dbc3953c56",
+    "research/v5/modern/dispatch_resources.json": "fbf4a364ad9bc35877589ef9781f43a9a15323d0d4eff7d4a70a8978305f1ecc"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "scope": "Focused packaging correction; no archive release accepted or promoted",
+  "changes": [
+    "tools/package_v4.py source_files now preserves scoped package assessment evidence and excludes only active self-written packaging outputs",
+    "tools/check_candidate_exports_v5.py reuses release selection and fixed-point checks in a fresh non-promoted candidate"
+  ],
+  "checks": [
+    {
+      "command": ".venv/Scripts/python.exe -X utf8 tools/check_release_v5.py",
+      "exit_code": 0,
+      "tests": 31,
+      "skipped": 3,
+      "scope": "Before the extra extraction-path test; Windows symlink privileges unavailable"
+    },
+    {
+      "command": "wsl.exe -d Ubuntu --exec python3 tools/check_release_v5.py",
+      "exit_code": 0,
+      "tests": 31,
+      "skipped": 0,
+      "scope": "Before the extra extraction-path test; actual Linux symlinks exercised"
+    },
+    {
+      "command": "Python unittest selected FifthEditionGuards.test_source_archive_keeps_scoped_package_evidence and test_review_candidate_extraction_rejects_escape",
+      "exit_code": 0,
+      "tests": 2,
+      "skipped": 0,
+      "scope": "After adding candidate extraction guard; actual synthetic ZIP bytes and path rejection"
+    }
+  ],
+  "source_sha256": {
+    "tools/package_v4.py": "554444c46c9fe006109125a2ff749f36a78374088cf01056325e5fbfe3bee025",
+    "tools/check_release_v5.py": "795d6914b5be4241981ae79c4d5af07dc5c2c5d61df403d322400f433284b52e",
+    "tools/check_candidate_exports_v5.py": "eef50966b96546c92c0c7a500096312ef22a10141e10272dc64cddb2c34565f9"
+  },
+  "limits": [
+    "The31-test runs preceded the extra path test and do not bind the final32-test source. Final integrated release-guard producer must rerun both platforms.",
+    "Whole source candidate and extracted publication reproduction are not yet executed."
+  ]
+}

@@ -142,7 +142,7 @@ def family(name_of_family, native):
         if (not target.is_file() or target.parent != (ROOT / 'tools').resolve()
                 or not target.name.startswith('run_') or target.suffix != '.py'):
             raise ValueError('Family campaign producer must be a tracked tools/run_*.py: ' + producer)
-        receipt = campaign_meta.get('receipt', 'foundation_depth_campaign.json')
+        receipt = campaign_meta.get('receipt', name_of_family + '_campaign.json')
         if Path(receipt).name != receipt or not receipt.endswith('_campaign.json'):
             raise ValueError('Invalid family campaign receipt name: ' + receipt)
         destination = RECEIPTS + '/' + receipt

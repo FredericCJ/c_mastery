@@ -42,6 +42,43 @@ def table(headers, rows):
 def reading_rows(readings, resource_map):
     return [[f'[{html.escape(resource_map[r["resource_id"]]["title"])}](../references/{r["resource_id"]}.md)', r['locator'], r['purpose'], str(r['hours'])] for r in readings]
 
+def inspection_scope_text(scope):
+    """Render distinct inspected passages without changing the source record.
+
+    Narrative strings retain their exact text. A list remains a sequence of
+    separately inspected passages, not a Python representation or a claim to
+    have read the complete work.
+    """
+    if isinstance(scope, str) and scope.strip():
+        return scope
+    if (isinstance(scope, list) and scope
+            and all(isinstance(item, str) and item.strip() for item in scope)):
+        return '\n'.join(str(i) + '. ' + item.replace('\n', '\n' + ' ' * (len(str(i)) + 2))
+                         for i, item in enumerate(scope, 1))
+    raise ValueError('Inspection scope must be a nonempty string or ordered list of nonempty strings')
+
+
+def resource_page_link(resource, resource_map):
+    """Keep a local bibliography alias local, with a validated target chain."""
+    from resource_publication_locations import publication_url
+    address = publication_url(resource, root=ROOT) or resource['url']
+    if not address.startswith('local:'):
+        return '[Authoritative resource page](' + address + ')'
+    first = address[len('local:'):]
+    seen = {resource['id']}
+    while address.startswith('local:'):
+        identifier = address[len('local:'):]
+        if (not re.fullmatch(r'R-[A-Za-z0-9][A-Za-z0-9_.-]*', identifier)
+                or identifier not in resource_map or identifier in seen):
+            raise ValueError('Invalid, dangling or cyclic bibliography alias: ' + address)
+        target = resource_map[identifier]
+        if target.get('id') != identifier or not isinstance(target.get('url'), str):
+            raise ValueError('Malformed bibliography alias target: ' + identifier)
+        seen.add(identifier)
+        address = target['url']
+    return '{ref}`Bibliography record <' + first + '>`'
+
+
 def publication_links(body, current=None, page=None, contracts=None):
     # Canonical projects live two directories below the project root; generated
     # pages live one below the generated source root. Downloads are copied by Sphinx.
@@ -187,7 +224,7 @@ def prepare():
     for r in resources:
         content=label(r['id'])+'# '+html.escape(r['title'])+'\n\n'
         content+='**Authors/maintainers:** '+', '.join(r['authors'])+'.\n\n**Edition/version:** '+str(r['edition'])+'. **Year:** '+str(r.get('year') or 'not established')+'.\n\n'
-        content+='**Role:** '+r['role']+'. **Access:** '+r['access']+'.\n\n'+f'[Authoritative resource page]({r["url"]}).\n\n'+r['reason']+'\n\n'
+        content+='**Role:** '+r['role']+'. **Access:** '+r['access']+'.\n\n'+resource_page_link(r, resource_map)+'.\n\n'+r['reason']+'\n\n'
         prereq=r.get('prerequisites')
         prereq='; '.join(prereq) if isinstance(prereq,list) else prereq
         content+='**Reading foundations:** '+str(prereq or 'Complete the entry foundations of the assigned module; consult its reading guidance for targeted remediation.')+'\n\n'
@@ -196,7 +233,7 @@ def prepare():
             content+='**Disposition:** Bibliographic lead only; no teaching assignment is permitted.\n\n'
         content+='## Inspected reading locators\n\n'+'\n'.join('- '+v for v in r['locators'])+'\n\n'
         ins=r['inspection']
-        content+='## Evidence and limits\n\n'+'**Check date:** '+ins['date']+'. **Method:** '+ins['method']+'.\n\n'+ins['scope']+'\n\n**Limits:** '+str(ins.get('limits') or 'Bounded inspection; no whole-work reading claim.')+'\n\n'
+        content+='## Evidence and limits\n\n'+'**Check date:** '+ins['date']+'. **Method:** '+ins['method']+'.\n\n'+inspection_scope_text(ins['scope'])+'\n\n**Limits:** '+str(ins.get('limits') or 'Bounded inspection; no whole-work reading claim.')+'\n\n'
         content+='## Teaching backlinks\n\n'+'\n'.join('- ['+k+'](../modules/'+k+'.md)' for k,m in modules.items() if any(a['resource_id']==r['id'] for a in m['meta']['readings']))+'\n'
         content = publication_links(content, page='references/' + r['id'] + '.md', contracts=shared_contracts)
         write(SOURCE/'references'/ (r['id']+'.md'),content)

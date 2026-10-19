@@ -1,0 +1,18 @@
+{
+  "id": "PR-T50-08",
+  "description": "Floating-point task context and lazy stacking finite independent example",
+  "oracle": "frame",
+  "input": {
+    "software_words": 25,
+    "hardware_words": 26,
+    "word_bytes": 4,
+    "alignment": 8
+  },
+  "expected": {
+    "payload_bytes": 204,
+    "aligned_bytes": 208
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Floating-point context ownership depends on exception-return state and the selected lazy-stacking configuration. Integer-only tests cannot detect corruption of S16-S31. The first FP instruction in an exception can change stack use and timing; account for reserved and actually written frame space separately.",
+  "required_observation": "Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements."
+}

@@ -1,0 +1,66 @@
+GenMC v0.19.0 (LLVM 21.1.8)
+Copyright (C) 2024 MPI-SWS. All rights reserved.
+
+*** Compilation complete.
+*** Transformation complete.
+Error: Non-atomic race!
+Event (1, 11) conflicts with event (2, 12) in graph:
+<-1, 0>:
+	(0, 1): Wna (lock.kind, 1) locks.c:9
+	(0, 2): Wna (lock.rank, 1) locks.c:9
+	(0, 3): Wna (lock.word, 0) locks.c:9
+	(0, 4): Wna (lock.next, 0) locks.c:9
+	(0, 5): Wna (lock.serving, 0) locks.c:9
+	(0, 6): Wna (lock.admitted, 0) locks.c:9
+	(0, 7): Wna (lock.tail, 0) locks.c:9
+	(0, 8): Wna (nodes[0].next, 0) locks.c:11
+	(0, 9): Wna (nodes[0].waiting, 0) locks.c:11
+	(0, 10): Wna (nodes[0].active, 0) locks.c:11
+	(0, 11): Wna (nodes[1].next, 0) locks.c:11
+	(0, 12): Wna (nodes[1].waiting, 0) locks.c:11
+	(0, 13): Wna (nodes[1].active, 0) locks.c:11
+	(0, 14): THREAD_CREATE [thread 1] pthread.h:146
+	(0, 15): THREAD_CREATE [thread 2] pthread.h:146
+	(0, 16): BLOCK[join]
+<0, 1> worker:
+	(1, 1): Rna (lock.kind, 1) [(0, 1)] locks.c:26
+	(1, 2): Rna (lock.kind, 1) [(0, 1)] locks.c:27
+	(1, 3): Rna (lock.kind, 1) [(0, 1)] locks.c:13
+	(1, 4): Rsc (lock.admitted, 1) [(2, 6)] locks.c:14
+	(1, 5): CRsc (lock.admitted, 1) [(2, 6)] locks.c:15
+	(1, 6): CWsc (lock.admitted, 2) locks.c:15
+	(1, 7): URsc (lock.next, 1) [(2, 8)] locks.c:16
+	(1, 8): UWsc (lock.next, 2) locks.c:16
+	(1, 9): Rna (lock.kind, 1) [(0, 1)] locks.c:20
+	(1, 10): Rsc (lock.serving, 1) [(2, 15)] locks.c:22
+	(1, 11): Rna (counter, 1) [(2, 12)] publication_model.c:13
+<0, 2> worker:
+	(2, 1): Rna (lock.kind, 1) [(0, 1)] locks.c:26
+	(2, 2): Rna (lock.kind, 1) [(0, 1)] locks.c:27
+	(2, 3): Rna (lock.kind, 1) [(0, 1)] locks.c:13
+	(2, 4): Rsc (lock.admitted, 0) [(0, 6)] locks.c:14
+	(2, 5): CRsc (lock.admitted, 0) [(0, 6)] locks.c:15
+	(2, 6): CWsc (lock.admitted, 1) locks.c:15
+	(2, 7): URsc (lock.next, 0) [(0, 4)] locks.c:16
+	(2, 8): UWsc (lock.next, 1) locks.c:16
+	(2, 9): Rna (lock.kind, 1) [(0, 1)] locks.c:20
+	(2, 10): Rsc (lock.serving, 0) [(0, 5)] locks.c:22
+	(2, 11): Rna (counter, 0) [INIT] publication_model.c:13
+	(2, 12): Wna (counter, 1) publication_model.c:13
+	(2, 13): Rna (lock.kind, 1) [(0, 1)] locks.c:56
+	(2, 14): Rna (lock.kind, 1) [(0, 1)] locks.c:57
+	(2, 15): Wrlx (lock.serving, 1) locks.c:58
+Coherence:
+lock.next: [ (0, 4): Wna (G#(0, 12), 0) (2, 8): UWsc (G#(0, 12), 1) (1, 8): UWsc (G#(0, 12), 2) ]
+lock.serving: [ (0, 5): Wna (G#(0, 16), 0) (2, 15): Wrlx (G#(0, 16), 1) ]
+lock.admitted: [ (0, 6): Wna (G#(0, 20), 0) (2, 6): CWsc (G#(0, 20), 1) (1, 6): CWsc (G#(0, 20), 2) ]
+
+
+*** Verification unsuccesful.
+Number of complete executions explored: 0
+Number of blocked executions seen: 1
+Total wall-clock time: 0.09s
+WARNING: Memory intrinsic found! Attempting to promote it...
+
+Tip: Threads 1 and 2 could benefit from symmetry reduction. Consider using __VERIFIER_spawn_symmetric().
+

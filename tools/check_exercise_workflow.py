@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cmastery import cli, exercises as ex, learning
+from tools import check_exercise_integration as integration
 
 
 class ExerciseWorkflow(unittest.TestCase):
@@ -67,8 +68,8 @@ class ExerciseWorkflow(unittest.TestCase):
 
     def publish(self):
         body = "# One admission boundary\n\n" + "\n".join("## " + heading + "\n\nD1: Specific boundary, invariant, deliverable and evidence for this fixture.\n" for heading in ex.HEADINGS)
-        if self.value.get("delayed_transfer"):
-            body = body.replace("## Variants\n", "## Variants\n\n" + ", ".join(self.value["delayed_transfer"]["variant_ids"]) + "\n")
+        if ex.delay_policy(self.value):
+            body = body.replace("## Variants\n", "## Variants\n\n" + ", ".join(ex.delay_policy(self.value)["variant_ids"]) + "\n")
         self.write("curriculum/v5/exercises/" + self.value["id"] + ".md", "```json\n" + json.dumps(self.value, indent=2) + "\n```\n\n" + body)
         cli.save(self.root / "curriculum/v5/exercises.json", ex.build_catalog())
 
@@ -110,6 +111,153 @@ class ExerciseWorkflow(unittest.TestCase):
         self.assertFalse(state["expansion_completion"]["complete"])
         self.assertFalse(state["comprehensive_complete"])
         self.assertEqual(state["accepted"], [])
+
+    def test_integration_exports_exercise_only_family_with_bound_assets(self):
+        self.write('fixtures/input.txt', 'PUBLIC-INPUT\n')
+        self.write('labs/sample/CONTRACTS.md', '# Public contract\n')
+        self.value['fixtures'] = ['fixtures/input.txt']
+        self.value['shared_contracts'] = ['labs/sample/CONTRACTS.md']
+        self.publish()
+        destination = self.base / 'dependency-sample'
+        integration.instantiate_family('sample', destination)
+        selected = ex.workspace_contract(destination, self.value['id'])
+        self.assertEqual(selected['project'], self.value['project'])
+        self.assertEqual((destination / 'fixtures/input.txt').read_bytes(),
+                         (self.root / 'fixtures/input.txt').read_bytes())
+        self.assertEqual((destination / 'src/answer.c').read_bytes(),
+                         (self.root / 'labs/sample/src/answer.c').read_bytes())
+        self.assertTrue((destination / 'labs/sample/CONTRACTS.md').is_file())
+        self.assertFalse((destination / 'assessor').exists())
+        self.assertNotIn('WITHHELD-SOLUTION-MARKER', (destination / 'EXERCISE.md').read_text())
+
+    def test_integration_preserves_each_project_metadata_shape(self):
+        path = self.root / 'labs/sample/family.json'
+        meta = cli.read(path)
+        for index, entries in enumerate(([self.value['project']], [{'id': self.value['project']}],
+                                         {self.value['project']: {'tests': ['sample.boundary']}})):
+            with self.subTest(entries=entries):
+                cli.save(path, dict(meta, projects=entries))
+                destination = self.base / ('project-shape-' + str(index))
+                integration.instantiate_family('sample', destination)
+                record = cli.read(destination / '.cmastery/project.json')
+                self.assertEqual(record['project'], self.value['project'])
+                self.assertNotIn('exercise', record)
+
+    def test_integration_exports_unit_only_family(self):
+        path = self.root / 'labs/sample/family.json'
+        meta = cli.read(path)
+        unit = dict(cli.read(self.root / 'curriculum/v5/units.json')['units'][0],
+                    family='sample', tests=['sample.boundary'])
+        cli.save(self.root / 'curriculum/v5/units.json', {'units': [unit], 'order': [unit['id']]})
+        cli.save(path, dict(meta, exercises=[], units=[unit]))
+        destination = self.base / 'unit-only'
+        integration.instantiate_family('sample', destination)
+        self.assertEqual(cli.read(destination / '.cmastery/project.json')['unit'], unit['id'])
+        self.assertTrue((destination / 'UNIT.md').is_file())
+
+    def test_integration_rejects_unbound_or_malformed_selection(self):
+        path = self.root / 'labs/sample/family.json'
+        meta = cli.read(path)
+        for change in ({'exercises': []}, {'exercises': [{'id': self.value['id']}]},
+                       {'exercises': ['not-an-adapter']}, {'projects': [{}]}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                cli.save(path, dict(meta, **change))
+                integration.instantiate_family('sample', self.base / 'rejected')
+        self.assertFalse((self.base / 'rejected').exists())
+
+    def test_integration_does_not_fallback_from_unknown_or_wrong_family_exercise(self):
+        path = self.root / 'labs/sample/family.json'
+        meta = cli.read(path)
+        for row in ({'id': 'X-UNKNOWN', 'project': self.value['project']},
+                    {'id': self.value['id'], 'project': 'PR-T01-99'}):
+            with self.subTest(row=row), self.assertRaises(ValueError):
+                cli.save(path, dict(meta, exercises=[row]))
+                integration.instantiate_family('sample', self.base / 'rejected')
+        other = self.root / 'labs/other'
+        shutil.copytree(self.root / 'labs/sample', other)
+        cli.save(other / 'family.json', dict(meta, family='other'))
+        with self.assertRaisesRegex(ValueError, 'differs from exercise'):
+            integration.instantiate_family('other', self.base / 'wrong-family')
+
+    def test_integration_rejects_stale_selected_exercise(self):
+        self.write('labs/sample/CONTRACTS.md', '# Contract\n')
+        self.value['shared_contracts'] = ['labs/sample/CONTRACTS.md']
+        self.publish()
+        self.write('labs/sample/CONTRACTS.md', '# Changed contract\n')
+        with self.assertRaisesRegex(ValueError, 'catalog is stale'):
+            integration.instantiate_family('sample', self.base / 'stale')
+
+    def test_integration_dependencies_follow_selected_adapter_precedence(self):
+        meta = {'dependencies': ['common'], 'projects': [
+            {'id': self.value['project'], 'dependencies': ['project_dep']}],
+            'units': [{'id': 'U-ONE', 'dependencies': ['unit_dep']}],
+            'exercises': [{'id': self.value['id'], 'dependencies': ['exercise_dep']}]}
+        self.assertEqual(set(integration.workspace_dependencies(self.workspace, meta)), {'common', 'exercise_dep'})
+        record = cli.read(self.workspace / '.cmastery/project.json')
+        record.pop('exercise')
+        record['unit'] = 'U-ONE'
+        cli.save(self.workspace / '.cmastery/project.json', record)
+        self.assertEqual(set(integration.workspace_dependencies(self.workspace, meta)), {'common', 'unit_dep'})
+        record.pop('unit')
+        cli.save(self.workspace / '.cmastery/project.json', record)
+        self.assertEqual(set(integration.workspace_dependencies(self.workspace, meta)), {'common', 'project_dep'})
+        meta['projects'] = {self.value['project']: {'dependencies': ['mapped_dep']}}
+        self.assertEqual(set(integration.workspace_dependencies(self.workspace, meta)), {'common', 'mapped_dep'})
+
+    @unittest.skipUnless(all(shutil.which(x) for x in ('gcc', 'cmake', 'ninja')), 'Linux/WSL GCC+CMake+Ninja needed for actual dependency integration')
+    def test_integration_projectless_dependency_compiles_and_rejects_semantically(self):
+        # Two canonical exercise-only families; the consumer actually compiles
+        # the separately initialized dependency's unsolved source.
+        original = deepcopy(self.value)
+        provider = cli.read(self.root / 'labs/sample/family.json')
+        cli.save(self.root / 'labs/sample/family.json', dict(provider, campaign={'assertion_marker': 'SAMPLE_CHECK:'}))
+        self.publish()
+        self.value = deepcopy(original)
+        self.value.update(id='X-T01-002', lab={'family': 'consumer', 'scaffold': 'labs/consumer', 'tests': ['consumer.boundary']})
+        self.value['assessor_analysis'] = 'assessor/consumer/analysis.md'
+        self.write('assessor/consumer/analysis.md', 'WITHHELD-SOLUTION-MARKER\n')
+        self.write('labs/consumer/src/consumer.c', 'int consumer(void) { return 0; }\n')
+        self.write('labs/consumer/test.c', '#include <stdio.h>\nint admission(int); int main(void) { if (admission(1) != 1) { fputs("CONSUMER_CHECK: unsolved\\n", stderr); return 1; } return 0; }\n')
+        self.write('labs/consumer/CMakeLists.txt', 'cmake_minimum_required(VERSION 3.16)\nproject(consumer C)\nenable_testing()\nif(NOT EXISTS "${CMASTERY_SAMPLE_ROOT}/src/answer.c")\nmessage(FATAL_ERROR "missing explicit dependency")\nendif()\nadd_executable(probe src/consumer.c test.c "${CMASTERY_SAMPLE_ROOT}/src/answer.c")\nadd_test(NAME consumer.boundary COMMAND probe)\n')
+        cli.save(self.root / 'labs/consumer/family.json', {'family': 'consumer', 'projects': [], 'units': [],
+                 'campaign': {'assertion_marker': 'CONSUMER_CHECK:'}, 'exercises': [
+                     {'id': self.value['id'], 'project': self.value['project'], 'tests': ['consumer.boundary'], 'dependencies': ['sample']}]})
+        self.publish()
+        destination = self.base / 'consumer'
+        integration.instantiate_family('consumer', destination)
+        result = integration.check_exported_stub(destination, self.base)
+        self.assertEqual(result['status'], 'passed', result)
+        self.assertEqual(result['dependency_workspaces'], ['sample'])
+        self.assertEqual(result['receipt']['required_tests'], ['consumer.boundary'])
+        self.assertEqual([x['exit_code'] for x in result['receipt']['steps'][:2]], [0, 0])
+        self.assertIn('-DCMASTERY_SAMPLE_ROOT=' + str((self.base / 'dependency-sample').resolve()), result['receipt']['steps'][0]['command'])
+        self.assertNotIn('assessor_source', result['receipt'])
+        self.assertEqual(cli.read(self.base / 'dependency-sample/.cmastery/project.json')['exercise'], original['id'])
+        # A broken compiler input must not count as the expected rejection.
+        (destination / 'src/consumer.c').write_text('not valid C;', encoding='utf-8')
+        self.assertEqual(integration.check_exported_stub(destination, self.base)['status'], 'failed')
+
+    def test_integration_remaining_family_uses_canonical_exercise_selection(self):
+        # Force the remaining-family branch independently of the exercise loop.
+        edition = cli.read(self.root / 'curriculum/edition.json')
+        cli.save(self.root / 'curriculum/edition.json', dict(edition, new_families=['sample']))
+        catalog = ex.catalog()
+        with patch.object(integration.exercises, 'catalog', side_effect=[{'order': [], 'exercises': {}}, catalog]), \
+             patch.object(integration, 'check_exported_stub', return_value={'status': 'passed'}) as run:
+            report = integration.inspect(run_stub=True)
+        self.assertEqual(report['status'], 'passed', report)
+        self.assertEqual(report['executed_families'], ['sample'])
+        self.assertEqual(run.call_count, 1)
+
+    def test_integration_unbound_remaining_family_fails_report(self):
+        edition = cli.read(self.root / 'curriculum/edition.json')
+        cli.save(self.root / 'curriculum/edition.json', dict(edition, new_families=['sample']))
+        meta = cli.read(self.root / 'labs/sample/family.json')
+        cli.save(self.root / 'labs/sample/family.json', dict(meta, exercises=[]))
+        with patch.object(integration.exercises, 'catalog', return_value={'order': [], 'exercises': {}}):
+            report = integration.inspect(run_stub=True)
+        self.assertEqual(report['status'], 'failed')
+        self.assertTrue(any('no declared project' in x for x in report['errors']), report)
 
     def test_cli_sheet_and_study_next_round_trip(self):
         output, template = self.base / "sheet.md", self.base / "template.json"
@@ -223,6 +371,39 @@ class ExerciseWorkflow(unittest.TestCase):
             forged["study_event"] = recent["id"]
             learning.append(self.profile, "exercise-accepted", **forged)
             self.assertFalse(ex.accepted(self.profile)[self.value["id"]]["historical_valid"])
+
+    def test_delayed_assessment_alias_cannot_skip_delay_or_variant_validation(self):
+        self.value["delayed_assessment"] = {"minimum_days": 7, "variant_ids": ["ALIAS-DELAYED"]}
+        self.publish()
+        self.workspace = self.base / "alias-delayed-learner"
+        cli.instantiate(self.value["project"], self.workspace, exercise_id=self.value["id"])
+        assessment = self.ready_assessment()
+        self.fixture_receipt()
+        self.assertIn('wait at least 7 days', ex.learner_brief(ex.exercise(self.value['id'])))
+        with self.assertRaisesRegex(ValueError, "Delayed independent transfer pending"):
+            ex.acceptance(self.profile, self.workspace, self.value["id"], self.assessment_path)
+        with patch.object(learning, "clock", return_value=learning.clock() + timedelta(days=8)):
+            with self.assertRaisesRegex(ValueError, "declared delayed"):
+                ex.acceptance(self.profile, self.workspace, self.value["id"], self.assessment_path)
+            assessment["transfer_variant"] = "ALIAS-DELAYED"
+            cli.save(self.assessment_path, assessment)
+            self.assertEqual(ex.acceptance(self.profile, self.workspace, self.value["id"], self.assessment_path)["status"], "accepted")
+            self.assertTrue(ex.accepted(self.profile)[self.value["id"]]["historical_valid"])
+
+    def test_delayed_alias_conflicts_and_malformed_policies_fail_closed(self):
+        good = {"minimum_days": 7, "variant_ids": ["V1", "V2"]}
+        self.assertEqual(ex.delay_policy({"delayed_transfer": good, "delayed_assessment":
+                         {"minimum_days": 7, "variant_ids": ["V2", "V1"]}}), good)
+        for bad in (None, [], {}, {"minimum_days": True, "variant_ids": ["V1"]},
+                    {"minimum_days": 0, "variant_ids": ["V1"]},
+                    {"minimum_days": 7, "variant_ids": "V1"},
+                    {"minimum_days": 7, "variant_ids": ["V1", "V1"]}):
+            with self.assertRaises(ValueError):
+                ex.delay_policy({"delayed_assessment": bad})
+        for bad in ({"minimum_days": 1, "variant_ids": ["V1", "V2"]},
+                    {"minimum_days": 7, "variant_ids": ["V1"]}):
+            with self.assertRaisesRegex(ValueError, "Conflicting"):
+                ex.delay_policy({"delayed_transfer": good, "delayed_assessment": bad})
 
     def test_pending_batches_prevent_comprehensive_completion(self):
         self.ready_assessment()

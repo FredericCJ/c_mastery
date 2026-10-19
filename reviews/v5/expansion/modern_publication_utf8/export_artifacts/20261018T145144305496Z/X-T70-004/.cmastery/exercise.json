@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "X-T70-004",
+  "title": "Stable typed slots, dense iteration and finite identity",
+  "project": "PR-T70-04",
+  "domain": "T70",
+  "objectives": [
+    "T70.04.a",
+    "T70.04.b",
+    "T70.04.c",
+    "T70.04.d"
+  ],
+  "families": [
+    "B",
+    "C",
+    "D",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T03-005"
+  ],
+  "prerequisite_artifacts": [
+    "memory.pool",
+    "algorithms.freelist"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DOD-LLVM",
+      "path": "research/v5/modern/dod_resources.json",
+      "passages": [
+        "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+        "llvm/ADT/PagedVector.h: page allocation and indirection"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dod",
+    "tests": [
+      "dod.sparse",
+      "dod.segmented",
+      "dod.ordered"
+    ],
+    "scaffold": "labs/dod"
+  },
+  "fixtures": [
+    "fixtures/dod/PR-T70-04.json",
+    "fixtures/dod/extensions.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dod/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dod/analyses/X-T70-004.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/modern_completion/dod_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T70.04.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-004-R1"
+      ]
+    },
+    {
+      "objective": "T70.04.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-004-R2"
+      ]
+    },
+    {
+      "objective": "T70.04.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-004-R3"
+      ]
+    },
+    {
+      "objective": "T70.04.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-004-R4"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T70-004-R1",
+      "objective": "T70.04.a",
+      "criterion": "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-004-R2",
+      "objective": "T70.04.b",
+      "criterion": "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-004-R3",
+      "objective": "T70.04.c",
+      "criterion": "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-004-R4",
+      "objective": "T70.04.d",
+      "criterion": "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T70-004-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T70-004.md",
+  "brief_sha256": "751c0c18b7cf2f2b4c06c1859f23cae0e98b757c1782f53418a91ba504af6af9",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dod/PR-T70-04.json": "4c58a7a4512420795518a9116783e08248c770a08d69f4efa6553dab7884e9ce",
+    "fixtures/dod/extensions.json": "201a4430266f6ba67301ee427c0183bc88e58006472c9d28b056a0dc8d97c83c",
+    "labs/dod/CONTRACTS.md": "0c5321eb9afff79a479246240b3df494f46bd7f4b13ce95d52cb35d5b56497b9",
+    "research/v5/modern/dod_resources.json": "02da192d7d448ca1eb2e9ee2d3c2d2b1a827d951f2c29632a18d810b3c607dbf"
+  }
+}

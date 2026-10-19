@@ -6,7 +6,7 @@ DATA=[
 card('Template-header monomorphization and associated types','mono',['P02','P12'],['C11','GENERICS','ASSOCIATED'],
  'Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.',
  'Implement one unguarded private ring template instantiated for uint32_t and MPPair. Public MPU32Ring/MPPairRing each hold4elements,head,count. Push fails unchanged when full; pop fails without modifying output when empty. FIFO order must survive wraparound. Prefix, element type and ring type are explicit template parameters; undefine all private macros after each inclusion. Reuse the containers.ring contract but implement the type-generation mechanism yourself.',
- 'Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.',
+ 'Derive head<capacity and count<=capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.',
  'Push0..3, pop0, push4, then pop1..4. Both scalar and pair instances preserve every semantic field. Full/empty operations leave their designated output/control state unchanged.',
  'Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.',
  'Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth.',
@@ -133,5 +133,26 @@ def main():
       ['T06','T14','T19','T32','T67'],['testing.faults','containers.ring','containers.array','codec.records'],
       [('meta.reflect',6,'Single field-registry descriptors with native offsets separated from explicit wire widths and schema evolution obligations.'),('testing.laws',7,'Deterministic bounded pure-property enumeration and precondition-preserving decrement shrinking; locally minimal witnesses, not universal proof.')],
       dict(question='Should the packet schema use a generated typed interface or a runtime field-descriptor interpreter?',alternatives=['typed X-macro-generated operations','runtime descriptor-driven operations'],discriminator='Add a field and compare stale-consumer detection, generated text size and runtime dispatch under the same validation and wire contract.',reversal_trigger='A deployment requires loading schemas without recompilation, making runtime validation and descriptor ownership explicit new obligations.'))
+
+    from register_metaprog_owning_ring import register
+    register()
+    from register_metaprog_capacity import register as capacity_register
+    capacity_register()
+    from register_metaprog_policy_effects import register as policy_register
+    policy_register()
+    from register_metaprog_logging import register as logging_register
+    logging_register()
+    from register_metaprog_receivers import register as receivers_register
+    receivers_register()
+    from register_metaprog_schema import register as schema_register
+    schema_register()
+    from register_metaprog_law_traces import register as law_register
+    law_register()
+    from register_metaprog_format_stream import register as format_register
+    format_register()
+    from register_metaprog_nested_hygiene import register as hygiene_register
+    hygiene_register()
+    from register_metaprog_build_cache import register as cache_register
+    cache_register()
 
 if __name__=='__main__': main()

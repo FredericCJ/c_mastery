@@ -1,0 +1,5 @@
+# Inspected interval source
+
+The primary Sandia report SAND2007-0939 was read at sections3.1–3.3, printed pp19–21. The local PDF hash is26e6dcce06e3f9d8102d84b5b471f9ad4b3f122f092ace33b340899326cedb3f. Printed pp19–20 were rendered and visually inspected, confirming endpoint formulas and outward-rounding direction rather than relying on damaged extracted overbars. The report's title page names Ferson, Kreinovich, Hajagos, Oberkampf and Ginzburg. The official Sandia landing identifies the report; the OSTI direct PDF returned502, while the government-document repository at University of North Texas supplied the captured bytes. No private raw extract is published.
+
+The source supports real-set arithmetic, outward rounding and dependency overestimation. The bounded int32 grid, status precedence, transactionality, signed-division implementation and finite rational oracle are original curriculum constructions. They are not attributed to the report as a supplied C implementation. No whole-report inspection or IEEE1788 conformance is claimed.

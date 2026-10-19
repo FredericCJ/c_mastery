@@ -432,24 +432,145 @@ def recompute(d):
     raise ValueError("Unsupported fixture kind: "+k)
 
 
-def main():
-    paths = sorted((ROOT/"fixtures/embedded").glob("*.json"))
+CAPTURE_CONTRACTS = {
+    "interrupt_handoff_capture.json": ("handoff", ("PR-T29-02", "PR-T29-03")),
+    "interrupt_lease_capture.json": ("lease", ("PR-T29-04",)),
+    "interrupt_time_capture.json": ("time", ("PR-T29-05",)),
+}
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def strict_json(text):
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            require(key not in result, "Duplicate JSON key: " + key)
+            result[key] = value
+        return result
+    return json.loads(text, object_pairs_hook=pairs)
+
+
+def capture_template_errors(name, value):
+    """Validate the three authored blank forms; never validate observed data.
+
+    Populated records belong outside this fixture directory and must be checked
+    with their dedicated capture checker. Passing here supplies no observations.
+    """
+    kind, _ = CAPTURE_CONTRACTS[name]
+    expected = {"schema_version": 1}
+    if kind == "handoff":
+        expected.update(status="not-run", origin="physical", counter_bits=32)
+        expected.update({k: "" for k in ("board", "part_revision", "operator", "observed_utc", "compiler", "instrument", "clock_source")})
+        expected.update({k: 0 for k in ("tick_ns_numerator", "tick_ns_denominator", "whole_experiment_ticks", "priority_bits", "grouping")})
+        expected.update(mask_restoration_observed=False, target_closure_checked=False, artifacts={})
+        expected.update({k: [] for k in ("command", "unexcluded_actors", "samples", "overhead_ticks", "limitations")})
+    elif kind == "lease":
+        expected.update(status="not-run", source_sha256={}, raw_sha256={}, marker_mapping={}, schedules=[])
+        expected.update({k: None for k in ("board", "silicon_revision", "qualification_record", "instrument", "uncertainty_ns", "observer")})
+        expected.update(
+            required_schedule_ids=["complete-after-cancel", "stop-first", "fifo-drain", "stale-generation", "software-reset-domain", "cache-visibility"],
+            event_fields=["sample", "epoch", "generation", "phase", "enabled", "pending_writes", "visibility_done", "terminal_count", "operation", "observation_basis"],
+            limitations=["Template only: no physical acquisition has occurred.", "Raw observations must be linked to the qualified full image and actual instrument; port-only links are not boot images."])
+    else:
+        expected.update(status="unobserved", board="", revision="", qualification="", firmware_sha256="",
+                        marker="entry", marker_definition="External event to ISR entry; not deferred-service latency",
+                        instrument=dict(model="", sample_rate_hz=0, uncertainty_ns=0, threshold_and_loading=""),
+                        raw_files=[], calibration=dict(anchor_tick=0, lower_ns=0, upper_ns=0, quantum_ns=40, rate_error_ppm=0, epoch=1),
+                        accounting=dict(source=0, accepted=0, dropped=0, outstanding=0), schedules=[], rows=[],
+                        limits=["Template only; no physical observations.", "Declared bounds require independent qualification."])
+    errors = []
+    def compare(actual, blank, path):
+        if type(actual) is not type(blank):
+            errors.append(path + ": invalid template field type")
+        elif isinstance(blank, dict):
+            if actual.keys() != blank.keys():
+                errors.append(path + ": unexpected or missing template fields")
+            for key in blank.keys() & actual.keys():
+                compare(actual[key], blank[key], path + "." + key)
+        elif isinstance(blank, list):
+            if len(actual) != len(blank):
+                errors.append(path + ": invalid blank-template list")
+            else:
+                for index, (a, b) in enumerate(zip(actual, blank)):
+                    compare(a, b, path + f"[{index}]")
+        elif actual != blank:
+            errors.append(path + ": differs from the authored unobserved template")
+    compare(value, expected, name)
+    return errors
+
+
+def public_file(root, relative):
+    require(isinstance(relative, str) and relative and "\\" not in relative,
+            "Invalid public artifact path")
+    path = Path(relative)
+    require(not path.is_absolute() and ".." not in path.parts and path.as_posix() == relative,
+            "Noncanonical public artifact path")
+    require(path.parts[0] in {"curriculum", "fixtures", "tools", "labs"}, "Nonpublic artifact path")
+    target = root / path
+    require(target.resolve().is_relative_to(root.resolve()), "Public artifact escapes repository")
+    require(not target.is_symlink() and all(not p.is_symlink() for p in target.parents if p != root.parent),
+            "Redirected public artifact")
+    require(target.is_file(), "Missing public artifact: " + relative)
+    return target
+
+
+def verify(root=ROOT):
+    root = Path(root).resolve()
+    fixture_root = root / "fixtures/embedded"
+    # Inventory all files: nested and non-JSON additions cannot silently escape.
+    all_paths = sorted(p for p in fixture_root.rglob("*") if p.is_file() or p.is_symlink())
+    paths = [p for p in all_paths if p.suffix == ".json"]
     failures, cases = [], 0
     owned = {"T17", *(f"T{i}" for i in range(27, 36))}
     expected_paths = set()
-    for project in sorted((ROOT/"curriculum/projects").glob("PR-T*.md")):
+    project_metadata = {}
+    for project in sorted((root/"curriculum/projects").glob("PR-T*.md")):
         match = re.match(r"\A```json\s*\n(.*?)\n```", project.read_text(encoding="utf-8"), re.S)
         if not match:
             failures.append(dict(file=project.name, error="Missing project contract"))
             continue
         meta = json.loads(match[1])
+        project_metadata[project.stem] = meta
         if meta["module"] in owned:
+            if len(meta["fixtures"]) != len(set(meta["fixtures"])):
+                failures.append(dict(file=project.name, error="Duplicate fixture binding"))
             for relative in meta["fixtures"]:
-                candidate = (ROOT/relative).resolve()
-                if not candidate.is_relative_to((ROOT/"fixtures/embedded").resolve()):
+                candidate = (root/relative).resolve()
+                if not candidate.is_relative_to(fixture_root.resolve()):
                     failures.append(dict(file=project.name, error="Fixture escapes owned directory"))
                 else:
                     expected_paths.add(candidate)
+    capture_paths = set()
+    for name, (kind, owners) in CAPTURE_CONTRACTS.items():
+        relative = "fixtures/embedded/" + name
+        checker = f"tools/check_interrupt_{kind}_capture.py"
+        guide = f"curriculum/guides/interrupt-{kind}-board-protocol.md"
+        try:
+            for artifact in (relative, checker, guide):
+                public_file(root, artifact)
+            for owner in owners:
+                meta = project_metadata.get(owner, {})
+                require(meta.get("id") == owner and meta.get("module") == "T29", "Wrong capture parent project")
+                sidecar_path = public_file(root, f"curriculum/v5/expansion/legacy_assessments/{owner}.json")
+                sidecar = strict_json(sidecar_path.read_text(encoding="utf-8"))
+                require(sidecar.get("project") == owner and sidecar.get("domain") == "T29" and sidecar.get("required") is True,
+                        "Wrong capture assessment identity")
+                artifacts = sidecar.get("supplied_artifacts")
+                require(isinstance(artifacts, list) and all(isinstance(x, str) for x in artifacts), "Invalid supplied artifact list")
+                require(all(artifacts.count(p) == 1 for p in (relative, checker, guide)), "Unbound or duplicate capture artifact")
+                contracts = sidecar.get("shared_contracts")
+                require(isinstance(contracts, list) and contracts.count(guide) == 1, "Unbound capture protocol")
+            capture_paths.add((root / relative).resolve())
+        except (ValueError, OSError, TypeError) as error:
+            failures.append(dict(file=name, error=f"Capture binding: {error}"))
+    # A milestone declaration cannot convert a capture template into expected output.
+    if expected_paths & capture_paths:
+        failures.append(dict(file="fixtures/embedded", error="Capture template bound as milestone output"))
+    expected_paths |= capture_paths
     actual_paths = {p.resolve() for p in paths}
     for path in sorted(expected_paths-actual_paths):
         failures.append(dict(file=path.name, error="Missing referenced fixture"))
@@ -457,9 +578,21 @@ def main():
         failures.append(dict(file=path.name, error="Unreferenced fixture"))
     if not paths:
         failures.append(dict(file="fixtures/embedded", error="No fixtures found"))
+    for path in all_paths:
+        if path.suffix != ".json":
+            failures.append(dict(file=path.relative_to(fixture_root).as_posix(), error="Unexpected non-JSON fixture"))
+        if path.is_symlink() or any(p.is_symlink() for p in path.parents if p != root.parent):
+            failures.append(dict(file=path.name, error="Redirected fixture"))
+    capture_checks = 0
     for path in paths:
         try:
-            fixture = json.loads(path.read_text(encoding="utf-8"))
+            fixture = strict_json(path.read_text(encoding="utf-8"))
+            if path.parent == fixture_root and path.name in CAPTURE_CONTRACTS:
+                errors = capture_template_errors(path.name, fixture)
+                failures.extend(dict(file=path.name, error=e) for e in errors)
+                if not errors and path.resolve() in capture_paths:
+                    capture_checks += 1
+                continue
             assert {"id","description","input","expected","verification_method"} <= fixture.keys()
             assert fixture["id"] == path.stem+"-fixture", "Fixture/project identity mismatch"
             actual = recompute(fixture["input"])
@@ -468,8 +601,14 @@ def main():
                 failures.append(dict(file=path.name, expected=fixture["expected"], actual=actual))
         except Exception as error:
             failures.append(dict(file=path.name, error=f"{type(error).__name__}: {error}"))
-    print(json.dumps(dict(fixtures=len(paths), checks=cases, failures=failures),indent=2))
-    raise SystemExit(bool(failures))
+    return dict(fixtures=len(paths), checks=cases, capture_template_checks=capture_checks,
+                physical_observations=0, failures=failures)
+
+
+def main():
+    report = verify()
+    print(json.dumps(report, indent=2))
+    raise SystemExit(bool(report["failures"]))
 
 
 if __name__ == "__main__":

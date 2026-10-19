@@ -1,0 +1,37 @@
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:13:7: error: variable 'child' is used uninitialized whenever '&&' condition is false [-Werror,-Wsometimes-uninitialized]
+   13 |  TEST(bf_arena_mark(&a,&inner)==B2_OK&&bf_arena_reserve(&a,5,8,&child)==B2_OK&&bf_arena_set(&a,child,0,42)==B2_OK&&a.raw.cursor==13);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:4:25: note: expanded from macro 'TEST'
+    4 | #define TEST(x) do{if(!(x)){say("BF_TARGET_CHECK " #x "\n");finish(1);}}while(0)
+      |                         ^
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:14:21: note: uninitialized use occurs here
+   14 |  Resource r[2]={{&a,child,0,0},{&a,child,0,1}};
+      |                     ^~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:13:7: note: remove the '&&' if its condition is always true
+   13 |  TEST(bf_arena_mark(&a,&inner)==B2_OK&&bf_arena_reserve(&a,5,8,&child)==B2_OK&&bf_arena_set(&a,child,0,42)==B2_OK&&a.raw.cursor==13);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:4:25: note: expanded from macro 'TEST'
+    4 | #define TEST(x) do{if(!(x)){say("BF_TARGET_CHECK " #x "\n");finish(1);}}while(0)
+      |                         ^
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:11:56: note: variable 'child' is declared here
+   11 |  static BfArena a;bf_arena_init(&a);B2Mark outer,inner;BfBorrow parent,child;unsigned char byte=0;
+      |                                                        ^
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:12:7: error: variable 'parent' is used uninitialized whenever '&&' condition is false [-Werror,-Wsometimes-uninitialized]
+   12 |  TEST(bf_arena_mark(&a,&outer)==B2_OK&&bf_arena_reserve(&a,3,1,&parent)==B2_OK&&bf_arena_set(&a,parent,0,9)==B2_OK);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:4:25: note: expanded from macro 'TEST'
+    4 | #define TEST(x) do{if(!(x)){say("BF_TARGET_CHECK " #x "\n");finish(1);}}while(0)
+      |                         ^
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:18:23: note: uninitialized use occurs here
+   18 |  TEST(bf_arena_get(&a,parent,0,&byte)==B2_OK&&byte==9&&bf_arena_rollback(&a,outer)==B2_OK&&!a.raw.cursor&&r[0].calls==1&&r[1].calls==2);
+      |                       ^~~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:12:7: note: remove the '&&' if its condition is always true
+   12 |  TEST(bf_arena_mark(&a,&outer)==B2_OK&&bf_arena_reserve(&a,3,1,&parent)==B2_OK&&bf_arena_set(&a,parent,0,9)==B2_OK);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:4:25: note: expanded from macro 'TEST'
+    4 | #define TEST(x) do{if(!(x)){say("BF_TARGET_CHECK " #x "\n");finish(1);}}while(0)
+      |                         ^
+/mnt/f/Learning/Curricula/c_mastery/labs/b02_followthrough/arena/target.c:11:56: note: variable 'parent' is declared here
+   11 |  static BfArena a;bf_arena_init(&a);B2Mark outer,inner;BfBorrow parent,child;unsigned char byte=0;
+      |                                                        ^
+2 errors generated.

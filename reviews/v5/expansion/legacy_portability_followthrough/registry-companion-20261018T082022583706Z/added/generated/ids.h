@@ -1,0 +1,8 @@
+#define LR_COMMAND_COUNT 4u
+#define LR_ALIAS_COUNT 0u
+enum LrCommand {
+ LR_CMD_START=1,
+ LR_CMD_STOP=4,
+ LR_CMD_STATUS=7,
+ LR_CMD_RESET=9,
+};

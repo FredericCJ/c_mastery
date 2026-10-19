@@ -1,0 +1,21 @@
+
+error[E0599]: no method named `measure` found for struct `Item` in the current scope
+  --> labs/dispatch/tests/trait_comparison.rs:38:36
+   |
+18 |     pub struct Item(pub usize);
+   |     --------------- method `measure` not found for this struct
+19 |     pub trait Measure { fn measure(&self) -> usize; }
+   |                            ------- the method is available for `Item` here
+...
+38 |     assert_eq!(extension::Item(17).measure(), 17);
+   |                                    ^^^^^^^ method not found in `Item`
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `Measure` which provides `measure` is implemented but not in scope; perhaps you want to import it
+   |
+ 1 + use crate::extension::Measure;
+   |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.

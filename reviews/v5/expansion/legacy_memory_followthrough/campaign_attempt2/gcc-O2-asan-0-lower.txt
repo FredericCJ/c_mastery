@@ -1,0 +1,48 @@
+SETUP:allocation8:mode=lower:fixed=0
+ENTRY
+=================================================================
+==1155==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7979483e000f at pc 0x000000401834 bp 0x7ffeb91867a0 sp 0x7ffeb9186790
+WRITE of size 1 at 0x7979483e000f thread T0
+    #0 0x000000401833 in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:18
+    #1 0x7d594902a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #2 0x7d594902a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #3 0x0000004018f4 in _start (/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_memory_followthrough/campaign_attempt2/gcc-O2-asan-0+0x4018f4) (BuildId: a6c91a264e53958998613f0e6216208b1b3864be)
+
+0x7979483e000f is located 1 bytes before 8-byte region [0x7979483e0010,0x7979483e0018)
+allocated by thread T0 here:
+    #0 0x7d594952b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x000000401378 in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:16
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:18 in main
+Shadow bytes around the buggy address:
+  0x7979483dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7979483dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7979483dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7979483dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7979483dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7979483e0000: fa[fa]00 fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7979483e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7979483e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7979483e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7979483e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7979483e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1155==ABORTING

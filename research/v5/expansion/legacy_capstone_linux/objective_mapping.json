@@ -1,0 +1,248 @@
+{
+  "criteria": [
+    {
+      "id": "AX-PR-CAP-LINUX-01-T20.01.a",
+      "objective": "T20.01.a",
+      "task": "Design two concrete decompositions of the shared telemetry system: synchronous parser-to-sink calls and an owned-message queue between core and adapters. Use the two-session/three-queue/one-active contract. Draw every borrow, ownership transfer and failure return; identify which component owns wire validity, authorization, queue policy and external effects. Show why a blocked sink must not retain a borrowed parser scratch pointer.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-01-T20.01.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace owned frames with reference-counted slabs shared by two consumers. Derive last-release, cancellation and retention ceilings before changing code."
+      },
+      "ordinary_checks": [
+        "gcc.O0.transfer",
+        "gcc.O0.core.pressure"
+      ],
+      "changed_checks": [
+        "gcc.O0.modern.slabs",
+        "clang.asan.modern.slabs"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t20-01-a"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-01-T22.01.b",
+      "objective": "T22.01.b",
+      "task": "Produce the public/private/backend file inventory and build the portable core twice: host C17 and the selected freestanding target. Add a small external header consumer that includes only installed public headers. Reject a seeded public-header dependency on sys/epoll.h and a hidden in-tree generated-header path. Preserve actual command lines and undefined-symbol inventories.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-01-T22.01.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Make the adapter optional at configure time and build the minimal core from a clean source export with examples disabled."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.framing",
+        "gcc.target.O0.run",
+        "clang.target.O3.undefined",
+        "gcc.target.O0.leaked-header",
+        "gcc.package.static.generated-header-reject"
+      ],
+      "changed_checks": [
+        "gcc.package.static.configure",
+        "gcc.package.static.relocated",
+        "clang.package.static.relocated"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t22-01-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-01-T35.01.a",
+      "objective": "T35.01.a",
+      "task": "For the original local telemetry service, define assets as synthetic accepted-message counter, bounded queue and disposable output file. Give the adversary arbitrary bounded frame bytes, request timing and CRC recomputation, but no control of the trusted authorization argument. Demonstrate a valid CRC frame denied without effects; compare accidental bit corruption, deliberate valid input and slow-consumer failure.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-01-T35.01.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Move a claimed authorization bit into the wire payload and show why it cannot replace the trusted policy input."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.framing",
+        "gcc.O0.linux.file",
+        "gcc.O0.core.pressure"
+      ],
+      "changed_checks": [
+        "clang.asan.core.framing",
+        "gcc.O0.minimize.authority"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t35-01-a"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-02-T22.05.b",
+      "objective": "T22.05.b",
+      "task": "Install the actual core library, headers and declared dependencies into a clean prefix. Build an independent consumer outside source/build trees, feed the 13-byte wire fixture through every split position, then repeat with empty and 32-byte payloads. Include a negative consumer that accidentally links an in-tree private symbol; show why integration.linux passing cannot substitute for this package test.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-02-T22.05.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Switch static to shared packaging with an explicit runtime search policy and compare required dependency evidence."
+      },
+      "ordinary_checks": [
+        "gcc.package.static.consumer",
+        "clang.package.static.private-reject"
+      ],
+      "changed_checks": [
+        "gcc.package.shared.relocated",
+        "clang.package.shared.dependencies"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t22-05-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-02-T23.04.a",
+      "objective": "T23.04.a",
+      "task": "Run the exact six-call output script in boundaries.json against a 13-byte retained frame. Record offered pointer offset/length, callback result, accepted bytes and ownership after each call. Implement no-progress scheduling, interruption handling and terminal error reporting. Inject remaining+1 as a separate invalid adapter return and reject it before advancing or reading beyond the frame. Add a typed adapter using the learner-owned errors.result contract (PR-T65-04/LAB-ER-08); retain cursor progress separately from the tagged final outcome. Compare its size, checks and failure path with the baseline under identical semantics.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-02-T23.04.a-DELAYED",
+        "minimum_days": 7,
+        "task": "A terminal error arrives after five accepted bytes and the application demands message-level retries. Design an explicit idempotency or deduplication protocol rather than replaying bytes silently."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.progress",
+        "gcc.O0.modern.result"
+      ],
+      "changed_checks": [
+        "gcc.O0.modern.receipts",
+        "clang.asan.modern.receipts"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t23-04-a"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-02-T24.08.b",
+      "objective": "T24.08.b",
+      "task": "Implement a generation-tagged session event ledger with fd5/gen7 closed and fd5/gen8 created before a cached gen7 event dispatches. Prove the old event cannot touch the new session or freed storage. Add a 10-byte ET workload with a four-byte per-turn budget: retain software readiness across turns until EAGAIN; compare LT behavior.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-02-T24.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use duplicated descriptors referring to one open file description and derive registration, close and reclamation obligations from actual epoll semantics."
+      },
+      "ordinary_checks": [
+        "gcc.O0.linux.fairness",
+        "clang.O3.linux.fairness"
+      ],
+      "changed_checks": [
+        "gcc.O0.linux.duplicate",
+        "clang.asan.linux.duplicate"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t24-08-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-03-T32.07.b",
+      "objective": "T32.07.b",
+      "task": "Number service acquisitions as input descriptor, candidate buffers, output descriptor, queue storage and event registration. Fail immediately before each acquisition and after registration but before publication. Instrument acquire/release IDs and output effects. Compare explicit cleanup labels with an ownership-state table and preserve already delivered bytes under later failure. Implement the equivalent rollback path using learner-owned cleanup.scope (PR-T66-02/LAB-OW-04). Five acquisitions fit its eight-entry capacity; callbacks neither reenter nor escape. Compare every failure prefix and all applicable modern-cost dimensions with the explicit cleanup version.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-03-T32.07.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Registration cancellation becomes asynchronous: cleanup must wait for terminal callback quiescence before releasing its context."
+      },
+      "ordinary_checks": [
+        "gcc.O0.modern.cleanup",
+        "clang.asan.modern.cleanup"
+      ],
+      "changed_checks": [
+        "gcc.tsan.modern",
+        "clang.tsan.modern"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t32-07-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-03-T35.06.b",
+      "objective": "T35.06.b",
+      "task": "Replay pressure.json with reject-newest capacity3, then stall output while both input sessions send valid maximum frames. Account for input candidates, queued frames and active output under the shared 252-byte backing bound; separately count metadata and stack/runtime. Report rejection to the submitting party and bound parser work, retries and per-turn output work.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-03-T35.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Change reject-newest to overwrite-oldest only for explicitly replaceable telemetry. Specify ownership release and which acknowledged records may be lost; commands must not inherit the policy accidentally."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.pressure",
+        "clang.asan.core.pressure"
+      ],
+      "changed_checks": [
+        "gcc.O3.core.pressure"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t35-06-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-03-T21.04.b",
+      "objective": "T21.04.b",
+      "task": "Drive a close/drain/cancel lifecycle for accepted IDs1,2,3,5: deliver1,2, cancel the remaining active/queued work, wait for adapter completion and explicitly discard3,5. Run repeated shutdown and late duplicate-completion events. Maintain accepted=delivered+discarded+queued+active after every transition.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-03-T21.04.b-DELAYED",
+        "minimum_days": 7,
+        "task": "The final completion callback may synchronously trigger destruction of its owning service. Specify a callback API that performs no later access to the destroyed object."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.pressure",
+        "clang.asan.core.pressure"
+      ],
+      "changed_checks": [
+        "gcc.asan.core.terminal",
+        "clang.asan.core.terminal"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t21-04-b"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-04-T20.10.c",
+      "objective": "T20.10.c",
+      "task": "Defend the selected architecture, then reduce queue capacity3 to1 and replace the sink with an asynchronous adapter whose callback may be delayed past shutdown. Predict affected ownership, throughput and latency guarantees before editing. Preserve the shared core source; submit changed tests, measured results where available and a revised decision record.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-04-T20.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace the single event loop with two workers and identify synchronization, queue linearization and reclamation obligations absent in the old model. As an alternative, evaluate the actual coro.frame (PR-T72-09/LAB-CR-27) with its 1..8-byte read and synchronous-disarm limits; implement bounded chunking or reject the mismatch explicitly."
+      },
+      "ordinary_checks": [
+        "gcc.O0.compose.p5",
+        "clang.tsan.compose",
+        "gcc.O3.measure",
+        "clang.O3.measure"
+      ],
+      "changed_checks": [
+        "gcc.O0.compose.coroutine",
+        "clang.asan.compose.coroutine"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t20-10-c"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-04-T33.10.a",
+      "objective": "T33.10.a",
+      "task": "Construct a claim/assumption/evidence matrix for parser bounds, accepted-message conservation, no data race, output durability and throughput. Assign each a suitable derivation, test, runtime instrumentation, bounded model or measurement. Include a fake dossier in which a CRC/page test is offered as proof of durable output and a sanitizer pass as proof of race freedom; reject both substitutions.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-04-T33.10.a-DELAYED",
+        "minimum_days": 7,
+        "task": "A tool/runtime upgrade changes the memory model or instrumentation support; determine which matrix rows require rerun rather than invalidating unrelated mathematical facts."
+      },
+      "ordinary_checks": [
+        "evidence",
+        "gcc.tsan.race",
+        "gcc.O3.measure"
+      ],
+      "changed_checks": [
+        "evidence"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t33-10-a"
+    },
+    {
+      "id": "AX-PR-CAP-LINUX-04-T35.12.c",
+      "objective": "T35.12.c",
+      "task": "Create a final service regression matrix crossing malformed frame, valid unauthorized frame, queue exhaustion, stale session event, partial output and shutdown. Introduce one original authorization-bypass mutation and one release-before-quiescence mutation separately. Show correct ordinary authorized output alongside intended negative-control rejection and retain minimized traces.",
+      "variant": {
+        "id": "AX-PR-CAP-LINUX-04-T35.12.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Perform the delayed defense with a new callback order and a valid frame split chosen by the assessor; do not inspect the old solution."
+      },
+      "ordinary_checks": [
+        "gcc.O0.core.framing",
+        "gcc.O0.core.pressure",
+        "gcc.O0.linux.fairness",
+        "gcc.O0.core.progress",
+        "gcc.O0.minimize.authority",
+        "gcc.O0.minimize.retained"
+      ],
+      "changed_checks": [
+        "gcc.O0.transfer",
+        "clang.asan.transfer"
+      ],
+      "assessment": "assessor/capstone_followthrough/linux_analysis.md#t35-12-c"
+    }
+  ],
+  "limits": [
+    "Independent delayed learner execution/defense and external acceptance remain unperformed.",
+    "Physical timing/device observations are separate and unperformed.",
+    "Output durability remains an explicitly pending claim in the required evidence matrix; visibility and CRC are not substituted.",
+    "The final published C17/C23 text access gap remains."
+  ]
+}

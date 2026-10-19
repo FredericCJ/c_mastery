@@ -2,11 +2,13 @@
   "schema_version": 1,
   "project": "PR-T25-01",
   "domain": "T25",
-  "title": "Thread-owned work and join obligations — explicit depth assessments",
+  "title": "Thread-owned work and join obligations \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/posix_lifecycle_depth/CONTRACTS.md"
+    "labs/posix_lifecycle_depth/CONTRACTS.md",
+    "labs/thread_depth/lifecycle/CONTRACTS.md",
+    "labs/thread_depth/sharing/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -88,8 +90,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     },
     {
@@ -99,12 +101,97 @@
         "DESCRIPTION; RETURN VALUE; ERRORS",
         "NOTES: scheduling order, joinable/detached resources and stack defaults"
       ]
+    },
+    {
+      "id": "R-TLIFE-CREATE",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "SYNOPSIS; RETURN VALUE; NOTES: status, scheduling and joinable lifetime"
+      ]
+    },
+    {
+      "id": "R-TLIFE-JOIN",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS; NOTES: exclusive join, canceled joiner and termination"
+      ]
+    },
+    {
+      "id": "R-TLIFE-DETACH",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES: detached attributes and resource retirement"
+      ]
+    },
+    {
+      "id": "R-TLIFE-CANCEL",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "DESCRIPTION: state/type, cleanup sequence and request/completion distinction"
+      ]
+    },
+    {
+      "id": "R-TLIFE-CLEANUP",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "DESCRIPTION and VERSIONS: handler events, lexical pairing and early-leave restrictions"
+      ]
+    },
+    {
+      "id": "R-TLIFE-COND",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "DESCRIPTION: atomic unlock/wait/relock; CANCELLATION: mutex reacquisition before cleanup"
+      ]
+    },
+    {
+      "id": "R-TLIFE-N1570",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "7.26.1 paragraphs1-5; 7.26.5.1 creation; 7.26.5.6 joining",
+        "7.13.2.1 paragraph3: modified automatic locals across nonlocal return"
+      ]
+    },
+    {
+      "id": "R-TLIFE-N3096",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "6.10.9.3 __STDC_NO_THREADS__; 7.28.1 paragraphs1-5; 7.28.5.1 creation; 7.28.5.6 joining"
+      ]
+    },
+    {
+      "id": "R-TLIFE-GLIBC-CLEANUP",
+      "path": "research/v5/expansion/legacy_thread_lifecycle/resources.json",
+      "passages": [
+        "Installed /usr/include/pthread.h lines674-710; actual C17 preprocessor expansion of tl_detached_creator"
+      ]
+    },
+    {
+      "id": "R-TSHARE-MUTEX",
+      "path": "research/v5/expansion/legacy_thread_sharing/resources.json",
+      "passages": [
+        "DESCRIPTION: basic ownership and lock/unlock; CANCELLATION; ASYNC-SIGNAL SAFETY"
+      ]
+    },
+    {
+      "id": "R-TSHARE-STACK",
+      "path": "research/v5/expansion/legacy_thread_sharing/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS; NOTES: requested size and creation boundary"
+      ]
+    },
+    {
+      "id": "R-TSHARE-OPTIONS",
+      "path": "research/v5/expansion/legacy_thread_sharing/resources.json",
+      "passages": [
+        "33.2 introductory runtime-versus-declaration support paragraphs"
+      ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T25-01.md",
@@ -113,7 +200,19 @@
     "labs/hosted_systems/README.md",
     "labs/posix_lifecycle_depth/include/posix_lifecycle.h",
     "labs/posix_lifecycle_depth/src/posix_lifecycle.c",
-    "fixtures/posix_lifecycle_depth/cases.json"
+    "fixtures/posix_lifecycle_depth/cases.json",
+    "labs/thread_depth/lifecycle/CONTRACTS.md",
+    "labs/thread_depth/lifecycle/baseline.c",
+    "labs/thread_depth/lifecycle/learner.c",
+    "labs/thread_depth/lifecycle/lifecycle.h",
+    "labs/thread_depth/lifecycle/probe_c.c",
+    "labs/thread_depth/lifecycle/probe_posix.c",
+    "labs/thread_depth/lifecycle/race_control.c",
+    "labs/thread_depth/lifecycle/tests.c",
+    "labs/thread_depth/sharing/CONTRACTS.md",
+    "labs/thread_depth/sharing/learner.c",
+    "labs/thread_depth/sharing/sharing.h",
+    "labs/thread_depth/sharing/tests.c"
   ],
   "execution_support": {
     "kind": "retained partial anchors plus additive lifecycle laboratory",
@@ -130,7 +229,25 @@
         "scope": "All successful-prefix creation/failure cases for0..4 actual pthreads, result sum and invalid-input preservation; no detached/cancellation/join-failure recovery claim."
       }
     ],
-    "campaign": "reviews/v5/expansion/legacy_runtime/posix_lifecycle_depth_campaign.json"
+    "campaign": "reviews/v5/expansion/legacy_runtime/posix_lifecycle_depth_campaign.json",
+    "thread_lifecycle_successor": {
+      "path": "research/v5/expansion/legacy_thread_lifecycle/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-01-T25.01.a",
+        "AX-PR-T25-01-T25.01.b",
+        "AX-PR-T25-01-T25.01.c"
+      ],
+      "scope": "T25.01 actual retained-heap, detached cancellation and interface probes; exact published-edition delayed comparison remains partial."
+    },
+    "thread_sharing_successor": {
+      "path": "research/v5/expansion/legacy_thread_sharing/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-01-T25.02.a",
+        "AX-PR-T25-01-T25.02.b",
+        "AX-PR-T25-01-T25.02.c"
+      ],
+      "scope": "Three original shared-state tasks and changed-condition snapshot/failure/cache-budget experiments; software execution and physical/exact-source limits separate."
+    }
   },
   "criteria": [
     {
@@ -186,7 +303,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Earlier successful creations remain live borrowers and join obligations; uninitialized handles must never be joined. Complete acquisition gives sum 30, failure at 3 gives sum 5. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace stack argument storage with a retained heap control block and derive recoverable join-error ownership instead of terminating the teaching process. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -267,7 +384,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Detached thread resource cleanup does not keep arbitrary borrowed objects live. A separate owner and completion protocol are required. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Let the creator itself be canceled and identify who retains and eventually releases detached-worker storage. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -348,7 +465,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "C integer results and POSIX pointer results/error codes remain distinct; unsupported C facilities are recorded separately from POSIX support. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Compare a later C edition's optionality wording using exact inspected text before updating the support matrix. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -393,8 +510,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -437,7 +554,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Immutable shared input and disjoint mutable results reduce synchronization; publication and join still bound lifetimes. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Allow input mutation during processing and derive a snapshot/version or ownership-transfer contract before reuse. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -482,8 +599,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -526,7 +643,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Only successful acceptance transfers; shutdown must settle already accepted work separately from rejected input. Sentinels need an explicit multiplicity/consumer policy. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a worker failure after dequeue and define whether the item is retried, failed or retained uncertain. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -571,8 +688,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -615,7 +732,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Partitioning spends extra storage/merge work and may improve locality; correctness and measured cost are separate arguments. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Make the number of bins exceed cache and compare sharding/batching under the same memory cap. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -647,7 +764,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T25-01.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; independent learner and exact-source gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -655,5 +772,25 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_thread_lifecycle/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-01-T25.01.a",
+        "AX-PR-T25-01-T25.01.b",
+        "AX-PR-T25-01-T25.01.c"
+      ],
+      "scope": "T25.01 actual retained-heap, detached cancellation and interface probes; exact published-edition delayed comparison remains partial."
+    },
+    {
+      "path": "research/v5/expansion/legacy_thread_sharing/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-01-T25.02.a",
+        "AX-PR-T25-01-T25.02.b",
+        "AX-PR-T25-01-T25.02.c"
+      ],
+      "scope": "Three original shared-state tasks and changed-condition snapshot/failure/cache-budget experiments; software execution and physical/exact-source limits separate."
+    }
+  ]
 }

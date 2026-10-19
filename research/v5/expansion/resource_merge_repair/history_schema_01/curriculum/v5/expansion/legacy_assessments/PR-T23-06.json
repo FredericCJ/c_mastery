@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "project": "PR-T23-06",
+  "domain": "T23",
+  "title": "Clock and capability boundaries \u2014 explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/posix_context_depth/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "sha256": "d9ae48b509898d345050f9d4b6b5398ffa8d61c6c12dea664d13f7258ca7abe7",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T23-06.md",
+        "sha256": "64fae42f400b3ac5e68f5db3e5969002d0350fa1a6d4ec9d9e7a87122a9cacc2",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T23-06.json",
+        "sha256": "005f1c11f66951ca39d6de64134c50d0200250431779b447bf0071f0e4d16b9e",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "anchors": [
+          "T23.13"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-HS-12",
+      "U-T23-06-02"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-TIMER",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+        "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FORK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: process context, address space, descriptors and multithreaded child restrictions"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-EXEC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: explicit argv/envp, image replacement, retained and removed attributes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-DUP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: shared open file description and separate descriptor flags"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SPAWN",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION/file actions; RETURN VALUE/ERRORS; implementation notes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SAFETY",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION and async-signal-safe table: close/dup2/execve/fchdir/write/_exit"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FSYNC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS, including EIO and pipe EINVAL"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FLOCK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; NOTES; Linux/network-filesystem differences"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-CLOCK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: MONOTONIC, BOOTTIME, process CPU clock and discontinuities"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SLEEP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES: absolute deadlines, interruption and dispatch delay"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-LIMIT",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: soft/hard limits and unprivileged changes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-AFFINITY",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; ERRORS EPERM/EINVAL; NOTES: current permitted intersection"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FEATURES",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: before-header definition and selected feature visibility"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-PIPE",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: CLOEXEC and flags; STANDARDS/HISTORY: pipe2 in POSIX.1-2024"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-OPEN",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: open file description, flags and atomic close-on-exec creation"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-EPOLL",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: interest, level/edge flags, read readiness and HUP"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-POLL",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: readiness, timeout, HUP, invalid descriptors and wrapper distinction"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-MMAP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: mapping lifetime, shared/private and anonymous semantics"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-THREAD",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES: creation, inheritance and joinable lifetime"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-WAIT",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: owned child selection and exit/signal interpretation; RETURN VALUE/ERRORS: EINTR, ECHILD and EINVAL; wrapper notes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-CLONE",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "SYNOPSIS and introductory DESCRIPTION: wrapper, raw syscall and sharing controls"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-GLIBC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "sysdeps/unix/sysv/linux/spawni.c216-307 and351-482: actions, exec failure, clone flags/fallback and parent error collection"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T23-06.md",
+    "fixtures/systems/PR-T23-06.json",
+    "labs/hosted_systems/README.md",
+    "labs/posix_context_depth/CONTRACTS.md",
+    "labs/posix_context_depth/PERSISTENCE_EXPERIMENT.md",
+    "labs/posix_context_depth/PORTABILITY.md",
+    "labs/posix_context_depth/context.h",
+    "labs/posix_context_depth/learner.c",
+    "labs/posix_context_depth/tests/capability.c",
+    "labs/posix_context_depth/tests/helper.c",
+    "labs/posix_context_depth/tests/process.c",
+    "labs/posix_context_depth/tests/reap.c",
+    "labs/posix_context_depth/tests/storage.c",
+    "labs/posix_context_depth/tests/test.h",
+    "labs/posix_context_depth/tests/timing.c",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "hosted_systems.clocks"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "posix_context_successor": {
+      "path": "research/v5/expansion/legacy_posix_context/completion_dispositions.json",
+      "project": "PR-T23-06",
+      "criterion_ids": [
+        "AX-PR-T23-06-T23.13.a",
+        "AX-PR-T23-06-T23.13.b",
+        "AX-PR-T23-06-T23.13.c"
+      ],
+      "scope": "Only these remaining original criteria and exact delayed author tasks; other existing successor pointers and independent learner obligations remain unchanged."
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T23-06-T23.13.a",
+      "title": "Choose clock domains appropriate to deadlines and measurements.",
+      "objective": "T23.13.a",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Run deadlines from CLOCK_MONOTONIC and collect process CPU time separately. Inject a wall-clock jump into a test clock adapter and recompute remaining time from one absolute deadline after interruptions.",
+      "purpose": "Elapsed wall time, CPU consumption and timeout budget are interchangeable.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.13 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Elapsed wall time, CPU consumption and timeout budget are interchangeable. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Elapsed wall time, CPU consumption and timeout budget are interchangeable.",
+        "D2": "Run deadlines from CLOCK_MONOTONIC and collect process CPU time separately. Inject a wall-clock jump into a test clock adapter and recompute remaining time from one absolute deadline after interruptions.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Model suspend-aware CLOCK_BOOTTIME versus CLOCK_MONOTONIC and choose semantics for an expiring lease."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "A monotonic absolute deadline avoids resetting the total budget; CPU time excludes blocked time and clock resolution is not scheduling accuracy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
+        "2": "A monotonic absolute deadline avoids resetting the total budget; CPU time excludes blocked time and clock resolution is not scheduling accuracy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Model suspend-aware CLOCK_BOOTTIME versus CLOCK_MONOTONIC and choose semantics for an expiring lease. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose a clock according to the event being measured, not its name.",
+        "Recompute remaining time from one absolute deadline; keep wall time, CPU consumption and suspended time distinct."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-06-T23.13.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Model suspend-aware CLOCK_BOOTTIME versus CLOCK_MONOTONIC and choose semantics for an expiring lease."
+        }
+      ],
+      "assessor_anchor": "#t2313a",
+      "facet_scope": {
+        "teaching": "Retained T23.13 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-06-T23.13.b",
+      "title": "Inspect limits, affinity, and scheduling parameters with permission checks.",
+      "objective": "T23.13.b",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Read this process's limits, affinity and scheduling settings, then inject EPERM/EINVAL in a request adapter. If testing real resource limits, lower them only in a disposable child and retain the parent's unchanged snapshot.",
+      "purpose": "A requested scheduling or limit setting was necessarily accepted.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.13 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A requested scheduling or limit setting was necessarily accepted. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A requested scheduling or limit setting was necessarily accepted.",
+        "D2": "Read this process's limits, affinity and scheduling settings, then inject EPERM/EINVAL in a request adapter. If testing real resource limits, lower them only in a disposable child and retain the parent's unchanged snapshot.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change CPU availability between inspection and request in the model and diagnose the stale capability assumption."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Record requested, returned and observed state separately; no host privilege or security-policy change is authorized.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
+        "2": "Record requested, returned and observed state separately; no host privilege or security-policy change is authorized. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change CPU availability between inspection and request in the model and diagnose the stale capability assumption. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose a clock according to the event being measured, not its name.",
+        "Recompute remaining time from one absolute deadline; keep wall time, CPU consumption and suspended time distinct."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-06-T23.13.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change CPU availability between inspection and request in the model and diagnose the stale capability assumption."
+        }
+      ],
+      "assessor_anchor": "#t2313b",
+      "facet_scope": {
+        "teaching": "Retained T23.13 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-06-T23.13.c",
+      "title": "Separate userspace timing observations from scheduler guarantees.",
+      "objective": "T23.13.c",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Measure planned deadline, actual wake and dispatch for bounded sleep/work alternation. Report distribution, clock source, instrumentation and competing load without asserting a maximum guarantee from the largest sample.",
+      "purpose": "The largest observed lateness is a proven worst case.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.13 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "The largest observed lateness is a proven worst case. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: The largest observed lateness is a proven worst case.",
+        "D2": "Measure planned deadline, actual wake and dispatch for bounded sleep/work alternation. Report distribution, clock source, instrumentation and competing load without asserting a maximum guarantee from the largest sample.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a synthetic higher-priority interference trace and derive why the previous empirical result does not transfer."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Finite samples show observed latency only; scheduler policy, interference and blocking assumptions are required for a bound.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
+        "2": "Finite samples show observed latency only; scheduler policy, interference and blocking assumptions are required for a bound. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a synthetic higher-priority interference trace and derive why the previous empirical result does not transfer. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose a clock according to the event being measured, not its name.",
+        "Recompute remaining time from one absolute deadline; keep wall time, CPU consumption and suspended time distinct."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-06-T23.13.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a synthetic higher-priority interference trace and derive why the previous empirical result does not transfer."
+        }
+      ],
+      "assessor_anchor": "#t2313c",
+      "facet_scope": {
+        "teaching": "Retained T23.13 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T23-06.md",
+  "status": {
+    "content": "authored",
+    "execution": "Per-criterion current successors, including posix_context_depth; historical observations retained and independent learner/review not inferred.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_posix_context/completion_dispositions.json",
+      "project": "PR-T23-06",
+      "criterion_ids": [
+        "AX-PR-T23-06-T23.13.a",
+        "AX-PR-T23-06-T23.13.b",
+        "AX-PR-T23-06-T23.13.c"
+      ],
+      "scope": "Only these remaining original criteria and exact delayed author tasks; other existing successor pointers and independent learner obligations remain unchanged."
+    }
+  ]
+}

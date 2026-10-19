@@ -1,0 +1,31 @@
+{
+  "id": "PR-T50-02",
+  "description": "Static task pools, stacks and handles finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 8,
+    "requests": [
+      3,
+      4,
+      2,
+      -3,
+      2
+    ]
+  },
+  "expected": {
+    "used": [
+      3,
+      7,
+      7,
+      4,
+      6
+    ],
+    "rejected": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The runtime has sixteen task slots (CMX_TASKS), including one reserved idle task and fifteen application slots. Each owns a disjoint aligned stack. The supplied admission anchor uses raw slot IDs; implementing a generation-validated public handle adapter is required learner work. Creating a task reserves all resources before publication; failed creation leaves the pool unchanged. A stack high-water pattern reveals observed use, not a proof of maximum use. Reusing a slot must not revive a stale handle.",
+  "required_observation": "Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage.",
+  "model_scope": "The capacity8 arithmetic fixture is a smaller independent pool example; it does not replace the sixteen-slot runtime contract."
+}

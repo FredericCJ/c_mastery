@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_report": "reviews/v5/expansion/modern_completion/object_runtime_storage_probe.json",
+  "semantic_report": "reviews/v5/expansion/modern_completion/object_runtime_storage_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Actual x86-64 GCC/Clang sizes: ORXValue8, handle2, cell20, entry5, lease32, heap336, intern56, ticket16 bytes. Native bridge support requires the declared IEEE binary64 object format; wire values contain no host pointer."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Eight genuine typed cells and identity entries, four central foreign leases,0..16 int32 buckets. T66 physically reserves64 bytes per allocator row even when the requested bucket count is4 or8."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "External roots and pins retain graph reachability. Dead identity generations1..3 advance and retire at4; lease generations independently retire. Collection epoch255 stops instead of wrapping. Weak entries never extend object lifetime."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "One controller owns metadata. A worker only reads the pinned span; packing never rewrites pinned bytes, including identical values. Lookup copies payloads; native double accesses use unsigned char lvalues under explicit format assumptions."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Real T66 allocation observations for1..8 distinct symbols show requested capacities4/8/16, attempts1/2/3, one live bucket row after publication and peak two rows during growth. A private row unwinds if the separate typed pool is full."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "The pool stages8 typed cells during packing, reserves pinned positions and updates only identity locations. Strings copy at most15 bytes. Rehash copies encoded handles rather than payload strings; logical handle copies do not automatically retain roots."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Collection clears dead cells and advances generations. Intern close releases bucket storage only; caller roots remain separate. Cancel retains the foreign pin; join plus explicit finish releases it and invalidates the ticket."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Allocator take/release and actual T66 OwPin operations are explicit component calls. Hash collision handling compares full bytes. Native bridge performs format/order admission before character copying. No collector or hash library supplies the studied operations."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "The actual separately compiled pthread backend reads the retained span across controller cancellation, collection and packing of other cells. Seven-profile semantic campaign includes GCC TSan. No arbitrary concurrent controller access or nonreturning-backend progress is guaranteed."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "10,768 independent storage rows plus real cancellation and ten compiled semantic mutants cover finite collision/failure/movement/authority witnesses. Failures preserve public state and outputs except disclosed allocator diagnostics; epoch, identity, lease and root saturation are explicit finite-resource failures."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Six actual GCC/Clang O0/O2/O3 configurations separately compile every translation unit, with exact commands, disassembly and per-unit stack reports. No incremental-build or language-level safety equivalence is inferred."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "At O2, whole probe image text/data/BSS: GCC26017/632/8, Clang29739/608/8. Decode/collect/pack/foreign-begin/intern-get local frames: GCC8/56/256/112/128 and Clang0/48/104/88/88 bytes. Linked baseline/dependency code is included; deeper callees and thread-stack reservations are additional."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "168 retained samples plus24 discarded first samples time1000 packing operations at four pin masks on six compiler configurations; setup and finish excluded, timer overhead included. Report exact distributions rather than a worst-case latency or universal speed claim. No physical capability target or independent learner assessment was performed."
+    }
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T03:03:26.862101+00:00",
+  "system": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "source_sha256": {
+    "tools/run_b06_io_completion.py": "086ccd6eee35039b18bf5a5fc19c3df99b8592967b7d17d88f3c4f63ffd660c0",
+    "labs/linux_io_depth/targets/raw_ring.h": "6747ad721c8485a26aed0dd5de870c2d6745c01aacebcb7e8f7d413c71b19394",
+    "labs/linux_io_depth/targets/raw_ring.c": "d51b0e41a72d892865e9a27a8b49ef6eae4afa72d087549d09549a14055c285a",
+    "labs/linux_io_depth/targets/completion_probe.c": "4920f2c40884897e248eec4b8489073c80cd95a942d6f3b5012b7d4cb05a0417",
+    "assessor/linux_io_depth/targets/raw_ring.c": "1c22e7903d8e691caa39e2f7d89b2d8809de6f7994bdadf94507a94a15ced376"
+  },
+  "checks": [
+    {
+      "label": "gcc-debug build 0",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-0",
+        "-DCM_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute 0",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-0"
+      ],
+      "returncode": 0,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=501 result=1 flags=2\nCQE id=502 result=-62 flags=0\nCQE id=501 result=-125 flags=0\nraw-ring terminal ownership PASS\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 1",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-1",
+        "-DCM_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute 1",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-1"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nB06_IO_CHECK:31:cm_ring_push(&ring,&n)==-EAGAIN errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 2",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-2",
+        "-DCM_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute 2",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-2"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=0\nB06_IO_CHECK:28:c.user_data==301&&(c.res&POLLIN)&&(c.flags&IORING_CQE_F_MORE) errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build stub",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-stub"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute stub",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-debug-stub"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nB06_IO_CHECK:21:cm_ring_init(&ring,8)==0 errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 0",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-0",
+        "-DCM_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute 0",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-0"
+      ],
+      "returncode": 0,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=501 result=1 flags=2\nCQE id=502 result=-62 flags=0\nCQE id=501 result=-125 flags=0\nraw-ring terminal ownership PASS\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 1",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-1",
+        "-DCM_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute 1",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-1"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nB06_IO_CHECK:31:cm_ring_push(&ring,&n)==-EAGAIN errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 2",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-2",
+        "-DCM_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute 2",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-2"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=0\nB06_IO_CHECK:28:c.user_data==301&&(c.res&POLLIN)&&(c.flags&IORING_CQE_F_MORE) errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build stub",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-stub"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c: In function \u2018take\u2019:\n/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c:16:15: note: the ABI of passing struct with a flexible array member has changed in GCC 4.4\n   16 | static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf(\"CQE id=%llu result=%d flags=%u\\n\",(unsigned long long)c.user_data,c.res,c.flags);return c;}\n      |               ^~~~~~~~~~~~\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute stub",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/gcc-release-stub"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nB06_IO_CHECK:21:cm_ring_init(&ring,8)==0 errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 0",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-0",
+        "-DCM_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute 0",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-0"
+      ],
+      "returncode": 0,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=400 result=0 flags=0\nCQE id=401 result=0 flags=0\nCQE id=402 result=0 flags=0\nCQE id=403 result=0 flags=0\nCQE id=404 result=0 flags=0\nCQE id=405 result=0 flags=0\nCQE id=406 result=0 flags=0\nCQE id=407 result=0 flags=0\nCQE id=501 result=1 flags=2\nCQE id=502 result=-62 flags=0\nCQE id=501 result=-125 flags=0\nraw-ring terminal ownership PASS\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 1",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-1",
+        "-DCM_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute 1",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-1"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=2\nCQE id=301 result=1 flags=2\nCQE id=302 result=0 flags=0\nCQE id=301 result=-125 flags=0\nB06_IO_CHECK:31:cm_ring_push(&ring,&n)==-EAGAIN errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 2",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-2",
+        "-DCM_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute 2",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-2"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nCQE id=101 result=0 flags=0\nCQE id=4294967299 result=-125 flags=0\nCQE id=102 result=-2 flags=0\nCQE id=103 result=-2 flags=0\nCQE id=8589934595 result=1 flags=0\nCQE id=202 result=-62 flags=0\nCQE id=201 result=-125 flags=0\nCQE id=301 result=1 flags=0\nB06_IO_CHECK:28:c.user_data==301&&(c.res&POLLIN)&&(c.flags&IORING_CQE_F_MORE) errno=11\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build stub",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/completion_probe.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute stub",
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-io-completion/clang-sanitize-stub"
+      ],
+      "returncode": 1,
+      "stdout": "writev partial=4096 of6000; zero-length vector preserved prefix\nsplice/writev PASS\nB06_IO_CHECK:21:cm_ring_init(&ring,8)==0 errno=11\n",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Single issuer no SQPOLL; no multi-producer adapter claim.",
+    "EALREADY is specified and separately modeled but not forced in this schedule.",
+    "No physical durability or zero-copy claim.",
+    "Finite actual schedules are not exhaustive race or lifetime proof."
+  ]
+}

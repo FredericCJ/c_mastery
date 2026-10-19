@@ -5,7 +5,9 @@
   "title": "Deadline and notification counters — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/hosted_systems/timer_depth/CONTRACTS.md",
+    "labs/hosted_systems/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -89,6 +91,22 @@
         "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
         "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
       ]
+    },
+    {
+      "id": "R-TIMER-TIMERFD_CREATE",
+      "path": "research/v5/expansion/legacy_timers/resources.json",
+      "passages": [
+        "DESCRIPTION: clock choices, nonblocking/CLOEXEC, absolute arm/disarm, periodic intervals, gettime and native counter reads",
+        "RETURN VALUE and ERRORS: operation failures and invalid nanoseconds; STANDARDS: Linux"
+      ]
+    },
+    {
+      "id": "R-TIMER-EVENTFD",
+      "path": "research/v5/expansion/legacy_timers/resources.json",
+      "passages": [
+        "DESCRIPTION: native64-bit ordinary/semaphore consumption, short reads, saturation, invalid writes and descriptor lifetime",
+        "RETURN VALUE, ERRORS and VERSIONS: eventfd2/glibc wrapper; STANDARDS: Linux/GNU"
+      ]
     }
   ],
   "reference_gaps": [
@@ -99,8 +117,20 @@
   "supplied_artifacts": [
     "curriculum/projects/PR-T24-05.md",
     "fixtures/systems/PR-T24-05.json",
-    "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/CONTRACTS.md",
+    "labs/hosted_systems/README.md",
+    "labs/hosted_systems/include/hosted.h",
+    "labs/hosted_systems/src/common.h",
+    "labs/hosted_systems/src/deadline.c",
+    "labs/hosted_systems/timer_depth/CONTRACTS.md",
+    "labs/hosted_systems/timer_depth/TIMERS.md",
+    "labs/hosted_systems/timer_depth/native.c",
+    "labs/hosted_systems/timer_depth/race_tests.c",
+    "labs/hosted_systems/timer_depth/run.py",
+    "labs/hosted_systems/timer_depth/tests.c",
+    "labs/hosted_systems/timer_depth/timer.c",
+    "labs/hosted_systems/timer_depth/timer.h",
+    "tools/verify_systems_fixtures.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -189,6 +219,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_timers/support.json",
+        "criterion_id": "AX-PR-T24-05-T24.09.a"
       }
     },
     {
@@ -269,6 +303,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_timers/support.json",
+        "criterion_id": "AX-PR-T24-05-T24.09.b"
       }
     },
     {
@@ -349,6 +387,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_timers/support.json",
+        "criterion_id": "AX-PR-T24-05-T24.09.c"
       }
     }
   ],
@@ -363,5 +405,14 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_timers/support.json",
+    "criterion_ids": [
+      "AX-PR-T24-05-T24.09.a",
+      "AX-PR-T24-05-T24.09.b",
+      "AX-PR-T24-05-T24.09.c"
+    ],
+    "scope": "Only three timer criteria and implemented changed conditions; independent/delayed learner work remains required."
   }
 }

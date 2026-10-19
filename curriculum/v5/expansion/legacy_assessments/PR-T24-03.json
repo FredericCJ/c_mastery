@@ -5,7 +5,8 @@
   "title": "Streams and datagram policies — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/hosted_systems/stream_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -98,6 +99,39 @@
       "passages": [
         "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
       ]
+    },
+    {
+      "id": "R-FRAMING-RECVMSG",
+      "path": "research/v5/expansion/legacy_framing/resources.json",
+      "passages": [
+        "DESCRIPTION: partial/nonblocking reception; input MSG_TRUNC, MSG_WAITALL and MSG_CMSG_CLOEXEC",
+        "recvmsg msghdr/control fields and returned MSG_TRUNC, MSG_CTRUNC and MSG_CMSG_CLOEXEC",
+        "RETURN VALUE, EAGAIN/EWOULDBLOCK/EINTR and NOTES: stream EOF versus consumption of zero-length datagrams"
+      ]
+    },
+    {
+      "id": "R-FRAMING-SHUTDOWN",
+      "path": "research/v5/expansion/legacy_framing/resources.json",
+      "passages": [
+        "DESCRIPTION, RETURN VALUE, ERRORS, STANDARDS, NOTES and BUGS: directional shutdown and descriptor lifetime distinction"
+      ]
+    },
+    {
+      "id": "R-FRAMING-SENDMSG",
+      "path": "research/v5/expansion/legacy_framing/resources.json",
+      "passages": [
+        "DESCRIPTION: local completion is not delivery, nonblocking and per-call MSG_NOSIGNAL",
+        "sendmsg fields/control, RETURN VALUE and relevant EAGAIN/EINTR/EPIPE errors"
+      ]
+    },
+    {
+      "id": "R-FRAMING-UNIX",
+      "path": "research/v5/expansion/legacy_framing/resources.json",
+      "passages": [
+        "Sockets API: buffer behavior and MSG_TRUNC",
+        "Ancillary messages SCM_RIGHTS: descriptor references, truncation, excess-right closure and RLIMIT_NOFILE",
+        "CMSG storage/length rules and Linux-specific limits"
+      ]
     }
   ],
   "reference_gaps": [
@@ -108,8 +142,14 @@
   "supplied_artifacts": [
     "curriculum/projects/PR-T24-03.md",
     "fixtures/systems/PR-T24-03.json",
-    "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/hosted_systems/stream_depth/CONTRACTS.md",
+    "labs/hosted_systems/stream_depth/DATAGRAMS.md",
+    "labs/hosted_systems/stream_depth/STREAMS.md",
+    "labs/hosted_systems/stream_depth/stream.c",
+    "labs/hosted_systems/stream_depth/stream.h",
+    "labs/hosted_systems/stream_depth/tests.c",
+    "tools/verify_systems_fixtures.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -203,6 +243,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.05.a"
       }
     },
     {
@@ -290,6 +334,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.05.b"
       }
     },
     {
@@ -377,6 +425,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.05.c"
       }
     },
     {
@@ -457,6 +509,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.06.a"
       }
     },
     {
@@ -537,6 +593,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.06.b"
       }
     },
     {
@@ -617,6 +677,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_framing/support.json",
+        "criterion_id": "AX-PR-T24-03-T24.06.c"
       }
     }
   ],
@@ -631,5 +695,17 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_framing/support.json",
+    "criterion_ids": [
+      "AX-PR-T24-03-T24.05.a",
+      "AX-PR-T24-03-T24.05.b",
+      "AX-PR-T24-03-T24.05.c",
+      "AX-PR-T24-03-T24.06.a",
+      "AX-PR-T24-03-T24.06.b",
+      "AX-PR-T24-03-T24.06.c"
+    ],
+    "scope": "Only six named framing/datagram criteria and their implemented changed conditions; independent and delayed learner assessment remains required."
   }
 }

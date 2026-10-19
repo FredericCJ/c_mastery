@@ -1,0 +1,220 @@
+{
+  "criteria": [
+    {
+      "project": "PR-P5-01",
+      "criterion": "AX-PR-P5-01-T24.08.b",
+      "objective": "T24.08.b",
+      "task": "Integrate a bounded Linux reader with the P3 decoder and queue using connection(slot,generation), not bare descriptor identity. Close fd7 for generation1, reuse7 for generation2, then deliver the old readiness event; require rejection before accessing the new connection. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-01-T24.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Switch from level to edge triggering and derive how a full downstream queue resumes without a lost edge.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2408b",
+      "command_groups": [
+        "gcc-debug:fd7",
+        "gcc-debug:ordinary",
+        "clang-asan:core-29",
+        "clang-asan:core-30"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-01",
+      "criterion": "AX-PR-P5-01-T25.02.b",
+      "objective": "T25.02.b",
+      "task": "Reproduce pressure fixture accepted1,2,3,5; rejected4,6; consumed1,2,3,5. Extend it with parser-held, queued, worker-owned and completed message states. Under reject-newest, return/release rejected ownership exactly once and count all retained buffers toward the cap. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-01-T25.02.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Change to blocking backpressure and analyze whether the producer holds any mutex/resource needed by the consumer.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2502b",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-tsan:ownership",
+        "clang-asan:core-28"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-01",
+      "criterion": "AX-PR-P5-01-T25.02.c",
+      "objective": "T25.02.c",
+      "task": "Compare one immutable copied-message queue with a shared mutable message design for the same workload. Identify exactly which fields are thread-owned, immutable, synchronized or transferred; implement the reduced-sharing design and retain publication/consumption edges. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-01-T25.02.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Introduce multiple processing workers and revise completion ownership without making decoder state shared unnecessarily.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2502c",
+      "command_groups": [
+        "gcc-debug:ownership",
+        "clang-tsan:ownership"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-01",
+      "criterion": "AX-PR-P5-01-T18.04.c",
+      "objective": "T18.04.c",
+      "task": "Give the worker a generation-checked message handle whose owner persists through processing and callbacks. Reset/reuse parser input after queue acceptance and verify the worker retains stable bytes through copy or explicit transfer. Deliver a stale completion after slot reuse. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-01-T18.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change payload size beyond inline capacity and define allocation failure and ownership of an external buffer.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t1804c",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-asan:core-23",
+        "clang-asan:core-24",
+        "clang-asan:core-31",
+        "clang-asan:core-32"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-02",
+      "criterion": "AX-PR-P5-02-T24.11.b",
+      "objective": "T24.11.b",
+      "task": "Implement OPEN→CLOSING→DRAINING→CLOSED and explicit ABORTING states. Close while empty/full, reject later offers, account queued and worker-owned messages, then join workers and release descriptors. Repeat shutdown and inject a failed consumer without losing terminal dispositions. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-02-T24.11.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Set a shutdown deadline and define the contained pending-resource state if a worker cannot be joined by it.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2411b",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-asan:bridge",
+        "gcc-debug:failures",
+        "clang-asan:core-25",
+        "clang-asan:core-26"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-02",
+      "criterion": "AX-PR-P5-02-T25.04.c",
+      "objective": "T25.04.c",
+      "task": "Use predicates queue-nonempty-or-closed and queue-has-space-or-closed under one mutex. Force signal-before-wait, spurious wake, close with a blocked producer and another consumer stealing the item before reacquisition. Require all waiters to recheck predicates and observe closure. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-02-T25.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Add an abort state that discards queued work and derive which waiter outcomes differ from graceful drain.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2504c",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-tsan:waiter",
+        "gcc-debug:waiter-27"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-02",
+      "criterion": "AX-PR-P5-02-T21.06.b",
+      "objective": "T21.06.b",
+      "task": "Run FAsync cancellation with queue1,2 and completion=false: retain both items and operation-owned context. Only a trustworthy matching completion may permit discard/drain and one release. Distinguish caller timeout from cancellation acknowledgement and compare actual asynchronous adapter evidence. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-02-T21.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace the Boolean with a callback from another thread and provide synchronization and lifetime proof.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2106b",
+      "command_groups": [
+        "gcc-debug:bridge",
+        "clang-tsan:bridge",
+        "clang-asan:bridge-1",
+        "clang-asan:bridge-2",
+        "clang-asan:bridge-3"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    },
+    {
+      "project": "PR-P5-02",
+      "criterion": "AX-PR-P5-02-T21.06.c",
+      "objective": "T21.06.c",
+      "task": "Cancel operationg1, startg2 only after allowed quiescence, then deliver duplicate/stale g1 callbacks. Verify one terminal report and one release per accepted operation, with generation saturation policy and cleanup-order trace. Inject reporter failure separately. Supplied model inputs: fixtures/integration/pressure.json and fixtures/legacy_checkpoints/P5.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P5-02-T21.06.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Allow callback reentrancy and either forbid it explicitly or add a bounded protocol preserving the same single-completion invariant.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own complete P1/P3/operation/thread providers",
+        "descriptor/ownership/predicate proof and failure traces",
+        "admission and completion ledgers",
+        "source-bound local execution dossier"
+      ],
+      "assessment": "assessor/checkpoint_linux_followthrough/ANALYSIS.md#t2106c",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-tsan:report-order",
+        "clang-asan:bridge-2",
+        "clang-asan:core-32"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_linux/resources.json"
+    }
+  ],
+  "remaining": "CAP and other recursive inventory obligations remain required."
+}

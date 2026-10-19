@@ -1,0 +1,22 @@
+{
+  "id": "PR-T50-10",
+  "description": "Cancellation and task-fault containment finite independent example",
+  "oracle": "winner",
+  "input": {
+    "events": [
+      "cancel",
+      "wake",
+      "timeout"
+    ]
+  },
+  "expected": {
+    "terminal": "cancel",
+    "ignored": [
+      "wake",
+      "timeout"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Cancellation is a request observed at declared safe points, not arbitrary forced execution of cleanup code. A task fault must stop that task and preserve diagnostic state; it cannot silently release a mutex while shared data may be inconsistent. Stack guards detect particular accesses, while canaries detect only later damage.",
+  "required_observation": "Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery."
+}

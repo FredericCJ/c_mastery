@@ -1,0 +1,24 @@
+
+error[E0004]: non-exhaustive patterns: `Value::Text(_)` not covered
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/adt/owning_sum/probes/evolution.rs:5:11
+  |
+5 |     match value {
+  |           ^^^^^ pattern `Value::Text(_)` not covered
+  |
+note: `Value` defined here
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/adt/owning_sum/probes/evolution.rs:2:6
+  |
+2 | enum Value { Empty, Number(u32), Pair(u32,u32),
+  |      ^^^^^
+3 |     #[cfg(added)] Text(String) }
+  |                   ---- not covered
+  = note: the matched value is of type `Value`
+help: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown
+  |
+8 ~         Value::Pair(x,y)=>(x as usize)+(y as usize),
+9 ~         Value::Text(_) => todo!(),
+  |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0004`.

@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T56-01-T56.01.a",
+      "objective": "T56.01.a",
+      "project": "PR-T56-01",
+      "original_task": "Two threads share one process mapping but own execution frames; one exits while the other is blocked.",
+      "original_expected": "Thread exit alone does not release the process address space while another live thread remains. Each TCB owns a saved frame and stack; process resources have a different lifetime.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-01-T56.01.a-V1",
+          "minimum_days": 7,
+          "task": "Terminate the process while one thread runs remotely and prove no frame reuse until every CPU leaves."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-01.md",
+      "guest_cases": [
+        26,
+        13
+      ]
+    },
+    {
+      "id": "AX-PR-T56-01-T56.01.b",
+      "objective": "T56.01.b",
+      "project": "PR-T56-01",
+      "original_task": "Create four live threads in one process and attempt a fifth; join one twice.",
+      "original_expected": "The bounded profile admits at most4 and rejects the fifth withEAGAIN. Join consumes one generation handle; the second join is invalid and cannot reclaim a new incarnation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-01-T56.01.b-V1",
+          "minimum_days": 7,
+          "task": "Exhaust the global32-thread pool across several processes without corrupting existing ready/wait lists."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-01.md",
+      "guest_cases": [
+        12
+      ]
+    },
+    {
+      "id": "AX-PR-T56-01-T56.01.c",
+      "objective": "T56.01.c",
+      "project": "PR-T56-01",
+      "original_task": "Use a thread handle where a process handle is expected and inspect numerical collision possibilities.",
+      "original_expected": "Separate object types and lookup contexts are required; generation tagging alone does not automatically encode a globally unique capability type. Prove each syscall validates its own object table and rights.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-01-T56.01.c-V1",
+          "minimum_days": 7,
+          "task": "Introduce explicit typed handle tags and determine compatibility/diagnostic changes without rewriting accepted ABI-v1 evidence."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-01.md",
+      "guest_cases": [
+        1,
+        12
+      ]
+    },
+    {
+      "id": "AX-PR-T56-02-T56.02.a",
+      "objective": "T56.02.a",
+      "project": "PR-T56-02",
+      "original_task": "Wait before and after childexit7; repeat wait, use a nonchild and reuse the child slot.",
+      "original_expected": "Exactly one authorized parent wait consumes completion; generation and parent-generation checks reject stale/foreign handles. Orphans are auto-wait-consumed under the declared policy.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-02-T56.02.a-V1",
+          "minimum_days": 7,
+          "task": "Parent exits while child has pending I/O and require independent wait-consumption, quiescence and I/O lifetime proofs."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-02.md",
+      "guest_cases": [
+        14,
+        18
+      ]
+    },
+    {
+      "id": "AX-PR-T56-02-T56.02.b",
+      "objective": "T56.02.b",
+      "project": "PR-T56-02",
+      "original_task": "Fail the third frame allocation during an otherwise valid image load.",
+      "original_expected": "All newly acquired frames and unpublished process/thread state must roll back under the parent contract. Retained load_task panics on map failure, so existing success markers do not establish recoverable rollback.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-02-T56.02.b-V1",
+          "minimum_days": 7,
+          "task": "Inject failure at every allocation boundary with preexisting processes present and compare complete resource ledgers."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-02.md",
+      "guest_cases": [
+        16
+      ]
+    },
+    {
+      "id": "AX-PR-T56-02-T56.02.c",
+      "objective": "T56.02.c",
+      "project": "PR-T56-02",
+      "original_task": "Contrast SPAWN of a checked archive image with COW clone and disk-capability inheritance.",
+      "original_expected": "SPAWN loads a separate image; default children and COW children have no disk capability. Explicit flag1 can grant only from a capable parent.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-02-T56.02.c-V1",
+          "minimum_days": 7,
+          "task": "Spawn until process capacity8 exhausts and verify no existing child or archive state changes on rejection."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-02.md",
+      "guest_cases": [
+        14,
+        27,
+        12
+      ]
+    },
+    {
+      "id": "AX-PR-T56-03-T56.03.a",
+      "objective": "T56.03.a",
+      "project": "PR-T56-03",
+      "original_task": "Reserve two pages without frames, then read first bytes and write one page.",
+      "original_expected": "Each admitted first touch obtains a zero-filled frame before present mapping publication. Reservation is not allocation, and stale allocator contents must never become user-visible.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-03-T56.03.a-V1",
+          "minimum_days": 7,
+          "task": "Seed freed frames with nonzero synthetic data and independently verify all4096 bytes after first touch."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-03.md",
+      "guest_cases": [
+        2
+      ]
+    },
+    {
+      "id": "AX-PR-T56-03-T56.03.b",
+      "objective": "T56.03.b",
+      "project": "PR-T56-03",
+      "original_task": "Two threads fault the same absent page before either acquires the kernel lock.",
+      "original_expected": "Under serialization the second handler rereads current mapping and can return after invalidating its stale translation. Allocating twice leaks ownership; the retained source explicitly rechecks resolution.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-03-T56.03.b-V1",
+          "minimum_days": 7,
+          "task": "Vary read/write and instruction-fetch causes and derive which already-resolved faults remain admissible."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-03.md",
+      "guest_cases": [
+        15,
+        2,
+        16
+      ]
+    },
+    {
+      "id": "AX-PR-T56-03-T56.03.c",
+      "objective": "T56.03.c",
+      "project": "PR-T56-03",
+      "original_task": "Inject frame exhaustion and an out-of-region or kernel fault.",
+      "original_expected": "OOM must preserve existing mappings and resources; invalid/user protection faults differ from admitted zero faults, and a kernel exception is not a user allocation request.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-03-T56.03.c-V1",
+          "minimum_days": 7,
+          "task": "Combine fault handling with copyout spanning two pages and state whether partial materialization is allowed without partial message consumption."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-03.md",
+      "guest_cases": [
+        16,
+        9
+      ]
+    },
+    {
+      "id": "AX-PR-T56-04-T56.04.a",
+      "objective": "T56.04.a",
+      "project": "PR-T56-04",
+      "original_task": "Clone one private writable page withrefs1 and then let the child write.",
+      "original_expected": "Both initial mappings become read-only COW withrefs2; child copy getsrefs1 and old drops1 only after new storage exists. Parent remains unchanged.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-04-T56.04.a-V1",
+          "minimum_days": 7,
+          "task": "Let childexit before any write; sole owner can regain write permission without allocating a copy."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-04.md",
+      "guest_cases": [
+        27,
+        3
+      ]
+    },
+    {
+      "id": "AX-PR-T56-04-T56.04.b",
+      "objective": "T56.04.b",
+      "project": "PR-T56-04",
+      "original_task": "Clone a multithreaded process and a process containing PTE_SHARED.",
+      "original_expected": "Multithreaded clone rejects. Retained source deliberately inherits shared mappings and tests shared visibility, while the parent restricted contract says reject unsupportedshared/device mappings. Declare and enforce the selected profile; do not silently equate the two.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-04-T56.04.b-V1",
+          "minimum_days": 7,
+          "task": "Add explicitly supported shared mappings as a separate profile with rights/refcount semantics, leaving anonymous COW behavior unchanged."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-04.md",
+      "guest_cases": [
+        15,
+        10,
+        5,
+        11
+      ]
+    },
+    {
+      "id": "AX-PR-T56-04-T56.04.c",
+      "objective": "T56.04.c",
+      "project": "PR-T56-04",
+      "original_task": "Fail private-copy allocation or omit remote invalidation before resuming.",
+      "original_expected": "OOM preserves the original mapping/refcount; stale writable translations violate isolation even when page tables look read-only. Acknowledged shootdown and storage lifetime are separate obligations.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-04-T56.04.c-V1",
+          "minimum_days": 7,
+          "task": "Force reference saturation and require preflight/rejection rather than partial-clone mutation or a misleading successful result."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-04.md",
+      "guest_cases": [
+        27,
+        3
+      ]
+    },
+    {
+      "id": "AX-PR-T56-05-T56.05.a",
+      "objective": "T56.05.a",
+      "project": "PR-T56-05",
+      "original_task": "Close a full8-message queue while one sender waits and then drain from a surviving grantee.",
+      "original_expected": "New/blocked sends failCLOSED; accepted FIFO data remains available before receiveCLOSED. Destroy requires closed and drained; owner death must not erase a reachable grantee queue prematurely.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-05-T56.05.a-V1",
+          "minimum_days": 7,
+          "task": "Create three processes with downstream backpressure and reconcile all accepted, blocked and closed messages."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-05.md",
+      "guest_cases": [
+        6,
+        8,
+        7
+      ]
+    },
+    {
+      "id": "AX-PR-T56-05-T56.05.b",
+      "objective": "T56.05.b",
+      "project": "PR-T56-05",
+      "original_task": "Receive a byte message into a span crossing an unmapped page, or into too-small storage.",
+      "original_expected": "Do not consume the message before complete validated copy succeeds. The retained ABI returns nonnegative integers and has no such copyout path; its tests cannot establish this byte contract.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-05-T56.05.b-V1",
+          "minimum_days": 7,
+          "task": "Inject copy validation failure after a competing close and prove queue data and destination publication semantics."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-05.md",
+      "guest_cases": [
+        4,
+        9
+      ]
+    },
+    {
+      "id": "AX-PR-T56-05-T56.05.c",
+      "objective": "T56.05.c",
+      "project": "PR-T56-05",
+      "original_task": "Give an endpoint receive-only rights and attempt send, close by a nonowner, stale reuse and oversized payload.",
+      "original_expected": "Rights and identity are independent checks. Retained allowed bits confer common access, so explicit directional rights require an additive adapter; stale generation cannot authorize either direction.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-05-T56.05.c-V1",
+          "minimum_days": 7,
+          "task": "Delegate attenuated rights through a process pipeline without creating a stronger capability than the grantor owns."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-05.md",
+      "guest_cases": [
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "AX-PR-T56-06-T56.06.a",
+      "objective": "T56.06.a",
+      "project": "PR-T56-06",
+      "original_task": "Create an object, map it twice, close its handle and keep one mapping alive.",
+      "original_expected": "Creation owns one reference and each mapping another; closing the object drops its reference but does not revoke existing mappings. The final mapping/reference releases the frame.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-06-T56.06.a-V1",
+          "minimum_days": 7,
+          "task": "Unmap one process while another accesses it and prove frame lifetime through exit and TLB invalidation."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-06.md",
+      "guest_cases": [
+        5,
+        10
+      ]
+    },
+    {
+      "id": "AX-PR-T56-06-T56.06.b",
+      "objective": "T56.06.b",
+      "project": "PR-T56-06",
+      "original_task": "Request a read-only mapping or executable shared mapping through the current ABI.",
+      "original_expected": "Retained SHM_MAP always publishes user writable NX mappings; it has no caller-selected read-only or unmap operation. Those parent obligations need explicit interfaces and checks.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-06-T56.06.b-V1",
+          "minimum_days": 7,
+          "task": "Implement rights attenuation and reject overlap with protected virtual regions using checked extent arithmetic."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-06.md",
+      "guest_cases": [
+        5,
+        11
+      ]
+    },
+    {
+      "id": "AX-PR-T56-06-T56.06.c",
+      "objective": "T56.06.c",
+      "project": "PR-T56-06",
+      "original_task": "Share a plain counter between concurrently executing processes without synchronization.",
+      "original_expected": "Common physical storage is not synchronization and volatile is not an atomic protocol. Use selected interprocess atomic/ISA guarantees and prove publication; process exit alone does not sanitize a data race.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-06-T56.06.c-V1",
+          "minimum_days": 7,
+          "task": "Use an SPSC protocol with separate cache lines and compare the coherent guest with noncoherent H745 assumptions."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-06.md",
+      "guest_cases": [
+        10,
+        24,
+        25
+      ]
+    },
+    {
+      "id": "AX-PR-T56-08-T56.08.a",
+      "objective": "T56.08.a",
+      "project": "PR-T56-08",
+      "original_task": "Open the same10-byte file twice; read3fromone and4fromtheother.",
+      "original_expected": "Independent open descriptions have offsets3and4. Duplicating a handle instead shares one description only if explicitly specified; the retained whole-file syscall has no offset objects.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-08-T56.08.a-V1",
+          "minimum_days": 7,
+          "task": "Duplicate the first handle, read2through duplicate and verify both aliases observe offset5 while secondopen remains4."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-08.md",
+      "guest_cases": [
+        17
+      ]
+    },
+    {
+      "id": "AX-PR-T56-08-T56.08.b",
+      "objective": "T56.08.b",
+      "project": "PR-T56-08",
+      "original_task": "Seek to end and read; seek beyond admitted range or use negative/wrapping displacement.",
+      "original_expected": "EOFread returns0without advancing. Checked positioning must reject invalid results without mutation; no unsigned wrap may create an apparently small valid offset.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-08-T56.08.b-V1",
+          "minimum_days": 7,
+          "task": "Define a supported beyond-EOF read-only seek policy and update the oracle rather than silently changing semantics."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-08.md",
+      "guest_cases": [
+        17
+      ]
+    },
+    {
+      "id": "AX-PR-T56-08-T56.08.c",
+      "objective": "T56.08.c",
+      "project": "PR-T56-08",
+      "original_task": "Present duplicate names, traversal syntax, malformed archive length and stale file handle.",
+      "original_expected": "Validate complete namespace before publication; rights remain readonly and stalehandle cannot expose a new open. Knownhash through whole-filecopy is narrower than a file-handle service.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-08-T56.08.c-V1",
+          "minimum_days": 7,
+          "task": "Fail destination validation during read and prove offset and queued copy publication remain unchanged."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-08.md",
+      "guest_cases": [
+        17,
+        9
+      ]
+    },
+    {
+      "id": "AX-PR-T56-09-T56.09.a",
+      "objective": "T56.09.a",
+      "project": "PR-T56-09",
+      "original_task": "Send malformed bytecode and a fuel-exhausting program from separate clients.",
+      "original_expected": "Verify before execute and return explicit bounded errors without corrupting the other client. Retained service uses one hardcoded program and one call, so it does not establish this general service API.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-09-T56.09.a-V1",
+          "minimum_days": 7,
+          "task": "Run two independent VM service arenas and prove object handles cannot cross-instance dereference."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-09.md",
+      "guest_cases": [
+        19
+      ]
+    },
+    {
+      "id": "AX-PR-T56-09-T56.09.b",
+      "objective": "T56.09.b",
+      "project": "PR-T56-09",
+      "original_task": "Client exits after submission but before a result larger than reply capacity.",
+      "original_expected": "Request identity, process incarnation, result ownership and capacity failure need explicit resolution; a native pointer must never become an unvalidated guest value or reply.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-09-T56.09.b-V1",
+          "minimum_days": 7,
+          "task": "Cancel at every execution/publication boundary and identify retained work versus consumed result."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-09.md",
+      "guest_cases": [
+        19,
+        20
+      ]
+    },
+    {
+      "id": "AX-PR-T56-09-T56.09.c",
+      "objective": "T56.09.c",
+      "project": "PR-T56-09",
+      "original_task": "Inspect fixed VM adapter service bits/high24-bit input against a claimed arbitrary request protocol.",
+      "original_expected": "The actual protocol packs one operation and bounded nonnegative input into an integer. It has no independent requestID, program transport or duplicate cache; these remain additions.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-09-T56.09.c-V1",
+          "minimum_days": 7,
+          "task": "Add IDs with nonwrapping session generations and verify delayed replies cannot complete a newer client request."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-09.md",
+      "guest_cases": [
+        19,
+        20
+      ]
+    },
+    {
+      "id": "AX-PR-T56-10-T56.10.a",
+      "objective": "T56.10.a",
+      "project": "PR-T56-10",
+      "original_task": "Two clients submit puts while one process owns cache and block capability.",
+      "original_expected": "Serialize through that one owner; channelreceipt is not durability. A durable success follows the store commit/flush contract, and direct shared cache mutation violates the service boundary.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-10-T56.10.a-V1",
+          "minimum_days": 7,
+          "task": "Add read batching while preserving the chosen visibility order relative to writes."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-10.md",
+      "guest_cases": [
+        21
+      ]
+    },
+    {
+      "id": "AX-PR-T56-10-T56.10.b",
+      "objective": "T56.10.b",
+      "project": "PR-T56-10",
+      "original_task": "Commit an increment but lose its reply, then retry the same operationID.",
+      "original_expected": "Durable deduplication must commit identity/result with effect; a volatile transport sequence cannot prevent reapplication afterrestart. Fixed put42 happens to be idempotent and does not prove general exactly-onceeffects.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-10-T56.10.b-V1",
+          "minimum_days": 7,
+          "task": "Crash at each journal stage and enumerate no-effect, committed-result and uncertain observations."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-10.md",
+      "guest_cases": [
+        21
+      ]
+    },
+    {
+      "id": "AX-PR-T56-10-T56.10.c",
+      "objective": "T56.10.c",
+      "project": "PR-T56-10",
+      "original_task": "A queuefull response arrives before service accepts ownership; compare failure after durablecommit.",
+      "original_expected": "Rejection can safely leave caller-owned work unperformed; aftercommit the result may be uncertain. Preserve distinct statuses and evidence instead of treating every I/Oerror as rollback.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-10-T56.10.c-V1",
+          "minimum_days": 7,
+          "task": "Retry with a different payload under the sameID and require conflict rejection before changing persistent state."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-10.md",
+      "guest_cases": [
+        22,
+        21
+      ]
+    },
+    {
+      "id": "AX-PR-T56-11-T56.11.a",
+      "objective": "T56.11.a",
+      "project": "PR-T56-11",
+      "original_task": "Recover42 after reboot using the same recorded disk versus a freshly formatted image.",
+      "original_expected": "Only the original disk/image lineage tests persistence. Fresh formatting destroys the experiment; retain source,image,disk hashes and actual before/afterboot traces.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-11-T56.11.a-V1",
+          "minimum_days": 7,
+          "task": "Corrupt or truncate the final uncommitted record and predict exactly which prior committed value survives."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-11.md",
+      "guest_cases": [
+        23,
+        22
+      ]
+    },
+    {
+      "id": "AX-PR-T56-11-T56.11.b",
+      "objective": "T56.11.b",
+      "project": "PR-T56-11",
+      "original_task": "Restart the service process without reboot while old endpoint handles and replies remain.",
+      "original_expected": "Revoke old generations and resolve retained request ownership; reboot success does not implement a supervisor or in-guest restart. Old responses cannot complete a new incarnation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-11-T56.11.b-V1",
+          "minimum_days": 7,
+          "task": "Kill the supervisor while a child has pendingI/O and derive resource ownership across nested recovery."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-11.md",
+      "guest_cases": [
+        21,
+        19,
+        18
+      ]
+    },
+    {
+      "id": "AX-PR-T56-11-T56.11.c",
+      "objective": "T56.11.c",
+      "project": "PR-T56-11",
+      "original_task": "Classify every request after crashes beforecommit, aftercommit/beforereply and afterreply.",
+      "original_expected": "Possible outcomes include rejected, committed, completed and uncertain; unknown transport outcome is not evidence of no effect. Exactly-once claims need transactional durableID/result semantics and stated fault model.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-11-T56.11.c-V1",
+          "minimum_days": 7,
+          "task": "Use a nonidempotent operation with a delayedduplicate and compare bounded receipt retention against required client retry horizon."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-11.md",
+      "guest_cases": [
+        21,
+        22
+      ]
+    },
+    {
+      "id": "AX-PR-T56-12-T56.12.a",
+      "objective": "T56.12.a",
+      "project": "PR-T56-12",
+      "original_task": "Move acquisition/control toM4 and compute/telemetry toM7 with static peripheralownership.",
+      "original_expected": "AMP images do not inherit coherentSMP protection or sharedscheduler semantics. Every shared buffer and notification needs its accepted ownership/cache/epoch adapter.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-12-T56.12.a-V1",
+          "minimum_days": 7,
+          "task": "Exchange core roles and rederive accessiblememory, interrupts and queue costs."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-12.md",
+      "guest_cases": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "AX-PR-T56-12-T56.12.b",
+      "objective": "T56.12.b",
+      "project": "PR-T56-12",
+      "original_task": "Compare host, QEMU SMP and physical H745 timing for an identical bounded workload.",
+      "original_expected": "Count/checksum/close semantics may be equivalent while clocks, isolation and timingmodels differ. Emulator TSC or hostlogicalcounts cannot be physical WCET.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-12-T56.12.b-V1",
+          "minimum_days": 7,
+          "task": "Introduce the same overload policy and record admitted/dropped/completed messages and uncertainty for each environment."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-12.md",
+      "guest_cases": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "AX-PR-T56-12-T56.12.c",
+      "objective": "T56.12.c",
+      "project": "PR-T56-12",
+      "original_task": "Provide two audited ELF images but no dedicated-board capture.",
+      "original_expected": "Keep physical gate not-run; imageaudit and models remain useful separate evidence. The complete physical assignment still requires progress, synchronization, queueoverload and restart with source-bound observations.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T56-12-T56.12.c-V1",
+          "minimum_days": 7,
+          "task": "After authorized boardavailability execute the planned experiment, preserving rather than rewriting historical narrower receipts."
+        }
+      ],
+      "teaching": "labs/services_followthrough/units/PR-T56-12.md",
+      "guest_cases": [
+        24,
+        25
+      ]
+    }
+  ]
+}

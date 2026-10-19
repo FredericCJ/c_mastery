@@ -1,0 +1,23 @@
+
+error[E0053]: method `make` has an incompatible type for trait
+ --> /tmp/cmastery-owning-cost-o13gbtcd/associated_bad.rs:3:52
+  |
+3 | impl Container for Ring { type E=u32; fn make() -> u64 { 7 } }
+  |                                                    ^^^ expected `u32`, found `u64`
+  |
+note: type in trait
+ --> /tmp/cmastery-owning-cost-o13gbtcd/associated_bad.rs:1:40
+  |
+1 | trait Container { type E; fn make() -> Self::E; }
+  |                                        ^^^^^^^
+  = note: expected signature `fn() -> u32`
+             found signature `fn() -> u64`
+help: change the output type to match the trait
+  |
+3 - impl Container for Ring { type E=u32; fn make() -> u64 { 7 } }
+3 + impl Container for Ring { type E=u32; fn make() -> u32 { 7 } }
+  |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0053`.

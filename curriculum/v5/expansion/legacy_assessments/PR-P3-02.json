@@ -2,11 +2,14 @@
   "schema_version": 1,
   "project": "PR-P3-02",
   "domain": "INTEGRATION",
-  "title": "Streaming and malformed-input campaign — explicit composition assessments",
+  "title": "Streaming and malformed-input campaign \u2014 explicit composition assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/integration/CONTRACTS.md"
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_followthrough/protocol/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -148,9 +151,9 @@
       "id": "R-LCP-C11",
       "path": "research/v5/expansion/legacy_checkpoints/resources.json",
       "passages": [
-        "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-        "6.2.8 paragraphs1–7: alignment requirements",
-        "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+        "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+        "6.2.8 paragraphs1\u20137: alignment requirements",
+        "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
       ]
     },
     {
@@ -158,6 +161,36 @@
       "path": "research/v5/expansion/legacy_checkpoints/resources.json",
       "passages": [
         "Checksum Functions: crc32 and crc32_z"
+      ]
+    },
+    {
+      "id": "R-CPA-MAC",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "Computing functions: EVP_Q_mac explicit output capacity/outlen, lines6321-6323; RETURN VALUES pointer or NULL line6439"
+      ]
+    },
+    {
+      "id": "R-CPA-COMPARE",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "DESCRIPTION/RETURN VALUES/NOTES lines6232-6241: equal-length content-independent comparison, zero/nonzero and no ordering"
+      ]
+    },
+    {
+      "id": "R-CPA-RFC4231",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "Section4.2 Test Case1, printedpage4: 20-byte0b key, Hi There data and full HMAC-SHA256 expected value"
+      ]
+    },
+    {
+      "id": "R-CPA-LOCAL",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "All original PR-P3-01/02 criterion and delayed-task objects; codec/stream/header/fixture contracts",
+        "Actual CPParser/CPQueue, protocol16/64, auth/OpenSSL adapter and durable receipt/store consumer source and public tests",
+        "Original minimizer and independent whole-buffer zlib oracle; new capacity replay and version1 admission counterexample"
       ]
     }
   ],
@@ -179,7 +212,29 @@
     "fixtures/legacy_checkpoints/P2.json",
     "fixtures/legacy_checkpoints/P4.json",
     "fixtures/legacy_checkpoints/P5.json",
-    "fixtures/legacy_checkpoints/P6.json"
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_followthrough/protocol/admission.h",
+    "labs/checkpoint_followthrough/protocol/check_replay.py",
+    "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+    "labs/checkpoint_followthrough/protocol/learner.c",
+    "labs/checkpoint_followthrough/protocol/policy.c",
+    "labs/checkpoint_followthrough/protocol/replay.c",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/tests/check_stream.py",
+    "labs/checkpoint_depth/transfer/protocol.h",
+    "labs/checkpoint_depth/transfer/protocol_stub.c",
+    "labs/checkpoint_depth/transfer/protocol_tests.c",
+    "labs/checkpoint_depth/transfer/auth.h",
+    "labs/checkpoint_depth/transfer/auth_stub.c",
+    "labs/checkpoint_depth/transfer/auth_tests.c",
+    "labs/checkpoint_depth/transfer/durable.h",
+    "labs/checkpoint_depth/transfer/durable_stub.c",
+    "labs/checkpoint_depth/transfer/durable_tests.c",
+    "labs/checkpoint_depth/transfer/openssl_mac.c",
+    "labs/checkpoint_depth/transfer/check_protocol.py",
+    "labs/service_depth/adapters/receipt.h",
+    "labs/storage/include/store.h"
   ],
   "prerequisite_artifacts": [
     "PR-P3-01/accepted-component-and-dossier",
@@ -196,7 +251,21 @@
     "tests": [
       "integration.p3"
     ],
-    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted."
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "checkpoint_protocol_followthrough": {
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P3-02-T15.13.b",
+        "AX-PR-P3-02-T15.13.c",
+        "AX-PR-P3-02-T21.05.b",
+        "AX-PR-P3-02-T32.06.a",
+        "AX-PR-P3-02-T32.06.c"
+      ],
+      "scope": "Every original/delayed P3 task with exact retained/new source-bound evidence and versioned configured-admission clarification."
+    }
   },
   "criteria": [
     {
@@ -215,9 +284,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -290,6 +359,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-02-T15.13.b"
       }
     },
     {
@@ -309,9 +382,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -384,6 +457,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-02-T15.13.c"
       }
     },
     {
@@ -402,9 +479,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -477,6 +554,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-02-T21.05.b"
       }
     },
     {
@@ -495,9 +576,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -570,6 +651,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-02-T32.06.a"
       }
     },
     {
@@ -587,9 +672,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -662,6 +747,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-02-T32.06.c"
       }
     }
   ],
@@ -676,5 +765,30 @@
       "Authored delayed opportunities are not completed assessments.",
       "Finite passing tests do not prove absolute mastery."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P3-02",
+    "criterion_ids": [
+      "AX-PR-P3-02-T15.13.b",
+      "AX-PR-P3-02-T15.13.c",
+      "AX-PR-P3-02-T21.05.b",
+      "AX-PR-P3-02-T32.06.a",
+      "AX-PR-P3-02-T32.06.c"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P3-02-T15.13.b",
+        "AX-PR-P3-02-T15.13.c",
+        "AX-PR-P3-02-T21.05.b",
+        "AX-PR-P3-02-T32.06.a",
+        "AX-PR-P3-02-T32.06.c"
+      ],
+      "scope": "Every original/delayed P3 task with exact retained/new source-bound evidence and versioned configured-admission clarification."
+    }
+  ]
 }

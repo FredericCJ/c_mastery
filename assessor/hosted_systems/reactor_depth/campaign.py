@@ -1,0 +1,37 @@
+import importlib.util
+EVIDENCE={'07.a':['native:cursor','tests.c:operations'],'07.b':['native:duplex','tests.c:identities'],'07.c':['tests.c:scheduling','independent-scheduler:12288'],'08.a':['native:lt','native:et','native:oneshot'],'08.b':['native:reuse','tests.c:identities'],'08.c':['tests.c:scheduling','independent-scheduler:12288'],'11.a':['native:policies','tests.c:policies','import:assessor/hosted_systems/stream_depth/stream.c'],'11.b':['native:shutdown','tests.c:shutdowns'],'11.c':['waiters_tests.c:blocked','waiters_tests.c:spurious','waiters_tests.c:races','tsan:correct-and-known-race']}
+
+def run(c,root):
+ c.group='reactor';pub=root/'labs/hosted_systems/reactor_depth';private=root/'assessor/hosted_systems/reactor_depth';source=private/'reactor.c';stream=root/'assessor/hosted_systems/stream_depth/stream.c';flags=['-D_GNU_SOURCE','-std=c17','-Wall','-Wextra','-Werror','-pthread','-I'+str(pub),'-I'+str(root/'labs/hosted_systems/stream_depth')]
+ spec=importlib.util.spec_from_file_location('scheduler_list_oracle',private/'schedule_oracle.py');oracle=importlib.util.module_from_spec(spec);spec.loader.exec_module(oracle);lines=oracle.inputs();inputs=c.write('scheduler_inputs.txt','\n'.join(lines)+'\n');c.require(len(lines)==12288,'exact independent scheduler input alphabet',len(lines))
+ modes={'cursor':'REACTOR-CURSOR:progress=2,again,1,eof;','duplex':'REACTOR-DUPLEX:rx=3;tx=2;','lt':'REACTOR-EPOLL:et=0;oneshot=0;after_partial_notification=1;','et':'REACTOR-EPOLL:et=1;oneshot=0;after_partial_notification=0;','oneshot':'REACTOR-EPOLL:et=1;oneshot=1;after_partial_notification=0;','reuse':'REACTOR-REUSE:slot=2;old=7;new=8;same_descriptor=1;','shutdown':'REACTOR-SHUTDOWN:accepted=32;completed=1;cancelled=31;','policies':'REACTOR-POLICIES:actual_drop=1;actual_disconnect=1;pause_interest_suppressed=1;resumed_frame=42;'}
+ for cc in ('gcc','clang'):
+  for profile,extra in [('debug',['-O0']),('release',['-O2','-DNDEBUG']),('sanitize',['-O1','-fsanitize=address,undefined','-fno-pie','-no-pie'])]:
+   prefix=cc+'-'+profile
+   for name,test,providers in [('core',pub/'tests.c',[source,stream]),('native',private/'native.c',[source,stream]),('schedule',private/'schedule_trace.c',[source,stream]),('waiters',pub/'waiters_tests.c',[private/'waiters.c'])]:
+    exe=c.root/(prefix+'-'+name);c.run([cc,*flags,*extra,test,*providers,'-o',exe])
+    if name=='native':
+     for mode,marker in modes.items():c.run([exe,mode],contains=marker)
+    elif name=='schedule':
+     out=c.run([exe,inputs]);result=oracle.check(out,lines);c.require(result['cases']==12288,'independent scheduler oracle '+prefix,result)
+    else:c.run([exe],contains='REACTOR-PASS:' if name=='core' else 'REACTOR-WAIT:enrolled_empty_full_peer=3;predicate_recheck=1;races=200;')
+  obj=c.root/(cc+'-reactor.o');c.run([cc,*flags,'-O2','-c',source,'-o',obj]);imports=c.run(['nm','-u',obj]);c.require(not any(x in imports for x in ('malloc','calloc','realloc','free')),'no heap service '+cc,imports);c.run(['size','-A',obj])
+  exe=c.root/(cc+'-waiters-tsan');c.run([cc,*flags,'-O1','-g','-fsanitize=thread',pub/'waiters_tests.c',private/'waiters.c','-o',exe]);c.run([exe],contains='REACTOR-WAIT:',env={'TSAN_OPTIONS':'halt_on_error=1:exitcode=66'})
+  exe=c.root/(cc+'-known-race');c.run([cc,*flags,'-O1','-g','-fsanitize=thread',private/'known_race.c','-o',exe]);c.run([exe],expected=66,contains='WARNING: ThreadSanitizer: data race',env={'TSAN_OPTIONS':'halt_on_error=1:exitcode=66'})
+ for name,macro in [('again','RD_MUTANT_EAGAIN'),('generation','RD_MUTANT_GENERATION'),('operation','RD_MUTANT_OPERATION'),('wrap','RD_MUTANT_WRAP'),('work','RD_MUTANT_WORK'),('borrow','RD_MUTANT_BORROW'),('early-messages','RD_MUTANT_EARLY_MESSAGES')]:
+  exe=c.root/('reactor-'+name);c.run(['gcc',*flags,'-O2','-D'+macro,pub/'tests.c',source,stream,'-o',exe]);c.run([exe],expected=1,contains='REACTOR-CHECK:')
+ for name,macro in [('stop','RD_WAIT_MUTANT_STOP'),('wake','RD_WAIT_MUTANT_WAKE')]:
+  exe=c.root/('reactor-wait-'+name);c.run(['gcc',*flags,'-O2','-D'+macro,pub/'waiters_tests.c',private/'waiters.c','-o',exe]);c.run([exe],expected=1,contains='REACTOR-WAIT-CHECK:')
+ for name,test,providers,mode,marker in [('core',pub/'tests.c',[pub/'reactor.c',stream],None,'REACTOR-CHECK:'),('native',private/'native.c',[pub/'reactor.c',stream],'cursor','REACTOR-NATIVE-CHECK:'),('provider',pub/'tests.c',[source,root/'labs/hosted_systems/stream_depth/stream.c'],None,'REACTOR-CHECK:'),('waiters',pub/'waiters_tests.c',[pub/'waiters.c'],None,'REACTOR-WAIT-CHECK:')]:
+  exe=c.root/('reactor-learner-'+name);c.run(['gcc',*flags,'-O2',test,*providers,'-o',exe]);c.run([exe,*([mode] if mode else [])],expected=1,contains=marker)
+ for oid,ordinary,changed in [
+ ('07.a','Actual nonblocking pipe read2/EAGAIN/read1/EOF with three-byte cursor; completion and EOF distinct','A second descriptor consumer drains readiness before the original read, which tolerates actual immediate EAGAIN'),
+ ('07.b','Actual bidirectional socket with retained TX buffer, EAGAIN, RX3/TX2 one-byte progress and cancellation without sending remaining byte','Serialized completion-event adapter validates slot generation, direction AND nonreused per-operation sequence; duplicate old completion cannot advance next submission; close waits for both target completions and a callback borrow; cancellation ACK is not completion; kernel-retained I/O tested separately'),
+ ('07.c','Two-success turn quota lets persistent producer and single-byte participant both advance under round-robin rotation','CPU-only callback uses separate work budget; no progress still consumes a callback; finite always-ready schedule is not an unconditional liveness proof'),
+ ('08.a','Actual LT repeats readiness after read2 of5; ET does not; explicit runnable carry drains remaining3 to EAGAIN','Actual EPOLLONESHOT disables notification; byte arriving after drain before MOD is reported after rearm'),
+ ('08.b','Actual cached slot2/gen7 event rejected before payload use after closing/unregistering and forcing descriptor-number reuse for gen8','Reduced generation range retires slot permanently after its final generation; stale completion cannot access new operation storage'),
+ ('08.c','Three-ready schedule observes per-connection2 and global8 quotas; independent ordered-list oracle covers12288 mask/cursor/work/type cells','Reentrant ready publication enters next turn only; nested turn rejected; snapshot and callback budget prevent recursive expansion'),
+ ('11.a','Actual four-connection bounded service and imported RfOutbox; three overload policies preserve rejected caller ownership and settle disconnected work','Variable lengths under297 independent count/byte cells; empty frames still consume slots and finite64-ID lifetime ledger rejects exhaustion'),
+ ('11.b','Actual32 accepted messages settle1completed/31cancelled after observed absolute deadline and callback return; repeated stop preserves one terminal per ID','Reentrant stop enters cancellation but retains pending message ownership AND service storage until final callback return; no asynchronous kernel-buffer release inference'),
+ ('11.c','Actual mutex-enrolled empty consumer/full producer/peer EOF and repeated stop; predicate-free notification rechecks condition','200 actual timeout/stop races per profile plus forced timeout-first and stop-first histories; one latched mutex-arbitrated result and cleanup, no sleeps as enrollment evidence')]:
+  c.observe('T24.'+oid,ordinary,EVIDENCE[oid]);c.observe('T24.'+oid,changed,EVIDENCE[oid],True)

@@ -1,0 +1,1877 @@
+{
+  "schema_version": 1,
+  "status": "authored-analysis-bound-to-observed-reports",
+  "mechanisms": [
+    {
+      "exercise": "X-T76-001",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "RPLog retains16 events/17 roots; RplLog adds UUID/schema, kinds and a borrowed store. Canonical events64 bytes; page format4096 bytes,67 pages."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Each live root shares old HAMT nodes in a bounded arena. Snapshots store event position and explicit present-mask/value projection; the authoritative prefix still owns event records."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Create/open requires a live exclusive store. The log control/escaped roots may not relocate. Recovery constructs an unpublished index before exposing it."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "All calls serialized; no external store writer while a log is live. Snapshot validation checks prefix authority before publication, not merely a checksum."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "Actual d_hamt_update allocation cuts and store page transactions are composed. A failed append restores count/used/root authority; unreachable scratch bytes are not promised identical."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Encoding copies64 canonical octets per event; recovery rebuilds index roots from admitted events. Snapshot loading compares declared contents against authoritative history."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "No heap destructor in the finite log; closing or recovering the backing descriptor/store remains an adapter obligation. Resetting memory does not erase durable records."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Direct real HAMT/record-codec calls, indirect byte read/write/flush callbacks. Prefix callbacks are bounded per page; imported helpers remain in compiler/link closure."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Exclusive writer/serialized recovery model. It is not a concurrent shared-store transaction protocol or distributed consensus."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "All139,502 append and139,502 recovery byte/flush prefix cuts are specified and executed in the current deep report; uncertainty can poison state and requires reopen."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for followthrough are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-durable are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "RPL1 UUID/schema/position and checksummed store generations are explicit. A checksum is not authentication and a Linux file experiment is not physical power-loss evidence."
+        }
+      ],
+      "report": "research/v5/modern/replicated_durable_current_validation.json",
+      "observed_metrics": [],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "followthrough",
+          "target": "replicated-durable",
+          "clean_seconds": 0.6621540520000053,
+          "unchanged_seconds": 0.00774190499987526,
+          "header_change_seconds": 0.37748844600037046,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "followthrough",
+          "target": "replicated-durable",
+          "clean_seconds": 0.3944071639998583,
+          "unchanged_seconds": 0.007875476999743114,
+          "header_change_seconds": 0.2596282039999096,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-002",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Sender source, receiver inbox and acknowledgment log are three distinct RplLog/store objects. Request64→72 framed bytes; reply24→27."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Historical source/inbox/ACK prefixes retain identity and previous query results. Rebuildable read totals do not replace authoritative event history."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Local AF_UNIX descriptors and exclusive file stores outlive each synchronous request. Child termination preserves only what the actual store/file contract committed."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Controls and backing stores are distinct, live and serialized. Exact original key/value/kind must agree on duplicate identity; copied controls are not new authorities."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "Actual durable/HAMT failure paths are retained. Host file creation and process creation are harness resources, separately cleaned up and never target-library shortcuts."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Transport owns staged complete request/reply bytes through prefix reads. Read output publishes only after exact frame completion/EOF; partial external progress is not rolled back."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "Close descriptors after children reaped and I/O stopped. Durable inbox/ACK history is intentionally retained; dropping it changes replay safety."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual RfParser and RplLog imports plus bounded POSIX calls. The test file backend loops over explicit accepted prefixes and fdatasync outcomes."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Two original local processes and failure/retry boundaries, not concurrent arbitrary clients. Original projection pthread tests separately serialize through a mutex."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Sender commit, receiver commit before reply and sender before acknowledgment process exits are distinct; external effect counterexample remains duplicate-prone outside the receiver transaction."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for outbox are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-outbox are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "UUID, position, content and historical total correlate trusted peers; these checks are not cryptographic origin authentication or exactly-once unrelated device effects."
+        }
+      ],
+      "report": "research/v5/modern/replicated_outbox_validation.json",
+      "observed_metrics": [],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "outbox",
+          "target": "replicated-outbox",
+          "clean_seconds": 0.7588663739998083,
+          "unchanged_seconds": 0.00803589599991028,
+          "header_change_seconds": 0.430918604999988,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 6
+        },
+        {
+          "compiler": "clang",
+          "module": "outbox",
+          "target": "replicated-outbox",
+          "clean_seconds": 0.41889611099986723,
+          "unchanged_seconds": 0.009110462000080588,
+          "header_change_seconds": 0.28967888100032724,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 6
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-003",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Finite retained identity/vector control; actual size/alignment observations accompany8-byte scalar,12-byte HLC without identity and per-identity vector growth."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Replacement retains old incarnation components rather than resetting a reused slot. Fixed capacity limits the number of lifetime identities."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Durable incarnation creation precedes publication. Exhaustion retires identity/counter capacity; restart does not silently reuse timestamps."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Serialized control, disjoint staged outputs and exact stored-current canonical comparison. Caller-owned historical copies cannot mutate the current store."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "Clock arithmetic allocates no heap; durable encoding uses the actual page store and injected failures. Growth refusal preserves the current identity vector."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Canonical identity-bearing snapshots are copied/staged; vector comparisons inspect all retained identities. A scalar wire size is not a substitute for its causal information."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "No recursive destructor; retained causal history cannot be discarded without a separate stability argument. Closing the store is outside the scalar-clock primitive."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Direct checked arithmetic and imported rp_hlc; persistence is through declared page callbacks. No hidden wall clock is read by the pure update."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Independent graph reachability supplies the causal oracle. A timestamp order is not a proof of happens-before; actual histories expose nonconverse pairs."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Scalar/vector MAX refuses before HLC WAIT; logical overflow may wait only below physical UINT64_MAX. Reopen resolves uncertain incarnation persistence."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for clocks are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-clocks are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "Explicit wall/skew/rate premises bound HLC closeness; process-local numerical time is not automatically portable or synchronized physical time."
+        }
+      ],
+      "report": "research/v5/modern/replicated_clocks_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "clock_size": 144,
+            "clock_alignment": 8,
+            "vector_size": 104,
+            "scalar_wire_bytes_without_identity": 8,
+            "hlc_wire_bytes_without_identity": 12,
+            "vector_wire_bytes_per_identity": 16,
+            "snapshot_wire_bytes": 160,
+            "observed_reads": 1,
+            "observed_writes": 34,
+            "observed_flushes": 3
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "clocks",
+          "target": "replicated-clocks",
+          "clean_seconds": 0.7128353769999194,
+          "unchanged_seconds": 0.008302740000090125,
+          "header_change_seconds": 0.5345097849999547,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "clocks",
+          "target": "replicated-clocks",
+          "clean_seconds": 0.34050040400006765,
+          "unchanged_seconds": 0.007883131000198773,
+          "header_change_seconds": 0.22562135199996192,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-004",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Six identity-tagged components implemented through two actual RPPN blocks; canonical snapshot160 bytes and authenticated component packet64 bytes."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Retired identities remain in state. Compared with a per-event log, retained state grows with lifetime writer count, while uncheckpointed deduplicating logs grow with event count."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Administrative replacement chooses a fresh identity; revocation affects future admissions and does not erase already joined contributions."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Serialized counters, immutable packet bytes during admission and trusted permit/key memory. Raw public fields are not tamper-proof objects."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No heap allocation in joins; sixth identity capacity is real. Union preflight prevents partial seventh-identity publication; key/permit storage remains caller-owned."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Sorted identity union stages a complete result; snapshots encode canonical values and MAC packets bind exact interpreted bytes. Native padding is never signed."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "No asynchronous destructor. Key clearing is scoped to explicit live spans, and erasing one copy cannot prove all secret copies gone."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual PN joins and first-principles SHA/HMAC calls. Runtime MAC/identity/cap checks add work absent from an unchecked merge; compare equal policy contracts."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "External serialization and unique writer ownership are required. Two independent writers reusing a component lose intended increments even when merge obeys max laws."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Tag failure, wrong namespace/writer, policy cap, revocation, capacity and overflow preserve state. Authenticated UINT32_MAX demonstrates semantic entitlement is separate from authentication."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for membership are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-membership are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "RPA1 schema, namespace/writer binding and finite cap are explicit. Synthetic keys/permissions are a local teaching policy, not a complete Byzantine membership service."
+        }
+      ],
+      "report": "research/v5/modern/replicated_membership_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "counter_size": 120,
+            "permit_size": 64,
+            "component_bytes": 16,
+            "snapshot_bytes": 160,
+            "packet_bytes": 64,
+            "capacity": 6
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "membership",
+          "target": "replicated-membership",
+          "clean_seconds": 0.4693182779997187,
+          "unchanged_seconds": 0.008073779999904218,
+          "header_change_seconds": 0.4263326049999705,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "membership",
+          "target": "replicated-membership",
+          "clean_seconds": 0.28814020199979495,
+          "unchanged_seconds": 0.007095448000200122,
+          "header_change_seconds": 0.21773519699991084,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-005",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Three trusted replica identities,24 lifetime add tags, retained tombstones, four delta-interval history slots and canonical128-byte durable state."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "No tombstone garbage collection is inferred. Every removed tag is retained; queue eviction causes full-state fallback rather than silently dropping causal history."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Durable incarnation/counter identity changes on reopen. Acknowledgments name an incarnation/sequence prefix; old acknowledgments cannot authorize a new-epoch interval."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Externally serialized typed packets and controls. Incoming interval requires the actual causal base already incorporated; receipt is not proof merely from a larger sequence number."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No core heap; finite tag/history/counter capacity refuses explicitly. Persistent epoch/state changes use the actual store transaction and fault injection."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Intervals copy a bounded retained union; fallback sends the full state. Cost counts include retained tombstones and canonical wire snapshot, not just live set elements."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "Clearing tombstones without stability resurrects an old add. The implemented choice retains them; no distributed GC or failure detector is claimed."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual RPSet component operations and page callbacks. Independent mathematical tagged-set/history model supplies the oracle."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Disconnected/restarted three-replica schedules are finite modeled transitions; no asynchronous transport/liveness guarantee or consensus is implied."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Full history, stale incarnation, missing causal base, duplicate delivery and counter MAX have separate outcomes; unchanged duplicates need no fresh sequence."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for deltas are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-deltas are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "Typed packet delivery has explicit trusted membership. It is not a wire parser or authenticated hostile-peer transport; those mechanisms are separate exercises."
+        }
+      ],
+      "report": "research/v5/modern/replicated_deltas_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "set_size": 48,
+            "state_size": 80,
+            "replica_size": 464,
+            "packet_size": 104,
+            "ack_size": 40,
+            "history_capacity": 4,
+            "tag_capacity": 24,
+            "snapshot_bytes": 128
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "deltas",
+          "target": "replicated-deltas",
+          "clean_seconds": 0.77354292300015,
+          "unchanged_seconds": 0.007167952999679983,
+          "header_change_seconds": 0.3521687560000828,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "deltas",
+          "target": "replicated-deltas",
+          "clean_seconds": 0.47688190799999575,
+          "unchanged_seconds": 0.00866921499982709,
+          "header_change_seconds": 0.26334595200023614,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-006",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Sixteen tree nodes plus16 early-delete slots; alternate placeholders consume node capacity. OT retains16 operations/17 contexts and32 Unicode scalars."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Tree descendants survive ancestor tombstones. OT context vectors and transformed request log remain necessary until the stated compaction/quiescence boundary."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Compaction changes a nonwrapping epoch only after all three replicas agree and transport is drained. Old messages reject; a timeout alone is not quiescence."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Serialized tree/server/client controls; unique immutable IDs and valid Unicode scalar payloads. State/output commit together; unadmitted events preserve prior state."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No heap in these finite structures; early dependencies, node/history/full document capacities are distinct failure points."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Snapshot368 bytes includes digest; compaction produces a new live chain/identity map. The queue-versus-placeholder comparison charges different retained metadata."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "Recursive rendering depth is bounded by16 admitted nodes. Tombstone compaction is not safe destruction until the explicit old-message lifetime premise holds."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual RPSequence ordering and rp_ot_insert are composed with context control; multi-operation transformation uses already-transformed committed suffix operations."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Fixed three clients, at most one pending request/client and a central serialization point. Pairwise OT equations do not prove a general distributed protocol."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Missing parents, delete-before-insert, conflicting duplicates, invalid scalars and capacity are transactional. Three-operation correct axb versus context-blind abx is an executed counterexample."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for sequence_depth are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-sequence_depth are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "Unicode scalars are not normalized grapheme clusters. Epochs/context vectors state the admitted protocol identity; no durable OT log or Byzantine peer claim."
+        }
+      ],
+      "report": "research/v5/modern/replicated_sequence_depth_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 600,
+            "server_size": 4000,
+            "client_size": 984,
+            "snapshot_bytes": 368,
+            "node_capacity": 16,
+            "log_capacity": 16
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "sequence_depth",
+          "target": "replicated-sequence_depth",
+          "clean_seconds": 0.5282865280000806,
+          "unchanged_seconds": 0.007299202000012883,
+          "header_change_seconds": 0.4779599749999761,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "sequence_depth",
+          "target": "replicated-sequence_depth",
+          "clean_seconds": 0.3222974699997394,
+          "unchanged_seconds": 0.007002962000115076,
+          "header_change_seconds": 0.26927255399959904,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-007",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Sixteen leaves of0..32 bytes, trusted domain/count/root commitment, proof depth0..4. Request24→27 bytes and reply96→108 framed bytes."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Entire candidate tree and proof siblings remain local until validation. Repair cannot publish a partially filled tree after a missing or inconsistent peer response."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Synchronous callback borrows request/response buffers only for the call. The trusted root must remain fixed across the full reconstruction."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "Disjoint live state/output and serialized callbacks; malicious synthetic peer controls response bytes but not the trusted commitment."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No heap allocation. Fixed staging and proof depth bound stack; encoded capacity failure is explicit rather than a hidden allocator fallback."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Selective traversal skips only proven-equal ranges; full node and direct leaf modes reconstruct the same committed result. Counts include framing and final root verification."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "No asynchronous teardown. Recursive tree/proof work has depth at most4 for16 leaves; callback completion is a prerequisite to buffer reuse."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual SHA primitive, recursive tree hash and actual RfParser framing. Hash counters are client-side; timing includes the peer callback computation."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Serialized synthetic peer interaction, no concurrent target mutation. No network consensus or availability guarantee follows from proof validity."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Malformed/truncated/extra/reordered path, wrong domain/count, absent node and inconsistent payload reject unchanged target/output."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for merkle_repair are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-merkle_repair are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "RFC-style raw tree and explicit original domain/count envelope differ. Finite tests cannot prove collision resistance or authenticate where the trusted root came from."
+        }
+      ],
+      "report": "research/v5/modern/replicated_merkle_repair_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.048786,
+            "full_cpu_seconds": 0.058999,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.018568
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.01228,
+            "full_cpu_seconds": 0.012758,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.004285
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.134688,
+            "full_cpu_seconds": 0.16903,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.061509
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.355223,
+            "full_cpu_seconds": 0.528433,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.186926
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.050001,
+            "full_cpu_seconds": 0.057407,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.018093
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.012501,
+            "full_cpu_seconds": 0.012757,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.004812
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.143051,
+            "full_cpu_seconds": 0.18151,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.062529
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "tree_size": 584,
+            "proof_size": 144,
+            "cost_size": 20,
+            "max_leaves": 16,
+            "leaf_bytes": 32,
+            "request_wire": 27,
+            "response_wire": 108,
+            "runs": 200,
+            "sparse_hashes": 122,
+            "full_hashes": 64,
+            "sparse_requests": 5,
+            "full_requests": 31,
+            "sparse_cpu_seconds": 0.182544,
+            "full_cpu_seconds": 0.24415,
+            "direct_hashes": 48,
+            "direct_requests": 16,
+            "direct_cpu_seconds": 0.09028
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "merkle_repair",
+          "target": "replicated-merkle_repair",
+          "clean_seconds": 0.5495666189999611,
+          "unchanged_seconds": 0.008380342000236851,
+          "header_change_seconds": 0.38565136999977767,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 2
+        },
+        {
+          "compiler": "clang",
+          "module": "merkle_repair",
+          "target": "replicated-merkle_repair",
+          "clean_seconds": 0.382299256999886,
+          "unchanged_seconds": 0.008715908999874955,
+          "header_change_seconds": 0.2940761989998464,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 2
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-008",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Arena16 records×8 fields, global fields<=32, raw bytes<=256, depth<=4 and opaque bytes<=32. Complete framing includes an explicit empty terminator."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "Stream owns partial bytes and parser state; decoded records own unknown opaque fields. A field-wise reconstruction that copies only known fields loses future information."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "MORE retains partial owned state; done/failed/cancelled phases are explicit. Init resets only after the caller has stopped feeding the former stream."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "No retained borrowed input; output published only after complete validation. Mutable caller input after feed cannot alter already copied prefix bytes."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No heap; global arena/field/byte/depth budgets are independent. Per-record admission cannot evade the global field or nesting bound."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Canonical encode sorts known records recursively, retains opaque unknown bytes exactly, and does not guess whether unknown bytes contain a nested message."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "Cancel clears owned pending bytes and retires the stream. There is no asynchronous callback to drain in this adapter; live external feed calls must be serialized."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual flat codec comparison and RfParser composition. One-byte versus bulk feed preserves the same parser/termination/budget semantics."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Externally serialized stream; caller retains the unconsumed suffix after the first document terminator. No concurrent feed or lock-free claim."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "Minimal varints, duplicate/critical tags, unsupported required bits, truncated EOF, budgets and output capacity reject with specified failed-phase/progress behavior."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for wire_depth are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-wire_depth are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "Distinct RPW1 schema selected out of band; it is not a silent reinterpretation of old tag3. Bit-level NaN/negative-zero and exact UTF8 policy do not imply NFC or a future float/string wire extension."
+        }
+      ],
+      "report": "research/v5/modern/replicated_wire_depth_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.005739,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.001925,
+              0.001893,
+              0.001959,
+              0.001977,
+              0.001911,
+              0.00186,
+              0.001927
+            ],
+            "byte_cpu_seconds": [
+              0.00271,
+              0.002639,
+              0.002643,
+              0.002921,
+              0.002762,
+              0.002732,
+              0.002738
+            ]
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.002739,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.000951,
+              0.000941,
+              0.00097,
+              0.000965,
+              0.000956,
+              0.000942,
+              0.000951
+            ],
+            "byte_cpu_seconds": [
+              0.003063,
+              0.00155,
+              0.001498,
+              0.00145,
+              0.001481,
+              0.00143,
+              0.001412
+            ]
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.027099,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.011773,
+              0.010985,
+              0.010932,
+              0.010989,
+              0.010667,
+              0.011742,
+              0.01171
+            ],
+            "byte_cpu_seconds": [
+              0.016554,
+              0.016415,
+              0.016959,
+              0.016961,
+              0.016464,
+              0.016779,
+              0.017376
+            ]
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.046414,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.029292,
+              0.030189,
+              0.031041,
+              0.029716,
+              0.02829,
+              0.029463,
+              0.028806
+            ],
+            "byte_cpu_seconds": [
+              0.032703,
+              0.031845,
+              0.03318,
+              0.032399,
+              0.033059,
+              0.032013,
+              0.03288
+            ]
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.005898,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.002264,
+              0.002404,
+              0.002179,
+              0.002275,
+              0.00219,
+              0.00219,
+              0.002222
+            ],
+            "byte_cpu_seconds": [
+              0.002849,
+              0.003171,
+              0.002815,
+              0.002833,
+              0.002819,
+              0.002899,
+              0.002961
+            ]
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.003105,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.001547,
+              0.001255,
+              0.001061,
+              0.001279,
+              0.001102,
+              0.000954,
+              0.000955
+            ],
+            "byte_cpu_seconds": [
+              0.001475,
+              0.001418,
+              0.001455,
+              0.001458,
+              0.001512,
+              0.001458,
+              0.001442
+            ]
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.028165,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.01133,
+              0.010822,
+              0.01074,
+              0.010392,
+              0.010356,
+              0.010782,
+              0.010522
+            ],
+            "byte_cpu_seconds": [
+              0.016377,
+              0.015871,
+              0.015661,
+              0.016691,
+              0.017117,
+              0.01621,
+              0.016803
+            ]
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "document_size": 6212,
+            "stream_size": 308,
+            "depth": 4,
+            "byte_budget": 256,
+            "field_budget": 32,
+            "nested_bytes": 22,
+            "framed_bytes": 26,
+            "runs": 10000,
+            "cpu_seconds": 0.032988,
+            "feed_runs": 5000,
+            "bulk_cpu_seconds": [
+              0.018366,
+              0.017991,
+              0.018666,
+              0.01828,
+              0.018074,
+              0.018206,
+              0.018989
+            ],
+            "byte_cpu_seconds": [
+              0.023193,
+              0.020294,
+              0.020574,
+              0.020524,
+              0.020183,
+              0.021253,
+              0.021952
+            ]
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "wire_depth",
+          "target": "replicated-wire_depth",
+          "clean_seconds": 0.5286430269998164,
+          "unchanged_seconds": 0.007862074000058783,
+          "header_change_seconds": 0.4257079909998538,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        },
+        {
+          "compiler": "clang",
+          "module": "wire_depth",
+          "target": "replicated-wire_depth",
+          "clean_seconds": 0.4032843709996996,
+          "unchanged_seconds": 0.009047834999819315,
+          "header_change_seconds": 0.2905362849996891,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 3
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    },
+    {
+      "exercise": "X-T76-009",
+      "dimensions": [
+        {
+          "dimension": "Representation",
+          "analysis": "Eight ticks, two players, nine full state snapshots, known/predicted input distinction and pending ArEffects. Canonical state512 bytes; input16→18 framed bytes."
+        },
+        {
+          "dimension": "Reachable storage",
+          "analysis": "All history remains owned until explicit new timeline. Pending effect identity and separate durable inbox prefix survive lost feedback; no external device action is part of the state."
+        },
+        {
+          "dimension": "Lifetime",
+          "analysis": "Core state copies are values; durable wrapper exclusively borrows a store and sink log cannot relocate escaped HAMT roots. Process children are reaped before descriptor release."
+        },
+        {
+          "dimension": "Mutation/aliasing",
+          "analysis": "External serialization, disjoint outputs and exact stored-current authority. Confirmed known inputs are immutable, so pending effect snapshots cannot be changed by later corrections."
+        },
+        {
+          "dimension": "Allocation",
+          "analysis": "No core heap. Store writes and sink HAMT allocation use actual imported failure behavior; finite horizon/revision/head refuse rather than silently dropping obligations."
+        },
+        {
+          "dimension": "Movement/copying",
+          "analysis": "Correction copies state and recomputes a suffix, but full invariant validation remains O(head). Notices replace speculative ranges; committed effects remain separate."
+        },
+        {
+          "dimension": "Destruction",
+          "analysis": "No core destructor. A blocked I/O callback or unjoined child prevents safe adapter cleanup; the supplied harness has explicit finite poll/call limits."
+        },
+        {
+          "dimension": "Dispatch",
+          "analysis": "Actual rp_step and ar_decide/retry/feedback, actual hash/stream/store. Dependency audit rejects hidden time; the hidden random-state counterexample shows why symbols alone do not enforce purity."
+        },
+        {
+          "dimension": "Concurrency",
+          "analysis": "Actual two-process local correction delivery; core serialized. Confirmed effects publish through ordered idempotent inbox, not arbitrary concurrent clients."
+        },
+        {
+          "dimension": "Failure",
+          "analysis": "WAIT, revision MAX, score overflow, conflicting input, malformed bytes and296 page boundaries preserve the stated outputs; uncertain disk-new/local-old requires reopen."
+        },
+        {
+          "dimension": "Compilation",
+          "analysis": "Actual GCC/Clang Release clean, unchanged and copied-header-change builds for replay_depth are in the build-cost report. One observation per condition, background/cache effects retained; no universal compile-time bound."
+        },
+        {
+          "dimension": "Binary/stack",
+          "analysis": "Current compiler/link/stack observations for replicated-replay_depth are source-bound in its campaign or companion ordinary-depth campaign. Native size/stack is ABI-specific; generated helper audit is separate from source-level allocation claims."
+        },
+        {
+          "dimension": "Boundary",
+          "analysis": "Actual PPC64 ELFv2 big-endian core/codec execution checks canonical identity. POSIX files/processes are separately hosted; no physical power-loss or exactly-once device guarantee."
+        }
+      ],
+      "report": "research/v5/modern/replicated_replay_depth_validation.json",
+      "observed_metrics": [
+        {
+          "profile": "gcc-debug",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.012972,
+              0.012515,
+              0.012696,
+              0.012523,
+              0.012734,
+              0.01275,
+              0.012622
+            ]
+          }
+        },
+        {
+          "profile": "gcc-release",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.006164,
+              0.006237,
+              0.006892,
+              0.006275,
+              0.006613,
+              0.006245,
+              0.00622
+            ]
+          }
+        },
+        {
+          "profile": "gcc-asan",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.085498,
+              0.084215,
+              0.084451,
+              0.084261,
+              0.083349,
+              0.084911,
+              0.083195
+            ]
+          }
+        },
+        {
+          "profile": "gcc-tsan",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.063384,
+              0.063113,
+              0.063838,
+              0.063088,
+              0.062933,
+              0.064174,
+              0.063862
+            ]
+          }
+        },
+        {
+          "profile": "clang-debug",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.015381,
+              0.015794,
+              0.018839,
+              0.015013,
+              0.014835,
+              0.014855,
+              0.01491
+            ]
+          }
+        },
+        {
+          "profile": "clang-release",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.003781,
+              0.003822,
+              0.004191,
+              0.003702,
+              0.003723,
+              0.003694,
+              0.003817
+            ]
+          }
+        },
+        {
+          "profile": "clang-asan",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.091568,
+              0.090085,
+              0.090011,
+              0.09028,
+              0.088875,
+              0.090237,
+              0.088702
+            ]
+          }
+        },
+        {
+          "profile": "clang-tsan",
+          "kind": "metrics",
+          "result": {
+            "session_size": 456,
+            "durable_size": 464,
+            "snapshot_bytes": 512,
+            "input_bytes": 16,
+            "framed_bytes": 18,
+            "horizon": 8,
+            "runs": 2000,
+            "cpu_seconds": [
+              0.072672,
+              0.072505,
+              0.068856,
+              0.078856,
+              0.070426,
+              0.073246,
+              0.088206
+            ]
+          }
+        }
+      ],
+      "build_observations": [
+        {
+          "compiler": "gcc",
+          "module": "replay_depth",
+          "target": "replicated-replay_depth",
+          "clean_seconds": 0.8018147789998693,
+          "unchanged_seconds": 0.008666225000069971,
+          "header_change_seconds": 0.4677143909998449,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 7
+        },
+        {
+          "compiler": "clang",
+          "module": "replay_depth",
+          "target": "replicated-replay_depth",
+          "clean_seconds": 0.4693362990001333,
+          "unchanged_seconds": 0.008558128000004217,
+          "header_change_seconds": 0.30755669000018315,
+          "changed_header": "labs/replicated/include/replicated.h",
+          "copies_only": true,
+          "build_rows": 7
+        }
+      ],
+      "limits": [
+        "No physical timing, external review or learner result is inferred.",
+        "Operation counts depend on the exact finite correctness/failure contract; timing samples include observer/cache/scheduler uncertainty."
+      ]
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/replicated_build_cost_validation.json": "b41342deea683363065979fb203a93215fd6761a6a6c8b7194e7a1702f694b3d",
+    "research/v5/modern/replicated_durable_current_validation.json": "c1ea56c7f92bdc9292aa1f69b40d9139f46eb7af344029ec5ea1c3fd2f010d96",
+    "research/v5/modern/replicated_outbox_validation.json": "c0518f2d737e0e3536776c3475efbf2babdd78f787514990e34343e4781ebba4",
+    "research/v5/modern/replicated_clocks_validation.json": "c97221b037df8fa97a4f276e2fc4bfed078f1f734556a5e4f633f0622eb85b0c",
+    "research/v5/modern/replicated_membership_validation.json": "ca4770c555c1c9684a8afcd54bbf0088c3da70cc29f3a75190024d242d607d55",
+    "research/v5/modern/replicated_deltas_validation.json": "b0325745fe0f6c6137ff0c9a73396491dab43d14ce21624af8b9abf430fa4c4d",
+    "research/v5/modern/replicated_sequence_depth_validation.json": "a8770286965e891e7474f812c814260194a305f7095dedce29f861734d3b7995",
+    "research/v5/modern/replicated_merkle_repair_validation.json": "7a80c04f5989cc3365a7ae24111c520340869268698d9b5ac466556cae755855",
+    "research/v5/modern/replicated_wire_depth_validation.json": "87db54db4c35fa0b529edd06cfe3046001b0449a2a8274ce1d4799e1c120e6f7",
+    "research/v5/modern/replicated_replay_depth_validation.json": "ac9b6a877fa94b2c9d779e3b84cb471223b5148dae72b097f49a529e47c59c9f"
+  },
+  "contract": "labs/replicated/COST.md",
+  "limits": [
+    "Published C17 and C23 access gaps remain.",
+    "Some pure value mechanisms have no destructor/allocation/concurrent publication; their scoped non-applicability does not close those mechanisms elsewhere."
+  ]
+}

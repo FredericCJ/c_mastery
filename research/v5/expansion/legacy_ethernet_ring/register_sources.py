@@ -1,0 +1,21 @@
+"""Preserve precise author inspection scopes, including inaccessible physical evidence."""
+import hashlib,json,pathlib
+ROOT=pathlib.Path(__file__).resolve().parents[4];HERE=pathlib.Path(__file__).resolve().parent
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def main():
+ prior=json.loads((ROOT/'research/v5/expansion/legacy_ethernet_phy/resources.json').read_text(encoding='utf8'))['resources'];rows=[]
+ for old,new in [('R-EP-RM21','R-EN-RM21'),('R-EP-BOARD8','R-EN-BOARD8'),('R-EP-BOARD11','R-EN-BOARD11'),('R-EP-ERRATA24','R-EN-ERRATA24')]:
+  r=next(x for x in prior if x['id']==old).copy();r['id']=new
+  if old=='R-EP-RM21':
+   r['locators']=['Printed65–66/68: selected peripheral bases and AHB SRAM versus CPU-only CCM','Printed154 Figure16 visually inspected;172–173/182–183/189–190: F42/43 clock tree, Ethernet/GPIO reset and clock gates','Printed284–285/288–289 and299/304: GPIO fields/AF11 and F42/43 RMII selection under reset before MAC clocks','Printed1173–1176/1178 and1184–1188: normal TX/RX descriptor ownership, fields, writeback and bounds; Figures379/382 visually inspected','Printed1194–1198/1205/1208–1209: MAC mode, filter, debug and address0','Printed1226–1234: software reset, normal format, stopped base writes, process state, W1C and store-forward/stop policy']
+   r['inspection']=dict(date='2026-10-18',method='Actual named private PDF text read; Figures16/379/382 rendered and viewed',scope=r['locators'],limits='Selected F439 passages only; wrong-family F405 pages encountered during navigation are excluded as target authority',capture=dict(path='build/legacy_runtime_sources/rm0090.pdf',sha256=sha(ROOT/'build/legacy_runtime_sources/rm0090.pdf')))
+  rows.append(r)
+ specs=[('R-EN-DS14','STM32F437/439 datasheet','DS9484 Rev14 February2026',2026,'https://www.st.com/resource/en/datasheet/stm32f439zi.pdf',['Printed75/77/82 Table12: PA1/2/7,PB13,PC1/4/5,PG11/13 alternate-function11 RMII/MDIO/MDC mappings','Printed156–157 section6.3.20: selected output-speed/load/voltage conditions and Ethernet timing boundaries'],'Actual primary web PDF extracted table rows and electrical section inspected; screenshot requests made but no rendered image displayed, no visual/table-image or local-file digest claim'),('R-EN-DWT','Armv7-M Architecture Reference Manual','DDI0403E.e ID021621',2021,'https://documentation-service.arm.com/static/606dc36485368c4c2b1bf62f',['C1-699/706–707: DEMCR address/TRCENA and UNKNOWN DWT reads when disabled','C1-736–738/740–741: DWT register addresses, optional CYCCNT, enable, overflow and debug-state counting limits'],'Actual cached primary text read; selected clauses only')]
+ for ident,title,edition,year,url,locators,method in specs:
+  inspection=dict(date='2026-10-18',method=method,scope=locators,limits='No whole-document inspection, physical timing, independent reviewer or learner evidence')
+  if ident=='R-EN-DWT':inspection['external_source_sha256']={'/home/frede/cmastery-architecture-alu-sources/armv7m.pdf':'76500176d20f897eaf05eeadb5a6202cef641e332073b107905c8898e0ee0747'}
+  rows.append(dict(id=ident,title=title,edition=edition,year=year,url=url,authors=['Arm' if ident=='R-EN-DWT' else 'STMicroelectronics'],kind='manual',access='Named primary passages inspected',domains=['T39'],role='primary',reason='Selected target port, visibility and clock-domain contract',prerequisites=['T27 MMIO/clock ownership','T29 barrier/device ordering'],locators=locators,assignable=True,inspection=inspection))
+ (HERE/'resources.json').write_text(json.dumps(dict(resources=rows),indent=2)+'\n',encoding='utf8')
+ paths=[HERE/'resources.json',HERE/'audit.md',pathlib.Path(__file__)];gate=dict(schema_version=1,status='passage-inspected',scope='T39 normal-ring author source investigation, not external acceptance',resource_ids=[r['id'] for r in rows],research_input_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in paths},limitations=['Physical board route, continuous REF_CLK, MDC/RMII timing and external frames remain not observed.','Exact published ISO C17/C23 text not supplied by these hardware sources.'])
+ (HERE/'research_gate.json').write_text(json.dumps(gate,indent=2)+'\n',encoding='utf8')
+if __name__=='__main__':main()

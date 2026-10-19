@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "source_bound_report": "reviews/v5/expansion/modern_completion/higher_order_costs.json",
+  "semantic_report": "reviews/v5/expansion/modern_completion/higher_order_campaign.json",
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed HONode16, HOA1064, HEInt4, HEFun16, HPInt/HPFun136 and operation tables32 bytes on this x86-64 ABI; all valid states fixed by contract."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "An arena has64 typed usable nodes and borrowed roots; child edges share storage. Evaluation functions retain only a borrowed context; rendered functions retain copied text. The2^63-path test uses64 nodes."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Arena reset requires all roots/traversals quiescent. Evaluation context lives through the last application; rendering invokes the builder at construction and retains only completed text."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Exclusive arena construction and stable callbacks; no retained construction output on bind failure. Incorrect C carrier types are rejected by two actual strict-translation probes."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "No dynamic target allocation in the original implementations; arena attempts/used are explicit. Six construction cuts preserve old roots; arbitrary callback allocation is not excluded by the signature and must be disclosed."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Free bind copies effects around substituted terminals; identity can allocate and fail. Evaluation function copies two borrowed references; text operations copy bounded value representations. Neither copies an owned external resource."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Region reset is logical invalidation with no per-node destructor. No external owned payload exists in this language. Final function context lifetime is caller-owned; no automatic destruction follows."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actually inspected GCC/Clang O2 e_app assembly has one indirect callback call followed by status-conditioned publication. Rendering p_lam has an indirect builder call during construction. GCC also emitted __stack_chk_fail; this is a hosted compiler dependency, not a freestanding image."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "The API is single-owner, non-reentrant and admits no concurrent publication. Sharing immutable nodes across threads would still require a separately proved arena lifetime/publication protocol; no atomic/reclamation mechanism is claimed here."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Constructor output unchanged; failed bind restores used while attempts remain consumed; failed run/summary preserves complete output; callback effects outside the staged result persist. Semantic controls reject dropped bind and partial publication."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Three actual clean translation/link samples per compiler and isolated-copy Ninja no-op/comment-change observations recorded. No-op approximately37/39ms; one source invalidation approximately397/327ms in this run. Caches and scheduling uncontrolled; these are observations, not superiority claims."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Actual object text sizes GCC free2669/final2951 bytes, Clang free2311/final3200. Compiler stack files give GCC summary176 plus ho_summarize1712 bytes; Clang104 plus1704. A conservative internal bound is wrapper+64 recursive frames (12976/8360 bytes), excluding callers/instrumentation/runtime helpers. Bind needs its callback stack bound in addition to GCC64+64*96 / Clang40+64*72 internal bytes. These counts are build-specific, not a board stack measurement."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "C structs/callbacks have this compilation ABI only. Text is diagnostic rendering, not a wire grammar. No pointers/roots survive arena/context destruction or cross processes. No universal Haskell higher-kind or lifetime enforcement is inherited."
+    }
+  ],
+  "limits": [
+    "Frame composition is a conservative source/call-depth argument; actual compiler outputs and callback boundaries are retained separately.",
+    "No external reviewer, delayed learner result or physical validation."
+  ]
+}

@@ -1,0 +1,222 @@
+#include "atomics.h"
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define CHECK(x)                                                               \
+  do {                                                                         \
+    if (!(x)) {                                                                \
+      fprintf(stderr, "TA_ASSERT:%s:%d:%s\n", __FILE__, __LINE__, #x);         \
+      exit(41);                                                                \
+    }                                                                          \
+  } while (0)
+typedef struct {
+  unsigned actual, call, spurious, mismatch, strong, desired[16];
+} Script;
+static int scripted(void *arg, unsigned *expected, unsigned desired, int weak) {
+  Script *s = arg;
+  CHECK(s->call < 16);
+  s->desired[s->call++] = desired;
+  if (!weak)
+    s->strong++;
+  if (weak && s->spurious) {
+    s->spurious--;
+    return 0;
+  }
+  if (s->mismatch) {
+    s->mismatch = 0;
+    s->actual = 20;
+  }
+  if (*expected != s->actual) {
+    *expected = s->actual;
+    return 0;
+  }
+  s->actual = desired;
+  return 1;
+}
+static int real_cas(void *arg, unsigned *expected, unsigned desired, int weak) {
+  atomic_uint *p = arg;
+  return weak ? atomic_compare_exchange_weak_explicit(p, expected, desired,
+                                                      memory_order_acq_rel,
+                                                      memory_order_acquire)
+              : atomic_compare_exchange_strong_explicit(p, expected, desired,
+                                                        memory_order_acq_rel,
+                                                        memory_order_acquire);
+}
+static void orders(void) {
+  /* Independent explicit pairs, including the release-only changed case. */
+  const unsigned pairs[][2] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}, {2, 1},
+                               {2, 2}, {3, 0}, {4, 0}, {4, 1}, {4, 2},
+                               {5, 0}, {5, 1}, {5, 2}, {5, 5}};
+  for (unsigned s = 0; s < 6; s++)
+    for (unsigned f = 0; f < 6; f++) {
+      int expected = 0;
+      for (size_t i = 0; i < sizeof pairs / sizeof pairs[0]; i++)
+        if (pairs[i][0] == s && pairs[i][1] == f)
+          expected = 1;
+      CHECK(ta_order_pair(s, f) == expected);
+    }
+  CHECK(!ta_order_pair(6, 0) && !ta_order_pair(0, 6));
+  atomic_uint p;
+  atomic_init(&p, 0);
+  unsigned expected = 0;
+  CHECK(atomic_compare_exchange_strong_explicit(
+      &p, &expected, 1, memory_order_release, memory_order_relaxed));
+  expected = 0;
+  CHECK(!atomic_compare_exchange_strong_explicit(
+            &p, &expected, 2, memory_order_release, memory_order_relaxed) &&
+        expected == 1);
+  puts("OBS orders36 valid14 release-only failure relaxed");
+}
+static void retry(void) {
+  Script s = {.actual = 10, .spurious = 1, .mismatch = 1};
+  TAReport r;
+  CHECK(ta_increment(scripted, &s, 10, 3, 0, &r) == TA_SUCCESS);
+  CHECK(r.attempts == 3 && r.expected == 20 && r.desired == 21 &&
+        r.published == 1);
+  CHECK(s.desired[0] == 11 && s.desired[1] == 11 && s.desired[2] == 21 &&
+        s.actual == 21);
+  s = (Script){.actual = 10, .spurious = 1};
+  CHECK(ta_increment(scripted, &s, 10, 1, 0, &r) == TA_LIMIT &&
+        r.published == 0 && s.actual == 10);
+  s = (Script){.actual = 10, .spurious = 1};
+  CHECK(ta_increment(scripted, &s, 10, 1, 1, &r) == TA_SUCCESS &&
+        s.strong == 1 && s.actual == 11);
+  atomic_uint p;
+  atomic_init(&p, UINT_MAX);
+  CHECK(ta_increment(real_cas, &p, UINT_MAX, 1, 1, &r) == TA_SUCCESS &&
+        r.desired == 0 && atomic_load(&p) == 0);
+  TAReport sentinel = {99, 98, 97, 96};
+  r = sentinel;
+  CHECK(ta_increment(real_cas, &p, 0, 0, 0, &r) == TA_INVALID &&
+        r.attempts == sentinel.attempts && r.expected == sentinel.expected &&
+        r.desired == sentinel.desired && r.published == sentinel.published);
+  puts("OBS retry spurious unchanged; mismatch20; recomputed21; strong "
+       "one-attempt; unsigned wrap");
+}
+typedef struct {
+  TANode *actual, *replacement;
+  unsigned call, spurious, mismatch, freed;
+  int free_on_success;
+} NodeScript;
+static int node_cas(void *arg, TANode **expected, TANode *desired, int weak) {
+  NodeScript *s = arg;
+  s->call++;
+  CHECK(weak);
+  if (s->spurious) {
+    s->spurious--;
+    return 0;
+  }
+  if (s->mismatch) {
+    s->mismatch = 0;
+    s->actual = s->replacement;
+  }
+  if (*expected != s->actual) {
+    *expected = s->actual;
+    return 0;
+  }
+  s->actual = desired;
+  if (s->free_on_success) {
+    s->actual = NULL;
+    free(desired);
+    s->freed++;
+  }
+  return 1;
+}
+typedef struct {
+  _Atomic(TANode *) head;
+  unsigned calls, freed;
+} NativeNode;
+static int native_node_cas(void *arg, TANode **expected, TANode *desired,
+                           int weak) {
+  NativeNode *n = arg;
+  CHECK(weak);
+  n->calls++;
+  if (!atomic_compare_exchange_strong_explicit(&n->head, expected, desired,
+                                               memory_order_acq_rel,
+                                               memory_order_acquire))
+    return 0;
+  TANode *receiver =
+      atomic_exchange_explicit(&n->head, NULL, memory_order_acq_rel);
+  CHECK(receiver == desired);
+  free(receiver);
+  n->freed++;
+  return 1;
+}
+static void ownership(void) {
+  TANode *old = malloc(sizeof *old), *other = malloc(sizeof *other),
+         *owned = malloc(sizeof *owned);
+  CHECK(old && other && owned);
+  *old = (TANode){10};
+  *other = (TANode){20};
+  *owned = (TANode){77};
+  TANode *leases[] = {old, other};
+  TANodeReport r;
+  NodeScript s = {
+      .actual = old, .replacement = other, .spurious = 1, .mismatch = 1};
+  int first = ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r);
+  int ownership_preserved = first == TA_LIMIT && r.published == 0 &&
+                            s.actual == old && owned->value == 77;
+  if (!ownership_preserved) {
+    free(owned);
+    free(old);
+    free(other);
+    CHECK(ownership_preserved);
+  }
+  CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r) == TA_LIMIT &&
+        r.published == 0 && s.actual == other);
+  CHECK(old->value == 10 && other->value == 20);
+  free(owned);
+  owned = malloc(sizeof *owned);
+  CHECK(owned);
+  *owned = (TANode){0};
+  s = (NodeScript){
+      .actual = old, .replacement = other, .spurious = 1, .mismatch = 1};
+  CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 1, 3, &r) ==
+            TA_SUCCESS &&
+        r.published == 1 && r.derived_value == 21 && s.actual == owned);
+  free(owned);
+  /* A live address not protected by the declared lease is not dereferenced. */
+  owned = malloc(sizeof *owned);
+  CHECK(owned);
+  *owned = (TANode){88};
+  s = (NodeScript){.actual = other};
+  CHECK(ta_publish(node_cas, &s, owned, other, leases, 1, 1, 3, &r) ==
+            TA_UNPROTECTED &&
+        r.attempts == 0 && r.published == 0 && owned->value == 88);
+  free(owned);
+  owned = malloc(sizeof *owned);
+  CHECK(owned);
+  *owned = (TANode){99};
+  s = (NodeScript){.actual = old, .free_on_success = 1};
+  CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r) ==
+            TA_SUCCESS &&
+        r.published == 1 &&
+        s.freed == 1); /* owned already freed by receiver callback */
+  owned = malloc(sizeof *owned);
+  CHECK(owned);
+  *owned = (TANode){7};
+  NativeNode native;
+  atomic_init(&native.head, other);
+  native.calls = native.freed = 0;
+  CHECK(ta_publish(native_node_cas, &native, owned, old, leases, 2, 0, 2, &r) ==
+            TA_SUCCESS &&
+        r.published == 1 && native.calls == 2 && native.freed == 1 &&
+        atomic_load(&native.head) == NULL);
+  free(old);
+  free(other);
+  puts("OBS ownership two failures keep caller; lease protects observed "
+       "fields; terminal receiver frees once");
+}
+int main(int argc, char **argv) {
+  CHECK(argc == 2);
+  if (!strcmp(argv[1], "orders"))
+    orders();
+  else if (!strcmp(argv[1], "retry"))
+    retry();
+  else if (!strcmp(argv[1], "ownership"))
+    ownership();
+  else
+    return 2;
+  return 0;
+}

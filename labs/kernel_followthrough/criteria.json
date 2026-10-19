@@ -1,0 +1,1004 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T48-02-T48.02.a",
+      "project": "PR-T48-02",
+      "objective": "T48.02.a",
+      "original_task": "Implement the tag walker with total-size and offset bounds checked before reading size or rounding. Test size7/8/21, truncated size fields, unknown tags and larger mmap stride; preserve a cursor ledger.",
+      "original_expected": "Offset8 plus size21 advances to32; malformed raw or rounded extents refuse before reading or publishing fields.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-02-T48.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a buffer whose valid total size ends exactly on a tag boundary."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:tags"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-02-T48.02.b",
+      "project": "PR-T48-02",
+      "objective": "T48.02.b",
+      "original_task": "Build a page reservation oracle from overlapping usable/reserved half-open physical intervals, plus kernel, module and boot-information spans. Permute input order and include partial-page overlaps.",
+      "original_expected": "Reserved overlap always wins; no partially reserved frame is returned; permutation preserves the final free set.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-02-T48.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the module into a formerly free interval and recompute capacity."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:reservations",
+        "contracts:independent-set-oracle"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-02-T48.02.c",
+      "project": "PR-T48-02",
+      "objective": "T48.02.c",
+      "original_task": "Snapshot parse outputs, insert a late duplicate required tag, missing terminator or overflowing base+length, and verify refusal preserves the documented output state and no allocation occurs.",
+      "original_expected": "All malformed cases reject; the caller-visible result follows one explicit unchanged-or-cleared contract, with no mixed partial result.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-02-T48.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a validated optional tag without making required-tag absence acceptable."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:tags",
+        "contracts:optional-killed"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-03-T48.03.a",
+      "project": "PR-T48-03",
+      "objective": "T48.03.a",
+      "original_task": "Derive byte offsets of the 15 saved GPRs, vector/error pair and architectural frame from interrupts.S; compare a hardware-error and synthesized-zero entry, C offsetof values and 16-byte call alignment.",
+      "original_expected": "The declared frame is176 bytes and every offset matches the actual push/pop sequence; ISA and software fields are labeled separately.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-03-T48.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change diagnostic metadata by one word and repair call alignment without changing iret state."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case16"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-03-T48.03.b",
+      "project": "PR-T48-03",
+      "objective": "T48.03.b",
+      "original_task": "Trigger one original user divide fault and one page fault in separate guests. Capture vector, error, RIP, CS and process identity through bounded serial output; verify return for a nonfatal interrupt and termination for the fault policy.",
+      "original_expected": "Saved state identifies each original trigger; no unbounded formatting dependency enters the freestanding image; normal interrupt return preserves all sentinels.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-03-T48.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Exhaust the diagnostic output budget and preserve a minimal first-fault record."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case1",
+        "guest:case0",
+        "guest:case5"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-03-T48.03.c",
+      "project": "PR-T48-03",
+      "objective": "T48.03.c",
+      "original_task": "Compare the same exception class from user and kernel mode in disposable images. Show user termination and peer progress, but a fatal kernel diagnostic stop; retain first-fault state if a second fault occurs during reporting.",
+      "original_expected": "Privilege origin and policy, not merely vector number, select containment; the double-fault path has independent stack ownership.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-03-T48.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Inject a fault while the ordinary kernel stack is unavailable and state which observation remains possible."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case2",
+        "guest:case3",
+        "guest:case4"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-04-T48.04.a",
+      "project": "PR-T48-04",
+      "objective": "T48.04.a",
+      "original_task": "Implement reserved/free/allocated frame states; exhaust [3MiB,4MiB), release in a permuted order, and reject unaligned, reserved, foreign and duplicate releases with unchanged state.",
+      "original_expected": "Exactly256 distinct frames emerge initially; conservation and exclusive membership hold after every operation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-04-T48.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a reserved hole and derive the exact returned set, not just a smaller total."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:frames",
+        "contracts:reservations"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-04-T48.04.b",
+      "project": "PR-T48-04",
+      "objective": "T48.04.b",
+      "original_task": "Inject frame exhaustion at each mapping allocation for a multi-page user request. Snapshot PTEs/free frames, enforce zero-fill before exposure, and require rollback of newly acquired pages. Distinguish boot-loader panic policy from a recoverable syscall allocation API.",
+      "original_expected": "Each rejected request leaves prior mappings and free count intact; success exposes only zeroed pages with intended permissions.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-04-T48.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Allocate a range crossing an existing mapping and refuse without damaging it."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:allocation",
+        "guest:case22"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-04-T48.04.c",
+      "project": "PR-T48-04",
+      "objective": "T48.04.c",
+      "original_task": "Trace process exit through marking dead, selecting a peer, changing CR3/TSS stack and reclaiming frames. Identify static page-table/kernel-stack storage versus allocated user frames and show which objects the current code actually reclaims.",
+      "original_expected": "No current address-space or execution-stack storage is reused; accounting names intentionally static retained storage.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-04-T48.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Design dynamic process admission and derive the extra teardown and slot-generation obligations."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:lifecycle",
+        "guest:case0",
+        "contracts:handoff-killed"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-05-T48.05.a",
+      "project": "PR-T48-05",
+      "objective": "T48.05.a",
+      "original_task": "Derive effective permissions along all page-table levels for the process window, kernel identity region, text, data and guard. In an intentionally flawed guest map a dedicated synthetic kernel sentinel page as user-writable; compare corrected permissions.",
+      "original_expected": "The flawed isolated image permits only the declared sentinel violation; the corrected image rejects it while normal user data remains writable.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-05-T48.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the sentinel behind a different upper-level table and repeat the full effective-permission argument."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:permissions",
+        "guest:case7",
+        "guest:case0",
+        "guest:case8"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-05-T48.05.b",
+      "project": "PR-T48-05",
+      "objective": "T48.05.b",
+      "original_task": "Run two original workers storing different values at the same virtual address and a third attempting the synthetic supervisor write. Record CR3 identities, saved fault address/code, sentinel contents and peer counters in flawed/corrected guest copies.",
+      "original_expected": "Corrected supervisor write reports the expected present/write/user fault code7; peers retain distinct data and progress. The flawed control demonstrates the sentinel change directly.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-05-T48.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Attempt data-page instruction fetch and derive its different fault evidence."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case9"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-05-T48.05.c",
+      "project": "PR-T48-05",
+      "objective": "T48.05.c",
+      "original_task": "Analyze a stack jump that skips a one-page guard and lands in another mapped region. Compare with a sequential overflow reaching the guard; state exact writable regions and independent compiler/runtime checks.",
+      "original_expected": "The guard detects accesses to its unmapped span only; the skipped-guard counterexample invalidates universal memory-safety claims.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-05-T48.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add explicit stack probing and identify the size assumptions needed for its argument."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case10",
+        "guest:case11",
+        "guest:case12"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-06-T48.06.a",
+      "project": "PR-T48-06",
+      "objective": "T48.06.a",
+      "original_task": "Separate a pure next-runnable policy from saved-frame/address-space transfer. Replay alive=[true,false,true],current0 for four selections and then exercise zero/one runnable states.",
+      "original_expected": "Sequence2,0,2,0 follows the model; no-runnable policy is explicit; machine transfer is separately observed.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-06-T48.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace round-robin with weighted choice while preserving the same context mechanism."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:scheduling",
+        "guest:case17"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-06-T48.06.b",
+      "project": "PR-T48-06",
+      "objective": "T48.06.b",
+      "original_task": "Run nonyielding users with GPR and private-memory sentinels; record timer-origin switches and PIC acknowledgements. Mutate one saved register or omit EOI in separate disposable builds.",
+      "original_expected": "Both workers advance under actual timer interrupts; each injected defect has a distinct trace and repaired control.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-06-T48.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add an exited slot between runnable peers and retain correct stack ownership."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case13",
+        "guest:case14",
+        "guest:case18"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-06-T48.06.c",
+      "project": "PR-T48-06",
+      "objective": "T48.06.c",
+      "original_task": "Measure a peer's delay during a bounded synchronous kernel poll and compare with an equal-length user loop. Report clock source, emulator scheduling, poll count and nonpreemptible interval separately.",
+      "original_expected": "The nonpreemptible kernel interval can postpone user scheduling; no physical bound is inferred from guest elapsed times.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-06-T48.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change quantum and device completion delay independently and explain which latency component changes."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case15",
+        "guest:quantum-delay-matrix"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-07-T48.07.a",
+      "project": "PR-T48-07",
+      "objective": "T48.07.a",
+      "original_task": "Construct ELF64 byte fixtures that fail late: ninth PT_LOAD, filesz>memsz, wrapped offsets, entry outside executable bytes, overlapping pages and a writable executable segment. Validate all headers before mapping and snapshot frame state on refusal.",
+      "original_expected": "Each invalid image refuses without committed mappings; all accepted extents and entry permissions satisfy the narrower CMK profile.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-07-T48.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Create nonoverlapping byte extents that share a page and explain the permission conflict."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:images",
+        "guest:case23"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-07-T48.07.b",
+      "project": "PR-T48-07",
+      "objective": "T48.07.b",
+      "original_task": "Implement CMKA1 lookup with unique bounded names and disjoint table/payload spans. Load filesz1,memsz4096 and verify the remaining4095 bytes are zero; test a zero-fill tail spanning two pages.",
+      "original_expected": "The archive fixture starts payload at56 with total64; lookup rejects duplicates/overlap and the mapped tail is zero-filled.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-07-T48.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use an accepted ELF without section headers and show program-header loading still works."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:archives",
+        "contracts:images",
+        "guest:case19"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-07-T48.07.c",
+      "project": "PR-T48-07",
+      "objective": "T48.07.c",
+      "original_task": "Compare the exact CMK acceptance table with the inspected generic ELF program-header source: ET_EXEC, TLS, interpreter, alignment and permissions. Provide a valid general ELF case intentionally refused by CMK.",
+      "original_expected": "Every rejected general feature has a deliberate bounded reason; generic ABI allowed permissions are distinguished from the stricter W^X policy.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-07-T48.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Design a read-only additional archive entry type without implying dynamic linking support."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:images",
+        "contracts:archives"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-08-T48.08.a",
+      "project": "PR-T48-08",
+      "objective": "T48.08.a",
+      "original_task": "Specify int0x80 register/error ABI and checked copy-in/out. Use spans ending exactly at a page edge, crossing into a guard, wrapping length and targeting read-only text; stage validation before any observable output.",
+      "original_expected": "Corrected code rejects invalid spans before output mutation; an isolated flawed first-page-only helper exposes only a synthetic canary change in the bounded teaching model.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-08-T48.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change zero-length span policy and propagate it consistently through all services."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "contracts:images"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-08-T48.08.b",
+      "project": "PR-T48-08",
+      "objective": "T48.08.b",
+      "original_task": "Implement process-local slot/generation handles and close/reuse tests. Derive token65537 for slot0 generation1, reject high-bit truncation, foreign process tokens and old tokens after reuse; specify generation exhaustion.",
+      "original_expected": "All invalid tokens leave service state unchanged; exhausted generations retire or refuse rather than silently wrapping into validity.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-08-T48.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow a delegated read-only handle and derive explicit rights propagation."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:handles",
+        "guest:case0"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-08-T48.08.c",
+      "project": "PR-T48-08",
+      "objective": "T48.08.c",
+      "original_task": "In original user programs issue unknown calls, kernel pointers, oversized allocation and closed handles while a peer updates a synthetic counter. Snapshot kernel resource counts and sentinel data before/after each rejection.",
+      "original_expected": "Corrected image preserves sentinel/resource invariants and peer progress; any flawed control demonstrates only its declared local property violation.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-08-T48.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Combine a valid handle with an invalid destination and verify neither authority nor state is consumed."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case24"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-09-T48.09.a",
+      "project": "PR-T48-09",
+      "objective": "T48.09.a",
+      "original_task": "Build synthetic PCI capability chains with loops, truncated BAR windows, duplicate required capabilities, absent VERSION_1/FLUSH and overflowing notification multiplication. Derive an initialization state machine and reject before DRIVER_OK.",
+      "original_expected": "Traversal is bounded, unsupported cases remain nonoperational, and negotiated feature/status trace corresponds to the selected modern PCI profile.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-09-T48.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change a BAR base while preserving legal extents and recompute notification address."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "device:pci",
+        "guest:case0"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-09-T48.09.b",
+      "project": "PR-T48-09",
+      "objective": "T48.09.b",
+      "original_task": "Trace ownership of header, bounce page, status, descriptors and ring slots across one request; exercise16-bit index65535\u21920 with eight slots7\u21920. Inject a duplicate/wrong used ID and a late completion after timeout.",
+      "original_expected": "Publication precedes availability; exactly the outstanding identity can complete; timeout retains storage and poisons further submission.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-09-T48.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit two outstanding requests and derive per-request storage/generation needs before implementing it."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "device:queue"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-09-T48.09.c",
+      "project": "PR-T48-09",
+      "objective": "T48.09.c",
+      "original_task": "Annotate each descriptor store, compiler barrier, CPU ordering instruction, MMIO notification and completion read in the actual driver. Explain the x86 coherent identity-DMA assumptions and construct a reordered abstract countertrace if publication ordering is removed.",
+      "original_expected": "The required order has separate compiler, CPU and device arguments; the abstract failing trace is distinguished from an observed QEMU failure.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-09-T48.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the argument to a noncoherent architecture and list cache/IOMMU changes requiring new evidence."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "device:ordering",
+        "guest:case0"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-10-T48.10.a",
+      "project": "PR-T48-10",
+      "objective": "T48.10.a",
+      "original_task": "Draw request states submitted, completed-success, completed-error, timed-out-unknown and flush-confirmed. Inject timeout after publication; prohibit buffer reuse and show why an error is not proof that no write occurred.",
+      "original_expected": "Late completion cannot corrupt recycled memory because storage stays reserved; durable claims require the selected flush boundary.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-10-T48.10.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a reset acknowledgement contract and identify exactly when reclamation becomes justified."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "device:queue",
+        "device:durability"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-10-T48.10.b",
+      "project": "PR-T48-10",
+      "objective": "T48.10.b",
+      "original_task": "Implement checked page-to-sector conversion and the67-page slice starting at16. Test page1023/1024 of a4MiB image, slice endpoints15/16/82/83 and large caller integers before narrowing.",
+      "original_expected": "The image has1024 pages, eight sectors/page, and exclusive slice end83; out-of-range arguments cannot wrap into it.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-10-T48.10.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change sector size in a model and refuse unsupported real-device geometry."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "device:geometry",
+        "guest:case30",
+        "guest:case31"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-10-T48.10.c",
+      "project": "PR-T48-10",
+      "objective": "T48.10.c",
+      "original_task": "Run patterned write\u2192flush\u2192read and a fresh-guest reboot with the identical ordinary image. Retain backend cache options and full byte comparison; remove flush in a control and explain why a surviving value is still insufficient.",
+      "original_expected": "The receipt proves only the executed QEMU/backend sequence; a no-flush lucky survival cannot satisfy the contract.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-10-T48.10.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Use the storage simulator to cut a declared write/flush event and compare its distinct failure model."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case31",
+        "guest:case32",
+        "device:durability"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-11-T48.11.a",
+      "project": "PR-T48-11",
+      "objective": "T48.11.a",
+      "original_task": "Implement the64-byte shell buffer and explicit overflow/reset policy using only the CMK ABI. Specify whether capacity includes terminator; test empty line, maximum accepted line, overlong line followed by help and partial input across reads.",
+      "original_expected": "No command reads outside initialized bytes; the chosen discard/reset policy prevents an overlong tail from becoming an unintended command.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-11-T48.11.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Accept CRLF while retaining a precise split-chunk policy."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:lines",
+        "guest:case20"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-11-T48.11.b",
+      "project": "PR-T48-11",
+      "objective": "T48.11.b",
+      "original_task": "Drive help, echo and exit through the actual serial input channel. Assert archive names, parser responses, process handle revocation and post-switch frame accounting; distinguish unavailable input from EOF/exit.",
+      "original_expected": "Each response is causally tied to injected input; exited process resources follow the documented deferred-reap policy.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-11-T48.11.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Interrupt a partial line with process termination and verify cleanup."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case20",
+        "guest:case21"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-11-T48.11.c",
+      "project": "PR-T48-11",
+      "objective": "T48.11.c",
+      "original_task": "Design one bounded read-only statistics command returning copied numeric data. State its ABI, buffer limit, failure semantics and privileges; compare boot archive lookup with dynamic process creation and a general filesystem.",
+      "original_expected": "The extension exposes no raw kernel pointer and does not overclaim services absent from the kernel.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-11-T48.11.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a versioned result structure and reject unsupported versions without partial output."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case0",
+        "guest:case20"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-12-T48.12.a",
+      "project": "PR-T48-12",
+      "objective": "T48.12.a",
+      "original_task": "Link the same hashed CVM core into a ring3 ELF through explicit adapters; run identical verified bytecode hosted and in guest and compare semantic result/error traces.",
+      "original_expected": "Only adapter and target build choices differ; the result relation and bytecode identity match.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-12-T48.12.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Load bytecode from a checked archive span and reject a truncated image before running."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "runtime:case26",
+        "runtime:case28"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-12-T48.12.b",
+      "project": "PR-T48-12",
+      "objective": "T48.12.b",
+      "original_task": "Audit undefined symbols, map sections, static workspace and worst permitted nested call paths for CVM plus user adapter. Include verifier scratch, exception/kernel stacks separately and inspect generated helper calls.",
+      "original_expected": "Every linked helper has an owned allowed implementation; separate stack and static budgets fit the selected process layout under stated bounds.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-12-T48.12.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Tighten the user stack and move suitable scratch to caller-owned static storage with a nonreentrancy contract."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "runtime:case26",
+        "runtime:case27",
+        "runtime:case29",
+        "device:reentry-atomic"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-12-T48.12.c",
+      "project": "PR-T48-12",
+      "objective": "T48.12.c",
+      "original_task": "Execute callback increment41\u219242 with allowance1, then zero allowance and callback failure. Count actual callbacks and ensure failed calls do not masquerade as success; separate instruction fuel from host allowance.",
+      "original_expected": "The successful case consumes one allowance; zero allowance yields CVM_HOST_BUDGET with no callback; error propagates distinctly.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-12-T48.12.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a callback that consumes a bounded internal loop and derive a combined service bound."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "runtime:case26",
+        "runtime:case27"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-13-T48.13.a",
+      "project": "PR-T48-13",
+      "objective": "T48.13.a",
+      "original_task": "Draw the full bytecode\u2192named service\u2192store\u2192page adapter\u2192syscall\u2192virtio path, with ownership and error translation at every edge. Verify the adapter confines pages to[16,83) and uses caller-owned workspace.",
+      "original_expected": "VM operands never become raw kernel pointers/device pages; every layer preserves its stated ownership and error contract.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-13-T48.13.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a read-only service client while keeping exclusive transaction ownership."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case33",
+        "guest:case34"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-13-T48.13.b",
+      "project": "PR-T48-13",
+      "objective": "T48.13.b",
+      "original_task": "Run the two-boot commit/lost-reply experiment with shared VM/store sources and same disk. Preserve first CVM_HOST_ERROR, actual successful store commit/flush evidence, second VM GET42 and store-check output.",
+      "original_expected": "The executed trace supports committed42 despite first-call error; raw source/image/syscall/driver identities are retained.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-13-T48.13.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Cut before commit acknowledgement in the storage simulator and compare allowed old/new outcomes."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case33",
+        "device:durability",
+        "services:74-cuts"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-13-T48.13.c",
+      "project": "PR-T48-13",
+      "objective": "T48.13.c",
+      "original_task": "Give caller histories with identical HOST_ERROR but one failed-before-commit and one committed-before-reply-loss. Design a query or durable request-ID protocol before retrying a non-idempotent increment.",
+      "original_expected": "The two histories are observationally indistinguishable to the original caller; blind retry cannot promise exactly-once effects.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-13-T48.13.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Persist a deduplication record atomically with the value and analyze retention/exhaustion."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case34",
+        "guest:case35",
+        "services:receipt-exhaustion"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-14-T48.14.a",
+      "project": "PR-T48-14",
+      "objective": "T48.14.a",
+      "original_task": "Diagnose a withheld original kernel mutation using host contract tests, guest saved state and a minimal causal trace. Explain an alternative hypothesis and the observation that rules it out.",
+      "original_expected": "The report identifies the first violated boundary and a repair that survives both relevant host and guest controls.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-14-T48.14.a-DELAYED",
+          "minimum_days": 7,
+          "task": "After seven days change a resource limit and repeat without opening the assessor implementation."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:mutation-controls",
+        "device:mutation-controls",
+        "guest:case13",
+        "guest:case14",
+        "guest:case23",
+        "guest:case24",
+        "guest:case25"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-14-T48.14.b",
+      "project": "PR-T48-14",
+      "objective": "T48.14.b",
+      "original_task": "Build from a fresh directory, bind source/image/tool hashes and deliberately test a stub, malformed ELF and stale handle. Reject timeout, stale logs and mismatched image receipts.",
+      "original_expected": "Every positive result names its current image; each meaningful negative control fails for its expected reason.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-14-T48.14.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change compiler optimization and explain any changed observation point."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "contracts:stub-incomplete",
+        "device:stub-incomplete",
+        "guest:case23",
+        "guest:case24",
+        "guard:negative-controls"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    },
+    {
+      "id": "AX-PR-T48-14-T48.14.c",
+      "project": "PR-T48-14",
+      "objective": "T48.14.c",
+      "original_task": "Prepare a delayed assessor-held variant combining one mapping-limit change and one known interface contract. Require prediction, implementation, failure injection and an explicit list of physical/SMP/general-OS claims still unassessed.",
+      "original_expected": "The objective-specific rubric distinguishes reproduction from independent changed-condition reasoning; unadministered assessment remains pending.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T48-14-T48.14.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Integrate a later T56 process/thread mechanism and revisit every single-core assumption used here."
+        }
+      ],
+      "teaching": "labs/kernel_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "guest:case25",
+        "smp:1-2-4",
+        "smp:tlb-ack-msix-controls"
+      ],
+      "learner_deliverables": [
+        "Predict the exact ownership/state/failure relation before execution.",
+        "Implement the specified mechanism or derive the named changed-premise counterexample.",
+        "Retain raw mechanism-specific observations,negative controls and exact source/tool/image identities.",
+        "Keep minimum-seven-day unseen independent assessment separate from author runs."
+      ]
+    }
+  ],
+  "scope": "39 exact original criteria and39 original delayed variants;T48.01 is in the separate frozen boot package."
+}

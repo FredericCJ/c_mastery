@@ -1,0 +1,56 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_debugging_followthrough/campaign_attempt9/gdb-O2:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .plt.got:
+
+Disassembly of section .plt.sec:
+
+Disassembly of section .text:
+
+00000000000017f0 <dx_acquire>:
+#define DIAG(x) ((void)0)
+#endif
+volatile unsigned used,capacity=4,violations,observed,diagnostic_counter,validated,cleaned;
+__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+__attribute__((noinline)) void dx_callback(void){observed=used;dx_marker(30);}
+__attribute__((noinline)) int dx_acquire(void){
+    17f0:	f3 0f 1e fa          	endbr64
+ dx_marker(10);
+    17f4:	bf 0a 00 00 00       	mov    $0xa,%edi
+    17f9:	e8 c2 ff ff ff       	call   17c0 <dx_marker>
+#if DX_FIXED
+ if(used>=capacity){dx_marker(12);return 0;}
+ used++;
+#else
+ used++; /* First invalid committed state on the fifth acquisition. */
+    17fe:	8b 05 28 28 00 00    	mov    0x2828(%rip),%eax        # 402c <used>
+    1804:	83 c0 01             	add    $0x1,%eax
+    1807:	89 05 1f 28 00 00    	mov    %eax,0x281f(%rip)        # 402c <used>
+ dx_callback();
+    180d:	e8 be ff ff ff       	call   17d0 <dx_callback>
+ if(used>capacity){violations++;if(DX_CLAMP)used=capacity;return 0;}
+    1812:	8b 05 14 28 00 00    	mov    0x2814(%rip),%eax        # 402c <used>
+    1818:	8b 15 f2 27 00 00    	mov    0x27f2(%rip),%edx        # 4010 <capacity>
+    181e:	39 c2                	cmp    %eax,%edx
+    1820:	73 1e                	jae    1840 <dx_acquire+0x50>
+    1822:	8b 05 00 28 00 00    	mov    0x2800(%rip),%eax        # 4028 <violations>
+    1828:	83 c0 01             	add    $0x1,%eax
+    182b:	89 05 f7 27 00 00    	mov    %eax,0x27f7(%rip)        # 4028 <violations>
+    1831:	8b 05 d9 27 00 00    	mov    0x27d9(%rip),%eax        # 4010 <capacity>
+    1837:	89 05 ef 27 00 00    	mov    %eax,0x27ef(%rip)        # 402c <used>
+    183d:	31 c0                	xor    %eax,%eax
+    183f:	c3                   	ret
+#endif
+ dx_marker(11);return 1;
+    1840:	bf 0b 00 00 00       	mov    $0xb,%edi
+    1845:	b8 01 00 00 00       	mov    $0x1,%eax
+    184a:	e8 71 ff ff ff       	call   17c0 <dx_marker>
+}
+    184f:	c3                   	ret
+
+Disassembly of section .fini:

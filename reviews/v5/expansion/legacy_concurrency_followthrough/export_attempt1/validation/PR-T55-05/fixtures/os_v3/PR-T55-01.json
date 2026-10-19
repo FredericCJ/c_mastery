@@ -1,0 +1,19 @@
+{
+  "id": "PR-T55-01",
+  "description": "SPSC publication and acquire-release ordering finite independent example",
+  "oracle": "ring",
+  "input": {
+    "capacity": 8,
+    "bits": 8,
+    "head": 1,
+    "tail": 250
+  },
+  "expected": {
+    "used": 7,
+    "free": 1,
+    "valid": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "In an SPSC ring, payload writes happen before producer publication and consumer observation precedes payload reads. Each index has one writer. Independent head and tail counters need a bounded-distance invariant so wrap does not create false free space.",
+  "required_observation": "Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability."
+}

@@ -1,0 +1,13 @@
+
+Breakpoint 1, dx_marker (stage=40) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26
+26	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x00006544b1418366 in dx_private_candidate () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:40
+40	__attribute__((noinline)) void dx_private_candidate(void){unsigned candidate=used+1;dx_marker(40);if(candidate>capacity)violations++;used=candidate;dx_marker(41);}
+
+Hardware watchpoint 2: used
+
+Old value = 4
+New value = 5
+0x00006544b1418389 in dx_private_candidate () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:40
+40	__attribute__((noinline)) void dx_private_candidate(void){unsigned candidate=used+1;dx_marker(40);if(candidate>capacity)violations++;used=candidate;dx_marker(41);}
+DX_GDB_JSON:{"mode": "candidate", "records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set print pretty off", "output": ""}, {"command": "set debuginfod enabled off", "output": ""}, {"command": "break dx_marker if stage == 40", "output": "Breakpoint 1 at 0x12b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 26.\n"}, {"command": "run candidate", "output": "[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\n"}, {"command": "up", "output": ""}, {"command": "print candidate", "output": "$1 = 5\n"}, {"command": "print used", "output": "$2 = 4\n"}, {"command": "watch used", "output": "Hardware watchpoint 2: used\n"}, {"command": "continue", "output": ""}, {"command": "print used", "output": "$3 = 5\n"}, {"command": "print violations", "output": "$4 = 1\n"}, {"command": "bt full", "output": "#0  0x00006544b1418389 in dx_private_candidate () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:40\n        candidate = 5\n#1  0x00006544b1418707 in main (argc=2, argv=0x7ffe0d1b9468) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:63\n        configured = 0x0\n"}], "heap": "not-captured", "ASLR": "preserved", "scope": "bounded debugger observation;not full execution history"}

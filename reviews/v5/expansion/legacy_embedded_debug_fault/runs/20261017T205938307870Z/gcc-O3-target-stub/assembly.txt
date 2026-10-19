@@ -1,0 +1,212 @@
+
+/tmp/debug-fault-r3o8ajxz/gcc-O3-target-stub/fault.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <df_vectors>:
+   0:	00 00 01 20 65 00 00 00 41 00 00 00 41 00 00 00     ... e...A...A...
+  10:	49 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00     I...............
+	...
+
+00000040 <failed>:
+#include "target.h"
+extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
+extern void df_memmanage(void);
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){output("DF_TARGET_CHECK:unexpected-vector\n");done(1);}
+  40:	b082      	sub	sp, #8
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  42:	2004      	movs	r0, #4
+  44:	4905      	ldr	r1, [pc, #20]	@ (5c <failed+0x1c>)
+  46:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  48:	4a05      	ldr	r2, [pc, #20]	@ (60 <failed+0x20>)
+  4a:	2301      	movs	r3, #1
+  4c:	e9cd 2300 	strd	r2, r3, [sp]
+  50:	2020      	movs	r0, #32
+  52:	4669      	mov	r1, sp
+  54:	beab      	bkpt	0x00ab
+  56:	bf30      	wfi
+  58:	e7fd      	b.n	56 <failed+0x16>
+  5a:	bf00      	nop
+  5c:	00000160 	.word	0x00000160
+  60:	00020026 	.word	0x00020026
+
+00000064 <cl_reset>:
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+  64:	b530      	push	{r4, r5, lr}
+  66:	4b2e      	ldr	r3, [pc, #184]	@ (120 <cl_reset+0xbc>)
+  68:	4c2e      	ldr	r4, [pc, #184]	@ (124 <cl_reset+0xc0>)
+  6a:	429c      	cmp	r4, r3
+  6c:	b083      	sub	sp, #12
+  6e:	d222      	bcs.n	b6 <cl_reset+0x52>
+  70:	3b01      	subs	r3, #1
+  72:	1b1b      	subs	r3, r3, r4
+  74:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+  78:	2b03      	cmp	r3, #3
+  7a:	4d2b      	ldr	r5, [pc, #172]	@ (128 <cl_reset+0xc4>)
+  7c:	4622      	mov	r2, r4
+  7e:	f10e 0e01 	add.w	lr, lr, #1
+  82:	d916      	bls.n	b2 <cl_reset+0x4e>
+  84:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+  88:	462b      	mov	r3, r5
+  8a:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+  8e:	e9d3 0100 	ldrd	r0, r1, [r3]
+  92:	3308      	adds	r3, #8
+  94:	459c      	cmp	ip, r3
+  96:	e9c2 0100 	strd	r0, r1, [r2]
+  9a:	f102 0208 	add.w	r2, r2, #8
+  9e:	d1f6      	bne.n	8e <cl_reset+0x2a>
+  a0:	f01e 0f01 	tst.w	lr, #1
+  a4:	d007      	beq.n	b6 <cl_reset+0x52>
+  a6:	f02e 0e01 	bic.w	lr, lr, #1
+  aa:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+  ae:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+  b2:	682b      	ldr	r3, [r5, #0]
+  b4:	6023      	str	r3, [r4, #0]
+  b6:	481d      	ldr	r0, [pc, #116]	@ (12c <cl_reset+0xc8>)
+  b8:	4b1d      	ldr	r3, [pc, #116]	@ (130 <cl_reset+0xcc>)
+  ba:	4298      	cmp	r0, r3
+  bc:	d21b      	bcs.n	f6 <cl_reset+0x92>
+  be:	3b01      	subs	r3, #1
+  c0:	1a1a      	subs	r2, r3, r0
+  c2:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+  c6:	2a03      	cmp	r2, #3
+  c8:	4603      	mov	r3, r0
+  ca:	f10c 0c01 	add.w	ip, ip, #1
+  ce:	d910      	bls.n	f2 <cl_reset+0x8e>
+  d0:	ea4f 015c 	mov.w	r1, ip, lsr #1
+  d4:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+  d8:	2200      	movs	r2, #0
+  da:	e9c3 2200 	strd	r2, r2, [r3]
+  de:	3308      	adds	r3, #8
+  e0:	428b      	cmp	r3, r1
+  e2:	d1fa      	bne.n	da <cl_reset+0x76>
+  e4:	f01c 0f01 	tst.w	ip, #1
+  e8:	d005      	beq.n	f6 <cl_reset+0x92>
+  ea:	f02c 0c01 	bic.w	ip, ip, #1
+  ee:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+  f2:	2300      	movs	r3, #0
+  f4:	6003      	str	r3, [r0, #0]
+  f6:	f000 f823 	bl	140 <df_target>
+  fa:	4603      	mov	r3, r0
+  fc:	b168      	cbz	r0, 11a <cl_reset+0xb6>
+  fe:	490d      	ldr	r1, [pc, #52]	@ (134 <cl_reset+0xd0>)
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 100:	2004      	movs	r0, #4
+ 102:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 104:	4a0c      	ldr	r2, [pc, #48]	@ (138 <cl_reset+0xd4>)
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+ 106:	3b00      	subs	r3, #0
+ 108:	bf18      	it	ne
+ 10a:	2301      	movne	r3, #1
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 10c:	e9cd 2300 	strd	r2, r3, [sp]
+ 110:	2020      	movs	r0, #32
+ 112:	4669      	mov	r1, sp
+ 114:	beab      	bkpt	0x00ab
+ 116:	bf30      	wfi
+ 118:	e7fd      	b.n	116 <cl_reset+0xb2>
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+ 11a:	4908      	ldr	r1, [pc, #32]	@ (13c <cl_reset+0xd8>)
+ 11c:	e7f0      	b.n	100 <cl_reset+0x9c>
+ 11e:	bf00      	nop
+ 120:	20000000 	.word	0x20000000
+ 124:	20000000 	.word	0x20000000
+ 128:	00000208 	.word	0x00000208
+ 12c:	20000000 	.word	0x20000000
+ 130:	20000000 	.word	0x20000000
+ 134:	00000184 	.word	0x00000184
+ 138:	00020026 	.word	0x00020026
+ 13c:	000001a0 	.word	0x000001a0
+
+00000140 <df_target>:
+#include "target.h"
+#include <stdint.h>
+int df_target(void){return 99;}
+ 140:	2063      	movs	r0, #99	@ 0x63
+ 142:	4770      	bx	lr
+
+00000144 <df_handler>:
+void df_handler(uint32_t*words,uint32_t exc_return){(void)words;(void)exc_return;for(;;)__asm__ volatile("wfi");}
+ 144:	bf30      	wfi
+ 146:	e7fd      	b.n	144 <df_handler>
+
+00000148 <df_memmanage>:
+.thumb
+.global df_memmanage
+.type df_memmanage,%function
+.thumb_func
+df_memmanage:
+ tst lr,#4
+ 148:	f01e 0f04 	tst.w	lr, #4
+ ite eq
+ 14c:	bf0c      	ite	eq
+ mrseq r0,msp
+ 14e:	f3ef 8008 	mrseq	r0, MSP
+ mrsne r0,psp
+ 152:	f3ef 8009 	mrsne	r0, PSP
+ mov r1,lr
+ 156:	4671      	mov	r1, lr
+ b df_handler
+ 158:	f7ff bff4 	b.w	144 <df_handler>
+
+0000015c <df_store>:
+.type df_store,%function
+.thumb_func
+df_store:
+.global df_fault_instruction
+df_fault_instruction:
+ str r0,[r1,#0]
+ 15c:	6008      	str	r0, [r1, #0]
+
+0000015e <df_fault_resume>:
+.global df_fault_resume
+df_fault_resume:
+ bx lr
+ 15e:	4770      	bx	lr
+ 160:	545f4644 	.word	0x545f4644
+ 164:	45475241 	.word	0x45475241
+ 168:	48435f54 	.word	0x48435f54
+ 16c:	3a4b4345 	.word	0x3a4b4345
+ 170:	78656e75 	.word	0x78656e75
+ 174:	74636570 	.word	0x74636570
+ 178:	762d6465 	.word	0x762d6465
+ 17c:	6f746365 	.word	0x6f746365
+ 180:	00000a72 	.word	0x00000a72
+ 184:	545f4644 	.word	0x545f4644
+ 188:	45475241 	.word	0x45475241
+ 18c:	48435f54 	.word	0x48435f54
+ 190:	3a4b4345 	.word	0x3a4b4345
+ 194:	746e6f63 	.word	0x746e6f63
+ 198:	74636172 	.word	0x74636172
+ 19c:	0000000a 	.word	0x0000000a
+ 1a0:	545f4644 	.word	0x545f4644
+ 1a4:	45475241 	.word	0x45475241
+ 1a8:	41505f54 	.word	0x41505f54
+ 1ac:	613a5353 	.word	0x613a5353
+ 1b0:	61757463 	.word	0x61757463
+ 1b4:	504d2d6c 	.word	0x504d2d6c
+ 1b8:	69662055 	.word	0x69662055
+ 1bc:	2d646578 	.word	0x2d646578
+ 1c0:	6f636572 	.word	0x6f636572
+ 1c4:	6f206472 	.word	0x6f206472
+ 1c8:	64656e77 	.word	0x64656e77
+ 1cc:	6f74732d 	.word	0x6f74732d
+ 1d0:	63206572 	.word	0x63206572
+ 1d4:	75747061 	.word	0x75747061
+ 1d8:	2d646572 	.word	0x2d646572
+ 1dc:	75204350 	.word	0x75204350
+ 1e0:	6168636e 	.word	0x6168636e
+ 1e4:	6465676e 	.word	0x6465676e
+ 1e8:	6175672d 	.word	0x6175672d
+ 1ec:	69206472 	.word	0x69206472
+ 1f0:	6172746e 	.word	0x6172746e
+ 1f4:	6765722d 	.word	0x6765722d
+ 1f8:	2d6e6f69 	.word	0x2d6e6f69
+ 1fc:	6f6c6c61 	.word	0x6f6c6c61
+ 200:	0a646577 	.word	0x0a646577
+ 204:	00000000 	.word	0x00000000

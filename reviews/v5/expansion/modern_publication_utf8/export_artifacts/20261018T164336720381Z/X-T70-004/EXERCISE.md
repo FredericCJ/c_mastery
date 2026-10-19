@@ -1,0 +1,149 @@
+# X-T70-004: Stable typed slots, dense iteration and finite identity
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for memory.pool, algorithms.freelist; prerequisite exercises: X-T03-005. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1–3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.
+
+Supplied artifacts: labs/dod/include/dod.h, deliberately incomplete labs/dod/src/dod.c, executable anchors, fixture PR-T70-04.json and the shared CONTRACTS.md. Expected example: After inserting11,22,33 and removing22, the dense list contains the slots for11 and33; rank of33 is1. The removed handle rejects and preserves output. Removing/reusing slot0 through generation3 retires it; further insertion must choose another slot or report full.
+
+## Necessity
+
+Dense iteration and stable addresses can coexist only by choosing what moves. Many sparse-set bugs repair one mapping but forget the inverse; generation counters eventually wrap unless exhaustion is part of the contract.
+
+## Reasoning
+
+T70.04.a: Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.
+
+T70.04.b: Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.
+
+T70.04.c: Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.
+
+T70.04.d: Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dod -B build/dod` then build and `ctest --test-dir build/dod -R "^dod.sparse$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. Move the ID in the dense list, not the typed slot.
+2. Repair rank for the entity moved into the removed row, including removal of the last row.
+3. Generation exhaustion is a state with a defined policy; an integer width alone is not a proof that it never happens.
+
+## Variants
+
+X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+## Required extension support
+
+The extension specification in `labs/dod/CONTRACTS.md` and public `dod_ext.h`
+now supplies a compiling learner stub, concrete boundary histories and two
+compiled semantic controls for `dod.segmented`. Implement this required changed
+contract and include its independent oracle observations in D3. Explain the
+failed invariant for each control and defend the original mapped D4/D5
+criterion where applicable. Author execution does not replace delayed learner
+assessment or any remaining large-workload/target measurements.
+## Insertion-order transfer support
+
+The original delayed variant now has `dod_ordered.h`, a compiling learner source,
+the shared insertion-order contract and `dod.ordered`. Reuse actual DSparse
+identity and generation checks, but maintain a separate doubly linked order.
+An ID reused after deletion must append at the tail; surviving payload addresses
+remain stable. D3 includes an independent list oracle for deletion at all four
+positions, stale iterator rejection, retirement and actual link/iteration
+counters. Derive the added metadata, pointer-chasing and invalidation costs
+against dense swap-removal. Operation counts are not physical timing results.
+An assessor must still conduct the delayed independent attempt; availability of
+the worked reference is not evidence that a learner transferred the argument.
+
+## History validation support
+
+The original anchor now runs the exact additional history contract in labs/dod/CONTRACTS.md and fixtures/dod/histories.json through tests/histories.c. Reproduce the relevant enumeration, retain its actual summary and compare the independent expected values; do not claim coverage from a fixture count without executing the implementation. The persistent/sparse Python oracle separately compares8097 actual trace rows. D3 and R3 require both the tested finite domain and what remains outside it. Preserve the separate changed-condition and independent learner criteria; author executions establish neither learner independence nor unbounded correctness.
+
+## Objective-specific assessment anchors
+
+### X-T70-004-R1 / T70.04.a
+
+Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-004-R2 / T70.04.b
+
+Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-004-R3 / T70.04.c
+
+Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-004-R4 / T70.04.d
+
+Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T70-04
+
+Required earlier exercises: X-T03-005
+
+Required baseline units: none
+
+Required artifact imports: memory.pool, algorithms.freelist
+
+
+- [R-MOD-DOD-LLVM](https://llvm.org/docs/ProgrammersManual.html): llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance; llvm/ADT/PagedVector.h: page allocation and indirection
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T70-004-DELAYED.
+
+Contract SHA-256: c73e07ff0cc0e0b756d6b82d613c35eaf3456e41b15049536cfb062bd9f2bb66

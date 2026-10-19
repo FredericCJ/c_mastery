@@ -111,3 +111,10 @@ programs. No remote services, real data or host security changes are authorized.
     write('labs/replicated/CONTRACTS.md',contract)
     paths=['research/v5/modern/replicated_resources.json','research/v5/modern/replicated_taxonomy.json','research/v5/modern/coverage/T76.json']
     dump('research/v5/modern/replicated_research_gate.json',dict(status='passage-inspected',domains=['T76'],reviewer='author inspection only; no independent review',research_input_sha256={p:hashlib.sha256((R/p).read_bytes()).hexdigest() for p in paths}))
+    # Canonical required successors are additive; do not erase them on rebuild.
+    import sys
+    sys.path.insert(0,str(R/'tools'))
+    from register_replicated_followthrough import register
+    register()
+    from register_modern_unit_refinements import register_family
+    register_family('replicated')

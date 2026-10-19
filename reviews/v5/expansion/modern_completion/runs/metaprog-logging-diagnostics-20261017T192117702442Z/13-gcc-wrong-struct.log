@@ -1,0 +1,24 @@
+
+In file included from /tmp/cmastery-logging-diagnostic-xen9pyz5/wrong-struct.c:1:
+/tmp/cmastery-logging-diagnostic-xen9pyz5/wrong-struct.c: In function ‘main’:
+/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/logging/logging_macros.h:13:41: error: incompatible type for argument 3 of ‘mpl_log1’
+   13 | #define MPL_ONE(s,p,a) mpl_log1((s),(p),(a))
+      |                                         ^~~
+      |                                         |
+      |                                         MplSite
+/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/logging/logging_macros.h:9:45: note: in expansion of macro ‘MPL_ONE’
+    9 | #define MPL_SELECT(_1,_2,_3,_4,_5,NAME,...) NAME
+      |                                             ^~~~
+/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/logging/logging_macros.h:15:31: note: in expansion of macro ‘MPL_SELECT’
+   15 | #define MPL_DISPATCH(s,p,...) MPL_SELECT(__VA_ARGS__,mpl_log_arity_error,mpl_log4,mpl_log3,mpl_log2,MPL_ONE,unused)((s),(p),__VA_ARGS__)
+      |                               ^~~~~~~~~~
+/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/logging/logging_macros.h:16:24: note: in expansion of macro ‘MPL_DISPATCH’
+   16 | #define MPL_LOG(s,...) MPL_DISPATCH((s),MPL_SITE_NONE,__VA_ARGS__)
+      |                        ^~~~~~~~~~~~
+/tmp/cmastery-logging-diagnostic-xen9pyz5/wrong-struct.c:2:37: note: in expansion of macro ‘MPL_LOG’
+    2 | int main(void){MplSink s={0};return MPL_LOG(&s,((MplSite){"x",1}));}
+      |                                     ^~~~~~~
+In file included from /mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/logging/logging_macros.h:3:
+/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/logging/include/logging.h:17:50: note: expected ‘MplField’ but argument is of type ‘MplSite’
+   17 | int mpl_log1(MplSink *sink,MplSite site,MplField a);
+      |                                         ~~~~~~~~~^

@@ -1,0 +1,17 @@
+"""Record actual bounded passages; primary PDF is a private verification cache."""
+import hashlib,json,pathlib
+ROOT=pathlib.Path(__file__).resolve().parents[4];HERE=pathlib.Path(__file__).resolve().parent
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def write(name,d):(HERE/name).write_text(json.dumps(d,indent=2)+'\n',encoding='utf8')
+def main():
+ common=dict(authors=['C Mastery authors'],edition='Exact named current source passages',year=2026,kind='source-contract',access='Actual direct UTF8 inspection',domains=['T39','T40'],role='primary',reason='Exact original changed-condition obligations and imported contracts',prerequisites=['Original X exercise and its completed learner producers'],assignable=True)
+ loc=['X-T39-002/004/005 and X-T40-001/003: Problem, objective rubric and exact V1/V2 text','ethernet_depth.h: EDBridge/EDBus/EDPhy interfaces; ethernet_depth.c: ed_bridge, ed_mdio_word/read/query','edu7_depth.h: E7Sender; edu7_depth.c: begin/offer/accept/ack/expire','com_edu7.h and communications/edu7.c: fragment_valid and fragment encode/decode']
+ r=dict(common,id='R-LT-ORIGINAL',title='Exact original service transfer tasks and imported producer source',url='curriculum/v5/exercises/X-T39-002.md',locators=loc,inspection=dict(date='2026-10-18',method='Direct named source reads before implementation',scope=loc,limits='Only named passages; no new complete textbook or ISO standard inspection.'))
+ loc2=['SLLSEC6E June2019 printed59–60: BMSR table5-10 and PHYID tables5-11/12','SLLSEC6E June2019 printed65–66: PHYSTS table5-18, especially link/negotiation/loopback/duplex/speed bits']
+ cache='build/ethernet-variants-sources/dp83848-ep.pdf';h=sha(ROOT/cache)
+ p=dict(common,id='R-LT-DP83848',title='DP83848-EP datasheet SLLSEC6E',authors=['Texas Instruments'],edition='Revision E, June2019',year=2019,kind='vendor-reference',url='https://www.ti.com/lit/ds/symlink/dp83848-ep.pdf',access='Official PDF retrieved; selected structured source text inspected',domains=['T39'],locators=loc2,inspection=dict(date='2026-10-18',method='Official PDF text pages59–60/65–66 inspected through web PDF extraction, downloaded bytes pinned; screenshot response supplied no visible image and is not visual inspection',scope=loc2,capture=dict(path=cache,sha256=h),limits='Only selected register passages; no board/electrical observation or later silicon-revision compatibility claim.'))
+ write('resources.json',dict(resources=[r,p]))
+ write('source_access.json',dict(inspected=[dict(id=x['id'],locators=x['locators']) for x in [r,p]],private_capture=dict(path=cache,sha256=h),unavailable=['Exact published C17/C23 final text remains outside this bounded source inspection.','No selected DP83848 board, strap, clock or physical trace inspected/measured.'],attempts=['Direct official dp83848c PDF web open timed out; no content attributed to that failed fetch.','Official dp83848-ep SLLSEC6E selected text read successfully and complete bytes cached.']))
+ files=[HERE/n for n in ['resources.json','source_access.json','audit.md','register_sources.py']]
+ write('research_gate.json',dict(status='passage-inspected',scope='Exact T39/T40 changed service authoring; not independent acceptance',resource_ids=[r['id'],p['id']],research_input_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in files},limitations=['Selected PDF text inspection, no screenshot visual claim.','No independent learner, external review or physical evidence.']))
+if __name__=='__main__':main()

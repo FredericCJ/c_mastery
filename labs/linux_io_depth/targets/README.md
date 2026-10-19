@@ -18,3 +18,9 @@ event is consumed. An unavailable backend remains a required experiment gap.
 Add writev progress over zero-length and partially written vectors, splice pipe
 ownership, close races and allocation failures. Predict outcomes first, use
 bounded local operations and retain exact logs. No external service is a target.
+
+## Implemented continuation
+
+The required [concrete continuation](COMPLETIONS.md) supplies the additional source,
+fixtures, failure controls, objective criteria and bounded author execution.
+Its evidence does not replace independent learner or physical obligations.

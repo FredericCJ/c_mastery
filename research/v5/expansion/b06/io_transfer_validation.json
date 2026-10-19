@@ -1,0 +1,634 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T03:10:23.814937+00:00",
+  "system": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "input_sha256": {
+    "tools/run_b06_io_transfer.py": "778b8d5b9a4917793860f64a63facc34b9aed0e0a9ad1327a5e0d07df35b9d1a",
+    "labs/linux_io_depth/targets/transfer.h": "a9b00c797d99dc7698b9cb3a6f15d23e93ea4f800eb903b538d7790b19c5f375",
+    "labs/linux_io_depth/targets/transfer.c": "a4b4aae9ebacaca0132f8a87f8084a5cc5b62ba3b0702a01845c5db0ffc8e65f",
+    "labs/linux_io_depth/targets/transfer_test.c": "087daf149f5996c3e6d9a052806ab3bde419f6644364e8974e9c67124902111d",
+    "labs/linux_io_depth/targets/TRANSFERS.md": "981090795e26a3bcd66ae989d443f3675e93a33b63f86d9d047feaaee061be3d",
+    "assessor/linux_io_depth/targets/transfer.c": "9ed3298d4be17ef7325292fd90074c8d83d5c639952874607472657c17987fca",
+    "assessor/linux_io_depth/targets/TRANSFER_ANALYSIS.md": "6fa09e8b117bb53af2e136338c48746a432cc6025df44256fdb34f714ad034cf",
+    "assessor/linux_io_depth/targets/raw_ring.c": "1c22e7903d8e691caa39e2f7d89b2d8809de6f7994bdadf94507a94a15ced376",
+    "labs/linux_io_depth/targets/raw_ring.h": "6747ad721c8485a26aed0dd5de870c2d6745c01aacebcb7e8f7d413c71b19394"
+  },
+  "checks": [
+    {
+      "label": "gcc-debug build 0",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-0",
+        "-DIT_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run 0",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-0"
+      ],
+      "returncode": 0,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\nMPSC capacity3 serialized issuer400 unique CQEs PASS\nreactor peerB_latency_ns=3506 visits=11 eventfd/signalfd/timerfd=consumed\nB06_IO_TRANSFER_PASS\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 1",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-1",
+        "-DIT_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run 1",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-1"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==-EPIPE&&p==3&&s.used==3&&!memcmp(s.seen,\"ABC\",3) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 2",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-2",
+        "-DIT_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run 2",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-2"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:22:it_pop(&q,&v)&&v==17 errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 3",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-3",
+        "-DIT_MUTANT=3"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run 3",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-3"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_time(&s,12,1)==0&&s.closed errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build 4",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-4",
+        "-DIT_MUTANT=4"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run 4",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-4"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_choose(&s)==(int)(t%2) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug build stub",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug run stub",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-debug-stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==1&&p==2&&s.used==2 errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 0",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-0",
+        "-DIT_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run 0",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-0"
+      ],
+      "returncode": 0,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\nMPSC capacity3 serialized issuer400 unique CQEs PASS\nreactor peerB_latency_ns=3174 visits=11 eventfd/signalfd/timerfd=consumed\nB06_IO_TRANSFER_PASS\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 1",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-1",
+        "-DIT_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run 1",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-1"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==-EPIPE&&p==3&&s.used==3&&!memcmp(s.seen,\"ABC\",3) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 2",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-2",
+        "-DIT_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run 2",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-2"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:22:it_pop(&q,&v)&&v==17 errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 3",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-3",
+        "-DIT_MUTANT=3"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run 3",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-3"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_time(&s,12,1)==0&&s.closed errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build 4",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-4",
+        "-DIT_MUTANT=4"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run 4",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-4"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_choose(&s)==(int)(t%2) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "gcc-release build stub",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release run stub",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/gcc-release-stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==1&&p==2&&s.used==2 errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 0",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-0",
+        "-DIT_MUTANT=0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run 0",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-0"
+      ],
+      "returncode": 0,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\nMPSC capacity3 serialized issuer400 unique CQEs PASS\nreactor peerB_latency_ns=5257 visits=11 eventfd/signalfd/timerfd=consumed\nB06_IO_TRANSFER_PASS\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 1",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-1",
+        "-DIT_MUTANT=1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run 1",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-1"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==-EPIPE&&p==3&&s.used==3&&!memcmp(s.seen,\"ABC\",3) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 2",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-2",
+        "-DIT_MUTANT=2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run 2",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-2"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\nidle/total boundary and fair policy PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:22:it_pop(&q,&v)&&v==17 errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 3",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-3",
+        "-DIT_MUTANT=3"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run 3",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-3"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_time(&s,12,1)==0&&s.closed errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build 4",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-4",
+        "-DIT_MUTANT=4"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run 4",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-4"
+      ],
+      "returncode": 1,
+      "stdout": "prefix EINTR/EAGAIN/error-after-progress PASS\n",
+      "stderr": "B06_IO_TRANSFER_ASSERT:23:it_choose(&s)==(int)(t%2) errno=0\n",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize build stub",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/raw_ring.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/transfer_test.c",
+        "-o",
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-stub"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize run stub",
+      "command": [
+        "/tmp/b06-io-transfer-t_b67s63/clang-sanitize-stub"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_IO_TRANSFER_ASSERT:19:it_progress(v,3,&p,scripted,&s)==1&&p==2&&s.used==2 errno=0\n",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "EINTR/EAGAIN/error prefix schedule is injected at original callback boundary; actual pipe/readiness and kernel CQEs separately exercised",
+    "MPSC uses pthread mutex/conditions; no lock-free claim and thread cancellation prohibited",
+    "Measured response latency is an observation, not a real-time bound",
+    "No external review, independent learner or physical persistence claim"
+  ]
+}

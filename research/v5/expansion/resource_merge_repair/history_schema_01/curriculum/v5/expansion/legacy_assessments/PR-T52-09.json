@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "project": "PR-T52-09",
+  "domain": "T52",
+  "title": "Partitioned multicore real-time scheduling \u2014 explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/realtime_depth/partition/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T52.md",
+        "sha256": "b86a3a109cc08eed27b83b891428d2c9ccd51f045af89dd44b388968692d0d86",
+        "passages": [
+          "Assigned substantive teaching passages and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T52-09.md",
+        "sha256": "5e4e9e133e90c7e3a91423a3231aa0d459ef2dd60c40fafc8e19383c788ee895",
+        "passages": [
+          "Complete metadata, contract, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "fixtures/os_v3/PR-T52-09.json",
+        "sha256": "73a7fbba144eb0a5d3330c3a3396b4d76440026db5c3946b0f04c4c2e91bc0af",
+        "passages": [
+          "Complete synthetic input and expected output"
+        ]
+      },
+      {
+        "path": "research/v3/verify_fixtures.py",
+        "sha256": "1870228e17863b2f400262753f25d1d13d90ad6423c5705255f06c21ecb8a10a",
+        "passages": [
+          "compute branches for assigned T51/T52/T53 synthetic models; not learner or target execution"
+        ]
+      },
+      {
+        "path": "labs/execution/README.md",
+        "sha256": "74ceca4efe86cb51b9001e6131c427cc761b385b5f908f8a64f8e9b0405561ae",
+        "passages": [
+          "Actual target/dependency/ownership contracts and explicit evidence limitations"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "Assigned project unit objective/test links and substantive implementation steps"
+        ]
+      },
+      {
+        "path": "assessor/execution/cmx.c",
+        "sha256": "2be79d77bc007778d8c5936169ae6a2b481d51d85349cdca40453e5fce953455",
+        "passages": [
+          "Wait enrollment/priority recomputation, condition reacquisition, event/notification/barrier/once/RW functions; response/admission/CBS functions"
+        ]
+      },
+      {
+        "path": "assessor/execution/advanced.c",
+        "sha256": "bf4aa62bf8b17d5b34669c9b8ab71c21f8ce400732c2dc0e9d4360cddcd4ffd6",
+        "passages": [
+          "Priority ordering/partition/simulation/server functions"
+        ]
+      },
+      {
+        "path": "labs/execution/tests/contracts.c",
+        "sha256": "5e5ba66ab91cccf4ea42d1e49e26509acdad77dfbafb358a840b9121ac41f8bb",
+        "passages": [
+          "Enrollment/faults and named synchronization/response/EDF/CBS cases"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T52.md",
+        "anchors": [
+          "T52.09"
+        ]
+      }
+    ],
+    "units": [
+      "U-T52-09-01",
+      "U-T52-09-02",
+      "U-T52-09-03",
+      "U-T52-09-04"
+    ],
+    "inspection_limits": [
+      "All assigned module teaching, parent contract/steps/failure/acceptance and complete synthetic fixture inspected.",
+      "Unit objective/test mappings and each project substantive implementation step inspected; no complete historical learner portfolio review.",
+      "Exact bounded assessor/test scopes are recorded in the baseline bindings; no full implementation review inferred."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
+    "target": "Externally serialized host state models plus original freestanding MCU runtime; actual IRQ execution requires dedicated emulator/board. FreeRTOS/Linux comparisons use separate builds and disposable guests where privileged.",
+    "profile": "E",
+    "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
+    "toolchain": [
+      "Record compiler, flags, optimization, target triple, linker map and actual helper/symbol closure.",
+      "Record emulator/board/kernel/config and clock source; unsupported targets and denied scheduling classes remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LCON-RT",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "PDF physical97: assumptions A1\u2013A7",
+        "PDF physical103 and117: RM and EDF definitions",
+        "PDF physical120 and122: constrained deadlines and response-time recurrence",
+        "PDF physical127: processor-demand definition",
+        "PDF physical162: sporadic-server active interval replenishment example",
+        "PDF physical206\u2013207: soft CBS definition",
+        "PDF physical229\u2013230: highest-locker/immediate ceiling",
+        "PDF physical232\u2013233: transitive priority inheritance and restoration"
+      ]
+    },
+    {
+      "id": "R-LCON-DEADLINE",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "2.1 Main algorithm: wake rule, budget and throttling",
+        "2.2 opening: reclaim states and zero-lag transition",
+        "3.1\u20133.4: task model, EDF analysis, Dhall example and parameter relation"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
+    "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "The retained helper is input-order first fit with partial output; the project requires a sorting/transactional wrapper for first-fit decreasing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T52-09.md",
+    "fixtures/os_v3/PR-T52-09.json",
+    "labs/execution/README.md",
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld",
+    "labs/execution/include/cmx.h",
+    "labs/execution/include/cmx_advanced.h",
+    "labs/execution/src/advanced.c",
+    "labs/execution/src/support.c",
+    "labs/realtime_depth/partition/CONTRACTS.md",
+    "labs/realtime_depth/partition/checks.h",
+    "labs/realtime_depth/partition/m4.c",
+    "labs/realtime_depth/partition/native.c",
+    "labs/realtime_depth/partition/oracle.py",
+    "labs/realtime_depth/partition/partition.c",
+    "labs/realtime_depth/partition/partition.h",
+    "labs/realtime_depth/partition/run.py",
+    "labs/realtime_depth/partition/target_run.py",
+    "labs/realtime_depth/partition/tests.c"
+  ],
+  "execution_support": {
+    "kind": "Retained concrete construction plus bounded model/host/guest anchors",
+    "scope": "Only each named test actual contract counts as existing executable support. The retained helper is input-order first fit with partial output; the project requires a sorting/transactional wrapper for first-fit decreasing.",
+    "tests": [
+      "execution.partition"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave; fixture oracle recomputation is reported separately"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T52-09-T52.09.a",
+      "title": "Derive and defend the state, ownership and ordering contract for partitioned multicore real-time scheduling.",
+      "objective": "T52.09.a",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-RT",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical97: assumptions A1\u2013A7",
+            "PDF physical103 and117: RM and EDF definitions",
+            "PDF physical120 and122: constrained deadlines and response-time recurrence",
+            "PDF physical127: processor-demand definition",
+            "PDF physical162: sporadic-server active interval replenishment example",
+            "PDF physical206\u2013207: soft CBS definition",
+            "PDF physical229\u2013230: highest-locker/immediate ceiling",
+            "PDF physical232\u2013233: transitive priority inheritance and restoration"
+          ]
+        },
+        {
+          "id": "R-LCON-DEADLINE",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "2.1 Main algorithm: wake rule, budget and throttling",
+            "2.2 opening: reclaim states and zero-lag transition",
+            "3.1\u20133.4: task model, EDF analysis, Dhall example and parameter relation"
+          ]
+        }
+      ],
+      "task": "Place three implicit-deadline tasks of utilization0.6 on two CPUs and explain failure despite total1.8. For items0.4,0.4,0.6,0.6 compare input-order first fit with first-fit decreasing, including stable ties. Separate packing feasibility from per-core schedulability.",
+      "purpose": "Total utilization below CPU count guarantees a partition exists or first fit finds it.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T52.09 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T52-08",
+          "PR-T52-09 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Total utilization below CPU count guarantees a partition exists or first fit finds it. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Total utilization below CPU count guarantees a partition exists or first fit finds it.",
+        "D2": "Place three implicit-deadline tasks of utilization0.6 on two CPUs and explain failure despite total1.8. For items0.4,0.4,0.6,0.6 compare input-order first fit with first-fit decreasing, including stable ties. Separate packing feasibility from per-core schedulability.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Add constrained deadlines and use per-core demand analysis instead of only utilization bins."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Three0.6 tasks cannot fit two unit bins. Input-order first fit fails on0.4,0.4,0.6,0.6, while decreasing order pairs0.6+0.4 on each CPU. Neither heuristic failure nor success alone proves all timing assumptions.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Three0.6 tasks cannot fit two unit bins. Input-order first fit fails on0.4,0.4,0.6,0.6, while decreasing order pairs0.6+0.4 on each CPU. Neither heuristic failure nor success alone proves all timing assumptions. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Add constrained deadlines and use per-core demand analysis instead of only utilization bins. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Try the same items in increasing and decreasing utilization order.",
+        "Keep tentative placement private until every task is accepted."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T52-09-T52.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add constrained deadlines and use per-core demand analysis instead of only utilization bins."
+        }
+      ],
+      "assessor_anchor": "#t5209a",
+      "facet_scope": {
+        "teaching": "Retained T52.09 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_realtime_partition/support.json",
+        "id": "AX-PR-T52-09-T52.09.a"
+      }
+    },
+    {
+      "id": "AX-PR-T52-09-T52.09.b",
+      "title": "Implement first-fit decreasing placement by utilization and per-core analysis. Use tasks with utilizations0.6,0.6,0.6 on two cores to expose a packing failure despite total1.8.",
+      "objective": "T52.09.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-RT",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical97: assumptions A1\u2013A7",
+            "PDF physical103 and117: RM and EDF definitions",
+            "PDF physical120 and122: constrained deadlines and response-time recurrence",
+            "PDF physical127: processor-demand definition",
+            "PDF physical162: sporadic-server active interval replenishment example",
+            "PDF physical206\u2013207: soft CBS definition",
+            "PDF physical229\u2013230: highest-locker/immediate ceiling",
+            "PDF physical232\u2013233: transitive priority inheritance and restoration"
+          ]
+        },
+        {
+          "id": "R-LCON-DEADLINE",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "2.1 Main algorithm: wake rule, budget and throttling",
+            "2.2 opening: reclaim states and zero-lag transition",
+            "3.1\u20133.4: task model, EDF analysis, Dhall example and parameter relation"
+          ]
+        }
+      ],
+      "task": "Implement the parent first-fit-decreasing wrapper around a checked placement core, preserving original task IDs. Use a horizon divisible by all periods and exact integer service units. On a late placement failure retain no published partial assignment; audit the retained helper's prefix writes and wrap them transactionally.",
+      "purpose": "The retained cmx_partition already sorts by utilization and is transactional.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T52.09 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T52-08",
+          "PR-T52-09 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "The retained cmx_partition already sorts by utilization and is transactional. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: The retained cmx_partition already sorts by utilization and is transactional.",
+        "D2": "Implement the parent first-fit-decreasing wrapper around a checked placement core, preserving original task IDs. Use a horizon divisible by all periods and exact integer service units. On a late placement failure retain no published partial assignment; audit the retained helper's prefix writes and wrap them transactionally.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Add affinity restrictions and report whether failure reflects heuristic choice or a demonstrated impossibility."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "It follows input order and can write a prefix before FULL. Sorting and commit-on-success are caller obligations for the stronger project contract. Invalid periods, horizon divisibility and capacity arithmetic must be checked before publication.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "It follows input order and can write a prefix before FULL. Sorting and commit-on-success are caller obligations for the stronger project contract. Invalid periods, horizon divisibility and capacity arithmetic must be checked before publication. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Add affinity restrictions and report whether failure reflects heuristic choice or a demonstrated impossibility. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Try the same items in increasing and decreasing utilization order.",
+        "Keep tentative placement private until every task is accepted."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T52-09-T52.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add affinity restrictions and report whether failure reflects heuristic choice or a demonstrated impossibility."
+        }
+      ],
+      "assessor_anchor": "#t5209b",
+      "facet_scope": {
+        "teaching": "Retained T52.09 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_realtime_partition/support.json",
+        "id": "AX-PR-T52-09-T52.09.b"
+      }
+    },
+    {
+      "id": "AX-PR-T52-09-T52.09.c",
+      "title": "Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces.",
+      "objective": "T52.09.c",
+      "families": [
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-RT",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical97: assumptions A1\u2013A7",
+            "PDF physical103 and117: RM and EDF definitions",
+            "PDF physical120 and122: constrained deadlines and response-time recurrence",
+            "PDF physical127: processor-demand definition",
+            "PDF physical162: sporadic-server active interval replenishment example",
+            "PDF physical206\u2013207: soft CBS definition",
+            "PDF physical229\u2013230: highest-locker/immediate ceiling",
+            "PDF physical232\u2013233: transitive priority inheritance and restoration"
+          ]
+        },
+        {
+          "id": "R-LCON-DEADLINE",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "2.1 Main algorithm: wake rule, budget and throttling",
+            "2.2 opening: reclaim states and zero-lag transition",
+            "3.1\u20133.4: task model, EDF analysis, Dhall example and parameter relation"
+          ]
+        }
+      ],
+      "task": "Generate bounded task sets with a small integer hyperperiod and compare heuristic placement to exhaustive bin assignments. Keep a counterexample where ordering changes success, then simulate each accepted partition. Measure migration=0 by construction separately from cache/locality performance.",
+      "purpose": "A packing oracle establishes multicore real-time behavior.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T52.09 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T52-08",
+          "PR-T52-09 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A packing oracle establishes multicore real-time behavior. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A packing oracle establishes multicore real-time behavior.",
+        "D2": "Generate bounded task sets with a small integer hyperperiod and compare heuristic placement to exhaustive bin assignments. Keep a counterexample where ordering changes success, then simulate each accepted partition. Measure migration=0 by construction separately from cache/locality performance.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Allow one controlled migration and rederive ownership and interference instead of reusing the partitioned proof."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Exhaustive assignment answers only the encoded finite bin problem. Per-core interference, shared resources, interrupts and execution costs remain separate. Preserve both the assignment certificate and scheduling evidence; do not equate no migration with no cross-core interference.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Exhaustive assignment answers only the encoded finite bin problem. Per-core interference, shared resources, interrupts and execution costs remain separate. Preserve both the assignment certificate and scheduling evidence; do not equate no migration with no cross-core interference. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Allow one controlled migration and rederive ownership and interference instead of reusing the partitioned proof. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Try the same items in increasing and decreasing utilization order.",
+        "Keep tentative placement private until every task is accepted."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T52-09-T52.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow one controlled migration and rederive ownership and interference instead of reusing the partitioned proof."
+        }
+      ],
+      "assessor_anchor": "#t5209c",
+      "facet_scope": {
+        "teaching": "Retained T52.09 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_realtime_partition/support.json",
+        "id": "AX-PR-T52-09-T52.09.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T52-09.md",
+  "status": {
+    "content": "authored",
+    "execution": "New full leaf investigations unattempted; no fresh full target campaign inferred from fixture or structural validation.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite passing evidence does not prove absolute mastery.",
+      "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
+      "Delayed variants are required opportunities, not completed assessments."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_realtime_partition/support.json",
+      "criterion_ids": [
+        "AX-PR-T52-09-T52.09.a",
+        "AX-PR-T52-09-T52.09.b",
+        "AX-PR-T52-09-T52.09.c"
+      ],
+      "scope": "Exact finite placement/demand/affinity, actual retained simulation and native pinned/transfer observations; no physical WCET, M7/M4 cost or hard-real-time execution guarantee."
+    }
+  ]
+}

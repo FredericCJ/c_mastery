@@ -20,6 +20,12 @@ FDStatus fd_repair_step(int *value, int *previous) {
 }
 FDStatus fd_extent(size_t offset,size_t count,size_t width,size_t limit,size_t *out) {
     if (!out) return FD_INVALID;
+#ifdef FD_MUTATE_ZERO_OFFSET
+    if (count == 0) { *out = offset; return FD_OK; }
+#endif
+#ifdef FD_MUTATE_EARLY_EXTENT
+    *out = offset;
+#endif
 #ifdef FD_MUTATE_EXTENT
     size_t wrapped = offset + count * width;
     if (wrapped > limit) return FD_RANGE;
@@ -190,7 +196,11 @@ FDStatus fd_apply(const unsigned char *wire,size_t length,int authorized,int32_t
 #ifdef FD_MUTATE_DEFENSE
     *counter=(int32_t)result;
 #endif
+#ifdef FD_MUTATE_FLAG_AUTHORITY
+    if (!authorized && !(r.flags & 1u)) return FD_DENIED;
+#else
     if (!authorized) return FD_DENIED;
+#endif
     *counter=(int32_t)result;
     return FD_OK;
 }

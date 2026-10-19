@@ -5,7 +5,8 @@
   "title": "Exception frame and nesting decoder — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/interrupt_depth/frame/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -97,6 +98,31 @@
         "2.3.4 vector-table diagram; 2.3.5 Exception priorities; 2.3.6 priority grouping",
         "2.3.7 Exception entry and return including frame and EXC_RETURN"
       ]
+    },
+    {
+      "id": "R-XF-DUI",
+      "path": "research/v5/expansion/legacy_advanced_frame/resources.json",
+      "passages": [
+        "PDFpp20–23,35–43: processor mode/stacks, exception state/priorities, entry/return; PDFp40 Figure2-3 visually inspected",
+        "PDFpp226,232–234,237: NVIC enable/pending/active, priorities and AIRCR grouping"
+      ]
+    },
+    {
+      "id": "R-XF-DDI",
+      "path": "research/v5/expansion/legacy_advanced_frame/resources.json",
+      "passages": [
+        "PDFpp523–529: pending/active, priority grouping and execution priority/masks",
+        "PDFpp531–533,535–542: exception entry, basic/extended/lazy frame, tail-chain/late-arrival, EXC_RETURN and integrity checks",
+        "PDFpp546–548,612,616–617: FP context/control and priority register constraints"
+      ]
+    },
+    {
+      "id": "R-XF-FREERTOS",
+      "path": "research/v5/expansion/legacy_advanced_frame/resources.json",
+      "passages": [
+        "port.c lines360–445: implemented priority-bit readback, max syscall priority and grouping bound",
+        "port.c lines851–925: vPortValidateInterruptPriority API threshold and grouping validation"
+      ]
     }
   ],
   "reference_gaps": [
@@ -109,7 +135,16 @@
     "curriculum/projects/PR-T29-01.md",
     "fixtures/embedded/PR-T29-01.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/interrupt_depth/frame/CONTRACTS.md",
+    "labs/interrupt_depth/frame/frame.c",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/frame/run.py",
+    "labs/interrupt_depth/frame/target.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target_build.py",
+    "labs/interrupt_depth/frame/tests.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -117,7 +152,19 @@
     "tests": [
       "firmware_io.vectors"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "interrupt_frame_priority_successor": {
+      "path": "research/v5/expansion/legacy_advanced_frame/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-01-T29.01.a",
+        "AX-PR-T29-01-T29.01.b",
+        "AX-PR-T29-01-T29.01.c",
+        "AX-PR-T29-01-T29.02.a",
+        "AX-PR-T29-01-T29.02.b",
+        "AX-PR-T29-01-T29.02.c"
+      ],
+      "scope": "Six T29.01/.02 ordinary and six unchanged delayed tasks; actual M4 exception/priority execution, source-bound stack ledgers and explicit phase model; later T29 and physical/external work separate"
+    }
   },
   "criteria": [
     {
@@ -637,7 +684,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T29-01.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -645,5 +692,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_frame/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T29-01-T29.01.a",
+        "AX-PR-T29-01-T29.01.b",
+        "AX-PR-T29-01-T29.01.c",
+        "AX-PR-T29-01-T29.02.a",
+        "AX-PR-T29-01-T29.02.b",
+        "AX-PR-T29-01-T29.02.c"
+      ],
+      "scope": "Six T29.01/.02 ordinary and six unchanged delayed tasks; actual M4 exception/priority execution, source-bound stack ledgers and explicit phase model; later T29 and physical/external work separate"
+    }
+  ]
 }

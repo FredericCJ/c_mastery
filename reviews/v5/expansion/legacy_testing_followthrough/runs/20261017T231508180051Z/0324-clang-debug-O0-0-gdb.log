@@ -1,0 +1,48 @@
+Breakpoint 1 at 0x116f: file /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/debug_component.c, line 8.
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, debug_decode (p=0x5c932c330028 <debug_bytes> "\0224", n=2, live_owner=1) at /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/debug_component.c:8
+8	 if(!live_owner||n!=2)return UINT32_MAX;
+p = 0x5c932c330028 <debug_bytes> "\0224"
+n = 2
+live_owner = 1
+0x5c932c330028 <debug_bytes>:	0x12	0x34
+$1 = 2048
+rdi            0x5c932c330028      101787171487784
+rsi            0x2                 2
+rdx            0x1                 1
+Dump of assembler code for function debug_decode:
+   0x00005c932c32d160 <+0>:	push   %rbp
+   0x00005c932c32d161 <+1>:	mov    %rsp,%rbp
+   0x00005c932c32d164 <+4>:	mov    %rdi,-0x10(%rbp)
+   0x00005c932c32d168 <+8>:	mov    %rsi,-0x18(%rbp)
+   0x00005c932c32d16c <+12>:	mov    %edx,-0x1c(%rbp)
+=> 0x00005c932c32d16f <+15>:	cmpl   $0x0,-0x1c(%rbp)
+   0x00005c932c32d173 <+19>:	je     0x5c932c32d17c <debug_decode+28>
+   0x00005c932c32d175 <+21>:	cmpq   $0x2,-0x18(%rbp)
+   0x00005c932c32d17a <+26>:	je     0x5c932c32d185 <debug_decode+37>
+   0x00005c932c32d17c <+28>:	movl   $0xffffffff,-0x4(%rbp)
+   0x00005c932c32d183 <+35>:	jmp    0x5c932c32d1a2 <debug_decode+66>
+   0x00005c932c32d185 <+37>:	mov    -0x10(%rbp),%rax
+   0x00005c932c32d189 <+41>:	movzbl 0x1(%rax),%eax
+   0x00005c932c32d18d <+45>:	shl    $0x8,%eax
+   0x00005c932c32d190 <+48>:	mov    -0x10(%rbp),%rcx
+   0x00005c932c32d194 <+52>:	movzbl (%rcx),%ecx
+   0x00005c932c32d197 <+55>:	or     %ecx,%eax
+   0x00005c932c32d199 <+57>:	mov    %eax,-0x20(%rbp)
+   0x00005c932c32d19c <+60>:	mov    -0x20(%rbp),%eax
+   0x00005c932c32d19f <+63>:	mov    %eax,-0x4(%rbp)
+   0x00005c932c32d1a2 <+66>:	mov    -0x4(%rbp),%eax
+   0x00005c932c32d1a5 <+69>:	pop    %rbp
+   0x00005c932c32d1a6 <+70>:	ret
+End of assembler dump.
+DEBUG_VALUE:13330:EXPECTED:4660
+[Inferior 1 (process 3172) exited with code 01]
+DEBUG_CHECK:wire-big-endian

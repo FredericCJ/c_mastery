@@ -5,7 +5,14 @@
   "title": "DMA buffer and portable service boundary — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/peripheral_depth/layers/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/g474_uart_followthrough/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -97,6 +104,186 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-PD-RM21",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp65/68 DMA2/RCC mapping, SRAM all-AHB banks and CPU-only CCM; pp182–183 RCC AHB1 offset30 DMA2EN22",
+        "pp314–315 DMA2-only M2M and address increment; pp317–327 width/FIFO, draining after disable, TC/NDTR, failure and configuration",
+        "pp333–336 selected CR/NDTR/PAR/M0AR/FCR registers"
+      ]
+    },
+    {
+      "id": "R-PD-RM0399",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp136–142 SRAM3 normal WBWA map, aliases and DMA2/HSEM/RCC mapping; pp487–490 AHB clocks and SRAM3 allocation",
+        "pp674–676,680–681 DMA2 M2M/FIFO/software enable; pp689–690 stop/flush/NDTR; pp698–701/703 CR and FIFO registers",
+        "pp555–557,559,561–562 HSEM one-step take, same-ID recursion limitation, release and register offsets; current port uses polling, not interrupt procedure"
+      ]
+    },
+    {
+      "id": "R-PD-PM0253",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp240–244 privileged cache-maintenance registers, PoC, DSB/ISB ordering and asynchronous BusFault limitations"
+      ]
+    },
+    {
+      "id": "R-PD-AN4839",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp3–6 cache-line/write-back/coherency discussion; F7 DTCM example is not the selected H745 DMA2 route"
+      ]
+    },
+    {
+      "id": "R-PD-ES0445",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "§2.1.1 p6 write-through erratum; §2.1.2 pp7–8 PLD side effects do not bypass MPU permission; §2.1.5 p9 barriers after invalidate",
+        "§2.3.12 p16 HASH/other-DMA concurrency restriction; §2.4–2.6 pp17–18 distinct MDMA/BDMA/DMAMUX limitations not transferred to M2M",
+        "§2.20.3 p36 USART TRBUFF workaround is a different request mode"
+      ]
+    },
+    {
+      "id": "R-PD-ES0206",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "§2.2.7 p11 AHB clock-enable delay and readback/DSB workarounds; Table3 pp2–3 inspected for applicable peripheral limits"
+      ]
+    },
+    {
+      "id": "R-G4INIT-1",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "FIFO enable/disable lines655-698; divisor rounding/prescaler and BRR admission lines610,1830-1915; TEACK definition; TDR operation"
+      ]
+    },
+    {
+      "id": "R-G4INIT-2",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "LL_USART_DeInit/Init lines150-304: reset force/release, UE-disabled setup, width/parity/TE/RE/oversampling, clock and baud"
+      ]
+    },
+    {
+      "id": "R-G4INIT-3",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "HSI enable/ready lines997-1035; USART2 HSI selector and clock-source modification near1527",
+        "LL MCO source/prescaler constants lines273-295 and LL_RCC_ConfigMCO body1475-1499: HSI16 selector3,divide16 encoding4"
+      ]
+    },
+    {
+      "id": "R-G4INIT-4",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "AHB2 enable/readback near451; APB1 enable/readback near910"
+      ]
+    },
+    {
+      "id": "R-G4INIT-5",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "AFRL per-pin nibble read-modify-write near568"
+      ]
+    },
+    {
+      "id": "R-G4INIT-6",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "USART_TypeDef lines897-911; RCC offsets38/4c/58/88; base addresses and HSI/USART2 clock/reset/selector/UE/TE/FIFO/TEACK/TCCF fields",
+        "RCC_CFGR MCOSEL/MCOPRE positions24/28 and GPIO AFRH offset24; actual independent layout assertions"
+      ]
+    },
+    {
+      "id": "R-G4INIT-UM2505",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed24-25 section7.6.5 Tables10/11: USART1 and PA2/PA3 LPUART1 bridge routes; default route and alternatives",
+        "printed31 CN9 pin8/D7 PA8 and printed33 CN10 pin23 PA8 route"
+      ]
+    },
+    {
+      "id": "R-G4INIT-DS12288",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed59 Table12 PA2 pin/functions; printed73 Table13 PA2 AF7 USART2_TX,AF8 COMP2_OUT,AF12 LPUART1_TX",
+        "printed120 Table43 HSI16 nominal/tolerance conditions and stabilization; printed121 characterization figure distinction",
+        "printed20 section3.5 SRAM1 base0x20000000 and capacity; printed84 Table17 standard supply and bus-clock bounds",
+        "printed73 Table13 PA8 AF0 MCO"
+      ]
+    },
+    {
+      "id": "R-G4INIT-ES0430",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed28 section2.16.1-.4 USART earlyTC SPI-slave, receive glitch, ABREN and ONEBIT cases",
+        "printed29 section2.17 LPUART distinct low-ratio jitter limitation"
+      ]
+    },
+    {
+      "id": "R-PL-HAL183",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "HAL_UART_Transmit lines1136–1208: TXE/DR/TC, timeout and READY",
+        "UART_WaitOnFlagUntilTimeout lines3185–3225: tick progression and HAL_MAX_DELAY",
+        "UART_EndTransmit_IT lines3569–3592: READY before callback; interrupt handler and selected transmit path"
+      ]
+    },
+    {
+      "id": "R-PL-HALMAC183",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "__HAL_UART_GET_FLAG line470 repeated flag expression; ENABLE_IT/DISABLE_IT lines558–580 selected register read-modify-write"
+      ]
+    },
+    {
+      "id": "R-PL-F4DEVICE2610",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef lines874–885: 32-bit volatile SR/DR/BRR/CR1/CR2/CR3/GTPR offsets",
+        "USART_SR_TXE/TC bit definitions checked by actual compile-time assertions"
+      ]
+    },
+    {
+      "id": "R-PL-F4MAC2610",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "READ_BIT/WRITE_REG/MODIFY_REG lines215–223; ATOMIC_SET_BIT lines229–235 uses exclusive primitives, not ISO atomic MMIO"
+      ]
+    },
+    {
+      "id": "R-PL-G4DEVICE",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef lines897–911: ISR1C, TDR28 and CR1/CR2 at old F4 offsets",
+        "USART_ISR_TC_Pos and TXE_TXFNF aliases lines16221–16229"
+      ]
+    },
+    {
+      "id": "R-PL-G4LL",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "LL_USART_DisableFIFO lines681–692; flag functions lines3007–3030",
+        "LL_USART_TransmitData8 lines4271–4281: selected TDR write"
+      ]
+    },
+    {
+      "id": "R-PL-G4HAL",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "HAL_UART_Transmit lines1119–1200: selected TDR/TC transfer plus BUSY_TX abort-state check",
+        "UART_WaitOnFlagUntilTimeout lines3379–3437: bounded tick rule and selected TX exclusions"
+      ]
+    },
+    {
+      "id": "R-PL-G4PINNED",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef ISR/TDR layout and TXE_TXFNF/TC bits; actual changed-device compile-time layout assertions"
+      ]
     }
   ],
   "reference_gaps": [
@@ -109,13 +296,110 @@
     "curriculum/projects/PR-T28-06.md",
     "fixtures/embedded/PR-T28-06.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/dma/audit_target.py",
+    "labs/peripheral_depth/dma/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/dma/board_capture.py",
+    "labs/peripheral_depth/dma/capture_template.json",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/h745_audit.ld",
+    "labs/peripheral_depth/dma/notice.c",
+    "labs/peripheral_depth/dma/notice_port.c",
+    "labs/peripheral_depth/dma/notice_tests.c",
+    "labs/peripheral_depth/dma/run.py",
+    "labs/peripheral_depth/dma/target.c",
+    "labs/peripheral_depth/dma/tests.c",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/src/firmware_io.c",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/h745_cache.h",
+    "labs/firmware_lifecycle/targets/h745_cache.c",
+    "labs/firmware_lifecycle/targets/h745_port.c",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/firmware_lifecycle/targets/H745_ERRATA.md",
+    "labs/peripheral_depth/layers/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/layers/CONTRACTS.md",
+    "labs/peripheral_depth/layers/compare.c",
+    "labs/peripheral_depth/layers/compare.h",
+    "labs/peripheral_depth/layers/generate_registers.py",
+    "labs/peripheral_depth/layers/link.ld",
+    "labs/peripheral_depth/layers/posted.c",
+    "labs/peripheral_depth/layers/posted.h",
+    "labs/peripheral_depth/layers/registers.h",
+    "labs/peripheral_depth/layers/registers.json",
+    "labs/peripheral_depth/layers/run.py",
+    "labs/peripheral_depth/layers/service.c",
+    "labs/peripheral_depth/layers/service.h",
+    "labs/peripheral_depth/layers/stm32f4xx_hal_conf.h",
+    "labs/peripheral_depth/layers/stm32g4xx_hal_conf.h",
+    "labs/peripheral_depth/layers/target.c",
+    "labs/peripheral_depth/layers/target.h",
+    "labs/peripheral_depth/layers/tests.c",
+    "labs/peripheral_depth/layers/thumb_start.c",
+    "labs/peripheral_depth/layers/uart_adapter.c",
+    "labs/peripheral_depth/layers/uart_adapter.h",
+    "labs/peripheral_depth/uart/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/audit_target.py",
+    "labs/peripheral_depth/uart/board_capture.json",
+    "labs/peripheral_depth/uart/run.py",
+    "labs/peripheral_depth/uart/target.c",
+    "labs/peripheral_depth/uart/tests.c",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/peripheral_depth/mmio/mmio.c",
+    "labs/peripheral_depth/mmio/mmio.h",
+    "labs/peripheral_depth/mmio/run.py",
+    "labs/peripheral_depth/mmio/target.c",
+    "labs/peripheral_depth/mmio/tests.c",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/g474_uart_followthrough/BOARD_CAPTURE.md",
+    "labs/g474_uart_followthrough/capture.h",
+    "labs/g474_uart_followthrough/check_capture.py",
+    "labs/g474_uart_followthrough/CONTRACTS.md",
+    "labs/g474_uart_followthrough/learner.c",
+    "labs/g474_uart_followthrough/physical.c",
+    "labs/g474_uart_followthrough/port.h",
+    "labs/g474_uart_followthrough/run.py",
+    "labs/g474_uart_followthrough/startup.S",
+    "labs/g474_uart_followthrough/target_build.py",
+    "labs/g474_uart_followthrough/tests.c",
+    "labs/g474_uart_followthrough/clock_probe.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "dma_ownership_successor": {
+      "path": "research/v5/expansion/legacy_advanced_dma/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.10.a",
+        "AX-PR-T28-06-T28.10.b",
+        "AX-PR-T28-06-T28.10.c"
+      ],
+      "scope": "Three T28.10 ordinary and three unchanged delayed tasks; actual fw_dma/fw_cache_range/fw_peer_step providers; T28.11–.12 and physical/external work separate"
+    },
+    "layered_service_successor": {
+      "path": "research/v5/expansion/legacy_advanced_layers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.a",
+        "AX-PR-T28-06-T28.11.b",
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Three T28.11 ordinary and three unchanged delayed tasks; actual PuDriver/PmModel/HAL providers; T28.12 and physical/external work separate"
+    },
+    "g474_initialization_successor": {
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Additional selected original G474 initializer and changed-condition support; existing equivalent-transfer HAL/direct/generated comparison retained; source and physical gaps distinct"
+    }
   },
   "criteria": [
     {
@@ -653,7 +937,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-06.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -661,5 +945,32 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_dma/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.10.a",
+        "AX-PR-T28-06-T28.10.b",
+        "AX-PR-T28-06-T28.10.c"
+      ],
+      "scope": "Three T28.10 ordinary and three unchanged delayed tasks; actual fw_dma/fw_cache_range/fw_peer_step providers; T28.11–.12 and physical/external work separate"
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Additional selected original G474 initializer and changed-condition support; existing equivalent-transfer HAL/direct/generated comparison retained; source and physical gaps distinct"
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_layers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.a",
+        "AX-PR-T28-06-T28.11.b",
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Three T28.11 ordinary and three unchanged delayed tasks; actual PuDriver/PmModel/HAL providers; T28.12 and physical/external work separate"
+    }
+  ]
 }

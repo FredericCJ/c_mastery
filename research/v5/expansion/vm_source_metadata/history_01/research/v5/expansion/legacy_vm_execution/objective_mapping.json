@@ -1,0 +1,144 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T46-03-T46.03.a",
+      "objective": "T46.03.a",
+      "task": "Trace every stack transition for checked add/subtract/multiply/divide, including negative division, zero divisor and INT32_MIN/-1. Implement admission before the C operation and test exact neighboring valid results.",
+      "delayed": {
+        "id": "AX-PR-T46-03-T46.03.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Define a separately versioned wrapping-int32 guest and rederive conversions and tests."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#03a",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug independent oracle",
+        "gcc-debug 1 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-03-T46.03.b",
+      "objective": "T46.03.b",
+      "task": "Construct four minimal programs separating TYPE,RANGE,STACK_LIMIT and VERIFY; keep result output as a sentinel and inspect diagnostic VM state after each failure.",
+      "delayed": {
+        "id": "AX-PR-T46-03-T46.03.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a host-service error after valid arithmetic and preserve the distinction."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#03b",
+      "checks": [
+        "gcc-debug 0 execute",
+        "target 5 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-03-T46.03.c",
+      "objective": "T46.03.c",
+      "task": "Test failure at each dispatch boundary while preserving the output result, and document which internal diagnostic fields may change. Reinitialize before independent replay and compare GCC/Clang optimized behavior.",
+      "delayed": {
+        "id": "AX-PR-T46-03-T46.03.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Design a resumable VM API and specify the additional continuation/state invariants."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#03c",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug 2 execute",
+        "gcc-debug 3 execute",
+        "gcc-debug 5 execute",
+        "gcc-debug 6 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-04-T46.04.a",
+      "objective": "T46.04.a",
+      "task": "Hand-trace recursive sum(5) with function identity, invocation identity, IP, local initialization and operand base at every call/return. Keep one caller temporary live across a nested call.",
+      "delayed": {
+        "id": "AX-PR-T46-04-T46.04.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Use mutual recursion with two functions sharing the same local slot numbers."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#04a",
+      "checks": [
+        "gcc-debug 0 execute",
+        "PPC64-O0 0 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-04-T46.04.b",
+      "objective": "T46.04.b",
+      "task": "Test direct calls with exact and wrong arity, frame capacity16 and a seventeenth call. Verify refusal before constructing an extra frame and use generated C call traces to show interpreter recursion is absent.",
+      "delayed": {
+        "id": "AX-PR-T46-04-T46.04.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add tail-call elimination under a new opcode contract and compare resource behavior."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#04b",
+      "checks": [
+        "gcc-debug 0 execute",
+        "gcc-debug 4 execute",
+        "gcc-debug stack execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T46-04-T46.04.c",
+      "objective": "T46.04.c",
+      "task": "Compare finite recursive execution, guest frame exhaustion and a separate bounded native stack experiment. Report guest frame bytes, operand bytes and actual C stack evidence independently.",
+      "delayed": {
+        "id": "AX-PR-T46-04-T46.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Move VM storage from an automatic object to caller-owned static storage and reassess lifetime/reentrancy."
+      },
+      "teaching": "labs/runtime_followthrough/execution/CONTRACTS.md",
+      "learner_artifacts": [
+        "learner.c",
+        "original CVM codec",
+        "criterion-indexed numeric/continuation/frame/stack dossier"
+      ],
+      "assessment": "assessor/runtime_followthrough/execution/ANALYSIS.md#04c",
+      "checks": [
+        "gcc-debug stack execute",
+        "clang-release stack execute",
+        "arm-none-eabi-gcc-O0 resources",
+        "clang-O0 resources"
+      ],
+      "source_register": "research/v5/expansion/legacy_vm_execution/resources.json"
+    }
+  ],
+  "remaining": "T46–49 and recursive inventory remain required; physical/source/external dimensions are separate."
+}

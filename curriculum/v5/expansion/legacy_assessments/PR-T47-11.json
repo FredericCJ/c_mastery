@@ -4,7 +4,9 @@
   "domain": "T47",
   "title": "Linux file I/O and amplification - explicit objective assessment",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/storage_followthrough/file/CONTRACTS.md",
+    "labs/storage_followthrough/delta/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -98,6 +100,66 @@
       "passages": [
         "Hardware Assumptions"
       ]
+    },
+    {
+      "id": "R-STORAGE-FILE-PREAD",
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_resources.json",
+      "passages": [
+        "DESCRIPTION",
+        "RETURN VALUE",
+        "BUGS (Linux O_APPEND caveat)"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FILE-FSYNC",
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_resources.json",
+      "passages": [
+        "DESCRIPTION (file and directory synchronization)",
+        "RETURN VALUE",
+        "ERRORS"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FILE-POLL",
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_resources.json",
+      "passages": [
+        "DESCRIPTION (ready versus operation progress",
+        "POLLIN/POLLOUT/POLLHUP)",
+        "RETURN VALUE",
+        "NOTES",
+        "BUGS"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FILE-CLOSE",
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_resources.json",
+      "passages": [
+        "DESCRIPTION",
+        "RETURN VALUE",
+        "CAVEATS (Linux descriptor reuse, error handling and POSIX.1-2024 EINTR difference)"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-FILE",
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_resources.json",
+      "passages": [
+        "Prerequisites, imports and environment",
+        "Original positioned-transfer investigation",
+        "A staged nonblocking operation",
+        "Existing file versus newly published name",
+        "Costs, falsification and assessment"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-DELTA",
+      "path": "research/v5/expansion/legacy_storage_followthrough/delta_resources.json",
+      "passages": [
+        "Prerequisites, imports and environment",
+        "Representation and publication protocol",
+        "Ownership, failures and costs",
+        "Concrete workload and falsification",
+        "Deliverables, rubric and transfer"
+      ]
     }
   ],
   "reference_gaps": [
@@ -108,7 +170,28 @@
   "supplied_artifacts": [
     "curriculum/modules/T47.md",
     "curriculum/projects/PR-T47-11.md",
-    "fixtures/storage/PR-T47-11.json"
+    "fixtures/storage/PR-T47-11.json",
+    "labs/storage_followthrough/file/file.h",
+    "labs/storage_followthrough/file/file.c",
+    "labs/storage_followthrough/file/tests.c",
+    "labs/storage_followthrough/file/CMakeLists.txt",
+    "labs/storage_followthrough/file/expect_failure.py",
+    "labs/storage_followthrough/file/CONTRACTS.md",
+    "labs/storage/include/store.h",
+    "labs/storage/src/store.c",
+    "labs/storage/include/store_file.h",
+    "labs/storage/src/store_file.c",
+    "labs/storage/FORMAT.md",
+    "labs/storage/INTEGRATION.md",
+    "labs/storage_followthrough/delta/delta.h",
+    "labs/storage_followthrough/delta/delta.c",
+    "labs/storage_followthrough/delta/tests.c",
+    "labs/storage_followthrough/delta/CMakeLists.txt",
+    "labs/storage_followthrough/delta/expect_failure.py",
+    "labs/storage_followthrough/delta/CONTRACTS.md",
+    "labs/storage_followthrough/durability/medium.h",
+    "labs/storage_followthrough/durability/medium.c",
+    "labs/storage_followthrough/durability/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "Retained partial anchors and criterion-specific new assessment tasks",
@@ -117,7 +200,25 @@
       "storage.corruption",
       "storage.file"
     ],
-    "fresh_execution": "not-run for these supplemental tasks"
+    "fresh_execution": "not-run for these supplemental tasks",
+    "storage_file_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-11-T47.11.a",
+        "AX-PR-T47-11-T47.11.a-DELAYED",
+        "AX-PR-T47-11-T47.11.b",
+        "AX-PR-T47-11-T47.11.b-DELAYED",
+        "AX-PR-T47-11-T47.11.c"
+      ],
+      "scope": "Only five exact ordinary/delayed obligations; changed-page redo remains separate. Linux observations are distinct from physical durability."
+    },
+    "storage_delta_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/delta_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-11-T47.11.c-DELAYED"
+      ],
+      "scope": "Only the exact changed-page-redo variant; same raw-page capacity/atomicity/failure contract across full and sparse policies, not CST2 format compatibility."
+    }
   },
   "criteria": [
     {
@@ -188,6 +289,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "file_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-11-T47.11.a",
+          "AX-PR-T47-11-T47.11.a-DELAYED"
+        ],
+        "scope": "Only five exact ordinary/delayed obligations; changed-page redo remains separate. Linux observations are distinct from physical durability."
       }
     },
     {
@@ -259,6 +368,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "file_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-11-T47.11.b",
+          "AX-PR-T47-11-T47.11.b-DELAYED"
+        ],
+        "scope": "Only five exact ordinary/delayed obligations; changed-page redo remains separate. Linux observations are distinct from physical durability."
       }
     },
     {
@@ -329,6 +446,20 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "file_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/file_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-11-T47.11.c"
+        ],
+        "scope": "Only five exact ordinary/delayed obligations; changed-page redo remains separate. Linux observations are distinct from physical durability."
+      },
+      "delta_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/delta_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-11-T47.11.c-DELAYED"
+        ],
+        "scope": "Only the exact changed-page-redo variant; same raw-page capacity/atomicity/failure contract across full and sparse policies, not CST2 format compatibility."
       }
     }
   ],

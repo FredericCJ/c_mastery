@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "schema_version": 1,
+  "family": "network_followthrough",
+  "title": "Required network ownership, reassembly and congestion followthrough",
+  "build_system": "cmake",
+  "assessor_root": "assessor/network_followthrough",
+  "projects": [],
+  "units": [],
+  "campaign": {
+    "producer": "tools/run_network_followthrough.py",
+    "receipt": "network_followthrough_campaign.json",
+    "kind": "exact-provider-composition",
+    "providers": {
+      "network_followthrough.ip": "tools/run_network_ip_depth.py",
+      "network_followthrough.congestion": "tools/run_network_congestion.py"
+    },
+    "scope": "Actual six-host-profile and four-Cortex-M4-profile provider campaigns, including original compiled semantic controls, independent oracles and unsolved learner rejections; separate exact provider guards are mandatory.",
+    "assertion_marker": "_CHECK ",
+    "assertion_markers": {
+      "network_followthrough.ip": "NI_CHECK ",
+      "network_followthrough.congestion": "NR_CHECK "
+    },
+    "assertion_contract": "Both original test harnesses emit the literal shared suffix _CHECK followed by a space; exact provider guards additionally require NI_CHECK and NR_CHECK respectively."
+  },
+  "exercises": [
+    {
+      "id": "X-T41-002",
+      "project": "PR-T41-05",
+      "tests": [
+        "network_followthrough.ip"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T41-003",
+      "project": "PR-T41-07",
+      "tests": [
+        "network_followthrough.congestion"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+import hashlib,json,pathlib
+HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+def main():
+ rows=[]
+ for ident,title,url,locator in [('MUTEX','Linux mutex ownership contract','https://man7.org/linux/man-pages/man3/pthread_mutex_init.3.html','DESCRIPTION: basic ownership and lock/unlock; CANCELLATION; ASYNC-SIGNAL SAFETY'),('STACK','Requested pthread stack size','https://man7.org/linux/man-pages/man3/pthread_attr_setstacksize.3.html','DESCRIPTION; RETURN VALUE; ERRORS; NOTES: requested size and creation boundary'),('OPTIONS','GNU libc system options','https://sourceware.org/glibc/manual/latest/html_node/System-Options.html','33.2 introductory runtime-versus-declaration support paragraphs')]:
+  rows.append(dict(id='R-TSHARE-'+ident,title=title,authors=['GNU C Library maintainers' if ident=='OPTIONS' else 'Linux man-pages maintainers'],edition='Current primary HTML inspected2026-10-17; man-pages6.19 where applicable',year=2026,kind='manual',url=url,access='Actual listed primary passages read',domains=['T25'],role='primary',reason='Shared-state ownership and explicit resource/interface boundaries',prerequisites=['T25.01 creation and join contracts'],locators=[locator],assignable=True,inspection=dict(date='2026-10-17',method='Direct primary passage reading',scope=locator,limits='Historical LinuxThreads implementation/error claims excluded; no exact final standard or cache-specific normative text read.')))
+ external='research/v5/expansion/legacy_thread_lifecycle/resources.json'
+ declarations=[dict(path=external,id='R-TLIFE-'+key) for key in ['CREATE','JOIN']]
+ (HERE/'resources.json').write_text(json.dumps(dict(resources=rows,canonical_external_sources=declarations),indent=2)+'\n',encoding='utf8')
+ files=[HERE/'resources.json',HERE/'sources.md',pathlib.Path(__file__),ROOT/external]
+ (HERE/'research_gate.json').write_text(json.dumps(dict(status='passage-inspected',scope='T25.02 bounded author source evidence, not independent review',resource_ids=[r['id'] for r in rows]+[d['id'] for d in declarations],research_input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},limitations=['Exact published standards and normative barrier/cache-extension passages remain unavailable; execution scope remains selected Linux/glibc.','Physical cache characterization and whole-process memory bound not claimed.']),indent=2)+'\n',encoding='utf8')
+if __name__=='__main__':main()

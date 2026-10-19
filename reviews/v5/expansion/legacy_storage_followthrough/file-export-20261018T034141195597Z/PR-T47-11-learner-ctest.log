@@ -1,0 +1,36 @@
+Test project /tmp/storage-file-export-hiq35kzy/PR-T47-11-learner
+    Start 1: storage_followthrough.original_transfer
+1/6 Test #1: storage_followthrough.original_transfer ...   Passed    0.05 sec
+    Start 2: storage_followthrough.nonblocking
+2/6 Test #2: storage_followthrough.nonblocking .........***Failed    0.00 sec
+SFI_CHECK line236: sfi_begin(&op, (SfiIo){&b, read_bytes, write_bytes, 8}, writing, 7, input, output, &t) == SFI_OK
+
+    Start 3: storage_followthrough.readiness
+3/6 Test #3: storage_followthrough.readiness ...........***Failed    0.00 sec
+SFI_CHECK line334: sfi_begin(&op, (SfiIo){&p, pipe_read, NULL, 1}, 0, 0, NULL, out, &t) == SFI_OK && sfi_step(t, 0, 1) == SFI_WAIT && p.calls == 1
+
+    Start 4: storage_followthrough.native
+4/6 Test #4: storage_followthrough.native ..............***Failed    0.00 sec
+SFI_CHECK line378: store_format(io) == STORE_OK && store_open(&s, io) == STORE_OK && update(&s, 11) == 0
+
+    Start 5: storage_followthrough.fresh
+5/6 Test #5: storage_followthrough.fresh ...............***Failed    0.00 sec
+SFI_CHECK line413: sfi_create(directory, "image", STORE_IMAGE_PAGES, &f) == SFI_OK && f.fd >= 0 && file_syncs == 4 && dir_syncs == 1 && sync_kinds[4] == 1
+
+    Start 6: storage_followthrough.amplification
+6/6 Test #6: storage_followthrough.amplification .......***Failed    0.00 sec
+SFI_CHECK line452: store_file_open(&f, path, STORE_IMAGE_PAGES) == STORE_OK && store_format(store_file_io(&f)) == STORE_OK && store_open(&s, store_file_io(&f)) == STORE_OK && update(&s, 9) == 0 && store_commit(&s) == STORE_OK && store_checkpoint(&s) == STORE_OK && store_open(&s, store_file_io(&f)) == STORE_OK
+
+
+17% tests passed, 5 tests failed out of 6
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  2 - storage_followthrough.nonblocking (Failed)
+	  3 - storage_followthrough.readiness (Failed)
+	  4 - storage_followthrough.native (Failed)
+	  5 - storage_followthrough.fresh (Failed)
+	  6 - storage_followthrough.amplification (Failed)
+
+Errors while running CTest

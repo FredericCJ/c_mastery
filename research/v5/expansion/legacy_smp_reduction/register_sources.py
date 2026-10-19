@@ -1,0 +1,21 @@
+"""Register actual bounded work/span, clock, join and producer inspections."""
+import hashlib,json
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];BASE=Path(__file__).resolve().parent
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def write(p,v):p.write_text(json.dumps(v,indent=2)+'\n',encoding='utf-8',newline='\n')
+def main():
+ rows=[
+ ('R-LSR-SPAN','OpenCilk concepts','https://www.opencilk.org/doc/tutorials/opencilk-concepts/','Displayed primary tutorial2026-10-18',['Strands and knots: execution DAG and input dependence','Work and span; speedup and parallelism lower bounds'],'Actual page read, no import of OpenCilk implementation and no measured physical scaling inferred.'),
+ ('R-LSR-CLOCK','Linux clock_gettime manual','https://man7.org/linux/man-pages/man3/clock_gettime.3.html','Retrieved page Linux man-pages5.07,2020-04-11',['DESCRIPTION: CLOCK_MONOTONIC, PROCESS_CPUTIME_ID and THREAD_CPUTIME_ID','RETURN VALUE and NOTES: failures, resolution and historical SMP clock caveat'],'Actual returned older page read and labeled; no unseen current version claim.'),
+ ('R-LSR-JOIN','Linux pthread_join manual','https://man7.org/linux/man-pages/man3/pthread_join.3.html','Displayed primary manual2026-10-18',['DESCRIPTION: joinable target termination, status and prohibition on multiple simultaneous joins'],'Actual displayed primary passage read; application-owned lifetimes still require explicit caller discipline.'),
+ ('R-LSR-C11','WG14 N1570 C11 draft','https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf','12April2011 committee draft',['5.1.2.4 paragraphs5–13/PDF36: synchronization, release sequence and reads-from','5.1.2.4 paragraphs16–25/PDF37–38: happens-before/coherence and data races'],'Actually inspected bounded draft passages reused; no readable exact published C17 claim.'),
+ ('R-LSR-PRODUCER','Original CMK dynamic257-job helper','labs/kernel_smp/README.md','Current retained original source',['assessor/kernel_smp/parallel_user.c: complete run_jobs, pin, worker and cmk2_parallel_run','labs/kernel_smp/tests/user_v2.c: fixed reduction sum/jobs/mask checks and measurement','labs/kernel_smp/tools/guest.py: actual build and stage execution boundaries'],'Actual source bodies read; fixed bounded jobs do not establish general checked arithmetic, per-index ledgers or safe arbitrary partial launch failure.')]
+ resources=[]
+ for rid,title,url,edition,locators,limits in rows:resources.append({'id':rid,'title':title,'authors':['Primary document owners or original curriculum contributors'],'url':url,'edition':edition,'domains':['T53'],'locators':locators,'kind':'documentation','access':'Actual bounded primary passages inspected','role':'primary','assignable':True,'reason':'Separate arithmetic/order, publication, CPU/work ownership and qualified clock measurements.','prerequisites':['PR-T53-09','PR-T53-02'],'inspection':{'date':'2026-10-18','method':'Actual primary page and named source passages read before authorship.','scope':'; '.join(locators),'limits':limits}})
+ write(BASE/'resources.json',{'schema_version':1,'resources':resources,'reference_gaps':['Readable exact published C17 remains unavailable.','Physical cache topology/PMU and calibrated performance remain unobserved.']})
+ paths=['assessor/kernel_smp/parallel_user.c','labs/kernel_smp/tests/user_v2.c','labs/kernel_smp/tools/guest.py','fixtures/os_v3/PR-T53-10.json']
+ write(BASE/'source_access.json',{'schema_version':1,'date':'2026-10-18','actual_web_passages':[r[2] for r in rows[:3]],'inspected_paths':{p:sha(ROOT/p) for p in paths},'private_document_sha256':{'build/legacy_runtime_sources/n1570.pdf':sha(ROOT/'build/legacy_runtime_sources/n1570.pdf')},'original_analysis':'Partition proofs, ordered polynomial summary, checked arithmetic, compensation fixture and finite independent expectations are original course analysis.','limits':'Author passage inspection only; no independent human or physical observation.'})
+ write(BASE/'research_gate.json',{'status':'passage-inspected','domains':['T53'],'inspection_kind':'Author passage inspection, not independent human review','research_input_sha256':{p.relative_to(ROOT).as_posix():sha(p) for p in (BASE/'resources.json',BASE/'source_access.json')}})
+ print(json.dumps({'resources':len(resources)}))
+if __name__=='__main__':main()

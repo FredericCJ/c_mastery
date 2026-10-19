@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "X-T70-007",
+  "title": "Bitmap rank, full-hash collisions and persistent map updates",
+  "project": "PR-T70-07",
+  "domain": "T70",
+  "objectives": [
+    "T70.07.a",
+    "T70.07.b",
+    "T70.07.c",
+    "T70.07.d"
+  ],
+  "families": [
+    "B",
+    "C",
+    "D",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T70-006"
+  ],
+  "prerequisite_artifacts": [
+    "memory.pool",
+    "containers.array",
+    "algorithms.radix"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DOD-HAMT",
+      "path": "research/v5/modern/dod_resources.json",
+      "passages": [
+        "HashMap description: immutable HAMT and hash/equality requirements",
+        "update, update_with and without methods"
+      ]
+    },
+    {
+      "id": "R-MOD-DOD-IM",
+      "path": "research/v5/modern/dod_resources.json",
+      "passages": [
+        "Why Would I Want This?: structural sharing and workload tradeoffs",
+        "Values: Clone requirement for copied shared nodes"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dod",
+    "tests": [
+      "dod.hamt",
+      "dod.hamt_delete",
+      "dod.dictionary"
+    ],
+    "scaffold": "labs/dod"
+  },
+  "fixtures": [
+    "fixtures/dod/PR-T70-07.json",
+    "fixtures/dod/extensions.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dod/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dod/analyses/X-T70-007.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/modern_completion/dod_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T70.07.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-007-R1"
+      ]
+    },
+    {
+      "objective": "T70.07.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-007-R2"
+      ]
+    },
+    {
+      "objective": "T70.07.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-007-R3"
+      ]
+    },
+    {
+      "objective": "T70.07.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-007-R4"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T70-007-R1",
+      "objective": "T70.07.a",
+      "criterion": "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-007-R2",
+      "objective": "T70.07.b",
+      "criterion": "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-007-R3",
+      "objective": "T70.07.c",
+      "criterion": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-007-R4",
+      "objective": "T70.07.d",
+      "criterion": "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T70-007-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T70-007.md",
+  "brief_sha256": "2ceee4d0e95a47aa8fb8f148a57d4fcba83a11c8a6b5898fe6d2a4a4115e7f1c",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dod/PR-T70-07.json": "4d74a8211741004794aad958e89c9616f756cdc15babbcd8d37ed0acb93e310b",
+    "fixtures/dod/extensions.json": "201a4430266f6ba67301ee427c0183bc88e58006472c9d28b056a0dc8d97c83c",
+    "labs/dod/CONTRACTS.md": "0c5321eb9afff79a479246240b3df494f46bd7f4b13ce95d52cb35d5b56497b9",
+    "research/v5/modern/dod_resources.json": "02da192d7d448ca1eb2e9ee2d3c2d2b1a827d951f2c29632a18d810b3c607dbf"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "FX-NET-T41-03",
+  "description": "Normal RX ownership/errors/retained-FCS and last-TX control rebuild.",
+  "input": {
+    "case_kind": "dma",
+    "rx_words_hex": [
+      "80000000",
+      "00400300",
+      "05ee0300",
+      "00400200",
+      "00408300",
+      "00404300",
+      "003f0300"
+    ],
+    "buffers": 6,
+    "buffer_bytes": 2048,
+    "descriptors": 6,
+    "last_tx_bits": [
+      31,
+      30,
+      29,
+      28,
+      21
+    ],
+    "writeback_hex": "00000000",
+    "evidence_scope": "host",
+    "reuse_words_hex": [
+      "00000000",
+      "70200000"
+    ]
+  },
+  "expected": {
+    "rx_views": [
+      {
+        "result": "dma_owned",
+        "view_bytes": null
+      },
+      {
+        "result": "ok",
+        "view_bytes": 60
+      },
+      {
+        "result": "ok",
+        "view_bytes": 1514
+      },
+      {
+        "result": "partial",
+        "view_bytes": null
+      },
+      {
+        "result": "error",
+        "view_bytes": null
+      },
+      {
+        "result": "error",
+        "view_bytes": null
+      },
+      {
+        "result": "length",
+        "view_bytes": null
+      }
+    ],
+    "ring_bytes": 12384,
+    "last_tx_control_hex": "f0200000",
+    "reuse_needs_rebuild": true,
+    "normal_descriptor_bytes": 16,
+    "physical_proven": false,
+    "reuse_checks": [
+      true,
+      false
+    ]
+  },
+  "verification_method": "Decode finite raw status/control snapshots and independently derive ring memory; no target controller execution claimed."
+}

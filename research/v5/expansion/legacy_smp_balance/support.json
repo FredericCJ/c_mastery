@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "updates": [
+    {
+      "id": "AX-PR-T53-08-T53.08.a",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Effective versus pending affinity, exclusion of a running CPU only after actual saved-context finish, disallowed READY dispatch refusal and explicit generation/reservation ownership.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.a-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ]
+    },
+    {
+      "id": "AX-PR-T53-08-T53.08.a-DELAYED",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Effective versus pending affinity, exclusion of a running CPU only after actual saved-context finish, disallowed READY dispatch refusal and explicit generation/reservation ownership.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.a-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ],
+      "parent_id": "AX-PR-T53-08-T53.08.a",
+      "original_variant_id": "AX-PR-T53-08-T53.08.a-DELAYED",
+      "original_variant_task": "Restrict a currently running task's affinity to exclude its CPU and define the safe rescheduling boundary.",
+      "minimum_days": 7,
+      "variant_readiness": "Actual deferred running-mask boundary, timer migration/rerouting and pinned-task restricted placement are implemented and author-executed; delayed unaided learner evidence remains absent."
+    },
+    {
+      "id": "AX-PR-T53-08-T53.08.b",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Actual ordered-lock queue reservation and commit/rollback, injected pre/post-reservation failure, finite wake/transfer schedules and generation/serial timer lease rerouting across an old CPU reference.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.b-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ]
+    },
+    {
+      "id": "AX-PR-T53-08-T53.08.b-DELAYED",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Actual ordered-lock queue reservation and commit/rollback, injected pre/post-reservation failure, finite wake/transfer schedules and generation/serial timer lease rerouting across an old CPU reference.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.b-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ],
+      "parent_id": "AX-PR-T53-08-T53.08.b",
+      "original_variant_id": "AX-PR-T53-08-T53.08.b-DELAYED",
+      "original_variant_task": "Migrate a task with a timer callback referencing its old CPU and redesign callback routing/lifetime.",
+      "minimum_days": 7,
+      "variant_readiness": "Actual deferred running-mask boundary, timer migration/rerouting and pinned-task restricted placement are implemented and author-executed; delayed unaided learner evidence remains absent."
+    },
+    {
+      "id": "AX-PR-T53-08-T53.08.c",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Actual pinned/movable saved-context workloads, complete actor/task causal traces, equivalent native work, repeated clock-scoped observations and a concrete balancing-cost counterexample.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.c-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ]
+    },
+    {
+      "id": "AX-PR-T53-08-T53.08.c-DELAYED",
+      "project": "PR-T53-08",
+      "original_objective": "T53.08.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json",
+      "closure_rationale": "Actual pinned/movable saved-context workloads, complete actor/task causal traces, equivalent native work, repeated clock-scoped observations and a concrete balancing-cost counterexample.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.c-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ],
+      "parent_id": "AX-PR-T53-08-T53.08.c",
+      "original_variant_id": "AX-PR-T53-08-T53.08.c-DELAYED",
+      "original_variant_task": "Pin one latency-sensitive task and rebalance only others, deriving the changed admissible placement set.",
+      "minimum_days": 7,
+      "variant_readiness": "Actual deferred running-mask boundary, timer migration/rerouting and pinned-task restricted placement are implemented and author-executed; delayed unaided learner evidence remains absent."
+    },
+    {
+      "id": "G-LCON-PR-T53-08",
+      "project": "PR-T53-08",
+      "original_source": "research/v5/expansion/legacy_concurrency/gap_ledger.json",
+      "closure_rationale": "All original affinity/movement criteria and three named changed conditions have actual queue/wakeup composition, discriminating controls and source-bound author execution. Unsupported cache attribution and physical/independent evidence remain explicit, not substituted by timing averages.",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-affinity-migration-and-timer-contract",
+          "evidence": [
+            "labs/smp_depth/balance/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-original-criteria-and-named-changed-conditions",
+          "evidence": [
+            "assessor/legacy_smp/balance.c",
+            "assessor/legacy_smp/balance_guest.c",
+            "assessor/legacy_smp/balance_frames.S",
+            "labs/smp_depth/balance/oracle.py",
+            "labs/smp_depth/balance/native.c"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-model-native-and-actual-saved-context-conditions",
+          "evidence": [
+            "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-run-no-physical-cache-or-WCET-claim",
+          "evidence": []
+        }
+      },
+      "variant_ids": [
+        "AX-PR-T53-08-T53.08.a-DELAYED",
+        "AX-PR-T53-08-T53.08.b-DELAYED",
+        "AX-PR-T53-08-T53.08.c-DELAYED"
+      ],
+      "required_environment": "C17 GCC/Clang debug/release/ASan+UBSan, two allowed native CPUs with actual pthread affinity and both TSan builds, independent transition/cost/trace models and original CMK QEMU TCG general-register saved-context guest.",
+      "external_blockers": [
+        "Independent human review and seven-day unaided learner assessment remain unattempted.",
+        "Physical cache attribution/PMU or WCET claims require separately controlled physical hardware observations."
+      ],
+      "evidence_limits": [
+        "One caller per actor and all underlying operations through the wrapper; creation/reuse requires whole-world quiescence, stable port contexts and no live timer lease.",
+        "Pending affinity is cooperative: no forced preemption, CPU hotplug, TLS/FP/SIMD or arbitrary asynchronous callback cancellation.",
+        "The timer entry is a generation/serial-checked synchronous callback protocol, not a hardware timer ISR.",
+        "This policy comparison polls; sleeping destination/IPI evidence remains the separate frozen T53.07 adapter.",
+        "Native first/repeated sweep durations have multiple causes and do not isolate cache misses; virtual TSC intervals do not establish physical time or WCET.",
+        "Finite schedule/cost models and complete recorded trace consistency do not prove all C executions, fairness or a universal performance advantage."
+      ],
+      "criterion_ids": [
+        "AX-PR-T53-08-T53.08.a",
+        "AX-PR-T53-08-T53.08.b",
+        "AX-PR-T53-08-T53.08.c"
+      ]
+    }
+  ],
+  "source_records": [
+    {
+      "id": "R-LSB-AFFINITY",
+      "path": "research/v5/expansion/legacy_smp_balance/resources.json",
+      "passages": [
+        "DESCRIPTION: per-thread eligible CPU set and migration when the current CPU is excluded",
+        "ERRORS EINVAL and NOTES: actual present/permitted CPU intersection and cpuset restrictions",
+        "EXAMPLES opening: measured execution depends on CPU placement and cache effects"
+      ]
+    },
+    {
+      "id": "R-LSB-PTHREAD-AFFINITY",
+      "path": "research/v5/expansion/legacy_smp_balance/resources.json",
+      "passages": [
+        "DESCRIPTION and RETURN VALUE: per-thread mask, migration and nonzero error number",
+        "STANDARDS and NOTES: GNU nonportable API, kernel restrictions and inherited mask"
+      ]
+    },
+    {
+      "id": "R-LSB-C11",
+      "path": "research/v5/expansion/legacy_smp_balance/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs5\u201313/PDF36: synchronization, release sequence and reads-from",
+        "5.1.2.4 paragraphs16\u201325/PDF37\u201338: happens-before/coherence and data races"
+      ]
+    },
+    {
+      "id": "R-LSB-PRODUCERS",
+      "path": "research/v5/expansion/legacy_smp_balance/resources.json",
+      "passages": [
+        "queues/CONTRACTS.md: READY/RUNNING/TRANSFER ownership, two-sided reservations and saved-context boundary",
+        "wakeup/CONTRACTS.md: MOVING, SIGNAL after committed work and notification-only retry",
+        "locks/CONTRACTS.md: stable guard lifetime and acquire/release TAS"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "labs/smp_depth/balance/CONTRACTS.md": "5b63dffdbd11dfc4cad6525ac50151df9feb4851348f087a351e526b2b4dd792",
+    "reviews/v5/expansion/legacy_smp_balance/campaign.json": "30c463bfa81ec33000e05f5355c6d940616f5eb2ea4f3dc00ff053729974e08b",
+    "curriculum/v5/expansion/legacy_assessments/PR-T53-08.json": "5c153201dd1201f8133abec17de12e14a72bf5db6342dfaa04b4d5087e48cbfb",
+    "tools/check_smp_balance_depth.py": "84fcc7264a0ce562c8a59cd8119670f26acb650721d260ea2c5d9de37c2323a8",
+    "assessor/legacy_smp/balance.md": "f8f3cf8a7382018c759d0c5382826ddf1968802ab2c3709a8a8d4068d7159389",
+    "research/v5/expansion/legacy_smp_balance/author_support.py": "df6aacff9c02489cc4ce1c43834cf6e7e20e8a4174bfd1f7158563a9d379152d",
+    "research/v5/expansion/legacy_smp_balance/resources.json": "886248a47117f0b5923e28d6868e413bf8d6b6c5b6fb846b98750dd72214ce7b",
+    "research/v5/expansion/legacy_smp_balance/source_access.json": "5b8a630f2c47300c91f53151cfef747ce62892b221e2aa1f6ebf2ba3c4c35c20",
+    "research/v5/expansion/legacy_smp_balance/research_gate.json": "2ecd4451e2285248e88ed0eb18c0ab195d0f0a5ed90362871546353cea8b12d3"
+  },
+  "campaigns": [
+    {
+      "producer": "tools/run_smp_balance_depth.py",
+      "report": "reviews/v5/expansion/legacy_smp_balance/campaign.json"
+    }
+  ],
+  "remaining_author_work": [],
+  "remaining_external_work": [
+    "Independent human review and delayed unaided learner assessment.",
+    "Physical platform/cache/PMU and calibrated timing evidence before expanded physical claims."
+  ],
+  "scope": "Exact T53.08 affinity, saved-context balancing and three original changed conditions; TLB and later memory/scheduling mechanisms remain separate."
+}

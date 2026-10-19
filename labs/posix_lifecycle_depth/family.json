@@ -1,22 +1,158 @@
 {
   "version": 1,
   "family": "posix_lifecycle_depth",
-  "title": "Process image replacement and partial thread acquisition",
+  "title": "Hosted process, byte I/O, namespace, mapping and terminal lifecycle",
   "build_system": "cmake",
   "assessor_root": "assessor/posix_lifecycle_depth",
-  "tests": ["posix_lifecycle_depth.launch", "posix_lifecycle_depth.pool"],
-  "projects": [
-    {"id": "PR-T23-01", "tests": ["posix_lifecycle_depth.launch"], "scope": "Original-helper error pipe, result classification, parent acquisition cleanup and exact child reap."},
-    {"id": "PR-T25-01", "tests": ["posix_lifecycle_depth.pool"], "scope": "At most four actual pthreads, injected creation failure, successful-prefix join ownership and result accounting."}
+  "tests": [
+    "posix_lifecycle_depth.launch",
+    "posix_lifecycle_depth.pool",
+    "posix_lifecycle_depth.mapping_views",
+    "posix_lifecycle_depth.mapping_codec",
+    "posix_lifecycle_depth.mapping_publication",
+    "posix_lifecycle_depth.namespace_confined",
+    "posix_lifecycle_depth.namespace_metadata",
+    "posix_lifecycle_depth.namespace_policy",
+    "posix_lifecycle_depth.io_stream",
+    "posix_lifecycle_depth.io_extent",
+    "posix_lifecycle_depth.io_position",
+    "posix_lifecycle_depth.io_close_policy",
+    "posix_lifecycle_depth.terminal_guard",
+    "posix_lifecycle_depth.terminal_pipeline",
+    "posix_lifecycle_depth.workload_record"
   ],
-  "assessment_contracts": ["curriculum/v5/expansion/legacy_assessments/PR-T23-01.json", "curriculum/v5/expansion/legacy_assessments/PR-T25-01.json"],
+  "projects": [
+    {
+      "id": "PR-T23-01",
+      "tests": [
+        "posix_lifecycle_depth.launch"
+      ],
+      "scope": "Original-helper error pipe, result classification, parent acquisition cleanup and exact child reap."
+    },
+    {
+      "id": "PR-T25-01",
+      "tests": [
+        "posix_lifecycle_depth.pool"
+      ],
+      "scope": "At most four actual pthreads, injected creation failure, successful-prefix join ownership and result accounting."
+    },
+    {
+      "id": "PR-T23-03",
+      "tests": [
+        "posix_lifecycle_depth.mapping_views",
+        "posix_lifecycle_depth.mapping_codec",
+        "posix_lifecycle_depth.mapping_publication",
+        "posix_lifecycle_depth.workload_record"
+      ],
+      "scope": "Checked mapping and invalidated borrows, versioned byte records, process-lock publication and owner-death recovery. Supplied fault/residency investigations have separate supplemental receipts."
+    },
+    {
+      "id": "PR-T23-02",
+      "tests": [
+        "posix_lifecycle_depth.namespace_confined",
+        "posix_lifecycle_depth.namespace_metadata",
+        "posix_lifecycle_depth.namespace_policy",
+        "posix_lifecycle_depth.io_stream",
+        "posix_lifecycle_depth.io_extent",
+        "posix_lifecycle_depth.io_position",
+        "posix_lifecycle_depth.io_close_policy"
+      ],
+      "scope": "Namespace/metadata/limited authority models plus resumable bytes, checked offsets, positioned records and explicit close ownership models; supplemental receipts cover platform/changed-ABI investigations."
+    },
+    {
+      "id": "PR-T23-04",
+      "tests": [
+        "posix_lifecycle_depth.terminal_guard",
+        "posix_lifecycle_depth.terminal_pipeline"
+      ],
+      "scope": "Actual owned PTY guard and concurrent pipeline; supplied timing/disconnect investigations have a separate receipt."
+    },
+    {
+      "id": "PR-T24-06",
+      "tests": [
+        "posix_lifecycle_depth.terminal_guard"
+      ],
+      "scope": "Owned PTY configuration and restoration; explicit completed parser import uses terminal/run_stream.py, not an automatic assessor dependency."
+    }
+  ],
+  "assessment_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/PR-T23-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T25-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T23-03.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T23-02.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T23-04.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T24-06.json"
+  ],
   "campaign": {
     "producer": "tools/run_posix_lifecycle_depth.py",
     "receipt": "posix_lifecycle_depth_campaign.json",
-    "profiles": ["gcc-debug", "gcc-release", "gcc-asan", "clang-debug", "clang-release", "clang-asan", "gcc-tsan", "clang-tsan"],
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "gcc-tsan",
+      "clang-tsan"
+    ],
     "mutants_per_anchor": 2,
     "assertion_marker": "PL_CHECK:",
     "fixture_oracle": "tools/verify_posix_lifecycle_depth_fixtures.py"
   },
-  "limits": ["Additive AX anchors; no old accepted unit is replaced or recounted.", "No generic cancellation/reaper interference, arbitrary child deadlines, detached-thread ownership or physical observation is claimed."]
+  "limits": [
+    "Additive AX anchors; no old accepted unit is replaced or recounted.",
+    "No generic cancellation/reaper interference, arbitrary child deadlines, detached-thread ownership or physical observation is claimed."
+  ],
+  "supplemental_campaigns": [
+    {
+      "id": "launch-followthrough",
+      "producer": "tools/run_posix_followthrough.py",
+      "report": "reviews/v5/expansion/legacy_posix_followthrough/launch_validation.json",
+      "contract": "labs/posix_lifecycle_depth/followthrough/CONTRACTS.md",
+      "scope": "Original and tagged failure channels, real/injected EINTR, descriptor cycles and grandchild writer ledgers."
+    },
+    {
+      "id": "mapping-followthrough",
+      "producer": "tools/run_posix_mapping.py",
+      "report": "reviews/v5/expansion/legacy_posix_mapping/mapping_validation.json",
+      "contract": "labs/posix_lifecycle_depth/mapping/CONTRACTS.md",
+      "scope": "Mapping ownership, byte records, actual process death/publication, fresh exec and original isolated faults; platform investigations distinguished from learner implementation tests."
+    },
+    {
+      "id": "namespace-followthrough",
+      "producer": "tools/run_posix_namespace.py",
+      "report": "reviews/v5/expansion/legacy_posix_namespace/namespace_validation.json",
+      "contract": "labs/posix_lifecycle_depth/namespace/CONTRACTS.md",
+      "scope": "Six original criteria, controlled synthetic symlink replacement, identity/rename/hard links, two filesystem observations, actual child umask and limited ACL/authority models."
+    },
+    {
+      "id": "io-followthrough",
+      "producer": "tools/run_posix_io.py",
+      "report": "reviews/v5/expansion/legacy_posix_io/io_validation.json",
+      "contract": "labs/posix_lifecycle_depth/io/CONTRACTS.md",
+      "scope": "Five original criteria: native hosted mechanisms and actual i386 off_t32/large-file ABI; private sysroot explicit, no host install."
+    },
+    {
+      "id": "terminal-followthrough",
+      "producer": "tools/run_posix_terminal.py",
+      "report": "reviews/v5/expansion/legacy_posix_terminal/terminal_validation.json",
+      "contract": "labs/posix_lifecycle_depth/terminal/CONTRACTS.md",
+      "scope": "Five original criteria; six hosted profiles, actual owned PTYs/pipelines, explicit same parser object over three transports. No physical serial/bus or learner claim."
+    },
+    {
+      "id": "retry-followthrough",
+      "producer": "tools/run_posix_retry.py",
+      "report": "reviews/v5/expansion/legacy_posix_retry/retry_validation.json",
+      "contract": "labs/posix_lifecycle_depth/retry/CONTRACTS.md",
+      "scope": "Exact T23.04.c; explicit receipt/store imports, public74-cut model and source-validated reuse of existing service evidence."
+    },
+    {
+      "id": "workload-followthrough",
+      "producer": "tools/run_posix_workload.py",
+      "report": "reviews/v5/expansion/legacy_posix_workload/workload_validation.json",
+      "contract": "labs/posix_lifecycle_depth/workload/CONTRACTS.md",
+      "scope": "Exact T23.09.b same-contract copied records and random-workload measurements; explicit mapping import and reused isolated faults."
+    }
+  ]
 }

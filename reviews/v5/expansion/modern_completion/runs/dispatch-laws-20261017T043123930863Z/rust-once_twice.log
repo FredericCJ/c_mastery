@@ -1,0 +1,23 @@
+
+error[E0382]: use of moved value: `consume`
+  --> labs/dispatch/tests/trait_comparison.rs:46:9
+   |
+45 |         consume();
+   |         --------- `consume` moved due to this call
+46 |         consume();
+   |         ^^^^^^^ value used here after move
+   |
+note: closure cannot be invoked more than once because it moves the variable `owned` out of its environment
+  --> labs/dispatch/tests/trait_comparison.rs:44:36
+   |
+44 |         let consume = move || drop(owned);
+   |                                    ^^^^^
+note: this value implements `FnOnce`, which causes it to be moved when called
+  --> labs/dispatch/tests/trait_comparison.rs:45:9
+   |
+45 |         consume();
+   |         ^^^^^^^
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0382`.

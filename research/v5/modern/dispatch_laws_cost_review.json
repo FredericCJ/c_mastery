@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_laws_probe.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed x86-64 GCC/Clang DSCopyView16, DSCopyOps16, DSMulti40, bytes receiver offset8, scalar value offset32 and DSCaptureSpec24 bytes; DSDeferred160, token16 and OwShared32. Rust1.93.1 measured a zero-sized marker and16-byte trait reference. These are target observations, not C or Rust ABI promises."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "The length/copy wrapper owns16 staging bytes. Borrowed views retain no owner storage; the owner and tables must remain live. A deferred binding retains one actual T66 shared-owner reference and one stationary pthread control, with externally allocated thread-stack/OS resources additional."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Borrowed subobjects expire with their enclosing object and must be reconstructed after interface-table changes. Deferred environments stay retained from bind through worker completion and actual join; cancellation is not quiescence. Tokens use generations1..3 then retire4."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Two borrowed interfaces observe the same enclosing live object through different typed receiver addresses. The controller owns deferred state transitions; worker predicates/results use one mutex. Reentry and copying active pthread controls are outside the contract. Runtime wrappers cannot validate arbitrary dangling pointers."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Copy laws, subobject adapters and admission policy allocate nothing. Accepted owning captures delegate to actual T70 storage and actual T66 allocator; rejected self-reference, over-alignment and borrowed-return requests fail before allocation. Deferred retention can fail before mutation when dead or saturated."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Copy stages at most16 bytes, checking promised and observed lengths before publishing. A valid self-reference counterexample keeps both old/new typed objects live and demonstrates why byte relocation preserves the wrong internal pointer; a typed repair explicitly updates it. No arbitrary-object relocation guarantee is offered."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Deferred drain joins first, clears control ownership and advances/retire generation before releasing the retained T66 owner. The last shared drop invokes destruction/release exactly once. Queue cancellation skips the body; running cancellation permits the body to finish but suppresses publication."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Length and copy each run once for admitted requests, including empty requests. Type-correct callbacks can violate the relation or produce wrong content; independent content oracles remain necessary. Retained closures invoke one typed body through a borrowed callback and owning environment protocol."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Five actual pthread schedules exercise queued/running cancellation, failed calls, join/drain and one-time ownership release. GCC TSan instruments the seven-profile semantic campaign. No scheduler fairness, all-interleaving proof, lock-free progress or pthread-cancel cleanup guarantee follows."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "102 independent copy rows and34 direct measure comparisons distinguish callback errors, capacity and count-law violations.59049 explicit closure transitions plus extrema/copied-state examples exercise local consumption. Explicit admission rejects unsupported alignment/relocation/return-lifetime requests; the return-type constraint has a compiling positive control."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "The probe records actual GCC/Clang O2 builds, linked programs, disassembly and stack reports. Rust1.93.1 accepts the type-correct wrong semantic implementation, and separately diagnoses E0053, E0046, E0599, E0515 and E0382. A move capture whose body only reads remains callable repeatedly. No general Rust/C safety equivalence follows."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Observed test-image text/data/BSS: laws GCC31618/752/80, Clang32219/728/80; deferred GCC15292/728/168, Clang15304/704/112. GCC copy/multi/admission frames112/48/8 and Clang72/24/0; worker/bind/drain GCC80/48/48, Clang40/40/24. These include linked test/dependency code and exclude callee frames and reserved thread stacks."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "No latency advantage or worst-case scheduling bound is measured here. Finite state enumerations and mutation rejection are bounded falsification support; callback code remains trusted to obey its store extent. Independent learners must derive changed-condition contracts without copying the assessor. No physical target observation is claimed."
+    }
+  ]
+}

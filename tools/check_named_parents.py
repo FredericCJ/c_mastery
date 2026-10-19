@@ -1,0 +1,135 @@
+"""Read-only exact origin, task, source and transitive evidence guard."""
+import argparse,copy,datetime,json
+import audit_named_parents as a
+import build_named_parents as b
+import check_residual_followthrough as t
+
+G474='reviews/v5/expansion/legacy_g474_uart/current_validation.json'
+
+def directory_image(report,data,item):
+ require(report==G474,'directory/image interpretation is specific to the G474 producer')
+ directory=t.local(item['path']);image=directory+'/image.elf'
+ require(directory.startswith('build/g474-uart-followthrough/'),'exact producer build directory')
+ require(item['execution']=='not-run' and item['name']==directory.rsplit('/',1)[-1], 'G474 image identity or execution scope')
+ require(data['outputs_sha256'].get(image)==item['sha256'],'directory digest is not its declared ELF output')
+ require((a.ROOT/image).is_file() and a.sha(a.ROOT/image)==item['sha256'],'changed or missing actual G474 ELF image')
+ return dict(report=report,directory=directory,path=image,sha256=item['sha256'],execution='not-run')
+
+def directory_controls():
+ from unittest.mock import patch
+ from contextlib import nullcontext
+ from pathlib import Path
+ original=a.read(a.ROOT/G474);base=original['board_images'][0]
+ directory_image(G474,original,base)
+ controls=[]
+ for kind in ['wrong-image-output-map','changed-actual-image','missing-actual-image','invented-image-execution','generic-directory-waiver']:
+  data=copy.deepcopy(original);item=copy.deepcopy(base);report=G474;mock=nullcontext()
+  if kind=='wrong-image-output-map':data['outputs_sha256'][t.local(item['path'])+'/image.elf']='0'*64
+  elif kind=='changed-actual-image':mock=patch.object(a,'sha',return_value='0'*64)
+  elif kind=='missing-actual-image':mock=patch.object(Path,'is_file',return_value=False)
+  elif kind=='invented-image-execution':item['execution']='observed'
+  else:report='unrelated/receipt.json'
+  with mock:
+   try:directory_image(report,data,item);rejected=False
+   except (ValueError,KeyError,AssertionError):rejected=True
+  require(rejected,'directory resolver accepted '+kind)
+  controls.append(dict(control=kind,rejected=True,method='isolated copied metadata or mocked file read; original ELF bytes untouched'))
+ return controls
+
+def evidence_audit(providers):
+ audit=t.evidence_audit(providers);resolved=[];images=[]
+ # This retained producer explicitly makes its vendor paths relative to its
+ # recorded external root. Resolve that convention; never waive a missing pin.
+ for report in audit['reports']:
+  data=a.read(a.ROOT/report)
+  if 'external_source_root' not in data:continue
+  root=data['external_source_root'];require(root.startswith('/'),'absolute external source root')
+  for name,digest in data.get('external_source_sha256',{}).items():
+   require(not name.startswith('/') and '..' not in name.split('/'),'contained relative vendor source')
+   message=report+'/external_source_sha256: '+name
+   if message in audit['missing']:
+    audit['missing'].remove(message);path=root.rstrip('/')+'/'+name
+    audit['external'].setdefault(path,[]).append(digest);resolved.append(dict(report=report,relative=name,path=path,sha256=digest))
+ audit['resolved_external_relative']=resolved
+ # This exact retained producer records a build directory in board_images.path
+ # and the contained image.elf digest in board_images.sha256. Its output map
+ # separately binds that actual file. Never waive a generic missing-file pin.
+ report=G474
+ require(report in audit['reports'],'selected G474 evidence missing')
+ data=a.read(a.ROOT/report)
+ require(len(data['board_images'])==12,'exact twelve G474 directory/image records')
+ for index,item in enumerate(data['board_images']):
+  binding=directory_image(report,data,item);directory=binding['directory']
+  message=report+'/board_images/'+str(index)+'/path: '+directory
+  require(message in audit['missing'],'exact directory-record diagnostic expected')
+  audit['missing'].remove(message)
+  images.append(binding)
+ audit['resolved_directory_images']=images
+ return audit
+
+def require(ok,message):
+ if not ok:raise ValueError(message)
+
+def expected():
+ rows,bindings,files,providers=b.rows();files.add((a.BASE/'evidence_map.json').relative_to(a.ROOT).as_posix())
+ return rows,dict(schema_version=1,scope='Original parent clauses and complete exact canonical child bindings',bindings=bindings),{p:a.sha(a.ROOT/p) for p in sorted(files)},sorted(providers)
+
+def inspect(support,mapping,audit,gold):
+ rows,bindings,pins,providers=gold
+ require(support['updates']==rows and len(rows)==7,'exact parent dimensions and remaining requirements')
+ require(mapping==bindings,'exact original clause/task/provider binding')
+ require(support['source_sha256']==pins,'current exact source set and hashes')
+ require(support['providers']==providers==audit['providers'],'exact providers')
+ require(not audit['missing'] and not audit['stale'],'missing/stale transitive evidence')
+ require(audit['external_validation']['passed'],'external identities')
+ require(len(audit.get('resolved_external_relative',[]))==30,'exact thirty FreeRTOS relative vendor pins')
+ require(len(audit.get('resolved_directory_images',[]))==12,'exact twelve declared G474 ELF images')
+ require(not any(v.get('passed') is False or v.get('status') in ['fail','failed','not-run'] or v.get('source_stable') is False or v.get('scope_source_stable') is False for v in audit['report_statuses'].values()),'failed or unstable receipt')
+ require(not {'curriculum/v5/expansion/work_inventory.json','curriculum/v5/expansion/implementation_updates.json'}&pins.keys(),'mutable global pin')
+ require(len({c['id'] for r in bindings['bindings'] for c in r['children']})==552,'all exact ordinary and delayed children')
+ indexed={r['id']:r for r in rows}
+ require(len(indexed['LRUN-14']['external_blockers'])==1 and indexed['LRUN-14']['external_blockers'][0]['id']=='PUBLISHED-C17-C23-THREAD-OPTIONALITY-SOURCE','exact published edition dependency retained')
+ require(indexed['LRUN-20']['dimensions']['teaching']['state'].startswith('partial') and indexed['G-LCON-PROOFS']['dimensions']['teaching']['state'].startswith('partial'),'unavailable schematic/proof promoted')
+ require(not indexed['LSYS-BOOKS']['required_criteria_and_variants'],'source reading promoted to implementation')
+ for r in rows:
+  require(r['dimensions']['external_review']['state']=='not-run' and r['dimensions']['independent_learner']['state']=='not-assessed' and r['dimensions']['physical_observation']['state']=='not-claimed;original-physical-obligation-retained','invented independent or physical evidence')
+ source=a.read(a.ROOT/'reviews/v5/expansion/systems_book_followthrough/validation_02.json')
+ require(source['passed'] and len(source['negative_controls'])==8 and all(c['rejected'] for c in source['negative_controls']),'fresh source scope guard')
+ return dict(parents=7,children=552,providers=len(providers),partial_source_parents=['LRUN-14','LRUN-20','G-LCON-PROOFS'])
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--self-test',action='store_true');p.add_argument('--report',required=True);args=p.parse_args();out=(a.ROOT/args.report).resolve();require(out.is_relative_to((a.ROOT/'reviews/v5/expansion/named_parent_followthrough').resolve()) and not out.exists(),'scoped fresh review path')
+ support=a.read(a.BASE/'support.json');mapping=a.read(a.BASE/'evidence_map.json');audit=evidence_audit(support['providers']);errors=[];controls=[];summary={}
+ try:
+  gold=expected();audit['external_validation']=t.external_check(audit['external']);summary=inspect(support,mapping,audit,gold)
+  if args.self_test:
+   controls.extend(directory_controls())
+   for name in ['lost-origin','changed-clause','changed-task','lost-child','lost-delayed','zero-delay','wrong-provider','wrong-check','missing-parent','inflated-review','inflated-learner','inflated-physical','erased-source-gap','stale-source','stale-transitive','lost-transitive','failed-receipt','external-unchecked','global-pin','lost-remaining','lost-edition-blocker']:
+    s=copy.deepcopy(support);m=copy.deepcopy(mapping);v=copy.deepcopy(audit);withchildren=next(r for r in m['bindings'] if r['children'])
+    if name=='lost-origin':withchildren['origins']=[]
+    elif name=='changed-clause':withchildren['clause_analysis']='heading only'
+    elif name=='changed-task':withchildren['children'][0]['original_task']='easier'
+    elif name=='lost-child':withchildren['children'].pop()
+    elif name=='lost-delayed':withchildren['children']=[c for c in withchildren['children'] if not c['variant']]
+    elif name=='zero-delay':next(c for c in withchildren['children'] if c['variant'])['variant']['minimum_days']=0
+    elif name=='wrong-provider':withchildren['children'][0]['provider']=support['providers'][-1]
+    elif name=='wrong-check':withchildren['children'][0]['checks']=['compiler --version']
+    elif name=='missing-parent':s['updates'].pop()
+    elif name.startswith('inflated-'):s['updates'][0]['dimensions'][{'inflated-review':'external_review','inflated-learner':'independent_learner','inflated-physical':'physical_observation'}[name]]['state']='passed'
+    elif name=='erased-source-gap':next(r for r in s['updates'] if r['id']=='G-LCON-PROOFS')['dimensions']['teaching']['state']='complete'
+    elif name=='stale-source':s['source_sha256'][next(iter(s['source_sha256']))]='0'*64
+    elif name=='stale-transitive':v['stale']=[dict(path='changed producer')]
+    elif name=='lost-transitive':v['missing']=['actual execution log']
+    elif name=='failed-receipt':v['report_statuses'][next(iter(v['report_statuses']))]['status']='failed'
+    elif name=='external-unchecked':v['external_validation']['passed']=False
+    elif name=='global-pin':s['source_sha256']['curriculum/v5/expansion/work_inventory.json']='0'*64
+    elif name=='lost-edition-blocker':next(r for r in s['updates'] if r['id']=='LRUN-14')['external_blockers']=[]
+    else:s['updates'][0]['remaining_required_work']=[]
+    try:inspect(s,m,v,gold);rejected=False
+    except (ValueError,KeyError,AssertionError):rejected=True
+    controls.append(dict(control=name,rejected=rejected));require(rejected,'false packet accepted '+name)
+  require(all(a.sha(a.ROOT/p)==h for p,h in gold[2].items()) and all(a.sha(a.ROOT/p)==h for p,h in audit['document_sha256'].items()),'inputs changed during guard')
+ except (ValueError,KeyError,AssertionError) as e:errors.append(str(e))
+ audit.update(schema_version=1,created_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),passed=not errors and not audit['missing'] and not audit['stale'],scope='Exact source/target parent bridge; no new child execution or physical/learner evidence',summary=summary,negative_controls=controls,errors=errors,original_execution_reports_rewritten=False,whole_source_execution_current=not audit['historical_publication_differences'])
+ out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(audit,indent=2)+'\n',encoding='utf8');print(json.dumps(dict(passed=audit['passed'],documents=audit['documents'],files=audit['files'],summary=summary,errors=errors)));return int(not audit['passed'])
+if __name__=='__main__':raise SystemExit(main())

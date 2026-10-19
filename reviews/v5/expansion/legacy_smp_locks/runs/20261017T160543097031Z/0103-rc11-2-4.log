@@ -1,0 +1,71 @@
+GenMC v0.19.0 (LLVM 21.1.8)
+Copyright (C) 2024 MPI-SWS. All rights reserved.
+
+*** Compilation complete.
+*** Transformation complete.
+Error: Non-atomic race!
+Event (1, 10) conflicts with event (2, 11) in graph:
+<-1, 0>:
+	(0, 1): Wna (lock.kind, 2) locks.c:9
+	(0, 2): Wna (lock.rank, 1) locks.c:9
+	(0, 3): Wna (lock.word, 0) locks.c:9
+	(0, 4): Wna (lock.next, 0) locks.c:9
+	(0, 5): Wna (lock.serving, 0) locks.c:9
+	(0, 6): Wna (lock.admitted, 0) locks.c:9
+	(0, 7): Wna (lock.tail, 0) locks.c:9
+	(0, 8): Wna (nodes[0].next, 0) locks.c:11
+	(0, 9): Wna (nodes[0].waiting, 0) locks.c:11
+	(0, 10): Wna (nodes[0].active, 0) locks.c:11
+	(0, 11): Wna (nodes[1].next, 0) locks.c:11
+	(0, 12): Wna (nodes[1].waiting, 0) locks.c:11
+	(0, 13): Wna (nodes[1].active, 0) locks.c:11
+	(0, 14): THREAD_CREATE [thread 1] pthread.h:146
+	(0, 15): THREAD_CREATE [thread 2] pthread.h:146
+	(0, 16): BLOCK[join]
+<0, 1> worker:
+	(1, 1): Rna (lock.kind, 2) [(0, 1)] locks.c:26
+	(1, 2): Rna (lock.kind, 2) [(0, 1)] locks.c:27
+	(1, 3): Rna (lock.kind, 2) [(0, 1)] locks.c:33
+	(1, 4): CRar (nodes[0].active, 0) [(0, 10)] locks.c:43
+	(1, 5): CWar (nodes[0].active, 1) locks.c:43
+	(1, 6): Wrlx (nodes[0].next, 0) locks.c:44
+	(1, 7): Wrlx (nodes[0].waiting, 1) locks.c:44
+	(1, 8): URar (lock.tail, 0) [(2, 16)] locks.c:45
+	(1, 9): UWar (lock.tail, 9223372036854775952) locks.c:45
+	(1, 10): Rna (counter, 1) [(2, 11)] publication_model.c:13
+<0, 2> worker:
+	(2, 1): Rna (lock.kind, 2) [(0, 1)] locks.c:26
+	(2, 2): Rna (lock.kind, 2) [(0, 1)] locks.c:27
+	(2, 3): Rna (lock.kind, 2) [(0, 1)] locks.c:33
+	(2, 4): CRar (nodes[1].active, 0) [(0, 13)] locks.c:43
+	(2, 5): CWar (nodes[1].active, 1) locks.c:43
+	(2, 6): Wrlx (nodes[1].next, 0) locks.c:44
+	(2, 7): Wrlx (nodes[1].waiting, 1) locks.c:44
+	(2, 8): URar (lock.tail, 0) [(0, 7)] locks.c:45
+	(2, 9): UWar (lock.tail, 9223372036854775968) locks.c:45
+	(2, 10): Rna (counter, 0) [INIT] publication_model.c:13
+	(2, 11): Wna (counter, 1) publication_model.c:13
+	(2, 12): Rna (lock.kind, 2) [(0, 1)] locks.c:56
+	(2, 13): Rna (lock.kind, 2) [(0, 1)] locks.c:57
+	(2, 14): Racq (nodes[1].next, 0) [(2, 6)] locks.c:61
+	(2, 15): CRrlx (lock.tail, 9223372036854775968) [(2, 9)] locks.c:64
+	(2, 16): CWrlx (lock.tail, 0) locks.c:64
+	(2, 17): Wrel (nodes[1].active, 0) locks.c:70
+	(2, 18): THREAD_END
+Coherence:
+nodes[0].active: [ (0, 10): Wna (G#(0, 156), 0) (1, 5): CWar (G#(0, 156), 1) ]
+nodes[1].next: [ (0, 11): Wna (G#(0, 160), 0) (2, 6): Wrlx (G#(0, 160), 0) ]
+nodes[1].waiting: [ (0, 12): Wna (G#(0, 168), 0) (2, 7): Wrlx (G#(0, 168), 1) ]
+nodes[1].active: [ (0, 13): Wna (G#(0, 172), 0) (2, 5): CWar (G#(0, 172), 1) (2, 17): Wrel (G#(0, 172), 0) ]
+lock.tail: [ (0, 7): Wna (G#(0, 24), 0) (2, 9): UWar (G#(0, 24), 9223372036854775968) (2, 16): CWrlx (G#(0, 24), 0) (1, 9): UWar (G#(0, 24), 9223372036854775952) ]
+nodes[0].next: [ (0, 8): Wna (G#(0, 144), 0) (1, 6): Wrlx (G#(0, 144), 0) ]
+nodes[0].waiting: [ (0, 9): Wna (G#(0, 152), 0) (1, 7): Wrlx (G#(0, 152), 1) ]
+
+
+*** Verification unsuccesful.
+Number of complete executions explored: 0
+Total wall-clock time: 0.13s
+WARNING: Memory intrinsic found! Attempting to promote it...
+
+Tip: Threads 1 and 2 could benefit from symmetry reduction. Consider using __VERIFIER_spawn_symmetric().
+

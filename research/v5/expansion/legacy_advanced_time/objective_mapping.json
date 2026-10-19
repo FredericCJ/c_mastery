@@ -1,0 +1,155 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T29-05-T29.09.a",
+      "objective": "T29.09.a",
+      "task": "Record a software sequence number, sampled counter and DMA/ISR event identifier for each captured event. Bound the acquisition interval and distinguish event time, handler entry and sample time.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.09.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Use independent device and CPU clocks and derive synchronization/offset uncertainty before ordering their events."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#09.a",
+      "checks": [
+        "gcc-debug composition reference execute",
+        "gcc-debug composition provenance execute",
+        "arm-none-eabi-gcc-O0 interval oracle"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-05-T29.09.b",
+      "objective": "T29.09.b",
+      "task": "Implement bounded hi-lo-hi snapshot retry for the supplied high reads7,8,8,8 and lows4294967290,4; require value34359738372 after two attempts. Add persistent disagreement and sequence gaps, returning explicit failure/missed-event status.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.09.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Reduce high-word width and construct an ABA-style wrap where equal first/last high words no longer imply a safe snapshot."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#09.b",
+      "checks": [
+        "gcc-debug 1 execute",
+        "gcc-debug 2 execute",
+        "gcc-debug independent oracle",
+        "gcc-debug composition clock execute",
+        "clang tsan execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-05-T29.09.c",
+      "objective": "T29.09.c",
+      "task": "Represent a timestamp as a value plus acquisition/error interval. For overlapping intervals refuse a total physical order unless another sequence relation establishes one; retain monotonic software order separately.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.09.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change the clock source or counter prescaler and recompute which event pairs remain distinguishable."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#09.c",
+      "checks": [
+        "gcc-debug 4 execute",
+        "gcc-debug 5 execute",
+        "clang-release independent oracle",
+        "clang-O3 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-05-T29.10.a",
+      "objective": "T29.10.a",
+      "task": "Enumerate controlled schedules for delayed ISR service, full queue, cancel-before-complete, complete-before-stop and stale generation. Use named synchronization points and preserve the first violated invariant; arbitrary sleeps are not schedule proof.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.10.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add reset during an owned transfer and extend the state model with explicit device and software reset domains."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#10.a",
+      "checks": [
+        "gcc-debug composition reference execute",
+        "gcc-debug composition queue execute",
+        "gcc-debug composition lease execute",
+        "target clock execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-05-T29.10.b",
+      "objective": "T29.10.b",
+      "task": "Specify a dedicated-board trace joining GPIO markers, sequence logs and scope/logic-analyzer edges. Account for marker placement, probe/timestamp resolution and dropped software records; do not invent physical observations when unavailable.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.10.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Move the marker from entry to deferred processing and explain the changed latency quantity before comparing results."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#10.b",
+      "checks": [
+        "arm-none-eabi-gcc-O0 interval oracle",
+        "clang-O3 interval oracle",
+        "physical capture structural controls",
+        "physical template unobserved rejection"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-05-T29.10.c",
+      "objective": "T29.10.c",
+      "task": "Produce an evidence table labeling synthetic schedule, compiled object audit, emulator execution and physical observation for every claim. Keep logical protocol passes separate from actual bus timing and cold/reset behavior.",
+      "delayed": {
+        "id": "AX-PR-T29-05-T29.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change board revision or memory placement and identify exactly which old proofs transfer and which measurements must be repeated."
+      },
+      "teaching": "labs/interrupt_depth/time/CONTRACTS.md",
+      "learner_artifacts": [
+        "time.c",
+        "integration.c",
+        "target.c",
+        "criterion-indexed coherence/calibration/schedule/evidence dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/time/ANALYSIS.md#10.c",
+      "checks": [
+        "clang-O3 closure",
+        "clang-O3 symbols",
+        "clang-O3 missing helper rejected",
+        "target interval execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_time/resources.json"
+    }
+  ],
+  "remaining": "T41–49 and recursive inventory remain required; physical/source/external dimensions are separate."
+}

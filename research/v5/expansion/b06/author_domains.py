@@ -15,6 +15,26 @@ def load(name):
     spec=importlib.util.spec_from_file_location(name,HERE/(name+'.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m.DOMAIN
 def project(title,slug,teach,contract,prototype,implementation,tests,fixture,reasoning,failure,variant,hints,terms,refs=None,external=None):
     return locals()
+def attach_project_support(pid,meta,text):
+    """Preserve the original B06 brief while attaching a concrete required successor."""
+    attachments={
+        'PR-T59-07':('research/v5/expansion/cacheable_boot_depth/attachment.json','cacheable_boot_author_support'),
+        'PR-T58-07':('research/v5/expansion/arm_walker_sources/attachment.json','arm_walker_author_support'),
+    }
+    if pid in attachments:
+        relative,key=attachments[pid]
+        path=ROOT/relative
+        if path.is_file():
+            attachment=json.loads(path.read_text(encoding='utf-8'))
+            for key in ['shared_contracts','supplied_artifacts']:
+                meta[key]=list(dict.fromkeys(meta.get(key,[])+attachment[key]))
+            meta[attachments[pid][1]]=attachment['support']
+            if attachment['body'].strip() not in text:text=text.rstrip()+attachment['body']
+    # Publication-only renditions preserve the original target/campaign bytes.
+    # Keep this additive attachment in the canonical authoring path.
+    spec=importlib.util.spec_from_file_location('b06_document_renditions',ROOT/'research/v5/expansion/b06_document_utf8/author_support.py')
+    support=importlib.util.module_from_spec(spec);spec.loader.exec_module(support)
+    return support.attach(pid,meta,text)
 SHARED='''# B06 common exercise and evidence contract
 
 This contract applies to every PR-T57–PR-T64 project and its LAB unit. Each
@@ -191,6 +211,7 @@ scaffolds are intentionally incomplete. Consult the source-bound campaign for
 actual executions; no external reviewer, learner success or physical result is
 inferred from a supplied reference implementation.
 '''
+        meta,text=attach_project_support(pid,meta,text)
         doc(f'curriculum/projects/{pid}.md',meta,text)
         body.append(f'### {tid} — {p["title"]}\n\n'+p['teach']+'\n\n'+p['reasoning']+'\n\nMisconception and counterexample: '+p['failure']+'\n\nInvestigation: '+p['contract']+'\n\nEvidence: '+p['variant']+'\n')
         header.append(p['prototype']);impl.append(p['implementation']);stubs.append(p.get('stub') or p['prototype'].rstrip(';')+' { '+p.get('stub_body','return 0;')+' }')

@@ -1,0 +1,26 @@
+{
+  "id": "FX-NET-T41-01",
+  "description": "Exact nested TCP/Ethernet size and independent DMA memory budget.",
+  "input": {
+    "case_kind": "ether_budget",
+    "payload": 3,
+    "ip_header": 20,
+    "tcp_header": 20,
+    "ether_header": 14,
+    "minimum_without_fcs": 60,
+    "fcs": 4,
+    "buffers": 6,
+    "buffer_bytes": 2048,
+    "descriptors": 6,
+    "descriptor_bytes": 16
+  },
+  "expected": {
+    "ip_bytes": 43,
+    "frame_without_pad": 57,
+    "pad_bytes": 3,
+    "frame_with_fcs": 64,
+    "dma_bytes": 12384,
+    "socket_owns_tcp": false
+  },
+  "verification_method": "Independent nested arithmetic; own custom TCP is explicitly separate from an OS socket implementation."
+}

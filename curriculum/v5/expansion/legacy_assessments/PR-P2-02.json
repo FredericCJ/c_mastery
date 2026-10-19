@@ -2,11 +2,14 @@
   "schema_version": 1,
   "project": "PR-P2-02",
   "domain": "INTEGRATION",
-  "title": "Short transfer and syscall dossier — explicit composition assessments",
+  "title": "Short transfer and syscall dossier \u2014 explicit composition assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/integration/CONTRACTS.md"
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_followthrough/writer/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -178,6 +181,29 @@
       "passages": [
         "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
       ]
+    },
+    {
+      "id": "R-CWF-WRITE",
+      "path": "research/v5/expansion/legacy_checkpoint_writer/resources.json",
+      "passages": [
+        "DESCRIPTION/RETURN VALUE partial acceptance; ERRORS EAGAIN,EBADF,EINTR; NOTES interruption before/after progress and no durability guarantee"
+      ]
+    },
+    {
+      "id": "R-CWF-POLL",
+      "path": "research/v5/expansion/legacy_checkpoint_writer/resources.json",
+      "passages": [
+        "DESCRIPTION readiness and timeout; POLLOUT capacity caveat; RETURN VALUE; NOTES O_NONBLOCK independence"
+      ]
+    },
+    {
+      "id": "R-CWF-LOCAL",
+      "path": "research/v5/expansion/legacy_checkpoint_writer/resources.json",
+      "passages": [
+        "Original PR-P2-02 four complete task/variant objects and producer prerequisite contracts",
+        "Actual in_drain/f_write_all/algo_ring, CPWTransfer, er_transfer and CPXProgress source bodies",
+        "Public byte/span/progress harness, strict image and separate learner/assessor adapter sources"
+      ]
     }
   ],
   "reference_gaps": [
@@ -201,7 +227,24 @@
     "fixtures/legacy_checkpoints/P5.json",
     "fixtures/legacy_checkpoints/P6.json",
     "labs/errors/CONTRACTS.md",
-    "curriculum/projects/PR-T65-03.md"
+    "curriculum/projects/PR-T65-03.md",
+    "labs/checkpoint_followthrough/writer/CONTRACTS.md",
+    "labs/checkpoint_followthrough/writer/learner.c",
+    "labs/checkpoint_followthrough/writer/progress.c",
+    "labs/checkpoint_followthrough/writer/smoke.c",
+    "labs/checkpoint_followthrough/writer/tests.c",
+    "labs/checkpoint_followthrough/writer/writer.h",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/include/v4_foundation.h",
+    "labs/algorithms/include/algo.h",
+    "labs/algorithms/include/v4_algo.h",
+    "labs/checkpoint_depth/include/checkpoint_writer.h",
+    "labs/checkpoint_depth/src/checkpoint_writer.c",
+    "labs/checkpoint_depth/transfer/adapters.h",
+    "labs/checkpoint_depth/transfer/adapters_stub.c",
+    "labs/errors/include/errors.h",
+    "labs/ownership/include/ownership.h",
+    "labs/ownership/include/imports/v4_algo.h"
   ],
   "prerequisite_artifacts": [
     "PR-P2-01/accepted-component-and-dossier",
@@ -218,7 +261,20 @@
     "tests": [
       "integration.p2"
     ],
-    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted."
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "checkpoint_writer_followthrough": {
+      "path": "research/v5/expansion/legacy_checkpoint_writer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P2-02-T10.07.b",
+        "AX-PR-P2-02-T23.04.c",
+        "AX-PR-P2-02-T23.04.b",
+        "AX-PR-P2-02-T21.02.b"
+      ],
+      "scope": "All four original and delayed writer tasks, including actual named InTransfer composition."
+    }
   },
   "criteria": [
     {
@@ -324,6 +380,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P2-02-T10.07.b"
       }
     },
     {
@@ -430,6 +490,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P2-02-T23.04.c"
       }
     },
     {
@@ -535,6 +599,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P2-02-T23.04.b"
       }
     },
     {
@@ -642,6 +710,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P2-02-T21.02.b"
       }
     }
   ],
@@ -656,5 +728,28 @@
       "Authored delayed opportunities are not completed assessments.",
       "Finite passing tests do not prove absolute mastery."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P2-02",
+    "criterion_ids": [
+      "AX-PR-P2-02-T10.07.b",
+      "AX-PR-P2-02-T23.04.c",
+      "AX-PR-P2-02-T23.04.b",
+      "AX-PR-P2-02-T21.02.b"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_writer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P2-02-T10.07.b",
+        "AX-PR-P2-02-T23.04.c",
+        "AX-PR-P2-02-T23.04.b",
+        "AX-PR-P2-02-T21.02.b"
+      ],
+      "scope": "All four original and delayed writer tasks, including actual named InTransfer composition."
+    }
+  ]
 }

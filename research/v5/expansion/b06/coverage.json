@@ -15,7 +15,7 @@
       "domain": "T58",
       "status": "authored; portable core and selected target evidence separately recorded",
       "previous_state": "planned in overhaul_v5; no accepted project/exercise identities existed for this domain",
-      "justification": "Port execution boundaries by deriving exact ABI state and distinguishing it from ISA trap state, memory translation and board startup. Cross compilation is evidence of encoding/link compatibility; only target execution can establish the tested context behavior.",
+      "justification": "Port execution boundaries by deriving exact ABI state and distinguishing it from instruction-set architecture trap state, memory translation and board startup. Cross compilation is evidence of encoding/link compatibility; only target execution can establish the tested context behavior.",
       "producer": "ports.context",
       "projects": 8,
       "objectives": 24,
@@ -35,11 +35,11 @@
       "domain": "T60",
       "status": "authored; portable core and selected target evidence separately recorded",
       "previous_state": "planned in overhaul_v5; no accepted project/exercise identities existed for this domain",
-      "justification": "Implement a complete small compiler pipeline rather than delegate its lexer, parser, IR or backend to a compiler framework. The executable core compiles expressions used in unsigned cm_expr(unsigned x){return EXPR;} with decimal constants0..65535, x, parentheses, addition and multiplication. The expression notation assigns unsigned32 type to every literal; its corresponding ISO C source explicitly suffixes each literal with u. Unsuffixed ISO C expressions can have different promotions or signed-overflow behavior and are not claimed equivalent. This intentionally bounded subset has complete declared behavior; full C declarations, pointers, control-flow and function calls remain required transfer extensions, not claimed coverage.",
+      "justification": "Implement a complete small compiler pipeline rather than delegate its lexer, parser, intermediate representation or backend to a compiler framework. The executable core compiles expressions used in unsigned cm_expr(unsigned x){return EXPR;} with decimal constants0..65535, x, parentheses, addition and multiplication. The expression notation assigns unsigned32 type to every literal; its corresponding ISO C source explicitly suffixes each literal with u. Unsuffixed ISO C expressions can have different promotions or signed-overflow behavior and are not claimed equivalent. This intentionally bounded subset has complete declared behavior; full C declarations, pointers, control-flow and function calls remain required transfer extensions, not claimed coverage.",
       "producer": "compiler.ir",
       "projects": 8,
       "objectives": 24,
-      "mandatory_target_scope": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "mandatory_target_scope": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "domain": "T61",
@@ -487,7 +487,7 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.refs",
         "mutation": "kernel_lifecycle.mutation.refs",
-        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership."
+        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the ownership race condition without creating valid ownership."
       },
       "independent_assessment": {
         "unit": "LAB-KL-03B",
@@ -526,7 +526,7 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.refs",
         "mutation": "kernel_lifecycle.mutation.refs",
-        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership."
+        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the ownership race condition without creating valid ownership."
       },
       "independent_assessment": {
         "unit": "LAB-KL-03B",
@@ -565,13 +565,13 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.refs",
         "mutation": "kernel_lifecycle.mutation.refs",
-        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership."
+        "required_counterexample": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the ownership race condition without creating valid ownership."
       },
       "independent_assessment": {
         "unit": "LAB-KL-03B",
         "variant": "PR-T57-03-transfer",
         "minimum_days": 7,
-        "criterion": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership. Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations.",
+        "criterion": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the ownership race condition without creating valid ownership. Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/kernel_lifecycle/PR-T57-03.md",
@@ -604,7 +604,7 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.locks",
         "mutation": "kernel_lifecycle.mutation.locks",
-        "required_counterexample": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only."
+        "required_counterexample": "Repair a `PREEMPT_RT` hardirq path that uses ordinary spinlock_t and a cross-processor race condition hidden by local interrupt disabling. The host truth table assesses policy only."
       },
       "independent_assessment": {
         "unit": "LAB-KL-04B",
@@ -614,7 +614,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/kernel_lifecycle/PR-T57-04.md",
-      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all contexts without `PREEMPT_RT` and only task context in this restricted `PREEMPT_RT` exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
       "remaining_required": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
     },
     {
@@ -643,17 +643,17 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.locks",
         "mutation": "kernel_lifecycle.mutation.locks",
-        "required_counterexample": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only."
+        "required_counterexample": "Repair a `PREEMPT_RT` hardirq path that uses ordinary spinlock_t and a cross-processor race condition hidden by local interrupt disabling. The host truth table assesses policy only."
       },
       "independent_assessment": {
         "unit": "LAB-KL-04B",
         "variant": "PR-T57-04-transfer",
         "minimum_days": 7,
-        "criterion": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+        "criterion": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all contexts without `PREEMPT_RT` and only task context in this restricted `PREEMPT_RT` exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/kernel_lifecycle/PR-T57-04.md",
-      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all contexts without `PREEMPT_RT` and only task context in this restricted `PREEMPT_RT` exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
       "remaining_required": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
     },
     {
@@ -682,17 +682,17 @@
       "boundary_adversarial": {
         "test": "kernel_lifecycle.locks",
         "mutation": "kernel_lifecycle.mutation.locks",
-        "required_counterexample": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only."
+        "required_counterexample": "Repair a `PREEMPT_RT` hardirq path that uses ordinary spinlock_t and a cross-processor race condition hidden by local interrupt disabling. The host truth table assesses policy only."
       },
       "independent_assessment": {
         "unit": "LAB-KL-04B",
         "variant": "PR-T57-04-transfer",
         "minimum_days": 7,
-        "criterion": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only. Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces.",
+        "criterion": "Repair a `PREEMPT_RT` hardirq path that uses ordinary spinlock_t and a cross-processor race condition hidden by local interrupt disabling. The host truth table assesses policy only. Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/kernel_lifecycle/PR-T57-04.md",
-      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all contexts without `PREEMPT_RT` and only task context in this restricted `PREEMPT_RT` exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
       "remaining_required": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
     },
     {
@@ -1522,7 +1522,7 @@
       "boundary_adversarial": {
         "test": "architecture_ports.saved",
         "mutation": "architecture_ports.mutation.saved",
-        "required_counterexample": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
+        "required_counterexample": "A context port omits the stack pointer or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
       },
       "independent_assessment": {
         "unit": "LAB-PO-02B",
@@ -1532,7 +1532,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-02.md",
-      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RISC-V x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for the stack pointer. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -1579,17 +1579,17 @@
       "boundary_adversarial": {
         "test": "architecture_ports.saved",
         "mutation": "architecture_ports.mutation.saved",
-        "required_counterexample": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
+        "required_counterexample": "A context port omits the stack pointer or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
       },
       "independent_assessment": {
         "unit": "LAB-PO-02B",
         "variant": "PR-T58-02-transfer",
         "minimum_days": 7,
-        "criterion": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+        "criterion": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RISC-V x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for the stack pointer. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-02.md",
-      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RISC-V x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for the stack pointer. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -1636,17 +1636,17 @@
       "boundary_adversarial": {
         "test": "architecture_ports.saved",
         "mutation": "architecture_ports.mutation.saved",
-        "required_counterexample": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
+        "required_counterexample": "A context port omits the stack pointer or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains."
       },
       "independent_assessment": {
         "unit": "LAB-PO-02B",
         "variant": "PR-T58-02-transfer",
         "minimum_days": 7,
-        "criterion": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements.",
+        "criterion": "A context port omits the stack pointer or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-02.md",
-      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RISC-V x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for the stack pointer. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -1699,7 +1699,7 @@
         "unit": "LAB-PO-03B",
         "variant": "PR-T58-03-transfer",
         "minimum_days": 7,
-        "criterion": "Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+        "criterion": "Derive the first stack argument relative to entry stack pointer; distinguish entry stack-pointer offsets from offsets after the callee allocates its frame.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-03.md",
@@ -1864,7 +1864,7 @@
       "boundary_adversarial": {
         "test": "architecture_ports.context",
         "mutation": "architecture_ports.mutation.context",
-        "required_counterexample": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
+        "required_counterexample": "Repair restoration of an RISC-V image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
       },
       "independent_assessment": {
         "unit": "LAB-PO-04B",
@@ -1921,7 +1921,7 @@
       "boundary_adversarial": {
         "test": "architecture_ports.context",
         "mutation": "architecture_ports.mutation.context",
-        "required_counterexample": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
+        "required_counterexample": "Repair restoration of an RISC-V image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
       },
       "independent_assessment": {
         "unit": "LAB-PO-04B",
@@ -1978,13 +1978,13 @@
       "boundary_adversarial": {
         "test": "architecture_ports.context",
         "mutation": "architecture_ports.mutation.context",
-        "required_counterexample": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
+        "required_counterexample": "Repair restoration of an RISC-V image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility."
       },
       "independent_assessment": {
         "unit": "LAB-PO-04B",
         "variant": "PR-T58-04-transfer",
         "minimum_days": 7,
-        "criterion": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets.",
+        "criterion": "Repair restoration of an RISC-V image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-04.md",
@@ -2119,7 +2119,7 @@
         "unit": "LAB-PO-05B",
         "variant": "PR-T58-05-transfer",
         "minimum_days": 7,
-        "criterion": "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers.",
+        "criterion": "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Encode RISC-V B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-05.md",
@@ -2162,7 +2162,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-06.md",
-      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RISC-V guest.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2197,11 +2197,11 @@
         "unit": "LAB-PO-06B",
         "variant": "PR-T58-06-transfer",
         "minimum_days": 7,
-        "criterion": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+        "criterion": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RISC-V guest.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-06.md",
-      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RISC-V guest.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2240,7 +2240,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-06.md",
-      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RISC-V guest.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2269,7 +2269,7 @@
       "boundary_adversarial": {
         "test": "architecture_ports.privilege",
         "mutation": "architecture_ports.mutation.privilege",
-        "required_counterexample": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
+        "required_counterexample": "Repair a supervisor execute path that assumes `SUM` permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
       },
       "independent_assessment": {
         "unit": "LAB-PO-07B",
@@ -2279,7 +2279,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-07.md",
-      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected supervisor access to user memory (`SUM`) and executable-page readability (`MXR`) controls, not a complete page walk.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2308,17 +2308,17 @@
       "boundary_adversarial": {
         "test": "architecture_ports.privilege",
         "mutation": "architecture_ports.mutation.privilege",
-        "required_counterexample": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
+        "required_counterexample": "Repair a supervisor execute path that assumes `SUM` permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
       },
       "independent_assessment": {
         "unit": "LAB-PO-07B",
         "variant": "PR-T58-07-transfer",
         "minimum_days": 7,
-        "criterion": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+        "criterion": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected supervisor access to user memory (`SUM`) and executable-page readability (`MXR`) controls, not a complete page walk.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-07.md",
-      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected supervisor access to user memory (`SUM`) and executable-page readability (`MXR`) controls, not a complete page walk.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2347,17 +2347,17 @@
       "boundary_adversarial": {
         "test": "architecture_ports.privilege",
         "mutation": "architecture_ports.mutation.privilege",
-        "required_counterexample": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
+        "required_counterexample": "Repair a supervisor execute path that assumes `SUM` permits executing user memory. A model allow decision never grants C pointer provenance or physical access."
       },
       "independent_assessment": {
         "unit": "LAB-PO-07B",
         "variant": "PR-T58-07-transfer",
         "minimum_days": 7,
-        "criterion": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences.",
+        "criterion": "Repair a supervisor execute path that assumes `SUM` permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-07.md",
-      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected supervisor access to user memory (`SUM`) and executable-page readability (`MXR`) controls, not a complete page walk.",
       "remaining_required": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
     },
     {
@@ -2524,7 +2524,7 @@
         "unit": "LAB-PO-08B",
         "variant": "PR-T58-08-transfer",
         "minimum_days": 7,
-        "criterion": "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion.",
+        "criterion": "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Change optimization, atomics width and instruction-set architecture extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/architecture_ports/PR-T58-08.md",
@@ -2569,7 +2569,7 @@
       "boundary_adversarial": {
         "test": "firmware_lifecycle.program",
         "mutation": "firmware_lifecycle.mutation.program",
-        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash."
+        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a reset or power interruption."
       },
       "independent_assessment": {
         "unit": "LAB-LC-01B",
@@ -2620,7 +2620,7 @@
       "boundary_adversarial": {
         "test": "firmware_lifecycle.program",
         "mutation": "firmware_lifecycle.mutation.program",
-        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash."
+        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a reset or power interruption."
       },
       "independent_assessment": {
         "unit": "LAB-LC-01B",
@@ -2671,13 +2671,13 @@
       "boundary_adversarial": {
         "test": "firmware_lifecycle.program",
         "mutation": "firmware_lifecycle.mutation.program",
-        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash."
+        "required_counterexample": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a reset or power interruption."
       },
       "independent_assessment": {
         "unit": "LAB-LC-01B",
         "variant": "PR-T59-01-transfer",
         "minimum_days": 7,
-        "criterion": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash. Replace whole-span admission by per-program-unit persistence and cut power after each unit; derive which metadata must stay uncommitted until image completion.",
+        "criterion": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a reset or power interruption. Replace whole-span admission by per-program-unit persistence and cut power after each unit; derive which metadata must stay uncommitted until image completion.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-01.md",
@@ -3187,11 +3187,11 @@
         "unit": "LAB-LC-05B",
         "variant": "PR-T59-05-transfer",
         "minimum_days": 7,
-        "criterion": "Enumerate crashes after each field write and before/after marker programming. State why the XOR check is a synthetic torn-write control, not an authentication mechanism or robust error code.",
+        "criterion": "Enumerate power interruptions after each field write and before/after marker programming. State why the bitwise exclusive-or check is a synthetic torn-write control, not an authentication mechanism or robust error code.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-05.md",
-      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and check==seq XOR value XOR0x5a5a5a5a. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
+      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and `check == (seq ^ value ^ 0x5a5a5a5a)`. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3238,11 +3238,11 @@
         "unit": "LAB-LC-05B",
         "variant": "PR-T59-05-transfer",
         "minimum_days": 7,
-        "criterion": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and check==seq XOR value XOR0x5a5a5a5a. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
+        "criterion": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and `check == (seq ^ value ^ 0x5a5a5a5a)`. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-05.md",
-      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and check==seq XOR value XOR0x5a5a5a5a. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
+      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and `check == (seq ^ value ^ 0x5a5a5a5a)`. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3293,7 +3293,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-05.md",
-      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and check==seq XOR value XOR0x5a5a5a5a. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
+      "scope": "Implement lc_journal_select over two LCJournal records. A valid record has commit0xa5 and `check == (seq ^ value ^ 0x5a5a5a5a)`. Select the valid record with greatest nonwrapping seq; equal valid seq with unequal values is ambiguous and rejects. Return selected index through output only on success. Sequence exhaustion requires a migration policy, not wraparound.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3614,7 +3614,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-08.md",
-      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], check=reason XOR pc XOR0x9e3779b9 and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware crash record producer that writes commit last and never allocates, then cut the model after every store.",
+      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], `check = reason ^ pc ^ 0x9e3779b9` and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware fault record producer that writes commit last and never allocates, then cut the model after every store.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3661,11 +3661,11 @@
         "unit": "LAB-LC-08B",
         "variant": "PR-T59-08-transfer",
         "minimum_days": 7,
-        "criterion": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], check=reason XOR pc XOR0x9e3779b9 and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware crash record producer that writes commit last and never allocates, then cut the model after every store.",
+        "criterion": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], `check = reason ^ pc ^ 0x9e3779b9` and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware fault record producer that writes commit last and never allocates, then cut the model after every store.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-08.md",
-      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], check=reason XOR pc XOR0x9e3779b9 and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware crash record producer that writes commit last and never allocates, then cut the model after every store.",
+      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], `check = reason ^ pc ^ 0x9e3779b9` and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware fault record producer that writes commit last and never allocates, then cut the model after every store.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3712,11 +3712,11 @@
         "unit": "LAB-LC-08B",
         "variant": "PR-T59-08-transfer",
         "minimum_days": 7,
-        "criterion": "Repair a record reader that accepts a committed but corrupted payload. A synthetic check detects only its modeled faults; physical retention and fault-entry register capture remain separate. Add nested faults and a full crash log; choose preserve-first versus preserve-latest policy, prove bounded writes and assess what diagnostic information is lost.",
+        "criterion": "Repair a record reader that accepts a committed but corrupted payload. A synthetic check detects only its modeled faults; physical retention and fault-entry register capture remain separate. Add nested faults and a full fault log; choose preserve-first versus preserve-latest policy, prove bounded writes and assess what diagnostic information is lost.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/firmware_lifecycle/PR-T59-08.md",
-      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], check=reason XOR pc XOR0x9e3779b9 and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware crash record producer that writes commit last and never allocates, then cut the model after every store.",
+      "scope": "Implement lc_capture_valid(words,n) for exactly4 uint32_t words [reason,pc,check,commit], `check = reason ^ pc ^ 0x9e3779b9` and commit0xc0de. Reject wrong count, invalid check or missing marker. Build a minimal firmware fault record producer that writes commit last and never allocates, then cut the model after every store.",
       "remaining_required": "Real erase/program granularity, torn writes, cache maintenance, boot ROM interaction, watchdog reset and physical power-interruption evidence remain required on dedicated boards. Model success is not secure-boot certification."
     },
     {
@@ -3774,7 +3774,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-01.md",
       "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.01.b",
@@ -3831,7 +3831,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-01.md",
       "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.01.c",
@@ -3888,7 +3888,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-01.md",
       "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.02.a",
@@ -3940,12 +3940,12 @@
         "unit": "LAB-CC-02B",
         "variant": "PR-T60-02-transfer",
         "minimum_days": 7,
-        "criterion": "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+        "criterion": "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed intermediate representation is publishable.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-02.md",
-      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix `CONST`/`ARG`/`ADD`/`MUL` followed by `RET`. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and intermediate representation capacity to caller storage. On failure used remains unchanged; partially written intermediate representation scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.02.b",
@@ -3997,12 +3997,12 @@
         "unit": "LAB-CC-02B",
         "variant": "PR-T60-02-transfer",
         "minimum_days": 7,
-        "criterion": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+        "criterion": "Implement cc_parse from the declared expression grammar, generating postfix `CONST`/`ARG`/`ADD`/`MUL` followed by `RET`. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and intermediate representation capacity to caller storage. On failure used remains unchanged; partially written intermediate representation scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-02.md",
-      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix `CONST`/`ARG`/`ADD`/`MUL` followed by `RET`. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and intermediate representation capacity to caller storage. On failure used remains unchanged; partially written intermediate representation scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.02.c",
@@ -4058,8 +4058,8 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-02.md",
-      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix `CONST`/`ARG`/`ADD`/`MUL` followed by `RET`. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and intermediate representation capacity to caller storage. On failure used remains unchanged; partially written intermediate representation scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.03.a",
@@ -4098,7 +4098,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-03.md",
       "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.03.b",
@@ -4137,7 +4137,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-03.md",
       "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.03.c",
@@ -4176,7 +4176,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-03.md",
       "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.04.a",
@@ -4222,7 +4222,7 @@
       "boundary_adversarial": {
         "test": "subset_compiler.ir",
         "mutation": "subset_compiler.mutation.ir",
-        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects."
+        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed intermediate representation before checking its stack effects."
       },
       "independent_assessment": {
         "unit": "LAB-CC-04B",
@@ -4232,8 +4232,8 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-04.md",
-      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. `CONST` and `ARG` push; `ADD`/`MUL` consume two and push one; `RET` must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.04.b",
@@ -4279,18 +4279,18 @@
       "boundary_adversarial": {
         "test": "subset_compiler.ir",
         "mutation": "subset_compiler.mutation.ir",
-        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects."
+        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed intermediate representation before checking its stack effects."
       },
       "independent_assessment": {
         "unit": "LAB-CC-04B",
         "variant": "PR-T60-04-transfer",
         "minimum_days": 7,
-        "criterion": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+        "criterion": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. `CONST` and `ARG` push; `ADD`/`MUL` consume two and push one; `RET` must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-04.md",
-      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. `CONST` and `ARG` push; `ADD`/`MUL` consume two and push one; `RET` must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.04.c",
@@ -4336,18 +4336,18 @@
       "boundary_adversarial": {
         "test": "subset_compiler.ir",
         "mutation": "subset_compiler.mutation.ir",
-        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects."
+        "required_counterexample": "A nominal interpreter reports success without publishing the computed result, while another executes malformed intermediate representation before checking its stack effects."
       },
       "independent_assessment": {
         "unit": "LAB-CC-04B",
         "variant": "PR-T60-04-transfer",
         "minimum_days": 7,
-        "criterion": "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects. Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution.",
+        "criterion": "A nominal interpreter reports success without publishing the computed result, while another executes malformed intermediate representation before checking its stack effects. Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-04.md",
-      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. `CONST` and `ARG` push; `ADD`/`MUL` consume two and push one; `RET` must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.05.a",
@@ -4393,7 +4393,7 @@
       "boundary_adversarial": {
         "test": "subset_compiler.verify",
         "mutation": "subset_compiler.mutation.verify",
-        "required_counterexample": "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
+        "required_counterexample": "The faulty verifier accepts executable instructions after `RET`. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
       },
       "independent_assessment": {
         "unit": "LAB-CC-05B",
@@ -4403,8 +4403,8 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-05.md",
-      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final `RET` with height1. Return peak depth only on success. Reject any operation after `RET` and any missing `RET`.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.05.b",
@@ -4450,18 +4450,18 @@
       "boundary_adversarial": {
         "test": "subset_compiler.verify",
         "mutation": "subset_compiler.mutation.verify",
-        "required_counterexample": "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
+        "required_counterexample": "The faulty verifier accepts executable instructions after `RET`. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
       },
       "independent_assessment": {
         "unit": "LAB-CC-05B",
         "variant": "PR-T60-05-transfer",
         "minimum_days": 7,
-        "criterion": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+        "criterion": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final `RET` with height1. Return peak depth only on success. Reject any operation after `RET` and any missing `RET`.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-05.md",
-      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final `RET` with height1. Return peak depth only on success. Reject any operation after `RET` and any missing `RET`.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.05.c",
@@ -4507,18 +4507,18 @@
       "boundary_adversarial": {
         "test": "subset_compiler.verify",
         "mutation": "subset_compiler.mutation.verify",
-        "required_counterexample": "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
+        "required_counterexample": "The faulty verifier accepts executable instructions after `RET`. That can conceal malformed data and causes consumers to disagree about the authoritative program extent."
       },
       "independent_assessment": {
         "unit": "LAB-CC-05B",
         "variant": "PR-T60-05-transfer",
         "minimum_days": 7,
-        "criterion": "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently.",
+        "criterion": "The faulty verifier accepts executable instructions after `RET`. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Serialize intermediate representation to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-05.md",
-      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final `RET` with height1. Return peak depth only on success. Reject any operation after `RET` and any missing `RET`.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.06.a",
@@ -4570,12 +4570,12 @@
         "unit": "LAB-CC-06B",
         "variant": "PR-T60-06-transfer",
         "minimum_days": 7,
-        "criterion": "Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+        "criterion": "Map each intermediate representation stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-06.md",
-      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid intermediate representation using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.06.b",
@@ -4627,12 +4627,12 @@
         "unit": "LAB-CC-06B",
         "variant": "PR-T60-06-transfer",
         "minimum_days": 7,
-        "criterion": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+        "criterion": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid intermediate representation using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-06.md",
-      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid intermediate representation using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.06.c",
@@ -4688,8 +4688,8 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-06.md",
-      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid intermediate representation using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.07.a",
@@ -4728,7 +4728,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-07.md",
       "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.07.b",
@@ -4767,7 +4767,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-07.md",
       "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.07.c",
@@ -4806,7 +4806,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-07.md",
       "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.08.a",
@@ -4858,12 +4858,12 @@
         "unit": "LAB-CC-08B",
         "variant": "PR-T60-08-transfer",
         "minimum_days": 7,
-        "criterion": "Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+        "criterion": "Separate front-end correctness, intermediate representation semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-08.md",
       "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.08.b",
@@ -4920,7 +4920,7 @@
       },
       "assessor": "assessor/subset_compiler/PR-T60-08.md",
       "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T60.08.c",
@@ -4972,12 +4972,12 @@
         "unit": "LAB-CC-08B",
         "variant": "PR-T60-08-transfer",
         "minimum_days": 7,
-        "criterion": "An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct.",
+        "criterion": "An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Add variables, conditionals, loops and function calls in separate increments with revised grammar, intermediate representation verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/subset_compiler/PR-T60-08.md",
       "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
-      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+      "remaining_required": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public intermediate representation anchors do not certify a general C compiler."
     },
     {
       "objective": "T61.01.a",
@@ -5033,7 +5033,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-01.md",
-      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a C Bounded Model Checker harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -5086,11 +5086,11 @@
         "unit": "LAB-VF-01B",
         "variant": "PR-T61-01-transfer",
         "minimum_days": 7,
-        "criterion": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+        "criterion": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a C Bounded Model Checker harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-01.md",
-      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a C Bounded Model Checker harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -5147,7 +5147,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-01.md",
-      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a C Bounded Model Checker harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -5536,7 +5536,7 @@
       "boundary_adversarial": {
         "test": "verification_fuzzing.frame",
         "mutation": "verification_fuzzing.mutation.frame",
-        "required_counterexample": "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
+        "required_counterexample": "The parser ignores checksum mismatch yet always returns normally, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
       },
       "independent_assessment": {
         "unit": "LAB-VF-04B",
@@ -5546,7 +5546,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-04.md",
-      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and bitwise exclusive-or of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -5593,17 +5593,17 @@
       "boundary_adversarial": {
         "test": "verification_fuzzing.frame",
         "mutation": "verification_fuzzing.mutation.frame",
-        "required_counterexample": "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
+        "required_counterexample": "The parser ignores checksum mismatch yet always returns normally, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
       },
       "independent_assessment": {
         "unit": "LAB-VF-04B",
         "variant": "PR-T61-04-transfer",
         "minimum_days": 7,
-        "criterion": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+        "criterion": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and bitwise exclusive-or of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-04.md",
-      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and bitwise exclusive-or of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -5650,17 +5650,17 @@
       "boundary_adversarial": {
         "test": "verification_fuzzing.frame",
         "mutation": "verification_fuzzing.mutation.frame",
-        "required_counterexample": "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
+        "required_counterexample": "The parser ignores checksum mismatch yet always returns normally, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame."
       },
       "independent_assessment": {
         "unit": "LAB-VF-04B",
         "variant": "PR-T61-04-transfer",
         "minimum_days": 7,
-        "criterion": "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
+        "criterion": "The parser ignores checksum mismatch yet always returns normally, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-04.md",
-      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and bitwise exclusive-or of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -6230,7 +6230,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-08.md",
-      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved C Bounded Model Checker/fuzz campaigns against actual logs and source hashes.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -6283,11 +6283,11 @@
         "unit": "LAB-VF-08B",
         "variant": "PR-T61-08-transfer",
         "minimum_days": 7,
-        "criterion": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+        "criterion": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved C Bounded Model Checker/fuzz campaigns against actual logs and source hashes.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-08.md",
-      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved C Bounded Model Checker/fuzz campaigns against actual logs and source hashes.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -6344,7 +6344,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/verification_fuzzing/PR-T61-08.md",
-      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved C Bounded Model Checker/fuzz campaigns against actual logs and source hashes.",
       "remaining_required": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
     },
     {
@@ -6562,7 +6562,7 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.readiness",
         "mutation": "linux_io_depth.mutation.readiness",
-        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash."
+        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure while the process continues running."
       },
       "independent_assessment": {
         "unit": "LAB-LI-02B",
@@ -6601,7 +6601,7 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.readiness",
         "mutation": "linux_io_depth.mutation.readiness",
-        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash."
+        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure while the process continues running."
       },
       "independent_assessment": {
         "unit": "LAB-LI-02B",
@@ -6640,13 +6640,13 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.readiness",
         "mutation": "linux_io_depth.mutation.readiness",
-        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash."
+        "required_counterexample": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure while the process continues running."
       },
       "independent_assessment": {
         "unit": "LAB-LI-02B",
         "variant": "PR-T62-02-transfer",
         "minimum_days": 7,
-        "criterion": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
+        "criterion": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure while the process continues running. Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-02.md",
@@ -6913,7 +6913,7 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.cancel",
         "mutation": "linux_io_depth.mutation.cancel",
-        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
+        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target completion queue entry. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
       },
       "independent_assessment": {
         "unit": "LAB-LI-05B",
@@ -6923,7 +6923,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-05.md",
-      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a schedule harness with two completion queue entries that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -6952,17 +6952,17 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.cancel",
         "mutation": "linux_io_depth.mutation.cancel",
-        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
+        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target completion queue entry. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
       },
       "independent_assessment": {
         "unit": "LAB-LI-05B",
         "variant": "PR-T62-05-transfer",
         "minimum_days": 7,
-        "criterion": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+        "criterion": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a schedule harness with two completion queue entries that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-05.md",
-      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a schedule harness with two completion queue entries that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -6991,17 +6991,17 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.cancel",
         "mutation": "linux_io_depth.mutation.cancel",
-        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
+        "required_counterexample": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target completion queue entry. A sanitizer finding identifies a lifetime violation, not kernel exploitability."
       },
       "independent_assessment": {
         "unit": "LAB-LI-05B",
         "variant": "PR-T62-05-transfer",
         "minimum_days": 7,
-        "criterion": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics.",
+        "criterion": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target completion queue entry. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Add a timeout linked to a multishot request; enumerate which completion queue entries are terminal and determine whether the backend supports the requested cancellation semantics.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-05.md",
-      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a schedule harness with two completion queue entries that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -7243,17 +7243,17 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.durability",
         "mutation": "linux_io_depth.mutation.durability",
-        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee."
+        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while power loss can invalidate the stated guarantee."
       },
       "independent_assessment": {
         "unit": "LAB-LI-07B",
         "variant": "PR-T62-07-transfer",
         "minimum_days": 7,
-        "criterion": "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+        "criterion": "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open file descriptors to the replaced old inode and permissions on the new object.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-07.md",
-      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic power-loss-cut ledger; do not claim real power-loss durability from a normal process exit.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -7306,17 +7306,17 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.durability",
         "mutation": "linux_io_depth.mutation.durability",
-        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee."
+        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while power loss can invalidate the stated guarantee."
       },
       "independent_assessment": {
         "unit": "LAB-LI-07B",
         "variant": "PR-T62-07-transfer",
         "minimum_days": 7,
-        "criterion": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+        "criterion": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic power-loss-cut ledger; do not claim real power-loss durability from a normal process exit.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-07.md",
-      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic power-loss-cut ledger; do not claim real power-loss durability from a normal process exit.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -7369,17 +7369,17 @@
       "boundary_adversarial": {
         "test": "linux_io_depth.durability",
         "mutation": "linux_io_depth.mutation.durability",
-        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee."
+        "required_counterexample": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while power loss can invalidate the stated guarantee."
       },
       "independent_assessment": {
         "unit": "LAB-LI-07B",
         "variant": "PR-T62-07-transfer",
         "minimum_days": 7,
-        "criterion": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated.",
+        "criterion": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while power loss can invalidate the stated guarantee. Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and power-loss experiments must be repeated.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/linux_io_depth/PR-T62-07.md",
-      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic power-loss-cut ledger; do not claim real power-loss durability from a normal process exit.",
       "remaining_required": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
     },
     {
@@ -7717,7 +7717,7 @@
         "unit": "LAB-MD-01B",
         "variant": "PR-T63-01-transfer",
         "minimum_days": 7,
-        "criterion": "Repair capacity confusion and post-write checks. A canary that detects corruption afterward does not restore overwritten data or authorize the write. Split the logical object into a real heap allocation and run the isolated faulty path under ASan; compare deterministic model evidence with environment-dependent undefined execution and mitigation effects.",
+        "criterion": "Repair capacity confusion and post-write checks. A canary that detects corruption afterward does not restore overwritten data or authorize the write. Split the logical object into a real heap allocation and run the isolated faulty path under ASan; compare deterministic model evidence with observed effects of undefined behavior and the effects of mitigations; ISO C guarantees no particular result after undefined behavior.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/memory_defense/PR-T63-01.md",
@@ -8690,7 +8690,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/memory_defense/PR-T63-08.md",
-      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
+      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating bitwise exclusive-or difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
       "remaining_required": "Each security dossier must retain attacker input, violated property, necessary exploitability assumptions, harmless target-local success, repaired result and residual mitigation limits. Model violations do not imply arbitrary code execution or privilege escalation."
     },
     {
@@ -8737,11 +8737,11 @@
         "unit": "LAB-MD-08B",
         "variant": "PR-T63-08-transfer",
         "minimum_days": 7,
-        "criterion": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
+        "criterion": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating bitwise exclusive-or difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/memory_defense/PR-T63-08.md",
-      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
+      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating bitwise exclusive-or difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
       "remaining_required": "Each security dossier must retain attacker input, violated property, necessary exploitability assumptions, harmless target-local success, repaired result and residual mitigation limits. Model violations do not imply arbitrary code execution or privilege escalation."
     },
     {
@@ -8792,7 +8792,7 @@
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/memory_defense/PR-T63-08.md",
-      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
+      "scope": "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating bitwise exclusive-or difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
       "remaining_required": "Each security dossier must retain attacker input, violated property, necessary exploitability assumptions, harmless target-local success, repaired result and residual mitigation limits. Model violations do not imply arbitrary code execution or privilege escalation."
     },
     {
@@ -9949,7 +9949,7 @@
         "unit": "LAB-NS-07B",
         "variant": "PR-T64-07-transfer",
         "minimum_days": 7,
-        "criterion": "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions.",
+        "criterion": "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect instruction-set and operating-system feature checks, emitted instructions and equal-contract performance distributions.",
         "status": "authored opportunity; no learner or independent reviewer evidence"
       },
       "assessor": "assessor/numeric_simd/PR-T64-07.md",
@@ -10130,18 +10130,18 @@
   ],
   "completion_claim": "Authored domain integration and bounded experiments only; remaining required gaps prevent comprehensive completion.",
   "input_sha256": {
-    "research/v5/expansion/b06/author_domains.py": "278b02eff6ab9ee319c88a54cedfdaa03d8d4cce5deb12d8fed9c7b5416c3aff",
+    "research/v5/expansion/b06/author_domains.py": "84b5639742e9ea5df9efd369abef8c6f2a891ab908d80c2bdb828f3ce5b8ff3d",
     "research/v5/expansion/b06/author_targets.py": "6329410f1cd219a5792dfc3bce56e56bb20210fc206696e8f22c09b1cdd81d29",
     "research/v5/expansion/b06/register_sources.py": "6606fd45231ca9badfcf88ea78443a5a3364ca4c5696e4663e71797a9582bcea",
-    "research/v5/expansion/b06/spec_t57.py": "9216639d3b0fabe007b7c079cb0d57f5793ca85c602147c3e213af1ce65045df",
-    "research/v5/expansion/b06/spec_t58.py": "820c698e91c72234b8dfd7d0bceebde998f9971b74ee44154ce8918a398bc524",
-    "research/v5/expansion/b06/spec_t59.py": "8839c7075a5ce34a825f9eb183a8d2f5af77cb115cde58fa14edfc4f0752b9ea",
-    "research/v5/expansion/b06/spec_t60.py": "22e36a8491c512654d53084db9dbccf3e971417fdf71db3b7bc5c3f0587750ef",
-    "research/v5/expansion/b06/spec_t61.py": "6a925f8daad8f459b7be2462c44581aa7f12519baa8553a074cfc783c7c53935",
-    "research/v5/expansion/b06/spec_t62.py": "b26fb49246691bcce27e4f072742ddc7fa726e5978468dbfd03b54fb89477647",
-    "research/v5/expansion/b06/spec_t63.py": "a02de34eb17110a8873e4608340e45e77c5626427a24741e568488968d5ced91",
-    "research/v5/expansion/b06/spec_t64.py": "ad012a80f0a790b0ba827170188bdacd8dc18bb5f207550a1834ad45f3d8d354",
+    "research/v5/expansion/b06/spec_t57.py": "7ee20907440d441aef0ebdb596d683d96f4879a197271070b0b674bc06a3d30a",
+    "research/v5/expansion/b06/spec_t58.py": "5bec92aa512382282694d16ed979b41dac573f4d7fe2791ebdb1ee5695cc994a",
+    "research/v5/expansion/b06/spec_t59.py": "64d5209615bc8022574664bb69b4e277698a8c290f7b61347b0c96649992e416",
+    "research/v5/expansion/b06/spec_t60.py": "502151a4b222235931ab24fe6a9bbb310867a88793ec18a8bb1b87621cf3c1b7",
+    "research/v5/expansion/b06/spec_t61.py": "2cb28fcba9a635be76b81efad9c11787e1f257513a6c28f776bb2e0b81e86a28",
+    "research/v5/expansion/b06/spec_t62.py": "ab579beca466f0c2d2c837ebc6f93a830bb37794e3775a7ec569e0fd7b691a4b",
+    "research/v5/expansion/b06/spec_t63.py": "e2ba23d006d2151d0ebc8de1dde08fbc5c2dfc9ad97c70fee07973e28953543e",
+    "research/v5/expansion/b06/spec_t64.py": "be4b31ce073d94bb8cac0d8491c6ff79f5109744a0f47179c09660004dc147ff",
     "research/v5/b06_resources.json": "200e6bbd540fe430472645818e401aab343584d6512dee9ed891ee3c8aaed802",
-    "research/v5/b06_taxonomy.json": "85b488a22b2c7ef921563750ac7216fa9c2d669e51862421facc25f2d8b8596c"
+    "research/v5/b06_taxonomy.json": "083fc31b0faae8f077aa57cb6c56dca9a0a2e9fd74cde7e28e190ee20d8db916"
   }
 }

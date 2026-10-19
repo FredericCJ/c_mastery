@@ -1,0 +1,791 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T49-01-T49.01.a",
+      "project": "PR-T49-01",
+      "objective": "T49.01.a",
+      "original_task": "Draw write's ISO C call, libc wrapper, selected Linux machine ABI, kernel copy and device boundaries. Classify raw -9 versus wrapper -1/errno9, and specify which successful calls leave errno uninterpretable.",
+      "original_expected": "The finite fixture translates -9 correctly; each boundary has a named authority and missing target assumptions remain explicit.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-01-T49.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the wrapper to a second ABI and derive argument/error/clobber changes before reuse."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-syscalls",
+        "arm64-O0",
+        "arm64-O2",
+        "arm64-O2-assembly"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-01-T49.01.b",
+      "project": "PR-T49-01",
+      "objective": "T49.01.b",
+      "original_task": "Implement a bounded original raw write wrapper for the actual selected Linux ABI; compare it with libc on a disposable pipe and invalid descriptor. Inspect disassembly and record rcx/r11/memory or the selected ABI's actual clobbers, retries and partial progress.",
+      "original_expected": "Exact requested/sent byte ledgers agree for valid writes; invalid descriptor produces the expected translated error; assembly constraints survive O0/O2.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-01-T49.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a nonblocking pipe with less free capacity than the requested transfer."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O0-syscall-assembly",
+        "clang-O2-syscall-assembly",
+        "gcc-O2-syscall-trace",
+        "clang-O2-syscalls"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-01-T49.01.c",
+      "project": "PR-T49-01",
+      "objective": "T49.01.c",
+      "original_task": "Inject EINTR before progress, short positive progress, EAGAIN and terminal failure in a deterministic transfer adapter, then correlate at least one real short-transfer trace. Retain done and remaining lengths after every step.",
+      "original_expected": "Positive progress advances exactly that prefix; retryable zero-progress errors preserve it; no loop treats a negative result as size_t success.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-01-T49.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the destination to a record-oriented contract and explain why byte-stream recovery no longer suffices."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-core",
+        "clang-O2-core",
+        "gcc-O2-syscall-trace",
+        "gcc-O2-io"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-02-T49.02.a",
+      "project": "PR-T49-02",
+      "objective": "T49.02.a",
+      "original_task": "Build an ownership graph separating process address spaces, MAP_SHARED objects, open-file descriptions, thread stacks and join/wait records. Explain fork's private counter versus explicit shared counter and reference sequence2,3,2,1,0.",
+      "original_expected": "Each lifetime has one accountable owner/reclamation event; reference count reaches zero at step5 only in the declared model.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-02-T49.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Open a descriptor before fork and distinguish shared offset from private memory."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-O2-lifecycle",
+        "gcc-O2-descriptors"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-02-T49.02.b",
+      "project": "PR-T49-02",
+      "objective": "T49.02.b",
+      "original_task": "Implement the real process/thread tree with bounded counters and child reports. Force failure after the first successful worker creation, join exactly created workers and reap all children; keep argument storage alive until completion.",
+      "original_expected": "No owned live entity is abandoned; thread-shared atomic work and process-private data behave as predicted.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-02-T49.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move worker arguments from static to scoped storage and prove the scope encloses every join."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O0-lifecycle",
+        "gcc-O2-lifecycle",
+        "clang-O2-lifecycle",
+        "gcc-memcheck-lifecycle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-02-T49.02.c",
+      "project": "PR-T49-02",
+      "objective": "T49.02.c",
+      "original_task": "Compare thread exit, process exit, child failure before result publication and duplicated stdio buffering around fork. Use explicit reports and exit statuses; diagnose a deliberately missing close that blocks EOF.",
+      "original_expected": "The report distinguishes lifecycle failure from report-channel failure and demonstrates all required reaping/joins.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-02-T49.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the result pipe with shared memory plus explicit synchronization and revisit visibility."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-lifecycle",
+        "gcc-O2-descriptors",
+        "clang-O2-lifecycle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-03-T49.03.a",
+      "project": "PR-T49-03",
+      "objective": "T49.03.a",
+      "original_task": "Specify total event order for arrivals, completion, RR requeue and dispatch. Define positive service/quantum, maximum16 jobs/256 ticks and rejection output semantics; derive conservation and waiting identities.",
+      "original_expected": "Every accepted trace satisfies turnaround=waiting+service and response=first_start-arrival under the CPU-only zero-dispatch-cost model.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-03-T49.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add explicit dispatch cost and revise identities rather than silently charging it as service."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-core",
+        "gcc-oracle",
+        "clang-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-03-T49.03.b",
+      "project": "PR-T49-03",
+      "objective": "T49.03.b",
+      "original_task": "Implement FCFS,SJF,SRTF,RR and compare against an independent tick oracle over small arrival/service sets. For A(0,8),B(1,2),C(2,1), derive every dispatch; include idle gaps, singleton and invalid zero quantum.",
+      "original_expected": "SRTF finishes B3,C4,A11 and first starts A0,B1,C3; all policies conserve eleven service units.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-03-T49.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use simultaneous arrivals and a job completing exactly at a quantum boundary."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-oracle",
+        "clang-oracle",
+        "gcc-O2-core"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-03-T49.03.c",
+      "project": "PR-T49-03",
+      "objective": "T49.03.c",
+      "original_task": "Compute response, waiting, turnaround and dispatch counts from the emitted trace with a second implementation. Mutate the tie break and idle accounting; show which metric catches each defect.",
+      "original_expected": "Per-job metrics and the entire trace agree; idle slots never count as job service; each mutant has a discriminating witness.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-03-T49.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare quantum choices with nonzero switch overhead and report the fairness/throughput tradeoff."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-mutant-fixed",
+        "gcc-mutant-tie",
+        "gcc-mutant-idle",
+        "clang-mutant-tie",
+        "clang-mutant-idle",
+        "gcc-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-04-T49.04.a",
+      "project": "PR-T49-04",
+      "objective": "T49.04.a",
+      "original_task": "Derive MLFQ residual-allotment and stride-pass invariants. Distinguish module-required yields/sleep accounting from the retained CPU-only SPEC; define those added transitions before implementation.",
+      "original_expected": "Repeated short yields consume the same level allotment; boosts and pass normalization preserve explicit ordering.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-04-T49.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add sleep/wakeup with bounded credit and analyze whether it rewards a yielding hog."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-core",
+        "gcc-oracle",
+        "clang-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-04-T49.04.b",
+      "project": "PR-T49-04",
+      "objective": "T49.04.b",
+      "original_task": "Add explicit yield events to a three-level1/2/4-budget MLFQ with boost every16 ticks. Compare a hog and a task yielding just before demotion; separately derive the scale28 stride fixture service2,4,8 and the executable floor(1024/weight) policy.",
+      "original_expected": "Each model is labeled; the yielding worker cannot reset its allotment, and the finite ratio fixture is reproduced only under its own arithmetic.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-04-T49.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change weight mid-run and preserve a declared pass-credit policy without overflow."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-core",
+        "gcc-oracle",
+        "clang-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-04-T49.04.c",
+      "project": "PR-T49-04",
+      "objective": "T49.04.c",
+      "original_task": "Compare the teaching policies with inspected Linux EEVDF lag, eligibility and virtual-deadline rules. Record the observed kernel/source revision and give a sleeping-task counterexample to resetting all negative lag.",
+      "original_expected": "The comparison identifies genuinely different state and selection rules; no model-to-kernel equivalence is claimed.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-04-T49.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the selected Linux release and identify which source observations must be renewed."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "host-kernel",
+        "gcc-guest-run"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-05-T49.05.a",
+      "project": "PR-T49-05",
+      "objective": "T49.05.a",
+      "original_task": "Derive page-reference and working-set sets for addresses0,4095,4096,8191,12288,0 at4096-byte pages. Separate requested bytes, distinct touched pages, RSS, minor/major faults and physical I/O.",
+      "original_expected": "Unique pages are0,1,3 under the finite model; runtime deviations are explained using mappings, zero-page/COW, huge-page and measurement scope.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-05-T49.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use equal total bytes with interleaved windows and compare working sets by window."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-O2-locality"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-05-T49.05.b",
+      "project": "PR-T49-05",
+      "objective": "T49.05.b",
+      "original_task": "Build sequential,strided and fixed-seed randomized touch phases with observable checksums. Retain allocation/touch timestamps, page size, mapping mode, huge-page context and before/after resource counters; inspect optimized code for retained accesses.",
+      "original_expected": "Every claimed access contributes to an observable checksum; resource deltas are scoped to actual phases and no universal count is asserted.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-05-T49.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare read-only first touch with write first touch and explain differing allocation paths."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-locality",
+        "clang-O2-locality",
+        "gcc-O2-touch-assembly",
+        "clang-O2-touch-assembly",
+        "host-environment"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-05-T49.05.c",
+      "project": "PR-T49-05",
+      "objective": "T49.05.c",
+      "original_task": "Repeat runs with randomized phase order and record environmental interference. Explain a warm-file run with zero major faults but many logical reads; document when cold-cache control is unavailable without changing global host settings.",
+      "original_expected": "Claims are bounded by measured counters and controls; unavailable isolation stays pending rather than replaced by a model pass.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-05-T49.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a bounded competing reader in a disposable environment and compare uncertainty intervals."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-locality-summary",
+        "clang-O2-locality-summary",
+        "gcc-guest-observations",
+        "host-environment"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-06-T49.06.a",
+      "project": "PR-T49-06",
+      "objective": "T49.06.a",
+      "original_task": "Define FIFO queue, LRU recency order, CLOCK hand/reference bits and optimal future-distance state over page IDs. Specify capacity0 refusal and empty-trace behavior; prove resident uniqueness/capacity after each transition.",
+      "original_expected": "Every policy has explicit hit/miss transitions; optimal alone reads future references.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-06-T49.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add dirty state without conflating writeback cost and fault count."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-core",
+        "gcc-oracle",
+        "clang-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-06-T49.06.b",
+      "project": "PR-T49-06",
+      "objective": "T49.06.b",
+      "original_task": "Implement all four policies, retaining the existing CLOCK anchor and adding independent FIFO/LRU/optimal implementations. Print per-reference hits, victims and resident sets for the supplied anomaly string at three/four frames.",
+      "original_expected": "FIFO faults are9 then10; independent traces account for every replacement and no future data enters LRU/CLOCK.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-06-T49.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use exhaustive short strings over three page IDs and compare to an independent optimal oracle."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-oracle",
+        "clang-oracle",
+        "gcc-O2-core"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-06-T49.06.c",
+      "project": "PR-T49-06",
+      "objective": "T49.06.c",
+      "original_task": "Prove the LRU stack-inclusion relation under identical deterministic history and provide FIFO's violating witness. Compare optimal fault bounds and dirty writeback counts under equal capacity/correctness contracts.",
+      "original_expected": "LRU inclusion argument and FIFO9/10 witness are both correct; optimal minimizes misses only under its declared model.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-06-T49.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Assign unequal read/write costs and show miss-optimal need not minimize total cost."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-oracle",
+        "clang-oracle"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-07-T49.07.a",
+      "project": "PR-T49-07",
+      "objective": "T49.07.a",
+      "original_task": "Model descriptor integers separately from shared open-file descriptions. Trace open a,dup b,reads3+2,separate open c/read4, then close and numeric reuse; identify which flags and offsets belong to which layer.",
+      "original_expected": "The fixture offsets are a5,b5,c4; stale numeric references can target a different later object.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-07-T49.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a descriptor transfer and extend the reference ledger before using it."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-descriptors",
+        "clang-O2-descriptors"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-07-T49.07.b",
+      "project": "PR-T49-07",
+      "objective": "T49.07.b",
+      "original_task": "Implement the temporary-file/dup/fork/pipe experiment with deterministic handshakes. Close every unused inherited writer and show EOF only after the last writer closes; inject setup failure after each acquisition.",
+      "original_expected": "Shared offsets and independent opens match prediction; failure cleanup leaves no owned descriptor or child behind.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-07-T49.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use close-on-exec at creation and verify the executed child cannot inherit the private endpoint."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O0-descriptors",
+        "clang-O2-descriptors",
+        "gcc-memcheck-descriptors"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-07-T49.07.c",
+      "project": "PR-T49-07",
+      "objective": "T49.07.c",
+      "original_task": "Compare Linux close error/blocked-I/O behavior with the selected POSIX edition. Reproduce numeric reuse in a bounded synthetic syscall adapter and show why blindly retrying Linux close can close a replacement resource; mark exact POSIX2024 text unavailable until inspected.",
+      "original_expected": "Linux-specific analysis matches inspected close documentation; POSIX2008/2024 claims are distinguished from direct standard inspection and not silently generalized.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-07-T49.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the cleanup adapter to a platform retaining the descriptor after EINTR and revise ownership transitions."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-io",
+        "clang-O2-io",
+        "gcc-O2-descriptors"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-08-T49.08.a",
+      "project": "PR-T49-08",
+      "objective": "T49.08.a",
+      "original_task": "Separate namespace views, resource budgets, readiness and completion in a four-column contract. For generation4 events(3,12),(4,7),(4,8), derive one terminal acceptance and stale/duplicate rejection.",
+      "original_expected": "Only7 is accepted and two events reject; buffer ownership ends only on its documented terminal event.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-08-T49.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add cancellation before a late completion and preserve generation identity."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-O2-completion",
+        "clang-O2-completion"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-08-T49.08.b",
+      "project": "PR-T49-08",
+      "objective": "T49.08.b",
+      "original_task": "Build a nonblocking poll reader with bounded partial-record storage; force another reader to consume readiness before this one reads, inject EINTR and partial EOF, and preserve EAGAIN as a retry state. Observe only permitted disposable namespace views.",
+      "original_expected": "No buffer overrun or duplicate prefix occurs; EOF rejects an incomplete record; unavailable namespace operations are explicitly recorded.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-08-T49.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Deliver synthetic completions out of order while real pipe reads remain separate."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-readiness",
+        "clang-O2-readiness",
+        "gcc-O2-completion",
+        "gcc-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-08-T49.08.c",
+      "project": "PR-T49-08",
+      "objective": "T49.08.c",
+      "original_task": "Diagnose early buffer reuse and duplicate completion in the bounded request model, then test corrected ownership with stale generations and exhaustion. Compare the observation scope to the actual self-pipe probe.",
+      "original_expected": "The first invalid reuse is identified; duplicates cannot release a newer request; real and modeled evidence are labeled independently.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-08-T49.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compose completion delivery with a task shutdown protocol and require quiescence before reclaiming context."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-completion",
+        "clang-O2-completion",
+        "gcc-O2-readiness"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-09-T49.09.a",
+      "project": "PR-T49-09",
+      "objective": "T49.09.a",
+      "original_task": "Derive the finite quota fixture:20000 per100000 over five complete periods. State phase alignment, burst, hierarchy and scheduler assumptions; distinguish service ceiling from guaranteed latency or core ownership.",
+      "original_expected": "The fixture ceiling is100000 only under its model; arbitrary sliding windows and parent constraints require a revised argument.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-09-T49.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Start measurement midway through a period and derive the possible boundary contribution."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-09-T49.09.b",
+      "project": "PR-T49-09",
+      "objective": "T49.09.b",
+      "original_task": "Author a bounded delegated-subtree experiment with an external supervisor, baseline/CPU/memory trials, fixed workload limits, recorded ancestry and cleanup. Capture cpu.stat,memory.events,exit status and actual limits; execute only in an already authorized disposable environment.",
+      "original_expected": "A valid enforcement receipt includes workload placement, limits, raw counters and cleanup; unavailable delegation leaves the execution gate pending.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-09-T49.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add two weighted children beneath a tighter parent quota."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-guest-observations",
+        "clang-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-09-T49.09.c",
+      "project": "PR-T49-09",
+      "objective": "T49.09.c",
+      "original_task": "Analyze throttled intervals, memory.current versus RSS and allocation failure versus killed process using trial traces. Include a deliberately wrong supervisor-inside-budget diagram and repair its ownership/control placement.",
+      "original_expected": "Attribution is supported by relevant deltas and exit/signal evidence; unsupported causes remain hypotheses.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-09-T49.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change ancestry while keeping child limits constant and predict the new confounder."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-guest-observations",
+        "clang-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-10-T49.10.a",
+      "project": "PR-T49-10",
+      "objective": "T49.10.a",
+      "original_task": "Build separate byte ledgers for application reads/writes, cached traffic, device traffic and acknowledged durable prefix. Derive writes7168,reads2048,prefix6144 from the fixture without treating the final1024 as necessarily lost.",
+      "original_expected": "All three fixture totals are correct and the unacknowledged tail remains uncertain.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-10-T49.10.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add overlapping rewrites and explain why byte count differs from final file size."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "certificates",
+        "gcc-O2-io",
+        "clang-O2-io"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-10-T49.10.b",
+      "project": "PR-T49-10",
+      "objective": "T49.10.b",
+      "original_task": "Implement bounded disposable-file generate/write/fsync/read phases with short-I/O and ENOSPC injection. Retain device identity, placement, raw io.stat when available, CPU/wall times and free-space guard; keep controller trials within authorized disposable scope.",
+      "original_expected": "Full contents and progress ledgers remain correct under injected failures; unavailable controller evidence is not replaced by synthetic success.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-10-T49.10.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a concurrent bounded reader and preserve separate per-process and device observations."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-O2-io",
+        "gcc-guest-observations",
+        "clang-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    },
+    {
+      "id": "AX-PR-T49-10-T49.10.c",
+      "project": "PR-T49-10",
+      "objective": "T49.10.c",
+      "original_task": "Compare warm-cache and explicit-fsync trials with paired ordering and uncertainty. Explain a device-byte count exceeding or below application bytes using only supported mechanisms; preserve unresolved alternatives.",
+      "original_expected": "The report distinguishes measured, inferred and unresolved quantities; no physical durability or causal certainty is invented.",
+      "changed_conditions": [
+        {
+          "id": "AX-PR-T49-10-T49.10.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change filesystem/backend and identify which prior results and assumptions must be discarded."
+        }
+      ],
+      "teaching": "labs/os_followthrough/CONTRACTS.md",
+      "mechanism_checks": [
+        "gcc-guest-observations",
+        "clang-guest-observations"
+      ],
+      "learner_deliverables": [
+        "Freeze the exact ABI,model,state,ownership and timing assumptions before execution.",
+        "Implement or derive the exact original task and changed condition.",
+        "Retain mechanism-specific raw outputs,negative controls,tool/source identity and cleanup.",
+        "Keep minimum-seven-day unseen independent assessment and physical observations separate."
+      ]
+    }
+  ],
+  "scope": "Exact30 original criteria and30 original delayed variants;no learner completion inferred."
+}

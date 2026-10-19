@@ -6,7 +6,7 @@ CASES={'service_depth':['memory','channel','files','journal']}
 def main():
  family='service_depth'
  p=argparse.ArgumentParser();p.add_argument('--report',type=Path);args=p.parse_args();build=ROOT/'build'/family/'campaign';build.mkdir(parents=True,exist_ok=True)
- paths=[x for base in [ROOT/'labs'/family,ROOT/'assessor'/family,ROOT/'fixtures'/family] for x in base.rglob('*') if x.is_file()]
+ paths=[x for base in [ROOT/'labs'/family,ROOT/'assessor'/family,ROOT/'fixtures'/family] for x in base.rglob('*') if x.is_file() and '__pycache__' not in x.parts]
  paths += [ROOT/'tools'/n for n in [f'run_{family}.py',f'verify_{family}_fixtures.py']]
  paths += list((ROOT/'research/v5/expansion/service_depth').glob('*'))
  paths += [ROOT/'curriculum/projects'/('PR-T56-%02d.md'%n) for n in [2,4,5,8,10,11]]
@@ -14,9 +14,9 @@ def main():
  paths += [ROOT/'curriculum/v5/exercises'/('X-T56-%03d.md'%n) for n in range(2,6)]
  inspected={x.relative_to(ROOT).as_posix():hashlib.sha256(x.read_bytes()).hexdigest() for x in paths}
  from v5_common import identity
- report=dict(schema_version=5,family=family,status='failed',passed=False,input_sha256=identity()['sha256'],inspected_paths=inspected,commands=[],limits=['Author execution only; independent learner assessment not performed.','Target evidence is compilation/link/dependency inspection, never board execution or physical validation.','Actual ELF/MMU/syscall/archive-parser/disk adapters and independent assessment remain required; portable core/composition logs do not establish them.'])
+ report=dict(schema_version=5,family=family,status='failed',passed=False,input_sha256=identity()['sha256'],inspected_paths=inspected,commands=[],limits=['Author execution only; independent learner assessment not performed.','Portable Cortex-M evidence is link/dependency inspection; the separately bound adapter campaign executes QEMU guests, never physical boards.','Portable core/composition logs do not establish real adapters; the mandatory separately source-bound adapter campaign supplies that bounded author evidence.'])
  def run(cmd,expected=0,marker=None,env=None,optional=False):
-  result=subprocess.run(list(map(str,cmd)),cwd=ROOT,env=dict(os.environ,**(env or {})),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=300)
+  result=subprocess.run(list(map(str,cmd)),cwd=ROOT,env=dict(os.environ,**(env or {})),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=1800 if any('run_service_adapters.py' in str(x) for x in cmd) else 300)
   index=len(report['commands']);log=build/f'{index:03}.log';log.write_text(result.stdout,encoding='utf-8')
   ok=result.returncode==expected and (marker is None or marker in result.stdout)
   report['commands'].append(dict(command=list(map(str,cmd)),returncode=result.returncode,expected=expected,passed=ok,optional=optional,environment_overrides=env or {},log=log.relative_to(ROOT).as_posix(),stdout=result.stdout))
@@ -51,6 +51,10 @@ def main():
   if undefined.strip():raise RuntimeError('Unresolved target dependencies: '+undefined)
   symbols=run(['arm-none-eabi-nm',target/'audit.elf']).stdout
   report['target_audit']=dict(status='linked-no-unresolved-symbols',target='Cortex-M4 Thumb',runtime_helpers='Explicit byte-loop __aeabi_memcpy/memclr/memset and aligned aliases; no hosted runtime or allocator.',execution='not-run',symbols=symbols)
+  adapter_receipt=ROOT/'reviews/v5/expansion/followthrough/service_adapter_campaign.json'
+  run([sys.executable,ROOT/'tools/run_service_adapters.py','--report',adapter_receipt])
+  run([sys.executable,ROOT/'tools/check_service_adapters_v5.py','--report',adapter_receipt.relative_to(ROOT).as_posix()])
+  report['adapter_campaign']={'path':adapter_receipt.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(adapter_receipt.read_bytes()).hexdigest()}
   if any(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()!=h for path,h in inspected.items()):raise RuntimeError('Inputs changed during campaign')
   report.update(status='passed',passed=True)
  except Exception as error:report['error']=str(error)

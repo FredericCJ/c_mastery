@@ -1,0 +1,9 @@
+# Asynchronous read ownership analysis
+
+OWNED and QUARANTINED both retain the buffer. The bit `abandoned` controls result delivery, not device ownership. The only release edge is a zero return from the actual wait callback followed by explicit release. A failed submit preserves EMPTY because its stronger callback contract says no request exists. A failed wait lacks that contract and therefore cannot be treated symmetrically.
+
+In CMK2 `async_submit` copies the request but a read retains the user destination for `async_poll`'s eventual copy. The user mapping must remain live. This wrapper keeps that premise visible; it does not add kernel pinning or a cancellable scheduler wait. The successful guest case may observe a device that finished before abandonment, but release is still refused until the wrapper receives completion authority. Never describe that as measured device latency.
+
+The three mutants violate different assertions: result abandonment cannot mint completion, a nonzero wait cannot mint quiescence, and a successfully drained abandoned operation cannot deliver a wanted-result status. The third is a delivery policy defect even though buffer safety survives. Repeated finish cannot call into a potentially retired ticket. A hypothetical reset extension needs a new generation-bound acknowledgement and its own retained request identity; changing QUARANTINED to EMPTY on timeout is not an implementation of that extension.
+
+The independent Python transition system uses no implementation imports. It enumerates 21840 histories and 123792 transitions under two submit and two wait results. Host tests verify payload bytes and unchanged outputs. The actual guest retains all original CMK2 tests while adding one isolated user-space adapter. The host-error control is not mislabeled an actual hardware timeout experiment. No arbitrary concurrency, physical hardware, finite-test proof of all executions or independent-human assessment is claimed.

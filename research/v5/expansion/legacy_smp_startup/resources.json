@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-LSS-INTEL",
+      "title": "Intel64 and IA-32 Architectures Software Developer Manual, Volume3A",
+      "authors": [
+        "Primary ISA, ABI or emulator documentation contributors"
+      ],
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "edition": "253668-060US, September2016",
+      "locators": [
+        "8.4.4.1\u20138.4.4.2/Table8-1, printed8-20\u20138-22/PDF276\u2013278: low4KiB startup page, vector, INIT/SIPI sequence and acknowledgement",
+        "8.4.5, printed8-23/PDF279: APIC ID identification versus initial IDs",
+        "9.8.5\u20139.8.5.3, printed9-11\u20139-12/PDF323\u2013324: PAE, CR3, EFER.LME, paging, identity mapping, descriptor and interrupt-transition requirements"
+      ],
+      "domains": [
+        "T53"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "primary",
+      "assignable": true,
+      "reason": "Separate ISA transition requirements, selected scalar ABI, C synchronization and emulator capability observations.",
+      "prerequisites": [
+        "T53.01 checked processor discovery",
+        "C17 lifetime and acquire/release",
+        "x86 control registers and page tables"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read the actual retained historical primary PDF pages and visually inspected the startup page/table rendering. Exact SHA retained in source_access.json.",
+        "scope": "8.4.4.1\u20138.4.4.2/Table8-1, printed8-20\u20138-22/PDF276\u2013278: low4KiB startup page, vector, INIT/SIPI sequence and acknowledgement; 8.4.5, printed8-23/PDF279: APIC ID identification versus initial IDs; 9.8.5\u20139.8.5.3, printed9-11\u20139-12/PDF323\u2013324: PAE, CR3, EFER.LME, paging, identity mapping, descriptor and interrupt-transition requirements",
+        "limits": "Historical selected passages only, not current CPU errata. The original teaching adapter uses one SIPI with no retry; the typical two-SIPI sequence and physical timing remain separately identified limitations."
+      }
+    },
+    {
+      "id": "R-LSS-AMD64",
+      "title": "System V AMD64 Architecture Processor Supplement",
+      "authors": [
+        "Primary ISA, ABI or emulator documentation contributors"
+      ],
+      "url": "https://refspecs.linuxfoundation.org/elf/x86_64-abi-0.99.pdf",
+      "edition": "Draft0.99.6, July2,2012",
+      "locators": [
+        "3.2.1\u20133.2.2, printed15\u201316/PDF16\u201317: preserved registers, direction flag, stack alignment and red zone",
+        "3.2.3 passing rules and Figure3.4, printed20\u201321/PDF21\u201322: scalar INTEGER argument registers and register preservation"
+      ],
+      "domains": [
+        "T53"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "primary",
+      "assignable": true,
+      "reason": "Separate ISA transition requirements, selected scalar ABI, C synchronization and emulator capability observations.",
+      "prerequisites": [
+        "T53.01 checked processor discovery",
+        "C17 lifetime and acquire/release",
+        "x86 control registers and page tables"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Read actual private primary PDF text at the specified pages and visually inspected rendered Figure3.3/3.2.2. Fresh URL open timed out; the already-local document was read and hashed.",
+        "scope": "3.2.1\u20133.2.2, printed15\u201316/PDF16\u201317: preserved registers, direction flag, stack alignment and red zone; 3.2.3 passing rules and Figure3.4, printed20\u201321/PDF21\u201322: scalar INTEGER argument registers and register preservation",
+        "limits": "Scalar argument/entry scope only, not full variadic/vector ABI. The freestanding kernel deliberately uses -mno-red-zone; hosted red-zone assumptions are not imposed on interrupt handlers."
+      }
+    },
+    {
+      "id": "R-LSS-QMP",
+      "title": "QEMU QMP Reference Manual: CPU model expansion",
+      "authors": [
+        "Primary ISA, ABI or emulator documentation contributors"
+      ],
+      "url": "https://www.qemu.org/docs/master/interop/qemu-qmp-ref.html",
+      "edition": "Actual current manual inspected2026-10-17; execution QEMU10.2.1",
+      "locators": [
+        "CpuModelInfo and CpuModelExpansionType: full versus static model/property expansion",
+        "query-cpu-model-expansion: model/machine/accelerator dependence and warning against mixing CPU-changing options",
+        "CpuModelInfo unavailable-features: reported feature unavailability and limitations"
+      ],
+      "domains": [
+        "T53"
+      ],
+      "kind": "manual",
+      "access": "Actual bounded primary passages inspected",
+      "role": "primary",
+      "assignable": true,
+      "reason": "Separate ISA transition requirements, selected scalar ABI, C synchronization and emulator capability observations.",
+      "prerequisites": [
+        "T53.01 checked processor discovery",
+        "C17 lifetime and acquire/release",
+        "x86 control registers and page tables"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Opened and read actual official QMP page sections, including full-expansion environmental caveats and unavailable-features semantics; not just search snippets.",
+        "scope": "CpuModelInfo and CpuModelExpansionType: full versus static model/property expansion; query-cpu-model-expansion: model/machine/accelerator dependence and warning against mixing CPU-changing options; CpuModelInfo unavailable-features: reported feature unavailability and limitations",
+        "limits": "Model expansion is only a narrow APIC/PAE/LM/NX preflight for the tested TCG/machine configuration; it is not proof that every CPU feature combination or hardware platform is runnable."
+      }
+    }
+  ],
+  "reference_gaps": [
+    "Current physical-CPU errata and physical INIT/SIPI timing are not inspected or validated.",
+    "No independent human assessment or delayed learner attempt."
+  ],
+  "source_access": "research/v5/expansion/legacy_smp_startup/source_access.json"
+}

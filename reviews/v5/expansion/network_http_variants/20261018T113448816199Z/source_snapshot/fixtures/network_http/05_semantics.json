@@ -1,0 +1,107 @@
+{
+  "id": "FX-HTTP-05_semantics",
+  "description": "Route, HEAD and response metadata expectations.",
+  "input": {
+    "utc_epoch_seconds": 1672531200,
+    "cases": [
+      {
+        "method": "GET",
+        "target": "/health",
+        "body_hex": ""
+      },
+      {
+        "method": "HEAD",
+        "target": "/health",
+        "body_hex": ""
+      },
+      {
+        "method": "POST",
+        "target": "/echo",
+        "body_hex": "00ff410a"
+      },
+      {
+        "method": "GET",
+        "target": "/unknown",
+        "body_hex": ""
+      },
+      {
+        "method": "POST",
+        "target": "/health",
+        "body_hex": ""
+      },
+      {
+        "method": "FROB",
+        "target": "/health",
+        "body_hex": ""
+      },
+      {
+        "method": "HEAD",
+        "target": "/unknown",
+        "body_hex": ""
+      },
+      {
+        "method": "HEAD",
+        "target": "/echo",
+        "body_hex": ""
+      }
+    ],
+    "expectation_cases": [
+      "admissible 100-continue",
+      "unknown expectation",
+      "invalid TE+CL with 100-continue"
+    ]
+  },
+  "expected": {
+    "date": "Sun, 01 Jan 2023 00:00:00 GMT",
+    "responses": [
+      {
+        "status": 200,
+        "length": 3,
+        "body_hex": "6f6b0a"
+      },
+      {
+        "status": 200,
+        "length": 3,
+        "body_hex": ""
+      },
+      {
+        "status": 200,
+        "length": 4,
+        "body_hex": "00ff410a"
+      },
+      {
+        "status": 404,
+        "length": 10,
+        "body_hex": "6e6f7420666f756e640a"
+      },
+      {
+        "status": 405,
+        "length": 19,
+        "body_hex": "6d6574686f64206e6f7420616c6c6f7765640a",
+        "allow": "GET, HEAD"
+      },
+      {
+        "status": 501,
+        "length": 16,
+        "body_hex": "6e6f7420696d706c656d656e7465640a"
+      },
+      {
+        "status": 404,
+        "length": 10,
+        "body_hex": ""
+      },
+      {
+        "status": 405,
+        "length": 19,
+        "body_hex": "",
+        "allow": "POST"
+      }
+    ],
+    "expectation_first_status": [
+      100,
+      417,
+      400
+    ]
+  },
+  "verification_method": "UTC date from independent standard-library formatting; literal response byte counts, route table and HEAD exception checked separately."
+}

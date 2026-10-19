@@ -1,0 +1,216 @@
+{
+  "criteria": [
+    {
+      "project": "PR-P4-01",
+      "criterion": "AX-PR-P4-01-T27.08.b",
+      "objective": "T27.08.b",
+      "task": "Integrate original F439 startup with the queue, byte buffers and P3 core. Draw LMA/VMA/data-copy/BSS/vector/stack responsibilities and verify reset sentinels, linker symbols and no unexpected helper dependencies. Place DMA buffers only in reachable memory under the selected manual/board contract. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-01-T27.08.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Relocate a buffer section and re-audit map, initialization and DMA reachability before enabling the peripheral.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t2708b",
+      "command_groups": [
+        "emulated-reset",
+        "board:gcc-O3-mode1-trace1-ring4-off0-ccm",
+        "bad-vector"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-01",
+      "criterion": "AX-PR-P4-01-T28.05.c",
+      "objective": "T28.05.c",
+      "task": "Implement polling first, then an IRQ/DMA UART adapter preserving P3 byte order and bounded output ownership. Distinguish TXE acceptance, DMA completion and TC wire completion. Stall the peripheral, inject a stale generation and keep the buffer live until the promised completion point. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-01-T28.05.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Add half-duplex direction control and require TC/turnaround evidence before changing the transmit-enable pin.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t2805c",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-asan:half-11",
+        "clang-asan:half-12",
+        "gcc:register-1",
+        "board:clang-O3-mode2-trace1-ring4-off4000"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-01",
+      "criterion": "AX-PR-P4-01-T29.06.b",
+      "objective": "T29.06.b",
+      "task": "Use an N=4 SPSC ring with usable capacity3 and drop-newest for samples100..104 while the consumer pauses. Publish payload before head, retain exact FIFO100,101,102 and count2 drops. Map accepted samples into P3 frames without allocating/blocking in the ISR. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-01-T29.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Change to two producers and explain why the SPSC index-ownership argument no longer suffices.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t2906b",
+      "command_groups": [
+        "gcc-debug:ordinary",
+        "clang-asan:variants",
+        "gcc-debug:core-33"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-01",
+      "criterion": "AX-PR-P4-01-T29.06.c",
+      "objective": "T29.06.c",
+      "task": "Measure sample-arrival, ISR publication, foreground framing and physical transmit completion separately on an identified board. Record clock resolution, instrumentation disturbance, backlog and drops. Supply a host event-model prediction when the board is unavailable, labeled unvalidated. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-01-T29.06.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Reduce queue capacity and compare changed loss/latency tradeoffs without hiding dropped samples from the measurement set.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t2906c",
+      "command_groups": [
+        "timing",
+        "capture",
+        "decoder",
+        "board:clang-O3-mode0-trace1-ring2-off4000"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-02",
+      "criterion": "AX-PR-P4-02-T29.09.b",
+      "objective": "T29.09.b",
+      "task": "Apply16-bit start65530/end6 yielding12 ticks within the half-range assumption. Add a torn hi/lo read, missing sample sequence and a timestamp taken after DMA completion rather than at acquisition. Implement a coherent snapshot and label uncertain event ordering. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-02-T29.09.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Move to a non-atomic64-bit counter on a32-bit core and derive retry bounds and rollover assumptions.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t2909b",
+      "command_groups": [
+        "gcc-debug:variants",
+        "clang-asan:core-37",
+        "capture"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-02",
+      "criterion": "AX-PR-P4-02-T30.05.b",
+      "objective": "T30.05.b",
+      "task": "Construct an end-to-end budget from ISR interference, queue service, framing and UART transmission for a declared sample period. Inject a burst exceeding capacity and account for accepted versus dropped work before computing response time; compare prediction with available traces. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-02-T30.05.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a higher-priority interrupt workload and revise the interference term before reusing the original budget.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t3005b",
+      "command_groups": [
+        "timing",
+        "retained-timing"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-02",
+      "criterion": "AX-PR-P4-02-T30.05.c",
+      "objective": "T30.05.c",
+      "task": "Record raw latency samples with build/clock/setup IDs and calculate median, spread and observed maximum. Include warmup, tracing on/off and missing-event counters. Compare the synthetic fixture only as arithmetic, never as measured nanoseconds. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-02-T30.05.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change optimization or clock configuration and identify which prior measurements are invalidated.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t3005c",
+      "command_groups": [
+        "capture",
+        "decoder",
+        "board:clang-O0-mode1-trace0-ring4-off0",
+        "board:clang-O3-mode1-trace1-ring4-off0"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    },
+    {
+      "project": "PR-P4-02",
+      "criterion": "AX-PR-P4-02-T31.10.c",
+      "objective": "T31.10.c",
+      "task": "Inject a peripheral timeout while DMA owns a buffer, request abort, deliver a late completion and reset/reinitialize only after documented quiescence. Preserve a bounded crash record and stop after a declared retry limit; verify no old generation publishes into the new queue. Supplied model inputs: fixtures/integration/irq.json and fixtures/legacy_checkpoints/P4.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P4-02-T31.10.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Fail the abort acknowledgement and choose retained-resource safe shutdown rather than pretending the buffer is reclaimable.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+      "learner_artifacts": [
+        "own full P3/firmware/halfduplex providers",
+        "reset/ownership/clock proof and fault traces",
+        "independent timing/loss model",
+        "source-bound image and capture dossier"
+      ],
+      "assessment": "assessor/checkpoint_firmware_followthrough/ANALYSIS.md#t3110c",
+      "command_groups": [
+        "gcc-debug:variants",
+        "clang-asan:core-36",
+        "capture"
+      ],
+      "source_register": "research/v5/expansion/legacy_checkpoint_firmware/resources.json"
+    }
+  ],
+  "remaining": "P2/P3/P5/P6/CAP and other recursive inventory obligations remain required."
+}

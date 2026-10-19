@@ -1,0 +1,17 @@
+#!/bin/busybox sh
+export PATH=/bin
+/bin/busybox --install -s /bin
+mkdir -p /proc /sys /dev /run /tmp /disk
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+mount -t tmpfs -o size=134217728 none /tmp
+mount -t cgroup2 none /sys/fs/cgroup
+mount -t ext4 /dev/vda /disk
+printf 'CM-OS-OWNED-1\n' > /run/cmastery-owned-os
+echo OF_KERNEL; uname -a
+echo OF_MOUNTS; cat /proc/mounts
+/probe
+echo OF_PROBE_EXIT=$?
+echo OF_GUEST_DONE
+poweroff -f

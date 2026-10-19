@@ -1,0 +1,1999 @@
+
+/tmp/smp-dag-pomhelg0/gcc-O3-0/composed/image/v2.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <allocate>:
+       0:	f3 0f 1e fa          	endbr64
+       4:	89 f6                	mov    %esi,%esi
+       6:	48 8b 04 f5 00 00 00 	mov    0x0(,%rsi,8),%rax
+       d:	00 
+			a: R_X86_64_32S	.bss+0x1e0
+       e:	c3                   	ret
+       f:	90                   	nop
+
+0000000000000010 <create>:
+      10:	f3 0f 1e fa          	endbr64
+      14:	89 f0                	mov    %esi,%eax
+      16:	bf 00 00 00 00       	mov    $0x0,%edi
+			17: R_X86_64_32	.text+0x740
+      1b:	48 8d b2 00 40 00 00 	lea    0x4000(%rdx),%rsi
+      22:	89 c2                	mov    %eax,%edx
+      24:	b8 00 02 00 00       	mov    $0x200,%eax
+      29:	cd 80                	int    $0x80
+      2b:	48 89 c2             	mov    %rax,%rdx
+      2e:	b8 01 00 00 00       	mov    $0x1,%eax
+      33:	48 85 d2             	test   %rdx,%rdx
+      36:	78 05                	js     3d <create+0x2d>
+      38:	48 89 11             	mov    %rdx,(%rcx)
+      3b:	31 c0                	xor    %eax,%eax
+      3d:	c3                   	ret
+      3e:	66 90                	xchg   %ax,%ax
+
+0000000000000040 <join>:
+      40:	f3 0f 1e fa          	endbr64
+      44:	31 d2                	xor    %edx,%edx
+      46:	89 f7                	mov    %esi,%edi
+      48:	b8 02 02 00 00       	mov    $0x202,%eax
+      4d:	48 89 d6             	mov    %rdx,%rsi
+      50:	cd 80                	int    $0x80
+      52:	48 85 c0             	test   %rax,%rax
+      55:	0f 95 c0             	setne  %al
+      58:	0f b6 c0             	movzbl %al,%eax
+      5b:	c3                   	ret
+      5c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+0000000000000060 <release>:
+      60:	f3 0f 1e fa          	endbr64
+      64:	89 f6                	mov    %esi,%esi
+      66:	48 39 14 f5 00 00 00 	cmp    %rdx,0x0(,%rsi,8)
+      6d:	00 
+			6a: R_X86_64_32S	.bss+0x1e0
+      6e:	74 60                	je     d0 <release+0x70>
+      70:	48 83 ec 20          	sub    $0x20,%rsp
+      74:	b8 01 00 00 00       	mov    $0x1,%eax
+      79:	bf 00 00 00 00       	mov    $0x0,%edi
+			7a: R_X86_64_32	.rodata.str1.1
+      7e:	31 d2                	xor    %edx,%edx
+      80:	be 0f 00 00 00       	mov    $0xf,%esi
+      85:	cd 80                	int    $0x80
+      87:	b8 32 34 00 00       	mov    $0x3432,%eax
+      8c:	48 8d 7c 24 09       	lea    0x9(%rsp),%rdi
+      91:	be 01 00 00 00       	mov    $0x1,%esi
+      96:	66 89 44 24 08       	mov    %ax,0x8(%rsp)
+      9b:	b8 01 00 00 00       	mov    $0x1,%eax
+      a0:	cd 80                	int    $0x80
+      a2:	b8 01 00 00 00       	mov    $0x1,%eax
+      a7:	48 8d 7c 24 08       	lea    0x8(%rsp),%rdi
+      ac:	cd 80                	int    $0x80
+      ae:	b8 01 00 00 00       	mov    $0x1,%eax
+      b3:	bf 00 00 00 00       	mov    $0x0,%edi
+			b4: R_X86_64_32	.rodata.str1.1+0x10
+      b8:	be 0e 00 00 00       	mov    $0xe,%esi
+      bd:	cd 80                	int    $0x80
+      bf:	b8 02 00 00 00       	mov    $0x2,%eax
+      c4:	bf 5b 00 00 00       	mov    $0x5b,%edi
+      c9:	48 89 d6             	mov    %rdx,%rsi
+      cc:	cd 80                	int    $0x80
+      ce:	eb fe                	jmp    ce <release+0x6e>
+      d0:	c3                   	ret
+      d1:	0f 1f 40 00          	nopl   0x0(%rax)
+      d5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+      dc:	00 00 00 00 
+
+00000000000000e0 <execute>:
+      e0:	41 57                	push   %r15
+      e2:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+      e8:	31 d2                	xor    %edx,%edx
+      ea:	b8 11 02 00 00       	mov    $0x211,%eax
+      ef:	41 56                	push   %r14
+      f1:	48 89 d6             	mov    %rdx,%rsi
+      f4:	41 55                	push   %r13
+      f6:	41 54                	push   %r12
+      f8:	55                   	push   %rbp
+      f9:	89 fd                	mov    %edi,%ebp
+      fb:	44 89 c7             	mov    %r8d,%edi
+      fe:	53                   	push   %rbx
+      ff:	89 e9                	mov    %ebp,%ecx
+     101:	d3 e7                	shl    %cl,%edi
+     103:	48 83 ec 58          	sub    $0x58,%rsp
+     107:	cd 80                	int    $0x80
+     109:	48 85 c0             	test   %rax,%rax
+     10c:	74 62                	je     170 <execute+0x90>
+     10e:	b8 01 00 00 00       	mov    $0x1,%eax
+     113:	bf 00 00 00 00       	mov    $0x0,%edi
+			114: R_X86_64_32	.rodata.str1.1
+     118:	be 0f 00 00 00       	mov    $0xf,%esi
+     11d:	cd 80                	int    $0x80
+     11f:	41 b8 33 32 00 00    	mov    $0x3233,%r8d
+     125:	48 8d 7c 24 31       	lea    0x31(%rsp),%rdi
+     12a:	b8 01 00 00 00       	mov    $0x1,%eax
+     12f:	be 01 00 00 00       	mov    $0x1,%esi
+     134:	66 44 89 44 24 30    	mov    %r8w,0x30(%rsp)
+     13a:	cd 80                	int    $0x80
+     13c:	b8 01 00 00 00       	mov    $0x1,%eax
+     141:	48 8d 7c 24 30       	lea    0x30(%rsp),%rdi
+     146:	cd 80                	int    $0x80
+     148:	b8 01 00 00 00       	mov    $0x1,%eax
+     14d:	bf 00 00 00 00       	mov    $0x0,%edi
+			14e: R_X86_64_32	.rodata.str1.8
+     152:	be 2d 00 00 00       	mov    $0x2d,%esi
+     157:	cd 80                	int    $0x80
+     159:	b8 02 00 00 00       	mov    $0x2,%eax
+     15e:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     163:	48 89 d6             	mov    %rdx,%rsi
+     166:	cd 80                	int    $0x80
+     168:	eb fe                	jmp    168 <execute+0x88>
+     16a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     170:	48 89 c6             	mov    %rax,%rsi
+     173:	b8 10 02 00 00       	mov    $0x210,%eax
+     178:	48 89 f7             	mov    %rsi,%rdi
+     17b:	48 89 f2             	mov    %rsi,%rdx
+     17e:	cd 80                	int    $0x80
+     180:	39 c5                	cmp    %eax,%ebp
+     182:	0f 85 f2 03 00 00    	jne    57a <execute+0x49a>
+     188:	89 c1                	mov    %eax,%ecx
+     18a:	ba 01 00 00 00       	mov    $0x1,%edx
+     18f:	d3 e2                	shl    %cl,%edx
+     191:	f0 09 15 00 00 00 00 	lock or %edx,0x0(%rip)        # 198 <execute+0xb8>
+			194: R_X86_64_PC32	.bss+0x1c0
+     198:	f0 83 05 00 00 00 00 	lock addl $0x1,0x0(%rip)        # 1a0 <execute+0xc0>
+     19f:	01 
+			19b: R_X86_64_PC32	.bss+0x1bb
+     1a0:	31 d2                	xor    %edx,%edx
+     1a2:	eb 11                	jmp    1b5 <execute+0xd5>
+     1a4:	0f 1f 40 00          	nopl   0x0(%rax)
+     1a8:	b8 03 00 00 00       	mov    $0x3,%eax
+     1ad:	48 89 d7             	mov    %rdx,%rdi
+     1b0:	48 89 d6             	mov    %rdx,%rsi
+     1b3:	cd 80                	int    $0x80
+     1b5:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # 1bb <execute+0xdb>
+			1b7: R_X86_64_PC32	.bss+0x1bc
+     1bb:	3b 05 00 00 00 00    	cmp    0x0(%rip),%eax        # 1c1 <execute+0xe1>
+			1bd: R_X86_64_PC32	.bss+0x1d4
+     1c1:	75 e5                	jne    1a8 <execute+0xc8>
+     1c3:	48 bb 2d 7f 95 4c 2d 	movabs $0x5851f42d4c957f2d,%rbx
+     1ca:	f4 51 58 
+     1cd:	49 bd 15 66 71 14 ed 	movabs $0x58fb08ed14716615,%r13
+     1d4:	08 fb 58 
+     1d7:	49 bc 6d bd 5b 8c c6 	movabs $0x59607bc68c5bbd6d,%r12
+     1de:	7b 60 59 
+     1e1:	bf 00 00 00 00       	mov    $0x0,%edi
+			1e2: R_X86_64_32	.bss+0x4a0
+     1e6:	e8 00 00 00 00       	call   1eb <execute+0x10b>
+			1e7: R_X86_64_PLT32	dg_drained-0x4
+     1eb:	85 c0                	test   %eax,%eax
+     1ed:	0f 84 8e 01 00 00    	je     381 <execute+0x2a1>
+     1f3:	48 8d 54 24 30       	lea    0x30(%rsp),%rdx
+     1f8:	89 ee                	mov    %ebp,%esi
+     1fa:	bf 00 00 00 00       	mov    $0x0,%edi
+			1fb: R_X86_64_32	.bss+0x4a0
+     1ff:	e8 00 00 00 00       	call   204 <execute+0x124>
+			200: R_X86_64_PLT32	dg_claim-0x4
+     204:	83 f8 07             	cmp    $0x7,%eax
+     207:	0f 84 9b 02 00 00    	je     4a8 <execute+0x3c8>
+     20d:	85 c0                	test   %eax,%eax
+     20f:	0f 85 d3 03 00 00    	jne    5e8 <execute+0x508>
+     215:	44 8b 74 24 48       	mov    0x48(%rsp),%r14d
+     21a:	b8 01 00 00 00       	mov    $0x1,%eax
+     21f:	4d 89 f7             	mov    %r14,%r15
+     222:	f0 42 0f c1 04 b5 00 	lock xadd %eax,0x0(,%r14,4)
+     229:	00 00 00 
+			228: R_X86_64_32S	.bss+0x180
+     22c:	85 c0                	test   %eax,%eax
+     22e:	0f 85 52 03 00 00    	jne    586 <execute+0x4a6>
+     234:	31 d2                	xor    %edx,%edx
+     236:	42 89 2c b5 00 00 00 	mov    %ebp,0x0(,%r14,4)
+     23d:	00 
+			23a: R_X86_64_32S	.bss+0x140
+     23e:	b8 10 02 00 00       	mov    $0x210,%eax
+     243:	48 89 d7             	mov    %rdx,%rdi
+     246:	48 89 d6             	mov    %rdx,%rsi
+     249:	cd 80                	int    $0x80
+     24b:	42 89 04 b5 00 00 00 	mov    %eax,0x0(,%r14,4)
+     252:	00 
+			24f: R_X86_64_32S	.bss+0x100
+     253:	0f ae e8             	lfence
+     256:	0f 31                	rdtsc
+     258:	48 c1 e2 20          	shl    $0x20,%rdx
+     25c:	89 c0                	mov    %eax,%eax
+     25e:	8b 3d 00 00 00 00    	mov    0x0(%rip),%edi        # 264 <execute+0x184>
+			260: R_X86_64_PC32	.bss+0x1cc
+     264:	48 09 c2             	or     %rax,%rdx
+     267:	4a 89 14 f5 00 00 00 	mov    %rdx,0x0(,%r14,8)
+     26e:	00 
+			26b: R_X86_64_32S	.bss+0x80
+     26f:	45 85 f6             	test   %r14d,%r14d
+     272:	0f 84 68 01 00 00    	je     3e0 <execute+0x300>
+     278:	44 8b 05 00 00 00 00 	mov    0x0(%rip),%r8d        # 27f <execute+0x19f>
+			27b: R_X86_64_PC32	.bss+0x1d0
+     27f:	41 83 fe 01          	cmp    $0x1,%r14d
+     283:	0f 84 37 02 00 00    	je     4c0 <execute+0x3e0>
+     289:	41 83 fe 02          	cmp    $0x2,%r14d
+     28d:	0f 84 6d 02 00 00    	je     500 <execute+0x420>
+     293:	41 83 f8 02          	cmp    $0x2,%r8d
+     297:	75 0a                	jne    2a3 <execute+0x1c3>
+     299:	41 83 fe 03          	cmp    $0x3,%r14d
+     29d:	0f 84 ed 00 00 00    	je     390 <execute+0x2b0>
+     2a3:	48 69 4c 24 40 e8 03 	imul   $0x3e8,0x40(%rsp),%rcx
+     2aa:	00 00 
+     2ac:	48 85 c9             	test   %rcx,%rcx
+     2af:	74 38                	je     2e9 <execute+0x209>
+     2b1:	48 8d b1 41 0d 03 00 	lea    0x30d41(%rcx),%rsi
+     2b8:	ba 41 0d 03 00       	mov    $0x30d41,%edx
+     2bd:	31 c9                	xor    %ecx,%ecx
+     2bf:	90                   	nop
+     2c0:	48 89 d0             	mov    %rdx,%rax
+     2c3:	48 c1 e8 11          	shr    $0x11,%rax
+     2c7:	48 31 d0             	xor    %rdx,%rax
+     2ca:	48 83 c2 01          	add    $0x1,%rdx
+     2ce:	48 0f af c3          	imul   %rbx,%rax
+     2d2:	49 89 c1             	mov    %rax,%r9
+     2d5:	49 c1 e9 1f          	shr    $0x1f,%r9
+     2d9:	4c 31 c8             	xor    %r9,%rax
+     2dc:	25 ff 03 00 00       	and    $0x3ff,%eax
+     2e1:	48 01 c1             	add    %rax,%rcx
+     2e4:	48 39 f2             	cmp    %rsi,%rdx
+     2e7:	75 d7                	jne    2c0 <execute+0x1e0>
+     2e9:	48 89 4c 24 10       	mov    %rcx,0x10(%rsp)
+     2ee:	48 8b 4c 24 38       	mov    0x38(%rsp),%rcx
+     2f3:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+     2f8:	45 85 c0             	test   %r8d,%r8d
+     2fb:	0f 85 bf 00 00 00    	jne    3c0 <execute+0x2e0>
+     301:	85 ff                	test   %edi,%edi
+     303:	0f 85 b7 00 00 00    	jne    3c0 <execute+0x2e0>
+     309:	83 3d 00 00 00 00 01 	cmpl   $0x1,0x0(%rip)        # 310 <execute+0x230>
+			30b: R_X86_64_PC32	.bss+0x1d3
+     310:	0f 86 aa 00 00 00    	jbe    3c0 <execute+0x2e0>
+     316:	41 8d 47 ff          	lea    -0x1(%r15),%eax
+     31a:	be 03 00 00 00       	mov    $0x3,%esi
+     31f:	83 f8 01             	cmp    $0x1,%eax
+     322:	0f 86 80 03 00 00    	jbe    6a8 <execute+0x5c8>
+     328:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+     32f:	00 
+     330:	ff 74 24 48          	push   0x48(%rsp)
+     334:	48 89 ca             	mov    %rcx,%rdx
+     337:	bf 00 00 00 00       	mov    $0x0,%edi
+			338: R_X86_64_32	.bss+0x4a0
+     33c:	ff 74 24 48          	push   0x48(%rsp)
+     340:	ff 74 24 48          	push   0x48(%rsp)
+     344:	ff 74 24 48          	push   0x48(%rsp)
+     348:	e8 00 00 00 00       	call   34d <execute+0x26d>
+			349: R_X86_64_PLT32	dg_finish-0x4
+     34d:	48 83 c4 20          	add    $0x20,%rsp
+     351:	85 c0                	test   %eax,%eax
+     353:	0f 85 ef 02 00 00    	jne    648 <execute+0x568>
+     359:	0f ae e8             	lfence
+     35c:	0f 31                	rdtsc
+     35e:	48 c1 e2 20          	shl    $0x20,%rdx
+     362:	89 c0                	mov    %eax,%eax
+     364:	bf 00 00 00 00       	mov    $0x0,%edi
+			365: R_X86_64_32	.bss+0x4a0
+     369:	48 09 c2             	or     %rax,%rdx
+     36c:	4a 89 14 f5 00 00 00 	mov    %rdx,0x0(,%r14,8)
+     373:	00 
+			370: R_X86_64_32S	.bss
+     374:	e8 00 00 00 00       	call   379 <execute+0x299>
+			375: R_X86_64_PLT32	dg_drained-0x4
+     379:	85 c0                	test   %eax,%eax
+     37b:	0f 85 72 fe ff ff    	jne    1f3 <execute+0x113>
+     381:	48 83 c4 58          	add    $0x58,%rsp
+     385:	5b                   	pop    %rbx
+     386:	5d                   	pop    %rbp
+     387:	41 5c                	pop    %r12
+     389:	41 5d                	pop    %r13
+     38b:	41 5e                	pop    %r14
+     38d:	41 5f                	pop    %r15
+     38f:	c3                   	ret
+     390:	48 ba bd 0e 87 9c 13 	movabs $0x589596139c870ebd,%rdx
+     397:	96 95 58 
+     39a:	31 c9                	xor    %ecx,%ecx
+     39c:	0f 1f 40 00          	nopl   0x0(%rax)
+     3a0:	48 89 d0             	mov    %rdx,%rax
+     3a3:	48 c1 e8 1f          	shr    $0x1f,%rax
+     3a7:	48 31 d0             	xor    %rdx,%rax
+     3aa:	48 01 da             	add    %rbx,%rdx
+     3ad:	25 ff 03 00 00       	and    $0x3ff,%eax
+     3b2:	48 01 c1             	add    %rax,%rcx
+     3b5:	4c 39 ea             	cmp    %r13,%rdx
+     3b8:	75 e6                	jne    3a0 <execute+0x2c0>
+     3ba:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     3c0:	83 ff 02             	cmp    $0x2,%edi
+     3c3:	0f 94 c0             	sete   %al
+     3c6:	31 f6                	xor    %esi,%esi
+     3c8:	41 83 ff 01          	cmp    $0x1,%r15d
+     3cc:	40 0f 94 c6          	sete   %sil
+     3d0:	21 c6                	and    %eax,%esi
+     3d2:	83 c6 03             	add    $0x3,%esi
+     3d5:	e9 56 ff ff ff       	jmp    330 <execute+0x250>
+     3da:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     3e0:	48 69 4c 24 40 e8 03 	imul   $0x3e8,0x40(%rsp),%rcx
+     3e7:	00 00 
+     3e9:	48 85 c9             	test   %rcx,%rcx
+     3ec:	74 3b                	je     429 <execute+0x349>
+     3ee:	48 8d b1 a1 86 01 00 	lea    0x186a1(%rcx),%rsi
+     3f5:	ba a1 86 01 00       	mov    $0x186a1,%edx
+     3fa:	31 c9                	xor    %ecx,%ecx
+     3fc:	0f 1f 40 00          	nopl   0x0(%rax)
+     400:	48 89 d0             	mov    %rdx,%rax
+     403:	48 c1 e8 11          	shr    $0x11,%rax
+     407:	48 31 d0             	xor    %rdx,%rax
+     40a:	48 83 c2 01          	add    $0x1,%rdx
+     40e:	48 0f af c3          	imul   %rbx,%rax
+     412:	49 89 c0             	mov    %rax,%r8
+     415:	49 c1 e8 1f          	shr    $0x1f,%r8
+     419:	4c 31 c0             	xor    %r8,%rax
+     41c:	25 ff 03 00 00       	and    $0x3ff,%eax
+     421:	48 01 c1             	add    %rax,%rcx
+     424:	48 39 f2             	cmp    %rsi,%rdx
+     427:	75 d7                	jne    400 <execute+0x320>
+     429:	48 89 4c 24 08       	mov    %rcx,0x8(%rsp)
+     42e:	44 8b 05 00 00 00 00 	mov    0x0(%rip),%r8d        # 435 <execute+0x355>
+			431: R_X86_64_PC32	.bss+0x1d0
+     435:	31 c9                	xor    %ecx,%ecx
+     437:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+     43c:	83 ff 01             	cmp    $0x1,%edi
+     43f:	0f 85 b3 fe ff ff    	jne    2f8 <execute+0x218>
+     445:	31 f6                	xor    %esi,%esi
+     447:	bf 00 00 00 00       	mov    $0x0,%edi
+			448: R_X86_64_32	.bss+0x4a0
+     44c:	e8 00 00 00 00       	call   451 <execute+0x371>
+			44d: R_X86_64_PLT32	dg_cancel-0x4
+     451:	83 f8 0a             	cmp    $0xa,%eax
+     454:	0f 85 81 02 00 00    	jne    6db <execute+0x5fb>
+     45a:	bf 00 00 00 00       	mov    $0x0,%edi
+			45b: R_X86_64_32	.bss+0x4a0
+     45f:	e8 00 00 00 00       	call   464 <execute+0x384>
+			460: R_X86_64_PLT32	dg_drained-0x4
+     464:	83 f8 09             	cmp    $0x9,%eax
+     467:	0f 85 6e 02 00 00    	jne    6db <execute+0x5fb>
+     46d:	8b 15 00 00 00 00    	mov    0x0(%rip),%edx        # 473 <execute+0x393>
+			46f: R_X86_64_PC32	.bss+0x1d0
+     473:	85 d2                	test   %edx,%edx
+     475:	0f 85 f3 00 00 00    	jne    56e <execute+0x48e>
+     47b:	8b 3d 00 00 00 00    	mov    0x0(%rip),%edi        # 481 <execute+0x3a1>
+			47d: R_X86_64_PC32	.bss+0x1cc
+     481:	31 c9                	xor    %ecx,%ecx
+     483:	85 ff                	test   %edi,%edi
+     485:	0f 85 35 ff ff ff    	jne    3c0 <execute+0x2e0>
+     48b:	83 3d 00 00 00 00 01 	cmpl   $0x1,0x0(%rip)        # 492 <execute+0x3b2>
+			48d: R_X86_64_PC32	.bss+0x1d3
+     492:	be 03 00 00 00       	mov    $0x3,%esi
+     497:	0f 87 93 fe ff ff    	ja     330 <execute+0x250>
+     49d:	e9 1e ff ff ff       	jmp    3c0 <execute+0x2e0>
+     4a2:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     4a8:	31 d2                	xor    %edx,%edx
+     4aa:	b8 03 00 00 00       	mov    $0x3,%eax
+     4af:	48 89 d7             	mov    %rdx,%rdi
+     4b2:	48 89 d6             	mov    %rdx,%rsi
+     4b5:	cd 80                	int    $0x80
+     4b7:	e9 25 fd ff ff       	jmp    1e1 <execute+0x101>
+     4bc:	0f 1f 40 00          	nopl   0x0(%rax)
+     4c0:	48 ba 15 66 71 14 ed 	movabs $0x58fb08ed14716615,%rdx
+     4c7:	08 fb 58 
+     4ca:	31 c9                	xor    %ecx,%ecx
+     4cc:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+     4d3:	00 00 
+     4d5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     4dc:	00 00 00 00 
+     4e0:	48 89 d0             	mov    %rdx,%rax
+     4e3:	48 c1 e8 1f          	shr    $0x1f,%rax
+     4e7:	48 31 d0             	xor    %rdx,%rax
+     4ea:	48 01 da             	add    %rbx,%rdx
+     4ed:	25 ff 03 00 00       	and    $0x3ff,%eax
+     4f2:	48 01 c1             	add    %rax,%rcx
+     4f5:	4c 39 e2             	cmp    %r12,%rdx
+     4f8:	75 e6                	jne    4e0 <execute+0x400>
+     4fa:	e9 f9 fd ff ff       	jmp    2f8 <execute+0x218>
+     4ff:	90                   	nop
+     500:	48 69 74 24 40 e8 03 	imul   $0x3e8,0x40(%rsp),%rsi
+     507:	00 00 
+     509:	31 c9                	xor    %ecx,%ecx
+     50b:	48 85 f6             	test   %rsi,%rsi
+     50e:	0f 84 e4 fd ff ff    	je     2f8 <execute+0x218>
+     514:	49 b9 2d 7f 95 4c 2d 	movabs $0x5851f42d4c957f2d,%r9
+     51b:	f4 51 58 
+     51e:	31 d2                	xor    %edx,%edx
+     520:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+     527:	00 00 00 
+     52a:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     531:	00 00 00 00 
+     535:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     53c:	00 00 00 00 
+     540:	48 83 c2 01          	add    $0x1,%rdx
+     544:	48 89 d0             	mov    %rdx,%rax
+     547:	48 c1 e8 11          	shr    $0x11,%rax
+     54b:	48 31 d0             	xor    %rdx,%rax
+     54e:	49 0f af c1          	imul   %r9,%rax
+     552:	49 89 c2             	mov    %rax,%r10
+     555:	49 c1 ea 1f          	shr    $0x1f,%r10
+     559:	4c 31 d0             	xor    %r10,%rax
+     55c:	25 ff 03 00 00       	and    $0x3ff,%eax
+     561:	48 01 c1             	add    %rax,%rcx
+     564:	48 39 f2             	cmp    %rsi,%rdx
+     567:	72 d7                	jb     540 <execute+0x460>
+     569:	e9 8a fd ff ff       	jmp    2f8 <execute+0x218>
+     56e:	31 c9                	xor    %ecx,%ecx
+     570:	be 03 00 00 00       	mov    $0x3,%esi
+     575:	e9 b6 fd ff ff       	jmp    330 <execute+0x250>
+     57a:	44 87 05 00 00 00 00 	xchg   %r8d,0x0(%rip)        # 581 <execute+0x4a1>
+			57d: R_X86_64_PC32	.bss+0x1c8
+     581:	e9 02 fc ff ff       	jmp    188 <execute+0xa8>
+     586:	b8 01 00 00 00       	mov    $0x1,%eax
+     58b:	bf 00 00 00 00       	mov    $0x0,%edi
+			58c: R_X86_64_32	.rodata.str1.1
+     590:	be 0f 00 00 00       	mov    $0xf,%esi
+     595:	31 d2                	xor    %edx,%edx
+     597:	cd 80                	int    $0x80
+     599:	be 37 32 00 00       	mov    $0x3237,%esi
+     59e:	48 8d 7c 24 19       	lea    0x19(%rsp),%rdi
+     5a3:	b8 01 00 00 00       	mov    $0x1,%eax
+     5a8:	66 89 74 24 18       	mov    %si,0x18(%rsp)
+     5ad:	be 01 00 00 00       	mov    $0x1,%esi
+     5b2:	cd 80                	int    $0x80
+     5b4:	b8 01 00 00 00       	mov    $0x1,%eax
+     5b9:	48 8d 7c 24 18       	lea    0x18(%rsp),%rdi
+     5be:	cd 80                	int    $0x80
+     5c0:	b8 01 00 00 00       	mov    $0x1,%eax
+     5c5:	bf 00 00 00 00       	mov    $0x0,%edi
+			5c6: R_X86_64_32	.rodata.str1.8+0x30
+     5ca:	be 24 00 00 00       	mov    $0x24,%esi
+     5cf:	cd 80                	int    $0x80
+     5d1:	b8 02 00 00 00       	mov    $0x2,%eax
+     5d6:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     5db:	48 89 d6             	mov    %rdx,%rsi
+     5de:	cd 80                	int    $0x80
+     5e0:	eb fe                	jmp    5e0 <execute+0x500>
+     5e2:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     5e8:	b8 01 00 00 00       	mov    $0x1,%eax
+     5ed:	bf 00 00 00 00       	mov    $0x0,%edi
+			5ee: R_X86_64_32	.rodata.str1.1
+     5f2:	be 0f 00 00 00       	mov    $0xf,%esi
+     5f7:	31 d2                	xor    %edx,%edx
+     5f9:	cd 80                	int    $0x80
+     5fb:	bf 36 32 00 00       	mov    $0x3236,%edi
+     600:	b8 01 00 00 00       	mov    $0x1,%eax
+     605:	be 01 00 00 00       	mov    $0x1,%esi
+     60a:	66 89 7c 24 18       	mov    %di,0x18(%rsp)
+     60f:	48 8d 7c 24 19       	lea    0x19(%rsp),%rdi
+     614:	cd 80                	int    $0x80
+     616:	b8 01 00 00 00       	mov    $0x1,%eax
+     61b:	48 8d 7c 24 18       	lea    0x18(%rsp),%rdi
+     620:	cd 80                	int    $0x80
+     622:	b8 01 00 00 00       	mov    $0x1,%eax
+     627:	bf 00 00 00 00       	mov    $0x0,%edi
+			628: R_X86_64_32	.rodata.str1.1+0x1f
+     62c:	be 0f 00 00 00       	mov    $0xf,%esi
+     631:	cd 80                	int    $0x80
+     633:	b8 02 00 00 00       	mov    $0x2,%eax
+     638:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     63d:	48 89 d6             	mov    %rdx,%rsi
+     640:	cd 80                	int    $0x80
+     642:	eb fe                	jmp    642 <execute+0x562>
+     644:	0f 1f 40 00          	nopl   0x0(%rax)
+     648:	b8 01 00 00 00       	mov    $0x1,%eax
+     64d:	bf 00 00 00 00       	mov    $0x0,%edi
+			64e: R_X86_64_32	.rodata.str1.1
+     652:	be 0f 00 00 00       	mov    $0xf,%esi
+     657:	31 d2                	xor    %edx,%edx
+     659:	cd 80                	int    $0x80
+     65b:	b8 35 33 00 00       	mov    $0x3335,%eax
+     660:	48 8d 7c 24 19       	lea    0x19(%rsp),%rdi
+     665:	be 01 00 00 00       	mov    $0x1,%esi
+     66a:	66 89 44 24 18       	mov    %ax,0x18(%rsp)
+     66f:	b8 01 00 00 00       	mov    $0x1,%eax
+     674:	cd 80                	int    $0x80
+     676:	b8 01 00 00 00       	mov    $0x1,%eax
+     67b:	48 8d 7c 24 18       	lea    0x18(%rsp),%rdi
+     680:	cd 80                	int    $0x80
+     682:	b8 01 00 00 00       	mov    $0x1,%eax
+     687:	bf 00 00 00 00       	mov    $0x0,%edi
+			688: R_X86_64_32	.rodata.str1.8+0xa0
+     68c:	be 4a 00 00 00       	mov    $0x4a,%esi
+     691:	cd 80                	int    $0x80
+     693:	b8 02 00 00 00       	mov    $0x2,%eax
+     698:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     69d:	48 89 d6             	mov    %rdx,%rsi
+     6a0:	cd 80                	int    $0x80
+     6a2:	eb fe                	jmp    6a2 <execute+0x5c2>
+     6a4:	0f 1f 40 00          	nopl   0x0(%rax)
+     6a8:	f0 83 05 00 00 00 00 	lock addl $0x1,0x0(%rip)        # 6b0 <execute+0x5d0>
+     6af:	01 
+			6ab: R_X86_64_PC32	.bss+0x1c3
+     6b0:	31 d2                	xor    %edx,%edx
+     6b2:	eb 11                	jmp    6c5 <execute+0x5e5>
+     6b4:	0f 1f 40 00          	nopl   0x0(%rax)
+     6b8:	b8 03 00 00 00       	mov    $0x3,%eax
+     6bd:	48 89 d7             	mov    %rdx,%rdi
+     6c0:	48 89 d6             	mov    %rdx,%rsi
+     6c3:	cd 80                	int    $0x80
+     6c5:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # 6cb <execute+0x5eb>
+			6c7: R_X86_64_PC32	.bss+0x1c4
+     6cb:	83 f8 02             	cmp    $0x2,%eax
+     6ce:	75 e8                	jne    6b8 <execute+0x5d8>
+     6d0:	8b 3d 00 00 00 00    	mov    0x0(%rip),%edi        # 6d6 <execute+0x5f6>
+			6d2: R_X86_64_PC32	.bss+0x1cc
+     6d6:	e9 e5 fc ff ff       	jmp    3c0 <execute+0x2e0>
+     6db:	b8 01 00 00 00       	mov    $0x1,%eax
+     6e0:	bf 00 00 00 00       	mov    $0x0,%edi
+			6e1: R_X86_64_32	.rodata.str1.1
+     6e5:	be 0f 00 00 00       	mov    $0xf,%esi
+     6ea:	31 d2                	xor    %edx,%edx
+     6ec:	cd 80                	int    $0x80
+     6ee:	b9 33 33 00 00       	mov    $0x3333,%ecx
+     6f3:	48 8d 7c 24 19       	lea    0x19(%rsp),%rdi
+     6f8:	b8 01 00 00 00       	mov    $0x1,%eax
+     6fd:	be 01 00 00 00       	mov    $0x1,%esi
+     702:	66 89 4c 24 18       	mov    %cx,0x18(%rsp)
+     707:	cd 80                	int    $0x80
+     709:	b8 01 00 00 00       	mov    $0x1,%eax
+     70e:	48 8d 7c 24 18       	lea    0x18(%rsp),%rdi
+     713:	cd 80                	int    $0x80
+     715:	b8 01 00 00 00       	mov    $0x1,%eax
+     71a:	bf 00 00 00 00       	mov    $0x0,%edi
+			71b: R_X86_64_32	.rodata.str1.8+0x58
+     71f:	be 40 00 00 00       	mov    $0x40,%esi
+     724:	cd 80                	int    $0x80
+     726:	b8 02 00 00 00       	mov    $0x2,%eax
+     72b:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     730:	48 89 d6             	mov    %rdx,%rsi
+     733:	cd 80                	int    $0x80
+     735:	eb fe                	jmp    735 <execute+0x655>
+     737:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+     73e:	00 00 
+
+0000000000000740 <entry>:
+     740:	f3 0f 1e fa          	endbr64
+     744:	50                   	push   %rax
+     745:	58                   	pop    %rax
+     746:	31 d2                	xor    %edx,%edx
+     748:	48 83 ec 08          	sub    $0x8,%rsp
+     74c:	48 89 f9             	mov    %rdi,%rcx
+     74f:	eb 14                	jmp    765 <entry+0x25>
+     751:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+     758:	b8 03 00 00 00       	mov    $0x3,%eax
+     75d:	48 89 d7             	mov    %rdx,%rdi
+     760:	48 89 d6             	mov    %rdx,%rsi
+     763:	cd 80                	int    $0x80
+     765:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # 76b <entry+0x2b>
+			767: R_X86_64_PC32	.bss+0x224
+     76b:	85 c0                	test   %eax,%eax
+     76d:	74 e9                	je     758 <entry+0x18>
+     76f:	83 f8 01             	cmp    $0x1,%eax
+     772:	74 11                	je     785 <entry+0x45>
+     774:	31 d2                	xor    %edx,%edx
+     776:	b8 01 02 00 00       	mov    $0x201,%eax
+     77b:	48 89 d7             	mov    %rdx,%rdi
+     77e:	48 89 d6             	mov    %rdx,%rsi
+     781:	cd 80                	int    $0x80
+     783:	eb fe                	jmp    783 <entry+0x43>
+     785:	89 cf                	mov    %ecx,%edi
+     787:	e8 54 f9 ff ff       	call   e0 <execute>
+     78c:	eb e6                	jmp    774 <entry+0x34>
+     78e:	66 90                	xchg   %ax,%ax
+
+0000000000000790 <_start>:
+     790:	f3 0f 1e fa          	endbr64
+     794:	41 57                	push   %r15
+     796:	31 d2                	xor    %edx,%edx
+     798:	b8 10 02 00 00       	mov    $0x210,%eax
+     79d:	41 56                	push   %r14
+     79f:	48 89 d7             	mov    %rdx,%rdi
+     7a2:	48 89 d6             	mov    %rdx,%rsi
+     7a5:	41 55                	push   %r13
+     7a7:	41 54                	push   %r12
+     7a9:	55                   	push   %rbp
+     7aa:	53                   	push   %rbx
+     7ab:	48 81 ec 98 02 00 00 	sub    $0x298,%rsp
+     7b2:	cd 80                	int    $0x80
+     7b4:	48 c1 e8 20          	shr    $0x20,%rax
+     7b8:	8d 48 ff             	lea    -0x1(%rax),%ecx
+     7bb:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # 7c1 <_start+0x31>
+			7bd: R_X86_64_PC32	.bss+0x1d4
+     7c1:	83 f9 01             	cmp    $0x1,%ecx
+     7c4:	76 66                	jbe    82c <_start+0x9c>
+     7c6:	48 83 f8 04          	cmp    $0x4,%rax
+     7ca:	74 60                	je     82c <_start+0x9c>
+     7cc:	b8 01 00 00 00       	mov    $0x1,%eax
+     7d1:	bf 00 00 00 00       	mov    $0x0,%edi
+			7d2: R_X86_64_32	.rodata.str1.1
+     7d6:	be 0f 00 00 00       	mov    $0xf,%esi
+     7db:	cd 80                	int    $0x80
+     7dd:	b8 01 00 00 00       	mov    $0x1,%eax
+     7e2:	48 8d bc 24 89 00 00 	lea    0x89(%rsp),%rdi
+     7e9:	00 
+     7ea:	66 c7 84 24 88 00 00 	movw   $0x3530,0x88(%rsp)
+     7f1:	00 30 35 
+     7f4:	be 01 00 00 00       	mov    $0x1,%esi
+     7f9:	cd 80                	int    $0x80
+     7fb:	b8 01 00 00 00       	mov    $0x1,%eax
+     800:	48 8d bc 24 88 00 00 	lea    0x88(%rsp),%rdi
+     807:	00 
+     808:	cd 80                	int    $0x80
+     80a:	b8 01 00 00 00       	mov    $0x1,%eax
+     80f:	bf 00 00 00 00       	mov    $0x0,%edi
+			810: R_X86_64_32	.rodata.str1.1+0x2f
+     814:	be 1b 00 00 00       	mov    $0x1b,%esi
+     819:	cd 80                	int    $0x80
+     81b:	b8 02 00 00 00       	mov    $0x2,%eax
+     820:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     825:	48 89 d6             	mov    %rdx,%rsi
+     828:	cd 80                	int    $0x80
+     82a:	eb fe                	jmp    82a <_start+0x9a>
+     82c:	31 f6                	xor    %esi,%esi
+     82e:	b8 05 00 00 00       	mov    $0x5,%eax
+     833:	bf 04 00 00 00       	mov    $0x4,%edi
+     838:	48 89 f2             	mov    %rsi,%rdx
+     83b:	cd 80                	int    $0x80
+     83d:	48 85 c0             	test   %rax,%rax
+     840:	0f 88 35 01 00 00    	js     97b <_start+0x1eb>
+     846:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 84d <_start+0xbd>
+			849: R_X86_64_PC32	.bss+0x1dc
+     84d:	0f 84 34 01 00 00    	je     987 <_start+0x1f7>
+     853:	b8 05 00 00 00       	mov    $0x5,%eax
+     858:	cd 80                	int    $0x80
+     85a:	48 85 c0             	test   %rax,%rax
+     85d:	0f 88 d5 0d 00 00    	js     1638 <_start+0xea8>
+     863:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 86a <_start+0xda>
+			866: R_X86_64_PC32	.bss+0x1e4
+     86a:	0f 84 17 01 00 00    	je     987 <_start+0x1f7>
+     870:	b8 05 00 00 00       	mov    $0x5,%eax
+     875:	cd 80                	int    $0x80
+     877:	48 85 c0             	test   %rax,%rax
+     87a:	0f 88 c2 0d 00 00    	js     1642 <_start+0xeb2>
+     880:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 887 <_start+0xf7>
+			883: R_X86_64_PC32	.bss+0x1ec
+     887:	0f 84 fa 00 00 00    	je     987 <_start+0x1f7>
+     88d:	31 f6                	xor    %esi,%esi
+     88f:	4c 8d 7c 24 68       	lea    0x68(%rsp),%r15
+     894:	bd 00 00 00 00       	mov    $0x0,%ebp
+			895: R_X86_64_32	.rodata.str1.1+0xc7
+     899:	48 bb cd cc cc cc cc 	movabs $0xcccccccccccccccd,%rbx
+     8a0:	cc cc cc 
+     8a3:	48 89 74 24 08       	mov    %rsi,0x8(%rsp)
+     8a8:	4c 8d b4 24 88 00 00 	lea    0x88(%rsp),%r14
+     8af:	00 
+     8b0:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+     8b5:	89 c2                	mov    %eax,%edx
+     8b7:	48 83 f8 02          	cmp    $0x2,%rax
+     8bb:	0f 87 28 01 00 00    	ja     9e9 <_start+0x259>
+     8c1:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # 8c7 <_start+0x137>
+			8c3: R_X86_64_PC32	.bss+0x1d0
+     8c7:	b9 41 00 00 00       	mov    $0x41,%ecx
+     8cc:	bf 00 00 00 00       	mov    $0x0,%edi
+			8cd: R_X86_64_32	.bss+0x280
+     8d1:	b8 00 00 00 00       	mov    $0x0,%eax
+     8d6:	f3 48 ab             	rep stos %rax,(%rdi)
+     8d9:	c7 05 00 00 00 00 00 	movl   $0x0,0x0(%rip)        # 8e3 <_start+0x153>
+     8e0:	00 00 00 
+			8db: R_X86_64_PC32	.bss+0x1c8
+     8e3:	0f 85 36 0c 00 00    	jne    151f <_start+0xd8f>
+     8e9:	48 b8 05 00 00 00 06 	movabs $0x600000005,%rax
+     8f0:	00 00 00 
+     8f3:	48 c7 05 00 00 00 00 	movq   $0x2,0x0(%rip)        # 8fe <_start+0x16e>
+     8fa:	02 00 00 00 
+			8f6: R_X86_64_PC32	.bss+0x280
+     8fe:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 905 <_start+0x175>
+			901: R_X86_64_PC32	.bss+0x27c
+     905:	48 b8 01 00 00 00 04 	movabs $0x400000001,%rax
+     90c:	00 00 00 
+     90f:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 916 <_start+0x186>
+			912: R_X86_64_PC32	.bss+0x39c
+     916:	48 83 c0 01          	add    $0x1,%rax
+     91a:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 921 <_start+0x191>
+			91d: R_X86_64_PC32	.bss+0x3a4
+     921:	48 83 c0 01          	add    $0x1,%rax
+     925:	48 c7 05 00 00 00 00 	movq   $0x3,0x0(%rip)        # 930 <_start+0x1a0>
+     92c:	03 00 00 00 
+			928: R_X86_64_PC32	.bss+0x288
+     930:	48 c7 05 00 00 00 00 	movq   $0x1,0x0(%rip)        # 93b <_start+0x1ab>
+     937:	01 00 00 00 
+			933: R_X86_64_PC32	.bss+0x2a0
+     93b:	48 c7 05 00 00 00 00 	movq   $0x2,0x0(%rip)        # 946 <_start+0x1b6>
+     942:	02 00 00 00 
+			93e: R_X86_64_PC32	.bss+0x290
+     946:	48 c7 05 00 00 00 00 	movq   $0x3,0x0(%rip)        # 951 <_start+0x1c1>
+     94d:	03 00 00 00 
+			949: R_X86_64_PC32	.bss+0x298
+     951:	c7 05 00 00 00 00 01 	movl   $0x1,0x0(%rip)        # 95b <_start+0x1cb>
+     958:	00 00 00 
+			953: R_X86_64_PC32	.bss+0x384
+     95b:	c7 05 00 00 00 00 02 	movl   $0x2,0x0(%rip)        # 965 <_start+0x1d5>
+     962:	00 00 00 
+			95d: R_X86_64_PC32	.bss+0x38c
+     965:	c7 05 00 00 00 00 03 	movl   $0x3,0x0(%rip)        # 96f <_start+0x1df>
+     96c:	00 00 00 
+			967: R_X86_64_PC32	.bss+0x394
+     96f:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 976 <_start+0x1e6>
+			972: R_X86_64_PC32	.bss+0x3ac
+     976:	e9 03 01 00 00       	jmp    a7e <_start+0x2ee>
+     97b:	31 c0                	xor    %eax,%eax
+     97d:	31 ff                	xor    %edi,%edi
+     97f:	48 89 3c c5 00 00 00 	mov    %rdi,0x0(,%rax,8)
+     986:	00 
+			983: R_X86_64_32S	.bss+0x1e0
+     987:	b8 01 00 00 00       	mov    $0x1,%eax
+     98c:	bf 00 00 00 00       	mov    $0x0,%edi
+			98d: R_X86_64_32	.rodata.str1.1
+     991:	be 0f 00 00 00       	mov    $0xf,%esi
+     996:	31 d2                	xor    %edx,%edx
+     998:	cd 80                	int    $0x80
+     99a:	b8 01 00 00 00       	mov    $0x1,%eax
+     99f:	48 8d bc 24 89 00 00 	lea    0x89(%rsp),%rdi
+     9a6:	00 
+     9a7:	66 c7 84 24 88 00 00 	movw   $0x3530,0x88(%rsp)
+     9ae:	00 30 35 
+     9b1:	be 01 00 00 00       	mov    $0x1,%esi
+     9b6:	cd 80                	int    $0x80
+     9b8:	b8 01 00 00 00       	mov    $0x1,%eax
+     9bd:	48 8d bc 24 88 00 00 	lea    0x88(%rsp),%rdi
+     9c4:	00 
+     9c5:	cd 80                	int    $0x80
+     9c7:	b8 01 00 00 00       	mov    $0x1,%eax
+     9cc:	bf 00 00 00 00       	mov    $0x0,%edi
+			9cd: R_X86_64_32	.rodata.str1.1+0x4b
+     9d1:	be 0b 00 00 00       	mov    $0xb,%esi
+     9d6:	cd 80                	int    $0x80
+     9d8:	b8 02 00 00 00       	mov    $0x2,%eax
+     9dd:	bf 5b 00 00 00       	mov    $0x5b,%edi
+     9e2:	48 89 d6             	mov    %rdx,%rsi
+     9e5:	cd 80                	int    $0x80
+     9e7:	eb fe                	jmp    9e7 <_start+0x257>
+     9e9:	31 c0                	xor    %eax,%eax
+     9eb:	83 ea 02             	sub    $0x2,%edx
+     9ee:	b9 41 00 00 00       	mov    $0x41,%ecx
+     9f3:	bf 00 00 00 00       	mov    $0x0,%edi
+			9f4: R_X86_64_32	.bss+0x280
+     9f8:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # 9fe <_start+0x26e>
+			9fa: R_X86_64_PC32	.bss+0x1d0
+     9fe:	b8 00 00 00 00       	mov    $0x0,%eax
+     a03:	0f 43 c2             	cmovae %edx,%eax
+     a06:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # a0c <_start+0x27c>
+			a08: R_X86_64_PC32	.bss+0x1cc
+     a0c:	31 c0                	xor    %eax,%eax
+     a0e:	f3 48 ab             	rep stos %rax,(%rdi)
+     a11:	48 b8 04 00 00 00 04 	movabs $0x400000004,%rax
+     a18:	00 00 00 
+     a1b:	48 c7 05 00 00 00 00 	movq   $0x2,0x0(%rip)        # a26 <_start+0x296>
+     a22:	02 00 00 00 
+			a1e: R_X86_64_PC32	.bss+0x280
+     a26:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # a2d <_start+0x29d>
+			a29: R_X86_64_PC32	.bss+0x27c
+     a2d:	48 b8 01 00 00 00 03 	movabs $0x300000001,%rax
+     a34:	00 00 00 
+     a37:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # a3e <_start+0x2ae>
+			a3a: R_X86_64_PC32	.bss+0x394
+     a3e:	48 83 c0 01          	add    $0x1,%rax
+     a42:	48 c7 05 00 00 00 00 	movq   $0x3,0x0(%rip)        # a4d <_start+0x2bd>
+     a49:	03 00 00 00 
+			a45: R_X86_64_PC32	.bss+0x288
+     a4d:	48 c7 05 00 00 00 00 	movq   $0x5,0x0(%rip)        # a58 <_start+0x2c8>
+     a54:	05 00 00 00 
+			a50: R_X86_64_PC32	.bss+0x290
+     a58:	48 c7 05 00 00 00 00 	movq   $0x1,0x0(%rip)        # a63 <_start+0x2d3>
+     a5f:	01 00 00 00 
+			a5b: R_X86_64_PC32	.bss+0x298
+     a63:	c7 05 00 00 00 00 01 	movl   $0x1,0x0(%rip)        # a6d <_start+0x2dd>
+     a6a:	00 00 00 
+			a65: R_X86_64_PC32	.bss+0x384
+     a6d:	c7 05 00 00 00 00 02 	movl   $0x2,0x0(%rip)        # a77 <_start+0x2e7>
+     a74:	00 00 00 
+			a6f: R_X86_64_PC32	.bss+0x38c
+     a77:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # a7e <_start+0x2ee>
+			a7a: R_X86_64_PC32	.bss+0x39c
+     a7e:	c7 05 00 00 00 00 00 	movl   $0x0,0x0(%rip)        # a88 <_start+0x2f8>
+     a85:	00 00 00 
+			a80: R_X86_64_PC32	.bss+0x1c4
+     a88:	31 c0                	xor    %eax,%eax
+     a8a:	c7 05 00 00 00 00 00 	movl   $0x0,0x0(%rip)        # a94 <_start+0x304>
+     a91:	00 00 00 
+			a8c: R_X86_64_PC32	.bss+0x1c0
+     a94:	c7 05 00 00 00 00 00 	movl   $0x0,0x0(%rip)        # a9e <_start+0x30e>
+     a9b:	00 00 00 
+			a96: R_X86_64_PC32	.bss+0x1bc
+     a9e:	c7 05 00 00 00 00 00 	movl   $0x0,0x0(%rip)        # aa8 <_start+0x318>
+     aa5:	00 00 00 
+			aa0: R_X86_64_PC32	.bss+0x1b8
+     aa8:	66 90                	xchg   %ax,%ax
+     aaa:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     ab1:	00 00 00 00 
+     ab5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     abc:	00 00 00 00 
+     ac0:	c7 80 00 00 00 00 00 	movl   $0x0,0x0(%rax)
+     ac7:	00 00 00 
+			ac2: R_X86_64_32S	.bss+0x180
+     aca:	48 c7 84 00 00 00 00 	movq   $0x0,0x0(%rax,%rax,1)
+     ad1:	00 00 00 00 00 
+			ace: R_X86_64_32S	.bss
+     ad6:	48 c7 84 00 00 00 00 	movq   $0x0,0x0(%rax,%rax,1)
+     add:	00 00 00 00 00 
+			ada: R_X86_64_32S	.bss+0x80
+     ae2:	48 83 c0 04          	add    $0x4,%rax
+     ae6:	c7 80 00 00 00 00 04 	movl   $0x4,0x0(%rax)
+     aed:	00 00 00 
+			ae8: R_X86_64_32S	.bss+0xfc
+     af0:	c7 80 00 00 00 00 04 	movl   $0x4,0x0(%rax)
+     af7:	00 00 00 
+			af2: R_X86_64_32S	.bss+0x13c
+     afa:	48 83 f8 40          	cmp    $0x40,%rax
+     afe:	75 c0                	jne    ac0 <_start+0x330>
+     b00:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+     b05:	ba 00 00 00 00       	mov    $0x0,%edx
+			b06: R_X86_64_32	.bss+0x280
+     b0a:	bf 00 00 00 00       	mov    $0x0,%edi
+			b0b: R_X86_64_32	.bss+0x4a0
+     b0f:	48 83 c0 01          	add    $0x1,%rax
+     b13:	48 89 c6             	mov    %rax,%rsi
+     b16:	48 89 44 24 10       	mov    %rax,0x10(%rsp)
+     b1b:	e8 00 00 00 00       	call   b20 <_start+0x390>
+			b1c: R_X86_64_PLT32	dg_init-0x4
+     b20:	85 c0                	test   %eax,%eax
+     b22:	0f 85 57 0c 00 00    	jne    177f <_start+0xfef>
+     b28:	bf 00 00 00 00       	mov    $0x0,%edi
+			b29: R_X86_64_32	.bss+0x4a0
+     b2d:	e8 00 00 00 00       	call   b32 <_start+0x3a2>
+			b2e: R_X86_64_PLT32	dg_seal-0x4
+     b32:	85 c0                	test   %eax,%eax
+     b34:	0f 85 45 0c 00 00    	jne    177f <_start+0xfef>
+     b3a:	31 c9                	xor    %ecx,%ecx
+     b3c:	48 83 ec 30          	sub    $0x30,%rsp
+     b40:	48 c7 84 24 b8 00 00 	movq   $0x0,0xb8(%rsp)
+     b47:	00 00 00 00 00 
+			b48: R_X86_64_32S	.text
+     b4c:	4c 89 f6             	mov    %r14,%rsi
+     b4f:	48 89 8c 24 d8 00 00 	mov    %rcx,0xd8(%rsp)
+     b56:	00 
+     b57:	b9 0a 00 00 00       	mov    $0xa,%ecx
+     b5c:	48 c7 84 24 c0 00 00 	movq   $0x0,0xc0(%rsp)
+     b63:	00 00 00 00 00 
+			b64: R_X86_64_32S	.text+0x10
+     b68:	48 c7 84 24 c8 00 00 	movq   $0x0,0xc8(%rsp)
+     b6f:	00 00 00 00 00 
+			b70: R_X86_64_32S	.text+0x40
+     b74:	48 c7 84 24 d0 00 00 	movq   $0x0,0xd0(%rsp)
+     b7b:	00 00 00 00 00 
+			b7c: R_X86_64_32S	.text+0x60
+     b80:	48 89 e7             	mov    %rsp,%rdi
+     b83:	f3 a5                	rep movsl (%rsi),(%rdi)
+     b85:	bf 00 00 00 00       	mov    $0x0,%edi
+			b86: R_X86_64_32	.bss+0x200
+     b8a:	48 89 4c 24 48       	mov    %rcx,0x48(%rsp)
+     b8f:	e8 00 00 00 00       	call   b94 <_start+0x404>
+			b90: R_X86_64_PLT32	sp_launch_init-0x4
+     b94:	48 83 c4 30          	add    $0x30,%rsp
+     b98:	85 c0                	test   %eax,%eax
+     b9a:	0f 85 df 0b 00 00    	jne    177f <_start+0xfef>
+     ba0:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # ba6 <_start+0x416>
+			ba2: R_X86_64_PC32	.bss+0x1d4
+     ba6:	bf 00 00 00 00       	mov    $0x0,%edi
+			ba7: R_X86_64_32	.bss+0x200
+     bab:	8d 70 ff             	lea    -0x1(%rax),%esi
+     bae:	e8 00 00 00 00       	call   bb3 <_start+0x423>
+			baf: R_X86_64_PLT32	sp_launch-0x4
+     bb3:	85 c0                	test   %eax,%eax
+     bb5:	0f 85 aa 0e 00 00    	jne    1a65 <_start+0x12d5>
+     bbb:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # bc1 <_start+0x431>
+			bbd: R_X86_64_PC32	.bss+0x1d4
+     bc1:	8d 78 ff             	lea    -0x1(%rax),%edi
+     bc4:	e8 17 f5 ff ff       	call   e0 <execute>
+     bc9:	bf 00 00 00 00       	mov    $0x0,%edi
+			bca: R_X86_64_32	.bss+0x200
+     bce:	e8 00 00 00 00       	call   bd3 <_start+0x443>
+			bcf: R_X86_64_PLT32	sp_shutdown-0x4
+     bd3:	85 c0                	test   %eax,%eax
+     bd5:	0f 85 03 0e 00 00    	jne    19de <_start+0x124e>
+     bdb:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # be1 <_start+0x451>
+			bdd: R_X86_64_PC32	.bss+0x1c8
+     be1:	85 c0                	test   %eax,%eax
+     be3:	0f 85 55 0e 00 00    	jne    1a3e <_start+0x12ae>
+     be9:	4c 89 f6             	mov    %r14,%rsi
+     bec:	bf 00 00 00 00       	mov    $0x0,%edi
+			bed: R_X86_64_32	.bss+0x4a0
+     bf1:	e8 00 00 00 00       	call   bf6 <_start+0x466>
+			bf2: R_X86_64_PLT32	dg_snapshot-0x4
+     bf6:	85 c0                	test   %eax,%eax
+     bf8:	0f 85 d8 0b 00 00    	jne    17d6 <_start+0x1046>
+     bfe:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # c04 <_start+0x474>
+			c00: R_X86_64_PC32	.bss+0x27c
+     c04:	39 84 24 ac 00 00 00 	cmp    %eax,0xac(%rsp)
+     c0b:	0f 85 c5 0b 00 00    	jne    17d6 <_start+0x1046>
+     c11:	b8 01 00 00 00       	mov    $0x1,%eax
+     c16:	8b 15 00 00 00 00    	mov    0x0(%rip),%edx        # c1c <_start+0x48c>
+			c18: R_X86_64_PC32	.bss+0x1c0
+     c1c:	8b 0d 00 00 00 00    	mov    0x0(%rip),%ecx        # c22 <_start+0x492>
+			c1e: R_X86_64_PC32	.bss+0x1d4
+     c22:	d3 e0                	shl    %cl,%eax
+     c24:	83 e8 01             	sub    $0x1,%eax
+     c27:	39 c2                	cmp    %eax,%edx
+     c29:	0f 85 a7 0b 00 00    	jne    17d6 <_start+0x1046>
+     c2f:	83 3d 00 00 00 00 00 	cmpl   $0x0,0x0(%rip)        # c36 <_start+0x4a6>
+			c31: R_X86_64_PC32	.bss+0x1cb
+     c36:	0f 84 10 0a 00 00    	je     164c <_start+0xebc>
+     c3c:	83 bc 24 c4 00 00 00 	cmpl   $0x5,0xc4(%rsp)
+     c43:	05 
+     c44:	0f 85 e3 0b 00 00    	jne    182d <_start+0x109d>
+     c4a:	48 83 bc 24 50 01 00 	cmpq   $0x0,0x150(%rsp)
+     c51:	00 00 
+     c53:	0f 85 d4 0b 00 00    	jne    182d <_start+0x109d>
+     c59:	b8 01 00 00 00       	mov    $0x1,%eax
+     c5e:	be 13 00 00 00       	mov    $0x13,%esi
+     c63:	31 d2                	xor    %edx,%edx
+     c65:	bf 00 00 00 00       	mov    $0x0,%edi
+			c66: R_X86_64_32	.rodata.str1.1+0x75
+     c6a:	cd 80                	int    $0x80
+     c6c:	8b 35 00 00 00 00    	mov    0x0(%rip),%esi        # c72 <_start+0x4e2>
+			c6e: R_X86_64_PC32	.bss+0x1d4
+     c72:	b9 01 00 00 00       	mov    $0x1,%ecx
+     c77:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+     c7e:	00 00 
+     c80:	48 89 f0             	mov    %rsi,%rax
+     c83:	48 f7 e3             	mul    %rbx
+     c86:	48 89 f0             	mov    %rsi,%rax
+     c89:	48 c1 ea 03          	shr    $0x3,%rdx
+     c8d:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     c91:	48 01 ff             	add    %rdi,%rdi
+     c94:	48 29 f8             	sub    %rdi,%rax
+     c97:	83 c0 30             	add    $0x30,%eax
+     c9a:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     c9e:	48 89 f0             	mov    %rsi,%rax
+     ca1:	48 89 d6             	mov    %rdx,%rsi
+     ca4:	48 89 ca             	mov    %rcx,%rdx
+     ca7:	48 83 c1 01          	add    $0x1,%rcx
+     cab:	48 83 f8 09          	cmp    $0x9,%rax
+     caf:	77 cf                	ja     c80 <_start+0x4f0>
+     cb1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     cb4:	4d 8d 47 ff          	lea    -0x1(%r15),%r8
+     cb8:	31 d2                	xor    %edx,%edx
+     cba:	4c 01 ff             	add    %r15,%rdi
+     cbd:	0f 1f 00             	nopl   (%rax)
+     cc0:	b9 01 00 00 00       	mov    $0x1,%ecx
+     cc5:	b8 01 00 00 00       	mov    $0x1,%eax
+     cca:	48 89 ce             	mov    %rcx,%rsi
+     ccd:	cd 80                	int    $0x80
+     ccf:	48 83 ef 01          	sub    $0x1,%rdi
+     cd3:	49 39 f8             	cmp    %rdi,%r8
+     cd6:	75 e8                	jne    cc0 <_start+0x530>
+     cd8:	b8 01 00 00 00       	mov    $0x1,%eax
+     cdd:	be 0c 00 00 00       	mov    $0xc,%esi
+     ce2:	bf 00 00 00 00       	mov    $0x0,%edi
+			ce3: R_X86_64_32	.rodata.str1.1+0x89
+     ce7:	cd 80                	int    $0x80
+     ce9:	0f b6 44 24 08       	movzbl 0x8(%rsp),%eax
+     cee:	4c 89 ff             	mov    %r15,%rdi
+     cf1:	48 89 ce             	mov    %rcx,%rsi
+     cf4:	83 c0 30             	add    $0x30,%eax
+     cf7:	88 44 24 68          	mov    %al,0x68(%rsp)
+     cfb:	b8 01 00 00 00       	mov    $0x1,%eax
+     d00:	cd 80                	int    $0x80
+     d02:	b8 01 00 00 00       	mov    $0x1,%eax
+     d07:	be 07 00 00 00       	mov    $0x7,%esi
+     d0c:	bf 00 00 00 00       	mov    $0x0,%edi
+			d0d: R_X86_64_32	.rodata.str1.1+0x96
+     d11:	cd 80                	int    $0x80
+     d13:	8b 35 00 00 00 00    	mov    0x0(%rip),%esi        # d19 <_start+0x589>
+			d15: R_X86_64_PC32	.bss+0x27c
+     d19:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+     d1f:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     d26:	00 00 00 00 
+     d2a:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     d31:	00 00 00 00 
+     d35:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     d3c:	00 00 00 00 
+     d40:	48 89 f0             	mov    %rsi,%rax
+     d43:	48 f7 e3             	mul    %rbx
+     d46:	48 89 f0             	mov    %rsi,%rax
+     d49:	48 c1 ea 03          	shr    $0x3,%rdx
+     d4d:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     d51:	48 01 ff             	add    %rdi,%rdi
+     d54:	48 29 f8             	sub    %rdi,%rax
+     d57:	83 c0 30             	add    $0x30,%eax
+     d5a:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     d5e:	48 89 f0             	mov    %rsi,%rax
+     d61:	48 89 d6             	mov    %rdx,%rsi
+     d64:	48 89 ca             	mov    %rcx,%rdx
+     d67:	48 83 c1 01          	add    $0x1,%rcx
+     d6b:	48 83 f8 09          	cmp    $0x9,%rax
+     d6f:	77 cf                	ja     d40 <_start+0x5b0>
+     d71:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     d74:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     d78:	31 d2                	xor    %edx,%edx
+     d7a:	4c 01 ff             	add    %r15,%rdi
+     d7d:	0f 1f 00             	nopl   (%rax)
+     d80:	b8 01 00 00 00       	mov    $0x1,%eax
+     d85:	be 01 00 00 00       	mov    $0x1,%esi
+     d8a:	cd 80                	int    $0x80
+     d8c:	48 83 ef 01          	sub    $0x1,%rdi
+     d90:	48 39 f9             	cmp    %rdi,%rcx
+     d93:	75 eb                	jne    d80 <_start+0x5f0>
+     d95:	b8 01 00 00 00       	mov    $0x1,%eax
+     d9a:	be 06 00 00 00       	mov    $0x6,%esi
+     d9f:	bf 00 00 00 00       	mov    $0x0,%edi
+			da0: R_X86_64_32	.rodata.str1.1+0x9e
+     da4:	cd 80                	int    $0x80
+     da6:	48 8b b4 24 90 00 00 	mov    0x90(%rsp),%rsi
+     dad:	00 
+     dae:	b9 01 00 00 00       	mov    $0x1,%ecx
+     db3:	66 90                	xchg   %ax,%ax
+     db5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     dbc:	00 00 00 00 
+     dc0:	48 89 f0             	mov    %rsi,%rax
+     dc3:	48 f7 e3             	mul    %rbx
+     dc6:	48 89 f0             	mov    %rsi,%rax
+     dc9:	48 c1 ea 03          	shr    $0x3,%rdx
+     dcd:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     dd1:	48 01 ff             	add    %rdi,%rdi
+     dd4:	48 29 f8             	sub    %rdi,%rax
+     dd7:	83 c0 30             	add    $0x30,%eax
+     dda:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     dde:	48 89 f0             	mov    %rsi,%rax
+     de1:	48 89 d6             	mov    %rdx,%rsi
+     de4:	48 89 ca             	mov    %rcx,%rdx
+     de7:	48 83 c1 01          	add    $0x1,%rcx
+     deb:	48 83 f8 09          	cmp    $0x9,%rax
+     def:	77 cf                	ja     dc0 <_start+0x630>
+     df1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     df4:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     df8:	31 d2                	xor    %edx,%edx
+     dfa:	4c 01 ff             	add    %r15,%rdi
+     dfd:	0f 1f 00             	nopl   (%rax)
+     e00:	b8 01 00 00 00       	mov    $0x1,%eax
+     e05:	be 01 00 00 00       	mov    $0x1,%esi
+     e0a:	cd 80                	int    $0x80
+     e0c:	48 83 ef 01          	sub    $0x1,%rdi
+     e10:	48 39 f9             	cmp    %rdi,%rcx
+     e13:	75 eb                	jne    e00 <_start+0x670>
+     e15:	b8 01 00 00 00       	mov    $0x1,%eax
+     e1a:	be 06 00 00 00       	mov    $0x6,%esi
+     e1f:	bf 00 00 00 00       	mov    $0x0,%edi
+			e20: R_X86_64_32	.rodata.str1.1+0xa5
+     e24:	cd 80                	int    $0x80
+     e26:	48 8b b4 24 98 00 00 	mov    0x98(%rsp),%rsi
+     e2d:	00 
+     e2e:	b9 01 00 00 00       	mov    $0x1,%ecx
+     e33:	66 90                	xchg   %ax,%ax
+     e35:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     e3c:	00 00 00 00 
+     e40:	48 89 f0             	mov    %rsi,%rax
+     e43:	48 f7 e3             	mul    %rbx
+     e46:	48 89 f0             	mov    %rsi,%rax
+     e49:	48 c1 ea 03          	shr    $0x3,%rdx
+     e4d:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     e51:	48 01 ff             	add    %rdi,%rdi
+     e54:	48 29 f8             	sub    %rdi,%rax
+     e57:	83 c0 30             	add    $0x30,%eax
+     e5a:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     e5e:	48 89 f0             	mov    %rsi,%rax
+     e61:	48 89 d6             	mov    %rdx,%rsi
+     e64:	48 89 ca             	mov    %rcx,%rdx
+     e67:	48 83 c1 01          	add    $0x1,%rcx
+     e6b:	48 83 f8 09          	cmp    $0x9,%rax
+     e6f:	77 cf                	ja     e40 <_start+0x6b0>
+     e71:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     e74:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     e78:	31 d2                	xor    %edx,%edx
+     e7a:	4c 01 ff             	add    %r15,%rdi
+     e7d:	0f 1f 00             	nopl   (%rax)
+     e80:	b8 01 00 00 00       	mov    $0x1,%eax
+     e85:	be 01 00 00 00       	mov    $0x1,%esi
+     e8a:	cd 80                	int    $0x80
+     e8c:	48 83 ef 01          	sub    $0x1,%rdi
+     e90:	48 39 f9             	cmp    %rdi,%rcx
+     e93:	75 eb                	jne    e80 <_start+0x6f0>
+     e95:	b8 01 00 00 00       	mov    $0x1,%eax
+     e9a:	be 06 00 00 00       	mov    $0x6,%esi
+     e9f:	bf 00 00 00 00       	mov    $0x0,%edi
+			ea0: R_X86_64_32	.rodata.str1.1+0xac
+     ea4:	cd 80                	int    $0x80
+     ea6:	be 01 00 00 00       	mov    $0x1,%esi
+     eab:	8b 0d 00 00 00 00    	mov    0x0(%rip),%ecx        # eb1 <_start+0x721>
+			ead: R_X86_64_PC32	.bss+0x1c0
+     eb1:	0f 1f 40 00          	nopl   0x0(%rax)
+     eb5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     ebc:	00 00 00 00 
+     ec0:	48 89 c8             	mov    %rcx,%rax
+     ec3:	48 f7 e3             	mul    %rbx
+     ec6:	48 89 c8             	mov    %rcx,%rax
+     ec9:	48 c1 ea 03          	shr    $0x3,%rdx
+     ecd:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     ed1:	48 01 ff             	add    %rdi,%rdi
+     ed4:	48 29 f8             	sub    %rdi,%rax
+     ed7:	83 c0 30             	add    $0x30,%eax
+     eda:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+     ede:	48 89 c8             	mov    %rcx,%rax
+     ee1:	48 89 d1             	mov    %rdx,%rcx
+     ee4:	48 89 f2             	mov    %rsi,%rdx
+     ee7:	48 83 c6 01          	add    $0x1,%rsi
+     eeb:	48 83 f8 09          	cmp    $0x9,%rax
+     eef:	77 cf                	ja     ec0 <_start+0x730>
+     ef1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     ef4:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     ef8:	31 d2                	xor    %edx,%edx
+     efa:	4c 01 ff             	add    %r15,%rdi
+     efd:	0f 1f 00             	nopl   (%rax)
+     f00:	b8 01 00 00 00       	mov    $0x1,%eax
+     f05:	be 01 00 00 00       	mov    $0x1,%esi
+     f0a:	cd 80                	int    $0x80
+     f0c:	48 83 ef 01          	sub    $0x1,%rdi
+     f10:	48 39 f9             	cmp    %rdi,%rcx
+     f13:	75 eb                	jne    f00 <_start+0x770>
+     f15:	b8 01 00 00 00       	mov    $0x1,%eax
+     f1a:	be 0a 00 00 00       	mov    $0xa,%esi
+     f1f:	bf 00 00 00 00       	mov    $0x0,%edi
+			f20: R_X86_64_32	.rodata.str1.1+0xb3
+     f24:	cd 80                	int    $0x80
+     f26:	8b b4 24 ac 00 00 00 	mov    0xac(%rsp),%esi
+     f2d:	b9 01 00 00 00       	mov    $0x1,%ecx
+     f32:	0f 1f 00             	nopl   (%rax)
+     f35:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+     f3c:	00 00 00 00 
+     f40:	48 89 f0             	mov    %rsi,%rax
+     f43:	48 f7 e3             	mul    %rbx
+     f46:	48 89 f0             	mov    %rsi,%rax
+     f49:	48 c1 ea 03          	shr    $0x3,%rdx
+     f4d:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     f51:	48 01 ff             	add    %rdi,%rdi
+     f54:	48 29 f8             	sub    %rdi,%rax
+     f57:	83 c0 30             	add    $0x30,%eax
+     f5a:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     f5e:	48 89 f0             	mov    %rsi,%rax
+     f61:	48 89 d6             	mov    %rdx,%rsi
+     f64:	48 89 ca             	mov    %rcx,%rdx
+     f67:	48 83 c1 01          	add    $0x1,%rcx
+     f6b:	48 83 f8 09          	cmp    $0x9,%rax
+     f6f:	77 cf                	ja     f40 <_start+0x7b0>
+     f71:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     f74:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     f78:	31 d2                	xor    %edx,%edx
+     f7a:	4c 01 ff             	add    %r15,%rdi
+     f7d:	0f 1f 00             	nopl   (%rax)
+     f80:	b8 01 00 00 00       	mov    $0x1,%eax
+     f85:	be 01 00 00 00       	mov    $0x1,%esi
+     f8a:	cd 80                	int    $0x80
+     f8c:	48 83 ef 01          	sub    $0x1,%rdi
+     f90:	48 39 f9             	cmp    %rdi,%rcx
+     f93:	75 eb                	jne    f80 <_start+0x7f0>
+     f95:	b8 01 00 00 00       	mov    $0x1,%eax
+     f9a:	be 08 00 00 00       	mov    $0x8,%esi
+     f9f:	bf 00 00 00 00       	mov    $0x0,%edi
+			fa0: R_X86_64_32	.rodata.str1.1+0xbe
+     fa4:	cd 80                	int    $0x80
+     fa6:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # fac <_start+0x81c>
+			fa8: R_X86_64_PC32	.bss+0x27c
+     fac:	b9 01 00 00 00       	mov    $0x1,%ecx
+     fb1:	83 e8 01             	sub    $0x1,%eax
+     fb4:	48 8b b4 c4 38 01 00 	mov    0x138(%rsp,%rax,8),%rsi
+     fbb:	00 
+     fbc:	0f 1f 40 00          	nopl   0x0(%rax)
+     fc0:	48 89 f0             	mov    %rsi,%rax
+     fc3:	48 f7 e3             	mul    %rbx
+     fc6:	48 89 f0             	mov    %rsi,%rax
+     fc9:	48 c1 ea 03          	shr    $0x3,%rdx
+     fcd:	48 8d 3c 92          	lea    (%rdx,%rdx,4),%rdi
+     fd1:	48 01 ff             	add    %rdi,%rdi
+     fd4:	48 29 f8             	sub    %rdi,%rax
+     fd7:	83 c0 30             	add    $0x30,%eax
+     fda:	88 44 0c 67          	mov    %al,0x67(%rsp,%rcx,1)
+     fde:	48 89 f0             	mov    %rsi,%rax
+     fe1:	48 89 d6             	mov    %rdx,%rsi
+     fe4:	48 89 ca             	mov    %rcx,%rdx
+     fe7:	48 83 c1 01          	add    $0x1,%rcx
+     feb:	48 83 f8 09          	cmp    $0x9,%rax
+     fef:	77 cf                	ja     fc0 <_start+0x830>
+     ff1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+     ff4:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+     ff8:	31 d2                	xor    %edx,%edx
+     ffa:	4c 01 ff             	add    %r15,%rdi
+     ffd:	0f 1f 00             	nopl   (%rax)
+    1000:	b8 01 00 00 00       	mov    $0x1,%eax
+    1005:	be 01 00 00 00       	mov    $0x1,%esi
+    100a:	cd 80                	int    $0x80
+    100c:	48 83 ef 01          	sub    $0x1,%rdi
+    1010:	48 39 cf             	cmp    %rcx,%rdi
+    1013:	75 eb                	jne    1000 <_start+0x870>
+    1015:	b8 01 00 00 00       	mov    $0x1,%eax
+    101a:	48 89 ef             	mov    %rbp,%rdi
+    101d:	cd 80                	int    $0x80
+    101f:	45 31 c0             	xor    %r8d,%r8d
+    1022:	83 3d 00 00 00 00 00 	cmpl   $0x0,0x0(%rip)        # 1029 <_start+0x899>
+			1024: R_X86_64_PC32	.bss+0x27b
+    1029:	0f 84 83 04 00 00    	je     14b2 <_start+0xd22>
+    102f:	49 8d 4f ff          	lea    -0x1(%r15),%rcx
+    1033:	66 90                	xchg   %ax,%ax
+    1035:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    103c:	00 00 00 00 
+    1040:	4e 8d 0c 85 00 00 00 	lea    0x0(,%r8,4),%r9
+    1047:	00 
+    1048:	42 8b 34 85 00 00 00 	mov    0x0(,%r8,4),%esi
+    104f:	00 
+			104c: R_X86_64_32S	.bss+0x180
+    1050:	43 8b 54 86 30       	mov    0x30(%r14,%r8,4),%edx
+    1055:	8d 42 fd             	lea    -0x3(%rdx),%eax
+    1058:	83 f8 01             	cmp    $0x1,%eax
+    105b:	0f 96 c0             	setbe  %al
+    105e:	83 fa 06             	cmp    $0x6,%edx
+    1061:	0f 94 c2             	sete   %dl
+    1064:	09 d0                	or     %edx,%eax
+    1066:	0f b6 c0             	movzbl %al,%eax
+    1069:	39 c6                	cmp    %eax,%esi
+    106b:	b8 01 00 00 00       	mov    $0x1,%eax
+    1070:	0f 85 57 04 00 00    	jne    14cd <_start+0xd3d>
+    1076:	bf 00 00 00 00       	mov    $0x0,%edi
+			1077: R_X86_64_32	.rodata.str1.1+0xc9
+    107b:	be 11 00 00 00       	mov    $0x11,%esi
+    1080:	31 d2                	xor    %edx,%edx
+    1082:	cd 80                	int    $0x80
+    1084:	be 01 00 00 00       	mov    $0x1,%esi
+    1089:	4c 89 c7             	mov    %r8,%rdi
+    108c:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+    1093:	00 
+    1094:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    109b:	00 00 00 00 
+    109f:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    10a6:	00 00 00 00 
+    10aa:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    10b1:	00 00 00 00 
+    10b5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    10bc:	00 00 00 00 
+    10c0:	48 89 f8             	mov    %rdi,%rax
+    10c3:	48 f7 e3             	mul    %rbx
+    10c6:	48 89 f8             	mov    %rdi,%rax
+    10c9:	48 c1 ea 03          	shr    $0x3,%rdx
+    10cd:	4c 8d 14 92          	lea    (%rdx,%rdx,4),%r10
+    10d1:	4d 01 d2             	add    %r10,%r10
+    10d4:	4c 29 d0             	sub    %r10,%rax
+    10d7:	83 c0 30             	add    $0x30,%eax
+    10da:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    10de:	48 89 f8             	mov    %rdi,%rax
+    10e1:	48 89 d7             	mov    %rdx,%rdi
+    10e4:	48 89 f2             	mov    %rsi,%rdx
+    10e7:	48 83 c6 01          	add    $0x1,%rsi
+    10eb:	48 83 f8 09          	cmp    $0x9,%rax
+    10ef:	77 cf                	ja     10c0 <_start+0x930>
+    10f1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    10f4:	4c 01 ff             	add    %r15,%rdi
+    10f7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    10fe:	00 00 
+    1100:	b8 01 00 00 00       	mov    $0x1,%eax
+    1105:	be 01 00 00 00       	mov    $0x1,%esi
+    110a:	31 d2                	xor    %edx,%edx
+    110c:	cd 80                	int    $0x80
+    110e:	48 83 ef 01          	sub    $0x1,%rdi
+    1112:	48 39 f9             	cmp    %rdi,%rcx
+    1115:	75 e9                	jne    1100 <_start+0x970>
+    1117:	b8 01 00 00 00       	mov    $0x1,%eax
+    111c:	bf 00 00 00 00       	mov    $0x0,%edi
+			111d: R_X86_64_32	.rodata.str1.1+0xdb
+    1121:	be 07 00 00 00       	mov    $0x7,%esi
+    1126:	cd 80                	int    $0x80
+    1128:	43 8b 7c 86 30       	mov    0x30(%r14,%r8,4),%edi
+    112d:	be 01 00 00 00       	mov    $0x1,%esi
+    1132:	0f 1f 00             	nopl   (%rax)
+    1135:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    113c:	00 00 00 00 
+    1140:	48 89 f8             	mov    %rdi,%rax
+    1143:	48 f7 e3             	mul    %rbx
+    1146:	48 89 f8             	mov    %rdi,%rax
+    1149:	48 c1 ea 03          	shr    $0x3,%rdx
+    114d:	4c 8d 14 92          	lea    (%rdx,%rdx,4),%r10
+    1151:	4d 01 d2             	add    %r10,%r10
+    1154:	4c 29 d0             	sub    %r10,%rax
+    1157:	83 c0 30             	add    $0x30,%eax
+    115a:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    115e:	48 89 f8             	mov    %rdi,%rax
+    1161:	48 89 d7             	mov    %rdx,%rdi
+    1164:	48 89 f2             	mov    %rsi,%rdx
+    1167:	48 83 c6 01          	add    $0x1,%rsi
+    116b:	48 83 f8 09          	cmp    $0x9,%rax
+    116f:	77 cf                	ja     1140 <_start+0x9b0>
+    1171:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    1174:	4c 01 ff             	add    %r15,%rdi
+    1177:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    117e:	00 00 
+    1180:	b8 01 00 00 00       	mov    $0x1,%eax
+    1185:	be 01 00 00 00       	mov    $0x1,%esi
+    118a:	31 d2                	xor    %edx,%edx
+    118c:	cd 80                	int    $0x80
+    118e:	48 83 ef 01          	sub    $0x1,%rdi
+    1192:	48 39 f9             	cmp    %rdi,%rcx
+    1195:	75 e9                	jne    1180 <_start+0x9f0>
+    1197:	b8 01 00 00 00       	mov    $0x1,%eax
+    119c:	bf 00 00 00 00       	mov    $0x0,%edi
+			119d: R_X86_64_32	.rodata.str1.1+0xe3
+    11a1:	be 08 00 00 00       	mov    $0x8,%esi
+    11a6:	cd 80                	int    $0x80
+    11a8:	bf 01 00 00 00       	mov    $0x1,%edi
+    11ad:	41 8b b1 00 00 00 00 	mov    0x0(%r9),%esi
+			11b0: R_X86_64_32S	.bss+0x180
+    11b4:	90                   	nop
+    11b5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    11bc:	00 00 00 00 
+    11c0:	48 89 f0             	mov    %rsi,%rax
+    11c3:	48 f7 e3             	mul    %rbx
+    11c6:	48 89 f0             	mov    %rsi,%rax
+    11c9:	48 c1 ea 03          	shr    $0x3,%rdx
+    11cd:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    11d1:	4d 01 c9             	add    %r9,%r9
+    11d4:	4c 29 c8             	sub    %r9,%rax
+    11d7:	83 c0 30             	add    $0x30,%eax
+    11da:	88 44 3c 67          	mov    %al,0x67(%rsp,%rdi,1)
+    11de:	48 89 f0             	mov    %rsi,%rax
+    11e1:	48 89 d6             	mov    %rdx,%rsi
+    11e4:	48 89 fa             	mov    %rdi,%rdx
+    11e7:	48 83 c7 01          	add    $0x1,%rdi
+    11eb:	48 83 f8 09          	cmp    $0x9,%rax
+    11ef:	77 cf                	ja     11c0 <_start+0xa30>
+    11f1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    11f4:	4c 01 ff             	add    %r15,%rdi
+    11f7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    11fe:	00 00 
+    1200:	b8 01 00 00 00       	mov    $0x1,%eax
+    1205:	be 01 00 00 00       	mov    $0x1,%esi
+    120a:	31 d2                	xor    %edx,%edx
+    120c:	cd 80                	int    $0x80
+    120e:	48 83 ef 01          	sub    $0x1,%rdi
+    1212:	48 39 cf             	cmp    %rcx,%rdi
+    1215:	75 e9                	jne    1200 <_start+0xa70>
+    1217:	b8 01 00 00 00       	mov    $0x1,%eax
+    121c:	bf 00 00 00 00       	mov    $0x0,%edi
+			121d: R_X86_64_32	.rodata.str1.1+0xec
+    1221:	be 07 00 00 00       	mov    $0x7,%esi
+    1226:	cd 80                	int    $0x80
+    1228:	43 8b 7c 86 70       	mov    0x70(%r14,%r8,4),%edi
+    122d:	be 01 00 00 00       	mov    $0x1,%esi
+    1232:	0f 1f 00             	nopl   (%rax)
+    1235:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    123c:	00 00 00 00 
+    1240:	48 89 f8             	mov    %rdi,%rax
+    1243:	48 f7 e3             	mul    %rbx
+    1246:	48 89 f8             	mov    %rdi,%rax
+    1249:	48 c1 ea 03          	shr    $0x3,%rdx
+    124d:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    1251:	4d 01 c9             	add    %r9,%r9
+    1254:	4c 29 c8             	sub    %r9,%rax
+    1257:	83 c0 30             	add    $0x30,%eax
+    125a:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    125e:	48 89 f8             	mov    %rdi,%rax
+    1261:	48 89 d7             	mov    %rdx,%rdi
+    1264:	48 89 f2             	mov    %rsi,%rdx
+    1267:	48 83 c6 01          	add    $0x1,%rsi
+    126b:	48 83 f8 09          	cmp    $0x9,%rax
+    126f:	77 cf                	ja     1240 <_start+0xab0>
+    1271:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    1274:	4c 01 ff             	add    %r15,%rdi
+    1277:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    127e:	00 00 
+    1280:	b8 01 00 00 00       	mov    $0x1,%eax
+    1285:	be 01 00 00 00       	mov    $0x1,%esi
+    128a:	31 d2                	xor    %edx,%edx
+    128c:	cd 80                	int    $0x80
+    128e:	48 83 ef 01          	sub    $0x1,%rdi
+    1292:	48 39 cf             	cmp    %rcx,%rdi
+    1295:	75 e9                	jne    1280 <_start+0xaf0>
+    1297:	b8 01 00 00 00       	mov    $0x1,%eax
+    129c:	bf 00 00 00 00       	mov    $0x0,%edi
+			129d: R_X86_64_32	.rodata.str1.1+0xf4
+    12a1:	be 07 00 00 00       	mov    $0x7,%esi
+    12a6:	cd 80                	int    $0x80
+    12a8:	42 8b 3c 85 00 00 00 	mov    0x0(,%r8,4),%edi
+    12af:	00 
+			12ac: R_X86_64_32S	.bss+0x140
+    12b0:	be 01 00 00 00       	mov    $0x1,%esi
+    12b5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    12bc:	00 00 00 00 
+    12c0:	48 89 f8             	mov    %rdi,%rax
+    12c3:	48 f7 e3             	mul    %rbx
+    12c6:	48 89 f8             	mov    %rdi,%rax
+    12c9:	48 c1 ea 03          	shr    $0x3,%rdx
+    12cd:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    12d1:	4d 01 c9             	add    %r9,%r9
+    12d4:	4c 29 c8             	sub    %r9,%rax
+    12d7:	83 c0 30             	add    $0x30,%eax
+    12da:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    12de:	48 89 f8             	mov    %rdi,%rax
+    12e1:	48 89 d7             	mov    %rdx,%rdi
+    12e4:	48 89 f2             	mov    %rsi,%rdx
+    12e7:	48 83 c6 01          	add    $0x1,%rsi
+    12eb:	48 83 f8 09          	cmp    $0x9,%rax
+    12ef:	77 cf                	ja     12c0 <_start+0xb30>
+    12f1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    12f4:	4c 01 ff             	add    %r15,%rdi
+    12f7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    12fe:	00 00 
+    1300:	b8 01 00 00 00       	mov    $0x1,%eax
+    1305:	be 01 00 00 00       	mov    $0x1,%esi
+    130a:	31 d2                	xor    %edx,%edx
+    130c:	cd 80                	int    $0x80
+    130e:	48 83 ef 01          	sub    $0x1,%rdi
+    1312:	48 39 cf             	cmp    %rcx,%rdi
+    1315:	75 e9                	jne    1300 <_start+0xb70>
+    1317:	b8 01 00 00 00       	mov    $0x1,%eax
+    131c:	bf 00 00 00 00       	mov    $0x0,%edi
+			131d: R_X86_64_32	.rodata.str1.1+0xfc
+    1321:	be 05 00 00 00       	mov    $0x5,%esi
+    1326:	cd 80                	int    $0x80
+    1328:	42 8b 3c 85 00 00 00 	mov    0x0(,%r8,4),%edi
+    132f:	00 
+			132c: R_X86_64_32S	.bss+0x100
+    1330:	be 01 00 00 00       	mov    $0x1,%esi
+    1335:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    133c:	00 00 00 00 
+    1340:	48 89 f8             	mov    %rdi,%rax
+    1343:	48 f7 e3             	mul    %rbx
+    1346:	48 89 f8             	mov    %rdi,%rax
+    1349:	48 c1 ea 03          	shr    $0x3,%rdx
+    134d:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    1351:	4d 01 c9             	add    %r9,%r9
+    1354:	4c 29 c8             	sub    %r9,%rax
+    1357:	83 c0 30             	add    $0x30,%eax
+    135a:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    135e:	48 89 f8             	mov    %rdi,%rax
+    1361:	48 89 d7             	mov    %rdx,%rdi
+    1364:	48 89 f2             	mov    %rsi,%rdx
+    1367:	48 83 c6 01          	add    $0x1,%rsi
+    136b:	48 83 f8 09          	cmp    $0x9,%rax
+    136f:	77 cf                	ja     1340 <_start+0xbb0>
+    1371:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    1374:	4c 01 ff             	add    %r15,%rdi
+    1377:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    137e:	00 00 
+    1380:	b8 01 00 00 00       	mov    $0x1,%eax
+    1385:	be 01 00 00 00       	mov    $0x1,%esi
+    138a:	31 d2                	xor    %edx,%edx
+    138c:	cd 80                	int    $0x80
+    138e:	48 83 ef 01          	sub    $0x1,%rdi
+    1392:	48 39 f9             	cmp    %rdi,%rcx
+    1395:	75 e9                	jne    1380 <_start+0xbf0>
+    1397:	b8 01 00 00 00       	mov    $0x1,%eax
+    139c:	bf 00 00 00 00       	mov    $0x0,%edi
+			139d: R_X86_64_32	.rodata.str1.1+0x102
+    13a1:	be 06 00 00 00       	mov    $0x6,%esi
+    13a6:	cd 80                	int    $0x80
+    13a8:	4a 8b 3c c5 00 00 00 	mov    0x0(,%r8,8),%rdi
+    13af:	00 
+			13ac: R_X86_64_32S	.bss+0x288
+    13b0:	be 01 00 00 00       	mov    $0x1,%esi
+    13b5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    13bc:	00 00 00 00 
+    13c0:	48 89 f8             	mov    %rdi,%rax
+    13c3:	48 f7 e3             	mul    %rbx
+    13c6:	48 89 f8             	mov    %rdi,%rax
+    13c9:	48 c1 ea 03          	shr    $0x3,%rdx
+    13cd:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    13d1:	4d 01 c9             	add    %r9,%r9
+    13d4:	4c 29 c8             	sub    %r9,%rax
+    13d7:	83 c0 30             	add    $0x30,%eax
+    13da:	88 44 34 67          	mov    %al,0x67(%rsp,%rsi,1)
+    13de:	48 89 f8             	mov    %rdi,%rax
+    13e1:	48 89 d7             	mov    %rdx,%rdi
+    13e4:	48 89 f2             	mov    %rsi,%rdx
+    13e7:	48 83 c6 01          	add    $0x1,%rsi
+    13eb:	48 83 f8 09          	cmp    $0x9,%rax
+    13ef:	77 cf                	ja     13c0 <_start+0xc30>
+    13f1:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    13f4:	4c 01 ff             	add    %r15,%rdi
+    13f7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    13fe:	00 00 
+    1400:	b8 01 00 00 00       	mov    $0x1,%eax
+    1405:	be 01 00 00 00       	mov    $0x1,%esi
+    140a:	31 d2                	xor    %edx,%edx
+    140c:	cd 80                	int    $0x80
+    140e:	48 83 ef 01          	sub    $0x1,%rdi
+    1412:	48 39 f9             	cmp    %rdi,%rcx
+    1415:	75 e9                	jne    1400 <_start+0xc70>
+    1417:	b8 01 00 00 00       	mov    $0x1,%eax
+    141c:	bf 00 00 00 00       	mov    $0x0,%edi
+			141d: R_X86_64_32	.rodata.str1.1+0x109
+    1421:	be 08 00 00 00       	mov    $0x8,%esi
+    1426:	cd 80                	int    $0x80
+    1428:	bf 01 00 00 00       	mov    $0x1,%edi
+    142d:	4a 8b 34 c5 00 00 00 	mov    0x0(,%r8,8),%rsi
+    1434:	00 
+			1431: R_X86_64_32S	.bss
+    1435:	4a 2b 34 c5 00 00 00 	sub    0x0(,%r8,8),%rsi
+    143c:	00 
+			1439: R_X86_64_32S	.bss+0x80
+    143d:	0f 1f 00             	nopl   (%rax)
+    1440:	48 89 f0             	mov    %rsi,%rax
+    1443:	48 f7 e3             	mul    %rbx
+    1446:	48 89 f0             	mov    %rsi,%rax
+    1449:	48 c1 ea 03          	shr    $0x3,%rdx
+    144d:	4c 8d 0c 92          	lea    (%rdx,%rdx,4),%r9
+    1451:	4d 01 c9             	add    %r9,%r9
+    1454:	4c 29 c8             	sub    %r9,%rax
+    1457:	83 c0 30             	add    $0x30,%eax
+    145a:	88 44 3c 67          	mov    %al,0x67(%rsp,%rdi,1)
+    145e:	48 89 f0             	mov    %rsi,%rax
+    1461:	48 89 d6             	mov    %rdx,%rsi
+    1464:	48 89 fa             	mov    %rdi,%rdx
+    1467:	48 83 c7 01          	add    $0x1,%rdi
+    146b:	48 83 f8 09          	cmp    $0x9,%rax
+    146f:	77 cf                	ja     1440 <_start+0xcb0>
+    1471:	8d 7a ff             	lea    -0x1(%rdx),%edi
+    1474:	4c 01 ff             	add    %r15,%rdi
+    1477:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    147e:	00 00 
+    1480:	b8 01 00 00 00       	mov    $0x1,%eax
+    1485:	be 01 00 00 00       	mov    $0x1,%esi
+    148a:	31 d2                	xor    %edx,%edx
+    148c:	cd 80                	int    $0x80
+    148e:	48 83 ef 01          	sub    $0x1,%rdi
+    1492:	48 39 cf             	cmp    %rcx,%rdi
+    1495:	75 e9                	jne    1480 <_start+0xcf0>
+    1497:	b8 01 00 00 00       	mov    $0x1,%eax
+    149c:	48 89 ef             	mov    %rbp,%rdi
+    149f:	cd 80                	int    $0x80
+    14a1:	49 83 c0 01          	add    $0x1,%r8
+    14a5:	44 3b 05 00 00 00 00 	cmp    0x0(%rip),%r8d        # 14ac <_start+0xd1c>
+			14a8: R_X86_64_PC32	.bss+0x27c
+    14ac:	0f 82 8e fb ff ff    	jb     1040 <_start+0x8b0>
+    14b2:	48 83 7c 24 10 05    	cmpq   $0x5,0x10(%rsp)
+    14b8:	0f 84 f7 00 00 00    	je     15b5 <_start+0xe25>
+    14be:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+    14c3:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+    14c8:	e9 e3 f3 ff ff       	jmp    8b0 <_start+0x120>
+    14cd:	bf 00 00 00 00       	mov    $0x0,%edi
+			14ce: R_X86_64_32	.rodata.str1.1
+    14d2:	be 0f 00 00 00       	mov    $0xf,%esi
+    14d7:	31 d2                	xor    %edx,%edx
+    14d9:	cd 80                	int    $0x80
+    14db:	b8 01 00 00 00       	mov    $0x1,%eax
+    14e0:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    14e5:	be 01 00 00 00       	mov    $0x1,%esi
+    14ea:	66 c7 44 24 68 30 36 	movw   $0x3630,0x68(%rsp)
+    14f1:	cd 80                	int    $0x80
+    14f3:	b8 01 00 00 00       	mov    $0x1,%eax
+    14f8:	4c 89 ff             	mov    %r15,%rdi
+    14fb:	cd 80                	int    $0x80
+    14fd:	b8 01 00 00 00       	mov    $0x1,%eax
+    1502:	bf 00 00 00 00       	mov    $0x0,%edi
+			1503: R_X86_64_32	.rodata.str1.8+0x290
+    1507:	be 6a 00 00 00       	mov    $0x6a,%esi
+    150c:	cd 80                	int    $0x80
+    150e:	b8 02 00 00 00       	mov    $0x2,%eax
+    1513:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1518:	48 89 d6             	mov    %rdx,%rsi
+    151b:	cd 80                	int    $0x80
+    151d:	eb fe                	jmp    151d <_start+0xd8d>
+    151f:	48 b8 04 00 00 00 04 	movabs $0x400000004,%rax
+    1526:	00 00 00 
+    1529:	48 c7 05 00 00 00 00 	movq   $0x2,0x0(%rip)        # 1534 <_start+0xda4>
+    1530:	02 00 00 00 
+			152c: R_X86_64_PC32	.bss+0x280
+    1534:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 153b <_start+0xdab>
+			1537: R_X86_64_PC32	.bss+0x27c
+    153b:	48 b8 01 00 00 00 03 	movabs $0x300000001,%rax
+    1542:	00 00 00 
+    1545:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 154c <_start+0xdbc>
+			1548: R_X86_64_PC32	.bss+0x394
+    154c:	48 83 c0 01          	add    $0x1,%rax
+    1550:	83 ea 01             	sub    $0x1,%edx
+    1553:	48 c7 05 00 00 00 00 	movq   $0x3,0x0(%rip)        # 155e <_start+0xdce>
+    155a:	03 00 00 00 
+			1556: R_X86_64_PC32	.bss+0x288
+    155e:	48 c7 05 00 00 00 00 	movq   $0x5,0x0(%rip)        # 1569 <_start+0xdd9>
+    1565:	05 00 00 00 
+			1561: R_X86_64_PC32	.bss+0x290
+    1569:	48 c7 05 00 00 00 00 	movq   $0x1,0x0(%rip)        # 1574 <_start+0xde4>
+    1570:	01 00 00 00 
+			156c: R_X86_64_PC32	.bss+0x298
+    1574:	c7 05 00 00 00 00 01 	movl   $0x1,0x0(%rip)        # 157e <_start+0xdee>
+    157b:	00 00 00 
+			1576: R_X86_64_PC32	.bss+0x384
+    157e:	c7 05 00 00 00 00 02 	movl   $0x2,0x0(%rip)        # 1588 <_start+0xdf8>
+    1585:	00 00 00 
+			1580: R_X86_64_PC32	.bss+0x38c
+    1588:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 158f <_start+0xdff>
+			158b: R_X86_64_PC32	.bss+0x39c
+    158f:	0f 85 e9 f4 ff ff    	jne    a7e <_start+0x2ee>
+    1595:	48 b8 01 00 00 00 02 	movabs $0x200000001,%rax
+    159c:	00 00 00 
+    159f:	c7 05 00 00 00 00 05 	movl   $0x5,0x0(%rip)        # 15a9 <_start+0xe19>
+    15a6:	00 00 00 
+			15a1: R_X86_64_PC32	.bss+0x27c
+    15a9:	48 89 05 00 00 00 00 	mov    %rax,0x0(%rip)        # 15b0 <_start+0xe20>
+			15ac: R_X86_64_PC32	.bss+0x3a4
+    15b0:	e9 c9 f4 ff ff       	jmp    a7e <_start+0x2ee>
+    15b5:	31 c0                	xor    %eax,%eax
+    15b7:	b9 41 00 00 00       	mov    $0x41,%ecx
+    15bc:	4c 89 f7             	mov    %r14,%rdi
+    15bf:	be 14 00 00 00       	mov    $0x14,%esi
+    15c4:	f3 48 ab             	rep stos %rax,(%rdi)
+    15c7:	48 8d 94 24 88 00 00 	lea    0x88(%rsp),%rdx
+    15ce:	00 
+    15cf:	bf 00 00 00 00       	mov    $0x0,%edi
+			15d0: R_X86_64_32	.bss+0x4a0
+    15d4:	e8 00 00 00 00       	call   15d9 <_start+0xe49>
+			15d5: R_X86_64_PLT32	dg_init-0x4
+    15d9:	85 c0                	test   %eax,%eax
+    15db:	0f 84 19 01 00 00    	je     16fa <_start+0xf6a>
+    15e1:	b8 01 00 00 00       	mov    $0x1,%eax
+    15e6:	bf 00 00 00 00       	mov    $0x0,%edi
+			15e7: R_X86_64_32	.rodata.str1.1
+    15eb:	be 0f 00 00 00       	mov    $0xf,%esi
+    15f0:	31 d2                	xor    %edx,%edx
+    15f2:	cd 80                	int    $0x80
+    15f4:	b8 01 00 00 00       	mov    $0x1,%eax
+    15f9:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    15fe:	be 01 00 00 00       	mov    $0x1,%esi
+    1603:	66 c7 44 24 68 35 36 	movw   $0x3635,0x68(%rsp)
+    160a:	cd 80                	int    $0x80
+    160c:	b8 01 00 00 00       	mov    $0x1,%eax
+    1611:	4c 89 ff             	mov    %r15,%rdi
+    1614:	cd 80                	int    $0x80
+    1616:	b8 01 00 00 00       	mov    $0x1,%eax
+    161b:	bf 00 00 00 00       	mov    $0x0,%edi
+			161c: R_X86_64_32	.rodata.str1.8+0x300
+    1620:	be 22 00 00 00       	mov    $0x22,%esi
+    1625:	cd 80                	int    $0x80
+    1627:	b8 02 00 00 00       	mov    $0x2,%eax
+    162c:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1631:	48 89 d6             	mov    %rdx,%rsi
+    1634:	cd 80                	int    $0x80
+    1636:	eb fe                	jmp    1636 <_start+0xea6>
+    1638:	b8 01 00 00 00       	mov    $0x1,%eax
+    163d:	e9 3b f3 ff ff       	jmp    97d <_start+0x1ed>
+    1642:	b8 02 00 00 00       	mov    $0x2,%eax
+    1647:	e9 31 f3 ff ff       	jmp    97d <_start+0x1ed>
+    164c:	8b 05 00 00 00 00    	mov    0x0(%rip),%eax        # 1652 <_start+0xec2>
+			164e: R_X86_64_PC32	.bss+0x27c
+    1652:	31 c9                	xor    %ecx,%ecx
+    1654:	48 ba 2d 7f 95 4c 2d 	movabs $0x5851f42d4c957f2d,%rdx
+    165b:	f4 51 58 
+    165e:	48 be 6d bd 5b 8c c6 	movabs $0x59607bc68c5bbd6d,%rsi
+    1665:	7b 60 59 
+    1668:	48 89 d7             	mov    %rdx,%rdi
+    166b:	83 e8 01             	sub    $0x1,%eax
+    166e:	4c 8b 84 c4 38 01 00 	mov    0x138(%rsp,%rax,8),%r8
+    1675:	00 
+    1676:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    167d:	00 00 00 
+    1680:	48 89 d0             	mov    %rdx,%rax
+    1683:	48 c1 e8 1f          	shr    $0x1f,%rax
+    1687:	48 31 d0             	xor    %rdx,%rax
+    168a:	48 01 fa             	add    %rdi,%rdx
+    168d:	25 ff 03 00 00       	and    $0x3ff,%eax
+    1692:	48 01 c1             	add    %rax,%rcx
+    1695:	48 39 f2             	cmp    %rsi,%rdx
+    1698:	75 e6                	jne    1680 <_start+0xef0>
+    169a:	49 39 c8             	cmp    %rcx,%r8
+    169d:	0f 84 b6 f5 ff ff    	je     c59 <_start+0x4c9>
+    16a3:	b8 01 00 00 00       	mov    $0x1,%eax
+    16a8:	bf 00 00 00 00       	mov    $0x0,%edi
+			16a9: R_X86_64_32	.rodata.str1.1
+    16ad:	be 0f 00 00 00       	mov    $0xf,%esi
+    16b2:	31 d2                	xor    %edx,%edx
+    16b4:	cd 80                	int    $0x80
+    16b6:	b8 01 00 00 00       	mov    $0x1,%eax
+    16bb:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    16c0:	be 01 00 00 00       	mov    $0x1,%esi
+    16c5:	66 c7 44 24 68 37 35 	movw   $0x3537,0x68(%rsp)
+    16cc:	cd 80                	int    $0x80
+    16ce:	b8 01 00 00 00       	mov    $0x1,%eax
+    16d3:	4c 89 ff             	mov    %r15,%rdi
+    16d6:	cd 80                	int    $0x80
+    16d8:	b8 01 00 00 00       	mov    $0x1,%eax
+    16dd:	bf 00 00 00 00       	mov    $0x0,%edi
+			16de: R_X86_64_32	.rodata.str1.8+0x238
+    16e2:	be 26 00 00 00       	mov    $0x26,%esi
+    16e7:	cd 80                	int    $0x80
+    16e9:	b8 02 00 00 00       	mov    $0x2,%eax
+    16ee:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    16f3:	48 89 d6             	mov    %rdx,%rsi
+    16f6:	cd 80                	int    $0x80
+    16f8:	eb fe                	jmp    16f8 <_start+0xf68>
+    16fa:	31 d2                	xor    %edx,%edx
+    16fc:	45 31 c0             	xor    %r8d,%r8d
+    16ff:	31 c9                	xor    %ecx,%ecx
+    1701:	be 01 00 00 00       	mov    $0x1,%esi
+    1706:	89 54 24 2c          	mov    %edx,0x2c(%rsp)
+    170a:	4c 8d 4c 24 28       	lea    0x28(%rsp),%r9
+    170f:	ba 01 00 00 00       	mov    $0x1,%edx
+    1714:	bf 00 00 00 00       	mov    $0x0,%edi
+			1715: R_X86_64_32	.bss+0x4a0
+    1719:	e8 00 00 00 00       	call   171e <_start+0xf8e>
+			171a: R_X86_64_PLT32	dg_append-0x4
+    171e:	85 c0                	test   %eax,%eax
+    1720:	0f 84 5e 01 00 00    	je     1884 <_start+0x10f4>
+    1726:	b8 01 00 00 00       	mov    $0x1,%eax
+    172b:	bf 00 00 00 00       	mov    $0x0,%edi
+			172c: R_X86_64_32	.rodata.str1.1
+    1730:	be 0f 00 00 00       	mov    $0xf,%esi
+    1735:	31 d2                	xor    %edx,%edx
+    1737:	cd 80                	int    $0x80
+    1739:	b8 01 00 00 00       	mov    $0x1,%eax
+    173e:	48 8d 7c 24 31       	lea    0x31(%rsp),%rdi
+    1743:	be 01 00 00 00       	mov    $0x1,%esi
+    1748:	66 c7 44 24 30 36 36 	movw   $0x3636,0x30(%rsp)
+    174f:	cd 80                	int    $0x80
+    1751:	b8 01 00 00 00       	mov    $0x1,%eax
+    1756:	48 8d 7c 24 30       	lea    0x30(%rsp),%rdi
+    175b:	cd 80                	int    $0x80
+    175d:	b8 01 00 00 00       	mov    $0x1,%eax
+    1762:	bf 00 00 00 00       	mov    $0x0,%edi
+			1763: R_X86_64_32	.rodata.str1.8+0x328
+    1767:	be ed 00 00 00       	mov    $0xed,%esi
+    176c:	cd 80                	int    $0x80
+    176e:	b8 02 00 00 00       	mov    $0x2,%eax
+    1773:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1778:	48 89 d6             	mov    %rdx,%rsi
+    177b:	cd 80                	int    $0x80
+    177d:	eb fe                	jmp    177d <_start+0xfed>
+    177f:	b8 01 00 00 00       	mov    $0x1,%eax
+    1784:	bf 00 00 00 00       	mov    $0x0,%edi
+			1785: R_X86_64_32	.rodata.str1.1
+    1789:	be 0f 00 00 00       	mov    $0xf,%esi
+    178e:	31 d2                	xor    %edx,%edx
+    1790:	cd 80                	int    $0x80
+    1792:	b8 01 00 00 00       	mov    $0x1,%eax
+    1797:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    179c:	be 01 00 00 00       	mov    $0x1,%esi
+    17a1:	66 c7 44 24 68 33 35 	movw   $0x3533,0x68(%rsp)
+    17a8:	cd 80                	int    $0x80
+    17aa:	b8 01 00 00 00       	mov    $0x1,%eax
+    17af:	4c 89 ff             	mov    %r15,%rdi
+    17b2:	cd 80                	int    $0x80
+    17b4:	b8 01 00 00 00       	mov    $0x1,%eax
+    17b9:	bf 00 00 00 00       	mov    $0x0,%edi
+			17ba: R_X86_64_32	.rodata.str1.8+0xf0
+    17be:	be 95 00 00 00       	mov    $0x95,%esi
+    17c3:	cd 80                	int    $0x80
+    17c5:	b8 02 00 00 00       	mov    $0x2,%eax
+    17ca:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    17cf:	48 89 d6             	mov    %rdx,%rsi
+    17d2:	cd 80                	int    $0x80
+    17d4:	eb fe                	jmp    17d4 <_start+0x1044>
+    17d6:	b8 01 00 00 00       	mov    $0x1,%eax
+    17db:	bf 00 00 00 00       	mov    $0x0,%edi
+			17dc: R_X86_64_32	.rodata.str1.1
+    17e0:	be 0f 00 00 00       	mov    $0xf,%esi
+    17e5:	31 d2                	xor    %edx,%edx
+    17e7:	cd 80                	int    $0x80
+    17e9:	b8 01 00 00 00       	mov    $0x1,%eax
+    17ee:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    17f3:	be 01 00 00 00       	mov    $0x1,%esi
+    17f8:	66 c7 44 24 68 36 35 	movw   $0x3536,0x68(%rsp)
+    17ff:	cd 80                	int    $0x80
+    1801:	b8 01 00 00 00       	mov    $0x1,%eax
+    1806:	4c 89 ff             	mov    %r15,%rdi
+    1809:	cd 80                	int    $0x80
+    180b:	b8 01 00 00 00       	mov    $0x1,%eax
+    1810:	bf 00 00 00 00       	mov    $0x0,%edi
+			1811: R_X86_64_32	.rodata.str1.8+0x1d8
+    1815:	be 59 00 00 00       	mov    $0x59,%esi
+    181a:	cd 80                	int    $0x80
+    181c:	b8 02 00 00 00       	mov    $0x2,%eax
+    1821:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1826:	48 89 d6             	mov    %rdx,%rsi
+    1829:	cd 80                	int    $0x80
+    182b:	eb fe                	jmp    182b <_start+0x109b>
+    182d:	b8 01 00 00 00       	mov    $0x1,%eax
+    1832:	bf 00 00 00 00       	mov    $0x0,%edi
+			1833: R_X86_64_32	.rodata.str1.1
+    1837:	be 0f 00 00 00       	mov    $0xf,%esi
+    183c:	31 d2                	xor    %edx,%edx
+    183e:	cd 80                	int    $0x80
+    1840:	b8 01 00 00 00       	mov    $0x1,%eax
+    1845:	48 8d 7c 24 69       	lea    0x69(%rsp),%rdi
+    184a:	be 01 00 00 00       	mov    $0x1,%esi
+    184f:	66 c7 44 24 68 37 35 	movw   $0x3537,0x68(%rsp)
+    1856:	cd 80                	int    $0x80
+    1858:	b8 01 00 00 00       	mov    $0x1,%eax
+    185d:	4c 89 ff             	mov    %r15,%rdi
+    1860:	cd 80                	int    $0x80
+    1862:	b8 01 00 00 00       	mov    $0x1,%eax
+    1867:	bf 00 00 00 00       	mov    $0x0,%edi
+			1868: R_X86_64_32	.rodata.str1.8+0x260
+    186c:	be 2a 00 00 00       	mov    $0x2a,%esi
+    1871:	cd 80                	int    $0x80
+    1873:	b8 02 00 00 00       	mov    $0x2,%eax
+    1878:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    187d:	48 89 d6             	mov    %rdx,%rsi
+    1880:	cd 80                	int    $0x80
+    1882:	eb fe                	jmp    1882 <_start+0x10f2>
+    1884:	48 8d 6c 24 48       	lea    0x48(%rsp),%rbp
+    1889:	31 f6                	xor    %esi,%esi
+    188b:	bf 00 00 00 00       	mov    $0x0,%edi
+			188c: R_X86_64_32	.bss+0x4a0
+    1890:	48 89 ea             	mov    %rbp,%rdx
+    1893:	e8 00 00 00 00       	call   1898 <_start+0x1108>
+			1894: R_X86_64_PLT32	dg_claim-0x4
+    1898:	85 c0                	test   %eax,%eax
+    189a:	0f 85 86 fe ff ff    	jne    1726 <_start+0xf96>
+    18a0:	4c 8d 4c 24 28       	lea    0x28(%rsp),%r9
+    18a5:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+    18ab:	48 8d 4c 24 2c       	lea    0x2c(%rsp),%rcx
+    18b0:	ba 01 00 00 00       	mov    $0x1,%edx
+    18b5:	be 02 00 00 00       	mov    $0x2,%esi
+    18ba:	bf 00 00 00 00       	mov    $0x0,%edi
+			18bb: R_X86_64_32	.bss+0x4a0
+    18bf:	e8 00 00 00 00       	call   18c4 <_start+0x1134>
+			18c0: R_X86_64_PLT32	dg_append-0x4
+    18c4:	85 c0                	test   %eax,%eax
+    18c6:	0f 85 5a fe ff ff    	jne    1726 <_start+0xf96>
+    18cc:	48 83 ec 20          	sub    $0x20,%rsp
+    18d0:	b9 08 00 00 00       	mov    $0x8,%ecx
+    18d5:	48 89 ee             	mov    %rbp,%rsi
+    18d8:	ba 07 00 00 00       	mov    $0x7,%edx
+    18dd:	48 89 e7             	mov    %rsp,%rdi
+    18e0:	f3 a5                	rep movsl (%rsi),(%rdi)
+    18e2:	be 03 00 00 00       	mov    $0x3,%esi
+    18e7:	bf 00 00 00 00       	mov    $0x0,%edi
+			18e8: R_X86_64_32	.bss+0x4a0
+    18ec:	e8 00 00 00 00       	call   18f1 <_start+0x1161>
+			18ed: R_X86_64_PLT32	dg_finish-0x4
+    18f1:	48 83 c4 20          	add    $0x20,%rsp
+    18f5:	85 c0                	test   %eax,%eax
+    18f7:	0f 85 29 fe ff ff    	jne    1726 <_start+0xf96>
+    18fd:	31 f6                	xor    %esi,%esi
+    18ff:	4c 89 fa             	mov    %r15,%rdx
+    1902:	bf 00 00 00 00       	mov    $0x0,%edi
+			1903: R_X86_64_32	.bss+0x4a0
+    1907:	e8 00 00 00 00       	call   190c <_start+0x117c>
+			1908: R_X86_64_PLT32	dg_claim-0x4
+    190c:	85 c0                	test   %eax,%eax
+    190e:	0f 85 12 fe ff ff    	jne    1726 <_start+0xf96>
+    1914:	48 83 7c 24 70 09    	cmpq   $0x9,0x70(%rsp)
+    191a:	0f 85 06 fe ff ff    	jne    1726 <_start+0xf96>
+    1920:	48 83 ec 20          	sub    $0x20,%rsp
+    1924:	b9 08 00 00 00       	mov    $0x8,%ecx
+    1929:	4c 89 fe             	mov    %r15,%rsi
+    192c:	ba 09 00 00 00       	mov    $0x9,%edx
+    1931:	48 89 e7             	mov    %rsp,%rdi
+    1934:	f3 a5                	rep movsl (%rsi),(%rdi)
+    1936:	be 03 00 00 00       	mov    $0x3,%esi
+    193b:	bf 00 00 00 00       	mov    $0x0,%edi
+			193c: R_X86_64_32	.bss+0x4a0
+    1940:	e8 00 00 00 00       	call   1945 <_start+0x11b5>
+			1941: R_X86_64_PLT32	dg_finish-0x4
+    1945:	48 83 c4 20          	add    $0x20,%rsp
+    1949:	85 c0                	test   %eax,%eax
+    194b:	0f 85 d5 fd ff ff    	jne    1726 <_start+0xf96>
+    1951:	4c 8d 4c 24 28       	lea    0x28(%rsp),%r9
+    1956:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+    195c:	48 8d 4c 24 2c       	lea    0x2c(%rsp),%rcx
+    1961:	ba 01 00 00 00       	mov    $0x1,%edx
+    1966:	be 03 00 00 00       	mov    $0x3,%esi
+    196b:	bf 00 00 00 00       	mov    $0x0,%edi
+			196c: R_X86_64_32	.bss+0x4a0
+    1970:	c7 44 24 2c 01 00 00 	movl   $0x1,0x2c(%rsp)
+    1977:	00 
+    1978:	e8 00 00 00 00       	call   197d <_start+0x11ed>
+			1979: R_X86_64_PLT32	dg_append-0x4
+    197d:	85 c0                	test   %eax,%eax
+    197f:	0f 84 40 01 00 00    	je     1ac5 <_start+0x1335>
+    1985:	b8 01 00 00 00       	mov    $0x1,%eax
+    198a:	bf 00 00 00 00       	mov    $0x0,%edi
+			198b: R_X86_64_32	.rodata.str1.1
+    198f:	be 0f 00 00 00       	mov    $0xf,%esi
+    1994:	31 d2                	xor    %edx,%edx
+    1996:	cd 80                	int    $0x80
+    1998:	b8 01 00 00 00       	mov    $0x1,%eax
+    199d:	48 8d 7c 24 31       	lea    0x31(%rsp),%rdi
+    19a2:	be 01 00 00 00       	mov    $0x1,%esi
+    19a7:	66 c7 44 24 30 37 36 	movw   $0x3637,0x30(%rsp)
+    19ae:	cd 80                	int    $0x80
+    19b0:	b8 01 00 00 00       	mov    $0x1,%eax
+    19b5:	48 8d 7c 24 30       	lea    0x30(%rsp),%rdi
+    19ba:	cd 80                	int    $0x80
+    19bc:	b8 01 00 00 00       	mov    $0x1,%eax
+    19c1:	bf 00 00 00 00       	mov    $0x0,%edi
+			19c2: R_X86_64_32	.rodata.str1.8+0x418
+    19c6:	be b3 00 00 00       	mov    $0xb3,%esi
+    19cb:	cd 80                	int    $0x80
+    19cd:	b8 02 00 00 00       	mov    $0x2,%eax
+    19d2:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    19d7:	48 89 d6             	mov    %rdx,%rsi
+    19da:	cd 80                	int    $0x80
+    19dc:	eb fe                	jmp    19dc <_start+0x124c>
+    19de:	48 8b 54 24 18       	mov    0x18(%rsp),%rdx
+    19e3:	b8 01 00 00 00       	mov    $0x1,%eax
+    19e8:	bf 00 00 00 00       	mov    $0x0,%edi
+			19e9: R_X86_64_32	.rodata.str1.1
+    19ed:	be 0f 00 00 00       	mov    $0xf,%esi
+    19f2:	cd 80                	int    $0x80
+    19f4:	b8 01 00 00 00       	mov    $0x1,%eax
+    19f9:	48 8d bc 24 89 00 00 	lea    0x89(%rsp),%rdi
+    1a00:	00 
+    1a01:	66 c7 84 24 88 00 00 	movw   $0x3534,0x88(%rsp)
+    1a08:	00 34 35 
+    1a0b:	be 01 00 00 00       	mov    $0x1,%esi
+    1a10:	cd 80                	int    $0x80
+    1a12:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a17:	4c 89 f7             	mov    %r14,%rdi
+    1a1a:	cd 80                	int    $0x80
+    1a1c:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a21:	bf 00 00 00 00       	mov    $0x0,%edi
+			1a22: R_X86_64_32	.rodata.str1.1+0x57
+    1a26:	be 1d 00 00 00       	mov    $0x1d,%esi
+    1a2b:	cd 80                	int    $0x80
+    1a2d:	b8 02 00 00 00       	mov    $0x2,%eax
+    1a32:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1a37:	48 89 d6             	mov    %rdx,%rsi
+    1a3a:	cd 80                	int    $0x80
+    1a3c:	eb fe                	jmp    1a3c <_start+0x12ac>
+    1a3e:	48 8b 54 24 18       	mov    0x18(%rsp),%rdx
+    1a43:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a48:	bf 00 00 00 00       	mov    $0x0,%edi
+			1a49: R_X86_64_32	.rodata.str1.8+0x1b0
+    1a4d:	be 20 00 00 00       	mov    $0x20,%esi
+    1a52:	cd 80                	int    $0x80
+    1a54:	b8 02 00 00 00       	mov    $0x2,%eax
+    1a59:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1a5e:	48 89 d6             	mov    %rdx,%rsi
+    1a61:	cd 80                	int    $0x80
+    1a63:	eb fe                	jmp    1a63 <_start+0x12d3>
+    1a65:	48 8b 54 24 18       	mov    0x18(%rsp),%rdx
+    1a6a:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a6f:	bf 00 00 00 00       	mov    $0x0,%edi
+			1a70: R_X86_64_32	.rodata.str1.1
+    1a74:	be 0f 00 00 00       	mov    $0xf,%esi
+    1a79:	cd 80                	int    $0x80
+    1a7b:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a80:	48 8d bc 24 89 00 00 	lea    0x89(%rsp),%rdi
+    1a87:	00 
+    1a88:	66 c7 84 24 88 00 00 	movw   $0x3534,0x88(%rsp)
+    1a8f:	00 34 35 
+    1a92:	be 01 00 00 00       	mov    $0x1,%esi
+    1a97:	cd 80                	int    $0x80
+    1a99:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a9e:	4c 89 f7             	mov    %r14,%rdi
+    1aa1:	cd 80                	int    $0x80
+    1aa3:	b8 01 00 00 00       	mov    $0x1,%eax
+    1aa8:	bf 00 00 00 00       	mov    $0x0,%edi
+			1aa9: R_X86_64_32	.rodata.str1.8+0x188
+    1aad:	be 22 00 00 00       	mov    $0x22,%esi
+    1ab2:	cd 80                	int    $0x80
+    1ab4:	b8 02 00 00 00       	mov    $0x2,%eax
+    1ab9:	bf 5b 00 00 00       	mov    $0x5b,%edi
+    1abe:	48 89 d6             	mov    %rdx,%rsi
+    1ac1:	cd 80                	int    $0x80
+    1ac3:	eb fe                	jmp    1ac3 <_start+0x1333>
+    1ac5:	31 f6                	xor    %esi,%esi
+    1ac7:	48 89 ea             	mov    %rbp,%rdx
+    1aca:	bf 00 00 00 00       	mov    $0x0,%edi
+			1acb: R_X86_64_32	.bss+0x4a0
+    1acf:	e8 00 00 00 00       	call   1ad4 <_start+0x1344>
+			1ad0: R_X86_64_PLT32	dg_claim-0x4
+    1ad4:	85 c0                	test   %eax,%eax
+    1ad6:	0f 85 a9 fe ff ff    	jne    1985 <_start+0x11f5>
+    1adc:	48 83 7c 24 50 0c    	cmpq   $0xc,0x50(%rsp)
+    1ae2:	0f 85 9d fe ff ff    	jne    1985 <_start+0x11f5>
+    1ae8:	48 83 ec 20          	sub    $0x20,%rsp
+    1aec:	48 89 ee             	mov    %rbp,%rsi
+    1aef:	b9 08 00 00 00       	mov    $0x8,%ecx
+    1af4:	ba 0c 00 00 00       	mov    $0xc,%edx
+    1af9:	48 89 e7             	mov    %rsp,%rdi
+    1afc:	f3 a5                	rep movsl (%rsi),(%rdi)
+    1afe:	be 03 00 00 00       	mov    $0x3,%esi
+    1b03:	bf 00 00 00 00       	mov    $0x0,%edi
+			1b04: R_X86_64_32	.bss+0x4a0
+    1b08:	48 89 cb             	mov    %rcx,%rbx
+    1b0b:	e8 00 00 00 00       	call   1b10 <_start+0x1380>
+			1b0c: R_X86_64_PLT32	dg_finish-0x4
+    1b10:	48 83 c4 20          	add    $0x20,%rsp
+    1b14:	85 c0                	test   %eax,%eax
+    1b16:	0f 85 69 fe ff ff    	jne    1985 <_start+0x11f5>
+    1b1c:	bf 00 00 00 00       	mov    $0x0,%edi
+			1b1d: R_X86_64_32	.bss+0x4a0
+    1b21:	e8 00 00 00 00       	call   1b26 <_start+0x1396>
+			1b22: R_X86_64_PLT32	dg_seal-0x4
+    1b26:	85 c0                	test   %eax,%eax
+    1b28:	0f 85 57 fe ff ff    	jne    1985 <_start+0x11f5>
+    1b2e:	bf 00 00 00 00       	mov    $0x0,%edi
+			1b2f: R_X86_64_32	.bss+0x4a0
+    1b33:	e8 00 00 00 00       	call   1b38 <_start+0x13a8>
+			1b34: R_X86_64_PLT32	dg_drained-0x4
+    1b38:	85 c0                	test   %eax,%eax
+    1b3a:	0f 85 45 fe ff ff    	jne    1985 <_start+0x11f5>
+    1b40:	b8 01 00 00 00       	mov    $0x1,%eax
+    1b45:	bf 00 00 00 00       	mov    $0x0,%edi
+			1b46: R_X86_64_32	.rodata.str1.8+0x4d0
+    1b4a:	be 76 00 00 00       	mov    $0x76,%esi
+    1b4f:	48 89 da             	mov    %rbx,%rdx
+    1b52:	cd 80                	int    $0x80
+    1b54:	b8 02 00 00 00       	mov    $0x2,%eax
+    1b59:	48 89 df             	mov    %rbx,%rdi
+    1b5c:	48 89 de             	mov    %rbx,%rsi
+    1b5f:	cd 80                	int    $0x80
+    1b61:	eb fe                	jmp    1b61 <_start+0x13d1>

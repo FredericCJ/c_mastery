@@ -1,0 +1,21 @@
+
+Breakpoint 1, dx_marker (stage=50) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	#define DIAG(x) ((void)0)
+#1  0x00005c7c14c947ef in main (argc=2, argv=0x7ffee89341a8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"scope")){int status=2;int result=dx_scope(status);result+=dx_inline_scope(status);dx_marker(21);printf("SCOPES:%d:%d\n",status,result);return dx_tail(0)!=1;}
+
+Breakpoint 3, dx_marker (stage=51) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	#define DIAG(x) ((void)0)
+
+Breakpoint 4, dx_marker (stage=52) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	#define DIAG(x) ((void)0)
+#1  0x00005c7c14c9484e in main (argc=2, argv=0x7ffee89341a8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"scope")){int status=2;int result=dx_scope(status);result+=dx_inline_scope(status);dx_marker(21);printf("SCOPES:%d:%d\n",status,result);return dx_tail(0)!=1;}
+
+Hardware watchpoint 5: *p
+
+Old value = 4
+New value = 5
+0x00005c7c14c94858 in main (argc=2, argv=0x7ffee89341a8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"scope")){int status=2;int result=dx_scope(status);result+=dx_inline_scope(status);dx_marker(21);printf("SCOPES:%d:%d\n",status,result);return dx_tail(0)!=1;}
+DX_GDB_JSON:{"mode": "relocate", "records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set print pretty off", "output": ""}, {"command": "set debuginfod enabled off", "output": ""}, {"command": "break dx_marker if stage == 50", "output": "Breakpoint 1 at 0x12b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "run relocate", "output": "[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\nwarning: Source file is more recent than executable.\n"}, {"command": "up", "output": ""}, {"command": "print p", "output": "$1 = (unsigned int *) 0x5c7c3528a010\n"}, {"command": "watch *p", "output": "Hardware watchpoint 2: *p\n"}, {"command": "delete 1", "output": ""}, {"command": "break dx_marker if stage == 51", "output": "Breakpoint 3 at 0x5c7c14c942b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "continue", "output": ""}, {"command": "delete 2", "output": ""}, {"command": "delete 3", "output": ""}, {"command": "break dx_marker if stage == 52", "output": "Breakpoint 4 at 0x5c7c14c942b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "continue", "output": ""}, {"command": "up", "output": ""}, {"command": "print p", "output": "$2 = (unsigned int *) 0x5c7c3528a030\n"}, {"command": "watch *p", "output": "Hardware watchpoint 5: *p\n"}, {"command": "continue", "output": ""}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n4       breakpoint     keep y   0x00005c7c14c942b4 in dx_marker at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23\n\tstop only if stage == 52\n\tbreakpoint already hit 1 time\n5       hw watchpoint  keep y                      *p\n\tbreakpoint already hit 1 time\n"}, {"command": "print *p", "output": "$3 = 5\n"}], "heap": "not-captured", "ASLR": "preserved", "scope": "bounded debugger observation;not full execution history"}

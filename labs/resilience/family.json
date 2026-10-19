@@ -8,63 +8,74 @@
     {
       "id": "PR-T75-01",
       "tests": [
-        "resilience.deadline"
+        "resilience.deadline",
+        "resilience.scope_follow"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-02",
       "tests": [
-        "resilience.pressure"
+        "resilience.pressure",
+        "resilience.pressure_owned"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-03",
       "tests": [
-        "resilience.wheel"
+        "resilience.wheel",
+        "resilience.timer_structures"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-04",
       "tests": [
-        "resilience.bucket"
+        "resilience.bucket",
+        "resilience.fractional_follow"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-05",
       "tests": [
-        "resilience.retry"
+        "resilience.retry",
+        "resilience.retry_transport"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-06",
       "tests": [
-        "resilience.gate"
+        "resilience.gate",
+        "resilience.breaker_window"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-07",
       "tests": [
-        "resilience.hedge"
+        "resilience.hedge",
+        "resilience.hedge_owned"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-08",
       "tests": [
-        "resilience.receiver"
+        "resilience.receiver",
+        "resilience.receiver_journal"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T75-09",
       "tests": [
-        "resilience.service"
+        "resilience.service",
+        "resilience.service_outbox",
+        "resilience.service_io",
+        "resilience.service_transport"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     }
@@ -85,7 +96,8 @@
         "T75.01.d"
       ],
       "tests": [
-        "resilience.deadline"
+        "resilience.deadline",
+        "resilience.scope_follow"
       ],
       "steps": [
         "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
@@ -185,7 +197,8 @@
         "T75.01.d"
       ],
       "tests": [
-        "resilience.deadline"
+        "resilience.deadline",
+        "resilience.scope_follow"
       ],
       "steps": [
         "Exhaust now0–16/budget0–16 across parent/child creation and every cancellation/finish permutation for two borrowers. Use mathematical min and arbitrary-precision addition as an oracle. Test UINT64_MAX edges and chain depth8/9. Compare Go Context documented cancellation and deadline behavior with the C runtime checks and caller lifetime discipline; never infer acknowledgement from an atomic flag.",
@@ -285,7 +298,8 @@
         "T75.02.d"
       ],
       "tests": [
-        "resilience.pressure"
+        "resilience.pressure",
+        "resilience.pressure_owned"
       ],
       "steps": [
         "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
@@ -385,7 +399,8 @@
         "T75.02.d"
       ],
       "tests": [
-        "resilience.pressure"
+        "resilience.pressure",
+        "resilience.pressure_owned"
       ],
       "steps": [
         "Enumerate all policies at count0,1,3,4 with pending/closed/cancelled/expired states. Compare exact sequences with an independent list model. Drive a real MsgHub capacity1 to FULL and assert head preservation, then drain and retry. In the original malicious schedule, generate a burst beyond admission capacity and observe only bounded logical message loss/coalescing; no external traffic or host settings are involved.",
@@ -485,7 +500,8 @@
         "T75.03.d"
       ],
       "tests": [
-        "resilience.wheel"
+        "resilience.wheel",
+        "resilience.timer_structures"
       ],
       "steps": [
         "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
@@ -580,7 +596,8 @@
         "T75.03.d"
       ],
       "tests": [
-        "resilience.wheel"
+        "resilience.wheel",
+        "resilience.timer_structures"
       ],
       "steps": [
         "Use an independent sorted map of absolute due times, not another wheel. Exhaust pairs of due1..16 and every cancellation point; verify back-links after each step. Add a delayed-clock jump that crosses three revolutions and either process all missed ticks or specify a bounded late-fire policy. Record the selected scheduler decision before measurement; historical paper VAX numbers are source observations only.",
@@ -675,7 +692,8 @@
         "T75.04.d"
       ],
       "tests": [
-        "resilience.bucket"
+        "resilience.bucket",
+        "resilience.fractional_follow"
       ],
       "steps": [
         "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
@@ -775,7 +793,8 @@
         "T75.04.d"
       ],
       "tests": [
-        "resilience.bucket"
+        "resilience.bucket",
+        "resilience.fractional_follow"
       ],
       "steps": [
         "For capacity/rate1..16 and elapsed0..19, compare every single-step refill/spend with integer arithmetic; add UINT64_MAX gaps. Generate length0–6 cost/time sequences with same-time bursts, backward time and impossible costs. Preserve fractional remainder in the extension and verify splitting an idle interval does not change credit. Do not execute tc or modify host network policy.",
@@ -875,7 +894,8 @@
         "T75.05.d"
       ],
       "tests": [
-        "resilience.retry"
+        "resilience.retry",
+        "resilience.retry_transport"
       ],
       "steps": [
         "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
@@ -980,7 +1000,8 @@
         "T75.05.d"
       ],
       "tests": [
-        "resilience.retry"
+        "resilience.retry",
+        "resilience.retry_transport"
       ],
       "steps": [
         "Use arbitrary-precision min(cap,base*2^k) and a finite draw enumeration oracle. For unbiased selection, enumerate a small synthetic random source and count accepted residues exactly; do not equate one histogram with proof of randomness. Trace original attempt plus retries, limiter charges, pending completions and cancellation. Security demonstration remains synthetic retry amplification in the teaching model, with bounded requests and no external endpoint.",
@@ -1085,7 +1106,8 @@
         "T75.06.d"
       ],
       "tests": [
-        "resilience.gate"
+        "resilience.gate",
+        "resilience.breaker_window"
       ],
       "steps": [
         "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
@@ -1190,7 +1212,8 @@
         "T75.06.d"
       ],
       "tests": [
-        "resilience.gate"
+        "resilience.gate",
+        "resilience.breaker_window"
       ],
       "steps": [
         "Enumerate admit/fail/succeed/neutral sequences through each finite generation. Test old admission before two failures, then a late success after OPEN. Check capacity and exactly-once release after every event. Use an original synthetic overload trace to demonstrate the missing-limit mutant permits excess work; the stale-epoch mutant reopens traffic after a declared trip. Observe counters/status only, not external service load.",
@@ -1295,7 +1318,8 @@
         "T75.07.d"
       ],
       "tests": [
-        "resilience.hedge"
+        "resilience.hedge",
+        "resilience.hedge_owned"
       ],
       "steps": [
         "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
@@ -1400,7 +1424,8 @@
         "T75.07.d"
       ],
       "tests": [
-        "resilience.hedge"
+        "resilience.hedge",
+        "resilience.hedge_owned"
       ],
       "steps": [
         "Enumerate started/completed masks, both acceptable bits, completion orders and deadline equality. Assert first acceptable value stability and that quiescence means every started attempt terminated. Count active permits until loser acknowledgement. The public model is serialized; concurrent correctness requires the submitted arbiter and its synchronization proof, not merely passing this model.",
@@ -1505,7 +1530,8 @@
         "T75.08.d"
       ],
       "tests": [
-        "resilience.receiver"
+        "resilience.receiver",
+        "resilience.receiver_journal"
       ],
       "steps": [
         "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
@@ -1605,7 +1631,8 @@
         "T75.08.d"
       ],
       "tests": [
-        "resilience.receiver"
+        "resilience.receiver",
+        "resilience.receiver_journal"
       ],
       "steps": [
         "Enumerate client0..1, id1..3, delta-1..1, same/different payload, fence1..3 and every expiry boundary. Use a map of original requests/results plus a scalar high-water fence as the oracle. Attacker capability is replay/reorder or changing admitted request fields in this isolated original receiver; success is a synthetic counter change forbidden by the stated fence policy, or acceptance of conflicting intent. Repair and verify both rejection and unchanged effect. No real credentials, storage service or deployment is targeted.",
@@ -1705,7 +1732,10 @@
         "T75.09.d"
       ],
       "tests": [
-        "resilience.service"
+        "resilience.service",
+        "resilience.service_outbox",
+        "resilience.service_io",
+        "resilience.service_transport"
       ],
       "steps": [
         "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
@@ -1815,7 +1845,10 @@
         "T75.09.d"
       ],
       "tests": [
-        "resilience.service"
+        "resilience.service",
+        "resilience.service_outbox",
+        "resilience.service_io",
+        "resilience.service_transport"
       ],
       "steps": [
         "For the public anchor, fill/drain the real MsgHub, close/cancel it and compare pending IDs with receiver records. Mutation1 commits after notification capacity is exhausted; mutation2 discards an item without channel acceptance. For the full integration, enumerate each acquisition/failure prefix and replay randomized seeded event traces with an independent total/effect ledger. Retain exact compiler/link dependencies and actual measured traces. Do not record a simulated timer observation as hardware/network latency.",
@@ -1916,7 +1949,8 @@
       "id": "X-T75-001",
       "project": "PR-T75-01",
       "tests": [
-        "resilience.deadline"
+        "resilience.deadline",
+        "resilience.scope_follow"
       ],
       "capabilities": [
         "linux-c17"
@@ -1926,7 +1960,8 @@
       "id": "X-T75-002",
       "project": "PR-T75-02",
       "tests": [
-        "resilience.pressure"
+        "resilience.pressure",
+        "resilience.pressure_owned"
       ],
       "capabilities": [
         "linux-c17"
@@ -1936,7 +1971,8 @@
       "id": "X-T75-003",
       "project": "PR-T75-03",
       "tests": [
-        "resilience.wheel"
+        "resilience.wheel",
+        "resilience.timer_structures"
       ],
       "capabilities": [
         "linux-c17"
@@ -1946,7 +1982,8 @@
       "id": "X-T75-004",
       "project": "PR-T75-04",
       "tests": [
-        "resilience.bucket"
+        "resilience.bucket",
+        "resilience.fractional_follow"
       ],
       "capabilities": [
         "linux-c17"
@@ -1956,7 +1993,8 @@
       "id": "X-T75-005",
       "project": "PR-T75-05",
       "tests": [
-        "resilience.retry"
+        "resilience.retry",
+        "resilience.retry_transport"
       ],
       "capabilities": [
         "linux-c17"
@@ -1966,7 +2004,8 @@
       "id": "X-T75-006",
       "project": "PR-T75-06",
       "tests": [
-        "resilience.gate"
+        "resilience.gate",
+        "resilience.breaker_window"
       ],
       "capabilities": [
         "linux-c17"
@@ -1976,7 +2015,8 @@
       "id": "X-T75-007",
       "project": "PR-T75-07",
       "tests": [
-        "resilience.hedge"
+        "resilience.hedge",
+        "resilience.hedge_owned"
       ],
       "capabilities": [
         "linux-c17"
@@ -1986,7 +2026,8 @@
       "id": "X-T75-008",
       "project": "PR-T75-08",
       "tests": [
-        "resilience.receiver"
+        "resilience.receiver",
+        "resilience.receiver_journal"
       ],
       "capabilities": [
         "linux-c17"
@@ -1996,7 +2037,10 @@
       "id": "X-T75-009",
       "project": "PR-T75-09",
       "tests": [
-        "resilience.service"
+        "resilience.service",
+        "resilience.service_outbox",
+        "resilience.service_io",
+        "resilience.service_transport"
       ],
       "capabilities": [
         "linux-c17"
@@ -2012,7 +2056,18 @@
     "resilience.gate",
     "resilience.hedge",
     "resilience.receiver",
-    "resilience.service"
+    "resilience.service",
+    "resilience.scope_follow",
+    "resilience.fractional_follow",
+    "resilience.timer_structures",
+    "resilience.retry_transport",
+    "resilience.pressure_owned",
+    "resilience.breaker_window",
+    "resilience.hedge_owned",
+    "resilience.receiver_journal",
+    "resilience.service_outbox",
+    "resilience.service_io",
+    "resilience.service_transport"
   ],
   "modules": [
     "T75"
@@ -2033,10 +2088,14 @@
     ],
     "mutants_per_anchor": 2,
     "assertion_marker": "RZ_CHECK:",
-    "fixture_oracle": "labs/resilience/tests/verify_fixtures.py"
+    "fixture_oracle": "tools/verify_resilience_followthrough.py",
+    "oracle_driver": "resilience-foundation"
   },
   "dependencies": [
-    "messaging"
+    "messaging",
+    "execution",
+    "communications",
+    "hosted_systems"
   ],
   "source_imports": [
     {
@@ -2047,7 +2106,47 @@
       "include": "labs/messaging/include",
       "assessor_source": "assessor/messaging/messaging.c",
       "contract": "labs/messaging/CONTRACTS.md"
+    },
+    {
+      "family": "execution",
+      "artifact": "execution.tasks",
+      "producer": "PR-T50-04",
+      "learner_source": "labs/execution/src/cmx.c",
+      "include": "labs/execution/include",
+      "assessor_source": "assessor/execution/cmx.c",
+      "contract": "curriculum/projects/PR-T50-05.md",
+      "scope": "Actual fixed-array CMX due/cancel outcome intersection; new ordered alternatives have a stronger explicit event contract."
+    },
+    {
+      "family": "communications",
+      "artifact": "communications.tcp_fault",
+      "producer": "PR-T41-06",
+      "learner_source": "labs/communications/learner/v4_com.c",
+      "include": "labs/communications/include",
+      "assessor_source": "assessor/communications/v4_com.c",
+      "contract": "labs/communications/units/LAB-EX-09.md",
+      "scope": "Actual retained NetStack retransmission/net_receive completion via v4_tcp_delivery; explicit net/http/edu7 source dependencies, no production TCP or physical network claim."
+    },
+    {
+      "family": "hosted_systems",
+      "artifact": "io.deadline",
+      "producer": "PR-T24-05",
+      "learner_source": "labs/hosted_systems/src/deadline.c",
+      "include": "labs/hosted_systems/include",
+      "assessor_source": "assessor/hosted_systems/deadline.c",
+      "contract": "labs/hosted_systems/CONTRACTS.md",
+      "scope": "Actual read-until cancellation/deadline and completion-byte aggregation only; new framed partial-write adapter is a separate implementation."
+    },
+    {
+      "family": "hosted_systems",
+      "artifact": "io.reactor",
+      "producer": "PR-T24-04",
+      "learner_source": "labs/hosted_systems/src/reactor.c",
+      "include": "labs/hosted_systems/include",
+      "assessor_source": "assessor/hosted_systems/reactor.c",
+      "contract": "labs/hosted_systems/CONTRACTS.md",
+      "scope": "Actual read-until cancellation/deadline and completion-byte aggregation only; new framed partial-write adapter is a separate implementation."
     }
   ],
-  "scope": "Serialized virtual-time models plus actual nonblocking imported channel; concurrent, local I/O and durable extensions require separate evidence."
+  "scope": "Retained virtual models plus owned native concurrency, local framed I/O and bounded durable journal/outbox successors. Exact executed scopes, external assessment and physical evidence remain separate."
 }

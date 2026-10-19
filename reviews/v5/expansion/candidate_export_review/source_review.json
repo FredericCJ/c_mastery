@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "reviewed-no-blocking-findings-in-bounded-scope",
+  "review_kind": "author-team source review; not independent human review",
+  "created_utc": "2026-10-18T14:03:01.096205+00:00",
+  "source_sha256": {
+    "tools/check_candidate_exports_v5.py": "fa1187bf0f8705a7e101732fe5ba9ead99a7e4690b20d29f6ede5e17ef5c03ca",
+    "tools/package_v4.py": "554444c46c9fe006109125a2ff749f36a78374088cf01056325e5fbfe3bee025",
+    "tools/package_v5.py": "cf59cda8d10a8f50981707ff41be8f87272e7560078d6108996fa45ed0408c6f",
+    "tools/package.py": "3558e67a5805fd0af2105846050e7fcb425d178ce9756c68185260c73af87bed",
+    "tools/build_v5.py": "cc196c9624528b46654ed9f10a09c2dea11acbda0d5108f24469b7fafe87dbc7",
+    "tools/check_release_v5.py": "99f3910e08fef6f91f28a04d99324f530e5382fc3ade53cd0dc9c9d85bdb6f7b",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4"
+  },
+  "scope": [
+    "Actual candidate acceptance/promotion call path",
+    "Fresh directory and archive-member containment",
+    "Reused source/learner/assessor selection and fixed-point contracts",
+    "Canonical source identity before and after extracted regeneration",
+    "Bounded archive/log hashing"
+  ],
+  "initial_findings": [
+    {
+      "id": "candidate-postbuild-source-identity",
+      "finding": "Initial producer compared only HTML/FIXED_POINT and original source identity after extracted build; other regenerated canonical inputs could differ.",
+      "status": "fixed-and-source-reviewed",
+      "fix": "Fresh interpreter with cwd=extracted computes actual extracted canonical identity; verify_identity requires exact files mapping and aggregate equality. Added mutation controls for changed/new/deleted canonical files outside FIXED_POINT."
+    },
+    {
+      "id": "candidate-whole-archive-hash",
+      "finding": "Initial archive/log hashing inherited common.sha with whole-file read_bytes.",
+      "status": "fixed-and-source-reviewed",
+      "fix": "Candidate-local sha now uses hashlib.file_digest; inspected regression forbids Path.read_bytes for archive hashing."
+    }
+  ],
+  "observations": [
+    "No accept or promote call is executed by the inspected candidate producer; success/failure reports explicitly set accepted=false and promoted=false.",
+    "Selectors and writer are reused from package_v4/package_v5/package, including learner exclusions; actual source ZIP bytes are verified against returned entries and canonical identity before build.",
+    "Fresh candidate/extracted directories, pre-extraction member containment, and regular/unredirected source preflight preserve stated local extraction boundaries.",
+    "Actual extracted build runs with cwd=extracted; post-build selector runs in a fresh interpreter in the same extraction and its raw result/stderr/command are retained.",
+    "Exact HTML/file-set comparison, explicit generated fixed-point files, original source identity and all source ZIP inputs are checked after reproduction."
+  ],
+  "executions_performed_by_this_review": [],
+  "remaining_blocking_findings": [],
+  "limitations": [
+    "This review did not execute the full candidate ZIP creation or extracted-source build; those remain required final validation.",
+    "The repository owner reported Windows49 isolated release tests passing with6 symlink skips; this review inspected the four candidate guard definitions rather than claiming their execution.",
+    "No adversarial concurrent filesystem writer, arbitrary third-party archive, host security changes, independent learner assessment or physical observation is covered.",
+    "The shared ZIP writer still hashes individual selected input files via its established helper; the fixed issue concerned whole candidate archives/logs in this producer."
+  ]
+}

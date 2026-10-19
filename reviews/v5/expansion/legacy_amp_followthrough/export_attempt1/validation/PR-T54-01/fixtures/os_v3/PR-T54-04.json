@@ -1,0 +1,25 @@
+{
+  "id": "PR-T54-04",
+  "description": "HSEM and coalesced doorbells finite independent example",
+  "oracle": "doorbell",
+  "input": {
+    "published": [
+      21,
+      22,
+      23
+    ],
+    "interrupts": 1
+  },
+  "expected": {
+    "drained": [
+      21,
+      22,
+      23
+    ],
+    "required_messages": 3,
+    "notification_count": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A hardware semaphore notification signals that shared state may have changed. Several payload publications may produce one pending interrupt, so the receiver must drain authoritative queue state rather than consume one message per interrupt. HSEM ownership and interrupt clearing follow the selected register contract.",
+  "required_observation": "Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately."
+}

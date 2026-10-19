@@ -1,0 +1,42 @@
+# Rescanning, argument boundaries and generated names
+
+## Exact scope and prerequisites
+
+This required companion implements and investigates all twelve ordinary/delayed tasks for T06.02.a–c and T06.03.a–c in PR-T06-01. It extends the existing project; its historical hours and acceptance remain unchanged. The canonical legacy card supplies administration and the shared fourteen-field contract. Families A, B, C, D, F and I/J apply. T06.04/.05 remain separate work.
+
+Prerequisites are the exact T06.01 translation-stage dossier and PR-T02-02 expression/argument reasoning. Learners supply completed learner.h, a token trace, generated-name admission policy, separate preprocessing/semantic logs, and a changed-condition dossier. Use C17 and the recorded GCC/Clang toolchains. Python admission and verification are host tools. The six macro operations allocate nothing and use no implementation extension. The hosted harness may use stdio/string comparison. Do not import a ready-made metaprogramming library.
+
+## Representation and operations
+
+Implement direct stringification, prescanned stringification, direct token pasting and prescanned token pasting. The distinction is contractual, not a cosmetic extra helper. Input tokens used with direct #/## are not prescanned at that occurrence. Input substituted through an outer non-#/## occurrence is expanded before the inner operation. The result is rescanned, with self-reference suppression retained.
+
+LM_FORWARD accepts a valid comma-expression token sequence and shields it with parentheses before invoking the one-argument LM_ID. This is an expression policy, not a generic tuple abstraction. LM_FIRST accepts a single expression of LmPair type and selects first. A compound literal supplied at a macro call must have enclosing parentheses around the complete expression; braces alone do not protect its commas. No ownership, lifetime extension or runtime bounds check is invented by these macros. The six selected facade functions return static strings or int values and own no dynamic resource.
+
+The original name generator admits only the fixed application prefix item_ and1..32 distinct ASCII suffixes beginning with a letter, followed by letters/digits/underscore. It validates every row before writing a C declaration. Empty suffixes are rejected by this publication policy even though the separate placemarker macro experiment admits empty arguments. Input refusal preserves a preexisting output byte-for-byte. This is validation-before-publication, not atomic filesystem replacement under I/O failure or concurrent writers. Output contains stable input-order constants0..n-1. Host work is bounded by input bytes plus the deliberately simple O(n²) duplicate check. No guarantee for arbitrary Unicode C identifiers is claimed.
+
+## Twelve exact investigations
+
+1. **T06.02.a:** Probe1 expands A to B to7 and SELF to SELF+1 with the remaining SELF referring to the already declared object5. Annotate substitution, rescan and suppression; derive6, not an infinite expansion.
+2. **T06.02.a-DELAYED:** Derive TWICE(TWICE(3)) and explain why the inner call expands during argument prescan. Compare exact preprocessed tokens and runtime12. Constants keep this a defined evaluation experiment.
+3. **T06.02.b:** Probe2 includes a real F function and F(x) macro, with G expanding to F. Compare function-designator F/G, F(3), G(3) and (F)(3), including actual function-pointer calls. Derive13,13,4,4,13.
+4. **T06.02.b-DELAYED:** Insert a comment/space before an invocation parenthesis; it remains the next preprocessing token. Contrast H defined with whitespace before (F), making H object-like. Derive the additional4 and13 outputs rather than treating all whitespace alike.
+5. **T06.02.c:** Probe3 exposes an unshielded comma only after argument prescan and is rejected at preprocessing for the inner wrong argument count. Complete LM_FORWARD to implement the deliberate comma-expression policy, then demonstrate7.
+6. **T06.02.c-DELAYED:** Probe4's compound literal lacks the outer shielding parentheses and is rejected by macro argument parsing before C knows the braces form an initializer. Complete LM_FIRST, then use the fully parenthesized compound literal to obtain3. Parenthesizing only the type is insufficient.
+7. **T06.03.a:** Implement both string and paste stages. VALUE is7; direct string is VALUE, expanded string is7. Existing item_VALUE and item_7 contain11 and22; direct and expanded pasting must select them respectively. Preserve actual tokens and values.
+8. **T06.03.a-DELAYED:** Stringify `alpha   "q\"x" + beta`. Explain whitespace normalization between tokens and escaping of quotes/backslashes within the literal token. The output string's character content contains the source spelling, not the inner literal's interpreted character content. Check complete bytes including the terminating zero through the hosted string comparison.
+9. **T06.03.b:** Generate and compile the declared registry. Reject illegal punctuation, duplicate names, wrong namespace and bad cardinality before publication. Probe5 deliberately attempts x pasted with plus: the inspected earlier draft specifies undefined preprocessing behavior for an invalid resulting token; its actual diagnostic is a sensitivity observation, not a universal required-diagnostic theorem. Never compile/run a purported resulting executable.
+10. **T06.03.b-DELAYED:** Probe7 pastes empty-left, empty-right and both-empty arguments. Explain placemarkers and their removal; derive alpha, alpha and empty string. Do not emulate this by arbitrary character deletion or infer the stricter generator must accept empty suffixes.
+11. **T06.03.c:** Probe6 pastes a valid identifier item_key, then supplies an incompatible function declaration. Preprocessing succeeds and semantic compilation rejects the incompatible type. Probe8 repairs the actual signature and executes successfully; no paste trick repairs an interface type mismatch.
+12. **T06.03.c-DELAYED:** Audit the earlier draft's always-reserved underscore+uppercase/double-underscore names, file-scope underscore restriction and header/external-linkage reservations. Feed a reserved-prefix attempt to the generator; it refuses before emitting C. Its fixed item_ namespace is an explicit bounded policy, not proof every identifier starting with a letter is unreserved in every context.
+
+## Verification and evidence
+
+D1 is the twelve exact token/type explanations, with plausible wrong models and source boundaries. D2 is completed learner.h and admitted registry construction. D3 retains six C17 compiler/optimization/sanitizer campaigns, the independent seven-field semantic expectation, three compiled semantic mutants, compiling learner failures and four actual preprocessing/compilation probe cells. D4 independently completes the nested/whitespace/compound/escaped/empty/reserved variants.
+
+Required controls distinguish bypassed comma forwarding, direct instead of expanded stringification, and direct instead of expanded pasting. Their normal exit1 LP_CHECK rejection must not be a sanitizer failure. Probe3/4 wrong argument counts, probe5 invalid token-paste diagnostic and probe6 semantic type conflict have separate source/logs and no executable execution. Generator refusal must preserve a sentinel output; successful generated C must compile and execute the expected registry values. This finite workload is not a complete preprocessor, all-compilers conformance proof or learner mastery assessment.
+
+## Rubric and hints
+
+Score0: unsafe/unexplained expansion or missing evidence. Score1: expected value without the prescan/token/type derivation. Score2: every ordinary operation, refusal and stage distinction is correct. Score3: independent changed-condition completion, exact counterexamples and defensible publication policy. Each original criterion is scored separately; a paste test does not assess all rescanning objectives.
+
+Hints progress from marking argument separators before substitution, through drawing the two expansion layers, to treating tokens and C types as separate checks. Count parentheses, not braces. The assessor header and analysis stay private. ISO C specifies macro semantics; diagnostics expose some defects; namespace policy and disciplined expression contracts remain programmer obligations. Security scope is only original local source and synthetic names. No external target, credentials, hardware or host security setting is involved.

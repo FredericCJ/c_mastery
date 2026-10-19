@@ -1,0 +1,30 @@
+"""Durable trial intent/attempt, cold fallback and live peer re-admission."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+ROOT=Path(__file__).resolve().parents[1]
+def main():
+ lab=ROOT/'labs/firmware_lifecycle/targets';ref=ROOT/'assessor/firmware_lifecycle/targets';tool=Path.home()/'cmastery-b06-tools/monocypher-4.0.3';manifest=ROOT/'research/v5/expansion/b06/monocypher_provider.json';build=ROOT/'build/b06-trial';build.mkdir(parents=True,exist_ok=True);rows=[];external=[]
+ for item in json.loads(manifest.read_text())['files']:
+  path=tool/item['path'];assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==item['sha256'];external.append(dict(path=str(path),sha256=item['sha256']))
+ def run(label,cmd,negative=None,expected=None):
+  try:
+   p=subprocess.run(list(map(str,cmd)),text=True,capture_output=True,timeout=90);out=p.stdout+p.stderr;ok=p.returncode==0 and (not expected or expected in out) if negative is None else p.returncode!=0 and negative in out;r=dict(label=label,command=list(map(str,cmd)),returncode=p.returncode,stdout=out,passed=ok)
+  except (OSError,subprocess.TimeoutExpired) as e:r=dict(label=label,command=list(map(str,cmd)),passed=False,error=str(e));p=None
+  rows.append(r);print(label,r['passed'],flush=True);return p
+ includes=['-I'+str(lab),'-I'+str(tool/'src'),'-I'+str(tool/'src/optional')];common=[ref/'boot_pair.c',ref/'h745_flash.c',ref/'recovery_transport.c',ref/'boot_storage.c',ref/'flash_maintenance.c',ref/'ecc_guard.c',tool/'src/monocypher.c',tool/'src/optional/monocypher-ed25519.c']
+ for cc,flags,tag in [('gcc',['-O0'],'gcc-debug'),('gcc',['-O3'],'gcc-release'),('clang',['-O0'],'clang-debug'),('clang',['-O3'],'clang-release'),('gcc',['-O1','-g','-fsanitize=address,undefined'],'gcc-sanitize'),('clang',['-O1','-g','-fsanitize=address,undefined'],'clang-sanitize')]:
+  base=[cc,'-std=c17','-Wall','-Wextra','-Wpedantic','-Werror','-Wno-misleading-indentation','-fno-pie',*flags,*includes];objects=[]
+  for i,src in enumerate(common):
+   obj=build/(tag+'-dependency-'+str(i)+'.o');objects.append(obj);run(tag+' actual dependency compile '+str(i),[*base,'-c',src,'-o',obj])
+  for mutant in [0,1,2,'stub']:
+   exe=build/(tag+'-'+str(mutant));src=(lab if mutant=='stub' else ref)/'trial_intent.c';cmd=[*base,'-no-pie',src,lab/'trial_intent_test.c',*objects,'-o',exe]
+   if mutant!='stub':cmd.append('-DFT_MUTANT='+str(mutant))
+   p=run(tag+' build '+str(mutant),cmd)
+   if p and p.returncode==0:run(tag+' execute '+str(mutant),[exe],None if mutant==0 else 'FT_CHECK:')
+ for opt in ['-O0','-O2']:
+  tag='h745_m7'+opt;elf=build/(tag+'.elf');sources=[ref/'trial_intent.c',*common,ref/'selected_startup.c',lab/'selected_startup_port.c',lab/'selected_reset.S',lab/'trial_intent_probe.c',lab/'flash_maintenance_port.c',lab/'boot_runtime.c',ref/'ecc_guard_port.c',ref/'ecc_guard_port.S'];p=run(tag+' bank2 inactive install link',['arm-none-eabi-gcc','-std=c17',opt,'-mthumb','-mcpu=cortex-m7','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-ffreestanding','-fno-builtin','-fno-stack-protector','-fstack-usage','-ffunction-sections','-fdata-sections',*includes,*sources,'-nostdlib','-Wl,--gc-sections','-Wl,-T,'+str(lab/'inactive_install.ld'),'-Wl,-Map,'+str(build/(tag+'.map')),'-o',elf])
+  if p and p.returncode==0:
+   p=run(tag+' unresolved symbols',['arm-none-eabi-nm','-u',elf]);rows.append(dict(label=tag+' helper closure',passed=p is not None and p.returncode==0 and not p.stdout.strip()));p=run(tag+' symbols',['arm-none-eabi-nm',elf]);symbols=p.stdout if p else '';placed=[line.split() for line in symbols.splitlines() if len(line.split())==3 and line.split()[1] in 'TtRr'];rows.append(dict(label=tag+' every code and rodata symbol in owned bank2',passed=bool(placed) and all(0x08120000<=int(z[0],16)<0x08160000 for z in placed)));rows.append(dict(label=tag+' excludes signing',passed=p is not None and not any(x in p.stdout for x in ['crypto_ed25519_sign','crypto_ed25519_key_pair'])));run(tag+' disassembly',['arm-none-eabi-objdump','-d',elf]);run(tag+' sizes',['arm-none-eabi-size','-A',elf]);su='\n'.join(x.read_text() for x in build.glob(tag+'*.su'));rows.append(dict(label=tag+' stack records',stdout=su,passed=bool(su) and 'dynamic' not in su))
+ files=[Path(__file__),manifest,*[lab/n for n in ['trial_intent.h','trial_intent.c','trial_intent_test.c','trial_intent_probe.c','inactive_install.ld','TRIAL_INTENT.md','inactive_install.h','recovery_transport.h','selected_startup.h','selected_startup_port.c','selected_reset.S','boot_runtime.c','flash_maintenance_port.c','boot_pair.h','boot_storage.h','ecc_guard.h','flash_maintenance.h','h745_flash.h','h745_cache.h']],*[ref/n for n in ['trial_intent.c','TRIAL_INTENT_ANALYSIS.md','recovery_transport.c','selected_startup.c','boot_storage.c','boot_pair.c','h745_flash.c','flash_maintenance.c','ecc_guard.c','ecc_guard_port.c','ecc_guard_port.S']]]
+ report=dict(passed=all(r['passed'] for r in rows),recorded_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},external_provider=external,checks=rows,limits=['Host model executes actual40program-store/3erase cuts and376guarded-read failures; no physical H745 flash observation','Cold reset always chooses committed pair; live durable attempt is not application health or commit','Raw controller readback fault may fail-stop; final signature snapshot uses guarded read, no universal ECC recovery claim','External signature/hash primitive follows explicit FW-BOOT profile; no crypto-internals mastery claim','No independent learner, external reviewer or physical evidence inferred']);(ROOT/'research/v5/expansion/b06/trial_intent_validation.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(dict(passed=report['passed'],checks=len(rows),failed=[r['label'] for r in rows if not r['passed']])));return 0 if report['passed'] else 1
+if __name__=='__main__':raise SystemExit(main())

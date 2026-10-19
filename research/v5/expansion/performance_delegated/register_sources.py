@@ -1,0 +1,19 @@
+"""Retain exact available kernel-document bytes; inspection scope is explicit."""
+import hashlib,json,re
+from datetime import datetime,timezone
+from pathlib import Path
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+KERNEL=Path('/home/frede/cmastery-os-follow-tools/linux-source-7.0.0')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def main():
+    doc=KERNEL/'Documentation/admin-guide/cgroup-v2.rst';make=KERNEL/'Makefile';body=doc.read_bytes();makebytes=make.read_bytes();parts=[re.search(r'^'+field+r' = (\d+)$',makebytes.decode(),re.M).group(1) for field in ('VERSION','PATCHLEVEL','SUBLEVEL')];version='.'.join(parts)
+    assert version=='7.0.14'
+    target=HERE/'inspected/cgroup-v2-linux-7.0.14.rst';target.parent.mkdir(parents=True,exist_ok=True)
+    if target.exists():assert target.read_bytes()==body
+    else:target.write_bytes(body)
+    locators=['No Internal Process Constraint (selected source lines508-534)','Model of Delegation (selected source lines540-569)','Delegation Containment (selected source lines573-611)','Organize Once and Control (selected source lines619-634)']
+    resource={'id':'R-PERF-DELEGATED-CGROUP','title':'Control Group v2','authors':['Tejun Heo','Linux kernel contributors'],'year':2026,'edition':'Linux source7.0.14 documentation; version from retained tree Makefile, not directory basename7.0.0','kind':'primary-documentation','url':target.relative_to(ROOT).as_posix(),'related_url':'https://docs.kernel.org/admin-guide/cgroup-v2.html','access':'Available selected primary source passages actually read; exact full document capture retained, remainder not claimed inspected','domains':['T43'],'role':'primary','assignable':True,'reason':'Prepared delegation boundary, inherited policy, authority to migrate within the common ancestor, and one-time workload placement','prerequisites':['Linux processes and UID authority','Read-only T43 cgroup accounting'],'locators':locators,'inspection':{'date':datetime.now(timezone.utc).date().isoformat(),'method':'Read named sections in actual local Linux7.0.14 documentation and compare the corresponding current kernel.org HTML passage; retain exact local documentation bytes and source-tree version identity.','scope':'; '.join(locators),'limits':'Current HTML is moving documentation and was not used as the version identity. Retained tree version and actual guest kernel/image are separately recorded. No full-document or kernel-implementation inspection, physical PMU or independent learner claim.','local_sha256':sha(body)}}
+    data={'schema_version':1,'resources':[resource]};(HERE/'resources.json').write_text(json.dumps(data,indent=2)+'\n')
+    access={'schema_version':1,'source':str(doc),'source_sha256':sha(body),'capture':str(target.relative_to(ROOT)),'capture_sha256':sha(target.read_bytes()),'version_source':str(make),'version_source_sha256':sha(makebytes),'version_fields':dict(zip(('VERSION','PATCHLEVEL','SUBLEVEL'),parts)),'actual_inspected_locators':locators,'current_web_passage':'https://docs.kernel.org/admin-guide/cgroup-v2.html#delegation','current_web_version':'moving; not used as retained kernel identity','date_utc':datetime.now(timezone.utc).isoformat(),'limits':resource['inspection']['limits']};(HERE/'source_access.json').write_text(json.dumps(access,indent=2)+'\n')
+    gate={'status':'passage-inspected','resources':str((HERE/'resources.json').relative_to(ROOT)),'research_input_sha256':{str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in (HERE/'resources.json',HERE/'source_access.json',target,Path(__file__))},'inspection':{k:resource['inspection'][k] for k in ('date','method','scope','limits')}};(HERE/'research_gate.json').write_text(json.dumps(gate,indent=2)+'\n');print(json.dumps({'resource':resource['id'],'edition':resource['edition'],'capture_sha256':sha(body)}))
+if __name__=='__main__':main()

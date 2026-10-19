@@ -1,0 +1,29 @@
+"""Register actual partial source access without closing unread root-table scope."""
+import copy,json
+from common import ROOT,dump,sha
+BASE='research/v5/expansion/acpi_header_successor'
+
+def main():
+    folder=ROOT/BASE;folder.mkdir(parents=True,exist_ok=True)
+    resource=dict(id='R-ACPI66-RSDP-HEADER-SUCCESSOR',title='ACPI6.6 RSDP and common description header',authors=['UEFI Forum'],edition='ACPI6.6 official HTML',year=2025,kind='standard',url='https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html#root-system-description-pointer-rsdp-structure',access='Actual selected official web passages read; subsequent root-table requests403',domains=['T53'],role='primary',reason='Compare the selected checksum, revision and header contract with the existing bounded parser',prerequisites=['Little-endian byte decoding','Checked spans'],locators=['5.2 numeric encoding','5.2.5.1-5.2.5.3, Table5.3 RSDP','5.2.6, Table5.4 common header'],assignable=True,inspection=dict(date='2026-10-18',method='Read actual web-tool HTML lines115 and191-245, including both field tables',scope='Listed passages only; RSDT/XSDT body sections not obtained',limits='No downloaded-byte hash, full standard, physical board, firmware/OS conformance or independent proof claim. Subsequent same-page/root-anchor requests403.'))
+    dump(folder/'resources.json',dict(resources=[resource]))
+    dump(folder/'access.json',dict(date='2026-10-18',method='Public web reader',read=resource['locators'],read_url=resource['url'],failed=[dict(url='https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html#'+a,result='403 Forbidden') for a in ['root-system-description-table-rsdt','extended-system-description-table-xsdt']],other_reference_attempts=[dict(url='https://pages.cs.wisc.edu/~cymen/misc/interests/Bacon01Concurrent.pdf',result='404 Not Found'),dict(url='https://research.cs.wisc.edu/areas/os/Qual/papers/bacon-concurrent-cc.pdf',result='Web reader internal fetch error'),dict(url='https://www.researchgate.net/profile/Vadakkedathu-Rajan/publication/2528969_Concurrent_Cycle_Collection_in_Reference_Counted_Systems/links/0c9605177f3187ac92000000/Concurrent-Cycle-Collection-in-Reference-Counted-Systems.pdf',result='Text re-read at figures6/7 references; screenshot requests for pages19/21 yielded no inspectable images, so existing visual/mathematical gap remains open')],limits='A successful text view is not a successful byte download or visual figure inspection.'))
+    dump(folder/'research_gate.json',dict(status='passage-inspected',resources=BASE+'/resources.json',research_input_sha256={BASE+'/resources.json':sha(folder/'resources.json')},inspection=dict(date='2026-10-18',method=resource['inspection']['method'],scope=resource['inspection']['scope'],limits=resource['inspection']['limits'])))
+    origin=ROOT/'research/v5/expansion/source_limits_followthrough/completion_dispositions.json'
+    previous=next(r for r in json.loads(origin.read_text())['updates'] if r['id']=='G-LCON-ACPI');row=copy.deepcopy(previous)
+    report='reviews/v5/expansion/acpi_header_successor/validation.json';validation=json.loads((ROOT/report).read_text());assert validation['passed'] and len(validation['commands'])==4
+    for p,h in validation['source_sha256'].items():assert sha(ROOT/p)==h
+    artifacts=['labs/source_readings/acpi_header_66.md',BASE+'/resources.json',BASE+'/access.json','assessor/legacy_smp/acpi_header_successor.c',report]
+    row['dimensions']['teaching']=dict(state='selected-RSDP-header-comparison-complete;root-table-body-source-open',evidence=artifacts[:3])
+    row['dimensions']['author_validation']=dict(state='selected-passages-inspected;two-native-profile-comparisons-passed;root-table-body-source-open',evidence=artifacts)
+    row['closure_rationale']='Partial successor: actual RSDP/common-header source read and unchanged parser restrictions checked. RSDT/XSDT body passages remain unread; original failure records and existing scoped campaigns retained.'
+    row['validation_method']='Read exact ACPI6.6 RSDT/XSDT body sections and compare the root stride, required-table and version policies with sa_discover; keep the existing bounded mapping and no-full-conformance limits.'
+    row['required_environment']='Authorized readable exact ACPI6.6 RSDT/XSDT body passages'
+    row['external_blockers']=[dict(missing_prerequisite=row['required_environment'],attempts=BASE+'/access.json',completed_author_support=artifacts,procedure_to_finish=row['validation_method'])]
+    row['evidence_limits']=['Only registered selected passages were inspected; remaining root-table source is still required.','Explicit revision0/2 and36-byte extended-profile restrictions do not claim general ACPI forward compatibility.','No new guest, physical, independent reviewer or learner observation.']
+    row['affected_consumers']=['AX-PR-T53-01-T53.01.a','AX-PR-T53-01-T53.01.b','AX-PR-T53-01-T53.01.c'];row['source_parent']=origin.relative_to(ROOT).as_posix()
+    pins=set(validation['source_sha256'])|set(artifacts)|{origin.relative_to(ROOT).as_posix(),BASE+'/research_gate.json','tools/register_acpi_header_successor.py'}
+    dump(folder/'completion_dispositions.json',dict(schema_version=1,scope='One existing source-gap parent narrowed by actual inspected passages and scoped reference execution',updates=[row],source_sha256={p:sha(ROOT/p) for p in sorted(pins)},current_reports=[report]))
+    dump(ROOT/'reviews/v5/expansion/acpi_header_successor/guard.json',dict(passed=True,updates=1,checks=['Original source-gap ID and originating record preserved','Both native compiler executions passed with exact hashed sources/logs','RSDT/XSDT body gap retained explicitly','External-review, learner and physical dimensions unchanged'],input_sha256={BASE+'/completion_dispositions.json':sha(folder/'completion_dispositions.json')}))
+    print('Registered partial ACPI source successor; root-table body remains open')
+if __name__=='__main__':main()

@@ -109,6 +109,8 @@ def snapshot(folder):
 
 def instantiate(project, destination, family_name=None, unit_id=None, exercise_id=None):
     item, family = locate(project)
+    from . import project_assets
+    public_project_assets = project_assets.prepare(ROOT, project)
     learning_unit = None
     learning_exercise = None
     if unit_id and exercise_id:
@@ -168,6 +170,8 @@ def instantiate(project, destination, family_name=None, unit_id=None, exercise_i
               "family": family["path"].name if family else None,
               "created_at": now(), "source_catalog": item,
               "assessment": "learner", "evidence_status": "not-run"}
+    if public_project_assets:
+        record['project_assets'] = project_assets.export(ROOT, destination, public_project_assets)
     from . import assessments
     supplemental = assessments.export(ROOT, project, destination)
     if supplemental:

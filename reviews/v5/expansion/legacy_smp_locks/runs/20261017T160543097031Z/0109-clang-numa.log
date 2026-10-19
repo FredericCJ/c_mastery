@@ -1,0 +1,62 @@
+[    0.585228] ==================================================================
+[    0.585248] BUG: KASAN: wild-memory-access in do_raw_spin_lock+0x114/0x260
+[    0.585248] Write of size 4 at addr ff110000010928a8 by task swapper/0/0
+[    0.585248] 
+[    0.585248] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 7.0.14-cmastery-b06 #1 PREEMPT(lazy) 
+[    0.585248] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.17.0-debian-1.17.0-1ubuntu1 04/01/2014
+[    0.585248] Call Trace:
+[    0.585248]  <IRQ>
+[    0.585248]  dump_stack_lvl+0x5d/0x80
+[    0.585248]  kasan_report+0xe4/0x1c0
+[    0.585248]  ? do_raw_spin_lock+0x114/0x260
+[    0.585248]  kasan_check_range+0x125/0x200
+[    0.585248]  do_raw_spin_lock+0x114/0x260
+[    0.585248]  ? __pfx_do_raw_spin_lock+0x10/0x10
+[    0.585248]  handle_edge_irq+0x28/0x880
+[    0.585248]  ? lock_release+0xd3/0x300
+[    0.585248]  __common_interrupt+0x6d/0x170
+[    0.585248]  common_interrupt+0x7a/0x90
+[    0.585248]  </IRQ>
+[    0.585248]  <TASK>
+[    0.585248]  asm_common_interrupt+0x26/0x40
+[    0.585248] RIP: 0010:identify_cpu+0x26d/0x1730
+[    0.585248] Code: 0f 8e 46 12 00 00 49 8d 44 24 30 ba 60 00 00 00 31 f6 41 c7 84 24 18 01 00 00 40 00 00 00 48 89 c7 48 89 04 24 e8 63 74 76 00 <ba> 14 00 00 00 31 f6 49 8d 7c 24 0c e8 52 74 76 00 49 8d 74 24 24
+[    0.585248] RSP: 0000:ffffffff84e07e98 EFLAGS: 00010246
+[    0.585248] RAX: ffffffff855e3fd0 RBX: ff11000010c20060 RCX: 0000000000000000
+[    0.585248] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff855e4030
+[    0.585248] RBP: ffffffff855e4040 R08: ffffffff81d868bd R09: 0000000000000000
+[    0.585248] R10: ffffffff855e3fd0 R11: 0000000000000001 R12: ffffffff855e3fa0
+[    0.585248] R13: ffffffff855e40e0 R14: ffffffff855e3fc0 R15: ffffffff855e3fc1
+[    0.585248]  ? identify_cpu+0x26d/0x1730
+[    0.585248]  ? identify_cpu+0x26d/0x1730
+[    0.585248]  ? static_key_slow_inc+0x22/0x30
+[    0.585248]  arch_cpu_finalize_init+0x25/0x340
+[    0.585248]  start_kernel+0x321/0x3a0
+[    0.585248]  x86_64_start_reservations+0x24/0x30
+[    0.585248]  x86_64_start_kernel+0xd6/0xe0
+[    0.585248]  common_startup_64+0x13e/0x148
+[    0.585248]  </TASK>
+[    0.585248] ==================================================================
+SL_NUMA_KERNEL
+Linux (none) 7.0.14-cmastery-b06 #1 SMP PREEMPT_DYNAMIC Sat Oct 17 10:48:24 JST 2026 x86_64 GNU/Linux
+SL_NUMA_NODE=0
+0-1
+10 30
+SL_NUMA_NODE=1
+2-3
+30 10
+SL_COST kind=0 participant=0 cpu=0 node=0 acquisitions=2000 exchanges=436878 failed=434878 waiting=0 wait_sum_ns=27116000 wait_max_ns=2262150 gap=447 elapsed_ns=41458340 count=8000 sum=960000
+SL_COST kind=0 participant=1 cpu=1 node=0 acquisitions=2000 exchanges=576460 failed=574460 waiting=0 wait_sum_ns=26991760 wait_max_ns=288640 gap=28 elapsed_ns=41458340 count=8000 sum=960000
+SL_COST kind=0 participant=2 cpu=2 node=1 acquisitions=2000 exchanges=556596 failed=554596 waiting=0 wait_sum_ns=26375730 wait_max_ns=286750 gap=24 elapsed_ns=41458340 count=8000 sum=960000
+SL_COST kind=0 participant=3 cpu=3 node=1 acquisitions=2000 exchanges=549338 failed=547338 waiting=0 wait_sum_ns=27280630 wait_max_ns=948230 gap=156 elapsed_ns=41458340 count=8000 sum=960000
+SL_COST kind=1 participant=0 cpu=0 node=0 acquisitions=2000 exchanges=2000 failed=0 waiting=3447639 wait_sum_ns=33035490 wait_max_ns=3170680 gap=17 elapsed_ns=42316610 count=8000 sum=960000
+SL_COST kind=1 participant=1 cpu=1 node=0 acquisitions=2000 exchanges=2000 failed=0 waiting=3075994 wait_sum_ns=32372160 wait_max_ns=2970340 gap=10 elapsed_ns=42316610 count=8000 sum=960000
+SL_COST kind=1 participant=2 cpu=2 node=1 acquisitions=2000 exchanges=2000 failed=0 waiting=3416010 wait_sum_ns=32922450 wait_max_ns=3573220 gap=13 elapsed_ns=42316610 count=8000 sum=960000
+SL_COST kind=1 participant=3 cpu=3 node=1 acquisitions=2000 exchanges=2000 failed=0 waiting=3327058 wait_sum_ns=33097510 wait_max_ns=3096680 gap=22 elapsed_ns=42316610 count=8000 sum=960000
+SL_COST kind=2 participant=0 cpu=0 node=0 acquisitions=2000 exchanges=2004 failed=2 waiting=7210176 wait_sum_ns=29368890 wait_max_ns=584390 gap=6 elapsed_ns=39747200 count=8000 sum=960000
+SL_COST kind=2 participant=1 cpu=1 node=0 acquisitions=2000 exchanges=2003 failed=1 waiting=5370783 wait_sum_ns=30154440 wait_max_ns=489780 gap=6 elapsed_ns=39747200 count=8000 sum=960000
+SL_COST kind=2 participant=2 cpu=2 node=1 acquisitions=2000 exchanges=2000 failed=0 waiting=6089034 wait_sum_ns=30304760 wait_max_ns=611910 gap=6 elapsed_ns=39747200 count=8000 sum=960000
+SL_COST kind=2 participant=3 cpu=3 node=1 acquisitions=2000 exchanges=2000 failed=0 waiting=7731586 wait_sum_ns=30464310 wait_max_ns=643780 gap=9 elapsed_ns=39747200 count=8000 sum=960000
+SL_NATIVE_PASS:equal-work-cross-virtual-NUMA
+SL_NUMA_PASS:two-observed-nodes
+[    8.084347] reboot: Power down

@@ -1,0 +1,19 @@
+{
+  "id": "PR-T54-03",
+  "description": "Shared-SRAM SPSC channel finite independent example",
+  "oracle": "ring",
+  "input": {
+    "capacity": 8,
+    "bits": 8,
+    "head": 2,
+    "tail": 252
+  },
+  "expected": {
+    "used": 6,
+    "free": 2,
+    "valid": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "One producer owns head publication and one consumer owns tail publication. The baseline shared region is explicitly noncacheable with aligned indices and bounded payloads. Data publication ordering still matters; volatile alone does not define the required cross-core protocol.",
+  "required_observation": "Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate."
+}

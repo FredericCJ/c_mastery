@@ -1,0 +1,43 @@
+"""Bind nine unchanged original and nine delayed construction/storage/relocation tasks."""
+import argparse,copy,hashlib,json,pathlib,subprocess,sys
+ROOT=pathlib.Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT));HERE=ROOT/'research/v5/expansion/legacy_object_buffer';PROJECT='PR-T03-04';CARD='curriculum/v5/expansion/legacy_assessments/'+PROJECT+'.json';REPORT='research/v5/expansion/legacy_object_buffer/validation.json';SUPPORT='research/v5/expansion/legacy_object_buffer/completion_dispositions.json'
+from research.v5.expansion.legacy_object_buffer.author_support import attach
+ARTIFACTS=['labs/object_followthrough/buffer/CONTRACTS.md','labs/object_followthrough/buffer/buffer.h','labs/object_followthrough/buffer/tests.c','labs/object_followthrough/buffer/size_probe.c','labs/object_followthrough/buffer/history.c','labs/object_followthrough/buffer/vla_probe.c','labs/object_followthrough/buffer/diagnostic.c','labs/object_followthrough/buffer/warning.c','assessor/object_followthrough/buffer/buffer.c','assessor/object_followthrough/buffer/workspace.c','assessor/object_followthrough/buffer/oracle.py','assessor/object_followthrough/buffer/diagnostics.py','assessor/object_followthrough/buffer/ANALYSIS.md']
+CASES={'T03.11.a':'fields','T03.11.b':'construction','T03.11.c':'diagnostics','T03.12.a':'sizing','T03.12.b':'vla','T03.12.c':'storage','T03.13.a':'resize','T03.13.b':'invalidation','T03.13.c':'handles'}
+WHY={'fields':'Memberwise initialized record comparison and exact four-byte serialization excluding representation padding and raw pointers.','construction':'Established-member mask, early-failure ownership transfer and cleanup that reads only authorized pointer state.','diagnostics':'Actual GCC/Clang O0/O3 warning/assembly plus original local Memcheck/sanitizer sensitivity and initialized-branch controls; no undefined-value oracle.','sizing':'Actual sizeof-based flexible allocation, zero logical payload, tail-padding layout and independent unbounded arithmetic boundary oracle on two ABIs.','vla':'Actual bounded single-evaluation VLA, adjusted static-minimum parameter, all-VLA-free caller-storage fallback and four edition frontend modes.','storage':'Actual one-allocation flexible and two-allocation split owners, second-allocation rollback and finite counted immutable sharing.','resize':'Actual nonzero realloc and forced movement, failed-resize unchanged owner/data/generation, same-address invalidation and explicit zero-size refusal/reset policy.','invalidation':'Actual append/resize/erase/reset transitions, independent625 event histories and address-versus-logical-identity erase counterexample.','handles':'Actual owner-ID/index/generation handles, finite no-wrap refusal and consuming control-table move with explicit current routing.'}
+REMAINING=['T03 PR05 remains required and receives separate exact implementation evidence.','Published C17/C23 gaps and issue0451 clarification limits remain; no independent learner, external review or physical evidence is supplied.']
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def read(p):return json.loads(p.read_text(encoding='utf8'))
+def put(p,d):p.write_text(json.dumps(d,indent=2)+'\n',encoding='utf8')
+def original():return json.loads(subprocess.check_output(['git','show','HEAD:'+CARD],cwd=ROOT,text=True,encoding='utf8'))
+def checks(case,delayed):
+    return {'fields':['gcc.debug.initialization','clang.sanitized.initialization'],'construction':['gcc.debug.initialization','gcc.debug.memcheck.initialization','gcc.debug.mutant.CLEANUP'],'diagnostics':['gcc.warning.O0','gcc.warning.O3','clang.warning.O0','clang.warning.O3','gcc.diagnostics.observe','clang.diagnostics.observe','clang.diagnostic.optimized.assembly'],'sizing':['gcc.debug.sizing','i386.sizing','gcc.debug.size.oracle','i386.size.oracle','gcc.debug.mutant.SIZE'],'vla':['gcc.debug.workspace','clang.sanitized.workspace','gcc.fallback.workspace','clang.fallback.workspace','gcc.vla.forbidden','clang.c99.vla','gcc.c23.vla'],'storage':['gcc.debug.representations','clang.sanitized.representations','gcc.debug.mutant.SHARED'],'resize':['gcc.debug.relocation','clang.sanitized.relocation','gcc.debug.memcheck.relocation','gcc.debug.mutant.RESIZE'],'invalidation':['gcc.debug.handles','gcc.debug.history.oracle','i386.history.oracle','gcc.debug.mutant.ERASE'],'handles':['gcc.debug.handles','clang.sanitized.handles','gcc.debug.memcheck.handles','gcc.debug.mutant.GENERATION']}[case]
+def rows(report):
+    out=[]
+    for c in read(ROOT/CARD)['criteria']:
+        v=c['variants'][0];case=CASES[c['objective']]
+        for delayed in [False,True]:
+            dims={k:dict(state=s,evidence=e) for k,s,e in [('teaching','complete',ARTIFACTS[:8]),('implementation','complete',ARTIFACTS),('author_validation','passed',[REPORT,'research/v5/expansion/legacy_object_buffer/exports.json']),('external_review','not-run',[]),('independent_learner','not-assessed',[]),('physical_observation','not-run',[])]}
+            out.append(dict(id=v['id'] if delayed else c['id'],parent_project=PROJECT,objective=c['objective'],original_task=v['task'] if delayed else c['task'],original_delayed_variant=v['id'],minimum_days=v['minimum_days'],dimensions=dims,artifacts=ARTIFACTS,author_validation=dict(report=REPORT,checks=checks(case,delayed),case=case,analysis=ARTIFACTS[-1]+'#'+c['objective'].lower().replace('.','-'),diagnostic_scope='Uninitialized target outputs are tool sensitivity only, never semantic correctness.'),closure_rationale=WHY[case],remaining_author_work=[],evidence_limits=report['limits']))
+    return out
+def integrate():
+    d=read(ROOT/CARD);old=original();assert d['criteria']==old['criteria'] and d['baseline_binding']==old['baseline_binding'];snapshot=HERE/(PROJECT+'.before-buffer.json')
+    if not snapshot.exists():snapshot.write_bytes((ROOT/CARD).read_bytes())
+    public=[p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'labs/object_followthrough/buffer').rglob('*')) if p.is_file() and '__pycache__' not in p.parts]
+    put(HERE/('attachment_'+PROJECT+'.json'),dict(project=PROJECT,domain='T03',key='object_buffer_successor',supplied_artifacts=public,shared_contracts=[ARTIFACTS[0]],source_register='research/v5/expansion/legacy_object_buffer/resources.json',support=SUPPORT,criterion_ids=[c['id'] for c in d['criteria']],scope='All nine unchanged original/delayed initialization, flexible storage and relocation tasks; original local diagnostic sensitivity separated from defined correctness.'))
+    after=attach(copy.deepcopy(d));assert after['criteria']==old['criteria'] and after['baseline_binding']==old['baseline_binding'] and attach(copy.deepcopy(after))==after;put(ROOT/CARD,after)
+    put(HERE/'objective_mapping.json',dict(criteria=[dict(criterion=c['id'],objective=c['objective'],task=c['task'],delayed=c['variants'][0],case=CASES[c['objective']],teaching=ARTIFACTS[0],assessment=ARTIFACTS[-1]+'#'+c['objective'].lower().replace('.','-')) for c in d['criteria']],limits=['Canonical card is directly consumed; close_object_buffer --integrate reapplies this pure additive attachment.','Diagnostic target is separate original teaching code, never a golden UB value oracle.','No source-author run supplies external review or independent delayed learner evidence.']))
+    print('PASS9 original criteria and delayed tasks unchanged; attachment idempotent')
+def package():
+    import run_object_buffer as run
+    reports=[read(HERE/n) for n in ['validation.json','exports.json']];assert reports[0]['source_sha256']==run.pins();files={pathlib.Path(__file__),ROOT/'tools/check_object_buffer.py',ROOT/CARD}
+    for r in reports:
+        assert r['status']=='pass' and r['commands'] and all(q['passed'] for q in r['commands'])
+        for key in ['source_sha256','outputs_sha256']:
+            for n,h in r[key].items():assert sha(ROOT/n)==h,('stale',n)
+        files|={ROOT/n for n in r['source_sha256']}
+    files|={p for p in HERE.iterdir() if p.is_file() and p.name not in ['completion_dispositions.json','support_validation.json'] and not p.name.startswith(('attempt','root_'))}
+    assert read(ROOT/CARD)['criteria']==original()['criteria']
+    put(HERE/'completion_dispositions.json',dict(schema_version=1,scope='PR-T03-04 nine original and nine unchanged delayed tasks',source_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(files)},current_reports=[REPORT,'research/v5/expansion/legacy_object_buffer/exports.json'],updates=rows(reports[0]),remaining_parents=REMAINING));print('PASS18 exact buffer dispositions')
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--integrate',action='store_true');a=p.parse_args();integrate() if a.integrate else package()

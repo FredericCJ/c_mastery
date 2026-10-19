@@ -1,0 +1,204 @@
+
+/tmp/debug-release-3crgyg3v/gcc-O3-target-stub/release.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dt_vectors>:
+#include "target.h"
+extern uint32_t dt_stack_top,dt_data_start,dt_data_end,dt_data_load,dt_bss_start,dt_bss_end;
+extern void dt_boot(void);
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+   0:	00 00 01 20 55 01 00 00 49 00 00 00 49 00 00 00     ... U...I...I...
+	...
+  40:	4d 01 00 00 51 01 00 00                             M...Q...
+
+00000048 <failed>:
+  48:	b082      	sub	sp, #8
+  4a:	2004      	movs	r0, #4
+  4c:	4905      	ldr	r1, [pc, #20]	@ (64 <failed+0x1c>)
+  4e:	beab      	bkpt	0x00ab
+  50:	4a05      	ldr	r2, [pc, #20]	@ (68 <failed+0x20>)
+  52:	2301      	movs	r3, #1
+  54:	e9cd 2300 	strd	r2, r3, [sp]
+  58:	2020      	movs	r0, #32
+  5a:	4669      	mov	r1, sp
+  5c:	beab      	bkpt	0x00ab
+  5e:	bf30      	wfi
+  60:	e7fd      	b.n	5e <failed+0x16>
+  62:	bf00      	nop
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  64:	00000174 	.word	0x00000174
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  68:	00020026 	.word	0x00020026
+
+0000006c <dt_reset>:
+  6c:	b530      	push	{r4, r5, lr}
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  6e:	4b2e      	ldr	r3, [pc, #184]	@ (128 <dt_reset+0xbc>)
+  70:	4c2e      	ldr	r4, [pc, #184]	@ (12c <dt_reset+0xc0>)
+  72:	429c      	cmp	r4, r3
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+  74:	b083      	sub	sp, #12
+  76:	d222      	bcs.n	be <dt_reset+0x52>
+  78:	3b01      	subs	r3, #1
+  7a:	1b1b      	subs	r3, r3, r4
+  7c:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+  80:	2b03      	cmp	r3, #3
+  82:	4d2b      	ldr	r5, [pc, #172]	@ (130 <dt_reset+0xc4>)
+  84:	4622      	mov	r2, r4
+  86:	f10e 0e01 	add.w	lr, lr, #1
+  8a:	d916      	bls.n	ba <dt_reset+0x4e>
+  8c:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+  90:	462b      	mov	r3, r5
+  92:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+  96:	e9d3 0100 	ldrd	r0, r1, [r3]
+  9a:	3308      	adds	r3, #8
+  9c:	459c      	cmp	ip, r3
+  9e:	e9c2 0100 	strd	r0, r1, [r2]
+  a2:	f102 0208 	add.w	r2, r2, #8
+  a6:	d1f6      	bne.n	96 <dt_reset+0x2a>
+  a8:	f01e 0f01 	tst.w	lr, #1
+  ac:	d007      	beq.n	be <dt_reset+0x52>
+  ae:	f02e 0e01 	bic.w	lr, lr, #1
+  b2:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+  b6:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+  ba:	682b      	ldr	r3, [r5, #0]
+  bc:	6023      	str	r3, [r4, #0]
+  be:	481d      	ldr	r0, [pc, #116]	@ (134 <dt_reset+0xc8>)
+  c0:	4b1d      	ldr	r3, [pc, #116]	@ (138 <dt_reset+0xcc>)
+  c2:	4298      	cmp	r0, r3
+  c4:	d21b      	bcs.n	fe <dt_reset+0x92>
+  c6:	3b01      	subs	r3, #1
+  c8:	1a1a      	subs	r2, r3, r0
+  ca:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+  ce:	2a03      	cmp	r2, #3
+  d0:	4603      	mov	r3, r0
+  d2:	f10c 0c01 	add.w	ip, ip, #1
+  d6:	d910      	bls.n	fa <dt_reset+0x8e>
+  d8:	ea4f 015c 	mov.w	r1, ip, lsr #1
+  dc:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+  e0:	2200      	movs	r2, #0
+  e2:	e9c3 2200 	strd	r2, r2, [r3]
+  e6:	3308      	adds	r3, #8
+  e8:	428b      	cmp	r3, r1
+  ea:	d1fa      	bne.n	e2 <dt_reset+0x76>
+  ec:	f01c 0f01 	tst.w	ip, #1
+  f0:	d005      	beq.n	fe <dt_reset+0x92>
+  f2:	f02c 0c01 	bic.w	ip, ip, #1
+  f6:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+  fa:	2300      	movs	r3, #0
+  fc:	6003      	str	r3, [r0, #0]
+  fe:	f000 f823 	bl	148 <dt_target>
+ 102:	4603      	mov	r3, r0
+ 104:	b168      	cbz	r0, 122 <dt_reset+0xb6>
+ 106:	490d      	ldr	r1, [pc, #52]	@ (13c <dt_reset+0xd0>)
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 108:	2004      	movs	r0, #4
+ 10a:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 10c:	4a0c      	ldr	r2, [pc, #48]	@ (140 <dt_reset+0xd4>)
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+ 10e:	3b00      	subs	r3, #0
+ 110:	bf18      	it	ne
+ 112:	2301      	movne	r3, #1
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 114:	e9cd 2300 	strd	r2, r3, [sp]
+ 118:	2020      	movs	r0, #32
+ 11a:	4669      	mov	r1, sp
+ 11c:	beab      	bkpt	0x00ab
+ 11e:	bf30      	wfi
+ 120:	e7fd      	b.n	11e <dt_reset+0xb2>
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+ 122:	4908      	ldr	r1, [pc, #32]	@ (144 <dt_reset+0xd8>)
+ 124:	e7f0      	b.n	108 <dt_reset+0x9c>
+ 126:	bf00      	nop
+ 128:	20000000 	.word	0x20000000
+ 12c:	20000000 	.word	0x20000000
+ 130:	000001f4 	.word	0x000001f4
+ 134:	20000000 	.word	0x20000000
+ 138:	20000000 	.word	0x20000000
+ 13c:	00000198 	.word	0x00000198
+ 140:	00020026 	.word	0x00020026
+ 144:	000001b4 	.word	0x000001b4
+
+00000148 <dt_target>:
+#include "target.h"
+int dt_target(void){return 1;}
+ 148:	2001      	movs	r0, #1
+ 14a:	4770      	bx	lr
+
+0000014c <dt_irq0>:
+void dt_irq0(void){}
+ 14c:	4770      	bx	lr
+ 14e:	bf00      	nop
+
+00000150 <dt_irq1>:
+void dt_irq1(void){}
+ 150:	4770      	bx	lr
+ 152:	bf00      	nop
+
+00000154 <dt_boot>:
+.thumb
+.global dt_boot
+.type dt_boot,%function
+.thumb_func
+dt_boot:
+  cpsid i
+ 154:	b672      	cpsid	i
+  ldr r0,=dt_data_start
+ 156:	4805      	ldr	r0, [pc, #20]	@ (16c <dt_boot+0x18>)
+  ldr r1,=dt_bss_end
+ 158:	4905      	ldr	r1, [pc, #20]	@ (170 <dt_boot+0x1c>)
+  ldr r2,=0xa5a5a5a5
+ 15a:	f04f 32a5 	mov.w	r2, #2779096485	@ 0xa5a5a5a5
+1: cmp r0,r1
+ 15e:	4288      	cmp	r0, r1
+  bhs 2f
+ 160:	d202      	bcs.n	168 <dt_boot+0x14>
+  str r2,[r0],#4
+ 162:	f840 2b04 	str.w	r2, [r0], #4
+  b 1b
+ 166:	e7fa      	b.n	15e <dt_boot+0xa>
+2: b dt_reset
+ 168:	f7ff bf80 	b.w	6c <dt_reset>
+  ldr r0,=dt_data_start
+ 16c:	20000000 	.word	0x20000000
+  ldr r1,=dt_bss_end
+ 170:	20000000 	.word	0x20000000
+ 174:	545f5444 	.word	0x545f5444
+ 178:	45475241 	.word	0x45475241
+ 17c:	48435f54 	.word	0x48435f54
+ 180:	3a4b4345 	.word	0x3a4b4345
+ 184:	78656e75 	.word	0x78656e75
+ 188:	74636570 	.word	0x74636570
+ 18c:	762d6465 	.word	0x762d6465
+ 190:	6f746365 	.word	0x6f746365
+ 194:	00000a72 	.word	0x00000a72
+ 198:	545f5444 	.word	0x545f5444
+ 19c:	45475241 	.word	0x45475241
+ 1a0:	48435f54 	.word	0x48435f54
+ 1a4:	3a4b4345 	.word	0x3a4b4345
+ 1a8:	746e6f63 	.word	0x746e6f63
+ 1ac:	74636172 	.word	0x74636172
+ 1b0:	0000000a 	.word	0x0000000a
+ 1b4:	545f5444 	.word	0x545f5444
+ 1b8:	45475241 	.word	0x45475241
+ 1bc:	41505f54 	.word	0x41505f54
+ 1c0:	613a5353 	.word	0x613a5353
+ 1c4:	61757463 	.word	0x61757463
+ 1c8:	6e692d6c 	.word	0x6e692d6c
+ 1cc:	72726574 	.word	0x72726574
+ 1d0:	2d747075 	.word	0x2d747075
+ 1d4:	6c627570 	.word	0x6c627570
+ 1d8:	74616369 	.word	0x74616369
+ 1dc:	2d6e6f69 	.word	0x2d6e6f69
+ 1e0:	2d646e61 	.word	0x2d646e61
+ 1e4:	74666f73 	.word	0x74666f73
+ 1e8:	65726177 	.word	0x65726177
+ 1ec:	7365722d 	.word	0x7365722d
+ 1f0:	000a7465 	.word	0x000a7465

@@ -1,0 +1,37 @@
+{
+  "id": "PR-T55-07",
+  "description": "Epoch reclamation and quiescent states finite independent example",
+  "oracle": "epoch_reclaim",
+  "input": {
+    "retired": [
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        6
+      ]
+    ],
+    "active_epochs": [
+      5,
+      7
+    ]
+  },
+  "expected": {
+    "reclaimable": [
+      1
+    ],
+    "retained": [
+      2,
+      3
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Epoch schemes delay reuse until every participant that could have seen a retired node passes a quiescent boundary. A stalled participant can retain memory indefinitely. Epoch entry/exit and participant deregistration are part of the safety contract, not optional instrumentation.",
+  "required_observation": "Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress."
+}

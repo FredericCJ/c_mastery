@@ -1,0 +1,222 @@
+
+/tmp/debug-release-1x61x94o/gcc-O0-target-stub/release.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dt_vectors>:
+#include "target.h"
+extern uint32_t dt_stack_top,dt_data_start,dt_data_end,dt_data_load,dt_bss_start,dt_bss_end;
+extern void dt_boot(void);
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+void dt_hex(uint32_t n){char text[9];for(unsigned i=0;i<8;i++)text[i]="0123456789abcdef"[(n>>((7-i)*4))&15];text[8]=0;dt_output(text);}
+   0:	00 00 01 20 55 01 00 00 81 00 00 00 81 00 00 00     ... U...........
+	...
+  40:	3b 01 00 00 47 01 00 00                             ;...G...
+
+00000048 <dt_output>:
+  48:	b480      	push	{r7}
+  4a:	b083      	sub	sp, #12
+  4c:	af00      	add	r7, sp, #0
+  4e:	6078      	str	r0, [r7, #4]
+  50:	2004      	movs	r0, #4
+  52:	6879      	ldr	r1, [r7, #4]
+  54:	beab      	bkpt	0x00ab
+  56:	bf00      	nop
+void dt_output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  58:	370c      	adds	r7, #12
+  5a:	46bd      	mov	sp, r7
+  5c:	bc80      	pop	{r7}
+  5e:	4770      	bx	lr
+
+00000060 <done>:
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  60:	b480      	push	{r7}
+  62:	b085      	sub	sp, #20
+  64:	af00      	add	r7, sp, #0
+  66:	6078      	str	r0, [r7, #4]
+  68:	4b04      	ldr	r3, [pc, #16]	@ (7c <done+0x1c>)
+  6a:	60bb      	str	r3, [r7, #8]
+  6c:	687b      	ldr	r3, [r7, #4]
+  6e:	60fb      	str	r3, [r7, #12]
+  70:	2020      	movs	r0, #32
+  72:	f107 0108 	add.w	r1, r7, #8
+  76:	beab      	bkpt	0x00ab
+  78:	bf30      	wfi
+  7a:	e7fd      	b.n	78 <done+0x18>
+  7c:	00020026 	.word	0x00020026
+
+00000080 <failed>:
+static void failed(void){dt_output("DT_TARGET_CHECK:unexpected-vector\n");done(1);}
+  80:	b580      	push	{r7, lr}
+  82:	af00      	add	r7, sp, #0
+  84:	4803      	ldr	r0, [pc, #12]	@ (94 <failed+0x14>)
+  86:	f7ff ffdf 	bl	48 <dt_output>
+  8a:	2001      	movs	r0, #1
+  8c:	f7ff ffe8 	bl	60 <done>
+  90:	bf00      	nop
+  92:	bd80      	pop	{r7, pc}
+  94:	00000188 	.word	0x00000188
+
+00000098 <dt_reset>:
+void dt_reset(void){uint32_t*s=&dt_data_load;for(uint32_t*d=&dt_data_start;d<&dt_data_end;d++)*d=*s++;for(uint32_t*d=&dt_bss_start;d<&dt_bss_end;d++)*d=0;int r=dt_target();dt_output(r?"DT_TARGET_CHECK:contract\n":"DT_TARGET_PASS:actual-interrupt-publication-and-software-reset\n");done(r?1:0);}
+  98:	b580      	push	{r7, lr}
+  9a:	b084      	sub	sp, #16
+  9c:	af00      	add	r7, sp, #0
+  9e:	4b1c      	ldr	r3, [pc, #112]	@ (110 <dt_reset+0x78>)
+  a0:	60fb      	str	r3, [r7, #12]
+  a2:	4b1c      	ldr	r3, [pc, #112]	@ (114 <dt_reset+0x7c>)
+  a4:	60bb      	str	r3, [r7, #8]
+  a6:	e008      	b.n	ba <dt_reset+0x22>
+  a8:	68fb      	ldr	r3, [r7, #12]
+  aa:	1d1a      	adds	r2, r3, #4
+  ac:	60fa      	str	r2, [r7, #12]
+  ae:	681a      	ldr	r2, [r3, #0]
+  b0:	68bb      	ldr	r3, [r7, #8]
+  b2:	601a      	str	r2, [r3, #0]
+  b4:	68bb      	ldr	r3, [r7, #8]
+  b6:	3304      	adds	r3, #4
+  b8:	60bb      	str	r3, [r7, #8]
+  ba:	68bb      	ldr	r3, [r7, #8]
+  bc:	4a16      	ldr	r2, [pc, #88]	@ (118 <dt_reset+0x80>)
+  be:	4293      	cmp	r3, r2
+  c0:	d3f2      	bcc.n	a8 <dt_reset+0x10>
+  c2:	4b16      	ldr	r3, [pc, #88]	@ (11c <dt_reset+0x84>)
+  c4:	607b      	str	r3, [r7, #4]
+  c6:	e005      	b.n	d4 <dt_reset+0x3c>
+  c8:	687b      	ldr	r3, [r7, #4]
+  ca:	2200      	movs	r2, #0
+  cc:	601a      	str	r2, [r3, #0]
+  ce:	687b      	ldr	r3, [r7, #4]
+  d0:	3304      	adds	r3, #4
+  d2:	607b      	str	r3, [r7, #4]
+  d4:	687b      	ldr	r3, [r7, #4]
+  d6:	4a12      	ldr	r2, [pc, #72]	@ (120 <dt_reset+0x88>)
+  d8:	4293      	cmp	r3, r2
+  da:	d3f5      	bcc.n	c8 <dt_reset+0x30>
+  dc:	f000 f826 	bl	12c <dt_target>
+  e0:	6038      	str	r0, [r7, #0]
+  e2:	683b      	ldr	r3, [r7, #0]
+  e4:	2b00      	cmp	r3, #0
+  e6:	d001      	beq.n	ec <dt_reset+0x54>
+  e8:	4b0e      	ldr	r3, [pc, #56]	@ (124 <dt_reset+0x8c>)
+  ea:	e000      	b.n	ee <dt_reset+0x56>
+  ec:	4b0e      	ldr	r3, [pc, #56]	@ (128 <dt_reset+0x90>)
+  ee:	4618      	mov	r0, r3
+  f0:	f7ff ffaa 	bl	48 <dt_output>
+  f4:	683b      	ldr	r3, [r7, #0]
+  f6:	2b00      	cmp	r3, #0
+  f8:	bf14      	ite	ne
+  fa:	2301      	movne	r3, #1
+  fc:	2300      	moveq	r3, #0
+  fe:	b2db      	uxtb	r3, r3
+ 100:	4618      	mov	r0, r3
+ 102:	f7ff ffad 	bl	60 <done>
+ 106:	bf00      	nop
+ 108:	3710      	adds	r7, #16
+ 10a:	46bd      	mov	sp, r7
+ 10c:	bd80      	pop	{r7, pc}
+ 10e:	bf00      	nop
+ 110:	00000208 	.word	0x00000208
+ 114:	20000000 	.word	0x20000000
+ 118:	20000000 	.word	0x20000000
+ 11c:	20000000 	.word	0x20000000
+ 120:	20000000 	.word	0x20000000
+ 124:	000001ac 	.word	0x000001ac
+ 128:	000001c8 	.word	0x000001c8
+
+0000012c <dt_target>:
+#include "target.h"
+int dt_target(void){return 1;}
+ 12c:	b480      	push	{r7}
+ 12e:	af00      	add	r7, sp, #0
+ 130:	2301      	movs	r3, #1
+ 132:	4618      	mov	r0, r3
+ 134:	46bd      	mov	sp, r7
+ 136:	bc80      	pop	{r7}
+ 138:	4770      	bx	lr
+
+0000013a <dt_irq0>:
+void dt_irq0(void){}
+ 13a:	b480      	push	{r7}
+ 13c:	af00      	add	r7, sp, #0
+ 13e:	bf00      	nop
+ 140:	46bd      	mov	sp, r7
+ 142:	bc80      	pop	{r7}
+ 144:	4770      	bx	lr
+
+00000146 <dt_irq1>:
+void dt_irq1(void){}
+ 146:	b480      	push	{r7}
+ 148:	af00      	add	r7, sp, #0
+ 14a:	bf00      	nop
+ 14c:	46bd      	mov	sp, r7
+ 14e:	bc80      	pop	{r7}
+ 150:	4770      	bx	lr
+	...
+
+00000154 <dt_boot>:
+.thumb
+.global dt_boot
+.type dt_boot,%function
+.thumb_func
+dt_boot:
+  cpsid i
+ 154:	b672      	cpsid	i
+  ldr r0,=dt_data_start
+ 156:	4805      	ldr	r0, [pc, #20]	@ (16c <dt_boot+0x18>)
+  ldr r1,=dt_bss_end
+ 158:	4905      	ldr	r1, [pc, #20]	@ (170 <dt_boot+0x1c>)
+  ldr r2,=0xa5a5a5a5
+ 15a:	f04f 32a5 	mov.w	r2, #2779096485	@ 0xa5a5a5a5
+1: cmp r0,r1
+ 15e:	4288      	cmp	r0, r1
+  bhs 2f
+ 160:	d202      	bcs.n	168 <dt_boot+0x14>
+  str r2,[r0],#4
+ 162:	f840 2b04 	str.w	r2, [r0], #4
+  b 1b
+ 166:	e7fa      	b.n	15e <dt_boot+0xa>
+2: b dt_reset
+ 168:	f7ff bf96 	b.w	98 <dt_reset>
+  ldr r0,=dt_data_start
+ 16c:	20000000 	.word	0x20000000
+  ldr r1,=dt_bss_end
+ 170:	20000000 	.word	0x20000000
+ 174:	33323130 	.word	0x33323130
+ 178:	37363534 	.word	0x37363534
+ 17c:	62613938 	.word	0x62613938
+ 180:	66656463 	.word	0x66656463
+ 184:	00000000 	.word	0x00000000
+ 188:	545f5444 	.word	0x545f5444
+ 18c:	45475241 	.word	0x45475241
+ 190:	48435f54 	.word	0x48435f54
+ 194:	3a4b4345 	.word	0x3a4b4345
+ 198:	78656e75 	.word	0x78656e75
+ 19c:	74636570 	.word	0x74636570
+ 1a0:	762d6465 	.word	0x762d6465
+ 1a4:	6f746365 	.word	0x6f746365
+ 1a8:	00000a72 	.word	0x00000a72
+ 1ac:	545f5444 	.word	0x545f5444
+ 1b0:	45475241 	.word	0x45475241
+ 1b4:	48435f54 	.word	0x48435f54
+ 1b8:	3a4b4345 	.word	0x3a4b4345
+ 1bc:	746e6f63 	.word	0x746e6f63
+ 1c0:	74636172 	.word	0x74636172
+ 1c4:	0000000a 	.word	0x0000000a
+ 1c8:	545f5444 	.word	0x545f5444
+ 1cc:	45475241 	.word	0x45475241
+ 1d0:	41505f54 	.word	0x41505f54
+ 1d4:	613a5353 	.word	0x613a5353
+ 1d8:	61757463 	.word	0x61757463
+ 1dc:	6e692d6c 	.word	0x6e692d6c
+ 1e0:	72726574 	.word	0x72726574
+ 1e4:	2d747075 	.word	0x2d747075
+ 1e8:	6c627570 	.word	0x6c627570
+ 1ec:	74616369 	.word	0x74616369
+ 1f0:	2d6e6f69 	.word	0x2d6e6f69
+ 1f4:	2d646e61 	.word	0x2d646e61
+ 1f8:	74666f73 	.word	0x74666f73
+ 1fc:	65726177 	.word	0x65726177
+ 200:	7365722d 	.word	0x7365722d
+ 204:	000a7465 	.word	0x000a7465

@@ -1,0 +1,151 @@
+{
+  "id": "PR-T43-04",
+  "description": "Half-open ownership lifetimes, simultaneous peaks, sections and scoped stack paths.",
+  "kind": "storage",
+  "input": {
+    "objects": [
+      {
+        "name": "work",
+        "capacity": 128,
+        "live": 64,
+        "allocated_from": 0,
+        "allocated_to": 14,
+        "live_from": 0,
+        "live_to": 10
+      },
+      {
+        "name": "scratch",
+        "capacity": 80,
+        "live": 80,
+        "allocated_from": 3,
+        "allocated_to": 6,
+        "live_from": 3,
+        "live_to": 6
+      },
+      {
+        "name": "result",
+        "capacity": 96,
+        "live": 24,
+        "allocated_from": 7,
+        "allocated_to": 12,
+        "live_from": 7,
+        "live_to": 12
+      }
+    ],
+    "sections": {
+      "text": 512,
+      "rodata": 64,
+      "data": 32,
+      "bss": 256
+    },
+    "frames": {
+      "main": {
+        "bytes": 32,
+        "qualifier": "static"
+      },
+      "work": {
+        "bytes": 48,
+        "qualifier": "static"
+      },
+      "leaf": {
+        "bytes": 16,
+        "qualifier": "dynamic,bounded"
+      },
+      "other": {
+        "bytes": 80,
+        "qualifier": "static"
+      }
+    },
+    "paths": [
+      [
+        "main",
+        "work",
+        "leaf"
+      ],
+      [
+        "main",
+        "other"
+      ],
+      [
+        "main",
+        "unknown"
+      ],
+      [
+        "main",
+        "work",
+        "work"
+      ]
+    ],
+    "interrupt_bytes": 24
+  },
+  "expected": {
+    "ledger": [
+      {
+        "time": 0,
+        "live": 64,
+        "allocated": 128,
+        "retained": 0,
+        "active_slack": 64
+      },
+      {
+        "time": 3,
+        "live": 144,
+        "allocated": 208,
+        "retained": 0,
+        "active_slack": 64
+      },
+      {
+        "time": 6,
+        "live": 64,
+        "allocated": 128,
+        "retained": 0,
+        "active_slack": 64
+      },
+      {
+        "time": 7,
+        "live": 88,
+        "allocated": 224,
+        "retained": 0,
+        "active_slack": 136
+      },
+      {
+        "time": 10,
+        "live": 24,
+        "allocated": 224,
+        "retained": 128,
+        "active_slack": 72
+      },
+      {
+        "time": 12,
+        "live": 0,
+        "allocated": 128,
+        "retained": 128,
+        "active_slack": 0
+      },
+      {
+        "time": 14,
+        "live": 0,
+        "allocated": 0,
+        "retained": 0,
+        "active_slack": 0
+      }
+    ],
+    "peaks": {
+      "live": 144,
+      "allocated": 224,
+      "retained": 128,
+      "active_slack": 136
+    },
+    "flash_bytes": 608,
+    "ram_sections": 288,
+    "path_bounds": [
+      96,
+      112,
+      null,
+      null
+    ],
+    "known_path_peak": 112,
+    "conditional_interrupt_bound": 136
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

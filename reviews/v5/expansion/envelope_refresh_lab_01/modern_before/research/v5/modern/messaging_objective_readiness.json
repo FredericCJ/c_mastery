@@ -1,0 +1,2640 @@
+{
+  "schema_version": 1,
+  "domain": "T73",
+  "criteria": [
+    {
+      "id": "X-T73-001-R1",
+      "objective": "T73.01.a",
+      "criterion": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Creation-order error aggregation, cancellation flag versus joined descendant, and context ownership are explained in NURSERY and its assessor analysis.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-001.md",
+        "assessor/messaging/analyses/X-T73-001.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/NURSERY.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/nursery.c",
+        "labs/messaging/followthrough/nursery_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/hosted_systems/pool.c",
+        "assessor/hosted_systems/deadline.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/hosted_systems/deadline.c": "3e614c1f5c6e99b401a1a4fecc0c5fbd51f3338d1e99e53d8daa0976d0b78a3c",
+        "assessor/hosted_systems/pool.c": "58558e45a4d43290509c0beb2c1450d32a4dfacafefcb9e65eb9bd27992794d0",
+        "assessor/messaging/analyses/X-T73-001.md": "8ac558df5ad76bb80be1c74296710fc257b1350aa8e1d562b97876aab6b79725",
+        "assessor/messaging/followthrough/nursery.c": "93142d83e9b337102096d85ad677761c11488074cdc013b2e2fa0f59942375fc",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-001.md": "1d0e53c1f547394bd2088b4d2b21e27e23841ca6dd18e3b2764b2485004629b1",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/NURSERY.md": "2e6de9682e620b3e124fe89be89874ef571f9e0ea3fcd2eb440f8e40bb66dacf",
+        "labs/messaging/followthrough/nursery_test.c": "2613b3e973cf22d661ecf20b46bd73193238f8dfe8d69293bdbf63a7eb6b2ee2",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-001-R2",
+      "objective": "T73.01.b",
+      "criterion": "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "MfnTree executes two actual MsgNursery groups, actual hs_pool_sum and hs_read_until; adapters preserve contexts through upward join.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-001.md",
+        "assessor/messaging/analyses/X-T73-001.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/NURSERY.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/nursery.c",
+        "labs/messaging/followthrough/nursery_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/hosted_systems/pool.c",
+        "assessor/hosted_systems/deadline.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/hosted_systems/deadline.c": "3e614c1f5c6e99b401a1a4fecc0c5fbd51f3338d1e99e53d8daa0976d0b78a3c",
+        "assessor/hosted_systems/pool.c": "58558e45a4d43290509c0beb2c1450d32a4dfacafefcb9e65eb9bd27992794d0",
+        "assessor/messaging/analyses/X-T73-001.md": "8ac558df5ad76bb80be1c74296710fc257b1350aa8e1d562b97876aab6b79725",
+        "assessor/messaging/followthrough/nursery.c": "93142d83e9b337102096d85ad677761c11488074cdc013b2e2fa0f59942375fc",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-001.md": "1d0e53c1f547394bd2088b4d2b21e27e23841ca6dd18e3b2764b2485004629b1",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/NURSERY.md": "2e6de9682e620b3e124fe89be89874ef571f9e0ea3fcd2eb440f8e40bb66dacf",
+        "labs/messaging/followthrough/nursery_test.c": "2613b3e973cf22d661ecf20b46bd73193238f8dfe8d69293bdbf63a7eb6b2ee2",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-001-R3",
+      "objective": "T73.01.c",
+      "criterion": "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "core_admission_edges covers0/1/8 children, ninth/late refusal, all eight injected failures, attempt exhaustion and barrier-coordinated sibling cancellation; separate TSan profiles run.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-001.md",
+        "assessor/messaging/analyses/X-T73-001.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/NURSERY.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/nursery.c",
+        "labs/messaging/followthrough/nursery_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/hosted_systems/pool.c",
+        "assessor/hosted_systems/deadline.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/hosted_systems/deadline.c": "3e614c1f5c6e99b401a1a4fecc0c5fbd51f3338d1e99e53d8daa0976d0b78a3c",
+        "assessor/hosted_systems/pool.c": "58558e45a4d43290509c0beb2c1450d32a4dfacafefcb9e65eb9bd27992794d0",
+        "assessor/messaging/analyses/X-T73-001.md": "8ac558df5ad76bb80be1c74296710fc257b1350aa8e1d562b97876aab6b79725",
+        "assessor/messaging/followthrough/nursery.c": "93142d83e9b337102096d85ad677761c11488074cdc013b2e2fa0f59942375fc",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-001.md": "1d0e53c1f547394bd2088b4d2b21e27e23841ca6dd18e3b2764b2485004629b1",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/NURSERY.md": "2e6de9682e620b3e124fe89be89874ef571f9e0ea3fcd2eb440f8e40bb66dacf",
+        "labs/messaging/followthrough/nursery_test.c": "2613b3e973cf22d661ecf20b46bd73193238f8dfe8d69293bdbf63a7eb6b2ee2",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-001-R4",
+      "objective": "T73.01.d",
+      "criterion": "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Reversed completion orders preserve both errors and the creation-order primary; parent deadline/external cancellation propagate downward, drops occur after all admitted descendants finish.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-001.md",
+        "assessor/messaging/analyses/X-T73-001.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/NURSERY.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/nursery.c",
+        "labs/messaging/followthrough/nursery_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/hosted_systems/pool.c",
+        "assessor/hosted_systems/deadline.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/hosted_systems/deadline.c": "3e614c1f5c6e99b401a1a4fecc0c5fbd51f3338d1e99e53d8daa0976d0b78a3c",
+        "assessor/hosted_systems/pool.c": "58558e45a4d43290509c0beb2c1450d32a4dfacafefcb9e65eb9bd27992794d0",
+        "assessor/messaging/analyses/X-T73-001.md": "8ac558df5ad76bb80be1c74296710fc257b1350aa8e1d562b97876aab6b79725",
+        "assessor/messaging/followthrough/nursery.c": "93142d83e9b337102096d85ad677761c11488074cdc013b2e2fa0f59942375fc",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-001.md": "1d0e53c1f547394bd2088b4d2b21e27e23841ca6dd18e3b2764b2485004629b1",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/NURSERY.md": "2e6de9682e620b3e124fe89be89874ef571f9e0ea3fcd2eb440f8e40bb66dacf",
+        "labs/messaging/followthrough/nursery_test.c": "2613b3e973cf22d661ecf20b46bd73193238f8dfe8d69293bdbf63a7eb6b2ee2",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-002-R1",
+      "objective": "T73.02.a",
+      "criterion": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual hub predicates distinguish readiness, accepted rendezvous and close/drain; Go randomness is explicitly not promised.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-002.md",
+        "assessor/messaging/analyses/X-T73-002.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OWNED.md",
+        "labs/messaging/followthrough/REGISTRATION.md",
+        "labs/coroutines/followthrough/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/registration.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/registration_test.c",
+        "labs/messaging/followthrough/registration_oracle.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/coroutines/followthrough/channel_follow.c",
+        "assessor/coroutines/followthrough/async_follow.c",
+        "labs/coroutines/followthrough/channel_tests.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/coroutines_followthrough_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/coroutines/followthrough/async_follow.c": "25b64b144b0e36aaff43faf7bde949180596b88b8799d5cf701b9235d4a8e041",
+        "assessor/coroutines/followthrough/channel_follow.c": "0bc9fbe6cd2e39719a5b1315f7b76a9a2a7d96b24978049c005e6512fc0dce0f",
+        "assessor/messaging/analyses/X-T73-002.md": "6229fbdfc45ead1d1ba8e1fb9963575aa3894a0385a9a47e11c1d315536b300e",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/registration.c": "04e64449e82fb9056e32d28c16b7941741cdfb152add5f00b7c2c7baa229b23b",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-002.md": "b6719e69a73d7e6a1d4e705dafbcb5f52d1a0d1d2f9a9adb943a4a603e43db79",
+        "labs/coroutines/followthrough/CONTRACTS.md": "9e62b6d2ac8c6751aa5623c964484bd20c9a859df03eab4536593da68e34b4b6",
+        "labs/coroutines/followthrough/channel_tests.c": "5679483246cacc39ee0eb7c03b57e043f6b096e7e55da55e160a1155f946c94b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/OWNED.md": "bd2b53cec940876c9a09ee0b3599d9e2385c4a4b0efafae1eaabeb5dda076ac7",
+        "labs/messaging/followthrough/REGISTRATION.md": "410dd4a835ad9e32c03c90555d2f33108748ed27206d4adc4f5c934bba5c22ed",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/followthrough/registration_oracle.c": "ff30cd78b97c29f1da76405627cf003538c3a30a56ab03de10350f214db05a53",
+        "labs/messaging/followthrough/registration_test.c": "7d7dbcf4f6bc0d6ea3c1bd5b2ccca86f19931ea72b53de007075fbbc9674d9d1",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/coroutines_followthrough_validation.json": "ca46689ee8d6c10ea44bc4daf1ccef4cfd7ce912c9cce815b3c180f42e508870",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-002-R2",
+      "objective": "T73.02.b",
+      "criterion": "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Common mutex or registered sticky recheck prevents lost wakeups; separately pinned ca_channel_deliver imports actual MsgHub with retained CATicket/CAFrame through join and ack.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-002.md",
+        "assessor/messaging/analyses/X-T73-002.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OWNED.md",
+        "labs/messaging/followthrough/REGISTRATION.md",
+        "labs/coroutines/followthrough/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/registration.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/registration_test.c",
+        "labs/messaging/followthrough/registration_oracle.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/coroutines/followthrough/channel_follow.c",
+        "assessor/coroutines/followthrough/async_follow.c",
+        "labs/coroutines/followthrough/channel_tests.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/coroutines_followthrough_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/coroutines/followthrough/async_follow.c": "25b64b144b0e36aaff43faf7bde949180596b88b8799d5cf701b9235d4a8e041",
+        "assessor/coroutines/followthrough/channel_follow.c": "0bc9fbe6cd2e39719a5b1315f7b76a9a2a7d96b24978049c005e6512fc0dce0f",
+        "assessor/messaging/analyses/X-T73-002.md": "6229fbdfc45ead1d1ba8e1fb9963575aa3894a0385a9a47e11c1d315536b300e",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/registration.c": "04e64449e82fb9056e32d28c16b7941741cdfb152add5f00b7c2c7baa229b23b",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-002.md": "b6719e69a73d7e6a1d4e705dafbcb5f52d1a0d1d2f9a9adb943a4a603e43db79",
+        "labs/coroutines/followthrough/CONTRACTS.md": "9e62b6d2ac8c6751aa5623c964484bd20c9a859df03eab4536593da68e34b4b6",
+        "labs/coroutines/followthrough/channel_tests.c": "5679483246cacc39ee0eb7c03b57e043f6b096e7e55da55e160a1155f946c94b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/OWNED.md": "bd2b53cec940876c9a09ee0b3599d9e2385c4a4b0efafae1eaabeb5dda076ac7",
+        "labs/messaging/followthrough/REGISTRATION.md": "410dd4a835ad9e32c03c90555d2f33108748ed27206d4adc4f5c934bba5c22ed",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/followthrough/registration_oracle.c": "ff30cd78b97c29f1da76405627cf003538c3a30a56ab03de10350f214db05a53",
+        "labs/messaging/followthrough/registration_test.c": "7d7dbcf4f6bc0d6ea3c1bd5b2ccca86f19931ea72b53de007075fbbc9674d9d1",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/coroutines_followthrough_validation.json": "ca46689ee8d6c10ea44bc4daf1ccef4cfd7ce912c9cce815b3c180f42e508870",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-002-R3",
+      "objective": "T73.02.c",
+      "criterion": "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Owned-channel fixtures cover buffered close/cancel, both selection masks, spurious broadcasts and accepted/unaccepted rendezvous; real two-producer traces conserve exact values.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-002.md",
+        "assessor/messaging/analyses/X-T73-002.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OWNED.md",
+        "labs/messaging/followthrough/REGISTRATION.md",
+        "labs/coroutines/followthrough/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/registration.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/registration_test.c",
+        "labs/messaging/followthrough/registration_oracle.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/coroutines/followthrough/channel_follow.c",
+        "assessor/coroutines/followthrough/async_follow.c",
+        "labs/coroutines/followthrough/channel_tests.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/coroutines_followthrough_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/coroutines/followthrough/async_follow.c": "25b64b144b0e36aaff43faf7bde949180596b88b8799d5cf701b9235d4a8e041",
+        "assessor/coroutines/followthrough/channel_follow.c": "0bc9fbe6cd2e39719a5b1315f7b76a9a2a7d96b24978049c005e6512fc0dce0f",
+        "assessor/messaging/analyses/X-T73-002.md": "6229fbdfc45ead1d1ba8e1fb9963575aa3894a0385a9a47e11c1d315536b300e",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/registration.c": "04e64449e82fb9056e32d28c16b7941741cdfb152add5f00b7c2c7baa229b23b",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-002.md": "b6719e69a73d7e6a1d4e705dafbcb5f52d1a0d1d2f9a9adb943a4a603e43db79",
+        "labs/coroutines/followthrough/CONTRACTS.md": "9e62b6d2ac8c6751aa5623c964484bd20c9a859df03eab4536593da68e34b4b6",
+        "labs/coroutines/followthrough/channel_tests.c": "5679483246cacc39ee0eb7c03b57e043f6b096e7e55da55e160a1155f946c94b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/OWNED.md": "bd2b53cec940876c9a09ee0b3599d9e2385c4a4b0efafae1eaabeb5dda076ac7",
+        "labs/messaging/followthrough/REGISTRATION.md": "410dd4a835ad9e32c03c90555d2f33108748ed27206d4adc4f5c934bba5c22ed",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/followthrough/registration_oracle.c": "ff30cd78b97c29f1da76405627cf003538c3a30a56ab03de10350f214db05a53",
+        "labs/messaging/followthrough/registration_test.c": "7d7dbcf4f6bc0d6ea3c1bd5b2ccca86f19931ea72b53de007075fbbc9674d9d1",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/coroutines_followthrough_validation.json": "ca46689ee8d6c10ea44bc4daf1ccef4cfd7ce912c9cce815b3c180f42e508870",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-002-R4",
+      "objective": "T73.02.d",
+      "criterion": "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Unique descriptor transfer is exercised by owning hub; separately locked channel registry forces the empty-scan/pre-sleep publication and rejects omitted notification and skipped-buffer controls.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-002.md",
+        "assessor/messaging/analyses/X-T73-002.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OWNED.md",
+        "labs/messaging/followthrough/REGISTRATION.md",
+        "labs/coroutines/followthrough/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/registration.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/registration_test.c",
+        "labs/messaging/followthrough/registration_oracle.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "assessor/coroutines/followthrough/channel_follow.c",
+        "assessor/coroutines/followthrough/async_follow.c",
+        "labs/coroutines/followthrough/channel_tests.c",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/coroutines_followthrough_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/coroutines/followthrough/async_follow.c": "25b64b144b0e36aaff43faf7bde949180596b88b8799d5cf701b9235d4a8e041",
+        "assessor/coroutines/followthrough/channel_follow.c": "0bc9fbe6cd2e39719a5b1315f7b76a9a2a7d96b24978049c005e6512fc0dce0f",
+        "assessor/messaging/analyses/X-T73-002.md": "6229fbdfc45ead1d1ba8e1fb9963575aa3894a0385a9a47e11c1d315536b300e",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/registration.c": "04e64449e82fb9056e32d28c16b7941741cdfb152add5f00b7c2c7baa229b23b",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-002.md": "b6719e69a73d7e6a1d4e705dafbcb5f52d1a0d1d2f9a9adb943a4a603e43db79",
+        "labs/coroutines/followthrough/CONTRACTS.md": "9e62b6d2ac8c6751aa5623c964484bd20c9a859df03eab4536593da68e34b4b6",
+        "labs/coroutines/followthrough/channel_tests.c": "5679483246cacc39ee0eb7c03b57e043f6b096e7e55da55e160a1155f946c94b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/OWNED.md": "bd2b53cec940876c9a09ee0b3599d9e2385c4a4b0efafae1eaabeb5dda076ac7",
+        "labs/messaging/followthrough/REGISTRATION.md": "410dd4a835ad9e32c03c90555d2f33108748ed27206d4adc4f5c934bba5c22ed",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/followthrough/registration_oracle.c": "ff30cd78b97c29f1da76405627cf003538c3a30a56ab03de10350f214db05a53",
+        "labs/messaging/followthrough/registration_test.c": "7d7dbcf4f6bc0d6ea3c1bd5b2ccca86f19931ea72b53de007075fbbc9674d9d1",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/coroutines_followthrough_validation.json": "ca46689ee8d6c10ea44bc4daf1ccef4cfd7ce912c9cce815b3c180f42e508870",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-003-R1",
+      "objective": "T73.03.a",
+      "criterion": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Sender recipe, connected storage and completion ownership remain distinct; dated proposal and exposed C fields have explicitly different enforcement.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-003.md",
+        "assessor/messaging/analyses/X-T73-003.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OPERATION.md",
+        "labs/messaging/followthrough/COMPLETION.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/operation.c",
+        "assessor/messaging/followthrough/completion.c",
+        "labs/messaging/followthrough/operation_test.c",
+        "labs/messaging/followthrough/completion_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-003.md": "3cc25ab6fcb45561ad62d480ecbcb2c514c827856cf8c54791a435b7c610520a",
+        "assessor/messaging/followthrough/completion.c": "74d4cf82c562cf144fafcb3c7b2e147987c7b2d6d59ba8c8a5fedb3c286ad9cf",
+        "assessor/messaging/followthrough/operation.c": "bdde838f29a8638c76013fe87ca51adeab6748c762cae8fafa3853c71cc915a8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-003.md": "e739b0956a49417df3e3a85c8f435725680e58eff55b02d4716658c0bd6e0f9e",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/COMPLETION.md": "d95179d5e5e27d3ad649b7802fcc5130a9b1578d99a9145f69f62c4fb1a501be",
+        "labs/messaging/followthrough/OPERATION.md": "3f7b68acd99728e8079d8a87c8823ce45318b2eea906a705a6b134e5d4b15a5a",
+        "labs/messaging/followthrough/completion_test.c": "1702c67d213421cc4f790f401b4de6ea1659f71861740ebe233bfda6c0837d58",
+        "labs/messaging/followthrough/operation_test.c": "506eb9ed8821f4aa288234b9d1a7224bbb69f9aae8a5d21a2371f735baad778b",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-003-R2",
+      "objective": "T73.03.b",
+      "criterion": "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "MfoOperation composes actual MsgOperation, while Linux port retains real backend borrows through joined cancellation acknowledgement; callbacks may free application owners.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-003.md",
+        "assessor/messaging/analyses/X-T73-003.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OPERATION.md",
+        "labs/messaging/followthrough/COMPLETION.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/operation.c",
+        "assessor/messaging/followthrough/completion.c",
+        "labs/messaging/followthrough/operation_test.c",
+        "labs/messaging/followthrough/completion_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-003.md": "3cc25ab6fcb45561ad62d480ecbcb2c514c827856cf8c54791a435b7c610520a",
+        "assessor/messaging/followthrough/completion.c": "74d4cf82c562cf144fafcb3c7b2e147987c7b2d6d59ba8c8a5fedb3c286ad9cf",
+        "assessor/messaging/followthrough/operation.c": "bdde838f29a8638c76013fe87ca51adeab6748c762cae8fafa3853c71cc915a8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-003.md": "e739b0956a49417df3e3a85c8f435725680e58eff55b02d4716658c0bd6e0f9e",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/COMPLETION.md": "d95179d5e5e27d3ad649b7802fcc5130a9b1578d99a9145f69f62c4fb1a501be",
+        "labs/messaging/followthrough/OPERATION.md": "3f7b68acd99728e8079d8a87c8823ce45318b2eea906a705a6b134e5d4b15a5a",
+        "labs/messaging/followthrough/completion_test.c": "1702c67d213421cc4f790f401b4de6ea1659f71861740ebe233bfda6c0837d58",
+        "labs/messaging/followthrough/operation_test.c": "506eb9ed8821f4aa288234b9d1a7224bbb69f9aae8a5d21a2371f735baad778b",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-003-R3",
+      "objective": "T73.03.c",
+      "criterion": "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Invalid/repeated orders and receiver-freed heap contexts are executed; MfxCompletion arbitrates concurrent callers with one atomic winner and a retained token per loser.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-003.md",
+        "assessor/messaging/analyses/X-T73-003.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OPERATION.md",
+        "labs/messaging/followthrough/COMPLETION.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/operation.c",
+        "assessor/messaging/followthrough/completion.c",
+        "labs/messaging/followthrough/operation_test.c",
+        "labs/messaging/followthrough/completion_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-003.md": "3cc25ab6fcb45561ad62d480ecbcb2c514c827856cf8c54791a435b7c610520a",
+        "assessor/messaging/followthrough/completion.c": "74d4cf82c562cf144fafcb3c7b2e147987c7b2d6d59ba8c8a5fedb3c286ad9cf",
+        "assessor/messaging/followthrough/operation.c": "bdde838f29a8638c76013fe87ca51adeab6748c762cae8fafa3853c71cc915a8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-003.md": "e739b0956a49417df3e3a85c8f435725680e58eff55b02d4716658c0bd6e0f9e",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/COMPLETION.md": "d95179d5e5e27d3ad649b7802fcc5130a9b1578d99a9145f69f62c4fb1a501be",
+        "labs/messaging/followthrough/OPERATION.md": "3f7b68acd99728e8079d8a87c8823ce45318b2eea906a705a6b134e5d4b15a5a",
+        "labs/messaging/followthrough/completion_test.c": "1702c67d213421cc4f790f401b4de6ea1659f71861740ebe233bfda6c0837d58",
+        "labs/messaging/followthrough/operation_test.c": "506eb9ed8821f4aa288234b9d1a7224bbb69f9aae8a5d21a2371f735baad778b",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-003-R4",
+      "objective": "T73.03.d",
+      "criterion": "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Inline predecessor receiver destroys its heap object and starts the successor after moving ownership; start and completion cache everything needed before invoking the callback.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-003.md",
+        "assessor/messaging/analyses/X-T73-003.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/OPERATION.md",
+        "labs/messaging/followthrough/COMPLETION.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/operation.c",
+        "assessor/messaging/followthrough/completion.c",
+        "labs/messaging/followthrough/operation_test.c",
+        "labs/messaging/followthrough/completion_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-003.md": "3cc25ab6fcb45561ad62d480ecbcb2c514c827856cf8c54791a435b7c610520a",
+        "assessor/messaging/followthrough/completion.c": "74d4cf82c562cf144fafcb3c7b2e147987c7b2d6d59ba8c8a5fedb3c286ad9cf",
+        "assessor/messaging/followthrough/operation.c": "bdde838f29a8638c76013fe87ca51adeab6748c762cae8fafa3853c71cc915a8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-003.md": "e739b0956a49417df3e3a85c8f435725680e58eff55b02d4716658c0bd6e0f9e",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/COMPLETION.md": "d95179d5e5e27d3ad649b7802fcc5130a9b1578d99a9145f69f62c4fb1a501be",
+        "labs/messaging/followthrough/OPERATION.md": "3f7b68acd99728e8079d8a87c8823ce45318b2eea906a705a6b134e5d4b15a5a",
+        "labs/messaging/followthrough/completion_test.c": "1702c67d213421cc4f790f401b4de6ea1659f71861740ebe233bfda6c0837d58",
+        "labs/messaging/followthrough/operation_test.c": "506eb9ed8821f4aa288234b9d1a7224bbb69f9aae8a5d21a2371f735baad778b",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-004-R1",
+      "objective": "T73.04.a",
+      "criterion": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Mailbox ownership and incarnation are separated from pointer validity; a synthetic effect before failure demonstrates that restarting cannot roll it back.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-004.md",
+        "assessor/messaging/analyses/X-T73-004.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/actor_executor.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/actor_executor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-004.md": "b27dd53fac4c1aa59bdd18d93c6096bf35a6f158dbe7a10c3dba0ae948eaf344",
+        "assessor/messaging/followthrough/actor_executor.c": "696481c9cf19919b96889b425cc265a3923a5421437d4502fc53168a9d2450d2",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-004.md": "02879b5d0dcdb9578f61d833935c1391f5a215eaca63747ea2f877685690a5db",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md": "ea7e75ec9d5a2dae7987eaf1a7d227d418d51393cb96a53cbaf1bd25acd29b30",
+        "labs/messaging/followthrough/actor_executor_test.c": "36ef59a3bdc4cefde18c3310f879545c389a0c186330da2c7beabd38952d308d",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-004-R2",
+      "objective": "T73.04.b",
+      "criterion": "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "MfeExecutor imports actual MfcHub and MfaActor with eight stable generation-bearing envelopes and one executor; failed publication versus failed dispatch have distinct owner rules.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-004.md",
+        "assessor/messaging/analyses/X-T73-004.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/actor_executor.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/actor_executor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-004.md": "b27dd53fac4c1aa59bdd18d93c6096bf35a6f158dbe7a10c3dba0ae948eaf344",
+        "assessor/messaging/followthrough/actor_executor.c": "696481c9cf19919b96889b425cc265a3923a5421437d4502fc53168a9d2450d2",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-004.md": "02879b5d0dcdb9578f61d833935c1391f5a215eaca63747ea2f877685690a5db",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md": "ea7e75ec9d5a2dae7987eaf1a7d227d418d51393cb96a53cbaf1bd25acd29b30",
+        "labs/messaging/followthrough/actor_executor_test.c": "36ef59a3bdc4cefde18c3310f879545c389a0c186330da2c7beabd38952d308d",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-004-R3",
+      "objective": "T73.04.c",
+      "criterion": "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Full/stale/reentrant/dead/restart/retirement cases and2,000 native messages are checked against a mutex-protected reference under the observed order.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-004.md",
+        "assessor/messaging/analyses/X-T73-004.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/actor_executor.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/actor_executor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-004.md": "b27dd53fac4c1aa59bdd18d93c6096bf35a6f158dbe7a10c3dba0ae948eaf344",
+        "assessor/messaging/followthrough/actor_executor.c": "696481c9cf19919b96889b425cc265a3923a5421437d4502fc53168a9d2450d2",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-004.md": "02879b5d0dcdb9578f61d833935c1391f5a215eaca63747ea2f877685690a5db",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md": "ea7e75ec9d5a2dae7987eaf1a7d227d418d51393cb96a53cbaf1bd25acd29b30",
+        "labs/messaging/followthrough/actor_executor_test.c": "36ef59a3bdc4cefde18c3310f879545c389a0c186330da2c7beabd38952d308d",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-004-R4",
+      "objective": "T73.04.d",
+      "criterion": "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Self-enqueue never recursively enters the handler; active and abandoned owners drop once; queued old-generation replies survive restart unchanged and enter dead letters.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-004.md",
+        "assessor/messaging/analyses/X-T73-004.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/owned.c",
+        "assessor/messaging/followthrough/actor_executor.c",
+        "labs/messaging/followthrough/owned_test.c",
+        "labs/messaging/followthrough/actor_executor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-004.md": "b27dd53fac4c1aa59bdd18d93c6096bf35a6f158dbe7a10c3dba0ae948eaf344",
+        "assessor/messaging/followthrough/actor_executor.c": "696481c9cf19919b96889b425cc265a3923a5421437d4502fc53168a9d2450d2",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-004.md": "02879b5d0dcdb9578f61d833935c1391f5a215eaca63747ea2f877685690a5db",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/ACTOR_EXECUTOR.md": "ea7e75ec9d5a2dae7987eaf1a7d227d418d51393cb96a53cbaf1bd25acd29b30",
+        "labs/messaging/followthrough/actor_executor_test.c": "36ef59a3bdc4cefde18c3310f879545c389a0c186330da2c7beabd38952d308d",
+        "labs/messaging/followthrough/owned_test.c": "3d2005d2cdbaf6305f306521b1932b90c45b01ea2b7fb42b77bc60974cc38087",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-005-R1",
+      "objective": "T73.05.a",
+      "criterion": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Intensity bounds and restart topology are distinguished from successful resource initialization and from process-level isolation.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-005.md",
+        "assessor/messaging/analyses/X-T73-005.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/SUPERVISOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/supervisor.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/supervisor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-005.md": "5bed6e39b9410a34b70c8fd6c0ebd339bd3810fe9f7a380aaa47ec7f2b97adb0",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/supervisor.c": "ed382fb22e86d2d1fe6917c256b399e61c58933ea9bb75f98f4a06ec50fb694a",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-005.md": "9666c31d21c6d149453a68e44b829e6430651538fa73edfece3a1dac11c3982c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/SUPERVISOR.md": "d2a8c3de65ba77bda1b4bfe8e7abdbffa4451675a369885d5a978c94b0d6637c",
+        "labs/messaging/followthrough/supervisor_test.c": "8a6a6f2469a7037720fa6049fd26ae4b0431b08285d6263c036ddf3aac89f2c8",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-005-R2",
+      "objective": "T73.05.b",
+      "criterion": "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "MfsTree executes actual actors in dependency order, refuses while stepping, rolls back partial constructors and escalates against a separate parent budget.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-005.md",
+        "assessor/messaging/analyses/X-T73-005.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/SUPERVISOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/supervisor.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/supervisor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-005.md": "5bed6e39b9410a34b70c8fd6c0ebd339bd3810fe9f7a380aaa47ec7f2b97adb0",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/supervisor.c": "ed382fb22e86d2d1fe6917c256b399e61c58933ea9bb75f98f4a06ec50fb694a",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-005.md": "9666c31d21c6d149453a68e44b829e6430651538fa73edfece3a1dac11c3982c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/SUPERVISOR.md": "d2a8c3de65ba77bda1b4bfe8e7abdbffa4451675a369885d5a978c94b0d6637c",
+        "labs/messaging/followthrough/supervisor_test.c": "8a6a6f2469a7037720fa6049fd26ae4b0431b08285d6263c036ddf3aac89f2c8",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-005-R3",
+      "objective": "T73.05.c",
+      "criterion": "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "All12 strategy/child selections, all16 initialization cuts, maximum/backwards/exact-window time and permanent escalation are checked with independent action-order models.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-005.md",
+        "assessor/messaging/analyses/X-T73-005.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/SUPERVISOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/supervisor.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/supervisor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-005.md": "5bed6e39b9410a34b70c8fd6c0ebd339bd3810fe9f7a380aaa47ec7f2b97adb0",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/supervisor.c": "ed382fb22e86d2d1fe6917c256b399e61c58933ea9bb75f98f4a06ec50fb694a",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-005.md": "9666c31d21c6d149453a68e44b829e6430651538fa73edfece3a1dac11c3982c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/SUPERVISOR.md": "d2a8c3de65ba77bda1b4bfe8e7abdbffa4451675a369885d5a978c94b0d6637c",
+        "labs/messaging/followthrough/supervisor_test.c": "8a6a6f2469a7037720fa6049fd26ae4b0431b08285d6263c036ddf3aac89f2c8",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-005-R4",
+      "objective": "T73.05.d",
+      "criterion": "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Two-level parent/child budgets and child1-before-child2 dependency are exercised during partial restart; rollback/escalation releases owned messages and resources in reverse order.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-005.md",
+        "assessor/messaging/analyses/X-T73-005.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/SUPERVISOR.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/supervisor.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/supervisor_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-005.md": "5bed6e39b9410a34b70c8fd6c0ebd339bd3810fe9f7a380aaa47ec7f2b97adb0",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/supervisor.c": "ed382fb22e86d2d1fe6917c256b399e61c58933ea9bb75f98f4a06ec50fb694a",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-005.md": "9666c31d21c6d149453a68e44b829e6430651538fa73edfece3a1dac11c3982c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/SUPERVISOR.md": "d2a8c3de65ba77bda1b4bfe8e7abdbffa4451675a369885d5a978c94b0d6637c",
+        "labs/messaging/followthrough/supervisor_test.c": "8a6a6f2469a7037720fa6049fd26ae4b0431b08285d6263c036ddf3aac89f2c8",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-006-R1",
+      "objective": "T73.06.a",
+      "criterion": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Last-item compare/exchange, nonwrapping indices and atomic stale-slot reads have separate arguments; actual lock-free queries do not establish starvation freedom.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-006.md",
+        "assessor/messaging/analyses/X-T73-006.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_deque_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-006.md": "09ff67e0381c5513c85f016b77a15813295596c326cee36e31d672816909bb7e",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-006.md": "add8a990f3aeac52f09bdff2899264a10035f94edbf315993cbb7d5f7846fe8c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_deque_model.c": "d1cdce0c10842b8836b2f45481b3addc7149dc70db5f26fcbef6268bb1f2c99f",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-006-R2",
+      "objective": "T73.06.b",
+      "criterion": "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Original fixed circular slots and owner/thief operations are preserved; lower-order successor has explicit release/fence/acquire proof and separate pointer-growth lifetime contract.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-006.md",
+        "assessor/messaging/analyses/X-T73-006.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_deque_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-006.md": "09ff67e0381c5513c85f016b77a15813295596c326cee36e31d672816909bb7e",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-006.md": "add8a990f3aeac52f09bdff2899264a10035f94edbf315993cbb7d5f7846fe8c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_deque_model.c": "d1cdce0c10842b8836b2f45481b3addc7149dc70db5f26fcbef6268bb1f2c99f",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-006-R3",
+      "objective": "T73.06.c",
+      "criterion": "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Independent1095 original traces,128 small native linearization histories, TSan and generated-code observations cover their declared bounds, including empty/full/reuse.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-006.md",
+        "assessor/messaging/analyses/X-T73-006.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_deque_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-006.md": "09ff67e0381c5513c85f016b77a15813295596c326cee36e31d672816909bb7e",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-006.md": "add8a990f3aeac52f09bdff2899264a10035f94edbf315993cbb7d5f7846fe8c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_deque_model.c": "d1cdce0c10842b8836b2f45481b3addc7149dc70db5f26fcbef6268bb1f2c99f",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-006-R4",
+      "objective": "T73.06.d",
+      "criterion": "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Pinned RC11 executions and seven edge-removal controls precede measured costs; growing pointer deque retains actual arrays/nodes while a thief pauses, with failure and final-release tests.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-006.md",
+        "assessor/messaging/analyses/X-T73-006.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_deque_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-006.md": "09ff67e0381c5513c85f016b77a15813295596c326cee36e31d672816909bb7e",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-006.md": "add8a990f3aeac52f09bdff2899264a10035f94edbf315993cbb7d5f7846fe8c",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_deque_model.c": "d1cdce0c10842b8836b2f45481b3addc7149dc70db5f26fcbef6268bb1f2c99f",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-007-R1",
+      "objective": "T73.07.a",
+      "criterion": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Snapshot validation, payload race freedom and dynamic node lifetime are distinct; inconsistent reads must abort before exposing a committed result.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-007.md",
+        "assessor/messaging/analyses/X-T73-007.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/TRANSACTIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/transactions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/transactions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-007.md": "8ab1a14d39ad27d1fdb4de0cf69811316b149483edce90797f08be2ff834a32c",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/transactions.c": "02421e6538091b07dda0d1e62a50c0cd571659cf3bcc1227a109813915cf6022",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-007.md": "e3441d524d58a9ea4d0bf91a111a80019c43313f75569c94585a159d9d635ef3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/TRANSACTIONS.md": "bd8a65dcbcfd9aad7eeaac7de507bb9f71c37df2aa16dd42a0504c5f2c9f2120",
+        "labs/messaging/followthrough/transactions_test.c": "72caf398ea7d7460734c97f3a919f817e3b90e6ac1f5cb7b407e99065ad2383d",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-007-R2",
+      "objective": "T73.07.b",
+      "criterion": "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual four-cell SC core validates staged read/write sets and restores partial locks, preserving payload on abort while permitting timestamp gaps.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-007.md",
+        "assessor/messaging/analyses/X-T73-007.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/TRANSACTIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/transactions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/transactions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-007.md": "8ab1a14d39ad27d1fdb4de0cf69811316b149483edce90797f08be2ff834a32c",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/transactions.c": "02421e6538091b07dda0d1e62a50c0cd571659cf3bcc1227a109813915cf6022",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-007.md": "e3441d524d58a9ea4d0bf91a111a80019c43313f75569c94585a159d9d635ef3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/TRANSACTIONS.md": "bd8a65dcbcfd9aad7eeaac7de507bb9f71c37df2aa16dd42a0504c5f2c9f2120",
+        "labs/messaging/followthrough/transactions_test.c": "72caf398ea7d7460734c97f3a919f817e3b90e6ac1f5cb7b407e99065ad2383d",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-007-R3",
+      "objective": "T73.07.c",
+      "criterion": "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Seven abortable and nine postpublication observation cuts, read conflicts, repeated writes, empty/read-only operations and3360 independent bounded schedules are tested.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-007.md",
+        "assessor/messaging/analyses/X-T73-007.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/TRANSACTIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/transactions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/transactions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-007.md": "8ab1a14d39ad27d1fdb4de0cf69811316b149483edce90797f08be2ff834a32c",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/transactions.c": "02421e6538091b07dda0d1e62a50c0cd571659cf3bcc1227a109813915cf6022",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-007.md": "e3441d524d58a9ea4d0bf91a111a80019c43313f75569c94585a159d9d635ef3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/TRANSACTIONS.md": "bd8a65dcbcfd9aad7eeaac7de507bb9f71c37df2aa16dd42a0504c5f2c9f2120",
+        "labs/messaging/followthrough/transactions_test.c": "72caf398ea7d7460734c97f3a919f817e3b90e6ac1f5cb7b407e99065ad2383d",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-007-R4",
+      "objective": "T73.07.d",
+      "criterion": "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Retry body stages synthetic log effects for commit; actual allocated-node privatization keeps reader leases alive after replacement and destroy, unlike the fixed-cell proof.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-007.md",
+        "assessor/messaging/analyses/X-T73-007.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/TRANSACTIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/transactions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/transactions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-007.md": "8ab1a14d39ad27d1fdb4de0cf69811316b149483edce90797f08be2ff834a32c",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/transactions.c": "02421e6538091b07dda0d1e62a50c0cd571659cf3bcc1227a109813915cf6022",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-007.md": "e3441d524d58a9ea4d0bf91a111a80019c43313f75569c94585a159d9d635ef3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/TRANSACTIONS.md": "bd8a65dcbcfd9aad7eeaac7de507bb9f71c37df2aa16dd42a0504c5f2c9f2120",
+        "labs/messaging/followthrough/transactions_test.c": "72caf398ea7d7460734c97f3a919f817e3b90e6ac1f5cb7b407e99065ad2383d",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-008-R1",
+      "objective": "T73.08.a",
+      "criterion": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Version visibility and pin lifetime are derived separately from stronger isolation and allocated payload ownership; forgotten pins retain history.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-008.md",
+        "assessor/messaging/analyses/X-T73-008.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/VERSIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/versions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/versions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-008.md": "c6403ba75100d6000338e7db7ceab590797c8002dda897f3263ab34f5a49c95a",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/versions.c": "825e275b38a73d18c7b53a956b17535c888224ab073465627d07f7321c01cdf8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-008.md": "1bff2a50e4cb2fac2202e9a686bf2ac35905d4145448906a6e5521f4c8bb840b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/VERSIONS.md": "e9f63a2db491b295b12bdebb624a43fc1bdcfb2d533b46184187ee329ea87cd6",
+        "labs/messaging/followthrough/versions_test.c": "56027c0cd315b19520def975b960cc227a6c213a47e8aae4a05ec25e26d57e17",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-008-R2",
+      "objective": "T73.08.b",
+      "criterion": "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual timestamped versions use exact pin generations, select immutable history, and collect within the four-pin/five-selected-version bound.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-008.md",
+        "assessor/messaging/analyses/X-T73-008.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/VERSIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/versions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/versions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-008.md": "c6403ba75100d6000338e7db7ceab590797c8002dda897f3263ab34f5a49c95a",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/versions.c": "825e275b38a73d18c7b53a956b17535c888224ab073465627d07f7321c01cdf8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-008.md": "1bff2a50e4cb2fac2202e9a686bf2ac35905d4145448906a6e5521f4c8bb840b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/VERSIONS.md": "e9f63a2db491b295b12bdebb624a43fc1bdcfb2d533b46184187ee329ea87cd6",
+        "labs/messaging/followthrough/versions_test.c": "56027c0cd315b19520def975b960cc227a6c213a47e8aae4a05ec25e26d57e17",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-008-R3",
+      "objective": "T73.08.c",
+      "criterion": "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Independent3910 histories, generation/stale/refusal cases and four simultaneous versions are checked; measured pin/copy costs are compared to explicit RCU lifetime assumptions, not an unimplemented RCU timing claim.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-008.md",
+        "assessor/messaging/analyses/X-T73-008.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/VERSIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/versions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/versions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-008.md": "c6403ba75100d6000338e7db7ceab590797c8002dda897f3263ab34f5a49c95a",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/versions.c": "825e275b38a73d18c7b53a956b17535c888224ab073465627d07f7321c01cdf8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-008.md": "1bff2a50e4cb2fac2202e9a686bf2ac35905d4145448906a6e5521f4c8bb840b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/VERSIONS.md": "e9f63a2db491b295b12bdebb624a43fc1bdcfb2d533b46184187ee329ea87cd6",
+        "labs/messaging/followthrough/versions_test.c": "56027c0cd315b19520def975b960cc227a6c213a47e8aae4a05ec25e26d57e17",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-008-R4",
+      "objective": "T73.08.d",
+      "criterion": "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Three clone-allocation cuts preserve existing readers; two-key independent and actual-thread write-skew cases distinguish write-only from observed-predicate validation.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-008.md",
+        "assessor/messaging/analyses/X-T73-008.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/VERSIONS.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/versions.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/versions_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-008.md": "c6403ba75100d6000338e7db7ceab590797c8002dda897f3263ab34f5a49c95a",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/versions.c": "825e275b38a73d18c7b53a956b17535c888224ab073465627d07f7321c01cdf8",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-008.md": "1bff2a50e4cb2fac2202e9a686bf2ac35905d4145448906a6e5521f4c8bb840b",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/VERSIONS.md": "e9f63a2db491b295b12bdebb624a43fc1bdcfb2d533b46184187ee329ea87cd6",
+        "labs/messaging/followthrough/versions_test.c": "56027c0cd315b19520def975b960cc227a6c213a47e8aae4a05ec25e26d57e17",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-009-R1",
+      "objective": "T73.09.a",
+      "criterion": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Atomic storage race freedom, odd/even validation, single writer, bounded attempts and finite counter lifetime each have their own obligation.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-009.md",
+        "assessor/messaging/analyses/X-T73-009.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_sequence_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-009.md": "2008d01bab26c559c75724710fc266e1400a7a2ce5d3dc8f9ccdff87a65c63cb",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-009.md": "0bc7e554a18f87211bbce26b154af2da642492f6d9171ba7e3544f67895cf705",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_sequence_model.c": "4f9ac3d9b4f35f376c989779e86776f56fed6b52d8ce24b1923e58325ef777f9",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-009-R2",
+      "objective": "T73.09.b",
+      "criterion": "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "SC and weak scalar representations publish no result before validation, preserve failure output and refuse nonwrapping counter exhaustion.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-009.md",
+        "assessor/messaging/analyses/X-T73-009.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_sequence_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-009.md": "2008d01bab26c559c75724710fc266e1400a7a2ce5d3dc8f9ccdff87a65c63cb",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-009.md": "0bc7e554a18f87211bbce26b154af2da642492f6d9171ba7e3544f67895cf705",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_sequence_model.c": "4f9ac3d9b4f35f376c989779e86776f56fed6b52d8ce24b1923e58325ef777f9",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-009-R3",
+      "objective": "T73.09.c",
+      "criterion": "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Zero attempts, odd/interrupted writer, output canaries and native coherent-pair stress run under TSan; one-attempt mutex comparison includes refusals and actual generated instructions.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-009.md",
+        "assessor/messaging/analyses/X-T73-009.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_sequence_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-009.md": "2008d01bab26c559c75724710fc266e1400a7a2ce5d3dc8f9ccdff87a65c63cb",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-009.md": "0bc7e554a18f87211bbce26b154af2da642492f6d9171ba7e3544f67895cf705",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_sequence_model.c": "4f9ac3d9b4f35f376c989779e86776f56fed6b52d8ce24b1923e58325ef777f9",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-009-R4",
+      "objective": "T73.09.d",
+      "criterion": "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "RC11 fence/ordering controls reject missing required edges; separately retained pointer snapshot allows a paused reader to outlive replacement without claiming seqlock validation retains storage.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-009.md",
+        "assessor/messaging/analyses/X-T73-009.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/WEAK.md",
+        "labs/messaging/followthrough/LIFETIME.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/weak.c",
+        "assessor/messaging/followthrough/lifetime.c",
+        "labs/messaging/followthrough/weak_test.c",
+        "labs/messaging/followthrough/weak_sequence_model.c",
+        "labs/messaging/followthrough/lifetime_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json",
+        "research/v5/modern/messaging_models_validation.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-009.md": "2008d01bab26c559c75724710fc266e1400a7a2ce5d3dc8f9ccdff87a65c63cb",
+        "assessor/messaging/followthrough/lifetime.c": "da8023ebec8ea0315f504256245a057705f2aa053884ba5623860fabe2450949",
+        "assessor/messaging/followthrough/weak.c": "3abf6ac1648374a6db040e910ba74245b49fe03a4f97ca325db22fc7da3be2ce",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-009.md": "0bc7e554a18f87211bbce26b154af2da642492f6d9171ba7e3544f67895cf705",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/LIFETIME.md": "e4c04c0370cbd77653014282cd4303bc1d9f06f85ac5b476c847ce79709e2680",
+        "labs/messaging/followthrough/WEAK.md": "0200b9d969178fd29bdd8fa303027497d7977dd22cd496b490ef1172d29f687e",
+        "labs/messaging/followthrough/lifetime_test.c": "efc87f241cded0418047f5f8247a79424daefc7745d8dc4b20dc0ff5cd9db197",
+        "labs/messaging/followthrough/weak_sequence_model.c": "4f9ac3d9b4f35f376c989779e86776f56fed6b52d8ce24b1923e58325ef777f9",
+        "labs/messaging/followthrough/weak_test.c": "ca022bf7b08e7127c78fb3865dba8aa0aaa971ab4418e4125d179b6988f2d9a9",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "research/v5/modern/messaging_models_validation.json": "94465e63591e1cdd544b967c962bcdb80388129a755e55cd3e0df6b52e0f5aa9",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-010-R1",
+      "objective": "T73.10.a",
+      "criterion": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Demand, terminal order and cancellation are explicitly compared to selected Reactive Streams rules, with unsigned C subset and reentrancy differences recorded.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-010.md",
+        "assessor/messaging/analyses/X-T73-010.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/STREAM.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/stream.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/stream_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-010.md": "675dc60dc67a5a77761b07611bd36649cce4973d123ae4a194768daa65b323ef",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/stream.c": "865e72dafa0777c85d61179f67d6b095ee3e29440c6cb651a2bea3cf0efc6b44",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-010.md": "b24818c0277f4e780047cd8ea366c6ed446a7444f6a82e8d8e0553f140f424b3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/STREAM.md": "7488885f7f94db69d676cdc3ef376ff52bea99cd93b243b0eaa405bb0c9b3117",
+        "labs/messaging/followthrough/stream_test.c": "32ece684fe4b87db63a7df21c8f7a59458369d200e8a545a5a8f6cea17c5820f",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-010-R2",
+      "objective": "T73.10.b",
+      "criterion": "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "MfqStream imports actual MsgHub/MsgStream into one executor; request and delivery conserve credit while context ownership survives in-flight work.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-010.md",
+        "assessor/messaging/analyses/X-T73-010.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/STREAM.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/stream.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/stream_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-010.md": "675dc60dc67a5a77761b07611bd36649cce4973d123ae4a194768daa65b323ef",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/stream.c": "865e72dafa0777c85d61179f67d6b095ee3e29440c6cb651a2bea3cf0efc6b44",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-010.md": "b24818c0277f4e780047cd8ea366c6ed446a7444f6a82e8d8e0553f140f424b3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/STREAM.md": "7488885f7f94db69d676cdc3ef376ff52bea99cd93b243b0eaa405bb0c9b3117",
+        "labs/messaging/followthrough/stream_test.c": "32ece684fe4b87db63a7df21c8f7a59458369d200e8a545a5a8f6cea17c5820f",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-010-R3",
+      "objective": "T73.10.c",
+      "criterion": "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Independent19608 request/emit/end/cancel words and boundary tests cover saturation, zero demand, recursive signals, callback requests and terminal delivery without credit.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-010.md",
+        "assessor/messaging/analyses/X-T73-010.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/STREAM.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/stream.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/stream_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-010.md": "675dc60dc67a5a77761b07611bd36649cce4973d123ae4a194768daa65b323ef",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/stream.c": "865e72dafa0777c85d61179f67d6b095ee3e29440c6cb651a2bea3cf0efc6b44",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-010.md": "b24818c0277f4e780047cd8ea366c6ed446a7444f6a82e8d8e0553f140f424b3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/STREAM.md": "7488885f7f94db69d676cdc3ef376ff52bea99cd93b243b0eaa405bb0c9b3117",
+        "labs/messaging/followthrough/stream_test.c": "32ece684fe4b87db63a7df21c8f7a59458369d200e8a545a5a8f6cea17c5820f",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-010-R4",
+      "objective": "T73.10.d",
+      "criterion": "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Several producer threads serialize through the worker; paused callbacks retain context until join/last handle, and bounded WAIT/DROP/FAIL tests compare their distinct accepted/dropped contracts.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-010.md",
+        "assessor/messaging/analyses/X-T73-010.md",
+        "labs/messaging/CONTRACTS.md",
+        "labs/messaging/followthrough/STREAM.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/messaging/followthrough/stream.c",
+        "assessor/messaging/followthrough/owned.c",
+        "labs/messaging/followthrough/stream_test.c",
+        "assessor/messaging/messaging.c",
+        "labs/messaging/tests/tests.c",
+        "tools/verify_messaging_completion.py",
+        "tools/verify_messaging_fixtures.py",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+        "research/v5/modern/messaging_cost_review.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/messaging/analyses/X-T73-010.md": "675dc60dc67a5a77761b07611bd36649cce4973d123ae4a194768daa65b323ef",
+        "assessor/messaging/followthrough/owned.c": "6ea4e93b0ca6d62f32f2974d9dbd11a2a55b959a35094785412ccb536a9c7f53",
+        "assessor/messaging/followthrough/stream.c": "865e72dafa0777c85d61179f67d6b095ee3e29440c6cb651a2bea3cf0efc6b44",
+        "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+        "curriculum/v5/exercises/X-T73-010.md": "b24818c0277f4e780047cd8ea366c6ed446a7444f6a82e8d8e0553f140f424b3",
+        "labs/messaging/CONTRACTS.md": "4e0a69fd4b219ee928d2fba90217ed6721c0f99e139e8e714e527259fb15bbf0",
+        "labs/messaging/followthrough/STREAM.md": "7488885f7f94db69d676cdc3ef376ff52bea99cd93b243b0eaa405bb0c9b3117",
+        "labs/messaging/followthrough/stream_test.c": "32ece684fe4b87db63a7df21c8f7a59458369d200e8a545a5a8f6cea17c5820f",
+        "labs/messaging/tests/tests.c": "7c9fd84b0b2cd42541611e4ae9e79ff417d3313fb0d865c75cd6dcea8a80820a",
+        "research/v5/modern/messaging_cost_review.json": "68760fd89aa6cb7f3c5ad79ee7d28ded617c98be3b287f1bea7decaabf0643df",
+        "reviews/v5/expansion/modern_completion/messaging_current_campaign.json": "c98735438d40895693d1846ecaa7d917c033213c1f06d65c531ab39690be0cdf",
+        "tools/verify_messaging_completion.py": "ea5203b23bc5f66dacd1d513f89cdd29a3a908d911b66b2d0c449bce9d090885",
+        "tools/verify_messaging_fixtures.py": "6b4503d3343d55d414e5bd79ea0363878b1f320944bfc8dda71d6168d2079ca3"
+      }
+    },
+    {
+      "id": "X-T73-011-R1",
+      "objective": "T73.03.a",
+      "criterion": "Derive a composed ownership graph and partial order arm before quiescent disarm before cleanup before receiver; distinguish stop intent from completion and explain why a generation token is not reclamation.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Composed graph orders arm, quiescent disarm, cleanup, receiver; generation mismatch is explicitly separate from retained lifetime.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-011.md",
+        "assessor/modern_composition/analyses/X-T73-011.md",
+        "labs/modern_composition/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/linux_port.c",
+        "labs/modern_composition/tests/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/modern_composition/analyses/X-T73-011.md": "81dad6d7fef3ec222aa12341e06eb995bfce661df1611aab8eb9231a1e7e66bf",
+        "assessor/modern_composition/composition.c": "2a3e8a0159f8e18f1a3ec146be41c9399ae30be31b136f81467853be83416742",
+        "assessor/modern_composition/linux_port.c": "84d78e24683a52716315a9823d60f532366568035c904bec8e0edd3c07a7da4e",
+        "curriculum/v5/exercises/X-T73-011.md": "b68d998039f64f26f0a7be9a77cefcebfe5c3d7de5abb770d6280602c6a151d8",
+        "labs/modern_composition/CONTRACTS.md": "b1abb933ca0513d4331f2c8ee53c78293af9f09dee8ec872a02d1254d2a63d95",
+        "labs/modern_composition/tests/recovery.c": "379be8fb418ccca3846a474d1e5c816bfd5143cb7d3b8260b1cb51f4a8dea6a3",
+        "labs/modern_composition/tests/tests.c": "56e36ceb6da11144f41285723aa80f47f945be72d8ea19dd0d8e50086be44ceb",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0"
+      }
+    },
+    {
+      "id": "X-T73-011-R2",
+      "objective": "T73.03.b",
+      "criterion": "Implement serialized init/poll/cancel using the real three component APIs, publish only complete bytes, preserve partial progress on failure and use no adapter field after the receiver may free it.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual COAsync, MsgOperation and cleanup-stack APIs compose serialized poll/cancel; local nonblocking socket pairs exercise complete and partial input without premature output.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-011.md",
+        "assessor/modern_composition/analyses/X-T73-011.md",
+        "labs/modern_composition/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/linux_port.c",
+        "labs/modern_composition/tests/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/modern_composition/analyses/X-T73-011.md": "81dad6d7fef3ec222aa12341e06eb995bfce661df1611aab8eb9231a1e7e66bf",
+        "assessor/modern_composition/composition.c": "2a3e8a0159f8e18f1a3ec146be41c9399ae30be31b136f81467853be83416742",
+        "assessor/modern_composition/linux_port.c": "84d78e24683a52716315a9823d60f532366568035c904bec8e0edd3c07a7da4e",
+        "curriculum/v5/exercises/X-T73-011.md": "b68d998039f64f26f0a7be9a77cefcebfe5c3d7de5abb770d6280602c6a151d8",
+        "labs/modern_composition/CONTRACTS.md": "b1abb933ca0513d4331f2c8ee53c78293af9f09dee8ec872a02d1254d2a63d95",
+        "labs/modern_composition/tests/recovery.c": "379be8fb418ccca3846a474d1e5c816bfd5143cb7d3b8260b1cb51f4a8dea6a3",
+        "labs/modern_composition/tests/tests.c": "56e36ceb6da11144f41285723aa80f47f945be72d8ea19dd0d8e50086be44ceb",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0"
+      }
+    },
+    {
+      "id": "X-T73-011-R3",
+      "objective": "T73.03.c",
+      "criterion": "Predict pending/cancel, full completion and partial error traces for retained and receiver-freed states; test mismatched generations and duplicate calls on live terminal state, and reject skipped-disarm and skipped-cleanup mutants.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Pending/full/EOF/cancel and receiver-freed states run with generation/duplicate-call checks; disarm/cleanup mutants fail the named order assertions.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-011.md",
+        "assessor/modern_composition/analyses/X-T73-011.md",
+        "labs/modern_composition/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/linux_port.c",
+        "labs/modern_composition/tests/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/modern_composition/analyses/X-T73-011.md": "81dad6d7fef3ec222aa12341e06eb995bfce661df1611aab8eb9231a1e7e66bf",
+        "assessor/modern_composition/composition.c": "2a3e8a0159f8e18f1a3ec146be41c9399ae30be31b136f81467853be83416742",
+        "assessor/modern_composition/linux_port.c": "84d78e24683a52716315a9823d60f532366568035c904bec8e0edd3c07a7da4e",
+        "curriculum/v5/exercises/X-T73-011.md": "b68d998039f64f26f0a7be9a77cefcebfe5c3d7de5abb770d6280602c6a151d8",
+        "labs/modern_composition/CONTRACTS.md": "b1abb933ca0513d4331f2c8ee53c78293af9f09dee8ec872a02d1254d2a63d95",
+        "labs/modern_composition/tests/recovery.c": "379be8fb418ccca3846a474d1e5c816bfd5143cb7d3b8260b1cb51f4a8dea6a3",
+        "labs/modern_composition/tests/tests.c": "56e36ceb6da11144f41285723aa80f47f945be72d8ea19dd0d8e50086be44ceb",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0"
+      }
+    },
+    {
+      "id": "X-T73-011-R4",
+      "objective": "T73.03.d",
+      "criterion": "Replace synchronous quiescent disarm with asynchronous cancellation acknowledgement. Derive a retained operation reference and completion winner protocol, including a delayed callback, instead of freeing the frame when cancellation is requested.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Real worker poll/queued notice uses retained references; request_cancel returns before join/discard, finish_cancel establishes quiescence before receiver cleanup, including delayed undispatched notice.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T73-011.md",
+        "assessor/modern_composition/analyses/X-T73-011.md",
+        "labs/modern_composition/CONTRACTS.md"
+      ],
+      "implementation_and_observation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/linux_port.c",
+        "labs/modern_composition/tests/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json"
+      ],
+      "limits": [
+        "Exact supplied contract, finite clients and host/tool profiles only; no all-schedule or arbitrary-target proof.",
+        "Independent learner attempts, delayed performance and non-author review are not established by author implementations."
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_evidence": "not-claimed",
+      "pins": {
+        "assessor/modern_composition/analyses/X-T73-011.md": "81dad6d7fef3ec222aa12341e06eb995bfce661df1611aab8eb9231a1e7e66bf",
+        "assessor/modern_composition/composition.c": "2a3e8a0159f8e18f1a3ec146be41c9399ae30be31b136f81467853be83416742",
+        "assessor/modern_composition/linux_port.c": "84d78e24683a52716315a9823d60f532366568035c904bec8e0edd3c07a7da4e",
+        "curriculum/v5/exercises/X-T73-011.md": "b68d998039f64f26f0a7be9a77cefcebfe5c3d7de5abb770d6280602c6a151d8",
+        "labs/modern_composition/CONTRACTS.md": "b1abb933ca0513d4331f2c8ee53c78293af9f09dee8ec872a02d1254d2a63d95",
+        "labs/modern_composition/tests/recovery.c": "379be8fb418ccca3846a474d1e5c816bfd5143cb7d3b8260b1cb51f4a8dea6a3",
+        "labs/modern_composition/tests/tests.c": "56e36ceb6da11144f41285723aa80f47f945be72d8ea19dd0d8e50086be44ceb",
+        "reviews/v5/expansion/modern_completion/modern_composition_campaign.json": "f7f3334713dffe499ce38e1c4c170493f1ae9dfaccd1f3ffdcf1819a7fef48c0"
+      }
+    }
+  ],
+  "roots": [
+    {
+      "id": "X-T73-001",
+      "criteria": [
+        "X-T73-001-R1",
+        "X-T73-001-R2",
+        "X-T73-001-R3",
+        "X-T73-001-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-001-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-002",
+      "criteria": [
+        "X-T73-002-R1",
+        "X-T73-002-R2",
+        "X-T73-002-R3",
+        "X-T73-002-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-002-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-003",
+      "criteria": [
+        "X-T73-003-R1",
+        "X-T73-003-R2",
+        "X-T73-003-R3",
+        "X-T73-003-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-003-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-004",
+      "criteria": [
+        "X-T73-004-R1",
+        "X-T73-004-R2",
+        "X-T73-004-R3",
+        "X-T73-004-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-004-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-005",
+      "criteria": [
+        "X-T73-005-R1",
+        "X-T73-005-R2",
+        "X-T73-005-R3",
+        "X-T73-005-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-005-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-006",
+      "criteria": [
+        "X-T73-006-R1",
+        "X-T73-006-R2",
+        "X-T73-006-R3",
+        "X-T73-006-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-006-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-007",
+      "criteria": [
+        "X-T73-007-R1",
+        "X-T73-007-R2",
+        "X-T73-007-R3",
+        "X-T73-007-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-007-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-008",
+      "criteria": [
+        "X-T73-008-R1",
+        "X-T73-008-R2",
+        "X-T73-008-R3",
+        "X-T73-008-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-008-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-009",
+      "criteria": [
+        "X-T73-009-R1",
+        "X-T73-009-R2",
+        "X-T73-009-R3",
+        "X-T73-009-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-009-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-010",
+      "criteria": [
+        "X-T73-010-R1",
+        "X-T73-010-R2",
+        "X-T73-010-R3",
+        "X-T73-010-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-010-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    },
+    {
+      "id": "X-T73-011",
+      "criteria": [
+        "X-T73-011-R1",
+        "X-T73-011-R2",
+        "X-T73-011-R3",
+        "X-T73-011-R4"
+      ],
+      "author_readiness": "ready-bounded",
+      "delayed_variant": [
+        "X-T73-011-DELAYED"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": [
+    "reviews/v5/expansion/modern_completion/messaging_current_campaign.json",
+    "reviews/v5/expansion/modern_completion/modern_composition_campaign.json",
+    "research/v5/modern/messaging_models_validation.json",
+    "research/v5/modern/coroutines_followthrough_validation.json",
+    "research/v5/modern/messaging_cost_validation.json",
+    "research/v5/modern/messaging_build_cost_validation.json"
+  ],
+  "scope": "Per-criterion author support with explicit real imports; independent learner and exact inaccessible-source gaps remain separate.",
+  "import_dispositions": {
+    "work.pool": {
+      "producer": "LAB-HS-10 / PR-T25-01",
+      "status": "actual-source-composition",
+      "consumer": "mfn_pool_task calls hs_pool_sum; pool.c is an explicit hosted_systems dependency"
+    },
+    "io.deadline": {
+      "producer": "LAB-HS-03 / PR-T24-05",
+      "status": "actual-source-composition",
+      "consumer": "mfn_wait calls hs_read_until; deadline.c is an explicit hosted_systems dependency"
+    },
+    "coro.frame": {
+      "producer": "T72 coroutine family",
+      "status": "actual-source-composition",
+      "consumer": "ca_channel_deliver uses actual MsgHub with retained asynchronous tickets; McRead imports actual COAsync"
+    },
+    "sync.condition_queue": {
+      "producer": "LAB-HS-11 / PR-T25-02",
+      "status": "prerequisite-contract-and-proof-transfer",
+      "consumer": "The new predicate/registration protocol is implemented from primitives; it does not claim to call the earlier copied-value queue"
+    },
+    "sync.spsc": {
+      "producer": "U-T55-01-03 / PR-T55-01",
+      "status": "prerequisite-contract-not-invented-api",
+      "consumer": "Catalog publication/storage contract informs ordering prerequisites; the owner/multiple-thief deque is a separately implemented protocol, not an SPSC call-through"
+    },
+    "io.async": {
+      "producer": "U-T21-02-04 / PR-T21-02",
+      "status": "contract-only-producer-explicit-adapter",
+      "consumer": "McLinuxPort implements real readiness/request/acknowledgement against the ownership contract; no undocumented legacy API is claimed"
+    },
+    "testing.faults": {
+      "producer": "U-T32-02-02 / PR-T32-02",
+      "status": "contract-only-producer-explicit-fixtures",
+      "consumer": "Admission, allocation and commit-phase controls implement declared fault schedules and separate oracles; there is no invented linked fault library"
+    }
+  }
+}

@@ -1,414 +1,414 @@
 {
- "schema_version": 5,
- "domain": "T25",
- "recall": {
-  "define": "Without opening the glossary, define mutex, condition variable, spurious wakeup, publication (memory ordering) and false sharing in one sentence each, naming the normative source for each.",
-  "distinguish": "For each pair, state the distinction and give a one-line C example that has the first but not the second: data race versus race condition; lock-free (atomic property) versus lock-free (progress guarantee); fence versus barrier (thread); volatile versus atomic operation; sequenced before versus happens before.",
-  "apply": "A worker thread publishes a filled buffer through a pointer and the consumer polls the pointer with relaxed loads. Using the terms publication (memory ordering), release sequence and synchronizes with, explain what the consumer may observe, which memory orders repair it, and which term applies to the remaining timing hazard once the data race is gone."
- },
- "entries": [
-  {
-   "id": "V-T25-mutex",
-   "term": "mutex",
-   "kind": "concurrency",
-   "definition": "A mutual-exclusion lock that at most one thread holds at a time; unlocking it synchronizes with the next lock, so the critical section's writes happen before the next holder's reads. Ownership belongs to the locking thread, which is what distinguishes it from a binary semaphore.",
-   "authority": [
+  "schema_version": 5,
+  "domain": "T25",
+  "recall": {
+    "define": "Without opening the glossary, define mutex, condition variable, spurious wakeup, publication (memory ordering) and false sharing in one sentence each, naming the normative source for each.",
+    "distinguish": "For each pair, state the distinction and give a one-line C example that has the first but not the second: data race versus race condition; lock-free (atomic property) versus lock-free (progress guarantee); fence versus barrier (thread); volatile versus atomic operation; sequenced before versus happens before.",
+    "apply": "A worker thread publishes a filled buffer through a pointer and the consumer polls the pointer with relaxed loads. Using the terms publication (memory ordering), release sequence and synchronizes with, explain what the consumer may observe, which memory orders repair it, and which term applies to the remaining timing hazard once the data race is gone."
+  },
+  "entries": [
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "§30.1 Protecting Accesses to Shared Variables: Mutexes, pp. 631–635",
-     "inspection": "registry"
+      "id": "V-T25-mutex",
+      "term": "mutex",
+      "kind": "concurrency",
+      "definition": "A mutual-exclusion lock that at most one thread holds at a time; unlocking it synchronizes with the next lock, so the critical section's writes happen before the next holder's reads. Ownership belongs to the locking thread, which is what distinguishes it from a binary semaphore.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-TLPI-2010",
+          "locator": "§30.1 Protecting Accesses to Shared Variables: Mutexes, pp. 631–635",
+          "inspection": "registry"
+        },
+        {
+          "resource_id": "R-SYS-POSIX-MEMORY-2024",
+          "locator": "§4.15.2 Memory Synchronization",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "pthread_mutex_lock",
+        "pthread_mutex_unlock",
+        "mtx_lock"
+      ],
+      "distinguish_from": [
+        {
+          "term": "semaphore",
+          "distinction": "A semaphore counts permits and may be released by a thread that never acquired it; a mutex is owned and must be released by its holder."
+        }
+      ],
+      "idiom": [
+        "hold the mutex while reading the two fields together"
+      ],
+      "misconception": "A mutex protects data (it protects a critical section; the discipline of taking it on every access is what protects the data)."
     },
     {
-     "resource_id": "R-SYS-POSIX-MEMORY-2024",
-     "locator": "§4.15.2 Memory Synchronization",
-     "inspection": "registry"
-    }
-   ],
-   "symbols": [
-    "pthread_mutex_lock",
-    "pthread_mutex_unlock",
-    "mtx_lock"
-   ],
-   "distinguish_from": [
-    {
-     "term": "semaphore",
-     "distinction": "A semaphore counts permits and may be released by a thread that never acquired it; a mutex is owned and must be released by its holder."
-    }
-   ],
-   "idiom": [
-    "hold the mutex while reading the two fields together"
-   ],
-   "misconception": "A mutex protects data (it protects a critical section; the discipline of taking it on every access is what protects the data)."
-  },
-  {
-   "id": "V-T25-condition-variable",
-   "term": "condition variable",
-   "kind": "concurrency",
-   "definition": "A waiting primitive, always paired with a mutex, that lets a thread sleep until another thread signals that a predicate over shared state may have changed; the predicate is rechecked in a loop because wakeups can be spurious or stale.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "§30.2.2 Signaling and Waiting on Condition Variables, pp. 643–647",
-     "inspection": "registry"
+      "id": "V-T25-condition-variable",
+      "term": "condition variable",
+      "kind": "concurrency",
+      "definition": "A waiting primitive, always paired with a mutex, that lets a thread sleep until another thread signals that a predicate over shared state may have changed; the predicate is rechecked in a loop because wakeups can be spurious or stale.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-TLPI-2010",
+          "locator": "§30.2.2 Signaling and Waiting on Condition Variables, pp. 643–647",
+          "inspection": "registry"
+        },
+        {
+          "resource_id": "R-SYS-POSIX-COND-2024",
+          "locator": "DESCRIPTION, opening wait/mutex and predicate requirements",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "pthread_cond_wait",
+        "pthread_cond_signal",
+        "pthread_cond_broadcast",
+        "cnd_wait"
+      ],
+      "idiom": [
+        "while (!ready) pthread_cond_wait(&cv, &m);"
+      ],
+      "misconception": "A condition variable stores the condition (it stores nothing; the predicate lives in shared state guarded by the mutex)."
     },
     {
-     "resource_id": "R-SYS-POSIX-COND-2024",
-     "locator": "DESCRIPTION, opening wait/mutex and predicate requirements",
-     "inspection": "registry"
-    }
-   ],
-   "symbols": [
-    "pthread_cond_wait",
-    "pthread_cond_signal",
-    "pthread_cond_broadcast",
-    "cnd_wait"
-   ],
-   "idiom": [
-    "while (!ready) pthread_cond_wait(&cv, &m);"
-   ],
-   "misconception": "A condition variable stores the condition (it stores nothing; the predicate lives in shared state guarded by the mutex)."
-  },
-  {
-   "id": "V-T25-spurious-wakeup",
-   "term": "spurious wakeup",
-   "kind": "concurrency",
-   "definition": "A return from a condition-variable wait that no signal caused, which POSIX permits for efficiency; correct code therefore re-evaluates its predicate after every wakeup rather than assuming the condition holds.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-POSIX-COND-2024",
-     "locator": "RATIONALE — Condition Wait Semantics",
-     "inspection": "registry"
+      "id": "V-T25-spurious-wakeup",
+      "term": "spurious wakeup",
+      "kind": "concurrency",
+      "definition": "A return from a condition-variable wait that no signal caused, which POSIX permits for efficiency; correct code therefore re-evaluates its predicate after every wakeup rather than assuming the condition holds.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-POSIX-COND-2024",
+          "locator": "RATIONALE — Condition Wait Semantics",
+          "inspection": "registry"
+        },
+        {
+          "resource_id": "R-SYS-TLPI-2010",
+          "locator": "§30.2.3 Testing a Condition Variable’s Predicate, pp. 647–648",
+          "inspection": "registry"
+        }
+      ],
+      "idiom": [
+        "guard against spurious wakeups with a predicate loop"
+      ],
+      "misconception": "pthread_cond_wait returns only when signaled."
     },
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "§30.2.3 Testing a Condition Variable’s Predicate, pp. 647–648",
-     "inspection": "registry"
-    }
-   ],
-   "idiom": [
-    "guard against spurious wakeups with a predicate loop"
-   ],
-   "misconception": "pthread_cond_wait returns only when signaled."
-  },
-  {
-   "id": "V-T25-semaphore",
-   "term": "semaphore",
-   "kind": "concurrency",
-   "definition": "A counter with atomic wait (decrement or block when zero) and post (increment and wake) operations; it has no owner, so it can signal across contexts, including from an interrupt handler to a thread, where a mutex cannot be used.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 53: POSIX Semaphores",
-     "inspection": "pending"
-    }
-   ],
-   "symbols": [
-    "sem_wait",
-    "sem_post"
-   ],
-   "idiom": [
-    "post the semaphore from the handler, wait in the thread"
-   ],
-   "misconception": "A semaphore initialized to one is a mutex."
-  },
-  {
-   "id": "V-T25-read-write-lock",
-   "term": "read-write lock",
-   "kind": "concurrency",
-   "definition": "A lock that admits any number of concurrent readers or exactly one writer; it pays off only when read sections are long and frequent, because the extra bookkeeping and writer starvation policy cost more than a plain mutex on short sections.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 30: Threads: Thread Synchronization",
-     "inspection": "pending"
-    }
-   ],
-   "symbols": [
-    "pthread_rwlock_rdlock",
-    "pthread_rwlock_wrlock"
-   ],
-   "misconception": "Read-write locks are always faster than mutexes for read-heavy workloads."
-  },
-  {
-   "id": "V-T25-thread-local-storage-c",
-   "term": "thread-local storage (C)",
-   "kind": "iso-c",
-   "definition": "Objects with thread storage duration, declared thread_local (C23) or _Thread_local (C11), of which each thread has its own instance created when the thread starts and destroyed when it ends; the ELF TLS segment is the toolchain mechanism that implements it.",
-   "authority": [
-    {
-     "resource_id": "R-wg14-n3096",
-     "locator": "6.2.4 Storage durations of objects",
-     "inspection": "registry"
+      "id": "V-T25-semaphore",
+      "term": "semaphore",
+      "kind": "concurrency",
+      "definition": "A synchronization count with atomic decrement/admission and increment operations. A zero count can block a wait; nonblocking and timed alternatives have explicit failure behavior. There is no mutex-style ownership requirement tying a post to the thread that waited. POSIX sem_post is async-signal-safe and can fail on count overflow; this says nothing about an arbitrary hardware interrupt handler or an RTOS API.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-MAN-6-19",
+          "locator": "sem_overview(7), DESCRIPTION; sem_post(3), ERRORS and NOTES",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "sem_wait",
+        "sem_post"
+      ],
+      "idiom": [
+        "post the semaphore from the handler, wait in the thread"
+      ],
+      "misconception": "A semaphore initialized to one is a mutex."
     },
     {
-     "resource_id": "R-SYS-GCC-TLS-15-2",
-     "locator": "§6.6 Thread-Local Storage — mechanism, __thread declarations and address lifetime",
-     "inspection": "registry"
-    }
-   ],
-   "edition_notes": [
-    {
-     "edition": "C11",
-     "note": "_Thread_local introduced."
+      "id": "V-T25-read-write-lock",
+      "term": "read-write lock",
+      "kind": "concurrency",
+      "definition": "A synchronization object allowing concurrent readers or an exclusive writer. Reader count has an implementation limit; writer admission, fairness and priority policy must be specified. Extra concurrency can help suitable workloads, but neither read frequency nor section length alone proves a speedup over a mutex. Initialization, lifetime and matching unlock obligations remain.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-POSIX-2017",
+          "locator": "pthread_rwlock_rdlock(3p), DESCRIPTION and ERRORS",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "pthread_rwlock_rdlock",
+        "pthread_rwlock_wrlock"
+      ],
+      "misconception": "Read-write locks are always faster than mutexes for read-heavy workloads."
     },
     {
-     "edition": "C23",
-     "note": "thread_local becomes a keyword."
-    }
-   ],
-   "symbols": [
-    "thread_local",
-    "_Thread_local"
-   ],
-   "distinguish_from": [
+      "id": "V-T25-thread-local-storage-c",
+      "term": "thread-local storage (C)",
+      "kind": "iso-c",
+      "definition": "Objects with thread storage duration, declared thread_local (C23) or _Thread_local (C11), of which each thread has its own instance created when the thread starts and destroyed when it ends; the ELF TLS segment is the toolchain mechanism that implements it.",
+      "authority": [
+        {
+          "resource_id": "R-wg14-n3096",
+          "locator": "6.2.4 Storage durations of objects",
+          "inspection": "registry"
+        },
+        {
+          "resource_id": "R-SYS-GCC-TLS-15-2",
+          "locator": "§6.6 Thread-Local Storage — mechanism, __thread declarations and address lifetime",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C11",
+          "note": "_Thread_local introduced."
+        },
+        {
+          "edition": "C23",
+          "note": "thread_local becomes a keyword."
+        }
+      ],
+      "symbols": [
+        "thread_local",
+        "_Thread_local"
+      ],
+      "distinguish_from": [
+        {
+          "term": "TLS segment (ELF)",
+          "distinction": "The ELF PT_TLS segment and the thread pointer are how the loader and libc realize thread storage duration; the language concept is the storage duration."
+        }
+      ],
+      "misconception": "errno is a global variable (it has thread storage duration)."
+    },
     {
-     "term": "TLS segment (ELF)",
-     "distinction": "The ELF PT_TLS segment and the thread pointer are how the loader and libc realize thread storage duration; the language concept is the storage duration."
-    }
-   ],
-   "misconception": "errno is a global variable (it has thread storage duration)."
-  },
-  {
-   "id": "V-T25-thread-pool",
-   "term": "thread pool",
-   "kind": "concurrency",
-   "definition": "A fixed set of worker threads that take tasks from a bounded queue, bounding concurrency and thread-creation cost; its design questions are queue capacity, backpressure when full, shutdown ordering and which thread runs a task's completion.",
-   "authority": [
+      "id": "V-T25-thread-pool",
+      "term": "thread pool",
+      "kind": "concurrency",
+      "definition": "A reusable group of worker threads that execute submitted tasks. Fixed worker count and bounded admission are explicit choices in this curriculum, not universal properties of all pools. Contracts must specify queued and running ownership, overload behavior, cancellation, completion context and shutdown. Reuse can avoid repeated thread creation but does not alone bound memory or completion latency.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-COURSE-CONTRACTS",
+          "locator": "curriculum/projects/PR-P5-02.md: Contract, Steps and Acceptance; bounded pool is the course design choice",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "More threads in the pool always mean more throughput."
+    },
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 30: Threads: Thread Synchronization",
-     "inspection": "pending"
-    }
-   ],
-   "misconception": "More threads in the pool always mean more throughput."
-  },
-  {
-   "id": "V-T25-bounded-queue",
-   "term": "bounded queue",
-   "kind": "concurrency",
-   "definition": "A producer/consumer channel with a fixed capacity that blocks or rejects producers when full and consumers when empty; capacity is the backpressure mechanism that keeps memory use and latency bounded under overload.",
-   "authority": [
+      "id": "V-T25-bounded-queue",
+      "term": "bounded queue",
+      "kind": "concurrency",
+      "definition": "A queue with an explicit maximum number of admitted elements and a specified full/empty policy such as rejection, blocking or dropping. Capacity bounds admitted elements, not automatically total allocated memory, retained nodes or latency. Memory and waiting bounds additionally depend on ownership, reclamation, service and scheduling. Backpressure must be propagated to producers under the declared policy.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-MICHAEL-SCOTT-1996",
+          "locator": "Introduction, PDF pp.1–2: progress and retained storage counterexample",
+          "inspection": "registry"
+        }
+      ],
+      "idiom": [
+        "the bounded queue applies backpressure to the producer"
+      ],
+      "misconception": "An unbounded queue is simpler and therefore safer (it converts overload into memory exhaustion)."
+    },
     {
-     "resource_id": "R-SYS-MICHAEL-SCOTT-1996",
-     "locator": "Introduction and definition of non-blocking",
-     "inspection": "pending"
-    }
-   ],
-   "idiom": [
-    "the bounded queue applies backpressure to the producer"
-   ],
-   "misconception": "An unbounded queue is simpler and therefore safer (it converts overload into memory exhaustion)."
-  },
-  {
-   "id": "V-T25-deadlock",
-   "term": "deadlock",
-   "kind": "concurrency",
-   "definition": "A state in which each thread of a set waits for a resource held by another thread of the set, so none can proceed; it requires mutual exclusion, hold-and-wait, no preemption and circular wait, and a global lock order removes the last condition.",
-   "authority": [
+      "id": "V-T25-deadlock",
+      "term": "deadlock",
+      "kind": "concurrency",
+      "definition": "A set of participants cannot progress because each waits for a resource or event whose enabling action depends on another blocked participant. For ordinary resource-lock cycles, enforcing one strict lock acquisition order removes circular wait. This does not prevent every deadlock involving condition predicates, joins, callbacks or external events.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-TLPI-2010",
+          "locator": "30.1.4, printed p.639",
+          "inspection": "registry"
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "livelock",
+          "distinction": "In a livelock threads keep running and changing state but make no progress; in a deadlock they are blocked."
+        }
+      ],
+      "idiom": [
+        "acquire locks in a fixed global order to prevent deadlock"
+      ],
+      "misconception": "A single lock cannot deadlock (a thread relocking a non-recursive mutex it holds deadlocks with itself)."
+    },
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 30: Threads: Thread Synchronization",
-     "inspection": "pending"
-    }
-   ],
-   "distinguish_from": [
+      "id": "V-T25-livelock",
+      "term": "livelock",
+      "kind": "concurrency",
+      "definition": "Repeated active transitions that fail to complete the required operation, such as two participants continually abandoning and retrying a conflicting acquisition. Under the modern system-wide progress definition, a correctly proved lock-free algorithm excludes system-wide livelock while allowing an individual operation to starve. A loop that merely uses CAS has no such guarantee; scheduler, allocator and reclamation assumptions matter. The1996 paper used lock-free more loosely for absence of locks.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-MICHAEL-SCOTT-1996",
+          "locator": "Introduction, PDF p.1: historical non-blocking definition and terminology caveat",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "Using CAS in a retry loop proves lock-free progress (the algorithm and its dependencies need a progress argument)."
+    },
     {
-     "term": "livelock",
-     "distinction": "In a livelock threads keep running and changing state but make no progress; in a deadlock they are blocked."
-    }
-   ],
-   "idiom": [
-    "acquire locks in a fixed global order to prevent deadlock"
-   ],
-   "misconception": "A single lock cannot deadlock (a thread relocking a non-recursive mutex it holds deadlocks with itself)."
-  },
-  {
-   "id": "V-T25-livelock",
-   "term": "livelock",
-   "kind": "concurrency",
-   "definition": "A failure of progress in which threads repeatedly react to one another (retrying, backing off, yielding) without any of them completing; lock-free retry loops and overly polite collision avoidance both produce it.",
-   "authority": [
+      "id": "V-T25-starvation",
+      "term": "starvation",
+      "kind": "concurrency",
+      "definition": "Indefinite postponement of a participant while other participants continue to progress. Lock admission and scheduling policies can permit it. Fairness must be defined precisely: eventual-service fairness does not supply a finite time or bypass bound. A bounded-waiting claim needs an explicit bound and scheduling assumptions.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-TLPI-2010",
+          "locator": "55.3.6, printed p.1137",
+          "inspection": "registry"
+        }
+      ],
+      "aliases": [
+        "fairness"
+      ],
+      "misconception": "A lock-free algorithm guarantees that every thread eventually completes (that is wait-freedom)."
+    },
     {
-     "resource_id": "R-SYS-MICHAEL-SCOTT-1996",
-     "locator": "Introduction and definition of non-blocking",
-     "inspection": "pending"
-    }
-   ],
-   "misconception": "Lock-free code cannot livelock."
-  },
-  {
-   "id": "V-T25-starvation",
-   "term": "starvation",
-   "kind": "concurrency",
-   "definition": "The indefinite postponement of one thread while others keep making progress, caused by unfair scheduling, lock hand-off policy or priorities; fairness is the property that bounds how long any thread can be bypassed.",
-   "authority": [
+      "id": "V-T25-priority-inversion",
+      "term": "priority inversion",
+      "kind": "concurrency",
+      "definition": "A higher-priority task is delayed by a resource owner of lower priority; intervening runnable tasks can extend that delay. Priority inheritance raises an owner according to blocked waiters, while a priority-protection protocol uses configured ceilings. A finite blocking bound still requires correct protocol configuration, bounded critical sections and a stated scheduling/resource model; choosing an attribute alone is not a deadline proof.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-POSIX-2017",
+          "locator": "pthread_mutexattr_getprotocol(3p), DESCRIPTION and ERRORS",
+          "inspection": "registry"
+        }
+      ],
+      "idiom": [
+        "use a priority-inheritance mutex on the real-time path"
+      ],
+      "misconception": "Priority inversion only matters on real-time operating systems."
+    },
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 30: Threads: Thread Synchronization",
-     "inspection": "pending"
-    }
-   ],
-   "aliases": [
-    "fairness"
-   ],
-   "misconception": "A lock-free algorithm guarantees that every thread eventually completes (that is wait-freedom)."
-  },
-  {
-   "id": "V-T25-priority-inversion",
-   "term": "priority inversion",
-   "kind": "concurrency",
-   "definition": "The situation in which a high-priority thread waits for a lock held by a low-priority thread that a medium-priority thread keeps preempting, so the effective priority order is inverted; priority inheritance or ceiling protocols bound it.",
-   "authority": [
+      "id": "V-T25-false-sharing",
+      "term": "false sharing",
+      "kind": "concurrency",
+      "definition": "Coherence interference when concurrently accessed, logically independent data occupy the same coherence block and at least one participant writes. A reader can therefore suffer false sharing with a writer. Padding or separating data may reduce transfers but also increases footprint and cache/TLB pressure; measure under stated placement, affinity, access and coherence assumptions rather than assuming a universal speedup.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-FALSE-SHARING",
+          "locator": "What is False Sharing; How to detect; Possible mitigations",
+          "inspection": "registry"
+        }
+      ],
+      "idiom": [
+        "pad the per-thread counters to a cache line"
+      ],
+      "misconception": "False sharing is a correctness bug."
+    },
     {
-     "resource_id": "R-SYS-TLPI-2010",
-     "locator": "Chapter 35: Process Priorities and Scheduling",
-     "inspection": "pending"
-    }
-   ],
-   "idiom": [
-    "use a priority-inheritance mutex on the real-time path"
-   ],
-   "misconception": "Priority inversion only matters on real-time operating systems."
-  },
-  {
-   "id": "V-T25-false-sharing",
-   "term": "false sharing",
-   "kind": "concurrency",
-   "definition": "A performance defect in which independent variables used by different cores share a cache line, so each write invalidates the other core's copy; correct, race-free code can still be slowed by orders of magnitude until the variables are padded to separate lines.",
-   "authority": [
+      "id": "V-T25-cache-line",
+      "term": "cache line",
+      "kind": "hardware",
+      "definition": "The fixed-size block tracked by a particular cache level, with data and associated tag/state. Its size and relation to the coherence unit depend on the architecture. Alignment and mapping affect conflicts and sharing; a compiler object is not inherently one line. State the level, line size and coherence assumptions before deriving traffic or layout claims.",
+      "authority": [
+        {
+          "resource_id": "R-FOLLOWTHROUGH-CSAPP-3E",
+          "locator": "6.4–6.4.1, printed pp.650–652: cache organization and S/E/B/m model",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "Cache coherence means memory operations are ordered (coherence is per location; ordering across locations is the memory model's job)."
+    },
     {
-     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
-     "locator": "6.4 Cache Memories",
-     "inspection": "pending"
-    }
-   ],
-   "idiom": [
-    "pad the per-thread counters to a cache line"
-   ],
-   "misconception": "False sharing is a correctness bug."
-  },
-  {
-   "id": "V-T25-cache-line",
-   "term": "cache line",
-   "kind": "hardware",
-   "definition": "The unit of transfer and coherence between a cache and memory, typically 64 bytes on x86-64 and 32 bytes on Cortex-M7; alignment of hot data to lines and ownership of whole lines by DMA buffers are decided at this granularity.",
-   "authority": [
+      "id": "V-T25-compare-and-exchange",
+      "term": "compare-and-exchange",
+      "kind": "concurrency",
+      "definition": "An atomic operation that compares the object representation specified by the selected edition with the expected representation; on success it replaces the object with desired, and on failure it updates expected. A weak operation may fail spuriously, so its caller must tolerate that possibility; a strong operation does not fail for that reason. Success and failure have separate memory-order restrictions. It is not a general semantic equality operation for arbitrary C values.",
+      "authority": [
+        {
+          "resource_id": "R-wg14-v5-followthrough-n3096",
+          "locator": "7.17.7.4 The atomic_compare_exchange generic functions",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "atomic_compare_exchange_strong",
+        "atomic_compare_exchange_weak"
+      ],
+      "aliases": [
+        "CAS"
+      ],
+      "expands": [
+        "CAS"
+      ],
+      "idiom": [
+        "loop on compare_exchange_weak until the update lands"
+      ],
+      "misconception": "A successful compare-and-exchange proves nothing changed in between (the ABA problem)."
+    },
     {
-     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
-     "locator": "6.4 Cache Memories",
-     "inspection": "pending"
-    }
-   ],
-   "misconception": "Cache coherence means memory operations are ordered (coherence is per location; ordering across locations is the memory model's job)."
-  },
-  {
-   "id": "V-T25-compare-and-exchange",
-   "term": "compare-and-exchange",
-   "kind": "concurrency",
-   "definition": "The atomic read-modify-write that stores a new value only if the object still holds the expected value, returning whether it did and updating the expected value otherwise; the weak form may fail spuriously and belongs in loops, the strong form does not.",
-   "authority": [
+      "id": "V-T25-publication-memory-ordering",
+      "term": "publication (memory ordering)",
+      "kind": "concurrency",
+      "definition": "Making data written by one thread visible to another by a release operation on a flag or pointer that the reader acquires: the writes before the release happen before everything after the matching acquire. Without the release/acquire pair the reader may see the pointer but stale contents.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-POSIX-MEMORY-2024",
+          "locator": "§4.15.1.2 Memory Order and Consistency",
+          "inspection": "registry"
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "durable commit",
+          "distinction": "Publication across threads concerns visibility in memory; a durable commit concerns survival of data across a crash. The curriculum uses 'publish' for the first and 'commit' for the second."
+        }
+      ],
+      "idiom": [
+        "publish the node with a release store",
+        "safe publication of the buffer"
+      ],
+      "misconception": "Once the pointer is visible, the object it points to is visible too (only with release/acquire ordering)."
+    },
     {
-     "resource_id": "R-wg14-n3096",
-     "locator": "7.17.7.4 The atomic_compare_exchange generic functions",
-     "inspection": "pending"
-    }
-   ],
-   "symbols": [
-    "atomic_compare_exchange_strong",
-    "atomic_compare_exchange_weak"
-   ],
-   "aliases": [
-    "CAS"
-   ],
-   "expands": [
-    "CAS"
-   ],
-   "idiom": [
-    "loop on compare_exchange_weak until the update lands"
-   ],
-   "misconception": "A successful compare-and-exchange proves nothing changed in between (the ABA problem)."
-  },
-  {
-   "id": "V-T25-publication-memory-ordering",
-   "term": "publication (memory ordering)",
-   "kind": "concurrency",
-   "definition": "Making data written by one thread visible to another by a release operation on a flag or pointer that the reader acquires: the writes before the release happen before everything after the matching acquire. Without the release/acquire pair the reader may see the pointer but stale contents.",
-   "authority": [
+      "id": "V-T25-release-sequence",
+      "term": "release sequence",
+      "kind": "concurrency",
+      "definition": "In C17 and the inspected N3096 draft, the maximal contiguous part of one atomic object’s modification order headed by a release operation, with subsequent operations performed by that same thread or being atomic read-modify-write operations. An acquire reading a value written by that sequence synchronizes with its head. This relation alone does not prove a reference-counting or reclamation algorithm correct; counter lifetime, resurrection, ordering and ownership still require arguments.",
+      "authority": [
+        {
+          "resource_id": "R-wg14-v5-followthrough-n3096",
+          "locator": "5.1.2.4 Multi-threaded executions and data races",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "An intervening relaxed store by another thread keeps the release sequence alive (only read-modify-writes extend it)."
+    },
     {
-     "resource_id": "R-SYS-POSIX-MEMORY-2024",
-     "locator": "§4.15.1.2 Memory Order and Consistency",
-     "inspection": "registry"
-    }
-   ],
-   "distinguish_from": [
+      "id": "V-T25-compiler-barrier",
+      "term": "compiler barrier",
+      "kind": "toolchain",
+      "definition": "A construct such as an asm volatile statement with a memory clobber that forbids the compiler from moving memory accesses across it, without emitting any instruction; it constrains code generation only and gives no ordering guarantee to other processors or devices.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-LINUX-BARRIERS-6-12",
+          "locator": "SMP BARRIER PAIRING",
+          "inspection": "registry"
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "fence",
+          "distinction": "A fence is the language-level ordering operation that the implementation maps to a hardware barrier when needed; a compiler barrier alone is enough only for single-processor interrupt code."
+        }
+      ],
+      "symbols": [
+        "atomic_signal_fence",
+        "__asm__ volatile(\"\" ::: \"memory\")"
+      ],
+      "misconception": "A compiler barrier orders accesses as seen by another core."
+    },
     {
-     "term": "durable commit",
-     "distinction": "Publication across threads concerns visibility in memory; a durable commit concerns survival of data across a crash. The curriculum uses 'publish' for the first and 'commit' for the second."
+      "id": "V-T25-hardware-barrier",
+      "term": "hardware barrier",
+      "kind": "hardware",
+      "definition": "A processor instruction (DMB, DSB, ISB on Arm; MFENCE on x86-64) that constrains the order in which the processor's memory accesses become visible or complete; the implementation's tool for realizing fences and release/acquire semantics.",
+      "authority": [
+        {
+          "resource_id": "R-SYS-LINUX-BARRIERS-6-12",
+          "locator": "SMP BARRIER PAIRING",
+          "inspection": "registry"
+        }
+      ],
+      "symbols": [
+        "DMB",
+        "DSB",
+        "ISB",
+        "MFENCE"
+      ],
+      "misconception": "Inserting DMB everywhere makes code correct (barriers order; they do not make non-atomic accesses atomic)."
     }
-   ],
-   "idiom": [
-    "publish the node with a release store",
-    "safe publication of the buffer"
-   ],
-   "misconception": "Once the pointer is visible, the object it points to is visible too (only with release/acquire ordering)."
-  },
-  {
-   "id": "V-T25-release-sequence",
-   "term": "release sequence",
-   "kind": "concurrency",
-   "definition": "The release operation on an atomic object together with the subsequent read-modify-write operations on it; an acquire that reads any value written by the sequence synchronizes with the head release, which is what makes reference counting with fetch_add correct.",
-   "authority": [
-    {
-     "resource_id": "R-wg14-n3096",
-     "locator": "5.1.2.4 Multi-threaded executions and data races",
-     "inspection": "pending"
-    }
-   ],
-   "misconception": "An intervening relaxed store by another thread keeps the release sequence alive (only read-modify-writes extend it)."
-  },
-  {
-   "id": "V-T25-compiler-barrier",
-   "term": "compiler barrier",
-   "kind": "toolchain",
-   "definition": "A construct such as an asm volatile statement with a memory clobber that forbids the compiler from moving memory accesses across it, without emitting any instruction; it constrains code generation only and gives no ordering guarantee to other processors or devices.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-LINUX-BARRIERS-6-12",
-     "locator": "SMP BARRIER PAIRING",
-     "inspection": "registry"
-    }
-   ],
-   "distinguish_from": [
-    {
-     "term": "fence",
-     "distinction": "A fence is the language-level ordering operation that the implementation maps to a hardware barrier when needed; a compiler barrier alone is enough only for single-processor interrupt code."
-    }
-   ],
-   "symbols": [
-    "atomic_signal_fence",
-    "__asm__ volatile(\"\" ::: \"memory\")"
-   ],
-   "misconception": "A compiler barrier orders accesses as seen by another core."
-  },
-  {
-   "id": "V-T25-hardware-barrier",
-   "term": "hardware barrier",
-   "kind": "hardware",
-   "definition": "A processor instruction (DMB, DSB, ISB on Arm; MFENCE on x86-64) that constrains the order in which the processor's memory accesses become visible or complete; the implementation's tool for realizing fences and release/acquire semantics.",
-   "authority": [
-    {
-     "resource_id": "R-SYS-LINUX-BARRIERS-6-12",
-     "locator": "SMP BARRIER PAIRING",
-     "inspection": "registry"
-    }
-   ],
-   "symbols": [
-    "DMB",
-    "DSB",
-    "ISB",
-    "MFENCE"
-   ],
-   "misconception": "Inserting DMB everywhere makes code correct (barriers order; they do not make non-atomic accesses atomic)."
-  }
- ]
+  ]
 }

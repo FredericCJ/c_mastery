@@ -1,0 +1,9 @@
+# T52.12 assessor analysis
+
+A negative-lag entity with the earliest virtual deadline must be excluded from the elementary selector. Lag zero is eligible, ties are stable, and empty eligibility leaves output unchanged. The exact selected kernel additionally contains buddy and protected-current-slice branches; an assessor must not equate the small linear search with its augmented tree implementation or whole-system semantics. Q3/D5/P10 is necessary mathematical validity, not admission; Q3/D2/P10 fails before any syscall.
+
+The checksum fixes work across policies; release/start/finish timestamps and exact miss computation keep observed application outcomes separate from class selection. OTHER may expose a slice runtime in sched_getattr; that is not a DEADLINE reservation. FIFO/RR priority2 and RR quantum are distinct from5ms job deadlines. DEADLINE readback must show3/5/10ms plus requested flags; incomplete or substituted policy fails before measurement acceptance.
+
+The two-CPU supervisor is ordinary onCPU0 and FIFO/RR children are onCPU1. An infinite worker is passed only when the supervisor sent SIGKILL and reaped that exact PID. A kernel resource-limit kill or outer VM timeout alone is not this witness. Background readiness and cleanup precede result acceptance. DELAYED variants remain author-ready only, not completed learner records.
+
+The restricted DEADLINE mask is a deliberately refused case; the later one-CPU guest changes the root domain itself. Privilege-drop EPERM likewise remains unavailable. Actual overrun signals under8ms CPU demand corroborate reservation depletion in the inspected source, while finite CPU/elapsed traces cannot establish physical deadlines or every throttle event. Keep the original raw miss/overrun observations, including unexpected extra overruns from instrumented setup overhead; never normalize them away.

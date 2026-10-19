@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "T75-TIMER-SUCCESSOR-AUTHOR-DECISION",
+  "status": "prediction-recorded-before-successor-measurement",
+  "date": "2026-10-17",
+  "author_scope": "Author experiment; not a learner seal or independent review",
+  "historical_evidence": "No accepted PR-T50-05 decision or receipt is modified",
+  "alternatives": ["ordered intrusive list", "indexed binary heap", "two-level wheel"],
+  "contract": "labs/resilience/followthrough/TIMERS.md",
+  "prediction": [
+    "The list is a plausible choice at sixteen entries when cancellation and contiguous due-prefix expiry dominate; ordered insertion costs linear key comparisons.",
+    "The heap should reduce order comparisons for unfavorable insertion order, but arbitrary removal and every expiry repair its index structure.",
+    "The wheel should reduce key comparisons for insertion, but empty catch-up has per-tick work and stable simultaneous expiry requires explicit ordering; a burst may dominate its normal case.",
+    "All current alternatives reserve the same runtime-selected object representation; no physical memory saving is predicted.",
+    "No performance winner is assumed before equal-contract checks and unsanitized measurements. Host measurements do not decide MCU interrupt suitability."
+  ],
+  "workloads": ["empty ticks", "sixteen simultaneous due63", "sixteen scattered due ticks", "scattered with half cancelled"],
+  "required_evidence": ["independent sorted-event oracle", "source-bound raw timing and counters", "static stack and generated assembly", "actual retained CMX intersection test"],
+  "limitations": ["One fixed capacity and host ABI", "No physical timing or hard WCET proof", "Independent learner decision remains unassessed"]
+}

@@ -16,3 +16,11 @@ Compare privileged architecture rules to the ABI; a saved ABI context does not
 constitute a privilege transition. Supervisor page permissions require a real
 page-table walker/TLB experiment with an inspected target manual. Missing target
 manuals/emulators remain required gaps. No deployed device or host settings.
+
+## Implemented continuation
+
+The required [concrete continuation](GUESTS.md) supplies the additional source,
+fixtures, failure controls, objective criteria and bounded author execution.
+Its evidence does not replace independent learner or physical obligations.
+
+Required implemented ABI continuations are specified in [ABI_TRANSFERS.md](ABI_TRANSFERS.md).

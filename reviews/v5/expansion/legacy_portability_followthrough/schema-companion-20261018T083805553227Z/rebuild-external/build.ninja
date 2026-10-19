@@ -1,0 +1,12 @@
+rule gen
+ command = /usr/bin/python3 /mnt/f/Learning/Curricula/c_mastery/assessor/language_portability/schema/generate.py schema.json generated
+rule cc
+ command = gcc -std=c17 -MMD -MF probe.d -I. -c probe.c -o probe.o
+ depfile = probe.d
+ deps = gcc
+rule link
+ command = gcc probe.o -o probe
+build generated/config.h generated/rules.h generated/fields.h generated/codec.h generated/manifest.json: gen schema.json /mnt/f/Learning/Curricula/c_mastery/assessor/language_portability/schema/generate.py
+build probe.o: cc probe.c | generated/fields.h
+build probe: link probe.o
+default probe

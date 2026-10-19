@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-ORC-GCC-FENCE",
+      "title": "GCC ThreadSanitizer atomic interface",
+      "authors": [
+        "GNU Project"
+      ],
+      "edition": "GCC releases/gcc-15.2.0",
+      "year": 2025,
+      "kind": "source",
+      "url": "https://raw.githubusercontent.com/gcc-mirror/gcc/releases/gcc-15.2.0/libsanitizer/tsan/tsan_interface_atomic.cpp",
+      "access": "Actual primary passages read",
+      "domains": [
+        "T66"
+      ],
+      "role": "memory-order-diagnostic-investigation",
+      "reason": "Separate C synchronization reasoning from runtime diagnostic modeling.",
+      "prerequisites": [
+        "C atomics and owned references"
+      ],
+      "locators": [
+        "AtomicFence lines424-432; AtomicCAS lines378-416"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actually read fence FIXME/unimplemented clock synchronization and CAS acquire/release clock branches.",
+        "scope": "Only these exact primary passages",
+        "limits": "Versioned upstream runtime source is not a byte-for-byte installed binary audit; installed binaries and observed controls are separately pinned. Draft text is not published C17."
+      }
+    },
+    {
+      "id": "R-ORC-LLVM-FENCE",
+      "title": "LLVM ThreadSanitizer atomic interface",
+      "authors": [
+        "LLVM Project"
+      ],
+      "edition": "LLVM llvmorg-21.1.8",
+      "year": 2025,
+      "kind": "source",
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-21.1.8/compiler-rt/lib/tsan/rtl/tsan_interface_atomic.cpp",
+      "access": "Actual primary passages read",
+      "domains": [
+        "T66"
+      ],
+      "role": "memory-order-diagnostic-investigation",
+      "reason": "Separate C synchronization reasoning from runtime diagnostic modeling.",
+      "prerequisites": [
+        "C atomics and owned references"
+      ],
+      "locators": [
+        "OpFence lines454-462; AtomicRMW lines211-232; OpCAS lines406-445"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actually read unimplemented fence clock synchronization and RMW/CAS acquire-release clock branches.",
+        "scope": "Only these exact primary passages",
+        "limits": "Versioned upstream runtime source is not a byte-for-byte installed binary audit; installed binaries and observed controls are separately pinned. Draft text is not published C17."
+      }
+    },
+    {
+      "id": "R-ORC-N1570-FENCES",
+      "title": "C11 committee draft release sequences and atomic fences",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG14"
+      ],
+      "edition": "N1570 C11 committee draft; not published C17",
+      "year": 2011,
+      "kind": "standard-draft",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Actual primary passages read",
+      "domains": [
+        "T66"
+      ],
+      "role": "memory-order-diagnostic-investigation",
+      "reason": "Separate C synchronization reasoning from runtime diagnostic modeling.",
+      "prerequisites": [
+        "C atomics and owned references"
+      ],
+      "locators": [
+        "5.1.2.4 paragraphs10-11: release sequences and synchronization",
+        "7.17.4 paragraphs1-4: atomic fences"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actually read cached text lines1248-1264 and10599-10639; release sequence and fence synchronization conditions only.",
+        "scope": "Only these exact primary passages",
+        "limits": "Versioned upstream runtime source is not a byte-for-byte installed binary audit; installed binaries and observed controls are separately pinned. Draft text is not published C17."
+      }
+    }
+  ],
+  "reused_inspected_records": [
+    {
+      "id": "R-MOD-RC",
+      "path": "research/v5/modern/ownership_resources.json",
+      "passages": [
+        "Module introduction",
+        "Cloning references"
+      ]
+    },
+    {
+      "id": "R-MOD-ARC",
+      "path": "research/v5/modern/ownership_resources.json",
+      "passages": [
+        "Introduction",
+        "Thread Safety",
+        "Breaking cycles with Weak",
+        "new_cyclic"
+      ]
+    },
+    {
+      "id": "R-MOD-GENMC-019",
+      "path": "research/v5/modern/messaging_model_resources.json",
+      "scope": "Reuse previously inspected tool/model scope, not a new tool conformance claim."
+    }
+  ],
+  "inspected_artifacts": [
+    {
+      "path": "assessor/ownership/ownership.c",
+      "sha256": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+      "passages": [
+        "Actual ow_shared/ow_atomic retain, downgrade, upgrade and drop; implicit weak and final acquire fence"
+      ]
+    },
+    {
+      "path": "labs/ownership/CONTRACTS.md",
+      "sha256": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+      "passages": [
+        "Reference counts and concurrency; callback non-reentry"
+      ]
+    },
+    {
+      "path": "assessor/ownership/analyses/X-T66-006.md",
+      "sha256": "ae9ae1c8b95d9e34258abbaab71ee610eebea1382fa0ac94eaac97e84bdb9d2a",
+      "passages": [
+        "Cycle and last-owner transfer analysis"
+      ]
+    },
+    {
+      "path": "curriculum/v5/exercises/X-T66-006.md",
+      "sha256": "65f03862b0e1b0d3b754f3b65808f71c3c49c57b603846bc47bfb63598ba5a4e",
+      "passages": [
+        "Original four criteria and delayed race"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17 and C23 inaccessible.",
+    "Exact weak-CAS retry-model bounded run does not finish; no exhaustive result.",
+    "No independent human/learner or physical evidence."
+  ]
+}

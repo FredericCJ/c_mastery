@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "project": "PR-T28-05",
+  "domain": "T28",
+  "title": "Single-channel ADC acquisition — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/adc/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/timer/timer.h",
+    "labs/peripheral_depth/timer/timer.c",
+    "labs/peripheral_depth/timer/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "sha256": "7edcfdae8b3faae5296f5096fa9eac72a9515a7132fa329b58fd757b2d14a908",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T28-05.md",
+        "sha256": "2c03a06d23dcd9a9d97d84a186527a411d6a6a1ac7e06793dfd875aeca5c6459",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T28-05.json",
+        "sha256": "6c4474872f9e5e4d588a059b3a449b31393440abe396d9787cc42494692da4f3",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "anchors": [
+          "T28.09"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-FW-08",
+      "U-T28-05-02"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "E",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-PA-RM21",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "pp393–403 control,stabilization,scan,sampling,trigger,overrun; pp418–432 selected status/control/sampling/sequence/common clock registers",
+        "pp436–440,448–451 DAC enable/buffer/data/one-APB-cycle software trigger/registers; p456 status versus ADC rc_w0",
+        "Figure45 p395 rendered and visually inspected; selected existing timer/gating provider passages retained",
+        "RCC APB1 reset TIM3RST bit1 p179; selected reset removes inherited TIM3 state before trigger configuration"
+      ]
+    },
+    {
+      "id": "R-PA-DS14",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "pp159–163 ADC clock/range/RADC/CADC/stabilization/latency/static error;pp165–166 factory temperature/VREF calibration locations",
+        "pp167–169 DAC buffer range/load/settling/wakeup; chapter3 peripheral inventory has DAC and analog watchdog, no separate COMP instance",
+        "Table10 pp57–58 LQFP144 PA0 ADC_IN0, PA1 ADC_IN1 and PA4 DAC_OUT1 pins"
+      ]
+    },
+    {
+      "id": "R-PA-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "§2.2.7/2.2.8 p11 clock gate readback and ADC internal noise;§2.5 p19 sequencer modification;§2.6 pp19–20 DAC DMA limitations (no DMA here)"
+      ]
+    },
+    {
+      "id": "R-PA-G4DEVICE",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "COMP register structure/base offsets; RCC AHB2/APB2 enable offsets; GPIOA and COMP CSR EN/INMSEL/INPSEL/HYST/VALUE/LOCK definitions"
+      ]
+    },
+    {
+      "id": "R-PA-G4LL",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Lines104–144 PA1 positive IO1,PA0 negative IO2, hysteresis encodings;line220 startup5us;lines631–716 enable/lock/value semantics",
+        "Used for source inspection only; no vendor header or HAL/LL code is a target dependency"
+      ]
+    },
+    {
+      "id": "R-PA-G4DS6",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table12 pp59–60 PA0/PA1 comparator inputs on LQFP64;Table79 p163 supply/input range,startup5us,conditional propagation31ns,offset and hysteresis MIN/TYP/MAX"
+      ]
+    },
+    {
+      "id": "R-PA-G4BOARD7",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Tables15–17 pp30–34 CN8 A0=PA0/A1=PA1,CN7/28 PA0,CN7/30 PA1,AGND and supply connections"
+      ]
+    },
+    {
+      "id": "R-PA-G4ERRATA9",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table2 p1 Z/Y/X revision identification; Table3 p3 COMP entry;§2.9.1 p18 older Z/Y comparator offset replaces datasheet with−20..+3mV"
+      ]
+    },
+    {
+      "id": "R-PA-F4BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_adc/resources.json",
+      "passages": [
+        "Table12 p32 PA1/SB13 Ethernet reference-clock drive; PA0 SB179 CN10/29 and SB180 button routing"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T28-05.md",
+    "fixtures/embedded/PR-T28-05.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/adc/adc.c",
+    "labs/peripheral_depth/adc/adc.h",
+    "labs/peripheral_depth/adc/analog_analysis.py",
+    "labs/peripheral_depth/adc/audit_target.py",
+    "labs/peripheral_depth/adc/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/adc/board_capture.py",
+    "labs/peripheral_depth/adc/capture_template.json",
+    "labs/peripheral_depth/adc/comparator.c",
+    "labs/peripheral_depth/adc/CONTRACTS.md",
+    "labs/peripheral_depth/adc/run.py",
+    "labs/peripheral_depth/adc/target.c",
+    "labs/peripheral_depth/adc/tests.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/timer/timer.h",
+    "labs/peripheral_depth/timer/timer.c",
+    "labs/peripheral_depth/timer/CONTRACTS.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "firmware_io.adc"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "adc_analog_successor": {
+      "path": "research/v5/expansion/legacy_advanced_adc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-05-T28.09.a",
+        "AX-PR-T28-05-T28.09.b",
+        "AX-PR-T28-05-T28.09.c"
+      ],
+      "scope": "Three T28.09 ordinary and three unchanged delayed tasks; actual pu_rates/pt_choose/pt_input/fw_adc providers; physical, independent and remaining T28 scope separate"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T28-05-T28.09.a",
+      "title": "Configure sampling, conversion, triggering, and result transfer.",
+      "objective": "T28.09.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Implement a single-channel single-conversion adapter with explicit sampling cycles, trigger, EOC and result/error status. Derive 84+12=96 cycles at 16 MHz and test timeout without altering the old output code.",
+      "purpose": "Conversion time includes every analog settling and startup delay automatically.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Conversion time includes every analog settling and startup delay automatically. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Conversion time includes every analog settling and startup delay automatically.",
+        "D2": "Implement a single-channel single-conversion adapter with explicit sampling cycles, trigger, EOC and result/error status. Derive 84+12=96 cycles at 16 MHz and test timeout without altering the old output code.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Switch to a timer-triggered sequence and account for missed triggers/overrun without assuming one trigger always yields one retained sample."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "The selected cycle formula covers sampling/conversion, while stabilization/trigger latency are separate obligations.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "The selected cycle formula covers sampling/conversion, while stabilization/trigger latency are separate obligations. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Switch to a timer-triggered sequence and account for missed triggers/overrun without assuming one trigger always yields one retained sample. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Count acquisition time separately from conversion cycles.",
+        "A settled digital code still depends on analog source impedance, reference and sampling assumptions not supplied by the host model."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-05-T28.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Switch to a timer-triggered sequence and account for missed triggers/overrun without assuming one trigger always yields one retained sample."
+        }
+      ],
+      "assessor_anchor": "#t2809a",
+      "facet_scope": {
+        "teaching": "Retained T28.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-05-T28.09.b",
+      "title": "Account for calibration and analog-source constraints from device documentation.",
+      "objective": "T28.09.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "For a synthetic source RC model derive the sample interval needed to settle within a stated fraction of an LSB, then separate quantization, source, reference and calibration errors. Verify actual electrical limits before any dedicated-board stimulus.",
+      "purpose": "A twelve-bit code guarantees twelve bits of absolute physical accuracy.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A twelve-bit code guarantees twelve bits of absolute physical accuracy. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A twelve-bit code guarantees twelve bits of absolute physical accuracy.",
+        "D2": "For a synthetic source RC model derive the sample interval needed to settle within a stated fraction of an LSB, then separate quantization, source, reference and calibration errors. Verify actual electrical limits before any dedicated-board stimulus.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Increase source resistance and derive the changed sampling requirement before altering register values."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Resolution, settling, reference uncertainty and device errors differ; the endpoint-linear fixture is not a measured ADC transfer function.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Resolution, settling, reference uncertainty and device errors differ; the endpoint-linear fixture is not a measured ADC transfer function. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Increase source resistance and derive the changed sampling requirement before altering register values. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Count acquisition time separately from conversion cycles.",
+        "A settled digital code still depends on analog source impedance, reference and sampling assumptions not supplied by the host model."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-05-T28.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Increase source resistance and derive the changed sampling requirement before altering register values."
+        }
+      ],
+      "assessor_anchor": "#t2809b",
+      "facet_scope": {
+        "teaching": "Retained T28.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-05-T28.09.c",
+      "title": "Add DAC or comparator work only on verified supported targets.",
+      "objective": "T28.09.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Create a supported-feature ledger for the exact selected part/package and inspect DAC/comparator specifications before adding either driver. Author a bounded ramp/threshold experiment only for a verified feature; use a synthetic model with an explicit hardware gap otherwise.",
+      "purpose": "Every MCU in a named family contains the same DAC/comparator features.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Every MCU in a named family contains the same DAC/comparator features. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Every MCU in a named family contains the same DAC/comparator features.",
+        "D2": "Create a supported-feature ledger for the exact selected part/package and inspect DAC/comparator specifications before adding either driver. Author a bounded ramp/threshold experiment only for a verified feature; use a synthetic model with an explicit hardware gap otherwise.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Retarget to a verified comparator-equipped teaching board and derive hysteresis, threshold and timestamp uncertainty obligations."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Feature availability and pin/electrical contracts are part-specific. Unsupported hardware is not simulated into a physical pass.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Feature availability and pin/electrical contracts are part-specific. Unsupported hardware is not simulated into a physical pass. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Retarget to a verified comparator-equipped teaching board and derive hysteresis, threshold and timestamp uncertainty obligations. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Count acquisition time separately from conversion cycles.",
+        "A settled digital code still depends on analog source impedance, reference and sampling assumptions not supplied by the host model."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-05-T28.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Retarget to a verified comparator-equipped teaching board and derive hysteresis, threshold and timestamp uncertainty obligations."
+        }
+      ],
+      "assessor_anchor": "#t2809c",
+      "facet_scope": {
+        "teaching": "Retained T28.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T28-05.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_adc/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-05-T28.09.a",
+        "AX-PR-T28-05-T28.09.b",
+        "AX-PR-T28-05-T28.09.c"
+      ],
+      "scope": "Three T28.09 ordinary and three unchanged delayed tasks; actual pu_rates/pt_choose/pt_input/fw_adc providers; physical, independent and remaining T28 scope separate"
+    }
+  ]
+}

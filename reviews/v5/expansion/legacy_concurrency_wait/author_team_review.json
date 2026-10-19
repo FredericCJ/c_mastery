@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-17T06:16:40.475609+00:00",
+  "reviewer_kind": "Separate author-team agent /root/lab_batch; not an independent human reviewer",
+  "scope": "Read-only counter-limit cleanup review and exact repair recheck only; no whole-domain, IRQ, native or PI review and no campaign rerun by reviewer.",
+  "finding": {
+    "defect": "Unconditional acquired==UINT64_MAX unlock refusal stranded an owner even without a waiter/handoff.",
+    "repair": "Validate task before cast, preserve nonowner refusal, permit no-handoff unlock at the limit; refuse an actual handoff until remaining waiters are cancelled.",
+    "regressions": "MAX-1 immediate acquisition/empty unlock; MAX-2 owner plus two waiters/final handoff/FULL/cancel/empty unlock/close; invalid and nonowner calls.",
+    "recheck": "Reviewer read the repaired function, exact tests and contract; no additional defect found within this bounded repair scope."
+  },
+  "inspected_paths": {
+    "assessor/concurrency_lifecycle_depth/wait.c": "07d8ab50eef4ab7424c0196afb9177f98642251f813988c37a2deff33fe29f0d",
+    "labs/concurrency_lifecycle_depth/wait/tests.c": "09773ddd220092466652caa2f1ea4f1ee4be9488bd2c4cccdc88a6114a3100b1",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md": "b0be08f868a22b892eef42ab3c1b79771918b5514abd40228c4562230fc497ce"
+  },
+  "independent_human_assessment": "not-run",
+  "learner_assessment": "not-run"
+}

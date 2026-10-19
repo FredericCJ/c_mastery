@@ -1,0 +1,558 @@
+{
+  "schema_version": 1,
+  "project": "PR-T28-07",
+  "domain": "T28",
+  "title": "Elective Ethernet diagnostic service — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/diagnostic/CONTRACTS.md",
+    "labs/peripheral_depth/diagnostic/guest/README.md",
+    "labs/peripheral_depth/diagnostic/BOARD_CAPTURE.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "sha256": "7edcfdae8b3faae5296f5096fa9eac72a9515a7132fa329b58fd757b2d14a908",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T28-07.md",
+        "sha256": "e089d68cc2d21d38b6c8b1fff1c7494024be62a5cc96fcb58ba50c3153c7b2fc",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T28-07.json",
+        "sha256": "30f89aa1f00c0403070c69ca065bc727aef53443c5af3a793c4464513a77574d",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "anchors": [
+          "T28.12"
+        ]
+      }
+    ],
+    "units": [
+      "U-T28-07-01",
+      "U-T28-07-02"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-B06-STIPC",
+      "path": "research/v5/b06_resources.json",
+      "passages": [
+        "Rev2 sections2.1 and2.2, PDFpp3-6"
+      ]
+    },
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-DG-USB2000",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFpp1–2 document identity; p81/printed53 full-speed bulk sizes/short or expected-length completion/no service-time guarantee",
+        "PDFp234/printed206 DATA/handshake; pp258–263/printed230–235 toggle/retry context",
+        "PDFpp270–271/printed242–243 states/reset; pp273–279/245–251 control timing and SETUP format",
+        "PDFpp284–285/256–257 halt-clear DATA0, address-after-status and configuration-before-status; contradictory zero-address prose retained as gap",
+        "PDFpp289–299/261–271 device/configuration/interface/endpoint descriptors"
+      ]
+    },
+    {
+      "id": "R-DG-USBERR2002",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFp2: bcdUSB0200 for full/low-speed-only devices and qualifier request error; separate high-speed NAK clarification"
+      ]
+    },
+    {
+      "id": "R-DG-USBERR2000",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFpp12/16/19/22 selected standard/hub descriptor tables: hub-specific context does not define this vendor device"
+      ]
+    },
+    {
+      "id": "R-DG-POSIX2024",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "DESCRIPTION message-based excess discard and MSG_TRUNC; stream boundaries; nonblocking EAGAIN/EWOULDBLOCK; ERRORS EINTR"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-UDC",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines145–176 endpoint disable completes pending requests before return",
+        "lines226–340 documented queue ownership/deferred completion and asynchronous dequeue; lines996–1005 giveback invokes callback",
+        "lines1199–1204 reset callback is invoked unconditionally"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-DUMMY",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines1–80 module identity/parameters; lines718–820 small IN FIFO copy/inline giveback and dequeue",
+        "lines1635–1680 controller-handled SET_ADDRESS; FIFO_BUFFER_SIZE64 definition"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-AUTOCONF",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines84–109 and162–175 endpoint assignment rewrites bulk maximum packet to64; restore chosen legal descriptor size before endpoint enable"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-USBFS",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines623–680 completion queue/status and destroy_async unlock before kill",
+        "lines2007–2077 DISCARDURB selected implementation uses usb_kill_urb; processcompl copies completion results/user identity",
+        "lines2103–2133 reap/nonblocking EAGAIN; lines2744–2747 ioctl dispatch; lines2832–2845 poll writable means completed queue"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-GADGET-ABI",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines712–832 selected driver callback/reset/register contract, controller-handled address/features"
+      ]
+    },
+    {
+      "id": "R-DG-RM21",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "printedp1138 frame length/type/padding; pp1166–1167 DMA list/init/normal descriptors",
+        "printedpp1183–1184 RX ownership and normal16-byte descriptors, reported frame length including CRC"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T28-07.md",
+    "fixtures/embedded/PR-T28-07.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/diagnostic/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/diagnostic/CONTRACTS.md",
+    "labs/peripheral_depth/diagnostic/diagnostic.c",
+    "labs/peripheral_depth/diagnostic/diagnostic.h",
+    "labs/peripheral_depth/diagnostic/ethernet.c",
+    "labs/peripheral_depth/diagnostic/ethernet.h",
+    "labs/peripheral_depth/diagnostic/evidence.py",
+    "labs/peripheral_depth/diagnostic/guest/Makefile",
+    "labs/peripheral_depth/diagnostic/guest/README.md",
+    "labs/peripheral_depth/diagnostic/guest/build.py",
+    "labs/peripheral_depth/diagnostic/guest/dg_gadget.c",
+    "labs/peripheral_depth/diagnostic/guest/headers/limits.h",
+    "labs/peripheral_depth/diagnostic/guest/headers/stddef.h",
+    "labs/peripheral_depth/diagnostic/guest/headers/stdint.h",
+    "labs/peripheral_depth/diagnostic/host.c",
+    "labs/peripheral_depth/diagnostic/host.h",
+    "labs/peripheral_depth/diagnostic/host_tests.c",
+    "labs/peripheral_depth/diagnostic/link.ld",
+    "labs/peripheral_depth/diagnostic/run.py",
+    "labs/peripheral_depth/diagnostic/tests.c",
+    "labs/peripheral_depth/diagnostic/thumb_start.c",
+    "labs/peripheral_depth/diagnostic/usb.c",
+    "labs/peripheral_depth/diagnostic/usb.h",
+    "labs/peripheral_depth/diagnostic/usb_tests.c",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/src/foundation.c",
+    "labs/ethernet_depth/include/ethernet_depth.h",
+    "labs/ethernet_depth/src/ethernet_depth.c"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "diagnostic_transport_successor": {
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a",
+        "AX-PR-T28-07-T28.12.b",
+        "AX-PR-T28-07-T28.12.c"
+      ],
+      "scope": "Three T28.12 ordinary and three unchanged delayed tasks; actual FCursor/ED/POSIX/Linux providers; T29/T38/T39 and physical/external work separate"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T28-07-T28.12.a",
+      "title": "Select one protocol extension with explicit hardware prerequisites.",
+      "objective": "T28.12.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Required expansion: implement the existing bounded Ethernet diagnostic datagram over an original host adapter and bind its controller/PHY/pin/clock prerequisites to the later T39 route. Maintain separate CAN and USB required-domain links rather than declaring them covered by Ethernet.",
+      "purpose": "One successful Ethernet application frame covers every peripheral protocol extension.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-07 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "One successful Ethernet application frame covers every peripheral protocol extension. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: One successful Ethernet application frame covers every peripheral protocol extension.",
+        "D2": "Required expansion: implement the existing bounded Ethernet diagnostic datagram over an original host adapter and bind its controller/PHY/pin/clock prerequisites to the later T39 route. Maintain separate CAN and USB required-domain links rather than declaring them covered by Ethernet.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Port the same payload service to a verified USB endpoint contract and derive new enumeration, transfer and ownership obligations."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "This anchor covers only the chosen application representation; CAN, USB, controller and electrical mechanisms retain their distinct required assessments.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "This anchor covers only the chosen application representation; CAN, USB, controller and electrical mechanisms retain their distinct required assessments. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Port the same payload service to a verified USB endpoint contract and derive new enumeration, transfer and ownership obligations. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List controller, PHY/transceiver, pins and clock prerequisites independently.",
+        "A host diagnostic datagram exercises an application/ownership contract; CAN arbitration and USB enumeration need their own required routes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-07-T28.12.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the same payload service to a verified USB endpoint contract and derive new enumeration, transfer and ownership obligations."
+        }
+      ],
+      "assessor_anchor": "#t2812a",
+      "facet_scope": {
+        "teaching": "Retained T28.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-07-T28.12.b",
+      "title": "Reuse portable framing and state-machine components where appropriate.",
+      "objective": "T28.12.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Encode sequence1,payload01,02 as000100020102; decode only complete datagrams with length<=32 and an explicit replay/wrap policy. Reuse prior byte codecs and parser invariants without importing host libraries into restricted components.",
+      "purpose": "A reused parser needs no new transport-boundary or sequence assumptions.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-07 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A reused parser needs no new transport-boundary or sequence assumptions. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A reused parser needs no new transport-boundary or sequence assumptions.",
+        "D2": "Encode sequence1,payload01,02 as000100020102; decode only complete datagrams with length<=32 and an explicit replay/wrap policy. Reuse prior byte codecs and parser invariants without importing host libraries into restricted components.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Deliver fragments through a stream adapter and add framing state instead of treating every read as one datagram."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Representation reuse preserves byte-level properties only where message boundaries, length and replay contracts match.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Representation reuse preserves byte-level properties only where message boundaries, length and replay contracts match. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Deliver fragments through a stream adapter and add framing state instead of treating every read as one datagram. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List controller, PHY/transceiver, pins and clock prerequisites independently.",
+        "A host diagnostic datagram exercises an application/ownership contract; CAN arbitration and USB enumeration need their own required routes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-07-T28.12.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Deliver fragments through a stream adapter and add framing state instead of treating every read as one datagram."
+        }
+      ],
+      "assessor_anchor": "#t2812b",
+      "facet_scope": {
+        "teaching": "Retained T28.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-07-T28.12.c",
+      "title": "Separate controller operation, physical layer, protocol stack, and conformance testing.",
+      "objective": "T28.12.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-STIPC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Rev2 sections2.1 and2.2, PDFpp3-6"
+          ]
+        },
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Produce four evidence columns for controller descriptors, PHY/link, protocol stack and application framing. Assign each test/measurement to its actual column and specify a dedicated-board conformance experiment without contacting external systems.",
+      "purpose": "A stack dependency or host datagram test proves Ethernet controller/link conformance.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-07 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A stack dependency or host datagram test proves Ethernet controller/link conformance. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A stack dependency or host datagram test proves Ethernet controller/link conformance.",
+        "D2": "Produce four evidence columns for controller descriptors, PHY/link, protocol stack and application framing. Assign each test/measurement to its actual column and specify a dedicated-board conformance experiment without contacting external systems.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace the PHY or board routing while retaining the software stack and identify invalidated evidence."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Evidence cannot jump abstraction layers; electrical/link and standards-conformance claims need their own observations and sources.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Evidence cannot jump abstraction layers; electrical/link and standards-conformance claims need their own observations and sources. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the PHY or board routing while retaining the software stack and identify invalidated evidence. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List controller, PHY/transceiver, pins and clock prerequisites independently.",
+        "A host diagnostic datagram exercises an application/ownership contract; CAN arbitration and USB enumeration need their own required routes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-07-T28.12.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the PHY or board routing while retaining the software stack and identify invalidated evidence."
+        }
+      ],
+      "assessor_anchor": "#t2812c",
+      "facet_scope": {
+        "teaching": "Retained T28.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T28-07.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a",
+        "AX-PR-T28-07-T28.12.b",
+        "AX-PR-T28-07-T28.12.c"
+      ],
+      "scope": "Three T28.12 ordinary and three unchanged delayed tasks; actual FCursor/ED/POSIX/Linux providers; T29/T38/T39 and physical/external work separate"
+    }
+  ]
+}

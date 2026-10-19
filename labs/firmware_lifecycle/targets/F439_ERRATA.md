@@ -1,0 +1,3 @@
+# Selected F439 errata disposition
+
+ES0206 Rev24: require revision3/4/5/B. Startup checks DEV_ID419 and REV_ID2001/2003; package, capacity and board identity still need physical confirmation. Older revisions require a different PA12 board condition and are rejected here. Data cache stays disabled during cross-bank writes and is reset before reuse. The selected UART uses neither IDLE framing, parity, mute, breaks, RTS/CTS nor smartcard mode. No floating-point context or interrupt-driven stack load is introduced; the guarded fault return includes DSB. No whole-sheet or physical workaround validation is claimed. Source records give exact inspected passages; a changed peripheral/profile requires fresh applicability analysis.

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_async_probe.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed GCC/Clang x86-64 sizes: DSReload264, DSAsyncRegistry432, DSAsyncEntry80, DSAsyncToken16 and DSmall64 bytes. Pthread object sizes are target-library observations, not ISO layouts."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Two state snapshots each hold0..32 logical bytes, two stable module owners and four registrations. At most four queued workers fit the registry; each code owner allows four total borrows. Loader mappings, pthread stacks and OS resources are additional."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Registrations retain code until removal acknowledgement; queues retain a second borrow until actual join/drain. Generations1..3 per registry slot then retire4; reload generation3 forbids a fourth replacement."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Serialized controller mutation and mutex-protected worker predicates/results are explicit. Callback arguments are copied scalars; no retained pointers into snapshot bytes. Loader owner addresses stay fixed while current/retired indices change."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "0..4 int32 values use16 inline bytes;5..8 values each allocate one actual T66 row through the T70 DSmall adapter. During replacement both spilled states own two rows; a failed collection retains both. Each row contains64 physical bytes even when logical state is20 or32."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Migration decodes each old scalar, calls the candidate method, writes at most32 staging bytes, then copies into DSmall. No callback context or loader owner is relocated. Two dormant registration tokens are published with the slot."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Precommit failure unwinds the first registration if needed, resets candidate bytes and closes only its owned module. Postcommit collection acknowledges registrations, applies the fallible gate, closes and then resets old state. Failed gates preserve module/state while earlier acknowledgements remain committed."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual migration/apply calls cross the shared-library table. The timed prepare/commit includes dlopen, all scalar migrations, one buffer construction and two registration acquisitions, plus old cancellation requests."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Actual pthread workers wait under one condition/mutex; deterministic queued and running histories hold a plugin frame across commit. No pthread_cancel, forced unload, lock-free progress, robust-owner recovery or scheduler fairness guarantee is present."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "63 independent rows span9 lengths and7 allocation/migration/registration/load schedules. Four semantic mutants test early lease release, canceled-result publication, rollback loss and failed-collection state loss. Genuine loader failure is not induced with an invalid handle."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "GCC/Clang O2 separately compile all components and original DSOs; exact build/link commands and durations are retained. Seven-profile campaign separately exercises debug/release/ASan and GCC TSan. No source-generation time or universal incremental-build advantage is inferred."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "Observed O2 worker/register/reload/collect frames GCC80/64/160/64 bytes and Clang56/40/136/56. Test-image text/data/BSS are45065/776/240 and45236/752/176. These include full baseline dependencies and exclude deeper callback/libdl/pthread frames and thread stack reservations."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "160 recorded samples plus8 discarded first samples cover counts0,4,5,8 on two compilers. Exact distributions and retained-state counts are in the probe, not a claimed worst-case pause. A nonreturning callback can retain the retired slot indefinitely; finite tests and TSan runs do not prove all interleavings or learner mastery."
+    }
+  ]
+}

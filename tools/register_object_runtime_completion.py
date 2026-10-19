@@ -1,0 +1,88 @@
+"""Refresh only the canonical T74 completion envelope from exact ready evidence."""
+import hashlib
+import json
+import argparse
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--refresh-current-campaign', action='store_true',
+                        help='Bind an actually rerun current campaign after validating every criterion and report.')
+    parser.add_argument('--publication-only', action='store_true',
+                        help='Bind the closed, export-validated publication successor without claiming new C execution.')
+    args = parser.parse_args()
+    path = ROOT/'research/v5/modern/object_runtime_completion_dispositions.json'
+    result = json.loads(path.read_text(encoding='utf8'))
+    readiness_path = 'research/v5/modern/object_runtime_objective_readiness.json'
+    readiness = json.loads((ROOT/readiness_path).read_text(encoding='utf8'))
+    publication_changes = []
+    if args.publication_only:
+        assert not args.refresh_current_campaign, 'Execution refresh and presentation successor are distinct'
+        from rebind_modern_publication import validate_publication_proof, PROOF, MANIFEST
+        from check_object_runtime_followthrough import inspect
+        assert not validate_publication_proof()
+        inspect(readiness,
+                json.loads((ROOT/'reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json').read_text(encoding='utf8')),
+                json.loads((ROOT/'reviews/v5/expansion/modern_completion/object_runtime_statepoints.json').read_text(encoding='utf8')))
+    if args.refresh_current_campaign:
+        from check_object_runtime_followthrough import inspect
+        campaign_path = 'reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json'
+        compiler_path = 'reviews/v5/expansion/modern_completion/object_runtime_statepoints.json'
+        campaign = json.loads((ROOT/campaign_path).read_text(encoding='utf8'))
+        compiler = json.loads((ROOT/compiler_path).read_text(encoding='utf8'))
+        campaign_hash = hashlib.sha256((ROOT/campaign_path).read_bytes()).hexdigest()
+        for row in readiness['criteria']:
+            if campaign_path in row['pins']:
+                row['pins'][campaign_path] = campaign_hash
+        # No source, criterion, other report or independence field is repinned.
+        # The existing guard checks observed profiles, assertions, controls,
+        # current source/log hashes and every untouched criterion before writing.
+        inspect(readiness, campaign, compiler)
+        (ROOT/readiness_path).write_text(json.dumps(readiness, indent=2)+'\n', encoding='utf8')
+    inputs = {readiness_path,
+              'research/v5/modern/object_runtime_gap_ledger.json',
+              'research/v5/modern/object_runtime_resources.json',
+              'research/v5/modern/object_runtime_sources.md',
+              'research/v5/modern/object_runtime_research_gate.json',
+              'tools/check_object_runtime_followthrough.py',
+              'tools/register_object_runtime_completion.py'}
+    reports = set()
+    for row in readiness['criteria']:
+        for item, expected in row['pins'].items():
+            assert hashlib.sha256((ROOT/item).read_bytes()).hexdigest() == expected, item
+            inputs.add(item)
+            if item.endswith('.json'):
+                value = json.loads((ROOT/item).read_text(encoding='utf8'))
+                if 'inspected_paths' in value:
+                    assert value['passed'] and value['status'] == 'passed', item
+                    reports.add(item)
+                    for source, source_hash in value['inspected_paths'].items():
+                        actual = hashlib.sha256((ROOT/source).read_bytes()).hexdigest()
+                        if actual != source_hash:
+                            from rebind_modern_publication import approved_pin
+                            assert args.publication_only and approved_pin(source, source_hash, actual), source
+                            publication_changes.append(dict(report=item,path=source,executed_sha256=source_hash,
+                                                            current_publication_sha256=actual))
+                        inputs.add(source)
+    if args.publication_only:
+        assert publication_changes, 'No publication difference to bind'
+        inputs.update({PROOF,MANIFEST,'tools/rebind_modern_publication.py'})
+        result['publication_successor'] = dict(proof=PROOF,manifest=MANIFEST,
+            historical_execution_publication_differences=list({json.dumps(r,sort_keys=True):r for r in publication_changes}.values()),
+            whole_source_execution_current=False,new_c_execution=False,
+            scope='The same actual execution reports and criterion/readiness objects are retained. Only exact approved document encodings differ; current publication is separately export-validated. No runtime, independence, physical or acceptance claim is added.')
+    result.update(domain='T74',
+        scope='Exact original-ID author-support dispositions; individual criteria are bound in the referenced readiness map. No independent learner, external reviewer or physical claim.'+(' Retained execution reports keep their historical whole-source identity; see the explicit current-publication successor.' if args.publication_only else ''),
+        current_reports=sorted(reports),
+        input_sha256={item: hashlib.sha256((ROOT/item).read_bytes()).hexdigest() for item in sorted(inputs)},
+        summary={'updates':len(result['updates']), 'criteria':len(readiness['criteria']),
+                 'ready_bounded':sum(row['author_readiness']=='ready-bounded' for row in readiness['criteria'])})
+    path.write_text(json.dumps(result,indent=2)+'\n',encoding='utf8')
+    print(json.dumps({'path':path.relative_to(ROOT).as_posix(),'current_reports':len(reports),'input_pins':len(inputs),**result['summary']}))
+
+
+if __name__=='__main__':
+    main()

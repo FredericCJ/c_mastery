@@ -1,0 +1,43 @@
+
+warning: unreachable statement
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/errors/owning_option/tests/comparison.rs:9:2
+  |
+8 |  #[cfg(eop_bad_copy)] {let moved=value;let _again=value;drop(moved);return;}
+  |                                                                     ------ any code following this expression is unreachable
+9 |  let moved=value.take();assert!(value.is_none());assert_eq!(moved.as_ref().unwrap().id,0);drop(moved);assert_eq!(...
+  |  ^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+  |
+  = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/errors/owning_option/tests/comparison.rs:7:29
+  |
+7 |  let drops=Cell::new(0);let mut value=Some(Resource{id:0,drops:&drops});
+  |                             ----^^^^^
+  |                             |
+  |                             help: remove this `mut`
+  |
+  = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+error[E0382]: use of moved value: `value`
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/errors/owning_option/tests/comparison.rs:8:51
+  |
+7 |  let drops=Cell::new(0);let mut value=Some(Resource{id:0,drops:&drops});
+  |                             --------- move occurs because `value` has type `Option<Resource<'_>>`, which does not implement the `Copy` trait
+8 |  #[cfg(eop_bad_copy)] {let moved=value;let _again=value;drop(moved);return;}
+  |                                  -----            ^^^^^ value used here after move
+  |                                  |
+  |                                  value moved here
+  |
+note: if `Resource<'_>` implemented `Clone`, you could clone the value
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/errors/owning_option/tests/comparison.rs:4:1
+  |
+4 | struct Resource<'a>{id:u32,drops:&'a Cell<u32>}
+  | ^^^^^^^^^^^^^^^^^^^ consider implementing `Clone` for this type
+...
+8 |  #[cfg(eop_bad_copy)] {let moved=value;let _again=value;drop(moved);return;}
+  |                                  ----- you could clone this value
+
+error: aborting due to 1 previous error; 2 warnings emitted
+
+For more information about this error, try `rustc --explain E0382`.

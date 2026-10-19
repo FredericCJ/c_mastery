@@ -1,0 +1,7 @@
+rule generate
+  command = ./generator source.dat schema.dat 1 generated.c
+rule compile
+  command = gcc -std=c17 -Wall -Wextra -Werror generated.c /mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/tests/consumer.c -o consumer
+build generated.c: generate source.dat | schema.dat
+build consumer: compile generated.c
+default consumer

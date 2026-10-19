@@ -1,0 +1,26 @@
+{
+  "id": "PR-T54-09",
+  "description": "Interrupt-to-task pipelines on both cores finite independent example",
+  "oracle": "pipeline",
+  "input": {
+    "latencies": [
+      3,
+      2,
+      7,
+      4
+    ],
+    "queues": [
+      2,
+      1,
+      3,
+      1
+    ]
+  },
+  "expected": {
+    "uncontended_latency": 16,
+    "total_queue_slots": 7
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Each core has its own interrupt/task scheduler boundary; shared transport links them. Keep interrupt handlers bounded and move parsing or long computation to tasks. Priority choices on one core do not automatically bound delay on the other.",
+  "required_observation": "Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference."
+}

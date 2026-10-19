@@ -1,0 +1,293 @@
+{
+  "kind": "state",
+  "rows": [
+    {
+      "command": "break dc_checkpoint",
+      "ok": true,
+      "output": "Breakpoint 1 at 0x40: file /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c, line 5.\n",
+      "elapsed_ns": 1079045
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1862501
+    },
+    {
+      "label": "initialized",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 263,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "x/4ub dc_bytes",
+      "ok": true,
+      "output": "0x20000008 <dc_bytes>:\t1\t2\t3\t4\n",
+      "elapsed_ns": 197044
+    },
+    {
+      "command": "x/wx 0xe000ed00",
+      "ok": true,
+      "output": "0xe000ed00:\t0x410fc240\n",
+      "elapsed_ns": 89781
+    },
+    {
+      "command": "info registers",
+      "ok": true,
+      "output": "r0             0x5                 5\nr1             0x20000000          536870912\nr2             0x4030201           67305985\nr3             0x0                 0\nr4             0x20000000          536870912\nr5             0x0                 0\nr6             0x0                 0\nr7             0x0                 0\nr8             0x0                 0\nr9             0x0                 0\nr10            0x0                 0\nr11            0x0                 0\nr12            0x6                 6\nsp             0x2000fff8          0x2000fff8\nlr             0x107               263\npc             0x40                0x40 <dc_checkpoint>\nxpsr           0x61000000          1627389952\nfpscr          0x0                 0\nmsp            0x2000fff8          536936440\npsp            0x0                 0\nprimask        0x0                 0\ncontrol        0x0                 0\nbasepri        0x0                 0\nfaultmask      0x0                 0\n",
+      "elapsed_ns": 355442
+    },
+    {
+      "command": "break dc_checksum",
+      "ok": true,
+      "output": "Breakpoint 2 at 0x106: dc_checksum. (2 locations)\n",
+      "elapsed_ns": 2277305
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 3250920
+    },
+    {
+      "label": "checksum-entry",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 262,
+      "sp": 536936440,
+      "lr": 263,
+      "symbol": "cl_reset + 162 in section .text\n"
+    },
+    {
+      "command": "info locals",
+      "ok": true,
+      "output": "i = <optimized out>\ndead = <optimized out>\ninvariant = 3\nsum = <optimized out>\n",
+      "elapsed_ns": 3306459
+    },
+    {
+      "command": "info args",
+      "ok": true,
+      "output": "p = 0x20000008 <dc_bytes> \"\\001\\002\\003\\004\\005\"\nn = 4\n",
+      "elapsed_ns": 127447
+    },
+    {
+      "command": "disassemble /s dc_checksum",
+      "ok": true,
+      "output": "Dump of assembler code for function cl_reset:\n/mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:\n7\tvoid cl_reset(void){\n8\t uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;\n   0x00000064 <+0>:\tpush\t{r3, lr}\n   0x00000066 <+2>:\tldr\tr4, [pc, #248]\t@ (0x160 <cl_reset+252>)\n   0x00000068 <+4>:\tldr\tr3, [pc, #248]\t@ (0x164 <cl_reset+256>)\n   0x0000006a <+6>:\tcmp\tr4, r3\n   0x0000006c <+8>:\tbcs.n\t0xb4 <cl_reset+80>\n   0x0000006e <+10>:\tsubs\tr3, #1\n   0x00000070 <+12>:\tsubs\tr3, r3, r4\n   0x00000072 <+14>:\tmov.w\tlr, r3, lsr #2\n   0x00000076 <+18>:\tcmp\tr3, #3\n   0x00000078 <+20>:\tldr\tr5, [pc, #236]\t@ (0x168 <cl_reset+260>)\n   0x0000007a <+22>:\tmov\tr2, r4\n   0x0000007c <+24>:\tadd.w\tlr, lr, #1\n   0x00000080 <+28>:\tbls.n\t0xb0 <cl_reset+76>\n   0x00000082 <+30>:\tmov.w\tr12, lr, lsr #1\n   0x00000086 <+34>:\tmov\tr3, r5\n   0x00000088 <+36>:\tadd.w\tr12, r5, r12, lsl #3\n   0x0000008c <+40>:\tldrd\tr0, r1, [r3]\n   0x00000090 <+44>:\tadds\tr3, #8\n   0x00000092 <+46>:\tcmp\tr12, r3\n   0x00000094 <+48>:\tstrd\tr0, r1, [r2]\n   0x00000098 <+52>:\tadd.w\tr2, r2, #8\n   0x0000009c <+56>:\tbne.n\t0x8c <cl_reset+40>\n   0x0000009e <+58>:\ttst.w\tlr, #1\n   0x000000a2 <+62>:\tbeq.n\t0xb4 <cl_reset+80>\n   0x000000a4 <+64>:\tbic.w\tlr, lr, #1\n   0x000000a8 <+68>:\tadd.w\tr4, r4, lr, lsl #2\n   0x000000ac <+72>:\tadd.w\tr5, r5, lr, lsl #2\n   0x000000b0 <+76>:\tldr\tr3, [r5, #0]\n   0x000000b2 <+78>:\tstr\tr3, [r4, #0]\n   0x000000b4 <+80>:\tldr\tr0, [pc, #180]\t@ (0x16c <cl_reset+264>)\n   0x000000b6 <+82>:\tldr\tr3, [pc, #184]\t@ (0x170 <cl_reset+268>)\n   0x000000b8 <+84>:\tcmp\tr0, r3\n   0x000000ba <+86>:\tbcs.n\t0xf4 <cl_reset+144>\n   0x000000bc <+88>:\tsubs\tr3, #1\n   0x000000be <+90>:\tsubs\tr2, r3, r0\n   0x000000c0 <+92>:\tmov.w\tr12, r2, lsr #2\n   0x000000c4 <+96>:\tcmp\tr2, #3\n   0x000000c6 <+98>:\tmov\tr3, r0\n   0x000000c8 <+100>:\tadd.w\tr12, r12, #1\n   0x000000cc <+104>:\tbls.n\t0xf0 <cl_reset+140>\n   0x000000ce <+106>:\tmov.w\tr1, r12, lsr #1\n   0x000000d2 <+110>:\tadd.w\tr1, r0, r1, lsl #3\n   0x000000d6 <+114>:\tmovs\tr2, #0\n   0x000000d8 <+116>:\tstrd\tr2, r2, [r3]\n   0x000000dc <+120>:\tadds\tr3, #8\n   0x000000de <+122>:\tcmp\tr3, r1\n   0x000000e0 <+124>:\tbne.n\t0xd8 <cl_reset+116>\n   0x000000e2 <+126>:\ttst.w\tr12, #1\n   0x000000e6 <+130>:\tbeq.n\t0xf4 <cl_reset+144>\n   0x000000e8 <+132>:\tbic.w\tr12, r12, #1\n   0x000000ec <+136>:\tadd.w\tr0, r0, r12, lsl #2\n   0x000000f0 <+140>:\tmovs\tr3, #0\n   0x000000f2 <+142>:\tstr\tr3, [r0, #0]\n\n9\t dc_bytes[0]=1;dc_bytes[1]=2;dc_bytes[2]=3;dc_bytes[3]=4;dc_input=5;dc_counter=0;dc_checkpoint();\n   0x000000f4 <+144>:\tldr\tr1, [pc, #124]\t@ (0x174 <cl_reset+272>)\n   0x000000f6 <+146>:\tldr\tr2, [pc, #128]\t@ (0x178 <cl_reset+276>)\n   0x000000f8 <+148>:\tstr\tr2, [r1, #8]\n   0x000000fa <+150>:\tmovs\tr0, #5\n   0x000000fc <+152>:\tmovs\tr3, #0\n   0x000000fe <+154>:\tstr\tr0, [r1, #12]\n   0x00000100 <+156>:\tstr\tr3, [r1, #0]\n   0x00000102 <+158>:\tbl\t0x40 <dc_checkpoint>\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:\n13\tATTR uint32_t dc_checksum(const unsigned char*p,unsigned n){\n=> 0x00000106 <+162>:\tldrb\tr4, [r1, #9]\n   0x00000108 <+164>:\tldrb\tr3, [r1, #8]\n   0x0000010a <+166>:\tldrb\tr0, [r1, #10]\n   0x0000010c <+168>:\tldrb\tr2, [r1, #11]\n   0x0000010e <+170>:\tadd\tr3, r4\n   0x00000110 <+172>:\tadd\tr3, r0\n   0x00000112 <+174>:\tadd\tr3, r2\n   0x00000114 <+176>:\tadd.w\tr3, r3, r3, lsl #1\n\n14\t uint32_t dead=dc_input*7u;uint32_t invariant=DC_ROUTINE_MUTANT==2?4:3;uint32_t sum=0;\n   0x00000118 <+180>:\tldr\tr2, [r1, #12]\n\n17\t dc_output=sum;\n   0x0000011a <+182>:\tstr\tr3, [r1, #16]\n\n/mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:\n10\t dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();\n   0x0000011c <+184>:\tstr\tr3, [r1, #16]\n   0x0000011e <+186>:\tbl\t0x40 <dc_checkpoint>\n\n11\t dc_bytes[1]=7;dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();\n   0x00000122 <+190>:\tldrb\tr3, [r1, #10]\n   0x00000124 <+192>:\tldrb\tr4, [r1, #8]\n   0x00000126 <+194>:\tldrb\tr0, [r1, #11]\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:\n16\t for(unsigned i=0;i<n-(unsigned)(DC_ROUTINE_MUTANT==1&&n!=0);++i)sum+=p[i]*invariant;\n   0x00000128 <+196>:\tadd\tr3, r4\n   0x0000012a <+198>:\tadd\tr3, r0\n   0x0000012c <+200>:\tadd.w\tr3, r3, r3, lsl #1\n\n/mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:\n11\t dc_bytes[1]=7;dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();\n   0x00000130 <+204>:\tmovs\tr2, #7\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:\n16\t for(unsigned i=0;i<n-(unsigned)(DC_ROUTINE_MUTANT==1&&n!=0);++i)sum+=p[i]*invariant;\n   0x00000132 <+206>:\tadds\tr3, #21\n\n14\t uint32_t dead=dc_input*7u;uint32_t invariant=DC_ROUTINE_MUTANT==2?4:3;uint32_t sum=0;\n   0x00000134 <+208>:\tldr\tr0, [r1, #12]\n\n/mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:\n11\t dc_bytes[1]=7;dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();\n   0x00000136 <+210>:\tstrb\tr2, [r1, #9]\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:\n13\tATTR uint32_t dc_checksum(const unsigned char*p,unsigned n){\n   0x00000138 <+212>:\tstr\tr3, [r1, #16]\n\n/mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:\n11\t dc_bytes[1]=7;dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();\n   0x0000013a <+214>:\tstr\tr3, [r1, #16]\n   0x0000013c <+216>:\tbl\t0x40 <dc_checkpoint>\n\n12\t dc_counter=7;dc_checkpoint();dc_counter=7;dc_checkpoint();\n   0x00000140 <+220>:\tstr\tr2, [r1, #0]\n   0x00000142 <+222>:\tbl\t0x40 <dc_checkpoint>\n   0x00000146 <+226>:\tstr\tr2, [r1, #0]\n   0x00000148 <+228>:\tbl\t0x40 <dc_checkpoint>\n\n13\t dc_output=dc_tail(9);dc_done=1;dc_checkpoint();for(;;)__asm__ volatile(\"wfi\");\n   0x0000014c <+232>:\tbl\t0x58 <dc_tail>\n   0x00000150 <+236>:\tmovs\tr2, #10\n   0x00000152 <+238>:\tmovs\tr3, #1\n   0x00000154 <+240>:\tstr\tr2, [r1, #16]\n   0x00000156 <+242>:\tstr\tr3, [r1, #20]\n   0x00000158 <+244>:\tbl\t0x40 <dc_checkpoint>\n   0x0000015c <+248>:\twfi\n   0x0000015e <+250>:\tb.n\t0x15c <cl_reset+248>\n   0x00000160 <+252>:\tmovs\tr0, r0\n   0x00000162 <+254>:\tmovs\tr0, #0\n   0x00000164 <+256>:\tmovs\tr0, r0\n   0x00000166 <+258>:\tmovs\tr0, #0\n   0x00000168 <+260>:\tlsls\tr4, r7, #5\n   0x0000016a <+262>:\tmovs\tr0, r0\n   0x0000016c <+264>:\tmovs\tr0, r0\n   0x0000016e <+266>:\tmovs\tr0, #0\n   0x00000170 <+268>:\tmovs\tr0, r3\n   0x00000172 <+270>:\tmovs\tr0, #0\n   0x00000174 <+272>:\tmovs\tr0, r0\n   0x00000176 <+274>:\tmovs\tr0, #0\n   0x00000178 <+276>:\tlsls\tr1, r0, #8\n   0x0000017a <+278>:\tlsls\tr3, r0, #16\nEnd of assembler dump.\n",
+      "elapsed_ns": 12922887
+    },
+    {
+      "command": "stepi",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 3270450
+    },
+    {
+      "command": "info locals",
+      "ok": true,
+      "output": "i = <optimized out>\ndead = <optimized out>\ninvariant = 3\nsum = <optimized out>\n",
+      "elapsed_ns": 32387
+    },
+    {
+      "command": "info line *$pc",
+      "ok": true,
+      "output": "Line 13 of \"/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c\" starts at address 0x106 <cl_reset+162> and ends at 0x118 <cl_reset+180>.\n",
+      "elapsed_ns": 28756
+    },
+    {
+      "command": "delete 2",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 8493
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 2505627
+    },
+    {
+      "label": "checksum-one",
+      "values": {
+        "dc_output": 30,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 291,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1179387
+    },
+    {
+      "label": "checksum-changed",
+      "values": {
+        "dc_output": 45,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 321,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1124425
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1137252
+    },
+    {
+      "command": "break dc_leaf",
+      "ok": true,
+      "output": "Breakpoint 3 at 0x48: file /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c, line 20.\n",
+      "elapsed_ns": 129144
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 2368196
+    },
+    {
+      "label": "tail-leaf",
+      "values": {
+        "dc_output": 45,
+        "dc_counter": 7,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 72,
+      "sp": 536936432,
+      "lr": 95,
+      "symbol": "dc_leaf.constprop in section .text\n"
+    },
+    {
+      "command": "bt",
+      "ok": true,
+      "output": "#0  dc_leaf (v=9) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:20\n#1  0x0000005e in dc_tail (v=9) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:21\n#2  0x00000150 in cl_reset () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:13\n",
+      "elapsed_ns": 1862640
+    },
+    {
+      "command": "info frame",
+      "ok": true,
+      "output": "Stack level 0, frame at 0x2000fff0:\n pc = 0x48 in dc_leaf (/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:20); saved pc = 0x5e\n called by frame at 0x2000fff8\n source language c.\n Arglist at 0x2000fff0, args: v=9\n Locals at 0x2000fff0, Previous frame's sp is 0x2000fff0\n",
+      "elapsed_ns": 779816
+    },
+    {
+      "command": "frame 1",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 37147
+    },
+    {
+      "command": "info frame",
+      "ok": true,
+      "output": "Stack level 1, frame at 0x2000fff8:\n pc = 0x5e in dc_tail (/mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:21); saved pc = 0x150\n called by frame at 0x20010000, caller of frame at 0x2000fff0\n source language c.\n Arglist at 0x2000fff0, args: v=9\n Locals at 0x2000fff0, Previous frame's sp is 0x2000fff8\n Saved registers:\n  r3 at 0x2000fff0, lr at 0x2000fff4\n",
+      "elapsed_ns": 163673
+    },
+    {
+      "command": "frame 0",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 30063
+    },
+    {
+      "command": "disassemble dc_tail",
+      "ok": true,
+      "output": "Dump of assembler code for function dc_tail:\n   0x00000058 <+0>:\tpush\t{r3, lr}\n   0x0000005a <+2>:\tbl\t0x48 <dc_leaf>\n   0x0000005e <+6>:\tmovs\tr0, #10\n   0x00000060 <+8>:\tpop\t{r3, pc}\nEnd of assembler dump.\n",
+      "elapsed_ns": 32883
+    },
+    {
+      "command": "delete 3",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 7454
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 2390237
+    },
+    {
+      "label": "finished",
+      "values": {
+        "dc_output": 10,
+        "dc_counter": 9,
+        "dc_done": 1,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 349,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "detach",
+      "ok": true,
+      "output": "[Inferior 1 (process 1) detached]\n",
+      "elapsed_ns": 155367
+    }
+  ],
+  "debugger_command": [
+    "/mnt/f/Learning/Curricula/c_mastery/build/debugger-tools/root/usr/bin/gdb-multiarch",
+    "-nx",
+    "--batch",
+    "-x",
+    "<owned-script>"
+  ],
+  "qemu_command": [
+    "qemu-system-arm",
+    "-M",
+    "mps2-an386",
+    "-cpu",
+    "cortex-m4",
+    "-nographic",
+    "-monitor",
+    "none",
+    "-serial",
+    "none",
+    "-nic",
+    "none",
+    "-kernel",
+    "/tmp/debug-connection-25av3cvk/gcc-lto-target-0/debug.elf",
+    "-chardev",
+    "socket,path=/tmp/dc-probe-e055leda/gdb.sock,server=on,wait=off,id=gdb0",
+    "-gdb",
+    "chardev:gdb0",
+    "-S"
+  ],
+  "script": "set pagination off\nset confirm off\nset debuginfod enabled off\nfile /tmp/debug-connection-25av3cvk/gcc-lto-target-0/debug.elf\ntarget remote /tmp/dc-probe-e055leda/gdb.sock\npython\nKIND='state'\nREPORT='/tmp/dc-probe-e055leda/observed.json'\nimport gdb,json,time\nrows=[]\ndef execute(command):\n start=time.monotonic_ns()\n try:\n  value=gdb.execute(command,to_string=True);rows.append({'command':command,'ok':True,'output':value,'elapsed_ns':time.monotonic_ns()-start});return value\n except gdb.error as error:\n  rows.append({'command':command,'ok':False,'output':str(error),'elapsed_ns':time.monotonic_ns()-start});return None\ndef capture(label):\n values={}\n for name in ('dc_output','dc_counter','dc_done','dc_input'):\n  try:values[name]=int(gdb.parse_and_eval(name))\n  except gdb.error as error:values[name]={'unavailable':str(error)}\n rows.append({'label':label,'values':values,'pc':int(gdb.parse_and_eval('$pc')),'sp':int(gdb.parse_and_eval('$sp')),'lr':int(gdb.parse_and_eval('$lr')),'symbol':gdb.execute('info symbol $pc',to_string=True)})\nexecute('break dc_checkpoint')\nexecute('continue');capture('initialized')\nexecute('x/4ub dc_bytes');execute('x/wx 0xe000ed00');execute('info registers')\nif KIND=='result':\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed');execute('continue');execute('continue');execute('continue');capture('finished')\nelif KIND=='state':\n execute('break dc_checksum');execute('continue');capture('checksum-entry')\n execute('info locals');execute('info args');execute('disassemble /s dc_checksum');execute('stepi');execute('info locals');execute('info line *$pc');execute('delete 2')\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed')\n execute('continue');execute('continue')\n execute('break dc_leaf');execute('continue');capture('tail-leaf');execute('bt');execute('info frame');execute('frame 1');execute('info frame');execute('frame 0');execute('disassemble dc_tail');execute('delete 3')\n execute('continue');capture('finished')\nelif KIND=='access':\n execute('continue');execute('continue')\n execute('awatch dc_counter');execute('info watchpoints');execute('continue');capture('first-write');execute('x/i $pc');execute('continue');capture('first-write-checkpoint');execute('continue');capture('same-value-write');execute('x/i $pc')\nelif KIND=='limits':\n execute('set remote hardware-watchpoint-limit 2');execute('set remote hardware-watchpoint-length-limit 4');execute('show remote hardware-watchpoint-limit');execute('show remote hardware-watchpoint-length-limit')\n execute('awatch *(unsigned long long *)&dc_counter');execute('awatch dc_counter');execute('awatch dc_output');execute('awatch dc_input');execute('info watchpoints')\nelif KIND=='change':\n execute('continue');execute('continue');execute('watch dc_counter');execute('continue');capture('changed-write');execute('continue');capture('first-checkpoint');execute('continue');capture('same-value-skipped-to-checkpoint')\nexecute('detach')\nwith open(REPORT,'w') as output:json.dump({'kind':KIND,'rows':rows},output,indent=2)\n\nend\nquit\n",
+  "debugger_output": "cl_reset () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:8\n8\t uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 2.1, dc_checksum (p=0x20000008 <dc_bytes> \"\\001\\002\\003\\004\\005\", n=4) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:13\n13\tATTR uint32_t dc_checksum(const unsigned char*p,unsigned n){\n0x00000108\t13\tATTR uint32_t dc_checksum(const unsigned char*p,unsigned n){\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 3, dc_leaf (v=9) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:20\n20\t__attribute__((noinline)) uint32_t dc_leaf(uint32_t v){dc_counter=v;return v+1;}\n#1  0x0000005e in dc_tail (v=9) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:21\n21\t__attribute__((noinline)) uint32_t dc_tail(uint32_t v){return dc_leaf(v);}\n#0  dc_leaf (v=9) at /mnt/f/Learning/Curricula/c_mastery/assessor/embedded_debug_depth/routine.c:20\n20\t__attribute__((noinline)) uint32_t dc_leaf(uint32_t v){dc_counter=v;return v+1;}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n",
+  "transport": {
+    "kind": "owned UNIX-domain QEMU GDB endpoint",
+    "added_delay_ms_per_chunk": 0,
+    "credentials": "none",
+    "timing": "actual host monotonic command elapsed; added chunk delay is not physical network latency"
+  }
+}

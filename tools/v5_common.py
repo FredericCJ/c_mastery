@@ -35,7 +35,18 @@ def domains_manifest():
     else:
         value = read_json(path)
     fragments = [(p.stem, read_json(p)) for p in sorted((V5 / 'domains').glob('T*.json'))]
-    return merge_domain_fragments(value, fragments)
+    result=merge_domain_fragments(value, fragments)
+    # A shared additive laboratory is explicit about its domain-local prefix
+    # and projects. Verify the actual family contract, not just declared counts.
+    for key,domain in result['domains'].items():
+        for extra in domain.get('additional_laboratories',[]):
+            family=read_json(ROOT/'labs'/extra['family']/'family.json')
+            units=[u for u in family.get('units',[]) if u['id'].split('-')[1]==extra['prefix']]
+            if not units or {u['project'] for u in units}!=set(extra['projects']):
+                raise ValueError('Additional laboratory project/prefix ownership differs: '+key)
+            if sum(bool(u.get('new_executable')) for u in units)!=result['new_executable_counts'][extra['prefix']]:
+                raise ValueError('Additional laboratory executable count differs: '+key)
+    return result
 
 
 def merge_domain_fragments(base, fragments):
@@ -64,10 +75,26 @@ def merge_domain_fragments(base, fragments):
                 raise ValueError('Domain recipe collision for ' + name + ': ' + domain[name])
         if not re.fullmatch(r'[A-Z]{2}', domain['prefix']):
             raise ValueError('Domain prefix must be two uppercase letters: ' + key)
+        allowed={domain['prefix']}
+        prior_prefixes={d['prefix'] for d in domains.values()}|{e['prefix'] for d in domains.values() for e in d.get('additional_laboratories',[])}
+        if domain['prefix'] in prior_prefixes:raise ValueError('Domain prefix collision: '+domain['prefix'])
+        for extra in domain.get('additional_laboratories',[]):
+            prefix=extra.get('prefix','')
+            if not re.fullmatch(r'[A-Z]{2}',prefix) or prefix in allowed or prefix in prior_prefixes:
+                raise ValueError('Additional laboratory prefix collision/format: '+prefix)
+            if not re.fullmatch(r'[a-z][a-z0-9_]*',extra.get('family','')):
+                raise ValueError('Additional laboratory family invalid: '+key)
+            projects=extra.get('projects',[])
+            if not projects or len(projects)!=len(set(projects)) or any(not re.fullmatch('PR-'+key+r'-\d{2}',p) for p in projects):
+                raise ValueError('Additional laboratory project ownership invalid: '+key)
+            if not extra.get('research_gate'):raise ValueError('Additional laboratory research gate missing: '+key)
+            allowed.add(prefix)
         for prefix, count in fragment.get('new_executable_counts', {}).items():
-            if prefix != domain['prefix'] or prefix in counts or type(count) is not int or count < 0:
+            if prefix not in allowed or prefix in counts or type(count) is not int or count < 0:
                 raise ValueError('Invalid or multiply owned executable count: ' + prefix)
             counts[prefix] = count
+        if allowed!=set(fragment.get('new_executable_counts',{})):
+            raise ValueError('Every declared laboratory needs an executable count: '+key)
         fragment_oracles = fragment.get('fixture_oracles', [])
         if len(fragment_oracles) != len(set(fragment_oracles)):
             raise ValueError('Repeated fixture oracle within a domain: ' + key)
@@ -85,7 +112,9 @@ def require_domain_research(data=None):
     """Require each authored domain's bounded research gate, without claiming review."""
     from common import sha
     data = domains_manifest() if data is None else data
-    for key, domain in data.get('domains', {}).items():
+    registrations=[(key,registration) for key,domain in data.get('domains',{}).items()
+                   for registration in [domain,*domain.get('additional_laboratories',[])]]
+    for key, domain in registrations:
         gate_name = domain.get('research_gate')
         if not gate_name:
             raise ValueError('Domain lacks an explicit research gate: ' + key)

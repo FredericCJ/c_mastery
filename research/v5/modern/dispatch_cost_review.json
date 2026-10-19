@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_costs.json",
+    "reviews/v5/expansion/modern_completion/dispatch_stack.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed view16/8 and embedded16/8 on x86-64,8/4 each on executed i386; exact headers, size and offset records retained."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "1000 direct ints4000 bytes; embedded boxes16000; external views16000 plus4000 referents on the observed64-bit ABI, plus shared static table. Cache owns two descriptor entries and may retain plugin leases."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Receivers and tables outlive calls; cache and registration owners stay at stable addresses until explicit clearing. A temporary int receiver descriptor may die after constructing its view of a live second field."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Core owner-thread calls are nonreentrant; constructor associations and external raw aliases remain programmer discipline. Cache identity includes owner, epoch and ordered pair; epoch exhaustion forbids reuse."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Representation/dictionary/static-cache timed operations allocate nothing. Plugin cache fill acquires an actual bounded DSLoaded borrow; earlier capture tests use actual T66 allocator failures and rollback."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "View copies two references on observed ABI, not referent ownership. Embedded representation stores table per object. DSCloneCapture is address-stable/self-referential and cannot use generic erased move."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Synchronous cache clear releases at most two leases after clearing callable pointers; table clear releases at most16 registration leases. Unknown destructors/loader shutdown elapsed time are not bounded by these counts."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Separate-compilation ds_measure/embedded/fold have actual indirect calls; whole-program builds remove wrapper symbols but preserve some runtime-selected indirect paths. Exact outputs, compiler commands and disassembly retained."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Dispatch owners are serialized. Actual two-worker reduction uses disjoint outputs and pthread join; signed saturation tree is a different algebraic contract. GCC TSan semantic campaign separately required, not inferred from these timings."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Output staging, partial-progress prefixes, closure retry ownership, clone acquisition rollback and stale/missing cache decisions have separate compiled controls; callback effects do not roll back."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Actual clean translation/link and one-source incremental times recorded for each of8 builds. No warm-cache normalization or universal compile-time ranking. Exact strict compiler diagnostics are semantic campaign artifacts."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O3 linked text9589/10776 GCC and10958/14067 Clang without/with LTO. Actual O2 stack files/maps support conservative named internal chains72/40 bytes for measure and160/112 for runtime dictionary, excluding main/unknown callbacks/runtime."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Actual i386 compatibility execution of exact extracted core/public types has no interpreter/unresolved helper; its limited target-int header bridge and Linux entry/syscall adapter are explicit. No full hosted32-bit libc, foreign DSO ABI, board or language kind/lifetime enforcement claim."
+    }
+  ]
+}

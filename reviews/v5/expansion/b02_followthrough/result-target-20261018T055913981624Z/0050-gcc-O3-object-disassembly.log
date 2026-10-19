@@ -1,0 +1,86 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/b02_followthrough/result-target-20261018T055913981624Z/gcc-O3/5.o:     file format elf32-littlearm
+
+
+Disassembly of section .text.memcpy:
+
+00000000 <memcpy>:
+   0:	b372      	cbz	r2, 60 <memcpy+0x60>
+   2:	b570      	push	{r4, r5, r6, lr}
+   4:	1e54      	subs	r4, r2, #1
+   6:	2c05      	cmp	r4, #5
+   8:	d920      	bls.n	4c <memcpy+0x4c>
+   a:	1c4b      	adds	r3, r1, #1
+   c:	1ac3      	subs	r3, r0, r3
+   e:	2b02      	cmp	r3, #2
+  10:	d91c      	bls.n	4c <memcpy+0x4c>
+  12:	f022 0503 	bic.w	r5, r2, #3
+  16:	460b      	mov	r3, r1
+  18:	4684      	mov	ip, r0
+  1a:	0896      	lsrs	r6, r2, #2
+  1c:	194c      	adds	r4, r1, r5
+  1e:	f853 eb04 	ldr.w	lr, [r3], #4
+  22:	f84c eb04 	str.w	lr, [ip], #4
+  26:	42a3      	cmp	r3, r4
+  28:	d1f9      	bne.n	1e <memcpy+0x1e>
+  2a:	42aa      	cmp	r2, r5
+  2c:	d00d      	beq.n	4a <memcpy+0x4a>
+  2e:	f811 3026 	ldrb.w	r3, [r1, r6, lsl #2]
+  32:	f800 3026 	strb.w	r3, [r0, r6, lsl #2]
+  36:	1c6b      	adds	r3, r5, #1
+  38:	429a      	cmp	r2, r3
+  3a:	d906      	bls.n	4a <memcpy+0x4a>
+  3c:	3502      	adds	r5, #2
+  3e:	5ccc      	ldrb	r4, [r1, r3]
+  40:	54c4      	strb	r4, [r0, r3]
+  42:	42aa      	cmp	r2, r5
+  44:	d901      	bls.n	4a <memcpy+0x4a>
+  46:	5d4b      	ldrb	r3, [r1, r5]
+  48:	5543      	strb	r3, [r0, r5]
+  4a:	bd70      	pop	{r4, r5, r6, pc}
+  4c:	1e4b      	subs	r3, r1, #1
+  4e:	1e42      	subs	r2, r0, #1
+  50:	4421      	add	r1, r4
+  52:	f813 4f01 	ldrb.w	r4, [r3, #1]!
+  56:	f802 4f01 	strb.w	r4, [r2, #1]!
+  5a:	428b      	cmp	r3, r1
+  5c:	d1f9      	bne.n	52 <memcpy+0x52>
+  5e:	bd70      	pop	{r4, r5, r6, pc}
+  60:	4770      	bx	lr
+  62:	bf00      	nop
+
+Disassembly of section .text.memset:
+
+00000000 <memset>:
+   0:	b31a      	cbz	r2, 4a <memset+0x4a>
+   2:	1e53      	subs	r3, r2, #1
+   4:	2b02      	cmp	r3, #2
+   6:	b510      	push	{r4, lr}
+   8:	b2c9      	uxtb	r1, r1
+   a:	d91f      	bls.n	4c <memset+0x4c>
+   c:	f04f 0c00 	mov.w	ip, #0
+  10:	f361 0c07 	bfi	ip, r1, #0, #8
+  14:	f361 2c0f 	bfi	ip, r1, #8, #8
+  18:	f361 4c17 	bfi	ip, r1, #16, #8
+  1c:	f022 0403 	bic.w	r4, r2, #3
+  20:	f361 6c1f 	bfi	ip, r1, #24, #8
+  24:	4603      	mov	r3, r0
+  26:	eb04 0e00 	add.w	lr, r4, r0
+  2a:	f843 cb04 	str.w	ip, [r3], #4
+  2e:	4573      	cmp	r3, lr
+  30:	d1fb      	bne.n	2a <memset+0x2a>
+  32:	4294      	cmp	r4, r2
+  34:	d008      	beq.n	48 <memset+0x48>
+  36:	1c63      	adds	r3, r4, #1
+  38:	429a      	cmp	r2, r3
+  3a:	5501      	strb	r1, [r0, r4]
+  3c:	d904      	bls.n	48 <memset+0x48>
+  3e:	3402      	adds	r4, #2
+  40:	42a2      	cmp	r2, r4
+  42:	54c1      	strb	r1, [r0, r3]
+  44:	bf88      	it	hi
+  46:	5501      	strbhi	r1, [r0, r4]
+  48:	bd10      	pop	{r4, pc}
+  4a:	4770      	bx	lr
+  4c:	2400      	movs	r4, #0
+  4e:	e7f2      	b.n	36 <memset+0x36>

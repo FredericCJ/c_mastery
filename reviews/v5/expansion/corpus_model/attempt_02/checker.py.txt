@@ -1,0 +1,36 @@
+"""Guard distinct domain, parser-composition and persistent I/O evidence."""
+import argparse,copy,json
+from pathlib import Path
+from common import ROOT,sha,dump
+from check_expansion_campaigns import generic_errors,pin_errors,execution_errors
+DEFAULT='reviews/v5/expansion/corpus_model/current_validation.json'
+def validate(d,files=True):
+    meta=json.loads((ROOT/'labs/corpus_model/family.json').read_text());errors=generic_errors('corpus_model',meta,d)
+    def need(ok,message):
+        if not ok:errors.append(message)
+    need(d.get('passed') is True and d.get('scope_source_stable') is True,'current stable campaign')
+    need(d.get('physical_validation')=='not-run' and d.get('learner_mastery')=='not-assessed','external evidence boundary')
+    need(d.get('provider_header_identity') is True,'actual accepted parser header identity')
+    if files:errors+=pin_errors(d)+execution_errors(d)
+    observations=d.get('independent_oracles',[]);need(len(observations)==6,'six actual independent oracles')
+    for row in observations:
+        need(row.get('passed') is True and row.get('executed') is True,'executed oracle')
+        for key,value in dict(graphs=720,transactions=2937,expression_checks=1469,model_rows=5136,stream_cases=484,output_failure_prefixes=79,actual_stdio_traces=5).items():
+            need(row.get(key)==value,'distinct scope '+key)
+        if files:
+            raw=json.loads((ROOT/row['log']).read_text());need(all(raw.get(k)==v for k,v in row.items() if k!='log'),'raw oracle identity')
+    for path in ['assessor/parsing_depth/pratt.c','labs/parsing_depth/parsing.h']:
+        need(path in d.get('inspected_paths',{}),'actual provider source binding '+path)
+    return errors
+def main():
+    p=argparse.ArgumentParser();p.add_argument('--report',default=DEFAULT);p.add_argument('--self-test',action='store_true');p.add_argument('--output',type=Path);a=p.parse_args()
+    d=json.loads((ROOT/a.report).read_text());errors=validate(d);controls=[]
+    if a.self_test:
+        changes=[('passed',lambda x:x.update(passed=False)),('stable',lambda x:x.update(scope_source_stable=False)),('profile',lambda x:x['profiles'].pop()),('mutant',lambda x:x['profiles'][0]['compiled_mutant_controls'].pop()),('mapping',lambda x:x['profiles'][0].update(controls_by_anchor={})),('stub',lambda x:x['learner_stub_rejections'].clear()),('oracle',lambda x:x['independent_oracles'].pop()),('graphs',lambda x:x['independent_oracles'][0].update(graphs=1)),('history',lambda x:x['independent_oracles'][0].update(transactions=1)),('expressions',lambda x:x['independent_oracles'][0].update(expression_checks=0)),('streams',lambda x:x['independent_oracles'][0].update(stream_cases=0)),('prefixes',lambda x:x['independent_oracles'][0].update(output_failure_prefixes=0)),('stdio',lambda x:x['independent_oracles'][0].update(actual_stdio_traces=0)),('provider',lambda x:x['inspected_paths'].pop('assessor/parsing_depth/pratt.c')),('header',lambda x:x.update(provider_header_identity=False)),('physical',lambda x:x.update(physical_validation='passed')),('learner',lambda x:x.update(learner_mastery='passed'))]
+        for name,change in changes:
+            candidate=copy.deepcopy(d);change(candidate);rejected=bool(validate(candidate,False));controls.append(dict(name=name,rejected=rejected))
+            if not rejected:errors.append('guard accepted '+name)
+    result=dict(passed=not errors,errors=errors,negative_controls=controls,report=a.report,report_sha256=sha(ROOT/a.report))
+    if a.output:dump(a.output,result)
+    print(json.dumps(result));return int(bool(errors))
+if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,50 @@
+SETUP:allocation8:mode=lower:fixed=0
+ENTRY
+=================================================================
+==3113==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x752becfe000f at pc 0x000000514f5e bp 0x7ffccbd91420 sp 0x7ffccbd91418
+WRITE of size 1 at 0x752becfe000f thread T0
+    #0 0x000000514f5d in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:18
+    #1 0x790bedc2a600 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:59
+    #2 0x790bedc2a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #3 0x00000042b354 in _start ??:?
+
+0x752becfe000f is located 1 bytes before 8-byte region [0x752becfe0010,0x752becfe0018)
+allocated by thread T0 here:
+    #0 0x0000004d08f8 in malloc ??:?
+    #1 0x000000514ac5 in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:16
+    #2 0x790bedc2a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #3 0x00000042b354 in _start ??:?
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:18 in main
+Shadow bytes around the buggy address:
+  0x752becfdfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x752becfdfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x752becfdfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x752becfdff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x752becfdff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x752becfe0000: fa[fa]00 fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x752becfe0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x752becfe0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x752becfe0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x752becfe0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x752becfe0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==3113==ABORTING

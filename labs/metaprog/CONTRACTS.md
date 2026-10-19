@@ -46,7 +46,7 @@ physical validation or proof of absolute mastery.
 
 Implement one unguarded private ring template instantiated for uint32_t and MPPair. Public MPU32Ring/MPPairRing each hold4elements,head,count. Push fails unchanged when full; pop fails without modifying output when empty. FIFO order must survive wraparound. Prefix, element type and ring type are explicit template parameters; undefine all private macros after each inclusion. Reuse the containers.ring contract but implement the type-generation mechanism yourself.
 
-Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.
+Derive head<capacity and count<=capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.
 
 ## PR-T68-02: Constraint probes and constant storage parameters
 

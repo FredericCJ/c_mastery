@@ -1,0 +1,1255 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "scope": "Nine exact T24.07/.08/.11 criteria and their changed-condition reference support; no other T24 leaf or independent attempt is closed",
+  "criteria": [
+    {
+      "id": "AX-PR-T24-04-T24.07.a",
+      "objective": "T24.07.a",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.07.a",
+        "variant": false,
+        "claim": "Actual nonblocking pipe read2/EAGAIN/read1/EOF with three-byte cursor; completion and EOF distinct",
+        "evidence": [
+          "native:cursor",
+          "tests.c:operations"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.07.a",
+        "variant": true,
+        "claim": "A second descriptor consumer drains readiness before the original read, which tolerates actual immediate EAGAIN",
+        "evidence": [
+          "native:cursor",
+          "tests.c:operations"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/READINESS.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.b",
+      "objective": "T24.07.b",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.07.b",
+        "variant": false,
+        "claim": "Actual bidirectional socket with retained TX buffer, EAGAIN, RX3/TX2 one-byte progress and cancellation without sending remaining byte",
+        "evidence": [
+          "native:duplex",
+          "tests.c:identities"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.07.b",
+        "variant": true,
+        "claim": "Serialized completion-event adapter validates slot generation, direction AND nonreused per-operation sequence; duplicate old completion cannot advance next submission; close waits for both target completions and a callback borrow; cancellation ACK is not completion; kernel-retained I/O tested separately",
+        "evidence": [
+          "native:duplex",
+          "tests.c:identities"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/READINESS.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.c",
+      "objective": "T24.07.c",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.07.c",
+        "variant": false,
+        "claim": "Two-success turn quota lets persistent producer and single-byte participant both advance under round-robin rotation",
+        "evidence": [
+          "tests.c:scheduling",
+          "independent-scheduler:12288"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.07.c",
+        "variant": true,
+        "claim": "CPU-only callback uses separate work budget; no progress still consumes a callback; finite always-ready schedule is not an unconditional liveness proof",
+        "evidence": [
+          "tests.c:scheduling",
+          "independent-scheduler:12288"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/READINESS.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.a",
+      "objective": "T24.08.a",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.08.a",
+        "variant": false,
+        "claim": "Actual LT repeats readiness after read2 of5; ET does not; explicit runnable carry drains remaining3 to EAGAIN",
+        "evidence": [
+          "native:lt",
+          "native:et",
+          "native:oneshot"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.08.a",
+        "variant": true,
+        "claim": "Actual EPOLLONESHOT disables notification; byte arriving after drain before MOD is reported after rearm",
+        "evidence": [
+          "native:lt",
+          "native:et",
+          "native:oneshot"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/LIFETIME.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.b",
+      "objective": "T24.08.b",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.08.b",
+        "variant": false,
+        "claim": "Actual cached slot2/gen7 event rejected before payload use after closing/unregistering and forcing descriptor-number reuse for gen8",
+        "evidence": [
+          "native:reuse",
+          "tests.c:identities"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.08.b",
+        "variant": true,
+        "claim": "Reduced generation range retires slot permanently after its final generation; stale completion cannot access new operation storage",
+        "evidence": [
+          "native:reuse",
+          "tests.c:identities"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/LIFETIME.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.c",
+      "objective": "T24.08.c",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.08.c",
+        "variant": false,
+        "claim": "Three-ready schedule observes per-connection2 and global8 quotas; independent ordered-list oracle covers12288 mask/cursor/work/type cells",
+        "evidence": [
+          "tests.c:scheduling",
+          "independent-scheduler:12288"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.08.c",
+        "variant": true,
+        "claim": "Reentrant ready publication enters next turn only; nested turn rejected; snapshot and callback budget prevent recursive expansion",
+        "evidence": [
+          "tests.c:scheduling",
+          "independent-scheduler:12288"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/LIFETIME.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.a",
+      "objective": "T24.11.a",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.11.a",
+        "variant": false,
+        "claim": "Actual four-connection bounded service and imported RfOutbox; three overload policies preserve rejected caller ownership and settle disconnected work",
+        "evidence": [
+          "native:policies",
+          "tests.c:policies",
+          "import:assessor/hosted_systems/stream_depth/stream.c"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.11.a",
+        "variant": true,
+        "claim": "Variable lengths under297 independent count/byte cells; empty frames still consume slots and finite64-ID lifetime ledger rejects exhaustion",
+        "evidence": [
+          "native:policies",
+          "tests.c:policies",
+          "import:assessor/hosted_systems/stream_depth/stream.c"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.b",
+      "objective": "T24.11.b",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.11.b",
+        "variant": false,
+        "claim": "Actual32 accepted messages settle1completed/31cancelled after observed absolute deadline and callback return; repeated stop preserves one terminal per ID",
+        "evidence": [
+          "native:shutdown",
+          "tests.c:shutdowns"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.11.b",
+        "variant": true,
+        "claim": "Reentrant stop enters cancellation but retains pending message ownership AND service storage until final callback return; no asynchronous kernel-buffer release inference",
+        "evidence": [
+          "native:shutdown",
+          "tests.c:shutdowns"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.c",
+      "objective": "T24.11.c",
+      "project": "PR-T24-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "ordinary": {
+        "objective": "T24.11.c",
+        "variant": false,
+        "claim": "Actual mutex-enrolled empty consumer/full producer/peer EOF and repeated stop; predicate-free notification rechecks condition",
+        "evidence": [
+          "waiters_tests.c:blocked",
+          "waiters_tests.c:spurious",
+          "waiters_tests.c:races",
+          "tsan:correct-and-known-race"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "changed": {
+        "objective": "T24.11.c",
+        "variant": true,
+        "claim": "200 actual timeout/stop races per profile plus forced timeout-first and stop-first histories; one latched mutex-arbitrated result and cleanup, no sleeps as enrollment evidence",
+        "evidence": [
+          "waiters_tests.c:blocked",
+          "waiters_tests.c:spurious",
+          "waiters_tests.c:races",
+          "tsan:correct-and-known-race"
+        ],
+        "limitations": [],
+        "group": "reactor"
+      },
+      "teaching": "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+      "assessor_analysis": "assessor/hosted_systems/reactor_depth/ANALYSIS.md",
+      "receipt": "reviews/v5/expansion/legacy_reactor/current_validation.json"
+    }
+  ],
+  "updates": [
+    {
+      "id": "AX-PR-T24-04-T24.07.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual nonblocking pipe read2/EAGAIN/read1/EOF with three-byte cursor; completion and EOF distinct",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "A second descriptor consumer drains readiness before the original read, which tolerates actual immediate EAGAIN",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual bidirectional socket with retained TX buffer, EAGAIN, RX3/TX2 one-byte progress and cancellation without sending remaining byte",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Serialized completion-event adapter validates slot generation, direction AND nonreused per-operation sequence; duplicate old completion cannot advance next submission; close waits for both target completions and a callback borrow; cancellation ACK is not completion; kernel-retained I/O tested separately",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "Two-success turn quota lets persistent producer and single-byte participant both advance under round-robin rotation",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.07.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "CPU-only callback uses separate work budget; no progress still consumes a callback; finite always-ready schedule is not an unconditional liveness proof",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/READINESS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual LT repeats readiness after read2 of5; ET does not; explicit runnable carry drains remaining3 to EAGAIN",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual EPOLLONESHOT disables notification; byte arriving after drain before MOD is reported after rearm",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual cached slot2/gen7 event rejected before payload use after closing/unregistering and forcing descriptor-number reuse for gen8",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Reduced generation range retires slot permanently after its final generation; stale completion cannot access new operation storage",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "Three-ready schedule observes per-connection2 and global8 quotas; independent ordered-list oracle covers12288 mask/cursor/work/type cells",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.08.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "Reentrant ready publication enters next turn only; nested turn rejected; snapshot and callback budget prevent recursive expansion",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/LIFETIME.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual four-connection bounded service and imported RfOutbox; three overload policies preserve rejected caller ownership and settle disconnected work",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.a",
+      "project": "PR-T24-04",
+      "closure_rationale": "Variable lengths under297 independent count/byte cells; empty frames still consume slots and finite64-ID lifetime ledger rejects exhaustion",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual32 accepted messages settle1completed/31cancelled after observed absolute deadline and callback return; repeated stop preserves one terminal per ID",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.b",
+      "project": "PR-T24-04",
+      "closure_rationale": "Reentrant stop enters cancellation but retains pending message ownership AND service storage until final callback return; no asynchronous kernel-buffer release inference",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "Actual mutex-enrolled empty consumer/full producer/peer EOF and repeated stop; predicate-free notification rechecks condition",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+      "original_objective": "T24.11.c",
+      "project": "PR-T24-04",
+      "closure_rationale": "200 actual timeout/stop races per profile plus forced timeout-first and stop-first histories; one latched mutex-arbitrated result and cleanup, no sleeps as enrollment evidence",
+      "dimensions": {
+        "teaching": {
+          "state": "complete-for-declared-criterion",
+          "evidence": [
+            "labs/hosted_systems/reactor_depth/SHUTDOWN.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json",
+            "labs/hosted_systems/reactor_depth/CONTRACTS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/hosted_systems/reactor_depth/reactor.c",
+            "assessor/hosted_systems/reactor_depth/waiters.c",
+            "assessor/hosted_systems/reactor_depth/campaign.py",
+            "assessor/hosted_systems/reactor_depth/ANALYSIS.md"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_reactor/current_validation.json",
+            "reviews/v5/expansion/legacy_reactor/support_validation.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed; original minimum7days unchanged",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-observed; local hosted Linux execution only",
+          "evidence": []
+        }
+      },
+      "required_environment": "Hosted C17 GCC/Clang Linux with owned nonblocking pipes/local sockets, epoll, POSIX mutex/condition variables and binutils; no host policy change.",
+      "validation_method": "Exact ordinary/changed native modes, independent scheduler oracle, mutex enrollment, compiled semantic/race controls and real learner export.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    }
+  ],
+  "source_sha256": {
+    "reviews/v5/expansion/legacy_reactor/current_validation.json": "41eeae12968d515875d248741b1870d97793da6dbd648e613746ee7c3b62d265",
+    "reviews/v5/expansion/legacy_reactor/support_validation.json": "6b100d7beee1f86c32b9d6cab0276b6c193b51dcea568df2301a9f8409b8eecf",
+    "curriculum/v5/expansion/legacy_assessments/PR-T24-04.json": "195edef643f0f5e6717e546182244a0fff86c92430500fc739f2db0bd6bc4d1f",
+    "tools/close_reactor_followthrough.py": "ca498ed249efeb581503b71dc996952811f6c1290618cba24c8e2b37dacbed49",
+    "research/v5/expansion/legacy_reactor/author_support.py": "1b9cfa67098370fb9c0188d01e1c0d70902809b64e543593fbdf8180902377fc",
+    "research/v5/expansion/legacy_reactor/resources.json": "61f321a8b12c6dd83bbc4fc2174f2a8f413eac9d04cc02af4474c074a8470108",
+    "research/v5/expansion/legacy_reactor/source_access.json": "a7a7b53d64f63cbe3f9fb9e9743f204c34601281d1f74c40b06d06e072c724e6",
+    "labs/hosted_systems/reactor_depth/CONTRACTS.md": "784e8eaa8d93647c31f63342e90f601719e0b0b20d0cacbe8e1a98154a99849b",
+    "labs/hosted_systems/reactor_depth/READINESS.md": "580bada08af0898b75516496241003a1299ef4862dd6741df1dcf995a4eceb32",
+    "labs/hosted_systems/reactor_depth/LIFETIME.md": "9775fe67475fcdabaf149c40cace9476fcc51bdba68733c115de2cc89f389361",
+    "labs/hosted_systems/reactor_depth/SHUTDOWN.md": "e11d6a39998a8db33cb383c261016e39aaf6c6e866d0e9c48285a5dc5a34adc9",
+    "labs/hosted_systems/reactor_depth/reactor.h": "48518e5695775773715c7b0ad8d6c32b77b4d03eec2a01a476037e00387c9824",
+    "labs/hosted_systems/reactor_depth/reactor.c": "27b14e63ebcde3822060519bd6678549aa988bd38bed7e1402cb03b4ff76ee71",
+    "labs/hosted_systems/reactor_depth/tests.c": "f19b70064b41362c4854795091becb69c9a32d2854c06044baa2a43cdb1afbb6",
+    "labs/hosted_systems/reactor_depth/waiters.h": "8909b716739b08fb4d1c8fe9f323d78cc1498ef355058ede8d77500b227ebac4",
+    "labs/hosted_systems/reactor_depth/waiters.c": "3b1c49127132c3a411687bf599c1425e9d55c1bbf9a1af0a19d686eeae156c04",
+    "labs/hosted_systems/reactor_depth/waiters_tests.c": "c7a47c7034eff448b7f0fc4ef682847d9a5d5ea31c6e58871db2794420f87c07",
+    "labs/hosted_systems/stream_depth/stream.h": "761b7a166df890255702a0968555072ad34810ef6d712aee10e25662623fe941",
+    "labs/hosted_systems/stream_depth/stream.c": "5891d7465840b917beac0aa3c08d6bcaedb58c01e7cb5be10242d31d7b733259",
+    "labs/hosted_systems/stream_depth/CONTRACTS.md": "f68a27d809828e9995e9ff3901345c36684b884afcce608365102ae0ea04f09c",
+    "labs/hosted_systems/stream_depth/STREAMS.md": "c046096d9e5a891d1099c6e34f07d81759560782eed47151420d91ddeb0bf9e2"
+  }
+}

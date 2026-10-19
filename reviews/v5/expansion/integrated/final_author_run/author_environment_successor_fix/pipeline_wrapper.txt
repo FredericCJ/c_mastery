@@ -1,0 +1,195 @@
+"""Narrow, opt-in final rerun orchestration. Default: print plan, execute nothing.
+
+This excluded build draft invokes existing producers; it creates no acceptance
+rule and never rewrites an old receipt's whole-source identity. Root must freeze
+all source/receipt writers and apply/test the environment repair before --run.
+"""
+from datetime import datetime, timezone
+from pathlib import Path
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[2]
+HERE = ROOT / 'build/author_environment_successor_fix'
+DRIVER = ROOT / 'reviews/v5/expansion/followthrough/final_author_run/driver.py'
+DRIVER_SHA256 = '7642db9a9176d0e909535d389d97b1bcd24d08d30fbbc9805559a3fd80c9f91e'
+AUDIT = HERE / 'rerun_scope_audit.json'
+AUDIT_SHA256 = 'f26449e411c836bb36656b9b6edaa1b71acdd6ca7e241cb21902be2234c102c1'
+PUBLICATION_PYTHON = '/mnt/f/Learning/Curricula/c_mastery/build/publication-wsl-venv/bin/python'
+PHASES = (
+    ('build', ((str(DRIVER), 'build'),), False),
+    ('release_and_targets', (
+        ('tools/run_release_guards_v5.py',),
+        ('tools/run_targets_v5.py', '--freertos-root', 'build/dependencies/freertos-11.2.0'),
+    ), True),
+    ('validate', ((str(DRIVER), 'validate'),), False),
+    ('candidate', ((str(DRIVER), 'candidate'),), False),
+)
+
+
+def sha(path):
+    with path.open('rb') as source:
+        return hashlib.file_digest(source, 'sha256').hexdigest()
+
+
+def plan():
+    return {
+        'version': 1,
+        'root': str(ROOT),
+        'driver': str(DRIVER),
+        'driver_sha256': DRIVER_SHA256,
+        'phases': [dict(name=name, commands=[[sys.executable, '-X', 'utf8', *parts]
+                                           for parts in commands],
+                       outer_preserve_receipts=preserve)
+                   for name, commands, preserve in PHASES],
+        'retention': 'Five audited scoped receipts and all 62 selected family receipts remain byte-identical; existing scoped guards remain mandatory.',
+        'candidate': 'Existing driver creates a fresh explicit environment manifest and candidate directory; its logs and this wrapper logs remain under excluded build/.',
+        'not_run': ['workflow producer', 'retained-family matrix', 'machine-hosted campaign',
+                    'firmware-integration campaign', 'foundation campaign', 'other scoped family campaigns'],
+        'limits': 'No acceptance, promotion, stage or commit. No concurrent source/review writer is permitted. Existing build and validate own their preservation contexts; only the two middle producers share this wrapper context.',
+    }
+
+
+def load_retained(receipts):
+    if sha(AUDIT) != AUDIT_SHA256:
+        raise ValueError('Reviewed rerun audit changed')
+    data = json.loads(AUDIT.read_text(encoding='utf8'))['rerun_classification']
+    expected = {}
+    for row in data['retain_unchanged_if_existing_scoped_guards_pass']:
+        expected[row['path']] = row['sha256']
+    for row in data['retain_selected_family_execution_receipts']:
+        name, digest = row['receipt'], row['receipt_sha256']
+        if name in expected and expected[name] != digest:
+            raise ValueError('Conflicting retained receipt authority: ' + name)
+        expected[name] = digest
+    primary = []
+    for row in data['retain_unchanged_if_existing_scoped_guards_pass']:
+        name = Path(row['path'])
+        if name.parent.as_posix() != receipts:
+            raise ValueError('Receipt destination differs from reviewed run')
+        primary.append(name.name)
+    return expected, primary
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--run', action='store_true', help='Explicitly launch the four sequential phases')
+    parser.add_argument('--expected-source-sha256', help='Required with --run: root-approved source identity after repair')
+    args = parser.parse_args()
+    if not args.run:
+        print(json.dumps(plan(), indent=2))
+        return 0
+    if (not args.expected_source_sha256 or len(args.expected_source_sha256) != 64
+            or any(c not in '0123456789abcdef' for c in args.expected_source_sha256)):
+        parser.error('--run requires an exact lower-case --expected-source-sha256')
+    if ROOT != Path.cwd().resolve() or HERE.resolve() != ROOT / 'build/author_environment_successor_fix':
+        raise ValueError('Run from the original repository root; no redirected draft directory')
+    if sha(DRIVER) != DRIVER_SHA256:
+        raise ValueError('Existing reviewed driver changed; review a new wrapper version')
+    sys.path.insert(0, str(ROOT / 'tools'))
+    from accept_v5 import pinned_receipt
+    from expansion_evidence import preserve_receipts
+    from v2_common import source_identity
+    from v5_common import RECEIPTS
+    if RECEIPTS != 'reviews/v5/expansion/integrated':
+        raise ValueError('Unexpected receipt destination override')
+    initial = source_identity()
+    if initial['sha256'] != args.expected_source_sha256:
+        raise ValueError('Current sources differ from the explicitly approved identity')
+    retained, primary = load_retained(RECEIPTS)
+
+    def verify_frozen():
+        if source_identity() != initial:
+            raise ValueError('Canonical sources changed; stop before the next phase')
+        for name, digest in retained.items():
+            path = ROOT / name
+            if not path.is_file() or sha(path) != digest:
+                raise ValueError('Retained scoped execution receipt changed: ' + name)
+        for name in primary:
+            # Existing source-pin guard only; this does not invoke acceptance.
+            pinned_receipt(name)
+
+    verify_frozen()
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    output = HERE / ('run_' + stamp)
+    output.mkdir(exist_ok=False)
+    report = dict(plan(), passed=False, accepted=False, promoted=False,
+                  status='prepared', current_phase=None, candidate_archive_inputs_frozen=False,
+                  input_sha256=initial['sha256'], retained_receipts=retained,
+                  executions=[], phase_results=[], scope='Actual existing producers only when launched with --run; original scoped receipts retained unchanged.')
+
+    def record():
+        report['updated_utc'] = datetime.now(timezone.utc).isoformat()
+        result = output / 'result.json'
+        result.write_text(json.dumps(report, indent=2) + '\n', encoding='utf8', newline='\n')
+        status_path = ROOT / 'build/final_pipeline_status.json'
+        if status_path.resolve() != status_path:
+            raise ValueError('Redirected pipeline status path')
+        status = dict(phase=report['current_phase'], current_phase=report['current_phase'],
+                      status=report['status'], input_sha256=report['input_sha256'],
+                      updated_utc=report['updated_utc'], result=result.relative_to(ROOT).as_posix(),
+                      candidate_archive_inputs_frozen=report['candidate_archive_inputs_frozen'])
+        temporary = output / 'pipeline_status.pending.json'
+        temporary.write_text(json.dumps(status, indent=2) + '\n', encoding='utf8', newline='\n')
+        temporary.replace(status_path)
+
+    def execute(phase, index, parts):
+        command = [sys.executable, '-X', 'utf8', *parts]
+        log = output / (phase + '-' + str(index) + '-' + Path(parts[0]).stem + '.log')
+        print('START ' + json.dumps(command), flush=True)
+        started = time.monotonic()
+        environment = os.environ.copy()
+        environment['CMASTERY_PUBLICATION_WSL_PYTHON'] = PUBLICATION_PYTHON
+        with log.open('w', encoding='utf8', newline='\n') as stream:
+            process = subprocess.run(command, cwd=ROOT, env=environment, stdout=stream, stderr=subprocess.STDOUT)
+        row = dict(phase=phase, command=command, cwd=str(ROOT), exit_code=process.returncode,
+                   seconds=round(time.monotonic() - started, 3),
+                   raw=log.relative_to(ROOT).as_posix(), raw_sha256=sha(log))
+        report['executions'].append(row)
+        record()
+        print(json.dumps(row), flush=True)
+        if process.returncode:
+            raise RuntimeError('Existing producer failed; inspect ' + str(log))
+
+    record()
+    try:
+        for phase, commands, preserve in PHASES:
+            verify_frozen()
+            report.update(current_phase=phase, status='running',
+                          candidate_archive_inputs_frozen=phase == 'candidate')
+            record()
+            if preserve:
+                with preserve_receipts(ROOT / RECEIPTS) as preservation:
+                    report['middle_preservation_run'] = preservation.relative_to(ROOT).as_posix()
+                    for index, parts in enumerate(commands):
+                        execute(phase, index, parts)
+                proof = json.loads((preservation / 'preservation.json').read_text(encoding='utf8'))
+                if proof.get('passed') is not True or proof.get('changed_historical_paths'):
+                    raise ValueError('Existing middle-phase preservation guard did not pass')
+            else:
+                for index, parts in enumerate(commands):
+                    execute(phase, index, parts)
+            verify_frozen()
+            report['phase_results'].append(dict(phase=phase, passed=True, retained_receipts_unchanged=True))
+            report.update(status='phase-passed', candidate_archive_inputs_frozen=False)
+            record()
+        report.update(passed=True, status='passed')
+    except BaseException as error:
+        # Keep a candidate freeze flag on failure/interruption until root has
+        # confirmed child termination; never advertise safe concurrent writes.
+        report['status'] = 'failed'
+        report['failure'] = type(error).__name__ + ': ' + str(error)
+        record()
+        raise
+    record()
+    print('RESULT ' + str(output / 'result.json') + ' passed; not accepted or promoted', flush=True)
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

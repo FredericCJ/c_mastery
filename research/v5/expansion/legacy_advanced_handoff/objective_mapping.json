@@ -1,0 +1,324 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T29-02-T29.03.a",
+      "objective": "T29.03.a",
+      "task": "Implement acknowledge-one-event, capture-fixed-record and defer processing. Bound handler operations/storage and place formatting, allocation and blocking work in foreground; inspect the complete call graph and worst branch.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.03.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Replace the fixed record with variable-length input and derive a truncation/ownership policy without unbounded ISR copying."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#03.a",
+      "checks": [
+        "gcc-debug 0 execute",
+        "arm-none-eabi-gcc-O0-i1-v0 object audit",
+        "clang-O3-i1-v0 object audit"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-02-T29.03.b",
+      "objective": "T29.03.b",
+      "task": "Schedule a nested interrupt or callback entering the same peripheral service while its state is partially updated. Reject unsupported reentrancy or design separate state/serialization with explicit interrupt classes.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.03.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Add a second MCU core accessing the service and explain why local interrupt masking no longer provides exclusion."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#03.b",
+      "checks": [
+        "arm-none-eabi-gcc-O0-i1-v0 execute",
+        "gcc tsan threads execute",
+        "interference model"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-02-T29.03.c",
+      "objective": "T29.03.c",
+      "task": "Feed a burst of five events into an N=4,N-1 capacity queue while foreground is paused. Require accepted1,2,3, dropped4,5, exact drop accounting and bounded acknowledgment/capture work.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.03.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change the overflow policy to retain the newest sample and redesign index ownership before implementing overwrite-oldest."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#03.c",
+      "checks": [
+        "gcc-debug 3 execute",
+        "gcc-debug independent oracle",
+        "clang-release independent oracle"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-02-T29.04.a",
+      "objective": "T29.04.a",
+      "task": "Compare local interrupt masking, a naturally atomic scalar access and a lock for a two-field invariant. Name excluded participants and show a DMA write unaffected by the mask in the model.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.04.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Move the shared object to a dual-core environment and derive the needed lock/publication and cache contract."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#04.a",
+      "checks": [
+        "gcc-debug locks execute",
+        "clang tsan locks execute",
+        "interference model"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-02-T29.04.b",
+      "objective": "T29.04.b",
+      "task": "Implement save-mask, raise-mask and restore-saved-state with nested entry initially masked and unmasked. Verify final states 1 and 0 respectively; reject unconditional enable on exit and inspect emitted instructions.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.04.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use a threshold mask instead of a binary mask and derive nesting rules without accidentally lowering an outer threshold."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#04.b",
+      "checks": [
+        "arm-none-eabi-gcc-O0-i1-v1 execute",
+        "arm-none-eabi-gcc-O0-i1-v2 execute",
+        "clang-O3-i1-v0 execute",
+        "gcc-debug independent oracle"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-02-T29.04.c",
+      "objective": "T29.04.c",
+      "task": "Protect a foreground/ISR invariant with a declared BASEPRI threshold, then inject a higher-urgency interrupt and DMA completion. Trace which accesses still occur and redesign ownership where the original exclusion is insufficient.",
+      "delayed": {
+        "id": "AX-PR-T29-02-T29.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Move one existing ISR above the threshold and identify every newly invalid shared-state assumption."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#04.c",
+      "checks": [
+        "arm-none-eabi-gcc-O0-i1-v0 execute",
+        "interference model"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.05.a",
+      "objective": "T29.05.a",
+      "task": "Design foreground/ISR publication with fixed live storage and one owner per index/slot. Draw payload-write before publish and reader completion before reuse; distinguish the hosted atomic model from selected compiler interrupt semantics.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.05.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Introduce a second ISR producer and derive a new reservation protocol rather than retaining the SPSC proof."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#05.a",
+      "checks": [
+        "GenMC 0",
+        "GenMC 7",
+        "GenMC 8",
+        "gcc tsan threads execute",
+        "interference model"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.05.b",
+      "objective": "T29.05.b",
+      "task": "Compile the chosen atomic-width queue for the actual target, inspect alignment, instructions, undefined helpers and helper reentrancy. Mark unavailable cross-toolchains explicitly and reject any helper violating the strict target dependency profile.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.05.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Increase the index width and reassess both atomic lowering and wrap/resource assumptions."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#05.b",
+      "checks": [
+        "arm-none-eabi-gcc widened imports",
+        "clang widened store imports",
+        "arm-none-eabi-gcc widened link rejection",
+        "clang widened link rejection",
+        "clang-release wide host execute",
+        "clang-O3-i1-v0 object audit"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.05.c",
+      "objective": "T29.05.c",
+      "task": "Analyze a deliberately premature head publication before payload initialization using a deterministic state model. Repair ordering and ownership, then explain why merely qualifying head/payload volatile does not establish a complete protocol.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.05.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Add cacheable DMA-written payload and identify the additional device/cache contract beyond compiler visibility."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#05.c",
+      "checks": [
+        "gcc-debug 1 execute",
+        "GenMC 1",
+        "gcc-debug DMA 0 execute",
+        "gcc-debug DMA 6 execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.06.a",
+      "objective": "T29.06.a",
+      "task": "Implement the parent's four-slot queue with three usable slots and drop-newest accounting. Reproduce push1,2,3,4,pop,push5,pop,pop,pop yielding1,2,3,5 with one drop; reject zero/one-slot configurations.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.06.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Switch to monotonic counters using all slots and prove the modular-distance bound independently."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#06.a",
+      "checks": [
+        "gcc-debug independent oracle",
+        "gcc-debug full capacity execute",
+        "clang-release full capacity execute"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.06.b",
+      "objective": "T29.06.b",
+      "task": "Pause the producer between payload copy and head publication, then pause the consumer before releasing tail. Exercise index wrap with an independent sequence model and ensure neither partial reads nor early overwrite occur.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use multiword records and a compiler that lowers copies differently while retaining valid slot ownership."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#06.b",
+      "checks": [
+        "gcc-debug 2 execute",
+        "gcc-asan 0 execute",
+        "clang-release 0 execute",
+        "GenMC 8"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    },
+    {
+      "criterion": "AX-PR-T29-03-T29.06.c",
+      "objective": "T29.06.c",
+      "task": "Measure enqueue-to-consume latency on an available target with sequence IDs and trace timestamps, including dropped events and instrumentation overhead. Keep the queue's ordering/lifetime proof beside the distribution.",
+      "delayed": {
+        "id": "AX-PR-T29-03-T29.06.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Increase burstiness at unchanged average rate and predict capacity/drop/latency changes before measurement."
+      },
+      "teaching": "labs/interrupt_depth/handoff/CONTRACTS.md",
+      "learner_artifacts": [
+        "handoff.c",
+        "port.c",
+        "wide.c",
+        "target.c",
+        "target.S",
+        "criterion-indexed ownership/mask/dependency/latency dossier"
+      ],
+      "assessment": "assessor/interrupt_depth/handoff/ANALYSIS.md#06.c",
+      "checks": [
+        "arm-none-eabi-gcc-O0-i1-v0 interval oracle",
+        "clang-O3-i1-v0 interval oracle",
+        "instrumentation comparison"
+      ],
+      "source_register": "research/v5/expansion/legacy_advanced_handoff/resources.json"
+    }
+  ],
+  "remaining": "T29.07–.10 remain required; physical/source/external dimensions are separate."
+}

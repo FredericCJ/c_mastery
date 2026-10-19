@@ -6,7 +6,9 @@
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
     "curriculum/v5/expansion/legacy_assessments/capstone-contract.md",
-    "curriculum/v5/exercises/modern-cost-contract.md"
+    "curriculum/v5/exercises/modern-cost-contract.md",
+    "labs/capstone_followthrough/core/CONTRACTS.md",
+    "labs/capstone_followthrough/linux/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -155,6 +157,32 @@
         "Questions and answers: descriptor versus open-file-description identity",
         "Possible pitfalls: starvation and event-cache closure"
       ]
+    },
+    {
+      "id": "R-CAPL-EPOLL",
+      "path": "research/v5/expansion/legacy_capstone_linux/resources.json",
+      "passages": [
+        "Level-triggered and edge-triggered: nonblocking drains and ready-list obligations",
+        "Questions and answers: descriptor/open-file-description registration and duplicate close",
+        "Possible pitfalls: starvation and cached-event lifetime"
+      ]
+    },
+    {
+      "id": "R-CAPL-WRITE",
+      "path": "research/v5/expansion/legacy_capstone_linux/resources.json",
+      "passages": [
+        "DESCRIPTION and RETURN VALUE: accepted prefixes and short writes",
+        "ERRORS: EAGAIN, EINTR, EIO and EPIPE",
+        "NOTES: successful write is not a durability guarantee"
+      ]
+    },
+    {
+      "id": "R-CAPL-CTL",
+      "path": "research/v5/expansion/legacy_capstone_linux/resources.json",
+      "passages": [
+        "DESCRIPTION: ADD, MOD, DEL, saved event data and HUP outstanding data",
+        "ERRORS: registration refusal, missing registration and regular-file EPERM"
+      ]
     }
   ],
   "reference_gaps": [
@@ -166,7 +194,63 @@
     "curriculum/projects/PR-CAP-LINUX-03.md",
     "curriculum/guides/integrations.md",
     "fixtures/legacy_capstones/boundaries.json",
-    "fixtures/integration/pressure.json"
+    "fixtures/integration/pressure.json",
+    "labs/algorithms/include/algo.h",
+    "labs/algorithms/include/v4_algo.h",
+    "labs/algorithms/src/algo.c",
+    "labs/capstone_followthrough/core/CMakeLists.txt",
+    "labs/capstone_followthrough/core/CONTRACTS.md",
+    "labs/capstone_followthrough/core/consumer.c",
+    "labs/capstone_followthrough/core/fuzz_driver.c",
+    "labs/capstone_followthrough/core/learner.c",
+    "labs/capstone_followthrough/core/service.h",
+    "labs/capstone_followthrough/core/tests.c",
+    "labs/capstone_followthrough/linux/CONTRACTS.md",
+    "labs/capstone_followthrough/linux/composition.c",
+    "labs/capstone_followthrough/linux/evidence.py",
+    "labs/capstone_followthrough/linux/linux.h",
+    "labs/capstone_followthrough/linux/linux_stub.c",
+    "labs/capstone_followthrough/linux/linux_tests.c",
+    "labs/capstone_followthrough/linux/measure.c",
+    "labs/capstone_followthrough/linux/modern.h",
+    "labs/capstone_followthrough/linux/modern_stub.c",
+    "labs/capstone_followthrough/linux/modern_tests.c",
+    "labs/capstone_followthrough/linux/run.py",
+    "labs/capstone_followthrough/linux/security_trace.c",
+    "labs/checkpoint_depth/include/checkpoint_async.h",
+    "labs/checkpoint_depth/include/checkpoint_channel.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_linux.h",
+    "labs/checkpoint_depth/include/checkpoint_memory.h",
+    "labs/checkpoint_depth/include/checkpoint_numeric.h",
+    "labs/checkpoint_depth/include/checkpoint_operation.h",
+    "labs/checkpoint_depth/include/checkpoint_vector.h",
+    "labs/checkpoint_depth/include/checkpoint_writer.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_linux_followthrough/CONTRACTS.md",
+    "labs/checkpoint_linux_followthrough/bridge.h",
+    "labs/checkpoint_linux_followthrough/bridge_stub.c",
+    "labs/checkpoint_linux_followthrough/bridge_tests.c",
+    "labs/checkpoint_linux_followthrough/run.py",
+    "labs/coroutines/include/coroutines.h",
+    "labs/coroutines/include/fiber.h",
+    "labs/coroutines/src/coroutines.c",
+    "labs/errors/include/errors.h",
+    "labs/errors/src/errors.c",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/include/v4_foundation.h",
+    "labs/foundations/src/foundation.c",
+    "labs/integration/include/integration.h",
+    "labs/integration/src/integration.c",
+    "labs/ownership/include/imports/v4_algo.h",
+    "labs/ownership/include/ownership.h",
+    "labs/ownership/src/ownership.c",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/coroutines/CONTRACTS.md",
+    "labs/errors/CONTRACTS.md",
+    "labs/ownership/CONTRACTS.md",
+    "labs/capstone_followthrough/core/target_helpers.c"
   ],
   "execution_support": {
     "kind": "Retained partial component integration plus new deterministic boundary fixtures",
@@ -174,7 +258,16 @@
     "tests": [
       "integration.linux"
     ],
-    "fresh_execution": "New host boundary-oracle execution recorded separately; no complete service, firmware or physical run in this authoring wave."
+    "fresh_execution": "New host boundary-oracle execution recorded separately; no complete service, firmware or physical run in this authoring wave.",
+    "capstone_linux_followthrough": {
+      "path": "research/v5/expansion/legacy_capstone_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-CAP-LINUX-03-T32.07.b",
+        "AX-PR-CAP-LINUX-03-T35.06.b",
+        "AX-PR-CAP-LINUX-03-T21.04.b"
+      ],
+      "scope": "Exact twelve ordinary and twelve delayed Linux capstone tasks, actual native/target-core service, imported modern/P5 adapters and independent installed package tests."
+    }
   },
   "criteria": [
     {
@@ -448,5 +541,16 @@
       "Selected integration objectives deepen actual parent topics; domain-level leaf assessments remain separately required",
       "No complete target acceptance or universal mastery inferred"
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_capstone_linux/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-CAP-LINUX-03-T32.07.b",
+        "AX-PR-CAP-LINUX-03-T35.06.b",
+        "AX-PR-CAP-LINUX-03-T21.04.b"
+      ],
+      "scope": "Exact twelve ordinary and twelve delayed Linux capstone tasks, actual native/target-core service, imported modern/P5 adapters and independent installed package tests."
+    }
+  ]
 }

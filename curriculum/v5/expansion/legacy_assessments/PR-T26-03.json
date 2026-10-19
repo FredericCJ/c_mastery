@@ -2,10 +2,13 @@
   "schema_version": 1,
   "project": "PR-T26-03",
   "domain": "T26",
-  "title": "Kernel ordering and lifetime boundary — explicit depth assessments",
+  "title": "Kernel ordering and lifetime boundary \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/advanced_concurrency_depth/kernel/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/kernel_lifecycle/guest/README.md"
   ],
   "baseline_binding": {
     "files": [
@@ -111,12 +114,44 @@
         "cancel_work_sync: no-racing-enqueue guarantee, delayed-work exclusion and permitted context",
         "cancel_delayed_work and cancel_delayed_work_sync distinction"
       ]
+    },
+    {
+      "id": "R-AK-LINUX",
+      "path": "research/v5/expansion/legacy_advanced_kernel/resources.json",
+      "passages": [
+        "kernel/workqueue.c: cancel_work_sync lines4479\u20134499",
+        "include/linux/uaccess.h: residual/zero-padding contract lines53\u201391",
+        "Documentation/locking/locktypes.rst: raw_spinlock_t/spinlock_t and PREEMPT_RT sections",
+        "tools/memory-model/linux-kernel.cat: basic relations through propagation",
+        "tools/memory-model/litmus-tests/MP+pooncerelease+poacquireonce.litmus: complete marked MP test",
+        "tools/memory-model/litmus-tests/MP+poonceonces.litmus: complete weak MP test",
+        "Documentation/memory-barriers.txt: DMA barriers lines1914\u20131957 and default MMIO ordering lines2570\u20132620",
+        "Documentation/core-api/dma-api-howto.rst: coherent/streaming mapping distinction lines350\u2013405"
+      ]
+    },
+    {
+      "id": "R-AK-PRODUCERS",
+      "path": "research/v5/expansion/legacy_advanced_kernel/resources.json",
+      "passages": [
+        "assessor/kernel_lifecycle/guest/b06_owner.c: complete copied request, lookup, work and closure functions",
+        "assessor/kernel_lifecycle/guest/b06_irq.c: complete primary/threaded context and teardown functions",
+        "labs/kernel_lifecycle/guest/probe.c: complete original user-copy/context probe",
+        "labs/advanced_concurrency_depth/spsc/spsc.h and CONTRACTS.md: actual queue interface/ownership",
+        "assessor/advanced_concurrency_depth/spsc/spsc.c: as_init/as_push/as_pop"
+      ]
+    },
+    {
+      "id": "R-AK-N1570",
+      "path": "research/v5/expansion/legacy_advanced_kernel/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs5\u201325, printed pages18\u201320: synchronization, happens-before, atomic visibility and data race"
+      ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims.",
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims.",
     "Full hazard/epoch/RCU proof literature and the exact selected LKMM/RCU passages require separate inspection beyond corrected queue pseudocode and retained implementation contracts.",
     "Disposable-VM kernel execution remains required but unavailable in this wave; host models are not guest evidence."
   ],
@@ -124,13 +159,37 @@
     "curriculum/projects/PR-T26-03.md",
     "fixtures/systems/PR-T26-03.json",
     "tools/verify_systems_fixtures.py",
-    "labs/execution/README.md"
+    "labs/execution/README.md",
+    "labs/advanced_concurrency_depth/kernel/CONTRACTS.md",
+    "labs/advanced_concurrency_depth/kernel/guest/Makefile",
+    "labs/advanced_concurrency_depth/kernel/guest/ak_work_stub.c",
+    "labs/advanced_concurrency_depth/kernel/kernel.h",
+    "labs/advanced_concurrency_depth/kernel/learner.c",
+    "labs/advanced_concurrency_depth/kernel/tests.c",
+    "labs/execution/include/cmx.h",
+    "labs/advanced_concurrency_depth/spsc/spsc.h",
+    "labs/advanced_concurrency_depth/spsc/learner.c",
+    "labs/advanced_concurrency_depth/spsc/CONTRACTS.md",
+    "labs/kernel_lifecycle/guest/probe.c",
+    "labs/kernel_lifecycle/guest/README.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "advanced_kernel_successor": {
+      "path": "research/v5/expansion/legacy_advanced_kernel/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-03-T26.09.a",
+        "AX-PR-T26-03-T26.09.b",
+        "AX-PR-T26-03-T26.09.c",
+        "AX-PR-T26-03-T26.10.a",
+        "AX-PR-T26-03-T26.10.b",
+        "AX-PR-T26-03-T26.10.c"
+      ],
+      "scope": "Original T26.09/.10 ordinary and delayed tasks; precise native/guest/model/device limits, no independent or physical completion."
+    }
   },
   "criteria": [
     {
@@ -199,7 +258,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Build identity and execution context must match; a host model does not prove guest kernel behavior. Guest execution remains pending when unavailable. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change kernel configuration or PREEMPT_RT status and re-audit API/context assumptions rather than reusing the old receipt. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -293,7 +352,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Address spaces, copy result semantics and permitted sleeping/allocation rules differ; selected APIs need exact versioned contracts. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Move the callback to a deferred worker and identify which operations become legal and which input-lifetime checks remain. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -387,7 +446,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Isolation and actual guest evidence are distinct from model evidence; no production/host changes are authorized by this curriculum authoring task. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace the VM kernel version and derive the minimum new build/source/trace evidence required before comparing behavior. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -482,7 +541,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The models define different access/ordering rules; an argument must remain within one model or justify the bridge. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add MMIO/device accesses and identify a third ordering contract beyond both ordinary C and CPU shared-memory ordering. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -577,7 +636,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The no-racing-enqueue and permitted-context preconditions matter; ordinary-work drain leaves other reference classes untouched. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Allow the worker to requeue through a separate external producer and redesign admission closure before synchronous drain. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -672,7 +731,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Each layer has distinct semantics and lifetime boundaries; composition requires explicit interface obligations and unresolved gaps. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace the hosted backend with a DMA adapter and derive the new quiescence/visibility evidence instead of relabeling the old tests. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -704,7 +763,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T26-03.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -712,5 +771,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_kernel/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T26-03-T26.09.a",
+        "AX-PR-T26-03-T26.09.b",
+        "AX-PR-T26-03-T26.09.c",
+        "AX-PR-T26-03-T26.10.a",
+        "AX-PR-T26-03-T26.10.b",
+        "AX-PR-T26-03-T26.10.c"
+      ],
+      "scope": "Original T26.09/.10 ordinary and delayed tasks; precise native/guest/model/device limits, no independent or physical completion."
+    }
+  ]
 }

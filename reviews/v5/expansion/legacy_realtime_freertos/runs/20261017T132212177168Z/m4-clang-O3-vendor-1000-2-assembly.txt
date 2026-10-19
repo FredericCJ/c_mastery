@@ -1,0 +1,3860 @@
+
+/tmp/freertos-depth-5ejt2u_4/m4-clang-O3-vendor-1000-2/comparison.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <vectors>:
+       0:	00 00 01 20 f1 09 00 00 cd 09 00 00 cd 09 00 00     ... ............
+      10:	cd 09 00 00 cd 09 00 00 cd 09 00 00 00 00 00 00     ................
+	...
+      2c:	81 23 00 00 cd 09 00 00 00 00 00 00 59 25 00 00     .#..........Y%..
+      3c:	79 26 00 00 a1 00 00 00                             y&......
+
+00000044 <fc_ticks>:
+      44:	4684      	mov	ip, r0
+      46:	2a00      	cmp	r2, #0
+      48:	f04f 0000 	mov.w	r0, #0
+      4c:	bf08      	it	eq
+      4e:	4770      	bxeq	lr
+      50:	b580      	push	{r7, lr}
+      52:	f242 7311 	movw	r3, #10001	@ 0x2711
+      56:	eba1 0e03 	sub.w	lr, r1, r3
+      5a:	f64d 03f0 	movw	r3, #55536	@ 0xd8f0
+      5e:	f6cf 73ff 	movt	r3, #65535	@ 0xffff
+      62:	459e      	cmp	lr, r3
+      64:	e8bd 4080 	ldmia.w	sp!, {r7, lr}
+      68:	d310      	bcc.n	8c <fc_ticks+0x48>
+      6a:	fba1 030c 	umull	r0, r3, r1, ip
+      6e:	2b00      	cmp	r3, #0
+      70:	bf1c      	itt	ne
+      72:	2000      	movne	r0, #0
+      74:	4770      	bxne	lr
+      76:	fb01 f00c 	mul.w	r0, r1, ip
+      7a:	f644 51d3 	movw	r1, #19923	@ 0x4dd3
+      7e:	f2c1 0162 	movt	r1, #4194	@ 0x1062
+      82:	fba0 0101 	umull	r0, r1, r0, r1
+      86:	0988      	lsrs	r0, r1, #6
+      88:	6010      	str	r0, [r2, #0]
+      8a:	2001      	movs	r0, #1
+      8c:	4770      	bx	lr
+	...
+
+00000090 <fc_priority>:
+      90:	1f01      	subs	r1, r0, #4
+      92:	f1c0 0004 	rsb	r0, r0, #4
+      96:	f111 0f03 	cmn.w	r1, #3
+      9a:	bf38      	it	cc
+      9c:	2000      	movcc	r0, #0
+      9e:	4770      	bx	lr
+
+000000a0 <fc_irq>:
+      a0:	b510      	push	{r4, lr}
+      a2:	b082      	sub	sp, #8
+      a4:	f244 245c 	movw	r4, #16988	@ 0x425c
+      a8:	2000      	movs	r0, #0
+      aa:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+      ae:	9001      	str	r0, [sp, #4]
+      b0:	f240 3109 	movw	r1, #777	@ 0x309
+      b4:	6820      	ldr	r0, [r4, #0]
+      b6:	9100      	str	r1, [sp, #0]
+      b8:	4669      	mov	r1, sp
+      ba:	aa01      	add	r2, sp, #4
+      bc:	2300      	movs	r3, #0
+      be:	f001 fe0d 	bl	1cdc <xQueueGenericSendFromISR>
+      c2:	2801      	cmp	r0, #1
+      c4:	d002      	beq.n	cc <fc_irq+0x2c>
+      c6:	2012      	movs	r0, #18
+      c8:	f000 fbbc 	bl	844 <fc_fail>
+      cc:	9801      	ldr	r0, [sp, #4]
+      ce:	2801      	cmp	r0, #1
+      d0:	d104      	bne.n	dc <fc_irq+0x3c>
+      d2:	6860      	ldr	r0, [r4, #4]
+      d4:	2101      	movs	r1, #1
+      d6:	6341      	str	r1, [r0, #52]	@ 0x34
+      d8:	e008      	b.n	ec <fc_irq+0x4c>
+      da:	bf00      	nop
+      dc:	2012      	movs	r0, #18
+      de:	f000 fbb1 	bl	844 <fc_fail>
+      e2:	9801      	ldr	r0, [sp, #4]
+      e4:	6861      	ldr	r1, [r4, #4]
+      e6:	2201      	movs	r2, #1
+      e8:	634a      	str	r2, [r1, #52]	@ 0x34
+      ea:	b150      	cbz	r0, 102 <fc_irq+0x62>
+      ec:	f64e 5004 	movw	r0, #60676	@ 0xed04
+      f0:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+      f4:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+      f8:	6001      	str	r1, [r0, #0]
+      fa:	f3bf 8f4f 	dsb	sy
+      fe:	f3bf 8f6f 	isb	sy
+     102:	b002      	add	sp, #8
+     104:	bd10      	pop	{r4, pc}
+	...
+
+00000108 <fc_run>:
+     108:	b5f0      	push	{r4, r5, r6, r7, lr}
+     10a:	b083      	sub	sp, #12
+     10c:	f244 245c 	movw	r4, #16988	@ 0x425c
+     110:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+     114:	f240 0304 	movw	r3, #4
+     118:	6060      	str	r0, [r4, #4]
+     11a:	2600      	movs	r6, #0
+     11c:	f104 0228 	add.w	r2, r4, #40	@ 0x28
+     120:	f2c2 0300 	movt	r3, #8192	@ 0x2000
+     124:	2008      	movs	r0, #8
+     126:	2104      	movs	r1, #4
+     128:	9600      	str	r6, [sp, #0]
+     12a:	f001 fbd7 	bl	18dc <xQueueGenericCreateStatic>
+     12e:	f240 015c 	movw	r1, #92	@ 0x5c
+     132:	6020      	str	r0, [r4, #0]
+     134:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+     138:	2001      	movs	r0, #1
+     13a:	f001 fc27 	bl	198c <xQueueCreateMutexStatic>
+     13e:	f240 01b4 	movw	r1, #180	@ 0xb4
+     142:	60a0      	str	r0, [r4, #8]
+     144:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+     148:	2001      	movs	r0, #1
+     14a:	f001 fc1f 	bl	198c <xQueueCreateMutexStatic>
+     14e:	6821      	ldr	r1, [r4, #0]
+     150:	60e0      	str	r0, [r4, #12]
+     152:	b111      	cbz	r1, 15a <fc_run+0x52>
+     154:	68a1      	ldr	r1, [r4, #8]
+     156:	b101      	cbz	r1, 15a <fc_run+0x52>
+     158:	b910      	cbnz	r0, 160 <fc_run+0x58>
+     15a:	203e      	movs	r0, #62	@ 0x3e
+     15c:	f000 fb72 	bl	844 <fc_fail>
+     160:	f240 160c 	movw	r6, #268	@ 0x10c
+     164:	f2c2 0600 	movt	r6, #8192	@ 0x2000
+     168:	2004      	movs	r0, #4
+     16a:	f244 170c 	movw	r7, #16652	@ 0x410c
+     16e:	e9cd 0600 	strd	r0, r6, [sp]
+     172:	f240 2071 	movw	r0, #625	@ 0x271
+     176:	f242 71b0 	movw	r1, #10160	@ 0x27b0
+     17a:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+     17e:	f2c0 0000 	movt	r0, #0
+     182:	f2c0 0100 	movt	r1, #0
+     186:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+     18a:	2300      	movs	r3, #0
+     18c:	9702      	str	r7, [sp, #8]
+     18e:	f000 fc83 	bl	a98 <xTaskCreateStatic>
+     192:	6120      	str	r0, [r4, #16]
+     194:	2003      	movs	r0, #3
+     196:	f7ff ff7b 	bl	90 <fc_priority>
+     19a:	f506 5180 	add.w	r1, r6, #4096	@ 0x1000
+     19e:	e9cd 0100 	strd	r0, r1, [sp]
+     1a2:	f240 50ad 	movw	r0, #1453	@ 0x5ad
+     1a6:	f242 71b8 	movw	r1, #10168	@ 0x27b8
+     1aa:	f107 0554 	add.w	r5, r7, #84	@ 0x54
+     1ae:	f2c0 0000 	movt	r0, #0
+     1b2:	f2c0 0100 	movt	r1, #0
+     1b6:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+     1ba:	2300      	movs	r3, #0
+     1bc:	9502      	str	r5, [sp, #8]
+     1be:	f000 fc6b 	bl	a98 <xTaskCreateStatic>
+     1c2:	6160      	str	r0, [r4, #20]
+     1c4:	2001      	movs	r0, #1
+     1c6:	f7ff ff63 	bl	90 <fc_priority>
+     1ca:	f506 5100 	add.w	r1, r6, #8192	@ 0x2000
+     1ce:	e9cd 0100 	strd	r0, r1, [sp]
+     1d2:	f240 7069 	movw	r0, #1897	@ 0x769
+     1d6:	f242 71bc 	movw	r1, #10172	@ 0x27bc
+     1da:	f107 05a8 	add.w	r5, r7, #168	@ 0xa8
+     1de:	f2c0 0000 	movt	r0, #0
+     1e2:	f2c0 0100 	movt	r1, #0
+     1e6:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+     1ea:	2300      	movs	r3, #0
+     1ec:	9502      	str	r5, [sp, #8]
+     1ee:	f000 fc53 	bl	a98 <xTaskCreateStatic>
+     1f2:	61a0      	str	r0, [r4, #24]
+     1f4:	2002      	movs	r0, #2
+     1f6:	f7ff ff4b 	bl	90 <fc_priority>
+     1fa:	f506 5140 	add.w	r1, r6, #12288	@ 0x3000
+     1fe:	e9cd 0100 	strd	r0, r1, [sp]
+     202:	f240 70ed 	movw	r0, #2029	@ 0x7ed
+     206:	f242 71c1 	movw	r1, #10177	@ 0x27c1
+     20a:	37fc      	adds	r7, #252	@ 0xfc
+     20c:	f2c0 0000 	movt	r0, #0
+     210:	f2c0 0100 	movt	r1, #0
+     214:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+     218:	2300      	movs	r3, #0
+     21a:	9702      	str	r7, [sp, #8]
+     21c:	f000 fc3c 	bl	a98 <xTaskCreateStatic>
+     220:	6921      	ldr	r1, [r4, #16]
+     222:	61e0      	str	r0, [r4, #28]
+     224:	b151      	cbz	r1, 23c <fc_run+0x134>
+     226:	6960      	ldr	r0, [r4, #20]
+     228:	b170      	cbz	r0, 248 <fc_run+0x140>
+     22a:	69a0      	ldr	r0, [r4, #24]
+     22c:	b190      	cbz	r0, 254 <fc_run+0x14c>
+     22e:	69e0      	ldr	r0, [r4, #28]
+     230:	b1b0      	cbz	r0, 260 <fc_run+0x158>
+     232:	b003      	add	sp, #12
+     234:	e8bd 40f0 	ldmia.w	sp!, {r4, r5, r6, r7, lr}
+     238:	f000 bf10 	b.w	105c <vTaskStartScheduler>
+     23c:	2043      	movs	r0, #67	@ 0x43
+     23e:	f000 fb01 	bl	844 <fc_fail>
+     242:	6960      	ldr	r0, [r4, #20]
+     244:	2800      	cmp	r0, #0
+     246:	d1f0      	bne.n	22a <fc_run+0x122>
+     248:	2043      	movs	r0, #67	@ 0x43
+     24a:	f000 fafb 	bl	844 <fc_fail>
+     24e:	69a0      	ldr	r0, [r4, #24]
+     250:	2800      	cmp	r0, #0
+     252:	d1ec      	bne.n	22e <fc_run+0x126>
+     254:	2043      	movs	r0, #67	@ 0x43
+     256:	f000 faf5 	bl	844 <fc_fail>
+     25a:	69e0      	ldr	r0, [r4, #28]
+     25c:	2800      	cmp	r0, #0
+     25e:	d1e8      	bne.n	232 <fc_run+0x12a>
+     260:	2043      	movs	r0, #67	@ 0x43
+     262:	f000 faef 	bl	844 <fc_fail>
+     266:	b003      	add	sp, #12
+     268:	e8bd 40f0 	ldmia.w	sp!, {r4, r5, r6, r7, lr}
+     26c:	f000 bef6 	b.w	105c <vTaskStartScheduler>
+
+00000270 <controller>:
+     270:	b084      	sub	sp, #16
+     272:	aa03      	add	r2, sp, #12
+     274:	2015      	movs	r0, #21
+     276:	f44f 717a 	mov.w	r1, #1000	@ 0x3e8
+     27a:	f7ff fee3 	bl	44 <fc_ticks>
+     27e:	b910      	cbnz	r0, 286 <controller+0x16>
+     280:	2025      	movs	r0, #37	@ 0x25
+     282:	f000 fadf 	bl	844 <fc_fail>
+     286:	f244 255c 	movw	r5, #16988	@ 0x425c
+     28a:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+     28e:	9803      	ldr	r0, [sp, #12]
+     290:	6869      	ldr	r1, [r5, #4]
+     292:	ac01      	add	r4, sp, #4
+     294:	62c8      	str	r0, [r1, #44]	@ 0x2c
+     296:	2000      	movs	r0, #0
+     298:	9001      	str	r0, [sp, #4]
+     29a:	e004      	b.n	2a6 <controller+0x36>
+     29c:	9801      	ldr	r0, [sp, #4]
+     29e:	3001      	adds	r0, #1
+     2a0:	2808      	cmp	r0, #8
+     2a2:	9001      	str	r0, [sp, #4]
+     2a4:	d20c      	bcs.n	2c0 <controller+0x50>
+     2a6:	6828      	ldr	r0, [r5, #0]
+     2a8:	4621      	mov	r1, r4
+     2aa:	2200      	movs	r2, #0
+     2ac:	2300      	movs	r3, #0
+     2ae:	f001 fb83 	bl	19b8 <xQueueGenericSend>
+     2b2:	2801      	cmp	r0, #1
+     2b4:	d0f2      	beq.n	29c <controller+0x2c>
+     2b6:	2027      	movs	r0, #39	@ 0x27
+     2b8:	f000 fac4 	bl	844 <fc_fail>
+     2bc:	e7ee      	b.n	29c <controller+0x2c>
+     2be:	bf00      	nop
+     2c0:	f000 ffca 	bl	1258 <xTaskGetTickCount>
+     2c4:	4604      	mov	r4, r0
+     2c6:	f240 31e7 	movw	r1, #999	@ 0x3e7
+     2ca:	6828      	ldr	r0, [r5, #0]
+     2cc:	9a03      	ldr	r2, [sp, #12]
+     2ce:	9102      	str	r1, [sp, #8]
+     2d0:	a902      	add	r1, sp, #8
+     2d2:	2300      	movs	r3, #0
+     2d4:	f001 fb70 	bl	19b8 <xQueueGenericSend>
+     2d8:	fab0 f080 	clz	r0, r0
+     2dc:	6869      	ldr	r1, [r5, #4]
+     2de:	0940      	lsrs	r0, r0, #5
+     2e0:	6088      	str	r0, [r1, #8]
+     2e2:	f000 ffb9 	bl	1258 <xTaskGetTickCount>
+     2e6:	9903      	ldr	r1, [sp, #12]
+     2e8:	1b00      	subs	r0, r0, r4
+     2ea:	4288      	cmp	r0, r1
+     2ec:	d202      	bcs.n	2f4 <controller+0x84>
+     2ee:	2028      	movs	r0, #40	@ 0x28
+     2f0:	f000 faa8 	bl	844 <fc_fail>
+     2f4:	6828      	ldr	r0, [r5, #0]
+     2f6:	a902      	add	r1, sp, #8
+     2f8:	2200      	movs	r2, #0
+     2fa:	f001 fd61 	bl	1dc0 <xQueueReceive>
+     2fe:	2801      	cmp	r0, #1
+     300:	d002      	beq.n	308 <controller+0x98>
+     302:	2029      	movs	r0, #41	@ 0x29
+     304:	f000 fa9e 	bl	844 <fc_fail>
+     308:	9802      	ldr	r0, [sp, #8]
+     30a:	b110      	cbz	r0, 312 <controller+0xa2>
+     30c:	2029      	movs	r0, #41	@ 0x29
+     30e:	f000 fa99 	bl	844 <fc_fail>
+     312:	6828      	ldr	r0, [r5, #0]
+     314:	a902      	add	r1, sp, #8
+     316:	2200      	movs	r2, #0
+     318:	f001 fd52 	bl	1dc0 <xQueueReceive>
+     31c:	2801      	cmp	r0, #1
+     31e:	d002      	beq.n	326 <controller+0xb6>
+     320:	2029      	movs	r0, #41	@ 0x29
+     322:	f000 fa8f 	bl	844 <fc_fail>
+     326:	9802      	ldr	r0, [sp, #8]
+     328:	2801      	cmp	r0, #1
+     32a:	d002      	beq.n	332 <controller+0xc2>
+     32c:	2029      	movs	r0, #41	@ 0x29
+     32e:	f000 fa89 	bl	844 <fc_fail>
+     332:	6828      	ldr	r0, [r5, #0]
+     334:	a902      	add	r1, sp, #8
+     336:	2200      	movs	r2, #0
+     338:	f001 fd42 	bl	1dc0 <xQueueReceive>
+     33c:	2801      	cmp	r0, #1
+     33e:	d002      	beq.n	346 <controller+0xd6>
+     340:	2029      	movs	r0, #41	@ 0x29
+     342:	f000 fa7f 	bl	844 <fc_fail>
+     346:	9802      	ldr	r0, [sp, #8]
+     348:	2802      	cmp	r0, #2
+     34a:	d002      	beq.n	352 <controller+0xe2>
+     34c:	2029      	movs	r0, #41	@ 0x29
+     34e:	f000 fa79 	bl	844 <fc_fail>
+     352:	6828      	ldr	r0, [r5, #0]
+     354:	a902      	add	r1, sp, #8
+     356:	2200      	movs	r2, #0
+     358:	f001 fd32 	bl	1dc0 <xQueueReceive>
+     35c:	2801      	cmp	r0, #1
+     35e:	d002      	beq.n	366 <controller+0xf6>
+     360:	2029      	movs	r0, #41	@ 0x29
+     362:	f000 fa6f 	bl	844 <fc_fail>
+     366:	9802      	ldr	r0, [sp, #8]
+     368:	2803      	cmp	r0, #3
+     36a:	d002      	beq.n	372 <controller+0x102>
+     36c:	2029      	movs	r0, #41	@ 0x29
+     36e:	f000 fa69 	bl	844 <fc_fail>
+     372:	6828      	ldr	r0, [r5, #0]
+     374:	a902      	add	r1, sp, #8
+     376:	2200      	movs	r2, #0
+     378:	f001 fd22 	bl	1dc0 <xQueueReceive>
+     37c:	2801      	cmp	r0, #1
+     37e:	d002      	beq.n	386 <controller+0x116>
+     380:	2029      	movs	r0, #41	@ 0x29
+     382:	f000 fa5f 	bl	844 <fc_fail>
+     386:	9802      	ldr	r0, [sp, #8]
+     388:	2804      	cmp	r0, #4
+     38a:	d002      	beq.n	392 <controller+0x122>
+     38c:	2029      	movs	r0, #41	@ 0x29
+     38e:	f000 fa59 	bl	844 <fc_fail>
+     392:	6828      	ldr	r0, [r5, #0]
+     394:	a902      	add	r1, sp, #8
+     396:	2200      	movs	r2, #0
+     398:	f001 fd12 	bl	1dc0 <xQueueReceive>
+     39c:	2801      	cmp	r0, #1
+     39e:	d002      	beq.n	3a6 <controller+0x136>
+     3a0:	2029      	movs	r0, #41	@ 0x29
+     3a2:	f000 fa4f 	bl	844 <fc_fail>
+     3a6:	9802      	ldr	r0, [sp, #8]
+     3a8:	2805      	cmp	r0, #5
+     3aa:	d002      	beq.n	3b2 <controller+0x142>
+     3ac:	2029      	movs	r0, #41	@ 0x29
+     3ae:	f000 fa49 	bl	844 <fc_fail>
+     3b2:	6828      	ldr	r0, [r5, #0]
+     3b4:	a902      	add	r1, sp, #8
+     3b6:	2200      	movs	r2, #0
+     3b8:	f001 fd02 	bl	1dc0 <xQueueReceive>
+     3bc:	2801      	cmp	r0, #1
+     3be:	d002      	beq.n	3c6 <controller+0x156>
+     3c0:	2029      	movs	r0, #41	@ 0x29
+     3c2:	f000 fa3f 	bl	844 <fc_fail>
+     3c6:	9802      	ldr	r0, [sp, #8]
+     3c8:	2806      	cmp	r0, #6
+     3ca:	d002      	beq.n	3d2 <controller+0x162>
+     3cc:	2029      	movs	r0, #41	@ 0x29
+     3ce:	f000 fa39 	bl	844 <fc_fail>
+     3d2:	6828      	ldr	r0, [r5, #0]
+     3d4:	a902      	add	r1, sp, #8
+     3d6:	2200      	movs	r2, #0
+     3d8:	f001 fcf2 	bl	1dc0 <xQueueReceive>
+     3dc:	2801      	cmp	r0, #1
+     3de:	d002      	beq.n	3e6 <controller+0x176>
+     3e0:	2029      	movs	r0, #41	@ 0x29
+     3e2:	f000 fa2f 	bl	844 <fc_fail>
+     3e6:	9802      	ldr	r0, [sp, #8]
+     3e8:	2807      	cmp	r0, #7
+     3ea:	d002      	beq.n	3f2 <controller+0x182>
+     3ec:	2029      	movs	r0, #41	@ 0x29
+     3ee:	f000 fa29 	bl	844 <fc_fail>
+     3f2:	f240 36e7 	movw	r6, #999	@ 0x3e7
+     3f6:	9602      	str	r6, [sp, #8]
+     3f8:	f000 ff2e 	bl	1258 <xTaskGetTickCount>
+     3fc:	682b      	ldr	r3, [r5, #0]
+     3fe:	9a03      	ldr	r2, [sp, #12]
+     400:	4604      	mov	r4, r0
+     402:	a902      	add	r1, sp, #8
+     404:	4618      	mov	r0, r3
+     406:	f001 fcdb 	bl	1dc0 <xQueueReceive>
+     40a:	fab0 f080 	clz	r0, r0
+     40e:	6869      	ldr	r1, [r5, #4]
+     410:	0940      	lsrs	r0, r0, #5
+     412:	60c8      	str	r0, [r1, #12]
+     414:	f000 ff20 	bl	1258 <xTaskGetTickCount>
+     418:	9902      	ldr	r1, [sp, #8]
+     41a:	686a      	ldr	r2, [r5, #4]
+     41c:	1b00      	subs	r0, r0, r4
+     41e:	42b1      	cmp	r1, r6
+     420:	6310      	str	r0, [r2, #48]	@ 0x30
+     422:	d002      	beq.n	42a <controller+0x1ba>
+     424:	202a      	movs	r0, #42	@ 0x2a
+     426:	f000 fa0d 	bl	844 <fc_fail>
+     42a:	2001      	movs	r0, #1
+     42c:	6228      	str	r0, [r5, #32]
+     42e:	6968      	ldr	r0, [r5, #20]
+     430:	2600      	movs	r6, #0
+     432:	2100      	movs	r1, #0
+     434:	2200      	movs	r2, #0
+     436:	2302      	movs	r3, #2
+     438:	9600      	str	r6, [sp, #0]
+     43a:	f001 f987 	bl	174c <xTaskGenericNotify>
+     43e:	ac02      	add	r4, sp, #8
+     440:	e006      	b.n	450 <controller+0x1e0>
+     442:	bf00      	nop
+     444:	3101      	adds	r1, #1
+     446:	6001      	str	r1, [r0, #0]
+     448:	9902      	ldr	r1, [sp, #8]
+     44a:	6842      	ldr	r2, [r0, #4]
+     44c:	4411      	add	r1, r2
+     44e:	6041      	str	r1, [r0, #4]
+     450:	6828      	ldr	r0, [r5, #0]
+     452:	4621      	mov	r1, r4
+     454:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     458:	f001 fcb2 	bl	1dc0 <xQueueReceive>
+     45c:	2801      	cmp	r0, #1
+     45e:	d002      	beq.n	466 <controller+0x1f6>
+     460:	202b      	movs	r0, #43	@ 0x2b
+     462:	f000 f9ef 	bl	844 <fc_fail>
+     466:	9902      	ldr	r1, [sp, #8]
+     468:	1c48      	adds	r0, r1, #1
+     46a:	d009      	beq.n	480 <controller+0x210>
+     46c:	6868      	ldr	r0, [r5, #4]
+     46e:	6802      	ldr	r2, [r0, #0]
+     470:	4291      	cmp	r1, r2
+     472:	d0e7      	beq.n	444 <controller+0x1d4>
+     474:	202b      	movs	r0, #43	@ 0x2b
+     476:	f000 f9e5 	bl	844 <fc_fail>
+     47a:	6868      	ldr	r0, [r5, #4]
+     47c:	6801      	ldr	r1, [r0, #0]
+     47e:	e7e1      	b.n	444 <controller+0x1d4>
+     480:	2000      	movs	r0, #0
+     482:	2101      	movs	r1, #1
+     484:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     488:	f001 f906 	bl	1698 <ulTaskGenericNotifyTake>
+     48c:	2801      	cmp	r0, #1
+     48e:	d002      	beq.n	496 <controller+0x226>
+     490:	202c      	movs	r0, #44	@ 0x2c
+     492:	f000 f9d7 	bl	844 <fc_fail>
+     496:	6828      	ldr	r0, [r5, #0]
+     498:	f001 fec8 	bl	222c <uxQueueMessagesWaiting>
+     49c:	b110      	cbz	r0, 4a4 <controller+0x234>
+     49e:	202c      	movs	r0, #44	@ 0x2c
+     4a0:	f000 f9d0 	bl	844 <fc_fail>
+     4a4:	2002      	movs	r0, #2
+     4a6:	6228      	str	r0, [r5, #32]
+     4a8:	6968      	ldr	r0, [r5, #20]
+     4aa:	2400      	movs	r4, #0
+     4ac:	2100      	movs	r1, #0
+     4ae:	2200      	movs	r2, #0
+     4b0:	2302      	movs	r3, #2
+     4b2:	9400      	str	r4, [sp, #0]
+     4b4:	f001 f94a 	bl	174c <xTaskGenericNotify>
+     4b8:	2000      	movs	r0, #0
+     4ba:	2101      	movs	r1, #1
+     4bc:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     4c0:	f001 f8ea 	bl	1698 <ulTaskGenericNotifyTake>
+     4c4:	2801      	cmp	r0, #1
+     4c6:	d002      	beq.n	4ce <controller+0x25e>
+     4c8:	202d      	movs	r0, #45	@ 0x2d
+     4ca:	f000 f9bb 	bl	844 <fc_fail>
+     4ce:	f000 fc75 	bl	dbc <vTaskSuspendAll>
+     4d2:	69a8      	ldr	r0, [r5, #24]
+     4d4:	2100      	movs	r1, #0
+     4d6:	2200      	movs	r2, #0
+     4d8:	2302      	movs	r3, #2
+     4da:	9400      	str	r4, [sp, #0]
+     4dc:	f001 f936 	bl	174c <xTaskGenericNotify>
+     4e0:	69e8      	ldr	r0, [r5, #28]
+     4e2:	2100      	movs	r1, #0
+     4e4:	2200      	movs	r2, #0
+     4e6:	2302      	movs	r3, #2
+     4e8:	9400      	str	r4, [sp, #0]
+     4ea:	f001 f92f 	bl	174c <xTaskGenericNotify>
+     4ee:	6968      	ldr	r0, [r5, #20]
+     4f0:	2100      	movs	r1, #0
+     4f2:	2200      	movs	r2, #0
+     4f4:	2302      	movs	r3, #2
+     4f6:	9400      	str	r4, [sp, #0]
+     4f8:	f001 f928 	bl	174c <xTaskGenericNotify>
+     4fc:	f000 fcb8 	bl	e70 <xTaskResumeAll>
+     500:	2000      	movs	r0, #0
+     502:	2101      	movs	r1, #1
+     504:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     508:	f001 f8c6 	bl	1698 <ulTaskGenericNotifyTake>
+     50c:	4404      	add	r4, r0
+     50e:	2c03      	cmp	r4, #3
+     510:	d3f6      	bcc.n	500 <controller+0x290>
+     512:	d002      	beq.n	51a <controller+0x2aa>
+     514:	202f      	movs	r0, #47	@ 0x2f
+     516:	f000 f995 	bl	844 <fc_fail>
+     51a:	2003      	movs	r0, #3
+     51c:	6228      	str	r0, [r5, #32]
+     51e:	6968      	ldr	r0, [r5, #20]
+     520:	2600      	movs	r6, #0
+     522:	2100      	movs	r1, #0
+     524:	2200      	movs	r2, #0
+     526:	2302      	movs	r3, #2
+     528:	9600      	str	r6, [sp, #0]
+     52a:	f001 f90f 	bl	174c <xTaskGenericNotify>
+     52e:	6828      	ldr	r0, [r5, #0]
+     530:	a902      	add	r1, sp, #8
+     532:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     536:	f001 fc43 	bl	1dc0 <xQueueReceive>
+     53a:	2801      	cmp	r0, #1
+     53c:	d10a      	bne.n	554 <controller+0x2e4>
+     53e:	9802      	ldr	r0, [sp, #8]
+     540:	f240 3109 	movw	r1, #777	@ 0x309
+     544:	4288      	cmp	r0, r1
+     546:	d105      	bne.n	554 <controller+0x2e4>
+     548:	6868      	ldr	r0, [r5, #4]
+     54a:	6b40      	ldr	r0, [r0, #52]	@ 0x34
+     54c:	2801      	cmp	r0, #1
+     54e:	d008      	beq.n	562 <controller+0x2f2>
+     550:	e009      	b.n	566 <controller+0x2f6>
+     552:	bf00      	nop
+     554:	2030      	movs	r0, #48	@ 0x30
+     556:	f000 f975 	bl	844 <fc_fail>
+     55a:	6868      	ldr	r0, [r5, #4]
+     55c:	6b40      	ldr	r0, [r0, #52]	@ 0x34
+     55e:	2801      	cmp	r0, #1
+     560:	d101      	bne.n	566 <controller+0x2f6>
+     562:	6a68      	ldr	r0, [r5, #36]	@ 0x24
+     564:	b110      	cbz	r0, 56c <controller+0x2fc>
+     566:	2032      	movs	r0, #50	@ 0x32
+     568:	f000 f96c 	bl	844 <fc_fail>
+     56c:	6968      	ldr	r0, [r5, #20]
+     56e:	f000 fbb5 	bl	cdc <vTaskDelete>
+     572:	69a8      	ldr	r0, [r5, #24]
+     574:	f000 fbb2 	bl	cdc <vTaskDelete>
+     578:	69e8      	ldr	r0, [r5, #28]
+     57a:	f000 fbaf 	bl	cdc <vTaskDelete>
+     57e:	6828      	ldr	r0, [r5, #0]
+     580:	f001 fe54 	bl	222c <uxQueueMessagesWaiting>
+     584:	b110      	cbz	r0, 58c <controller+0x31c>
+     586:	2037      	movs	r0, #55	@ 0x37
+     588:	f000 f95c 	bl	844 <fc_fail>
+     58c:	6828      	ldr	r0, [r5, #0]
+     58e:	f001 fe5b 	bl	2248 <vQueueDelete>
+     592:	68a8      	ldr	r0, [r5, #8]
+     594:	f001 fe58 	bl	2248 <vQueueDelete>
+     598:	68e8      	ldr	r0, [r5, #12]
+     59a:	f001 fe55 	bl	2248 <vQueueDelete>
+     59e:	6868      	ldr	r0, [r5, #4]
+     5a0:	2101      	movs	r1, #1
+     5a2:	6181      	str	r1, [r0, #24]
+     5a4:	f000 f960 	bl	868 <fc_done>
+     5a8:	e7fe      	b.n	5a8 <controller+0x338>
+	...
+
+000005ac <low>:
+     5ac:	b084      	sub	sp, #16
+     5ae:	f24e 1800 	movw	r8, #57600	@ 0xe100
+     5b2:	f244 255c 	movw	r5, #16988	@ 0x425c
+     5b6:	f2ce 0800 	movt	r8, #57344	@ 0xe000
+     5ba:	2700      	movs	r7, #0
+     5bc:	f04f 0b01 	mov.w	fp, #1
+     5c0:	f04f 3aff 	mov.w	sl, #4294967295	@ 0xffffffff
+     5c4:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+     5c8:	ac03      	add	r4, sp, #12
+     5ca:	f10d 0908 	add.w	r9, sp, #8
+     5ce:	e006      	b.n	5de <low+0x32>
+     5d0:	6928      	ldr	r0, [r5, #16]
+     5d2:	2100      	movs	r1, #0
+     5d4:	2200      	movs	r2, #0
+     5d6:	2302      	movs	r3, #2
+     5d8:	9700      	str	r7, [sp, #0]
+     5da:	f001 f8b7 	bl	174c <xTaskGenericNotify>
+     5de:	2000      	movs	r0, #0
+     5e0:	2101      	movs	r1, #1
+     5e2:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     5e6:	f001 f857 	bl	1698 <ulTaskGenericNotifyTake>
+     5ea:	b348      	cbz	r0, 640 <low+0x94>
+     5ec:	6a28      	ldr	r0, [r5, #32]
+     5ee:	2801      	cmp	r0, #1
+     5f0:	d12c      	bne.n	64c <low+0xa0>
+     5f2:	9703      	str	r7, [sp, #12]
+     5f4:	e006      	b.n	604 <low+0x58>
+     5f6:	bf00      	nop
+     5f8:	9803      	ldr	r0, [sp, #12]
+     5fa:	3001      	adds	r0, #1
+     5fc:	f5b0 7f80 	cmp.w	r0, #256	@ 0x100
+     600:	9003      	str	r0, [sp, #12]
+     602:	d20d      	bcs.n	620 <low+0x74>
+     604:	6828      	ldr	r0, [r5, #0]
+     606:	4621      	mov	r1, r4
+     608:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     60c:	2300      	movs	r3, #0
+     60e:	f001 f9d3 	bl	19b8 <xQueueGenericSend>
+     612:	2801      	cmp	r0, #1
+     614:	d0f0      	beq.n	5f8 <low+0x4c>
+     616:	2016      	movs	r0, #22
+     618:	f000 f914 	bl	844 <fc_fail>
+     61c:	e7ec      	b.n	5f8 <low+0x4c>
+     61e:	bf00      	nop
+     620:	6828      	ldr	r0, [r5, #0]
+     622:	4649      	mov	r1, r9
+     624:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     628:	2300      	movs	r3, #0
+     62a:	f8cd a008 	str.w	sl, [sp, #8]
+     62e:	f001 f9c3 	bl	19b8 <xQueueGenericSend>
+     632:	2801      	cmp	r0, #1
+     634:	d0cc      	beq.n	5d0 <low+0x24>
+     636:	2016      	movs	r0, #22
+     638:	f000 f904 	bl	844 <fc_fail>
+     63c:	e7c8      	b.n	5d0 <low+0x24>
+     63e:	bf00      	nop
+     640:	2015      	movs	r0, #21
+     642:	f000 f8ff 	bl	844 <fc_fail>
+     646:	6a28      	ldr	r0, [r5, #32]
+     648:	2801      	cmp	r0, #1
+     64a:	d0d2      	beq.n	5f2 <low+0x46>
+     64c:	6a28      	ldr	r0, [r5, #32]
+     64e:	2802      	cmp	r0, #2
+     650:	d174      	bne.n	73c <low+0x190>
+     652:	68a8      	ldr	r0, [r5, #8]
+     654:	2100      	movs	r1, #0
+     656:	f001 fcc1 	bl	1fdc <xQueueSemaphoreTake>
+     65a:	2801      	cmp	r0, #1
+     65c:	d002      	beq.n	664 <low+0xb8>
+     65e:	2017      	movs	r0, #23
+     660:	f000 f8f0 	bl	844 <fc_fail>
+     664:	68e8      	ldr	r0, [r5, #12]
+     666:	2100      	movs	r1, #0
+     668:	f001 fcb8 	bl	1fdc <xQueueSemaphoreTake>
+     66c:	2801      	cmp	r0, #1
+     66e:	d002      	beq.n	676 <low+0xca>
+     670:	2017      	movs	r0, #23
+     672:	f000 f8e7 	bl	844 <fc_fail>
+     676:	6928      	ldr	r0, [r5, #16]
+     678:	2100      	movs	r1, #0
+     67a:	2200      	movs	r2, #0
+     67c:	2302      	movs	r3, #2
+     67e:	9700      	str	r7, [sp, #0]
+     680:	f001 f864 	bl	174c <xTaskGenericNotify>
+     684:	2000      	movs	r0, #0
+     686:	2101      	movs	r1, #1
+     688:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     68c:	f001 f804 	bl	1698 <ulTaskGenericNotifyTake>
+     690:	b910      	cbnz	r0, 698 <low+0xec>
+     692:	2017      	movs	r0, #23
+     694:	f000 f8d6 	bl	844 <fc_fail>
+     698:	2000      	movs	r0, #0
+     69a:	f000 fc97 	bl	fcc <uxTaskPriorityGet>
+     69e:	4606      	mov	r6, r0
+     6a0:	2001      	movs	r0, #1
+     6a2:	f7ff fcf5 	bl	90 <fc_priority>
+     6a6:	1a30      	subs	r0, r6, r0
+     6a8:	fab0 f080 	clz	r0, r0
+     6ac:	6869      	ldr	r1, [r5, #4]
+     6ae:	0940      	lsrs	r0, r0, #5
+     6b0:	6108      	str	r0, [r1, #16]
+     6b2:	f001 ffad 	bl	2610 <vPortEnterCritical>
+     6b6:	6868      	ldr	r0, [r5, #4]
+     6b8:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     6ba:	2903      	cmp	r1, #3
+     6bc:	d304      	bcc.n	6c8 <low+0x11c>
+     6be:	2010      	movs	r0, #16
+     6c0:	f000 f8c0 	bl	844 <fc_fail>
+     6c4:	6868      	ldr	r0, [r5, #4]
+     6c6:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     6c8:	eb00 0281 	add.w	r2, r0, r1, lsl #2
+     6cc:	3101      	adds	r1, #1
+     6ce:	6281      	str	r1, [r0, #40]	@ 0x28
+     6d0:	f8c2 b01c 	str.w	fp, [r2, #28]
+     6d4:	f001 ffbc 	bl	2650 <vPortExitCritical>
+     6d8:	68a8      	ldr	r0, [r5, #8]
+     6da:	2100      	movs	r1, #0
+     6dc:	2200      	movs	r2, #0
+     6de:	2300      	movs	r3, #0
+     6e0:	f001 f96a 	bl	19b8 <xQueueGenericSend>
+     6e4:	2801      	cmp	r0, #1
+     6e6:	d002      	beq.n	6ee <low+0x142>
+     6e8:	2018      	movs	r0, #24
+     6ea:	f000 f8ab 	bl	844 <fc_fail>
+     6ee:	2000      	movs	r0, #0
+     6f0:	f000 fc6c 	bl	fcc <uxTaskPriorityGet>
+     6f4:	4606      	mov	r6, r0
+     6f6:	2001      	movs	r0, #1
+     6f8:	f7ff fcca 	bl	90 <fc_priority>
+     6fc:	1a30      	subs	r0, r6, r0
+     6fe:	fab0 f080 	clz	r0, r0
+     702:	686a      	ldr	r2, [r5, #4]
+     704:	0941      	lsrs	r1, r0, #5
+     706:	68e8      	ldr	r0, [r5, #12]
+     708:	6391      	str	r1, [r2, #56]	@ 0x38
+     70a:	2100      	movs	r1, #0
+     70c:	2200      	movs	r2, #0
+     70e:	2300      	movs	r3, #0
+     710:	f001 f952 	bl	19b8 <xQueueGenericSend>
+     714:	2801      	cmp	r0, #1
+     716:	d002      	beq.n	71e <low+0x172>
+     718:	2018      	movs	r0, #24
+     71a:	f000 f893 	bl	844 <fc_fail>
+     71e:	2000      	movs	r0, #0
+     720:	f000 fc54 	bl	fcc <uxTaskPriorityGet>
+     724:	4606      	mov	r6, r0
+     726:	2003      	movs	r0, #3
+     728:	f7ff fcb2 	bl	90 <fc_priority>
+     72c:	1a30      	subs	r0, r6, r0
+     72e:	fab0 f080 	clz	r0, r0
+     732:	686a      	ldr	r2, [r5, #4]
+     734:	0941      	lsrs	r1, r0, #5
+     736:	6928      	ldr	r0, [r5, #16]
+     738:	6151      	str	r1, [r2, #20]
+     73a:	e74a      	b.n	5d2 <low+0x26>
+     73c:	6a28      	ldr	r0, [r5, #32]
+     73e:	2803      	cmp	r0, #3
+     740:	d10e      	bne.n	760 <low+0x1b4>
+     742:	20a0      	movs	r0, #160	@ 0xa0
+     744:	f888 0300 	strb.w	r0, [r8, #768]	@ 0x300
+     748:	f8c8 b000 	str.w	fp, [r8]
+     74c:	f8c8 b100 	str.w	fp, [r8, #256]	@ 0x100
+     750:	f3bf 8f4f 	dsb	sy
+     754:	f3bf 8f6f 	isb	sy
+     758:	f8c5 b024 	str.w	fp, [r5, #36]	@ 0x24
+     75c:	e73f      	b.n	5de <low+0x32>
+     75e:	bf00      	nop
+     760:	2020      	movs	r0, #32
+     762:	f000 f86f 	bl	844 <fc_fail>
+     766:	e73a      	b.n	5de <low+0x32>
+
+00000768 <high>:
+     768:	b082      	sub	sp, #8
+     76a:	f244 255c 	movw	r5, #16988	@ 0x425c
+     76e:	2400      	movs	r4, #0
+     770:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+     774:	2602      	movs	r6, #2
+     776:	e006      	b.n	786 <high+0x1e>
+     778:	6928      	ldr	r0, [r5, #16]
+     77a:	2100      	movs	r1, #0
+     77c:	2200      	movs	r2, #0
+     77e:	2302      	movs	r3, #2
+     780:	9400      	str	r4, [sp, #0]
+     782:	f000 ffe3 	bl	174c <xTaskGenericNotify>
+     786:	2000      	movs	r0, #0
+     788:	2101      	movs	r1, #1
+     78a:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     78e:	f000 ff83 	bl	1698 <ulTaskGenericNotifyTake>
+     792:	b910      	cbnz	r0, 79a <high+0x32>
+     794:	2022      	movs	r0, #34	@ 0x22
+     796:	f000 f855 	bl	844 <fc_fail>
+     79a:	68a8      	ldr	r0, [r5, #8]
+     79c:	f04f 31ff 	mov.w	r1, #4294967295	@ 0xffffffff
+     7a0:	f001 fc1c 	bl	1fdc <xQueueSemaphoreTake>
+     7a4:	2801      	cmp	r0, #1
+     7a6:	d002      	beq.n	7ae <high+0x46>
+     7a8:	2022      	movs	r0, #34	@ 0x22
+     7aa:	f000 f84b 	bl	844 <fc_fail>
+     7ae:	f001 ff2f 	bl	2610 <vPortEnterCritical>
+     7b2:	6868      	ldr	r0, [r5, #4]
+     7b4:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     7b6:	2903      	cmp	r1, #3
+     7b8:	d304      	bcc.n	7c4 <high+0x5c>
+     7ba:	2010      	movs	r0, #16
+     7bc:	f000 f842 	bl	844 <fc_fail>
+     7c0:	6868      	ldr	r0, [r5, #4]
+     7c2:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     7c4:	eb00 0281 	add.w	r2, r0, r1, lsl #2
+     7c8:	3101      	adds	r1, #1
+     7ca:	6281      	str	r1, [r0, #40]	@ 0x28
+     7cc:	61d6      	str	r6, [r2, #28]
+     7ce:	f001 ff3f 	bl	2650 <vPortExitCritical>
+     7d2:	68a8      	ldr	r0, [r5, #8]
+     7d4:	2100      	movs	r1, #0
+     7d6:	2200      	movs	r2, #0
+     7d8:	2300      	movs	r3, #0
+     7da:	f001 f8ed 	bl	19b8 <xQueueGenericSend>
+     7de:	2801      	cmp	r0, #1
+     7e0:	d0ca      	beq.n	778 <high+0x10>
+     7e2:	2022      	movs	r0, #34	@ 0x22
+     7e4:	f000 f82e 	bl	844 <fc_fail>
+     7e8:	e7c6      	b.n	778 <high+0x10>
+	...
+
+000007ec <medium>:
+     7ec:	b082      	sub	sp, #8
+     7ee:	f244 255c 	movw	r5, #16988	@ 0x425c
+     7f2:	2400      	movs	r4, #0
+     7f4:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+     7f8:	2603      	movs	r6, #3
+     7fa:	e00d      	b.n	818 <medium+0x2c>
+     7fc:	eb00 0281 	add.w	r2, r0, r1, lsl #2
+     800:	3101      	adds	r1, #1
+     802:	6281      	str	r1, [r0, #40]	@ 0x28
+     804:	61d6      	str	r6, [r2, #28]
+     806:	f001 ff23 	bl	2650 <vPortExitCritical>
+     80a:	6928      	ldr	r0, [r5, #16]
+     80c:	2100      	movs	r1, #0
+     80e:	2200      	movs	r2, #0
+     810:	2302      	movs	r3, #2
+     812:	9400      	str	r4, [sp, #0]
+     814:	f000 ff9a 	bl	174c <xTaskGenericNotify>
+     818:	2000      	movs	r0, #0
+     81a:	2101      	movs	r1, #1
+     81c:	f04f 32ff 	mov.w	r2, #4294967295	@ 0xffffffff
+     820:	f000 ff3a 	bl	1698 <ulTaskGenericNotifyTake>
+     824:	b910      	cbnz	r0, 82c <medium+0x40>
+     826:	2023      	movs	r0, #35	@ 0x23
+     828:	f000 f80c 	bl	844 <fc_fail>
+     82c:	f001 fef0 	bl	2610 <vPortEnterCritical>
+     830:	6868      	ldr	r0, [r5, #4]
+     832:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     834:	2903      	cmp	r1, #3
+     836:	d3e1      	bcc.n	7fc <medium+0x10>
+     838:	2010      	movs	r0, #16
+     83a:	f000 f803 	bl	844 <fc_fail>
+     83e:	6868      	ldr	r0, [r5, #4]
+     840:	6a81      	ldr	r1, [r0, #40]	@ 0x28
+     842:	e7db      	b.n	7fc <medium+0x10>
+
+00000844 <fc_fail>:
+     844:	b082      	sub	sp, #8
+     846:	f242 71c8 	movw	r1, #10184	@ 0x27c8
+     84a:	f2c0 0100 	movt	r1, #0
+     84e:	2004      	movs	r0, #4
+     850:	beab      	bkpt	0x00ab
+     852:	2026      	movs	r0, #38	@ 0x26
+     854:	f2c0 0002 	movt	r0, #2
+     858:	9000      	str	r0, [sp, #0]
+     85a:	2001      	movs	r0, #1
+     85c:	9001      	str	r0, [sp, #4]
+     85e:	4669      	mov	r1, sp
+     860:	2020      	movs	r0, #32
+     862:	beab      	bkpt	0x00ab
+     864:	e7fe      	b.n	864 <fc_fail+0x20>
+	...
+
+00000868 <fc_done>:
+     868:	b082      	sub	sp, #8
+     86a:	4604      	mov	r4, r0
+     86c:	205b      	movs	r0, #91	@ 0x5b
+     86e:	9000      	str	r0, [sp, #0]
+     870:	466a      	mov	r2, sp
+     872:	2015      	movs	r0, #21
+     874:	2164      	movs	r1, #100	@ 0x64
+     876:	f7ff fbe5 	bl	44 <fc_ticks>
+     87a:	2800      	cmp	r0, #0
+     87c:	f000 8094 	beq.w	9a8 <fc_done+0x140>
+     880:	9800      	ldr	r0, [sp, #0]
+     882:	2803      	cmp	r0, #3
+     884:	f040 8090 	bne.w	9a8 <fc_done+0x140>
+     888:	466a      	mov	r2, sp
+     88a:	2001      	movs	r0, #1
+     88c:	2164      	movs	r1, #100	@ 0x64
+     88e:	f7ff fbd9 	bl	44 <fc_ticks>
+     892:	2800      	cmp	r0, #0
+     894:	f000 8088 	beq.w	9a8 <fc_done+0x140>
+     898:	9800      	ldr	r0, [sp, #0]
+     89a:	2801      	cmp	r0, #1
+     89c:	f040 8084 	bne.w	9a8 <fc_done+0x140>
+     8a0:	466a      	mov	r2, sp
+     8a2:	2000      	movs	r0, #0
+     8a4:	2164      	movs	r1, #100	@ 0x64
+     8a6:	f7ff fbcd 	bl	44 <fc_ticks>
+     8aa:	2800      	cmp	r0, #0
+     8ac:	f000 807c 	beq.w	9a8 <fc_done+0x140>
+     8b0:	9800      	ldr	r0, [sp, #0]
+     8b2:	2800      	cmp	r0, #0
+     8b4:	d178      	bne.n	9a8 <fc_done+0x140>
+     8b6:	466a      	mov	r2, sp
+     8b8:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+     8bc:	2164      	movs	r1, #100	@ 0x64
+     8be:	f7ff fbc1 	bl	44 <fc_ticks>
+     8c2:	9900      	ldr	r1, [sp, #0]
+     8c4:	4308      	orrs	r0, r1
+     8c6:	d16f      	bne.n	9a8 <fc_done+0x140>
+     8c8:	466a      	mov	r2, sp
+     8ca:	2003      	movs	r0, #3
+     8cc:	2100      	movs	r1, #0
+     8ce:	f7ff fbb9 	bl	44 <fc_ticks>
+     8d2:	2800      	cmp	r0, #0
+     8d4:	d168      	bne.n	9a8 <fc_done+0x140>
+     8d6:	466a      	mov	r2, sp
+     8d8:	2001      	movs	r0, #1
+     8da:	f242 7111 	movw	r1, #10001	@ 0x2711
+     8de:	f7ff fbb1 	bl	44 <fc_ticks>
+     8e2:	2800      	cmp	r0, #0
+     8e4:	d160      	bne.n	9a8 <fc_done+0x140>
+     8e6:	2001      	movs	r0, #1
+     8e8:	2101      	movs	r1, #1
+     8ea:	2200      	movs	r2, #0
+     8ec:	f7ff fbaa 	bl	44 <fc_ticks>
+     8f0:	9900      	ldr	r1, [sp, #0]
+     8f2:	4308      	orrs	r0, r1
+     8f4:	d158      	bne.n	9a8 <fc_done+0x140>
+     8f6:	2001      	movs	r0, #1
+     8f8:	f7ff fbca 	bl	90 <fc_priority>
+     8fc:	2803      	cmp	r0, #3
+     8fe:	d153      	bne.n	9a8 <fc_done+0x140>
+     900:	2002      	movs	r0, #2
+     902:	f7ff fbc5 	bl	90 <fc_priority>
+     906:	2802      	cmp	r0, #2
+     908:	d14e      	bne.n	9a8 <fc_done+0x140>
+     90a:	2003      	movs	r0, #3
+     90c:	f7ff fbc0 	bl	90 <fc_priority>
+     910:	2801      	cmp	r0, #1
+     912:	d149      	bne.n	9a8 <fc_done+0x140>
+     914:	2000      	movs	r0, #0
+     916:	f7ff fbbb 	bl	90 <fc_priority>
+     91a:	2800      	cmp	r0, #0
+     91c:	d144      	bne.n	9a8 <fc_done+0x140>
+     91e:	2004      	movs	r0, #4
+     920:	f7ff fbb6 	bl	90 <fc_priority>
+     924:	2800      	cmp	r0, #0
+     926:	d13f      	bne.n	9a8 <fc_done+0x140>
+     928:	6820      	ldr	r0, [r4, #0]
+     92a:	f5b0 7f80 	cmp.w	r0, #256	@ 0x100
+     92e:	d13b      	bne.n	9a8 <fc_done+0x140>
+     930:	6860      	ldr	r0, [r4, #4]
+     932:	f5b0 4fff 	cmp.w	r0, #32640	@ 0x7f80
+     936:	d137      	bne.n	9a8 <fc_done+0x140>
+     938:	68a0      	ldr	r0, [r4, #8]
+     93a:	b3a8      	cbz	r0, 9a8 <fc_done+0x140>
+     93c:	68e0      	ldr	r0, [r4, #12]
+     93e:	b398      	cbz	r0, 9a8 <fc_done+0x140>
+     940:	6920      	ldr	r0, [r4, #16]
+     942:	b388      	cbz	r0, 9a8 <fc_done+0x140>
+     944:	6960      	ldr	r0, [r4, #20]
+     946:	b378      	cbz	r0, 9a8 <fc_done+0x140>
+     948:	69a0      	ldr	r0, [r4, #24]
+     94a:	b368      	cbz	r0, 9a8 <fc_done+0x140>
+     94c:	6aa0      	ldr	r0, [r4, #40]	@ 0x28
+     94e:	2803      	cmp	r0, #3
+     950:	d12a      	bne.n	9a8 <fc_done+0x140>
+     952:	69e0      	ldr	r0, [r4, #28]
+     954:	2801      	cmp	r0, #1
+     956:	d127      	bne.n	9a8 <fc_done+0x140>
+     958:	6a20      	ldr	r0, [r4, #32]
+     95a:	2802      	cmp	r0, #2
+     95c:	d124      	bne.n	9a8 <fc_done+0x140>
+     95e:	6a60      	ldr	r0, [r4, #36]	@ 0x24
+     960:	2803      	cmp	r0, #3
+     962:	d121      	bne.n	9a8 <fc_done+0x140>
+     964:	466a      	mov	r2, sp
+     966:	2015      	movs	r0, #21
+     968:	f44f 717a 	mov.w	r1, #1000	@ 0x3e8
+     96c:	f7ff fb6a 	bl	44 <fc_ticks>
+     970:	b1d0      	cbz	r0, 9a8 <fc_done+0x140>
+     972:	6ae0      	ldr	r0, [r4, #44]	@ 0x2c
+     974:	9900      	ldr	r1, [sp, #0]
+     976:	4288      	cmp	r0, r1
+     978:	d116      	bne.n	9a8 <fc_done+0x140>
+     97a:	6b21      	ldr	r1, [r4, #48]	@ 0x30
+     97c:	4281      	cmp	r1, r0
+     97e:	d313      	bcc.n	9a8 <fc_done+0x140>
+     980:	6ba0      	ldr	r0, [r4, #56]	@ 0x38
+     982:	2801      	cmp	r0, #1
+     984:	d110      	bne.n	9a8 <fc_done+0x140>
+     986:	f242 71d5 	movw	r1, #10197	@ 0x27d5
+     98a:	f2c0 0100 	movt	r1, #0
+     98e:	2004      	movs	r0, #4
+     990:	beab      	bkpt	0x00ab
+     992:	2026      	movs	r0, #38	@ 0x26
+     994:	f2c0 0002 	movt	r0, #2
+     998:	9000      	str	r0, [sp, #0]
+     99a:	2000      	movs	r0, #0
+     99c:	9001      	str	r0, [sp, #4]
+     99e:	4669      	mov	r1, sp
+     9a0:	2020      	movs	r0, #32
+     9a2:	beab      	bkpt	0x00ab
+     9a4:	e7fe      	b.n	9a4 <fc_done+0x13c>
+     9a6:	bf00      	nop
+     9a8:	f242 71c8 	movw	r1, #10184	@ 0x27c8
+     9ac:	f2c0 0100 	movt	r1, #0
+     9b0:	2004      	movs	r0, #4
+     9b2:	beab      	bkpt	0x00ab
+     9b4:	2026      	movs	r0, #38	@ 0x26
+     9b6:	f2c0 0002 	movt	r0, #2
+     9ba:	9000      	str	r0, [sp, #0]
+     9bc:	2001      	movs	r0, #1
+     9be:	9001      	str	r0, [sp, #4]
+     9c0:	4669      	mov	r1, sp
+     9c2:	2020      	movs	r0, #32
+     9c4:	beab      	bkpt	0x00ab
+     9c6:	bf00      	nop
+     9c8:	e7fe      	b.n	9c8 <fc_done+0x160>
+	...
+
+000009cc <fc_fault>:
+     9cc:	b082      	sub	sp, #8
+     9ce:	f642 0103 	movw	r1, #10243	@ 0x2803
+     9d2:	f2c0 0100 	movt	r1, #0
+     9d6:	2004      	movs	r0, #4
+     9d8:	beab      	bkpt	0x00ab
+     9da:	2026      	movs	r0, #38	@ 0x26
+     9dc:	f2c0 0002 	movt	r0, #2
+     9e0:	9000      	str	r0, [sp, #0]
+     9e2:	2002      	movs	r0, #2
+     9e4:	9001      	str	r0, [sp, #4]
+     9e6:	4669      	mov	r1, sp
+     9e8:	2020      	movs	r0, #32
+     9ea:	beab      	bkpt	0x00ab
+     9ec:	e7fe      	b.n	9ec <fc_fault+0x20>
+	...
+
+000009f0 <cl_reset>:
+     9f0:	f240 0004 	movw	r0, #4
+     9f4:	f240 0100 	movw	r1, #0
+     9f8:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+     9fc:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+     a00:	4281      	cmp	r1, r0
+     a02:	d218      	bcs.n	a36 <cl_reset+0x46>
+     a04:	f642 0214 	movw	r2, #10260	@ 0x2814
+     a08:	f2c0 0200 	movt	r2, #0
+     a0c:	6813      	ldr	r3, [r2, #0]
+     a0e:	f841 3b04 	str.w	r3, [r1], #4
+     a12:	4281      	cmp	r1, r0
+     a14:	d20f      	bcs.n	a36 <cl_reset+0x46>
+     a16:	6853      	ldr	r3, [r2, #4]
+     a18:	f841 3b04 	str.w	r3, [r1], #4
+     a1c:	4281      	cmp	r1, r0
+     a1e:	d20a      	bcs.n	a36 <cl_reset+0x46>
+     a20:	6893      	ldr	r3, [r2, #8]
+     a22:	f841 3b04 	str.w	r3, [r1], #4
+     a26:	4281      	cmp	r1, r0
+     a28:	d205      	bcs.n	a36 <cl_reset+0x46>
+     a2a:	68d3      	ldr	r3, [r2, #12]
+     a2c:	3210      	adds	r2, #16
+     a2e:	f841 3b04 	str.w	r3, [r1], #4
+     a32:	4281      	cmp	r1, r0
+     a34:	d3ea      	bcc.n	a0c <cl_reset+0x1c>
+     a36:	f644 4090 	movw	r0, #19600	@ 0x4c90
+     a3a:	f240 0104 	movw	r1, #4
+     a3e:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+     a42:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+     a46:	4281      	cmp	r1, r0
+     a48:	d210      	bcs.n	a6c <cl_reset+0x7c>
+     a4a:	2200      	movs	r2, #0
+     a4c:	f841 2b04 	str.w	r2, [r1], #4
+     a50:	4281      	cmp	r1, r0
+     a52:	d20b      	bcs.n	a6c <cl_reset+0x7c>
+     a54:	f841 2b04 	str.w	r2, [r1], #4
+     a58:	4281      	cmp	r1, r0
+     a5a:	d207      	bcs.n	a6c <cl_reset+0x7c>
+     a5c:	f841 2b04 	str.w	r2, [r1], #4
+     a60:	4281      	cmp	r1, r0
+     a62:	d203      	bcs.n	a6c <cl_reset+0x7c>
+     a64:	f841 2b04 	str.w	r2, [r1], #4
+     a68:	4281      	cmp	r1, r0
+     a6a:	d3ef      	bcc.n	a4c <cl_reset+0x5c>
+     a6c:	f64e 5088 	movw	r0, #60808	@ 0xed88
+     a70:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+     a74:	6801      	ldr	r1, [r0, #0]
+     a76:	f244 24a4 	movw	r4, #17060	@ 0x42a4
+     a7a:	f441 0170 	orr.w	r1, r1, #15728640	@ 0xf00000
+     a7e:	6001      	str	r1, [r0, #0]
+     a80:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+     a84:	f3bf 8f4f 	dsb	sy
+     a88:	f3bf 8f6f 	isb	sy
+     a8c:	4620      	mov	r0, r4
+     a8e:	f7ff fb3b 	bl	108 <fc_run>
+     a92:	4620      	mov	r0, r4
+     a94:	f7ff fee8 	bl	868 <fc_done>
+
+00000a98 <xTaskCreateStatic>:
+     a98:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+     a9c:	b081      	sub	sp, #4
+     a9e:	e9dd 740b 	ldrd	r7, r4, [sp, #44]	@ 0x2c
+     aa2:	4698      	mov	r8, r3
+     aa4:	4692      	mov	sl, r2
+     aa6:	460d      	mov	r5, r1
+     aa8:	4681      	mov	r9, r0
+     aaa:	b19f      	cbz	r7, ad4 <xTaskCreateStatic+0x3c>
+     aac:	b1c4      	cbz	r4, ae0 <xTaskCreateStatic+0x48>
+     aae:	2054      	movs	r0, #84	@ 0x54
+     ab0:	9000      	str	r0, [sp, #0]
+     ab2:	9800      	ldr	r0, [sp, #0]
+     ab4:	2854      	cmp	r0, #84	@ 0x54
+     ab6:	d003      	beq.n	ac0 <xTaskCreateStatic+0x28>
+     ab8:	f44f 60a2 	mov.w	r0, #1296	@ 0x510
+     abc:	f7ff fec2 	bl	844 <fc_fail>
+     ac0:	9800      	ldr	r0, [sp, #0]
+     ac2:	2f00      	cmp	r7, #0
+     ac4:	f04f 0000 	mov.w	r0, #0
+     ac8:	bf18      	it	ne
+     aca:	2c00      	cmpne	r4, #0
+     acc:	d10e      	bne.n	aec <xTaskCreateStatic+0x54>
+     ace:	b001      	add	sp, #4
+     ad0:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+     ad4:	f240 5007 	movw	r0, #1287	@ 0x507
+     ad8:	f7ff feb4 	bl	844 <fc_fail>
+     adc:	2c00      	cmp	r4, #0
+     ade:	d1e6      	bne.n	aae <xTaskCreateStatic+0x16>
+     ae0:	f44f 60a1 	mov.w	r0, #1288	@ 0x508
+     ae4:	f7ff feae 	bl	844 <fc_fail>
+     ae8:	e7e1      	b.n	aae <xTaskCreateStatic+0x16>
+     aea:	bf00      	nop
+     aec:	9e0a      	ldr	r6, [sp, #40]	@ 0x28
+     aee:	4620      	mov	r0, r4
+     af0:	2100      	movs	r1, #0
+     af2:	2254      	movs	r2, #84	@ 0x54
+     af4:	f001 fe32 	bl	275c <memset>
+     af8:	2d00      	cmp	r5, #0
+     afa:	6327      	str	r7, [r4, #48]	@ 0x30
+     afc:	d042      	beq.n	b84 <xTaskCreateStatic+0xec>
+     afe:	7828      	ldrb	r0, [r5, #0]
+     b00:	f884 0034 	strb.w	r0, [r4, #52]	@ 0x34
+     b04:	b3d8      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b06:	7868      	ldrb	r0, [r5, #1]
+     b08:	f884 0035 	strb.w	r0, [r4, #53]	@ 0x35
+     b0c:	b3b8      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b0e:	78a8      	ldrb	r0, [r5, #2]
+     b10:	f884 0036 	strb.w	r0, [r4, #54]	@ 0x36
+     b14:	b398      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b16:	78e8      	ldrb	r0, [r5, #3]
+     b18:	f884 0037 	strb.w	r0, [r4, #55]	@ 0x37
+     b1c:	b378      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b1e:	7928      	ldrb	r0, [r5, #4]
+     b20:	f884 0038 	strb.w	r0, [r4, #56]	@ 0x38
+     b24:	b358      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b26:	7968      	ldrb	r0, [r5, #5]
+     b28:	f884 0039 	strb.w	r0, [r4, #57]	@ 0x39
+     b2c:	b338      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b2e:	79a8      	ldrb	r0, [r5, #6]
+     b30:	f884 003a 	strb.w	r0, [r4, #58]	@ 0x3a
+     b34:	b318      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b36:	79e8      	ldrb	r0, [r5, #7]
+     b38:	f884 003b 	strb.w	r0, [r4, #59]	@ 0x3b
+     b3c:	b1f8      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b3e:	7a28      	ldrb	r0, [r5, #8]
+     b40:	f884 003c 	strb.w	r0, [r4, #60]	@ 0x3c
+     b44:	b1d8      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b46:	7a68      	ldrb	r0, [r5, #9]
+     b48:	f884 003d 	strb.w	r0, [r4, #61]	@ 0x3d
+     b4c:	b1b8      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b4e:	7aa8      	ldrb	r0, [r5, #10]
+     b50:	f884 003e 	strb.w	r0, [r4, #62]	@ 0x3e
+     b54:	b198      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b56:	7ae8      	ldrb	r0, [r5, #11]
+     b58:	f884 003f 	strb.w	r0, [r4, #63]	@ 0x3f
+     b5c:	b178      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b5e:	7b28      	ldrb	r0, [r5, #12]
+     b60:	f884 0040 	strb.w	r0, [r4, #64]	@ 0x40
+     b64:	b158      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b66:	7b68      	ldrb	r0, [r5, #13]
+     b68:	f884 0041 	strb.w	r0, [r4, #65]	@ 0x41
+     b6c:	b138      	cbz	r0, b7e <xTaskCreateStatic+0xe6>
+     b6e:	7ba8      	ldrb	r0, [r5, #14]
+     b70:	f884 0042 	strb.w	r0, [r4, #66]	@ 0x42
+     b74:	2800      	cmp	r0, #0
+     b76:	bf1c      	itt	ne
+     b78:	7be8      	ldrbne	r0, [r5, #15]
+     b7a:	f884 0043 	strbne.w	r0, [r4, #67]	@ 0x43
+     b7e:	2000      	movs	r0, #0
+     b80:	f884 0043 	strb.w	r0, [r4, #67]	@ 0x43
+     b84:	2e05      	cmp	r6, #5
+     b86:	d303      	bcc.n	b90 <xTaskCreateStatic+0xf8>
+     b88:	f240 707a 	movw	r0, #1914	@ 0x77a
+     b8c:	f7ff fe5a 	bl	844 <fc_fail>
+     b90:	eb07 008a 	add.w	r0, r7, sl, lsl #2
+     b94:	3804      	subs	r0, #4
+     b96:	1d25      	adds	r5, r4, #4
+     b98:	f020 0707 	bic.w	r7, r0, #7
+     b9c:	4628      	mov	r0, r5
+     b9e:	2e04      	cmp	r6, #4
+     ba0:	bf28      	it	cs
+     ba2:	2604      	movcs	r6, #4
+     ba4:	62e6      	str	r6, [r4, #44]	@ 0x2c
+     ba6:	6466      	str	r6, [r4, #68]	@ 0x44
+     ba8:	f001 fb64 	bl	2274 <vListInitialiseItem>
+     bac:	f104 0018 	add.w	r0, r4, #24
+     bb0:	f001 fb60 	bl	2274 <vListInitialiseItem>
+     bb4:	f1c6 0005 	rsb	r0, r6, #5
+     bb8:	61a0      	str	r0, [r4, #24]
+     bba:	4638      	mov	r0, r7
+     bbc:	4649      	mov	r1, r9
+     bbe:	4642      	mov	r2, r8
+     bc0:	6124      	str	r4, [r4, #16]
+     bc2:	6264      	str	r4, [r4, #36]	@ 0x24
+     bc4:	f001 fba8 	bl	2318 <pxPortInitialiseStack>
+     bc8:	6020      	str	r0, [r4, #0]
+     bca:	f001 fd21 	bl	2610 <vPortEnterCritical>
+     bce:	f644 37c4 	movw	r7, #19396	@ 0x4bc4
+     bd2:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+     bd6:	6938      	ldr	r0, [r7, #16]
+     bd8:	f244 2be0 	movw	fp, #17120	@ 0x42e0
+     bdc:	3001      	adds	r0, #1
+     bde:	6138      	str	r0, [r7, #16]
+     be0:	f2c2 0b00 	movt	fp, #8192	@ 0x2000
+     be4:	f8db 0000 	ldr.w	r0, [fp]
+     be8:	f244 26e4 	movw	r6, #17124	@ 0x42e4
+     bec:	f2c2 0600 	movt	r6, #8192	@ 0x2000
+     bf0:	b160      	cbz	r0, c0c <xTaskCreateStatic+0x174>
+     bf2:	68b8      	ldr	r0, [r7, #8]
+     bf4:	2800      	cmp	r0, #0
+     bf6:	d13e      	bne.n	c76 <xTaskCreateStatic+0x1de>
+     bf8:	f8db 0000 	ldr.w	r0, [fp]
+     bfc:	6ae1      	ldr	r1, [r4, #44]	@ 0x2c
+     bfe:	6ac0      	ldr	r0, [r0, #44]	@ 0x2c
+     c00:	4288      	cmp	r0, r1
+     c02:	bf98      	it	ls
+     c04:	f8cb 4000 	strls.w	r4, [fp]
+     c08:	e035      	b.n	c76 <xTaskCreateStatic+0x1de>
+     c0a:	bf00      	nop
+     c0c:	f8cb 4000 	str.w	r4, [fp]
+     c10:	6938      	ldr	r0, [r7, #16]
+     c12:	2801      	cmp	r0, #1
+     c14:	d12f      	bne.n	c76 <xTaskCreateStatic+0x1de>
+     c16:	4630      	mov	r0, r6
+     c18:	f001 fb1e 	bl	2258 <vListInitialise>
+     c1c:	f106 001c 	add.w	r0, r6, #28
+     c20:	f001 fb1a 	bl	2258 <vListInitialise>
+     c24:	f106 0038 	add.w	r0, r6, #56	@ 0x38
+     c28:	f001 fb16 	bl	2258 <vListInitialise>
+     c2c:	f106 0054 	add.w	r0, r6, #84	@ 0x54
+     c30:	f001 fb12 	bl	2258 <vListInitialise>
+     c34:	f106 0070 	add.w	r0, r6, #112	@ 0x70
+     c38:	f001 fb0e 	bl	2258 <vListInitialise>
+     c3c:	f644 4834 	movw	r8, #19508	@ 0x4c34
+     c40:	f2c2 0800 	movt	r8, #8192	@ 0x2000
+     c44:	f108 091c 	add.w	r9, r8, #28
+     c48:	4648      	mov	r0, r9
+     c4a:	f001 fb05 	bl	2258 <vListInitialise>
+     c4e:	f108 0a38 	add.w	sl, r8, #56	@ 0x38
+     c52:	4650      	mov	r0, sl
+     c54:	f001 fb00 	bl	2258 <vListInitialise>
+     c58:	4640      	mov	r0, r8
+     c5a:	f001 fafd 	bl	2258 <vListInitialise>
+     c5e:	f107 0038 	add.w	r0, r7, #56	@ 0x38
+     c62:	f001 faf9 	bl	2258 <vListInitialise>
+     c66:	f107 0054 	add.w	r0, r7, #84	@ 0x54
+     c6a:	f001 faf5 	bl	2258 <vListInitialise>
+     c6e:	f8c7 902c 	str.w	r9, [r7, #44]	@ 0x2c
+     c72:	f8c7 a030 	str.w	sl, [r7, #48]	@ 0x30
+     c76:	6838      	ldr	r0, [r7, #0]
+     c78:	6879      	ldr	r1, [r7, #4]
+     c7a:	2201      	movs	r2, #1
+     c7c:	3101      	adds	r1, #1
+     c7e:	6079      	str	r1, [r7, #4]
+     c80:	6ae1      	ldr	r1, [r4, #44]	@ 0x2c
+     c82:	408a      	lsls	r2, r1
+     c84:	4310      	orrs	r0, r2
+     c86:	6038      	str	r0, [r7, #0]
+     c88:	ebc1 00c1 	rsb	r0, r1, r1, lsl #3
+     c8c:	eb06 0180 	add.w	r1, r6, r0, lsl #2
+     c90:	684a      	ldr	r2, [r1, #4]
+     c92:	6161      	str	r1, [r4, #20]
+     c94:	6893      	ldr	r3, [r2, #8]
+     c96:	e9c4 2302 	strd	r2, r3, [r4, #8]
+     c9a:	6095      	str	r5, [r2, #8]
+     c9c:	f856 2020 	ldr.w	r2, [r6, r0, lsl #2]
+     ca0:	605d      	str	r5, [r3, #4]
+     ca2:	1c51      	adds	r1, r2, #1
+     ca4:	f846 1020 	str.w	r1, [r6, r0, lsl #2]
+     ca8:	f001 fcd2 	bl	2650 <vPortExitCritical>
+     cac:	68b8      	ldr	r0, [r7, #8]
+     cae:	b180      	cbz	r0, cd2 <xTaskCreateStatic+0x23a>
+     cb0:	f8db 0000 	ldr.w	r0, [fp]
+     cb4:	6ae1      	ldr	r1, [r4, #44]	@ 0x2c
+     cb6:	6ac0      	ldr	r0, [r0, #44]	@ 0x2c
+     cb8:	4288      	cmp	r0, r1
+     cba:	d20a      	bcs.n	cd2 <xTaskCreateStatic+0x23a>
+     cbc:	f64e 5004 	movw	r0, #60676	@ 0xed04
+     cc0:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+     cc4:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+     cc8:	6001      	str	r1, [r0, #0]
+     cca:	f3bf 8f4f 	dsb	sy
+     cce:	f3bf 8f6f 	isb	sy
+     cd2:	4620      	mov	r0, r4
+     cd4:	b001      	add	sp, #4
+     cd6:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+	...
+
+00000cdc <vTaskDelete>:
+     cdc:	b5f0      	push	{r4, r5, r6, r7, lr}
+     cde:	b081      	sub	sp, #4
+     ce0:	4604      	mov	r4, r0
+     ce2:	f001 fc95 	bl	2610 <vPortEnterCritical>
+     ce6:	f244 26e0 	movw	r6, #17120	@ 0x42e0
+     cea:	f2c2 0600 	movt	r6, #8192	@ 0x2000
+     cee:	b934      	cbnz	r4, cfe <vTaskDelete+0x22>
+     cf0:	6834      	ldr	r4, [r6, #0]
+     cf2:	b924      	cbnz	r4, cfe <vTaskDelete+0x22>
+     cf4:	f640 00b2 	movw	r0, #2226	@ 0x8b2
+     cf8:	f7ff fda4 	bl	844 <fc_fail>
+     cfc:	2400      	movs	r4, #0
+     cfe:	1d25      	adds	r5, r4, #4
+     d00:	4628      	mov	r0, r5
+     d02:	f001 faf9 	bl	22f8 <uxListRemove>
+     d06:	f644 37c4 	movw	r7, #19396	@ 0x4bc4
+     d0a:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+     d0e:	b980      	cbnz	r0, d32 <vTaskDelete+0x56>
+     d10:	6ae0      	ldr	r0, [r4, #44]	@ 0x2c
+     d12:	f244 22e4 	movw	r2, #17124	@ 0x42e4
+     d16:	ebc0 01c0 	rsb	r1, r0, r0, lsl #3
+     d1a:	f2c2 0200 	movt	r2, #8192	@ 0x2000
+     d1e:	f852 1021 	ldr.w	r1, [r2, r1, lsl #2]
+     d22:	b931      	cbnz	r1, d32 <vTaskDelete+0x56>
+     d24:	2101      	movs	r1, #1
+     d26:	683a      	ldr	r2, [r7, #0]
+     d28:	fa01 f000 	lsl.w	r0, r1, r0
+     d2c:	ea22 0000 	bic.w	r0, r2, r0
+     d30:	6038      	str	r0, [r7, #0]
+     d32:	6aa0      	ldr	r0, [r4, #40]	@ 0x28
+     d34:	b118      	cbz	r0, d3e <vTaskDelete+0x62>
+     d36:	f104 0018 	add.w	r0, r4, #24
+     d3a:	f001 fadd 	bl	22f8 <uxListRemove>
+     d3e:	6878      	ldr	r0, [r7, #4]
+     d40:	3001      	adds	r0, #1
+     d42:	6078      	str	r0, [r7, #4]
+     d44:	6830      	ldr	r0, [r6, #0]
+     d46:	68b9      	ldr	r1, [r7, #8]
+     d48:	b181      	cbz	r1, d6c <vTaskDelete+0x90>
+     d4a:	4284      	cmp	r4, r0
+     d4c:	d10e      	bne.n	d6c <vTaskDelete+0x90>
+     d4e:	f107 0038 	add.w	r0, r7, #56	@ 0x38
+     d52:	4629      	mov	r1, r5
+     d54:	f001 fa92 	bl	227c <vListInsertEnd>
+     d58:	68f8      	ldr	r0, [r7, #12]
+     d5a:	3001      	adds	r0, #1
+     d5c:	60f8      	str	r0, [r7, #12]
+     d5e:	f001 fc77 	bl	2650 <vPortExitCritical>
+     d62:	68b8      	ldr	r0, [r7, #8]
+     d64:	b9a0      	cbnz	r0, d90 <vTaskDelete+0xb4>
+     d66:	b001      	add	sp, #4
+     d68:	bdf0      	pop	{r4, r5, r6, r7, pc}
+     d6a:	bf00      	nop
+     d6c:	6938      	ldr	r0, [r7, #16]
+     d6e:	3801      	subs	r0, #1
+     d70:	6138      	str	r0, [r7, #16]
+     d72:	6af8      	ldr	r0, [r7, #44]	@ 0x2c
+     d74:	6800      	ldr	r0, [r0, #0]
+     d76:	b118      	cbz	r0, d80 <vTaskDelete+0xa4>
+     d78:	6af8      	ldr	r0, [r7, #44]	@ 0x2c
+     d7a:	68c0      	ldr	r0, [r0, #12]
+     d7c:	6800      	ldr	r0, [r0, #0]
+     d7e:	e001      	b.n	d84 <vTaskDelete+0xa8>
+     d80:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+     d84:	61f8      	str	r0, [r7, #28]
+     d86:	f001 fc63 	bl	2650 <vPortExitCritical>
+     d8a:	68b8      	ldr	r0, [r7, #8]
+     d8c:	2800      	cmp	r0, #0
+     d8e:	d0ea      	beq.n	d66 <vTaskDelete+0x8a>
+     d90:	6830      	ldr	r0, [r6, #0]
+     d92:	4284      	cmp	r4, r0
+     d94:	d1e7      	bne.n	d66 <vTaskDelete+0x8a>
+     d96:	6978      	ldr	r0, [r7, #20]
+     d98:	b118      	cbz	r0, da2 <vTaskDelete+0xc6>
+     d9a:	f640 102b 	movw	r0, #2347	@ 0x92b
+     d9e:	f7ff fd51 	bl	844 <fc_fail>
+     da2:	f64e 5004 	movw	r0, #60676	@ 0xed04
+     da6:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+     daa:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+     dae:	6001      	str	r1, [r0, #0]
+     db0:	f3bf 8f4f 	dsb	sy
+     db4:	f3bf 8f6f 	isb	sy
+     db8:	b001      	add	sp, #4
+     dba:	bdf0      	pop	{r4, r5, r6, r7, pc}
+
+00000dbc <vTaskSuspendAll>:
+     dbc:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+     dc0:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+     dc4:	6941      	ldr	r1, [r0, #20]
+     dc6:	3101      	adds	r1, #1
+     dc8:	6141      	str	r1, [r0, #20]
+     dca:	4770      	bx	lr
+
+00000dcc <prvAddCurrentTaskToDelayedList>:
+     dcc:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+     dd0:	f644 34c4 	movw	r4, #19396	@ 0x4bc4
+     dd4:	f244 25e0 	movw	r5, #17120	@ 0x42e0
+     dd8:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+     ddc:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+     de0:	460e      	mov	r6, r1
+     de2:	f8d4 a020 	ldr.w	sl, [r4, #32]
+     de6:	f8d4 802c 	ldr.w	r8, [r4, #44]	@ 0x2c
+     dea:	f8d4 9030 	ldr.w	r9, [r4, #48]	@ 0x30
+     dee:	6829      	ldr	r1, [r5, #0]
+     df0:	4607      	mov	r7, r0
+     df2:	1d08      	adds	r0, r1, #4
+     df4:	f001 fa80 	bl	22f8 <uxListRemove>
+     df8:	b110      	cbz	r0, e00 <prvAddCurrentTaskToDelayedList+0x34>
+     dfa:	1c78      	adds	r0, r7, #1
+     dfc:	d00b      	beq.n	e16 <prvAddCurrentTaskToDelayedList+0x4a>
+     dfe:	e01f      	b.n	e40 <prvAddCurrentTaskToDelayedList+0x74>
+     e00:	6828      	ldr	r0, [r5, #0]
+     e02:	2101      	movs	r1, #1
+     e04:	6ac0      	ldr	r0, [r0, #44]	@ 0x2c
+     e06:	6822      	ldr	r2, [r4, #0]
+     e08:	fa01 f000 	lsl.w	r0, r1, r0
+     e0c:	ea22 0000 	bic.w	r0, r2, r0
+     e10:	6020      	str	r0, [r4, #0]
+     e12:	1c78      	adds	r0, r7, #1
+     e14:	d114      	bne.n	e40 <prvAddCurrentTaskToDelayedList+0x74>
+     e16:	b19e      	cbz	r6, e40 <prvAddCurrentTaskToDelayedList+0x74>
+     e18:	f854 0f54 	ldr.w	r0, [r4, #84]!
+     e1c:	6861      	ldr	r1, [r4, #4]
+     e1e:	682a      	ldr	r2, [r5, #0]
+     e20:	3001      	adds	r0, #1
+     e22:	6091      	str	r1, [r2, #8]
+     e24:	688a      	ldr	r2, [r1, #8]
+     e26:	682b      	ldr	r3, [r5, #0]
+     e28:	60da      	str	r2, [r3, #12]
+     e2a:	682b      	ldr	r3, [r5, #0]
+     e2c:	3304      	adds	r3, #4
+     e2e:	6053      	str	r3, [r2, #4]
+     e30:	682a      	ldr	r2, [r5, #0]
+     e32:	3204      	adds	r2, #4
+     e34:	608a      	str	r2, [r1, #8]
+     e36:	6829      	ldr	r1, [r5, #0]
+     e38:	6020      	str	r0, [r4, #0]
+     e3a:	614c      	str	r4, [r1, #20]
+     e3c:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+     e40:	6828      	ldr	r0, [r5, #0]
+     e42:	eb1a 0607 	adds.w	r6, sl, r7
+     e46:	6046      	str	r6, [r0, #4]
+     e48:	6828      	ldr	r0, [r5, #0]
+     e4a:	f100 0104 	add.w	r1, r0, #4
+     e4e:	d305      	bcc.n	e5c <prvAddCurrentTaskToDelayedList+0x90>
+     e50:	4648      	mov	r0, r9
+     e52:	e8bd 47f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+     e56:	f001 ba1d 	b.w	2294 <vListInsert>
+     e5a:	bf00      	nop
+     e5c:	4640      	mov	r0, r8
+     e5e:	f001 fa19 	bl	2294 <vListInsert>
+     e62:	69e0      	ldr	r0, [r4, #28]
+     e64:	4286      	cmp	r6, r0
+     e66:	bf38      	it	cc
+     e68:	61e6      	strcc	r6, [r4, #28]
+     e6a:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+	...
+
+00000e70 <xTaskResumeAll>:
+     e70:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+     e74:	f001 fbcc 	bl	2610 <vPortEnterCritical>
+     e78:	f644 3ac4 	movw	sl, #19396	@ 0x4bc4
+     e7c:	f2c2 0a00 	movt	sl, #8192	@ 0x2000
+     e80:	f8da 0014 	ldr.w	r0, [sl, #20]
+     e84:	b918      	cbnz	r0, e8e <xTaskResumeAll+0x1e>
+     e86:	f640 70c1 	movw	r0, #4033	@ 0xfc1
+     e8a:	f7ff fcdb 	bl	844 <fc_fail>
+     e8e:	f8da 0014 	ldr.w	r0, [sl, #20]
+     e92:	3801      	subs	r0, #1
+     e94:	f8ca 0014 	str.w	r0, [sl, #20]
+     e98:	f8da 0014 	ldr.w	r0, [sl, #20]
+     e9c:	b130      	cbz	r0, eac <xTaskResumeAll+0x3c>
+     e9e:	2400      	movs	r4, #0
+     ea0:	f001 fbd6 	bl	2650 <vPortExitCritical>
+     ea4:	4620      	mov	r0, r4
+     ea6:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+     eaa:	bf00      	nop
+     eac:	f8da 0010 	ldr.w	r0, [sl, #16]
+     eb0:	2800      	cmp	r0, #0
+     eb2:	d0f4      	beq.n	e9e <xTaskResumeAll+0x2e>
+     eb4:	f644 4934 	movw	r9, #19508	@ 0x4c34
+     eb8:	f2c2 0900 	movt	r9, #8192	@ 0x2000
+     ebc:	f8d9 1000 	ldr.w	r1, [r9]
+     ec0:	f244 28e0 	movw	r8, #17120	@ 0x42e0
+     ec4:	2900      	cmp	r1, #0
+     ec6:	f2c2 0800 	movt	r8, #8192	@ 0x2000
+     eca:	d057      	beq.n	f7c <xTaskResumeAll+0x10c>
+     ecc:	f244 23e4 	movw	r3, #17124	@ 0x42e4
+     ed0:	f04f 0c00 	mov.w	ip, #0
+     ed4:	f04f 0e01 	mov.w	lr, #1
+     ed8:	f2c2 0300 	movt	r3, #8192	@ 0x2000
+     edc:	f8d9 100c 	ldr.w	r1, [r9, #12]
+     ee0:	68cd      	ldr	r5, [r1, #12]
+     ee2:	6aae      	ldr	r6, [r5, #40]	@ 0x28
+     ee4:	e9d5 0707 	ldrd	r0, r7, [r5, #28]
+     ee8:	6872      	ldr	r2, [r6, #4]
+     eea:	f105 0118 	add.w	r1, r5, #24
+     eee:	428a      	cmp	r2, r1
+     ef0:	6087      	str	r7, [r0, #8]
+     ef2:	6078      	str	r0, [r7, #4]
+     ef4:	bf08      	it	eq
+     ef6:	6077      	streq	r7, [r6, #4]
+     ef8:	6830      	ldr	r0, [r6, #0]
+     efa:	f8c5 c028 	str.w	ip, [r5, #40]	@ 0x28
+     efe:	3801      	subs	r0, #1
+     f00:	6030      	str	r0, [r6, #0]
+     f02:	696f      	ldr	r7, [r5, #20]
+     f04:	e9d5 2102 	ldrd	r2, r1, [r5, #8]
+     f08:	6878      	ldr	r0, [r7, #4]
+     f0a:	1d2e      	adds	r6, r5, #4
+     f0c:	42b0      	cmp	r0, r6
+     f0e:	6091      	str	r1, [r2, #8]
+     f10:	604a      	str	r2, [r1, #4]
+     f12:	bf08      	it	eq
+     f14:	6079      	streq	r1, [r7, #4]
+     f16:	6838      	ldr	r0, [r7, #0]
+     f18:	3801      	subs	r0, #1
+     f1a:	6038      	str	r0, [r7, #0]
+     f1c:	6ae8      	ldr	r0, [r5, #44]	@ 0x2c
+     f1e:	f8da 1000 	ldr.w	r1, [sl]
+     f22:	fa0e f200 	lsl.w	r2, lr, r0
+     f26:	4311      	orrs	r1, r2
+     f28:	f8ca 1000 	str.w	r1, [sl]
+     f2c:	ebc0 01c0 	rsb	r1, r0, r0, lsl #3
+     f30:	eb03 0281 	add.w	r2, r3, r1, lsl #2
+     f34:	6857      	ldr	r7, [r2, #4]
+     f36:	616a      	str	r2, [r5, #20]
+     f38:	68bc      	ldr	r4, [r7, #8]
+     f3a:	e9c5 7402 	strd	r7, r4, [r5, #8]
+     f3e:	6066      	str	r6, [r4, #4]
+     f40:	f853 4021 	ldr.w	r4, [r3, r1, lsl #2]
+     f44:	60be      	str	r6, [r7, #8]
+     f46:	1c62      	adds	r2, r4, #1
+     f48:	f843 2021 	str.w	r2, [r3, r1, lsl #2]
+     f4c:	f8d8 1000 	ldr.w	r1, [r8]
+     f50:	6ac9      	ldr	r1, [r1, #44]	@ 0x2c
+     f52:	4288      	cmp	r0, r1
+     f54:	bf88      	it	hi
+     f56:	f8ca e018 	strhi.w	lr, [sl, #24]
+     f5a:	f8d9 0000 	ldr.w	r0, [r9]
+     f5e:	2800      	cmp	r0, #0
+     f60:	d1bc      	bne.n	edc <xTaskResumeAll+0x6c>
+     f62:	f8da 002c 	ldr.w	r0, [sl, #44]	@ 0x2c
+     f66:	6800      	ldr	r0, [r0, #0]
+     f68:	b120      	cbz	r0, f74 <xTaskResumeAll+0x104>
+     f6a:	f8da 002c 	ldr.w	r0, [sl, #44]	@ 0x2c
+     f6e:	68c0      	ldr	r0, [r0, #12]
+     f70:	6800      	ldr	r0, [r0, #0]
+     f72:	e001      	b.n	f78 <xTaskResumeAll+0x108>
+     f74:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+     f78:	f8ca 001c 	str.w	r0, [sl, #28]
+     f7c:	f8da 5028 	ldr.w	r5, [sl, #40]	@ 0x28
+     f80:	b15d      	cbz	r5, f9a <xTaskResumeAll+0x12a>
+     f82:	2601      	movs	r6, #1
+     f84:	f000 f8ac 	bl	10e0 <xTaskIncrementTick>
+     f88:	2800      	cmp	r0, #0
+     f8a:	bf18      	it	ne
+     f8c:	f8ca 6018 	strne.w	r6, [sl, #24]
+     f90:	3d01      	subs	r5, #1
+     f92:	d1f7      	bne.n	f84 <xTaskResumeAll+0x114>
+     f94:	2000      	movs	r0, #0
+     f96:	f8ca 0028 	str.w	r0, [sl, #40]	@ 0x28
+     f9a:	f8da 0018 	ldr.w	r0, [sl, #24]
+     f9e:	2800      	cmp	r0, #0
+     fa0:	f43f af7d 	beq.w	e9e <xTaskResumeAll+0x2e>
+     fa4:	f8d8 0000 	ldr.w	r0, [r8]
+     fa8:	f64e 5004 	movw	r0, #60676	@ 0xed04
+     fac:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+     fb0:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+     fb4:	6001      	str	r1, [r0, #0]
+     fb6:	f3bf 8f4f 	dsb	sy
+     fba:	2401      	movs	r4, #1
+     fbc:	f3bf 8f6f 	isb	sy
+     fc0:	f001 fb46 	bl	2650 <vPortExitCritical>
+     fc4:	4620      	mov	r0, r4
+     fc6:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+	...
+
+00000fcc <uxTaskPriorityGet>:
+     fcc:	b510      	push	{r4, lr}
+     fce:	4604      	mov	r4, r0
+     fd0:	f001 fb1e 	bl	2610 <vPortEnterCritical>
+     fd4:	b92c      	cbnz	r4, fe2 <uxTaskPriorityGet+0x16>
+     fd6:	f244 20e0 	movw	r0, #17120	@ 0x42e0
+     fda:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+     fde:	6804      	ldr	r4, [r0, #0]
+     fe0:	b124      	cbz	r4, fec <uxTaskPriorityGet+0x20>
+     fe2:	6ae4      	ldr	r4, [r4, #44]	@ 0x2c
+     fe4:	f001 fb34 	bl	2650 <vPortExitCritical>
+     fe8:	4620      	mov	r0, r4
+     fea:	bd10      	pop	{r4, pc}
+     fec:	f640 205c 	movw	r0, #2652	@ 0xa5c
+     ff0:	f7ff fc28 	bl	844 <fc_fail>
+
+00000ff4 <vTaskSwitchContext>:
+     ff4:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+     ff8:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+     ffc:	6941      	ldr	r1, [r0, #20]
+     ffe:	2900      	cmp	r1, #0
+    1000:	bf1e      	ittt	ne
+    1002:	2101      	movne	r1, #1
+    1004:	6181      	strne	r1, [r0, #24]
+    1006:	4770      	bxne	lr
+    1008:	b510      	push	{r4, lr}
+    100a:	2100      	movs	r1, #0
+    100c:	6181      	str	r1, [r0, #24]
+    100e:	6800      	ldr	r0, [r0, #0]
+    1010:	fab0 f080 	clz	r0, r0
+    1014:	b2c0      	uxtb	r0, r0
+    1016:	f1c0 001f 	rsb	r0, r0, #31
+    101a:	f244 21e4 	movw	r1, #17124	@ 0x42e4
+    101e:	ebc0 00c0 	rsb	r0, r0, r0, lsl #3
+    1022:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    1026:	f851 2020 	ldr.w	r2, [r1, r0, lsl #2]
+    102a:	eb01 0480 	add.w	r4, r1, r0, lsl #2
+    102e:	b91a      	cbnz	r2, 1038 <vTaskSwitchContext+0x44>
+    1030:	f241 402f 	movw	r0, #5167	@ 0x142f
+    1034:	f7ff fc06 	bl	844 <fc_fail>
+    1038:	6860      	ldr	r0, [r4, #4]
+    103a:	f104 0108 	add.w	r1, r4, #8
+    103e:	6840      	ldr	r0, [r0, #4]
+    1040:	4288      	cmp	r0, r1
+    1042:	6060      	str	r0, [r4, #4]
+    1044:	d101      	bne.n	104a <vTaskSwitchContext+0x56>
+    1046:	68e0      	ldr	r0, [r4, #12]
+    1048:	6060      	str	r0, [r4, #4]
+    104a:	68c0      	ldr	r0, [r0, #12]
+    104c:	f244 21e0 	movw	r1, #17120	@ 0x42e0
+    1050:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    1054:	6008      	str	r0, [r1, #0]
+    1056:	6808      	ldr	r0, [r1, #0]
+    1058:	bd10      	pop	{r4, pc}
+	...
+
+0000105c <vTaskStartScheduler>:
+    105c:	b510      	push	{r4, lr}
+    105e:	b088      	sub	sp, #32
+    1060:	f244 4049 	movw	r0, #17481	@ 0x4449
+    1064:	f2c4 504c 	movt	r0, #17740	@ 0x454c
+    1068:	9004      	str	r0, [sp, #16]
+    106a:	f244 3070 	movw	r0, #17264	@ 0x4370
+    106e:	f244 31c4 	movw	r1, #17348	@ 0x43c4
+    1072:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1076:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    107a:	e9cd 1001 	strd	r1, r0, [sp, #4]
+    107e:	f641 0085 	movw	r0, #6277	@ 0x1885
+    1082:	2400      	movs	r4, #0
+    1084:	f2c0 0000 	movt	r0, #0
+    1088:	a904      	add	r1, sp, #16
+    108a:	f44f 7200 	mov.w	r2, #512	@ 0x200
+    108e:	2300      	movs	r3, #0
+    1090:	9407      	str	r4, [sp, #28]
+    1092:	f8cd 4019 	str.w	r4, [sp, #25]
+    1096:	f8cd 4015 	str.w	r4, [sp, #21]
+    109a:	f88d 4014 	strb.w	r4, [sp, #20]
+    109e:	9400      	str	r4, [sp, #0]
+    10a0:	f7ff fcfa 	bl	a98 <xTaskCreateStatic>
+    10a4:	f644 31c4 	movw	r1, #19396	@ 0x4bc4
+    10a8:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    10ac:	6248      	str	r0, [r1, #36]	@ 0x24
+    10ae:	b178      	cbz	r0, 10d0 <vTaskStartScheduler+0x74>
+    10b0:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    10b4:	f380 8811 	msr	BASEPRI, r0
+    10b8:	f3bf 8f6f 	isb	sy
+    10bc:	f3bf 8f4f 	dsb	sy
+    10c0:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+    10c4:	61c8      	str	r0, [r1, #28]
+    10c6:	2001      	movs	r0, #1
+    10c8:	6088      	str	r0, [r1, #8]
+    10ca:	620c      	str	r4, [r1, #32]
+    10cc:	f001 f968 	bl	23a0 <xPortStartScheduler>
+    10d0:	f642 0010 	movw	r0, #10256	@ 0x2810
+    10d4:	f2c0 0000 	movt	r0, #0
+    10d8:	6800      	ldr	r0, [r0, #0]
+    10da:	b008      	add	sp, #32
+    10dc:	bd10      	pop	{r4, pc}
+	...
+
+000010e0 <xTaskIncrementTick>:
+    10e0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    10e4:	b081      	sub	sp, #4
+    10e6:	f644 3bc4 	movw	fp, #19396	@ 0x4bc4
+    10ea:	f2c2 0b00 	movt	fp, #8192	@ 0x2000
+    10ee:	f8db 0014 	ldr.w	r0, [fp, #20]
+    10f2:	b148      	cbz	r0, 1108 <xTaskIncrementTick+0x28>
+    10f4:	f8db 0028 	ldr.w	r0, [fp, #40]	@ 0x28
+    10f8:	3001      	adds	r0, #1
+    10fa:	f8cb 0028 	str.w	r0, [fp, #40]	@ 0x28
+    10fe:	2000      	movs	r0, #0
+    1100:	b001      	add	sp, #4
+    1102:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1106:	bf00      	nop
+    1108:	f8db 0020 	ldr.w	r0, [fp, #32]
+    110c:	f110 0901 	adds.w	r9, r0, #1
+    1110:	f8cb 9020 	str.w	r9, [fp, #32]
+    1114:	d322      	bcc.n	115c <xTaskIncrementTick+0x7c>
+    1116:	f8db 002c 	ldr.w	r0, [fp, #44]	@ 0x2c
+    111a:	6800      	ldr	r0, [r0, #0]
+    111c:	b118      	cbz	r0, 1126 <xTaskIncrementTick+0x46>
+    111e:	f241 2092 	movw	r0, #4754	@ 0x1292
+    1122:	f7ff fb8f 	bl	844 <fc_fail>
+    1126:	f8db 002c 	ldr.w	r0, [fp, #44]	@ 0x2c
+    112a:	f8db 1030 	ldr.w	r1, [fp, #48]	@ 0x30
+    112e:	f8cb 102c 	str.w	r1, [fp, #44]	@ 0x2c
+    1132:	f8cb 0030 	str.w	r0, [fp, #48]	@ 0x30
+    1136:	f8db 0034 	ldr.w	r0, [fp, #52]	@ 0x34
+    113a:	3001      	adds	r0, #1
+    113c:	f8cb 0034 	str.w	r0, [fp, #52]	@ 0x34
+    1140:	f8db 002c 	ldr.w	r0, [fp, #44]	@ 0x2c
+    1144:	6800      	ldr	r0, [r0, #0]
+    1146:	b128      	cbz	r0, 1154 <xTaskIncrementTick+0x74>
+    1148:	f8db 002c 	ldr.w	r0, [fp, #44]	@ 0x2c
+    114c:	68c0      	ldr	r0, [r0, #12]
+    114e:	6800      	ldr	r0, [r0, #0]
+    1150:	e002      	b.n	1158 <xTaskIncrementTick+0x78>
+    1152:	bf00      	nop
+    1154:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+    1158:	f8cb 001c 	str.w	r0, [fp, #28]
+    115c:	f8db 001c 	ldr.w	r0, [fp, #28]
+    1160:	f244 2ee0 	movw	lr, #17120	@ 0x42e0
+    1164:	f244 2ae4 	movw	sl, #17124	@ 0x42e4
+    1168:	4581      	cmp	r9, r0
+    116a:	f2c2 0e00 	movt	lr, #8192	@ 0x2000
+    116e:	f2c2 0a00 	movt	sl, #8192	@ 0x2000
+    1172:	d201      	bcs.n	1178 <xTaskIncrementTick+0x98>
+    1174:	2000      	movs	r0, #0
+    1176:	e05d      	b.n	1234 <xTaskIncrementTick+0x154>
+    1178:	f8db 002c 	ldr.w	r0, [fp, #44]	@ 0x2c
+    117c:	f04f 0c00 	mov.w	ip, #0
+    1180:	6800      	ldr	r0, [r0, #0]
+    1182:	2800      	cmp	r0, #0
+    1184:	d04e      	beq.n	1224 <xTaskIncrementTick+0x144>
+    1186:	f04f 0801 	mov.w	r8, #1
+    118a:	2000      	movs	r0, #0
+    118c:	e022      	b.n	11d4 <xTaskIncrementTick+0xf4>
+    118e:	bf00      	nop
+    1190:	6ad1      	ldr	r1, [r2, #44]	@ 0x2c
+    1192:	f8db 3000 	ldr.w	r3, [fp]
+    1196:	fa08 f401 	lsl.w	r4, r8, r1
+    119a:	4323      	orrs	r3, r4
+    119c:	f8cb 3000 	str.w	r3, [fp]
+    11a0:	ebc1 03c1 	rsb	r3, r1, r1, lsl #3
+    11a4:	eb0a 0483 	add.w	r4, sl, r3, lsl #2
+    11a8:	6865      	ldr	r5, [r4, #4]
+    11aa:	6154      	str	r4, [r2, #20]
+    11ac:	68af      	ldr	r7, [r5, #8]
+    11ae:	e9c2 5702 	strd	r5, r7, [r2, #8]
+    11b2:	60ae      	str	r6, [r5, #8]
+    11b4:	f85a 5023 	ldr.w	r5, [sl, r3, lsl #2]
+    11b8:	607e      	str	r6, [r7, #4]
+    11ba:	1c6a      	adds	r2, r5, #1
+    11bc:	f84a 2023 	str.w	r2, [sl, r3, lsl #2]
+    11c0:	f8de 2000 	ldr.w	r2, [lr]
+    11c4:	6ad2      	ldr	r2, [r2, #44]	@ 0x2c
+    11c6:	f8db 302c 	ldr.w	r3, [fp, #44]	@ 0x2c
+    11ca:	4291      	cmp	r1, r2
+    11cc:	bf88      	it	hi
+    11ce:	2001      	movhi	r0, #1
+    11d0:	6819      	ldr	r1, [r3, #0]
+    11d2:	b359      	cbz	r1, 122c <xTaskIncrementTick+0x14c>
+    11d4:	f8db 202c 	ldr.w	r2, [fp, #44]	@ 0x2c
+    11d8:	68d2      	ldr	r2, [r2, #12]
+    11da:	68d2      	ldr	r2, [r2, #12]
+    11dc:	4616      	mov	r6, r2
+    11de:	f856 3f04 	ldr.w	r3, [r6, #4]!
+    11e2:	4599      	cmp	r9, r3
+    11e4:	d324      	bcc.n	1230 <xTaskIncrementTick+0x150>
+    11e6:	6953      	ldr	r3, [r2, #20]
+    11e8:	e9d2 5702 	ldrd	r5, r7, [r2, #8]
+    11ec:	6859      	ldr	r1, [r3, #4]
+    11ee:	60af      	str	r7, [r5, #8]
+    11f0:	42b1      	cmp	r1, r6
+    11f2:	607d      	str	r5, [r7, #4]
+    11f4:	bf08      	it	eq
+    11f6:	605f      	streq	r7, [r3, #4]
+    11f8:	6819      	ldr	r1, [r3, #0]
+    11fa:	6a97      	ldr	r7, [r2, #40]	@ 0x28
+    11fc:	3901      	subs	r1, #1
+    11fe:	2f00      	cmp	r7, #0
+    1200:	6019      	str	r1, [r3, #0]
+    1202:	d0c5      	beq.n	1190 <xTaskIncrementTick+0xb0>
+    1204:	e9d2 5307 	ldrd	r5, r3, [r2, #28]
+    1208:	687c      	ldr	r4, [r7, #4]
+    120a:	f102 0118 	add.w	r1, r2, #24
+    120e:	60ab      	str	r3, [r5, #8]
+    1210:	428c      	cmp	r4, r1
+    1212:	605d      	str	r5, [r3, #4]
+    1214:	bf08      	it	eq
+    1216:	607b      	streq	r3, [r7, #4]
+    1218:	6839      	ldr	r1, [r7, #0]
+    121a:	f8c2 c028 	str.w	ip, [r2, #40]	@ 0x28
+    121e:	3901      	subs	r1, #1
+    1220:	6039      	str	r1, [r7, #0]
+    1222:	e7b5      	b.n	1190 <xTaskIncrementTick+0xb0>
+    1224:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+    1228:	2000      	movs	r0, #0
+    122a:	e001      	b.n	1230 <xTaskIncrementTick+0x150>
+    122c:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+    1230:	f8cb 301c 	str.w	r3, [fp, #28]
+    1234:	f8de 1000 	ldr.w	r1, [lr]
+    1238:	6ac9      	ldr	r1, [r1, #44]	@ 0x2c
+    123a:	ebc1 01c1 	rsb	r1, r1, r1, lsl #3
+    123e:	f85a 1021 	ldr.w	r1, [sl, r1, lsl #2]
+    1242:	2901      	cmp	r1, #1
+    1244:	bf88      	it	hi
+    1246:	2001      	movhi	r0, #1
+    1248:	f8db 1018 	ldr.w	r1, [fp, #24]
+    124c:	2900      	cmp	r1, #0
+    124e:	bf18      	it	ne
+    1250:	2001      	movne	r0, #1
+    1252:	b001      	add	sp, #4
+    1254:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+00001258 <xTaskGetTickCount>:
+    1258:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    125c:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1260:	6a00      	ldr	r0, [r0, #32]
+    1262:	4770      	bx	lr
+
+00001264 <uxTaskGetNumberOfTasks>:
+    1264:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    1268:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    126c:	6900      	ldr	r0, [r0, #16]
+    126e:	4770      	bx	lr
+
+00001270 <vTaskPlaceOnEventList>:
+    1270:	b5b0      	push	{r4, r5, r7, lr}
+    1272:	460c      	mov	r4, r1
+    1274:	b928      	cbnz	r0, 1282 <vTaskPlaceOnEventList+0x12>
+    1276:	4605      	mov	r5, r0
+    1278:	f241 40b5 	movw	r0, #5301	@ 0x14b5
+    127c:	f7ff fae2 	bl	844 <fc_fail>
+    1280:	4628      	mov	r0, r5
+    1282:	f244 21e0 	movw	r1, #17120	@ 0x42e0
+    1286:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    128a:	6809      	ldr	r1, [r1, #0]
+    128c:	3118      	adds	r1, #24
+    128e:	f001 f801 	bl	2294 <vListInsert>
+    1292:	4620      	mov	r0, r4
+    1294:	2101      	movs	r1, #1
+    1296:	e8bd 40b0 	ldmia.w	sp!, {r4, r5, r7, lr}
+    129a:	f7ff bd97 	b.w	dcc <prvAddCurrentTaskToDelayedList>
+	...
+
+000012a0 <xTaskRemoveFromEventList>:
+    12a0:	b570      	push	{r4, r5, r6, lr}
+    12a2:	68c0      	ldr	r0, [r0, #12]
+    12a4:	68c4      	ldr	r4, [r0, #12]
+    12a6:	b91c      	cbnz	r4, 12b0 <xTaskRemoveFromEventList+0x10>
+    12a8:	f241 502a 	movw	r0, #5418	@ 0x152a
+    12ac:	f7ff faca 	bl	844 <fc_fail>
+    12b0:	6aa1      	ldr	r1, [r4, #40]	@ 0x28
+    12b2:	e9d4 3207 	ldrd	r3, r2, [r4, #28]
+    12b6:	6848      	ldr	r0, [r1, #4]
+    12b8:	f104 0c18 	add.w	ip, r4, #24
+    12bc:	609a      	str	r2, [r3, #8]
+    12be:	4560      	cmp	r0, ip
+    12c0:	6053      	str	r3, [r2, #4]
+    12c2:	bf08      	it	eq
+    12c4:	604a      	streq	r2, [r1, #4]
+    12c6:	680a      	ldr	r2, [r1, #0]
+    12c8:	2000      	movs	r0, #0
+    12ca:	62a0      	str	r0, [r4, #40]	@ 0x28
+    12cc:	1e50      	subs	r0, r2, #1
+    12ce:	f644 3ec4 	movw	lr, #19396	@ 0x4bc4
+    12d2:	6008      	str	r0, [r1, #0]
+    12d4:	f2c2 0e00 	movt	lr, #8192	@ 0x2000
+    12d8:	f8de 0014 	ldr.w	r0, [lr, #20]
+    12dc:	b190      	cbz	r0, 1304 <xTaskRemoveFromEventList+0x64>
+    12de:	f644 4034 	movw	r0, #19508	@ 0x4c34
+    12e2:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    12e6:	e9d0 1200 	ldrd	r1, r2, [r0]
+    12ea:	62a0      	str	r0, [r4, #40]	@ 0x28
+    12ec:	6893      	ldr	r3, [r2, #8]
+    12ee:	3101      	adds	r1, #1
+    12f0:	e9c4 2307 	strd	r2, r3, [r4, #28]
+    12f4:	f8c2 c008 	str.w	ip, [r2, #8]
+    12f8:	6ae2      	ldr	r2, [r4, #44]	@ 0x2c
+    12fa:	f8c3 c004 	str.w	ip, [r3, #4]
+    12fe:	6001      	str	r1, [r0, #0]
+    1300:	e02c      	b.n	135c <xTaskRemoveFromEventList+0xbc>
+    1302:	bf00      	nop
+    1304:	6962      	ldr	r2, [r4, #20]
+    1306:	e9d4 1302 	ldrd	r1, r3, [r4, #8]
+    130a:	6850      	ldr	r0, [r2, #4]
+    130c:	f104 0c04 	add.w	ip, r4, #4
+    1310:	608b      	str	r3, [r1, #8]
+    1312:	4560      	cmp	r0, ip
+    1314:	6059      	str	r1, [r3, #4]
+    1316:	bf08      	it	eq
+    1318:	6053      	streq	r3, [r2, #4]
+    131a:	6810      	ldr	r0, [r2, #0]
+    131c:	3801      	subs	r0, #1
+    131e:	6010      	str	r0, [r2, #0]
+    1320:	6ae2      	ldr	r2, [r4, #44]	@ 0x2c
+    1322:	2001      	movs	r0, #1
+    1324:	f8de 1000 	ldr.w	r1, [lr]
+    1328:	4090      	lsls	r0, r2
+    132a:	4308      	orrs	r0, r1
+    132c:	f244 21e4 	movw	r1, #17124	@ 0x42e4
+    1330:	f8ce 0000 	str.w	r0, [lr]
+    1334:	ebc2 00c2 	rsb	r0, r2, r2, lsl #3
+    1338:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    133c:	eb01 0380 	add.w	r3, r1, r0, lsl #2
+    1340:	685d      	ldr	r5, [r3, #4]
+    1342:	6163      	str	r3, [r4, #20]
+    1344:	68ae      	ldr	r6, [r5, #8]
+    1346:	e9c4 5602 	strd	r5, r6, [r4, #8]
+    134a:	f8c6 c004 	str.w	ip, [r6, #4]
+    134e:	f851 6020 	ldr.w	r6, [r1, r0, lsl #2]
+    1352:	f8c5 c008 	str.w	ip, [r5, #8]
+    1356:	1c73      	adds	r3, r6, #1
+    1358:	f841 3020 	str.w	r3, [r1, r0, lsl #2]
+    135c:	f244 20e0 	movw	r0, #17120	@ 0x42e0
+    1360:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1364:	6800      	ldr	r0, [r0, #0]
+    1366:	6ac0      	ldr	r0, [r0, #44]	@ 0x2c
+    1368:	4282      	cmp	r2, r0
+    136a:	bf92      	itee	ls
+    136c:	2000      	movls	r0, #0
+    136e:	2001      	movhi	r0, #1
+    1370:	f8ce 0018 	strhi.w	r0, [lr, #24]
+    1374:	bd70      	pop	{r4, r5, r6, pc}
+	...
+
+00001378 <vTaskInternalSetTimeOutState>:
+    1378:	f644 31c4 	movw	r1, #19396	@ 0x4bc4
+    137c:	f2c2 0100 	movt	r1, #8192	@ 0x2000
+    1380:	6b4a      	ldr	r2, [r1, #52]	@ 0x34
+    1382:	6002      	str	r2, [r0, #0]
+    1384:	6a09      	ldr	r1, [r1, #32]
+    1386:	6041      	str	r1, [r0, #4]
+    1388:	4770      	bx	lr
+	...
+
+0000138c <xTaskCheckForTimeOut>:
+    138c:	b570      	push	{r4, r5, r6, lr}
+    138e:	4606      	mov	r6, r0
+    1390:	460d      	mov	r5, r1
+    1392:	b358      	cbz	r0, 13ec <xTaskCheckForTimeOut+0x60>
+    1394:	b385      	cbz	r5, 13f8 <xTaskCheckForTimeOut+0x6c>
+    1396:	f001 f93b 	bl	2610 <vPortEnterCritical>
+    139a:	f644 3cc4 	movw	ip, #19396	@ 0x4bc4
+    139e:	f2c2 0c00 	movt	ip, #8192	@ 0x2000
+    13a2:	f8dc 2020 	ldr.w	r2, [ip, #32]
+    13a6:	6829      	ldr	r1, [r5, #0]
+    13a8:	1c4b      	adds	r3, r1, #1
+    13aa:	d02b      	beq.n	1404 <xTaskCheckForTimeOut+0x78>
+    13ac:	e9d6 0300 	ldrd	r0, r3, [r6]
+    13b0:	f8dc 4034 	ldr.w	r4, [ip, #52]	@ 0x34
+    13b4:	4284      	cmp	r4, r0
+    13b6:	d001      	beq.n	13bc <xTaskCheckForTimeOut+0x30>
+    13b8:	429a      	cmp	r2, r3
+    13ba:	d20f      	bcs.n	13dc <xTaskCheckForTimeOut+0x50>
+    13bc:	1ad2      	subs	r2, r2, r3
+    13be:	4291      	cmp	r1, r2
+    13c0:	d90c      	bls.n	13dc <xTaskCheckForTimeOut+0x50>
+    13c2:	1a88      	subs	r0, r1, r2
+    13c4:	6028      	str	r0, [r5, #0]
+    13c6:	f8dc 0034 	ldr.w	r0, [ip, #52]	@ 0x34
+    13ca:	2400      	movs	r4, #0
+    13cc:	6030      	str	r0, [r6, #0]
+    13ce:	f8dc 0020 	ldr.w	r0, [ip, #32]
+    13d2:	6070      	str	r0, [r6, #4]
+    13d4:	f001 f93c 	bl	2650 <vPortExitCritical>
+    13d8:	4620      	mov	r0, r4
+    13da:	bd70      	pop	{r4, r5, r6, pc}
+    13dc:	2000      	movs	r0, #0
+    13de:	2401      	movs	r4, #1
+    13e0:	6028      	str	r0, [r5, #0]
+    13e2:	f001 f935 	bl	2650 <vPortExitCritical>
+    13e6:	4620      	mov	r0, r4
+    13e8:	bd70      	pop	{r4, r5, r6, pc}
+    13ea:	bf00      	nop
+    13ec:	f241 50da 	movw	r0, #5594	@ 0x15da
+    13f0:	f7ff fa28 	bl	844 <fc_fail>
+    13f4:	2d00      	cmp	r5, #0
+    13f6:	d1ce      	bne.n	1396 <xTaskCheckForTimeOut+0xa>
+    13f8:	f241 50db 	movw	r0, #5595	@ 0x15db
+    13fc:	f7ff fa22 	bl	844 <fc_fail>
+    1400:	e7c9      	b.n	1396 <xTaskCheckForTimeOut+0xa>
+    1402:	bf00      	nop
+    1404:	2400      	movs	r4, #0
+    1406:	f001 f923 	bl	2650 <vPortExitCritical>
+    140a:	4620      	mov	r0, r4
+    140c:	bd70      	pop	{r4, r5, r6, pc}
+	...
+
+00001410 <vTaskMissedYield>:
+    1410:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    1414:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1418:	2101      	movs	r1, #1
+    141a:	6181      	str	r1, [r0, #24]
+    141c:	4770      	bx	lr
+	...
+
+00001420 <xTaskGetSchedulerState>:
+    1420:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    1424:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1428:	6881      	ldr	r1, [r0, #8]
+    142a:	2900      	cmp	r1, #0
+    142c:	bf04      	itt	eq
+    142e:	2001      	moveq	r0, #1
+    1430:	4770      	bxeq	lr
+    1432:	6940      	ldr	r0, [r0, #20]
+    1434:	2800      	cmp	r0, #0
+    1436:	f04f 0000 	mov.w	r0, #0
+    143a:	bf08      	it	eq
+    143c:	2002      	moveq	r0, #2
+    143e:	4770      	bx	lr
+
+00001440 <xTaskPriorityInherit>:
+    1440:	2800      	cmp	r0, #0
+    1442:	bf04      	itt	eq
+    1444:	2000      	moveq	r0, #0
+    1446:	4770      	bxeq	lr
+    1448:	b5f0      	push	{r4, r5, r6, r7, lr}
+    144a:	b081      	sub	sp, #4
+    144c:	f244 25e0 	movw	r5, #17120	@ 0x42e0
+    1450:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+    1454:	6ac1      	ldr	r1, [r0, #44]	@ 0x2c
+    1456:	682a      	ldr	r2, [r5, #0]
+    1458:	6ad2      	ldr	r2, [r2, #44]	@ 0x2c
+    145a:	4291      	cmp	r1, r2
+    145c:	d218      	bcs.n	1490 <xTaskPriorityInherit+0x50>
+    145e:	6982      	ldr	r2, [r0, #24]
+    1460:	2a00      	cmp	r2, #0
+    1462:	d404      	bmi.n	146e <xTaskPriorityInherit+0x2e>
+    1464:	682a      	ldr	r2, [r5, #0]
+    1466:	6ad2      	ldr	r2, [r2, #44]	@ 0x2c
+    1468:	f1c2 0205 	rsb	r2, r2, #5
+    146c:	6182      	str	r2, [r0, #24]
+    146e:	f244 26e4 	movw	r6, #17124	@ 0x42e4
+    1472:	6942      	ldr	r2, [r0, #20]
+    1474:	ebc1 01c1 	rsb	r1, r1, r1, lsl #3
+    1478:	f2c2 0600 	movt	r6, #8192	@ 0x2000
+    147c:	eb06 0181 	add.w	r1, r6, r1, lsl #2
+    1480:	428a      	cmp	r2, r1
+    1482:	d00f      	beq.n	14a4 <xTaskPriorityInherit+0x64>
+    1484:	6829      	ldr	r1, [r5, #0]
+    1486:	6ac9      	ldr	r1, [r1, #44]	@ 0x2c
+    1488:	62c1      	str	r1, [r0, #44]	@ 0x2c
+    148a:	2001      	movs	r0, #1
+    148c:	b001      	add	sp, #4
+    148e:	bdf0      	pop	{r4, r5, r6, r7, pc}
+    1490:	6c40      	ldr	r0, [r0, #68]	@ 0x44
+    1492:	6829      	ldr	r1, [r5, #0]
+    1494:	6ac9      	ldr	r1, [r1, #44]	@ 0x2c
+    1496:	4288      	cmp	r0, r1
+    1498:	f04f 0000 	mov.w	r0, #0
+    149c:	bf38      	it	cc
+    149e:	2001      	movcc	r0, #1
+    14a0:	b001      	add	sp, #4
+    14a2:	bdf0      	pop	{r4, r5, r6, r7, pc}
+    14a4:	1d04      	adds	r4, r0, #4
+    14a6:	4607      	mov	r7, r0
+    14a8:	4620      	mov	r0, r4
+    14aa:	f000 ff25 	bl	22f8 <uxListRemove>
+    14ae:	f644 32c4 	movw	r2, #19396	@ 0x4bc4
+    14b2:	4639      	mov	r1, r7
+    14b4:	f2c2 0200 	movt	r2, #8192	@ 0x2000
+    14b8:	b938      	cbnz	r0, 14ca <xTaskPriorityInherit+0x8a>
+    14ba:	6ac8      	ldr	r0, [r1, #44]	@ 0x2c
+    14bc:	2301      	movs	r3, #1
+    14be:	6817      	ldr	r7, [r2, #0]
+    14c0:	fa03 f000 	lsl.w	r0, r3, r0
+    14c4:	ea27 0000 	bic.w	r0, r7, r0
+    14c8:	6010      	str	r0, [r2, #0]
+    14ca:	6828      	ldr	r0, [r5, #0]
+    14cc:	6ac3      	ldr	r3, [r0, #44]	@ 0x2c
+    14ce:	2001      	movs	r0, #1
+    14d0:	62cb      	str	r3, [r1, #44]	@ 0x2c
+    14d2:	6817      	ldr	r7, [r2, #0]
+    14d4:	fa00 f503 	lsl.w	r5, r0, r3
+    14d8:	432f      	orrs	r7, r5
+    14da:	6017      	str	r7, [r2, #0]
+    14dc:	ebc3 02c3 	rsb	r2, r3, r3, lsl #3
+    14e0:	eb06 0382 	add.w	r3, r6, r2, lsl #2
+    14e4:	685f      	ldr	r7, [r3, #4]
+    14e6:	614b      	str	r3, [r1, #20]
+    14e8:	68bd      	ldr	r5, [r7, #8]
+    14ea:	e9c1 7502 	strd	r7, r5, [r1, #8]
+    14ee:	60bc      	str	r4, [r7, #8]
+    14f0:	f856 7022 	ldr.w	r7, [r6, r2, lsl #2]
+    14f4:	606c      	str	r4, [r5, #4]
+    14f6:	1c79      	adds	r1, r7, #1
+    14f8:	f846 1022 	str.w	r1, [r6, r2, lsl #2]
+    14fc:	b001      	add	sp, #4
+    14fe:	bdf0      	pop	{r4, r5, r6, r7, pc}
+
+00001500 <xTaskPriorityDisinherit>:
+    1500:	2800      	cmp	r0, #0
+    1502:	bf04      	itt	eq
+    1504:	2000      	moveq	r0, #0
+    1506:	4770      	bxeq	lr
+    1508:	b570      	push	{r4, r5, r6, lr}
+    150a:	4604      	mov	r4, r0
+    150c:	f244 20e0 	movw	r0, #17120	@ 0x42e0
+    1510:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1514:	6800      	ldr	r0, [r0, #0]
+    1516:	4284      	cmp	r4, r0
+    1518:	d003      	beq.n	1522 <xTaskPriorityDisinherit+0x22>
+    151a:	f641 2063 	movw	r0, #6755	@ 0x1a63
+    151e:	f7ff f991 	bl	844 <fc_fail>
+    1522:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1524:	b920      	cbnz	r0, 1530 <xTaskPriorityDisinherit+0x30>
+    1526:	f641 2064 	movw	r0, #6756	@ 0x1a64
+    152a:	f7ff f98b 	bl	844 <fc_fail>
+    152e:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1530:	1e41      	subs	r1, r0, #1
+    1532:	6ae0      	ldr	r0, [r4, #44]	@ 0x2c
+    1534:	6c62      	ldr	r2, [r4, #68]	@ 0x44
+    1536:	64a1      	str	r1, [r4, #72]	@ 0x48
+    1538:	4290      	cmp	r0, r2
+    153a:	f04f 0000 	mov.w	r0, #0
+    153e:	d036      	beq.n	15ae <xTaskPriorityDisinherit+0xae>
+    1540:	2900      	cmp	r1, #0
+    1542:	bf18      	it	ne
+    1544:	bd70      	popne	{r4, r5, r6, pc}
+    1546:	1d26      	adds	r6, r4, #4
+    1548:	4630      	mov	r0, r6
+    154a:	f000 fed5 	bl	22f8 <uxListRemove>
+    154e:	f644 3cc4 	movw	ip, #19396	@ 0x4bc4
+    1552:	f2c2 0c00 	movt	ip, #8192	@ 0x2000
+    1556:	b948      	cbnz	r0, 156c <xTaskPriorityDisinherit+0x6c>
+    1558:	6ae0      	ldr	r0, [r4, #44]	@ 0x2c
+    155a:	2201      	movs	r2, #1
+    155c:	f8dc 3000 	ldr.w	r3, [ip]
+    1560:	fa02 f000 	lsl.w	r0, r2, r0
+    1564:	ea23 0000 	bic.w	r0, r3, r0
+    1568:	f8cc 0000 	str.w	r0, [ip]
+    156c:	6c62      	ldr	r2, [r4, #68]	@ 0x44
+    156e:	f1c2 0005 	rsb	r0, r2, #5
+    1572:	62e2      	str	r2, [r4, #44]	@ 0x2c
+    1574:	61a0      	str	r0, [r4, #24]
+    1576:	2001      	movs	r0, #1
+    1578:	f8dc 3000 	ldr.w	r3, [ip]
+    157c:	fa00 f102 	lsl.w	r1, r0, r2
+    1580:	4319      	orrs	r1, r3
+    1582:	f8cc 1000 	str.w	r1, [ip]
+    1586:	f244 2ce4 	movw	ip, #17124	@ 0x42e4
+    158a:	ebc2 01c2 	rsb	r1, r2, r2, lsl #3
+    158e:	f2c2 0c00 	movt	ip, #8192	@ 0x2000
+    1592:	eb0c 0381 	add.w	r3, ip, r1, lsl #2
+    1596:	685a      	ldr	r2, [r3, #4]
+    1598:	6163      	str	r3, [r4, #20]
+    159a:	6895      	ldr	r5, [r2, #8]
+    159c:	e9c4 2502 	strd	r2, r5, [r4, #8]
+    15a0:	6096      	str	r6, [r2, #8]
+    15a2:	f85c 2021 	ldr.w	r2, [ip, r1, lsl #2]
+    15a6:	606e      	str	r6, [r5, #4]
+    15a8:	3201      	adds	r2, #1
+    15aa:	f84c 2021 	str.w	r2, [ip, r1, lsl #2]
+    15ae:	bd70      	pop	{r4, r5, r6, pc}
+
+000015b0 <vTaskPriorityDisinheritAfterTimeout>:
+    15b0:	2800      	cmp	r0, #0
+    15b2:	bf08      	it	eq
+    15b4:	4770      	bxeq	lr
+    15b6:	b570      	push	{r4, r5, r6, lr}
+    15b8:	6c82      	ldr	r2, [r0, #72]	@ 0x48
+    15ba:	b93a      	cbnz	r2, 15cc <vTaskPriorityDisinheritAfterTimeout+0x1c>
+    15bc:	4604      	mov	r4, r0
+    15be:	f641 20c1 	movw	r0, #6849	@ 0x1ac1
+    15c2:	460d      	mov	r5, r1
+    15c4:	f7ff f93e 	bl	844 <fc_fail>
+    15c8:	4629      	mov	r1, r5
+    15ca:	4620      	mov	r0, r4
+    15cc:	6c43      	ldr	r3, [r0, #68]	@ 0x44
+    15ce:	6ac2      	ldr	r2, [r0, #44]	@ 0x2c
+    15d0:	428b      	cmp	r3, r1
+    15d2:	bf88      	it	hi
+    15d4:	4619      	movhi	r1, r3
+    15d6:	428a      	cmp	r2, r1
+    15d8:	d024      	beq.n	1624 <vTaskPriorityDisinheritAfterTimeout+0x74>
+    15da:	6c83      	ldr	r3, [r0, #72]	@ 0x48
+    15dc:	2b01      	cmp	r3, #1
+    15de:	d121      	bne.n	1624 <vTaskPriorityDisinheritAfterTimeout+0x74>
+    15e0:	f244 23e0 	movw	r3, #17120	@ 0x42e0
+    15e4:	f2c2 0300 	movt	r3, #8192	@ 0x2000
+    15e8:	681b      	ldr	r3, [r3, #0]
+    15ea:	4298      	cmp	r0, r3
+    15ec:	d108      	bne.n	1600 <vTaskPriorityDisinheritAfterTimeout+0x50>
+    15ee:	4604      	mov	r4, r0
+    15f0:	f641 20dc 	movw	r0, #6876	@ 0x1adc
+    15f4:	460d      	mov	r5, r1
+    15f6:	f7ff f925 	bl	844 <fc_fail>
+    15fa:	6ae2      	ldr	r2, [r4, #44]	@ 0x2c
+    15fc:	4629      	mov	r1, r5
+    15fe:	4620      	mov	r0, r4
+    1600:	6983      	ldr	r3, [r0, #24]
+    1602:	62c1      	str	r1, [r0, #44]	@ 0x2c
+    1604:	2b00      	cmp	r3, #0
+    1606:	bf5c      	itt	pl
+    1608:	f1c1 0105 	rsbpl	r1, r1, #5
+    160c:	6181      	strpl	r1, [r0, #24]
+    160e:	f244 25e4 	movw	r5, #17124	@ 0x42e4
+    1612:	6941      	ldr	r1, [r0, #20]
+    1614:	ebc2 02c2 	rsb	r2, r2, r2, lsl #3
+    1618:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+    161c:	eb05 0282 	add.w	r2, r5, r2, lsl #2
+    1620:	4291      	cmp	r1, r2
+    1622:	d003      	beq.n	162c <vTaskPriorityDisinheritAfterTimeout+0x7c>
+    1624:	e8bd 4070 	ldmia.w	sp!, {r4, r5, r6, lr}
+    1628:	4770      	bx	lr
+    162a:	bf00      	nop
+    162c:	1d04      	adds	r4, r0, #4
+    162e:	4606      	mov	r6, r0
+    1630:	4620      	mov	r0, r4
+    1632:	f000 fe61 	bl	22f8 <uxListRemove>
+    1636:	6af2      	ldr	r2, [r6, #44]	@ 0x2c
+    1638:	2301      	movs	r3, #1
+    163a:	2800      	cmp	r0, #0
+    163c:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    1640:	4631      	mov	r1, r6
+    1642:	fa03 f302 	lsl.w	r3, r3, r2
+    1646:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    164a:	d102      	bne.n	1652 <vTaskPriorityDisinheritAfterTimeout+0xa2>
+    164c:	6806      	ldr	r6, [r0, #0]
+    164e:	439e      	bics	r6, r3
+    1650:	6006      	str	r6, [r0, #0]
+    1652:	6806      	ldr	r6, [r0, #0]
+    1654:	4333      	orrs	r3, r6
+    1656:	6003      	str	r3, [r0, #0]
+    1658:	ebc2 00c2 	rsb	r0, r2, r2, lsl #3
+    165c:	eb05 0280 	add.w	r2, r5, r0, lsl #2
+    1660:	6853      	ldr	r3, [r2, #4]
+    1662:	614a      	str	r2, [r1, #20]
+    1664:	689e      	ldr	r6, [r3, #8]
+    1666:	e9c1 3602 	strd	r3, r6, [r1, #8]
+    166a:	609c      	str	r4, [r3, #8]
+    166c:	f855 3020 	ldr.w	r3, [r5, r0, lsl #2]
+    1670:	6074      	str	r4, [r6, #4]
+    1672:	1c59      	adds	r1, r3, #1
+    1674:	f845 1020 	str.w	r1, [r5, r0, lsl #2]
+    1678:	e8bd 4070 	ldmia.w	sp!, {r4, r5, r6, lr}
+    167c:	4770      	bx	lr
+	...
+
+00001680 <pvTaskIncrementMutexHeldCount>:
+    1680:	f244 20e0 	movw	r0, #17120	@ 0x42e0
+    1684:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    1688:	6800      	ldr	r0, [r0, #0]
+    168a:	2800      	cmp	r0, #0
+    168c:	bf08      	it	eq
+    168e:	4770      	bxeq	lr
+    1690:	6c81      	ldr	r1, [r0, #72]	@ 0x48
+    1692:	3101      	adds	r1, #1
+    1694:	6481      	str	r1, [r0, #72]	@ 0x48
+    1696:	4770      	bx	lr
+
+00001698 <ulTaskGenericNotifyTake>:
+    1698:	b5f0      	push	{r4, r5, r6, r7, lr}
+    169a:	b081      	sub	sp, #4
+    169c:	4616      	mov	r6, r2
+    169e:	4604      	mov	r4, r0
+    16a0:	460d      	mov	r5, r1
+    16a2:	b118      	cbz	r0, 16ac <ulTaskGenericNotifyTake+0x14>
+    16a4:	f641 6014 	movw	r0, #7700	@ 0x1e14
+    16a8:	f7ff f8cc 	bl	844 <fc_fail>
+    16ac:	f244 27e0 	movw	r7, #17120	@ 0x42e0
+    16b0:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+    16b4:	6838      	ldr	r0, [r7, #0]
+    16b6:	eb00 0084 	add.w	r0, r0, r4, lsl #2
+    16ba:	6cc0      	ldr	r0, [r0, #76]	@ 0x4c
+    16bc:	b36e      	cbz	r6, 171a <ulTaskGenericNotifyTake+0x82>
+    16be:	bb60      	cbnz	r0, 171a <ulTaskGenericNotifyTake+0x82>
+    16c0:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    16c4:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    16c8:	6941      	ldr	r1, [r0, #20]
+    16ca:	3101      	adds	r1, #1
+    16cc:	6141      	str	r1, [r0, #20]
+    16ce:	f000 ff9f 	bl	2610 <vPortEnterCritical>
+    16d2:	6838      	ldr	r0, [r7, #0]
+    16d4:	eb00 0084 	add.w	r0, r0, r4, lsl #2
+    16d8:	6cc0      	ldr	r0, [r0, #76]	@ 0x4c
+    16da:	b128      	cbz	r0, 16e8 <ulTaskGenericNotifyTake+0x50>
+    16dc:	f000 ffb8 	bl	2650 <vPortExitCritical>
+    16e0:	f7ff fbc6 	bl	e70 <xTaskResumeAll>
+    16e4:	e019      	b.n	171a <ulTaskGenericNotifyTake+0x82>
+    16e6:	bf00      	nop
+    16e8:	6838      	ldr	r0, [r7, #0]
+    16ea:	2101      	movs	r1, #1
+    16ec:	4420      	add	r0, r4
+    16ee:	f880 1050 	strb.w	r1, [r0, #80]	@ 0x50
+    16f2:	f000 ffad 	bl	2650 <vPortExitCritical>
+    16f6:	4630      	mov	r0, r6
+    16f8:	2101      	movs	r1, #1
+    16fa:	f7ff fb67 	bl	dcc <prvAddCurrentTaskToDelayedList>
+    16fe:	f7ff fbb7 	bl	e70 <xTaskResumeAll>
+    1702:	b950      	cbnz	r0, 171a <ulTaskGenericNotifyTake+0x82>
+    1704:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1708:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    170c:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1710:	6001      	str	r1, [r0, #0]
+    1712:	f3bf 8f4f 	dsb	sy
+    1716:	f3bf 8f6f 	isb	sy
+    171a:	f000 ff79 	bl	2610 <vPortEnterCritical>
+    171e:	6838      	ldr	r0, [r7, #0]
+    1720:	eb00 0084 	add.w	r0, r0, r4, lsl #2
+    1724:	6cc6      	ldr	r6, [r0, #76]	@ 0x4c
+    1726:	b13e      	cbz	r6, 1738 <ulTaskGenericNotifyTake+0xa0>
+    1728:	6839      	ldr	r1, [r7, #0]
+    172a:	2000      	movs	r0, #0
+    172c:	eb01 0184 	add.w	r1, r1, r4, lsl #2
+    1730:	2d00      	cmp	r5, #0
+    1732:	bf08      	it	eq
+    1734:	1e70      	subeq	r0, r6, #1
+    1736:	64c8      	str	r0, [r1, #76]	@ 0x4c
+    1738:	6838      	ldr	r0, [r7, #0]
+    173a:	2100      	movs	r1, #0
+    173c:	4420      	add	r0, r4
+    173e:	f880 1050 	strb.w	r1, [r0, #80]	@ 0x50
+    1742:	f000 ff85 	bl	2650 <vPortExitCritical>
+    1746:	4630      	mov	r0, r6
+    1748:	b001      	add	sp, #4
+    174a:	bdf0      	pop	{r4, r5, r6, r7, pc}
+
+0000174c <xTaskGenericNotify>:
+    174c:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+    1750:	461f      	mov	r7, r3
+    1752:	4690      	mov	r8, r2
+    1754:	460e      	mov	r6, r1
+    1756:	4604      	mov	r4, r0
+    1758:	b119      	cbz	r1, 1762 <xTaskGenericNotify+0x16>
+    175a:	f641 60ef 	movw	r0, #7919	@ 0x1eef
+    175e:	f7ff f871 	bl	844 <fc_fail>
+    1762:	9d06      	ldr	r5, [sp, #24]
+    1764:	b91c      	cbnz	r4, 176e <xTaskGenericNotify+0x22>
+    1766:	f641 60f0 	movw	r0, #7920	@ 0x1ef0
+    176a:	f7ff f86b 	bl	844 <fc_fail>
+    176e:	f000 ff4f 	bl	2610 <vPortEnterCritical>
+    1772:	b11d      	cbz	r5, 177c <xTaskGenericNotify+0x30>
+    1774:	eb04 0086 	add.w	r0, r4, r6, lsl #2
+    1778:	6cc0      	ldr	r0, [r0, #76]	@ 0x4c
+    177a:	6028      	str	r0, [r5, #0]
+    177c:	19a0      	adds	r0, r4, r6
+    177e:	f890 5050 	ldrb.w	r5, [r0, #80]	@ 0x50
+    1782:	2102      	movs	r1, #2
+    1784:	2f04      	cmp	r7, #4
+    1786:	f880 1050 	strb.w	r1, [r0, #80]	@ 0x50
+    178a:	d821      	bhi.n	17d0 <xTaskGenericNotify+0x84>
+    178c:	e8df f007 	tbb	[pc, r7]
+    1790:	141a042a 	.word	0x141a042a
+    1794:	bf00000c 	.word	0xbf00000c
+    1798:	eb04 0086 	add.w	r0, r4, r6, lsl #2
+    179c:	6cc1      	ldr	r1, [r0, #76]	@ 0x4c
+    179e:	ea41 0108 	orr.w	r1, r1, r8
+    17a2:	64c1      	str	r1, [r0, #76]	@ 0x4c
+    17a4:	e01e      	b.n	17e4 <xTaskGenericNotify+0x98>
+    17a6:	bf00      	nop
+    17a8:	2d02      	cmp	r5, #2
+    17aa:	d105      	bne.n	17b8 <xTaskGenericNotify+0x6c>
+    17ac:	2400      	movs	r4, #0
+    17ae:	f000 ff4f 	bl	2650 <vPortExitCritical>
+    17b2:	4620      	mov	r0, r4
+    17b4:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+    17b8:	eb04 0086 	add.w	r0, r4, r6, lsl #2
+    17bc:	f8c0 804c 	str.w	r8, [r0, #76]	@ 0x4c
+    17c0:	e010      	b.n	17e4 <xTaskGenericNotify+0x98>
+    17c2:	bf00      	nop
+    17c4:	eb04 0086 	add.w	r0, r4, r6, lsl #2
+    17c8:	6cc1      	ldr	r1, [r0, #76]	@ 0x4c
+    17ca:	3101      	adds	r1, #1
+    17cc:	64c1      	str	r1, [r0, #76]	@ 0x4c
+    17ce:	e009      	b.n	17e4 <xTaskGenericNotify+0x98>
+    17d0:	f644 30c4 	movw	r0, #19396	@ 0x4bc4
+    17d4:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    17d8:	6a00      	ldr	r0, [r0, #32]
+    17da:	b118      	cbz	r0, 17e4 <xTaskGenericNotify+0x98>
+    17dc:	f641 7025 	movw	r0, #7973	@ 0x1f25
+    17e0:	f7ff f830 	bl	844 <fc_fail>
+    17e4:	2d01      	cmp	r5, #1
+    17e6:	d147      	bne.n	1878 <xTaskGenericNotify+0x12c>
+    17e8:	6961      	ldr	r1, [r4, #20]
+    17ea:	e9d4 3202 	ldrd	r3, r2, [r4, #8]
+    17ee:	684f      	ldr	r7, [r1, #4]
+    17f0:	1d20      	adds	r0, r4, #4
+    17f2:	609a      	str	r2, [r3, #8]
+    17f4:	4287      	cmp	r7, r0
+    17f6:	6053      	str	r3, [r2, #4]
+    17f8:	bf08      	it	eq
+    17fa:	604a      	streq	r2, [r1, #4]
+    17fc:	680a      	ldr	r2, [r1, #0]
+    17fe:	f644 37c4 	movw	r7, #19396	@ 0x4bc4
+    1802:	3a01      	subs	r2, #1
+    1804:	600a      	str	r2, [r1, #0]
+    1806:	e9d4 c10a 	ldrd	ip, r1, [r4, #40]	@ 0x28
+    180a:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+    180e:	2301      	movs	r3, #1
+    1810:	683e      	ldr	r6, [r7, #0]
+    1812:	408b      	lsls	r3, r1
+    1814:	4333      	orrs	r3, r6
+    1816:	603b      	str	r3, [r7, #0]
+    1818:	f244 27e4 	movw	r7, #17124	@ 0x42e4
+    181c:	ebc1 03c1 	rsb	r3, r1, r1, lsl #3
+    1820:	f2c2 0700 	movt	r7, #8192	@ 0x2000
+    1824:	eb07 0683 	add.w	r6, r7, r3, lsl #2
+    1828:	6875      	ldr	r5, [r6, #4]
+    182a:	f1bc 0f00 	cmp.w	ip, #0
+    182e:	68aa      	ldr	r2, [r5, #8]
+    1830:	6166      	str	r6, [r4, #20]
+    1832:	e9c4 5202 	strd	r5, r2, [r4, #8]
+    1836:	6050      	str	r0, [r2, #4]
+    1838:	60a8      	str	r0, [r5, #8]
+    183a:	f857 0023 	ldr.w	r0, [r7, r3, lsl #2]
+    183e:	f100 0001 	add.w	r0, r0, #1
+    1842:	f847 0023 	str.w	r0, [r7, r3, lsl #2]
+    1846:	d004      	beq.n	1852 <xTaskGenericNotify+0x106>
+    1848:	f641 7034 	movw	r0, #7988	@ 0x1f34
+    184c:	f7fe fffa 	bl	844 <fc_fail>
+    1850:	6ae1      	ldr	r1, [r4, #44]	@ 0x2c
+    1852:	f244 20e0 	movw	r0, #17120	@ 0x42e0
+    1856:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    185a:	6800      	ldr	r0, [r0, #0]
+    185c:	6ac0      	ldr	r0, [r0, #44]	@ 0x2c
+    185e:	4288      	cmp	r0, r1
+    1860:	d20a      	bcs.n	1878 <xTaskGenericNotify+0x12c>
+    1862:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1866:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    186a:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    186e:	6001      	str	r1, [r0, #0]
+    1870:	f3bf 8f4f 	dsb	sy
+    1874:	f3bf 8f6f 	isb	sy
+    1878:	2401      	movs	r4, #1
+    187a:	f000 fee9 	bl	2650 <vPortExitCritical>
+    187e:	4620      	mov	r0, r4
+    1880:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+
+00001884 <prvIdleTask>:
+    1884:	f644 34c4 	movw	r4, #19396	@ 0x4bc4
+    1888:	f244 25e4 	movw	r5, #17124	@ 0x42e4
+    188c:	f64e 5604 	movw	r6, #60676	@ 0xed04
+    1890:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+    1894:	f2c2 0500 	movt	r5, #8192	@ 0x2000
+    1898:	f2ce 0600 	movt	r6, #57344	@ 0xe000
+    189c:	f04f 5780 	mov.w	r7, #268435456	@ 0x10000000
+    18a0:	e00f      	b.n	18c2 <prvIdleTask+0x3e>
+    18a2:	bf00      	nop
+    18a4:	f000 feb4 	bl	2610 <vPortEnterCritical>
+    18a8:	6c60      	ldr	r0, [r4, #68]	@ 0x44
+    18aa:	68c0      	ldr	r0, [r0, #12]
+    18ac:	3004      	adds	r0, #4
+    18ae:	f000 fd23 	bl	22f8 <uxListRemove>
+    18b2:	6920      	ldr	r0, [r4, #16]
+    18b4:	3801      	subs	r0, #1
+    18b6:	6120      	str	r0, [r4, #16]
+    18b8:	68e0      	ldr	r0, [r4, #12]
+    18ba:	3801      	subs	r0, #1
+    18bc:	60e0      	str	r0, [r4, #12]
+    18be:	f000 fec7 	bl	2650 <vPortExitCritical>
+    18c2:	68e0      	ldr	r0, [r4, #12]
+    18c4:	2800      	cmp	r0, #0
+    18c6:	d1ed      	bne.n	18a4 <prvIdleTask+0x20>
+    18c8:	6828      	ldr	r0, [r5, #0]
+    18ca:	2802      	cmp	r0, #2
+    18cc:	d3f9      	bcc.n	18c2 <prvIdleTask+0x3e>
+    18ce:	6037      	str	r7, [r6, #0]
+    18d0:	f3bf 8f4f 	dsb	sy
+    18d4:	f3bf 8f6f 	isb	sy
+    18d8:	e7f3      	b.n	18c2 <prvIdleTask+0x3e>
+	...
+
+000018dc <xQueueGenericCreateStatic>:
+    18dc:	b5f0      	push	{r4, r5, r6, r7, lr}
+    18de:	b081      	sub	sp, #4
+    18e0:	b333      	cbz	r3, 1930 <xQueueGenericCreateStatic+0x54>
+    18e2:	b348      	cbz	r0, 1938 <xQueueGenericCreateStatic+0x5c>
+    18e4:	461c      	mov	r4, r3
+    18e6:	b901      	cbnz	r1, 18ea <xQueueGenericCreateStatic+0xe>
+    18e8:	bb32      	cbnz	r2, 1938 <xQueueGenericCreateStatic+0x5c>
+    18ea:	b101      	cbz	r1, 18ee <xQueueGenericCreateStatic+0x12>
+    18ec:	b322      	cbz	r2, 1938 <xQueueGenericCreateStatic+0x5c>
+    18ee:	2358      	movs	r3, #88	@ 0x58
+    18f0:	9300      	str	r3, [sp, #0]
+    18f2:	9b00      	ldr	r3, [sp, #0]
+    18f4:	2b58      	cmp	r3, #88	@ 0x58
+    18f6:	d009      	beq.n	190c <xQueueGenericCreateStatic+0x30>
+    18f8:	4605      	mov	r5, r0
+    18fa:	f44f 70cb 	mov.w	r0, #406	@ 0x196
+    18fe:	460e      	mov	r6, r1
+    1900:	4617      	mov	r7, r2
+    1902:	f7fe ff9f 	bl	844 <fc_fail>
+    1906:	4628      	mov	r0, r5
+    1908:	463a      	mov	r2, r7
+    190a:	4631      	mov	r1, r6
+    190c:	fba0 3701 	umull	r3, r7, r0, r1
+    1910:	2900      	cmp	r1, #0
+    1912:	9b00      	ldr	r3, [sp, #0]
+    1914:	bf08      	it	eq
+    1916:	4622      	moveq	r2, r4
+    1918:	6022      	str	r2, [r4, #0]
+    191a:	e9c4 0113 	strd	r0, r1, [r4, #76]	@ 0x4c
+    191e:	b19f      	cbz	r7, 1948 <xQueueGenericCreateStatic+0x6c>
+    1920:	f44f 70b6 	mov.w	r0, #364	@ 0x16c
+    1924:	f7fe ff8e 	bl	844 <fc_fail>
+    1928:	4620      	mov	r0, r4
+    192a:	b001      	add	sp, #4
+    192c:	bdf0      	pop	{r4, r5, r6, r7, pc}
+    192e:	bf00      	nop
+    1930:	f44f 70c2 	mov.w	r0, #388	@ 0x184
+    1934:	f7fe ff86 	bl	844 <fc_fail>
+    1938:	f44f 70d8 	mov.w	r0, #432	@ 0x1b0
+    193c:	f7fe ff82 	bl	844 <fc_fail>
+    1940:	2400      	movs	r4, #0
+    1942:	4620      	mov	r0, r4
+    1944:	b001      	add	sp, #4
+    1946:	bdf0      	pop	{r4, r5, r6, r7, pc}
+    1948:	f000 fe62 	bl	2610 <vPortEnterCritical>
+    194c:	6820      	ldr	r0, [r4, #0]
+    194e:	e9d4 1213 	ldrd	r1, r2, [r4, #76]	@ 0x4c
+    1952:	2700      	movs	r7, #0
+    1954:	fb02 0301 	mla	r3, r2, r1, r0
+    1958:	3901      	subs	r1, #1
+    195a:	fb01 0102 	mla	r1, r1, r2, r0
+    195e:	64a7      	str	r7, [r4, #72]	@ 0x48
+    1960:	e9c4 0301 	strd	r0, r3, [r4, #4]
+    1964:	20ff      	movs	r0, #255	@ 0xff
+    1966:	60e1      	str	r1, [r4, #12]
+    1968:	f884 0054 	strb.w	r0, [r4, #84]	@ 0x54
+    196c:	f884 0055 	strb.w	r0, [r4, #85]	@ 0x55
+    1970:	f104 0010 	add.w	r0, r4, #16
+    1974:	f000 fc70 	bl	2258 <vListInitialise>
+    1978:	f104 002c 	add.w	r0, r4, #44	@ 0x2c
+    197c:	f000 fc6c 	bl	2258 <vListInitialise>
+    1980:	f000 fe66 	bl	2650 <vPortExitCritical>
+    1984:	4620      	mov	r0, r4
+    1986:	b001      	add	sp, #4
+    1988:	bdf0      	pop	{r4, r5, r6, r7, pc}
+	...
+
+0000198c <xQueueCreateMutexStatic>:
+    198c:	b510      	push	{r4, lr}
+    198e:	b082      	sub	sp, #8
+    1990:	460b      	mov	r3, r1
+    1992:	2001      	movs	r0, #1
+    1994:	2100      	movs	r1, #0
+    1996:	2200      	movs	r2, #0
+    1998:	2400      	movs	r4, #0
+    199a:	f7ff ff9f 	bl	18dc <xQueueGenericCreateStatic>
+    199e:	b148      	cbz	r0, 19b4 <xQueueCreateMutexStatic+0x28>
+    19a0:	2100      	movs	r1, #0
+    19a2:	2200      	movs	r2, #0
+    19a4:	2300      	movs	r3, #0
+    19a6:	6004      	str	r4, [r0, #0]
+    19a8:	e9c0 4402 	strd	r4, r4, [r0, #8]
+    19ac:	4604      	mov	r4, r0
+    19ae:	f000 f803 	bl	19b8 <xQueueGenericSend>
+    19b2:	4620      	mov	r0, r4
+    19b4:	b002      	add	sp, #8
+    19b6:	bd10      	pop	{r4, pc}
+
+000019b8 <xQueueGenericSend>:
+    19b8:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    19bc:	b083      	sub	sp, #12
+    19be:	461d      	mov	r5, r3
+    19c0:	4617      	mov	r7, r2
+    19c2:	460e      	mov	r6, r1
+    19c4:	4604      	mov	r4, r0
+    19c6:	9202      	str	r2, [sp, #8]
+    19c8:	b110      	cbz	r0, 19d0 <xQueueGenericSend+0x18>
+    19ca:	b966      	cbnz	r6, 19e6 <xQueueGenericSend+0x2e>
+    19cc:	e005      	b.n	19da <xQueueGenericSend+0x22>
+    19ce:	bf00      	nop
+    19d0:	f240 30b9 	movw	r0, #953	@ 0x3b9
+    19d4:	f7fe ff36 	bl	844 <fc_fail>
+    19d8:	b92e      	cbnz	r6, 19e6 <xQueueGenericSend+0x2e>
+    19da:	6d20      	ldr	r0, [r4, #80]	@ 0x50
+    19dc:	b118      	cbz	r0, 19e6 <xQueueGenericSend+0x2e>
+    19de:	f240 30ba 	movw	r0, #954	@ 0x3ba
+    19e2:	f7fe ff2f 	bl	844 <fc_fail>
+    19e6:	2d02      	cmp	r5, #2
+    19e8:	d106      	bne.n	19f8 <xQueueGenericSend+0x40>
+    19ea:	6ce0      	ldr	r0, [r4, #76]	@ 0x4c
+    19ec:	2801      	cmp	r0, #1
+    19ee:	d003      	beq.n	19f8 <xQueueGenericSend+0x40>
+    19f0:	f240 30bb 	movw	r0, #955	@ 0x3bb
+    19f4:	f7fe ff26 	bl	844 <fc_fail>
+    19f8:	f7ff fd12 	bl	1420 <xTaskGetSchedulerState>
+    19fc:	b920      	cbnz	r0, 1a08 <xQueueGenericSend+0x50>
+    19fe:	b11f      	cbz	r7, 1a08 <xQueueGenericSend+0x50>
+    1a00:	f240 30be 	movw	r0, #958	@ 0x3be
+    1a04:	f7fe ff1e 	bl	844 <fc_fail>
+    1a08:	f000 fe02 	bl	2610 <vPortEnterCritical>
+    1a0c:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1a0e:	2d02      	cmp	r5, #2
+    1a10:	d05b      	beq.n	1aca <xQueueGenericSend+0x112>
+    1a12:	6ce1      	ldr	r1, [r4, #76]	@ 0x4c
+    1a14:	4288      	cmp	r0, r1
+    1a16:	d358      	bcc.n	1aca <xQueueGenericSend+0x112>
+    1a18:	9802      	ldr	r0, [sp, #8]
+    1a1a:	2800      	cmp	r0, #0
+    1a1c:	f000 80d6 	beq.w	1bcc <xQueueGenericSend+0x214>
+    1a20:	4668      	mov	r0, sp
+    1a22:	f7ff fca9 	bl	1378 <vTaskInternalSetTimeOutState>
+    1a26:	f000 fe13 	bl	2650 <vPortExitCritical>
+    1a2a:	f7ff f9c7 	bl	dbc <vTaskSuspendAll>
+    1a2e:	f000 fdef 	bl	2610 <vPortEnterCritical>
+    1a32:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    1a36:	28ff      	cmp	r0, #255	@ 0xff
+    1a38:	bf04      	itt	eq
+    1a3a:	2000      	moveq	r0, #0
+    1a3c:	f884 0054 	strbeq.w	r0, [r4, #84]	@ 0x54
+    1a40:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    1a44:	28ff      	cmp	r0, #255	@ 0xff
+    1a46:	bf04      	itt	eq
+    1a48:	2000      	moveq	r0, #0
+    1a4a:	f884 0055 	strbeq.w	r0, [r4, #85]	@ 0x55
+    1a4e:	f000 fdff 	bl	2650 <vPortExitCritical>
+    1a52:	4668      	mov	r0, sp
+    1a54:	a902      	add	r1, sp, #8
+    1a56:	f7ff fc99 	bl	138c <xTaskCheckForTimeOut>
+    1a5a:	b148      	cbz	r0, 1a70 <xQueueGenericSend+0xb8>
+    1a5c:	4620      	mov	r0, r4
+    1a5e:	f000 f903 	bl	1c68 <prvUnlockQueue>
+    1a62:	f7ff fa05 	bl	e70 <xTaskResumeAll>
+    1a66:	2000      	movs	r0, #0
+    1a68:	b003      	add	sp, #12
+    1a6a:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1a6e:	bf00      	nop
+    1a70:	f104 0810 	add.w	r8, r4, #16
+    1a74:	f000 fdcc 	bl	2610 <vPortEnterCritical>
+    1a78:	f8d4 9048 	ldr.w	r9, [r4, #72]	@ 0x48
+    1a7c:	6ce7      	ldr	r7, [r4, #76]	@ 0x4c
+    1a7e:	f000 fde7 	bl	2650 <vPortExitCritical>
+    1a82:	45b9      	cmp	r9, r7
+    1a84:	d116      	bne.n	1ab4 <xQueueGenericSend+0xfc>
+    1a86:	9902      	ldr	r1, [sp, #8]
+    1a88:	4640      	mov	r0, r8
+    1a8a:	f7ff fbf1 	bl	1270 <vTaskPlaceOnEventList>
+    1a8e:	4620      	mov	r0, r4
+    1a90:	f000 f8ea 	bl	1c68 <prvUnlockQueue>
+    1a94:	f7ff f9ec 	bl	e70 <xTaskResumeAll>
+    1a98:	b988      	cbnz	r0, 1abe <xQueueGenericSend+0x106>
+    1a9a:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1a9e:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1aa2:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1aa6:	6001      	str	r1, [r0, #0]
+    1aa8:	f3bf 8f4f 	dsb	sy
+    1aac:	f3bf 8f6f 	isb	sy
+    1ab0:	e005      	b.n	1abe <xQueueGenericSend+0x106>
+    1ab2:	bf00      	nop
+    1ab4:	4620      	mov	r0, r4
+    1ab6:	f000 f8d7 	bl	1c68 <prvUnlockQueue>
+    1aba:	f7ff f9d9 	bl	e70 <xTaskResumeAll>
+    1abe:	f000 fda7 	bl	2610 <vPortEnterCritical>
+    1ac2:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1ac4:	6ce1      	ldr	r1, [r4, #76]	@ 0x4c
+    1ac6:	4288      	cmp	r0, r1
+    1ac8:	d230      	bcs.n	1b2c <xQueueGenericSend+0x174>
+    1aca:	4620      	mov	r0, r4
+    1acc:	4631      	mov	r1, r6
+    1ace:	462a      	mov	r2, r5
+    1ad0:	f000 f882 	bl	1bd8 <prvCopyDataToQueue>
+    1ad4:	f854 1f2c 	ldr.w	r1, [r4, #44]!
+    1ad8:	b1a1      	cbz	r1, 1b04 <xQueueGenericSend+0x14c>
+    1ada:	4620      	mov	r0, r4
+    1adc:	f7ff fbe0 	bl	12a0 <xTaskRemoveFromEventList>
+    1ae0:	b150      	cbz	r0, 1af8 <xQueueGenericSend+0x140>
+    1ae2:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1ae6:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1aea:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1aee:	6001      	str	r1, [r0, #0]
+    1af0:	f3bf 8f4f 	dsb	sy
+    1af4:	f3bf 8f6f 	isb	sy
+    1af8:	f000 fdaa 	bl	2650 <vPortExitCritical>
+    1afc:	2001      	movs	r0, #1
+    1afe:	b003      	add	sp, #12
+    1b00:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1b04:	2800      	cmp	r0, #0
+    1b06:	d0f7      	beq.n	1af8 <xQueueGenericSend+0x140>
+    1b08:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1b0c:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1b10:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1b14:	6001      	str	r1, [r0, #0]
+    1b16:	f3bf 8f4f 	dsb	sy
+    1b1a:	f3bf 8f6f 	isb	sy
+    1b1e:	f000 fd97 	bl	2650 <vPortExitCritical>
+    1b22:	2001      	movs	r0, #1
+    1b24:	b003      	add	sp, #12
+    1b26:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1b2a:	bf00      	nop
+    1b2c:	46e9      	mov	r9, sp
+    1b2e:	af02      	add	r7, sp, #8
+    1b30:	e00b      	b.n	1b4a <xQueueGenericSend+0x192>
+    1b32:	bf00      	nop
+    1b34:	4620      	mov	r0, r4
+    1b36:	f000 f897 	bl	1c68 <prvUnlockQueue>
+    1b3a:	f7ff f999 	bl	e70 <xTaskResumeAll>
+    1b3e:	f000 fd67 	bl	2610 <vPortEnterCritical>
+    1b42:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1b44:	6ce1      	ldr	r1, [r4, #76]	@ 0x4c
+    1b46:	4288      	cmp	r0, r1
+    1b48:	d3bf      	bcc.n	1aca <xQueueGenericSend+0x112>
+    1b4a:	9802      	ldr	r0, [sp, #8]
+    1b4c:	2800      	cmp	r0, #0
+    1b4e:	d03d      	beq.n	1bcc <xQueueGenericSend+0x214>
+    1b50:	f000 fd7e 	bl	2650 <vPortExitCritical>
+    1b54:	f7ff f932 	bl	dbc <vTaskSuspendAll>
+    1b58:	f000 fd5a 	bl	2610 <vPortEnterCritical>
+    1b5c:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    1b60:	28ff      	cmp	r0, #255	@ 0xff
+    1b62:	bf04      	itt	eq
+    1b64:	2000      	moveq	r0, #0
+    1b66:	f884 0054 	strbeq.w	r0, [r4, #84]	@ 0x54
+    1b6a:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    1b6e:	28ff      	cmp	r0, #255	@ 0xff
+    1b70:	bf04      	itt	eq
+    1b72:	2000      	moveq	r0, #0
+    1b74:	f884 0055 	strbeq.w	r0, [r4, #85]	@ 0x55
+    1b78:	f000 fd6a 	bl	2650 <vPortExitCritical>
+    1b7c:	4648      	mov	r0, r9
+    1b7e:	4639      	mov	r1, r7
+    1b80:	f7ff fc04 	bl	138c <xTaskCheckForTimeOut>
+    1b84:	2800      	cmp	r0, #0
+    1b86:	f47f af69 	bne.w	1a5c <xQueueGenericSend+0xa4>
+    1b8a:	f000 fd41 	bl	2610 <vPortEnterCritical>
+    1b8e:	f8d4 a048 	ldr.w	sl, [r4, #72]	@ 0x48
+    1b92:	f8d4 b04c 	ldr.w	fp, [r4, #76]	@ 0x4c
+    1b96:	f000 fd5b 	bl	2650 <vPortExitCritical>
+    1b9a:	45da      	cmp	sl, fp
+    1b9c:	d1ca      	bne.n	1b34 <xQueueGenericSend+0x17c>
+    1b9e:	9902      	ldr	r1, [sp, #8]
+    1ba0:	4640      	mov	r0, r8
+    1ba2:	f7ff fb65 	bl	1270 <vTaskPlaceOnEventList>
+    1ba6:	4620      	mov	r0, r4
+    1ba8:	f000 f85e 	bl	1c68 <prvUnlockQueue>
+    1bac:	f7ff f960 	bl	e70 <xTaskResumeAll>
+    1bb0:	2800      	cmp	r0, #0
+    1bb2:	d1c4      	bne.n	1b3e <xQueueGenericSend+0x186>
+    1bb4:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1bb8:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1bbc:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1bc0:	6001      	str	r1, [r0, #0]
+    1bc2:	f3bf 8f4f 	dsb	sy
+    1bc6:	f3bf 8f6f 	isb	sy
+    1bca:	e7b8      	b.n	1b3e <xQueueGenericSend+0x186>
+    1bcc:	f000 fd40 	bl	2650 <vPortExitCritical>
+    1bd0:	2000      	movs	r0, #0
+    1bd2:	b003      	add	sp, #12
+    1bd4:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+00001bd8 <prvCopyDataToQueue>:
+    1bd8:	b570      	push	{r4, r5, r6, lr}
+    1bda:	6c86      	ldr	r6, [r0, #72]	@ 0x48
+    1bdc:	6d03      	ldr	r3, [r0, #80]	@ 0x50
+    1bde:	4604      	mov	r4, r0
+    1be0:	b1f3      	cbz	r3, 1c20 <prvCopyDataToQueue+0x48>
+    1be2:	4615      	mov	r5, r2
+    1be4:	b322      	cbz	r2, 1c30 <prvCopyDataToQueue+0x58>
+    1be6:	68e0      	ldr	r0, [r4, #12]
+    1be8:	461a      	mov	r2, r3
+    1bea:	f000 fd83 	bl	26f4 <memcpy>
+    1bee:	68e1      	ldr	r1, [r4, #12]
+    1bf0:	6d20      	ldr	r0, [r4, #80]	@ 0x50
+    1bf2:	6822      	ldr	r2, [r4, #0]
+    1bf4:	1a09      	subs	r1, r1, r0
+    1bf6:	4291      	cmp	r1, r2
+    1bf8:	60e1      	str	r1, [r4, #12]
+    1bfa:	d203      	bcs.n	1c04 <prvCopyDataToQueue+0x2c>
+    1bfc:	68a1      	ldr	r1, [r4, #8]
+    1bfe:	4240      	negs	r0, r0
+    1c00:	4408      	add	r0, r1
+    1c02:	60e0      	str	r0, [r4, #12]
+    1c04:	1ea8      	subs	r0, r5, #2
+    1c06:	fab0 f080 	clz	r0, r0
+    1c0a:	0940      	lsrs	r0, r0, #5
+    1c0c:	4631      	mov	r1, r6
+    1c0e:	2e00      	cmp	r6, #0
+    1c10:	bf18      	it	ne
+    1c12:	2101      	movne	r1, #1
+    1c14:	4008      	ands	r0, r1
+    1c16:	1a36      	subs	r6, r6, r0
+    1c18:	2000      	movs	r0, #0
+    1c1a:	1c71      	adds	r1, r6, #1
+    1c1c:	64a1      	str	r1, [r4, #72]	@ 0x48
+    1c1e:	bd70      	pop	{r4, r5, r6, pc}
+    1c20:	6820      	ldr	r0, [r4, #0]
+    1c22:	2800      	cmp	r0, #0
+    1c24:	f04f 0000 	mov.w	r0, #0
+    1c28:	d014      	beq.n	1c54 <prvCopyDataToQueue+0x7c>
+    1c2a:	1c71      	adds	r1, r6, #1
+    1c2c:	64a1      	str	r1, [r4, #72]	@ 0x48
+    1c2e:	bd70      	pop	{r4, r5, r6, pc}
+    1c30:	6860      	ldr	r0, [r4, #4]
+    1c32:	461a      	mov	r2, r3
+    1c34:	f000 fd5e 	bl	26f4 <memcpy>
+    1c38:	e9d4 0101 	ldrd	r0, r1, [r4, #4]
+    1c3c:	6d22      	ldr	r2, [r4, #80]	@ 0x50
+    1c3e:	4410      	add	r0, r2
+    1c40:	4288      	cmp	r0, r1
+    1c42:	6060      	str	r0, [r4, #4]
+    1c44:	d301      	bcc.n	1c4a <prvCopyDataToQueue+0x72>
+    1c46:	6820      	ldr	r0, [r4, #0]
+    1c48:	6060      	str	r0, [r4, #4]
+    1c4a:	2000      	movs	r0, #0
+    1c4c:	1c71      	adds	r1, r6, #1
+    1c4e:	64a1      	str	r1, [r4, #72]	@ 0x48
+    1c50:	bd70      	pop	{r4, r5, r6, pc}
+    1c52:	bf00      	nop
+    1c54:	68a1      	ldr	r1, [r4, #8]
+    1c56:	4605      	mov	r5, r0
+    1c58:	4608      	mov	r0, r1
+    1c5a:	f7ff fc51 	bl	1500 <xTaskPriorityDisinherit>
+    1c5e:	60a5      	str	r5, [r4, #8]
+    1c60:	1c71      	adds	r1, r6, #1
+    1c62:	64a1      	str	r1, [r4, #72]	@ 0x48
+    1c64:	bd70      	pop	{r4, r5, r6, pc}
+	...
+
+00001c68 <prvUnlockQueue>:
+    1c68:	b5f0      	push	{r4, r5, r6, r7, lr}
+    1c6a:	b081      	sub	sp, #4
+    1c6c:	4604      	mov	r4, r0
+    1c6e:	f000 fccf 	bl	2610 <vPortEnterCritical>
+    1c72:	f994 6055 	ldrsb.w	r6, [r4, #85]	@ 0x55
+    1c76:	2e01      	cmp	r6, #1
+    1c78:	db0f      	blt.n	1c9a <prvUnlockQueue+0x32>
+    1c7a:	f104 052c 	add.w	r5, r4, #44	@ 0x2c
+    1c7e:	bf00      	nop
+    1c80:	6828      	ldr	r0, [r5, #0]
+    1c82:	b150      	cbz	r0, 1c9a <prvUnlockQueue+0x32>
+    1c84:	4628      	mov	r0, r5
+    1c86:	f7ff fb0b 	bl	12a0 <xTaskRemoveFromEventList>
+    1c8a:	2800      	cmp	r0, #0
+    1c8c:	bf18      	it	ne
+    1c8e:	f7ff fbbf 	blne	1410 <vTaskMissedYield>
+    1c92:	b270      	sxtb	r0, r6
+    1c94:	3e01      	subs	r6, #1
+    1c96:	2801      	cmp	r0, #1
+    1c98:	dcf2      	bgt.n	1c80 <prvUnlockQueue+0x18>
+    1c9a:	26ff      	movs	r6, #255	@ 0xff
+    1c9c:	f884 6055 	strb.w	r6, [r4, #85]	@ 0x55
+    1ca0:	f000 fcd6 	bl	2650 <vPortExitCritical>
+    1ca4:	f000 fcb4 	bl	2610 <vPortEnterCritical>
+    1ca8:	f994 7054 	ldrsb.w	r7, [r4, #84]	@ 0x54
+    1cac:	2f01      	cmp	r7, #1
+    1cae:	db0e      	blt.n	1cce <prvUnlockQueue+0x66>
+    1cb0:	f104 0510 	add.w	r5, r4, #16
+    1cb4:	6828      	ldr	r0, [r5, #0]
+    1cb6:	b150      	cbz	r0, 1cce <prvUnlockQueue+0x66>
+    1cb8:	4628      	mov	r0, r5
+    1cba:	f7ff faf1 	bl	12a0 <xTaskRemoveFromEventList>
+    1cbe:	2800      	cmp	r0, #0
+    1cc0:	bf18      	it	ne
+    1cc2:	f7ff fba5 	blne	1410 <vTaskMissedYield>
+    1cc6:	b278      	sxtb	r0, r7
+    1cc8:	3f01      	subs	r7, #1
+    1cca:	2801      	cmp	r0, #1
+    1ccc:	dcf2      	bgt.n	1cb4 <prvUnlockQueue+0x4c>
+    1cce:	f884 6054 	strb.w	r6, [r4, #84]	@ 0x54
+    1cd2:	b001      	add	sp, #4
+    1cd4:	e8bd 40f0 	ldmia.w	sp!, {r4, r5, r6, r7, lr}
+    1cd8:	f000 bcba 	b.w	2650 <vPortExitCritical>
+
+00001cdc <xQueueGenericSendFromISR>:
+    1cdc:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+    1ce0:	461e      	mov	r6, r3
+    1ce2:	4690      	mov	r8, r2
+    1ce4:	4604      	mov	r4, r0
+    1ce6:	460f      	mov	r7, r1
+    1ce8:	b110      	cbz	r0, 1cf0 <xQueueGenericSendFromISR+0x14>
+    1cea:	b967      	cbnz	r7, 1d06 <xQueueGenericSendFromISR+0x2a>
+    1cec:	e005      	b.n	1cfa <xQueueGenericSendFromISR+0x1e>
+    1cee:	bf00      	nop
+    1cf0:	f240 4093 	movw	r0, #1171	@ 0x493
+    1cf4:	f7fe fda6 	bl	844 <fc_fail>
+    1cf8:	b92f      	cbnz	r7, 1d06 <xQueueGenericSendFromISR+0x2a>
+    1cfa:	6d20      	ldr	r0, [r4, #80]	@ 0x50
+    1cfc:	b118      	cbz	r0, 1d06 <xQueueGenericSendFromISR+0x2a>
+    1cfe:	f240 4094 	movw	r0, #1172	@ 0x494
+    1d02:	f7fe fd9f 	bl	844 <fc_fail>
+    1d06:	2e02      	cmp	r6, #2
+    1d08:	d106      	bne.n	1d18 <xQueueGenericSendFromISR+0x3c>
+    1d0a:	6ce0      	ldr	r0, [r4, #76]	@ 0x4c
+    1d0c:	2801      	cmp	r0, #1
+    1d0e:	d003      	beq.n	1d18 <xQueueGenericSendFromISR+0x3c>
+    1d10:	f240 4095 	movw	r0, #1173	@ 0x495
+    1d14:	f7fe fd96 	bl	844 <fc_fail>
+    1d18:	f000 fcc6 	bl	26a8 <vPortValidateInterruptPriority>
+    1d1c:	f3ef 8911 	mrs	r9, BASEPRI
+    1d20:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    1d24:	f380 8811 	msr	BASEPRI, r0
+    1d28:	f3bf 8f6f 	isb	sy
+    1d2c:	f3bf 8f4f 	dsb	sy
+    1d30:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1d32:	2e02      	cmp	r6, #2
+    1d34:	d008      	beq.n	1d48 <xQueueGenericSendFromISR+0x6c>
+    1d36:	6ce1      	ldr	r1, [r4, #76]	@ 0x4c
+    1d38:	4288      	cmp	r0, r1
+    1d3a:	d305      	bcc.n	1d48 <xQueueGenericSendFromISR+0x6c>
+    1d3c:	2000      	movs	r0, #0
+    1d3e:	f389 8811 	msr	BASEPRI, r9
+    1d42:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+    1d46:	bf00      	nop
+    1d48:	f994 5055 	ldrsb.w	r5, [r4, #85]	@ 0x55
+    1d4c:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    1d4e:	4620      	mov	r0, r4
+    1d50:	4639      	mov	r1, r7
+    1d52:	4632      	mov	r2, r6
+    1d54:	fa5f fa85 	uxtb.w	sl, r5
+    1d58:	f7ff ff3e 	bl	1bd8 <prvCopyDataToQueue>
+    1d5c:	f1ba 0fff 	cmp.w	sl, #255	@ 0xff
+    1d60:	d010      	beq.n	1d84 <xQueueGenericSendFromISR+0xa8>
+    1d62:	f7ff fa7f 	bl	1264 <uxTaskGetNumberOfTasks>
+    1d66:	42a8      	cmp	r0, r5
+    1d68:	d91e      	bls.n	1da8 <xQueueGenericSendFromISR+0xcc>
+    1d6a:	f1ba 0f7f 	cmp.w	sl, #127	@ 0x7f
+    1d6e:	d103      	bne.n	1d78 <xQueueGenericSendFromISR+0x9c>
+    1d70:	f240 5021 	movw	r0, #1313	@ 0x521
+    1d74:	f7fe fd66 	bl	844 <fc_fail>
+    1d78:	f10a 0001 	add.w	r0, sl, #1
+    1d7c:	f884 0055 	strb.w	r0, [r4, #85]	@ 0x55
+    1d80:	e012      	b.n	1da8 <xQueueGenericSendFromISR+0xcc>
+    1d82:	bf00      	nop
+    1d84:	f854 0f2c 	ldr.w	r0, [r4, #44]!
+    1d88:	b170      	cbz	r0, 1da8 <xQueueGenericSendFromISR+0xcc>
+    1d8a:	4620      	mov	r0, r4
+    1d8c:	f7ff fa88 	bl	12a0 <xTaskRemoveFromEventList>
+    1d90:	4601      	mov	r1, r0
+    1d92:	f1b8 0f00 	cmp.w	r8, #0
+    1d96:	f04f 0001 	mov.w	r0, #1
+    1d9a:	bf18      	it	ne
+    1d9c:	2900      	cmpne	r1, #0
+    1d9e:	d109      	bne.n	1db4 <xQueueGenericSendFromISR+0xd8>
+    1da0:	f389 8811 	msr	BASEPRI, r9
+    1da4:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+    1da8:	2001      	movs	r0, #1
+    1daa:	f389 8811 	msr	BASEPRI, r9
+    1dae:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+    1db2:	bf00      	nop
+    1db4:	f8c8 0000 	str.w	r0, [r8]
+    1db8:	f389 8811 	msr	BASEPRI, r9
+    1dbc:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+
+00001dc0 <xQueueReceive>:
+    1dc0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    1dc4:	b083      	sub	sp, #12
+    1dc6:	4616      	mov	r6, r2
+    1dc8:	460d      	mov	r5, r1
+    1dca:	4604      	mov	r4, r0
+    1dcc:	9202      	str	r2, [sp, #8]
+    1dce:	b108      	cbz	r0, 1dd4 <xQueueReceive+0x14>
+    1dd0:	b95d      	cbnz	r5, 1dea <xQueueReceive+0x2a>
+    1dd2:	e004      	b.n	1dde <xQueueReceive+0x1e>
+    1dd4:	f240 50ec 	movw	r0, #1516	@ 0x5ec
+    1dd8:	f7fe fd34 	bl	844 <fc_fail>
+    1ddc:	b92d      	cbnz	r5, 1dea <xQueueReceive+0x2a>
+    1dde:	6d20      	ldr	r0, [r4, #80]	@ 0x50
+    1de0:	b118      	cbz	r0, 1dea <xQueueReceive+0x2a>
+    1de2:	f44f 60be 	mov.w	r0, #1520	@ 0x5f0
+    1de6:	f7fe fd2d 	bl	844 <fc_fail>
+    1dea:	f7ff fb19 	bl	1420 <xTaskGetSchedulerState>
+    1dee:	b920      	cbnz	r0, 1dfa <xQueueReceive+0x3a>
+    1df0:	b11e      	cbz	r6, 1dfa <xQueueReceive+0x3a>
+    1df2:	f240 50f5 	movw	r0, #1525	@ 0x5f5
+    1df6:	f7fe fd25 	bl	844 <fc_fail>
+    1dfa:	f000 fc09 	bl	2610 <vPortEnterCritical>
+    1dfe:	f8d4 a048 	ldr.w	sl, [r4, #72]	@ 0x48
+    1e02:	f1ba 0f00 	cmp.w	sl, #0
+    1e06:	d029      	beq.n	1e5c <xQueueReceive+0x9c>
+    1e08:	6d22      	ldr	r2, [r4, #80]	@ 0x50
+    1e0a:	b152      	cbz	r2, 1e22 <xQueueReceive+0x62>
+    1e0c:	e9d4 0102 	ldrd	r0, r1, [r4, #8]
+    1e10:	4411      	add	r1, r2
+    1e12:	60e1      	str	r1, [r4, #12]
+    1e14:	4281      	cmp	r1, r0
+    1e16:	bf24      	itt	cs
+    1e18:	6821      	ldrcs	r1, [r4, #0]
+    1e1a:	60e1      	strcs	r1, [r4, #12]
+    1e1c:	4628      	mov	r0, r5
+    1e1e:	f000 fc69 	bl	26f4 <memcpy>
+    1e22:	f854 0f10 	ldr.w	r0, [r4, #16]!
+    1e26:	f1aa 0101 	sub.w	r1, sl, #1
+    1e2a:	63a1      	str	r1, [r4, #56]	@ 0x38
+    1e2c:	b170      	cbz	r0, 1e4c <xQueueReceive+0x8c>
+    1e2e:	4620      	mov	r0, r4
+    1e30:	f7ff fa36 	bl	12a0 <xTaskRemoveFromEventList>
+    1e34:	b150      	cbz	r0, 1e4c <xQueueReceive+0x8c>
+    1e36:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1e3a:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1e3e:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1e42:	6001      	str	r1, [r0, #0]
+    1e44:	f3bf 8f4f 	dsb	sy
+    1e48:	f3bf 8f6f 	isb	sy
+    1e4c:	2401      	movs	r4, #1
+    1e4e:	f000 fbff 	bl	2650 <vPortExitCritical>
+    1e52:	4620      	mov	r0, r4
+    1e54:	b003      	add	sp, #12
+    1e56:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1e5a:	bf00      	nop
+    1e5c:	9802      	ldr	r0, [sp, #8]
+    1e5e:	2800      	cmp	r0, #0
+    1e60:	f000 80b4 	beq.w	1fcc <xQueueReceive+0x20c>
+    1e64:	4668      	mov	r0, sp
+    1e66:	f7ff fa87 	bl	1378 <vTaskInternalSetTimeOutState>
+    1e6a:	f000 fbf1 	bl	2650 <vPortExitCritical>
+    1e6e:	f7fe ffa5 	bl	dbc <vTaskSuspendAll>
+    1e72:	f000 fbcd 	bl	2610 <vPortEnterCritical>
+    1e76:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    1e7a:	f104 082c 	add.w	r8, r4, #44	@ 0x2c
+    1e7e:	28ff      	cmp	r0, #255	@ 0xff
+    1e80:	bf04      	itt	eq
+    1e82:	2000      	moveq	r0, #0
+    1e84:	f884 0054 	strbeq.w	r0, [r4, #84]	@ 0x54
+    1e88:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    1e8c:	28ff      	cmp	r0, #255	@ 0xff
+    1e8e:	bf04      	itt	eq
+    1e90:	2000      	moveq	r0, #0
+    1e92:	f884 0055 	strbeq.w	r0, [r4, #85]	@ 0x55
+    1e96:	f000 fbdb 	bl	2650 <vPortExitCritical>
+    1e9a:	4668      	mov	r0, sp
+    1e9c:	a902      	add	r1, sp, #8
+    1e9e:	f7ff fa75 	bl	138c <xTaskCheckForTimeOut>
+    1ea2:	b178      	cbz	r0, 1ec4 <xQueueReceive+0x104>
+    1ea4:	4620      	mov	r0, r4
+    1ea6:	f7ff fedf 	bl	1c68 <prvUnlockQueue>
+    1eaa:	f7fe ffe1 	bl	e70 <xTaskResumeAll>
+    1eae:	f000 fbaf 	bl	2610 <vPortEnterCritical>
+    1eb2:	6ca6      	ldr	r6, [r4, #72]	@ 0x48
+    1eb4:	f000 fbcc 	bl	2650 <vPortExitCritical>
+    1eb8:	bb2e      	cbnz	r6, 1f06 <xQueueReceive+0x146>
+    1eba:	2400      	movs	r4, #0
+    1ebc:	4620      	mov	r0, r4
+    1ebe:	b003      	add	sp, #12
+    1ec0:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    1ec4:	f000 fba4 	bl	2610 <vPortEnterCritical>
+    1ec8:	6ca6      	ldr	r6, [r4, #72]	@ 0x48
+    1eca:	f000 fbc1 	bl	2650 <vPortExitCritical>
+    1ece:	b12e      	cbz	r6, 1edc <xQueueReceive+0x11c>
+    1ed0:	4620      	mov	r0, r4
+    1ed2:	f7ff fec9 	bl	1c68 <prvUnlockQueue>
+    1ed6:	f7fe ffcb 	bl	e70 <xTaskResumeAll>
+    1eda:	e014      	b.n	1f06 <xQueueReceive+0x146>
+    1edc:	9902      	ldr	r1, [sp, #8]
+    1ede:	4640      	mov	r0, r8
+    1ee0:	f7ff f9c6 	bl	1270 <vTaskPlaceOnEventList>
+    1ee4:	4620      	mov	r0, r4
+    1ee6:	f7ff febf 	bl	1c68 <prvUnlockQueue>
+    1eea:	f7fe ffc1 	bl	e70 <xTaskResumeAll>
+    1eee:	b950      	cbnz	r0, 1f06 <xQueueReceive+0x146>
+    1ef0:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1ef4:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1ef8:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1efc:	6001      	str	r1, [r0, #0]
+    1efe:	f3bf 8f4f 	dsb	sy
+    1f02:	f3bf 8f6f 	isb	sy
+    1f06:	f000 fb83 	bl	2610 <vPortEnterCritical>
+    1f0a:	f8d4 a048 	ldr.w	sl, [r4, #72]	@ 0x48
+    1f0e:	f1ba 0f00 	cmp.w	sl, #0
+    1f12:	f47f af79 	bne.w	1e08 <xQueueReceive+0x48>
+    1f16:	f04f 0900 	mov.w	r9, #0
+    1f1a:	46eb      	mov	fp, sp
+    1f1c:	ae02      	add	r6, sp, #8
+    1f1e:	e013      	b.n	1f48 <xQueueReceive+0x188>
+    1f20:	4620      	mov	r0, r4
+    1f22:	f7ff fea1 	bl	1c68 <prvUnlockQueue>
+    1f26:	f7fe ffa3 	bl	e70 <xTaskResumeAll>
+    1f2a:	f000 fb71 	bl	2610 <vPortEnterCritical>
+    1f2e:	6ca7      	ldr	r7, [r4, #72]	@ 0x48
+    1f30:	f000 fb8e 	bl	2650 <vPortExitCritical>
+    1f34:	2f00      	cmp	r7, #0
+    1f36:	d0c0      	beq.n	1eba <xQueueReceive+0xfa>
+    1f38:	f000 fb6a 	bl	2610 <vPortEnterCritical>
+    1f3c:	f8d4 a048 	ldr.w	sl, [r4, #72]	@ 0x48
+    1f40:	f1ba 0f00 	cmp.w	sl, #0
+    1f44:	f47f af60 	bne.w	1e08 <xQueueReceive+0x48>
+    1f48:	9802      	ldr	r0, [sp, #8]
+    1f4a:	2800      	cmp	r0, #0
+    1f4c:	d03e      	beq.n	1fcc <xQueueReceive+0x20c>
+    1f4e:	f000 fb7f 	bl	2650 <vPortExitCritical>
+    1f52:	f7fe ff33 	bl	dbc <vTaskSuspendAll>
+    1f56:	f000 fb5b 	bl	2610 <vPortEnterCritical>
+    1f5a:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    1f5e:	28ff      	cmp	r0, #255	@ 0xff
+    1f60:	bf08      	it	eq
+    1f62:	f884 9054 	strbeq.w	r9, [r4, #84]	@ 0x54
+    1f66:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    1f6a:	28ff      	cmp	r0, #255	@ 0xff
+    1f6c:	bf08      	it	eq
+    1f6e:	f884 9055 	strbeq.w	r9, [r4, #85]	@ 0x55
+    1f72:	f000 fb6d 	bl	2650 <vPortExitCritical>
+    1f76:	4658      	mov	r0, fp
+    1f78:	4631      	mov	r1, r6
+    1f7a:	f7ff fa07 	bl	138c <xTaskCheckForTimeOut>
+    1f7e:	2800      	cmp	r0, #0
+    1f80:	d1ce      	bne.n	1f20 <xQueueReceive+0x160>
+    1f82:	f000 fb45 	bl	2610 <vPortEnterCritical>
+    1f86:	6ca7      	ldr	r7, [r4, #72]	@ 0x48
+    1f88:	f000 fb62 	bl	2650 <vPortExitCritical>
+    1f8c:	b137      	cbz	r7, 1f9c <xQueueReceive+0x1dc>
+    1f8e:	4620      	mov	r0, r4
+    1f90:	f7ff fe6a 	bl	1c68 <prvUnlockQueue>
+    1f94:	f7fe ff6c 	bl	e70 <xTaskResumeAll>
+    1f98:	e7ce      	b.n	1f38 <xQueueReceive+0x178>
+    1f9a:	bf00      	nop
+    1f9c:	9902      	ldr	r1, [sp, #8]
+    1f9e:	4640      	mov	r0, r8
+    1fa0:	f7ff f966 	bl	1270 <vTaskPlaceOnEventList>
+    1fa4:	4620      	mov	r0, r4
+    1fa6:	f7ff fe5f 	bl	1c68 <prvUnlockQueue>
+    1faa:	f7fe ff61 	bl	e70 <xTaskResumeAll>
+    1fae:	2800      	cmp	r0, #0
+    1fb0:	d1c2      	bne.n	1f38 <xQueueReceive+0x178>
+    1fb2:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    1fb6:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    1fba:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    1fbe:	6001      	str	r1, [r0, #0]
+    1fc0:	f3bf 8f4f 	dsb	sy
+    1fc4:	f3bf 8f6f 	isb	sy
+    1fc8:	e7b6      	b.n	1f38 <xQueueReceive+0x178>
+    1fca:	bf00      	nop
+    1fcc:	2400      	movs	r4, #0
+    1fce:	f000 fb3f 	bl	2650 <vPortExitCritical>
+    1fd2:	4620      	mov	r0, r4
+    1fd4:	b003      	add	sp, #12
+    1fd6:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+	...
+
+00001fdc <xQueueSemaphoreTake>:
+    1fdc:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    1fe0:	b083      	sub	sp, #12
+    1fe2:	460d      	mov	r5, r1
+    1fe4:	4604      	mov	r4, r0
+    1fe6:	9102      	str	r1, [sp, #8]
+    1fe8:	b918      	cbnz	r0, 1ff2 <xQueueSemaphoreTake+0x16>
+    1fea:	f240 6085 	movw	r0, #1669	@ 0x685
+    1fee:	f7fe fc29 	bl	844 <fc_fail>
+    1ff2:	6d20      	ldr	r0, [r4, #80]	@ 0x50
+    1ff4:	b118      	cbz	r0, 1ffe <xQueueSemaphoreTake+0x22>
+    1ff6:	f240 6089 	movw	r0, #1673	@ 0x689
+    1ffa:	f7fe fc23 	bl	844 <fc_fail>
+    1ffe:	f7ff fa0f 	bl	1420 <xTaskGetSchedulerState>
+    2002:	b920      	cbnz	r0, 200e <xQueueSemaphoreTake+0x32>
+    2004:	b11d      	cbz	r5, 200e <xQueueSemaphoreTake+0x32>
+    2006:	f240 608e 	movw	r0, #1678	@ 0x68e
+    200a:	f7fe fc1b 	bl	844 <fc_fail>
+    200e:	f000 faff 	bl	2610 <vPortEnterCritical>
+    2012:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    2014:	b300      	cbz	r0, 2058 <xQueueSemaphoreTake+0x7c>
+    2016:	3801      	subs	r0, #1
+    2018:	64a0      	str	r0, [r4, #72]	@ 0x48
+    201a:	6820      	ldr	r0, [r4, #0]
+    201c:	b910      	cbnz	r0, 2024 <xQueueSemaphoreTake+0x48>
+    201e:	f7ff fb2f 	bl	1680 <pvTaskIncrementMutexHeldCount>
+    2022:	60a0      	str	r0, [r4, #8]
+    2024:	f854 0f10 	ldr.w	r0, [r4, #16]!
+    2028:	b170      	cbz	r0, 2048 <xQueueSemaphoreTake+0x6c>
+    202a:	4620      	mov	r0, r4
+    202c:	f7ff f938 	bl	12a0 <xTaskRemoveFromEventList>
+    2030:	b150      	cbz	r0, 2048 <xQueueSemaphoreTake+0x6c>
+    2032:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    2036:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    203a:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    203e:	6001      	str	r1, [r0, #0]
+    2040:	f3bf 8f4f 	dsb	sy
+    2044:	f3bf 8f6f 	isb	sy
+    2048:	2601      	movs	r6, #1
+    204a:	f000 fb01 	bl	2650 <vPortExitCritical>
+    204e:	4630      	mov	r0, r6
+    2050:	b003      	add	sp, #12
+    2052:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    2056:	bf00      	nop
+    2058:	9802      	ldr	r0, [sp, #8]
+    205a:	2800      	cmp	r0, #0
+    205c:	f000 80de 	beq.w	221c <xQueueSemaphoreTake+0x240>
+    2060:	4668      	mov	r0, sp
+    2062:	f7ff f989 	bl	1378 <vTaskInternalSetTimeOutState>
+    2066:	f000 faf3 	bl	2650 <vPortExitCritical>
+    206a:	f7fe fea7 	bl	dbc <vTaskSuspendAll>
+    206e:	f000 facf 	bl	2610 <vPortEnterCritical>
+    2072:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    2076:	f104 082c 	add.w	r8, r4, #44	@ 0x2c
+    207a:	28ff      	cmp	r0, #255	@ 0xff
+    207c:	bf04      	itt	eq
+    207e:	2000      	moveq	r0, #0
+    2080:	f884 0054 	strbeq.w	r0, [r4, #84]	@ 0x54
+    2084:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    2088:	28ff      	cmp	r0, #255	@ 0xff
+    208a:	bf04      	itt	eq
+    208c:	2000      	moveq	r0, #0
+    208e:	f884 0055 	strbeq.w	r0, [r4, #85]	@ 0x55
+    2092:	f000 fadd 	bl	2650 <vPortExitCritical>
+    2096:	4668      	mov	r0, sp
+    2098:	a902      	add	r1, sp, #8
+    209a:	f7ff f977 	bl	138c <xTaskCheckForTimeOut>
+    209e:	b168      	cbz	r0, 20bc <xQueueSemaphoreTake+0xe0>
+    20a0:	4620      	mov	r0, r4
+    20a2:	f7ff fde1 	bl	1c68 <prvUnlockQueue>
+    20a6:	f7fe fee3 	bl	e70 <xTaskResumeAll>
+    20aa:	f000 fab1 	bl	2610 <vPortEnterCritical>
+    20ae:	6ca5      	ldr	r5, [r4, #72]	@ 0x48
+    20b0:	f000 face 	bl	2650 <vPortExitCritical>
+    20b4:	f04f 0600 	mov.w	r6, #0
+    20b8:	bb7d      	cbnz	r5, 211a <xQueueSemaphoreTake+0x13e>
+    20ba:	e7c8      	b.n	204e <xQueueSemaphoreTake+0x72>
+    20bc:	f000 faa8 	bl	2610 <vPortEnterCritical>
+    20c0:	6ca5      	ldr	r5, [r4, #72]	@ 0x48
+    20c2:	f000 fac5 	bl	2650 <vPortExitCritical>
+    20c6:	b13d      	cbz	r5, 20d8 <xQueueSemaphoreTake+0xfc>
+    20c8:	4620      	mov	r0, r4
+    20ca:	f7ff fdcd 	bl	1c68 <prvUnlockQueue>
+    20ce:	f7fe fecf 	bl	e70 <xTaskResumeAll>
+    20d2:	2600      	movs	r6, #0
+    20d4:	e021      	b.n	211a <xQueueSemaphoreTake+0x13e>
+    20d6:	bf00      	nop
+    20d8:	6820      	ldr	r0, [r4, #0]
+    20da:	b108      	cbz	r0, 20e0 <xQueueSemaphoreTake+0x104>
+    20dc:	2600      	movs	r6, #0
+    20de:	e007      	b.n	20f0 <xQueueSemaphoreTake+0x114>
+    20e0:	f000 fa96 	bl	2610 <vPortEnterCritical>
+    20e4:	68a0      	ldr	r0, [r4, #8]
+    20e6:	f7ff f9ab 	bl	1440 <xTaskPriorityInherit>
+    20ea:	4606      	mov	r6, r0
+    20ec:	f000 fab0 	bl	2650 <vPortExitCritical>
+    20f0:	9902      	ldr	r1, [sp, #8]
+    20f2:	4640      	mov	r0, r8
+    20f4:	f7ff f8bc 	bl	1270 <vTaskPlaceOnEventList>
+    20f8:	4620      	mov	r0, r4
+    20fa:	f7ff fdb5 	bl	1c68 <prvUnlockQueue>
+    20fe:	f7fe feb7 	bl	e70 <xTaskResumeAll>
+    2102:	b950      	cbnz	r0, 211a <xQueueSemaphoreTake+0x13e>
+    2104:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    2108:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    210c:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    2110:	6001      	str	r1, [r0, #0]
+    2112:	f3bf 8f4f 	dsb	sy
+    2116:	f3bf 8f6f 	isb	sy
+    211a:	f000 fa79 	bl	2610 <vPortEnterCritical>
+    211e:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    2120:	2800      	cmp	r0, #0
+    2122:	f47f af78 	bne.w	2016 <xQueueSemaphoreTake+0x3a>
+    2126:	f04f 0900 	mov.w	r9, #0
+    212a:	46eb      	mov	fp, sp
+    212c:	ad02      	add	r5, sp, #8
+    212e:	e011      	b.n	2154 <xQueueSemaphoreTake+0x178>
+    2130:	4620      	mov	r0, r4
+    2132:	f7ff fd99 	bl	1c68 <prvUnlockQueue>
+    2136:	f7fe fe9b 	bl	e70 <xTaskResumeAll>
+    213a:	f000 fa69 	bl	2610 <vPortEnterCritical>
+    213e:	6ca7      	ldr	r7, [r4, #72]	@ 0x48
+    2140:	f000 fa86 	bl	2650 <vPortExitCritical>
+    2144:	2f00      	cmp	r7, #0
+    2146:	d053      	beq.n	21f0 <xQueueSemaphoreTake+0x214>
+    2148:	f000 fa62 	bl	2610 <vPortEnterCritical>
+    214c:	6ca0      	ldr	r0, [r4, #72]	@ 0x48
+    214e:	2800      	cmp	r0, #0
+    2150:	f47f af61 	bne.w	2016 <xQueueSemaphoreTake+0x3a>
+    2154:	9802      	ldr	r0, [sp, #8]
+    2156:	2800      	cmp	r0, #0
+    2158:	d060      	beq.n	221c <xQueueSemaphoreTake+0x240>
+    215a:	f000 fa79 	bl	2650 <vPortExitCritical>
+    215e:	f7fe fe2d 	bl	dbc <vTaskSuspendAll>
+    2162:	f000 fa55 	bl	2610 <vPortEnterCritical>
+    2166:	f894 0054 	ldrb.w	r0, [r4, #84]	@ 0x54
+    216a:	28ff      	cmp	r0, #255	@ 0xff
+    216c:	bf08      	it	eq
+    216e:	f884 9054 	strbeq.w	r9, [r4, #84]	@ 0x54
+    2172:	f894 0055 	ldrb.w	r0, [r4, #85]	@ 0x55
+    2176:	28ff      	cmp	r0, #255	@ 0xff
+    2178:	bf08      	it	eq
+    217a:	f884 9055 	strbeq.w	r9, [r4, #85]	@ 0x55
+    217e:	f000 fa67 	bl	2650 <vPortExitCritical>
+    2182:	4658      	mov	r0, fp
+    2184:	4629      	mov	r1, r5
+    2186:	f7ff f901 	bl	138c <xTaskCheckForTimeOut>
+    218a:	2800      	cmp	r0, #0
+    218c:	d1d0      	bne.n	2130 <xQueueSemaphoreTake+0x154>
+    218e:	f000 fa3f 	bl	2610 <vPortEnterCritical>
+    2192:	f8d4 a048 	ldr.w	sl, [r4, #72]	@ 0x48
+    2196:	f000 fa5b 	bl	2650 <vPortExitCritical>
+    219a:	f1ba 0f00 	cmp.w	sl, #0
+    219e:	d005      	beq.n	21ac <xQueueSemaphoreTake+0x1d0>
+    21a0:	4620      	mov	r0, r4
+    21a2:	f7ff fd61 	bl	1c68 <prvUnlockQueue>
+    21a6:	f7fe fe63 	bl	e70 <xTaskResumeAll>
+    21aa:	e7cd      	b.n	2148 <xQueueSemaphoreTake+0x16c>
+    21ac:	6820      	ldr	r0, [r4, #0]
+    21ae:	b938      	cbnz	r0, 21c0 <xQueueSemaphoreTake+0x1e4>
+    21b0:	f000 fa2e 	bl	2610 <vPortEnterCritical>
+    21b4:	68a0      	ldr	r0, [r4, #8]
+    21b6:	f7ff f943 	bl	1440 <xTaskPriorityInherit>
+    21ba:	4606      	mov	r6, r0
+    21bc:	f000 fa48 	bl	2650 <vPortExitCritical>
+    21c0:	9902      	ldr	r1, [sp, #8]
+    21c2:	4640      	mov	r0, r8
+    21c4:	f7ff f854 	bl	1270 <vTaskPlaceOnEventList>
+    21c8:	4620      	mov	r0, r4
+    21ca:	f7ff fd4d 	bl	1c68 <prvUnlockQueue>
+    21ce:	f7fe fe4f 	bl	e70 <xTaskResumeAll>
+    21d2:	2800      	cmp	r0, #0
+    21d4:	d1b8      	bne.n	2148 <xQueueSemaphoreTake+0x16c>
+    21d6:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    21da:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    21de:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    21e2:	6001      	str	r1, [r0, #0]
+    21e4:	f3bf 8f4f 	dsb	sy
+    21e8:	f3bf 8f6f 	isb	sy
+    21ec:	e7ac      	b.n	2148 <xQueueSemaphoreTake+0x16c>
+    21ee:	bf00      	nop
+    21f0:	b156      	cbz	r6, 2208 <xQueueSemaphoreTake+0x22c>
+    21f2:	f000 fa0d 	bl	2610 <vPortEnterCritical>
+    21f6:	f8d8 0000 	ldr.w	r0, [r8]
+    21fa:	b158      	cbz	r0, 2214 <xQueueSemaphoreTake+0x238>
+    21fc:	6ba0      	ldr	r0, [r4, #56]	@ 0x38
+    21fe:	6800      	ldr	r0, [r0, #0]
+    2200:	f1c0 0105 	rsb	r1, r0, #5
+    2204:	e007      	b.n	2216 <xQueueSemaphoreTake+0x23a>
+    2206:	bf00      	nop
+    2208:	2600      	movs	r6, #0
+    220a:	4630      	mov	r0, r6
+    220c:	b003      	add	sp, #12
+    220e:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    2212:	bf00      	nop
+    2214:	2100      	movs	r1, #0
+    2216:	68a0      	ldr	r0, [r4, #8]
+    2218:	f7ff f9ca 	bl	15b0 <vTaskPriorityDisinheritAfterTimeout>
+    221c:	2600      	movs	r6, #0
+    221e:	f000 fa17 	bl	2650 <vPortExitCritical>
+    2222:	4630      	mov	r0, r6
+    2224:	b003      	add	sp, #12
+    2226:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+	...
+
+0000222c <uxQueueMessagesWaiting>:
+    222c:	b510      	push	{r4, lr}
+    222e:	4604      	mov	r4, r0
+    2230:	b918      	cbnz	r0, 223a <uxQueueMessagesWaiting+0xe>
+    2232:	f640 009e 	movw	r0, #2206	@ 0x89e
+    2236:	f7fe fb05 	bl	844 <fc_fail>
+    223a:	f000 f9e9 	bl	2610 <vPortEnterCritical>
+    223e:	6ca4      	ldr	r4, [r4, #72]	@ 0x48
+    2240:	f000 fa06 	bl	2650 <vPortExitCritical>
+    2244:	4620      	mov	r0, r4
+    2246:	bd10      	pop	{r4, pc}
+
+00002248 <vQueueDelete>:
+    2248:	2800      	cmp	r0, #0
+    224a:	bf18      	it	ne
+    224c:	4770      	bxne	lr
+    224e:	f640 00d7 	movw	r0, #2263	@ 0x8d7
+    2252:	f7fe baf7 	b.w	844 <fc_fail>
+	...
+
+00002258 <vListInitialise>:
+    2258:	f04f 31ff 	mov.w	r1, #4294967295	@ 0xffffffff
+    225c:	4602      	mov	r2, r0
+    225e:	f842 1f08 	str.w	r1, [r2, #8]!
+    2262:	2100      	movs	r1, #0
+    2264:	e9c0 2203 	strd	r2, r2, [r0, #12]
+    2268:	e9c0 1105 	strd	r1, r1, [r0, #20]
+    226c:	e9c0 1200 	strd	r1, r2, [r0]
+    2270:	4770      	bx	lr
+	...
+
+00002274 <vListInitialiseItem>:
+    2274:	2100      	movs	r1, #0
+    2276:	6101      	str	r1, [r0, #16]
+    2278:	4770      	bx	lr
+	...
+
+0000227c <vListInsertEnd>:
+    227c:	e9d0 c300 	ldrd	ip, r3, [r0]
+    2280:	6108      	str	r0, [r1, #16]
+    2282:	689a      	ldr	r2, [r3, #8]
+    2284:	e9c1 3201 	strd	r3, r2, [r1, #4]
+    2288:	6051      	str	r1, [r2, #4]
+    228a:	6099      	str	r1, [r3, #8]
+    228c:	f10c 0101 	add.w	r1, ip, #1
+    2290:	6001      	str	r1, [r0, #0]
+    2292:	4770      	bx	lr
+
+00002294 <vListInsert>:
+    2294:	b510      	push	{r4, lr}
+    2296:	f8d1 c000 	ldr.w	ip, [r1]
+    229a:	f11c 0201 	adds.w	r2, ip, #1
+    229e:	d013      	beq.n	22c8 <vListInsert+0x34>
+    22a0:	f100 0408 	add.w	r4, r0, #8
+    22a4:	6862      	ldr	r2, [r4, #4]
+    22a6:	6813      	ldr	r3, [r2, #0]
+    22a8:	4563      	cmp	r3, ip
+    22aa:	d811      	bhi.n	22d0 <vListInsert+0x3c>
+    22ac:	6853      	ldr	r3, [r2, #4]
+    22ae:	681c      	ldr	r4, [r3, #0]
+    22b0:	4564      	cmp	r4, ip
+    22b2:	d811      	bhi.n	22d8 <vListInsert+0x44>
+    22b4:	685a      	ldr	r2, [r3, #4]
+    22b6:	6814      	ldr	r4, [r2, #0]
+    22b8:	4564      	cmp	r4, ip
+    22ba:	d80f      	bhi.n	22dc <vListInsert+0x48>
+    22bc:	6854      	ldr	r4, [r2, #4]
+    22be:	6823      	ldr	r3, [r4, #0]
+    22c0:	46a6      	mov	lr, r4
+    22c2:	4563      	cmp	r3, ip
+    22c4:	d9ee      	bls.n	22a4 <vListInsert+0x10>
+    22c6:	e00b      	b.n	22e0 <vListInsert+0x4c>
+    22c8:	6902      	ldr	r2, [r0, #16]
+    22ca:	f8d2 e004 	ldr.w	lr, [r2, #4]
+    22ce:	e007      	b.n	22e0 <vListInsert+0x4c>
+    22d0:	4696      	mov	lr, r2
+    22d2:	4622      	mov	r2, r4
+    22d4:	e004      	b.n	22e0 <vListInsert+0x4c>
+    22d6:	bf00      	nop
+    22d8:	469e      	mov	lr, r3
+    22da:	e001      	b.n	22e0 <vListInsert+0x4c>
+    22dc:	4696      	mov	lr, r2
+    22de:	461a      	mov	r2, r3
+    22e0:	f8c1 e004 	str.w	lr, [r1, #4]
+    22e4:	f8ce 1008 	str.w	r1, [lr, #8]
+    22e8:	608a      	str	r2, [r1, #8]
+    22ea:	6051      	str	r1, [r2, #4]
+    22ec:	6802      	ldr	r2, [r0, #0]
+    22ee:	6108      	str	r0, [r1, #16]
+    22f0:	1c51      	adds	r1, r2, #1
+    22f2:	6001      	str	r1, [r0, #0]
+    22f4:	bd10      	pop	{r4, pc}
+	...
+
+000022f8 <uxListRemove>:
+    22f8:	6901      	ldr	r1, [r0, #16]
+    22fa:	e9d0 3201 	ldrd	r3, r2, [r0, #4]
+    22fe:	f8d1 c004 	ldr.w	ip, [r1, #4]
+    2302:	609a      	str	r2, [r3, #8]
+    2304:	4584      	cmp	ip, r0
+    2306:	6053      	str	r3, [r2, #4]
+    2308:	bf08      	it	eq
+    230a:	604a      	streq	r2, [r1, #4]
+    230c:	680b      	ldr	r3, [r1, #0]
+    230e:	2200      	movs	r2, #0
+    2310:	6102      	str	r2, [r0, #16]
+    2312:	1e58      	subs	r0, r3, #1
+    2314:	6008      	str	r0, [r1, #0]
+    2316:	4770      	bx	lr
+
+00002318 <pxPortInitialiseStack>:
+    2318:	4603      	mov	r3, r0
+    231a:	f242 303d 	movw	r0, #9021	@ 0x233d
+    231e:	f021 0101 	bic.w	r1, r1, #1
+    2322:	f2c0 0000 	movt	r0, #0
+    2326:	f04f 7c80 	mov.w	ip, #16777216	@ 0x1000000
+    232a:	e903 1003 	stmdb	r3, {r0, r1, ip}
+    232e:	f06f 0102 	mvn.w	r1, #2
+    2332:	f1a3 0044 	sub.w	r0, r3, #68	@ 0x44
+    2336:	e943 1209 	strd	r1, r2, [r3, #-36]	@ 0x24
+    233a:	4770      	bx	lr
+
+0000233c <prvTaskExitError>:
+    233c:	b580      	push	{r7, lr}
+    233e:	b082      	sub	sp, #8
+    2340:	2000      	movs	r0, #0
+    2342:	9001      	str	r0, [sp, #4]
+    2344:	f240 0000 	movw	r0, #0
+    2348:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    234c:	6800      	ldr	r0, [r0, #0]
+    234e:	3001      	adds	r0, #1
+    2350:	d002      	beq.n	2358 <prvTaskExitError+0x1c>
+    2352:	20f4      	movs	r0, #244	@ 0xf4
+    2354:	f7fe fa76 	bl	844 <fc_fail>
+    2358:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    235c:	f380 8811 	msr	BASEPRI, r0
+    2360:	f3bf 8f6f 	isb	sy
+    2364:	f3bf 8f4f 	dsb	sy
+    2368:	9801      	ldr	r0, [sp, #4]
+    236a:	b930      	cbnz	r0, 237a <prvTaskExitError+0x3e>
+    236c:	9801      	ldr	r0, [sp, #4]
+    236e:	b920      	cbnz	r0, 237a <prvTaskExitError+0x3e>
+    2370:	9801      	ldr	r0, [sp, #4]
+    2372:	b910      	cbnz	r0, 237a <prvTaskExitError+0x3e>
+    2374:	9801      	ldr	r0, [sp, #4]
+    2376:	2800      	cmp	r0, #0
+    2378:	d0f6      	beq.n	2368 <prvTaskExitError+0x2c>
+    237a:	b002      	add	sp, #8
+    237c:	bd80      	pop	{r7, pc}
+	...
+
+00002380 <vPortSVCHandler>:
+    2380:	4b06      	ldr	r3, [pc, #24]	@ (239c <vPortSVCHandler+0x1c>)
+    2382:	6819      	ldr	r1, [r3, #0]
+    2384:	6808      	ldr	r0, [r1, #0]
+    2386:	e8b0 4ff0 	ldmia.w	r0!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    238a:	f380 8809 	msr	PSP, r0
+    238e:	f3bf 8f6f 	isb	sy
+    2392:	f04f 0000 	mov.w	r0, #0
+    2396:	f380 8811 	msr	BASEPRI, r0
+    239a:	4770      	bx	lr
+    239c:	200042e0 	.word	0x200042e0
+
+000023a0 <xPortStartScheduler>:
+    23a0:	b5f0      	push	{r4, r5, r6, r7, lr}
+    23a2:	b085      	sub	sp, #20
+    23a4:	f24e 4400 	movw	r4, #58368	@ 0xe400
+    23a8:	f2ce 0400 	movt	r4, #57344	@ 0xe000
+    23ac:	f24c 2570 	movw	r5, #49776	@ 0xc270
+    23b0:	f2c4 150f 	movt	r5, #16655	@ 0x410f
+    23b4:	f8d4 0900 	ldr.w	r0, [r4, #2304]	@ 0x900
+    23b8:	1c69      	adds	r1, r5, #1
+    23ba:	4288      	cmp	r0, r1
+    23bc:	d103      	bne.n	23c6 <xPortStartScheduler+0x26>
+    23be:	f44f 709b 	mov.w	r0, #310	@ 0x136
+    23c2:	f7fe fa3f 	bl	844 <fc_fail>
+    23c6:	f8d4 0900 	ldr.w	r0, [r4, #2304]	@ 0x900
+    23ca:	42a8      	cmp	r0, r5
+    23cc:	d103      	bne.n	23d6 <xPortStartScheduler+0x36>
+    23ce:	f240 1037 	movw	r0, #311	@ 0x137
+    23d2:	f7fe fa37 	bl	844 <fc_fail>
+    23d6:	f64e 5520 	movw	r5, #60704	@ 0xed20
+    23da:	f2ce 0500 	movt	r5, #57344	@ 0xe000
+    23de:	f855 6c18 	ldr.w	r6, [r5, #-24]
+    23e2:	f242 3181 	movw	r1, #9089	@ 0x2381
+    23e6:	6af0      	ldr	r0, [r6, #44]	@ 0x2c
+    23e8:	f2c0 0100 	movt	r1, #0
+    23ec:	4288      	cmp	r0, r1
+    23ee:	d003      	beq.n	23f8 <xPortStartScheduler+0x58>
+    23f0:	f44f 70ab 	mov.w	r0, #342	@ 0x156
+    23f4:	f7fe fa26 	bl	844 <fc_fail>
+    23f8:	6bb0      	ldr	r0, [r6, #56]	@ 0x38
+    23fa:	f242 5159 	movw	r1, #9561	@ 0x2559
+    23fe:	f2c0 0100 	movt	r1, #0
+    2402:	4288      	cmp	r0, r1
+    2404:	d003      	beq.n	240e <xPortStartScheduler+0x6e>
+    2406:	f240 1057 	movw	r0, #343	@ 0x157
+    240a:	f7fe fa1b 	bl	844 <fc_fail>
+    240e:	2000      	movs	r0, #0
+    2410:	9002      	str	r0, [sp, #8]
+    2412:	7820      	ldrb	r0, [r4, #0]
+    2414:	f644 4688 	movw	r6, #19592	@ 0x4c88
+    2418:	f88d 000f 	strb.w	r0, [sp, #15]
+    241c:	20ff      	movs	r0, #255	@ 0xff
+    241e:	7020      	strb	r0, [r4, #0]
+    2420:	7820      	ldrb	r0, [r4, #0]
+    2422:	f2c2 0600 	movt	r6, #8192	@ 0x2000
+    2426:	f88d 0007 	strb.w	r0, [sp, #7]
+    242a:	f89d 0007 	ldrb.w	r0, [sp, #7]
+    242e:	f010 0080 	ands.w	r0, r0, #128	@ 0x80
+    2432:	7030      	strb	r0, [r6, #0]
+    2434:	d103      	bne.n	243e <xPortStartScheduler+0x9e>
+    2436:	f44f 70bd 	mov.w	r0, #378	@ 0x17a
+    243a:	f7fe fa03 	bl	844 <fc_fail>
+    243e:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    2442:	2800      	cmp	r0, #0
+    2444:	d403      	bmi.n	244e <xPortStartScheduler+0xae>
+    2446:	f44f 70bf 	mov.w	r0, #382	@ 0x17e
+    244a:	f7fe f9fb 	bl	844 <fc_fail>
+    244e:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    2452:	f1b0 3fff 	cmp.w	r0, #4294967295	@ 0xffffffff
+    2456:	dd70      	ble.n	253a <xPortStartScheduler+0x19a>
+    2458:	9802      	ldr	r0, [sp, #8]
+    245a:	2700      	movs	r7, #0
+    245c:	2808      	cmp	r0, #8
+    245e:	f04f 0000 	mov.w	r0, #0
+    2462:	d006      	beq.n	2472 <xPortStartScheduler+0xd2>
+    2464:	9802      	ldr	r0, [sp, #8]
+    2466:	f44f 61e0 	mov.w	r1, #1792	@ 0x700
+    246a:	eba1 2000 	sub.w	r0, r1, r0, lsl #8
+    246e:	f400 60e0 	and.w	r0, r0, #1792	@ 0x700
+    2472:	6070      	str	r0, [r6, #4]
+    2474:	f89d 000f 	ldrb.w	r0, [sp, #15]
+    2478:	7020      	strb	r0, [r4, #0]
+    247a:	6828      	ldr	r0, [r5, #0]
+    247c:	f440 007f 	orr.w	r0, r0, #16711680	@ 0xff0000
+    2480:	6028      	str	r0, [r5, #0]
+    2482:	6828      	ldr	r0, [r5, #0]
+    2484:	f040 407f 	orr.w	r0, r0, #4278190080	@ 0xff000000
+    2488:	6028      	str	r0, [r5, #0]
+    248a:	f845 7c04 	str.w	r7, [r5, #-4]
+    248e:	f000 f893 	bl	25b8 <vPortSetupTimerInterrupt>
+    2492:	f240 0400 	movw	r4, #0
+    2496:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+    249a:	6027      	str	r7, [r4, #0]
+    249c:	f000 f89a 	bl	25d4 <vPortEnableVFP>
+    24a0:	f8d5 0214 	ldr.w	r0, [r5, #532]	@ 0x214
+    24a4:	f040 4040 	orr.w	r0, r0, #3221225472	@ 0xc0000000
+    24a8:	f8c5 0214 	str.w	r0, [r5, #532]	@ 0x214
+    24ac:	f000 f89c 	bl	25e8 <prvPortStartFirstTask>
+    24b0:	f7fe fda0 	bl	ff4 <vTaskSwitchContext>
+    24b4:	9704      	str	r7, [sp, #16]
+    24b6:	6820      	ldr	r0, [r4, #0]
+    24b8:	3001      	adds	r0, #1
+    24ba:	d002      	beq.n	24c2 <xPortStartScheduler+0x122>
+    24bc:	20f4      	movs	r0, #244	@ 0xf4
+    24be:	f7fe f9c1 	bl	844 <fc_fail>
+    24c2:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    24c6:	f380 8811 	msr	BASEPRI, r0
+    24ca:	f3bf 8f6f 	isb	sy
+    24ce:	f3bf 8f4f 	dsb	sy
+    24d2:	bf00      	nop
+    24d4:	9804      	ldr	r0, [sp, #16]
+    24d6:	b930      	cbnz	r0, 24e6 <xPortStartScheduler+0x146>
+    24d8:	9804      	ldr	r0, [sp, #16]
+    24da:	b920      	cbnz	r0, 24e6 <xPortStartScheduler+0x146>
+    24dc:	9804      	ldr	r0, [sp, #16]
+    24de:	b910      	cbnz	r0, 24e6 <xPortStartScheduler+0x146>
+    24e0:	9804      	ldr	r0, [sp, #16]
+    24e2:	2800      	cmp	r0, #0
+    24e4:	d0f6      	beq.n	24d4 <xPortStartScheduler+0x134>
+    24e6:	2000      	movs	r0, #0
+    24e8:	b005      	add	sp, #20
+    24ea:	bdf0      	pop	{r4, r5, r6, r7, pc}
+    24ec:	9802      	ldr	r0, [sp, #8]
+    24ee:	3001      	adds	r0, #1
+    24f0:	9002      	str	r0, [sp, #8]
+    24f2:	f89d 0007 	ldrb.w	r0, [sp, #7]
+    24f6:	0040      	lsls	r0, r0, #1
+    24f8:	f88d 0007 	strb.w	r0, [sp, #7]
+    24fc:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    2500:	f1b0 3fff 	cmp.w	r0, #4294967295	@ 0xffffffff
+    2504:	dca8      	bgt.n	2458 <xPortStartScheduler+0xb8>
+    2506:	9802      	ldr	r0, [sp, #8]
+    2508:	3001      	adds	r0, #1
+    250a:	9002      	str	r0, [sp, #8]
+    250c:	f89d 0007 	ldrb.w	r0, [sp, #7]
+    2510:	0040      	lsls	r0, r0, #1
+    2512:	f88d 0007 	strb.w	r0, [sp, #7]
+    2516:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    251a:	f1b0 3fff 	cmp.w	r0, #4294967295	@ 0xffffffff
+    251e:	dc9b      	bgt.n	2458 <xPortStartScheduler+0xb8>
+    2520:	9802      	ldr	r0, [sp, #8]
+    2522:	3001      	adds	r0, #1
+    2524:	9002      	str	r0, [sp, #8]
+    2526:	f89d 0007 	ldrb.w	r0, [sp, #7]
+    252a:	0040      	lsls	r0, r0, #1
+    252c:	f88d 0007 	strb.w	r0, [sp, #7]
+    2530:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    2534:	2800      	cmp	r0, #0
+    2536:	f57f af8f 	bpl.w	2458 <xPortStartScheduler+0xb8>
+    253a:	9802      	ldr	r0, [sp, #8]
+    253c:	3001      	adds	r0, #1
+    253e:	9002      	str	r0, [sp, #8]
+    2540:	f89d 0007 	ldrb.w	r0, [sp, #7]
+    2544:	0040      	lsls	r0, r0, #1
+    2546:	f88d 0007 	strb.w	r0, [sp, #7]
+    254a:	f99d 0007 	ldrsb.w	r0, [sp, #7]
+    254e:	f1b0 3fff 	cmp.w	r0, #4294967295	@ 0xffffffff
+    2552:	ddcb      	ble.n	24ec <xPortStartScheduler+0x14c>
+    2554:	e780      	b.n	2458 <xPortStartScheduler+0xb8>
+	...
+
+00002558 <xPortPendSVHandler>:
+    2558:	f3ef 8009 	mrs	r0, PSP
+    255c:	f3bf 8f6f 	isb	sy
+    2560:	4b14      	ldr	r3, [pc, #80]	@ (25b4 <xPortPendSVHandler+0x5c>)
+    2562:	681a      	ldr	r2, [r3, #0]
+    2564:	f01e 0f10 	tst.w	lr, #16
+    2568:	bf08      	it	eq
+    256a:	ed20 8a10 	vstmdbeq	r0!, {s16-s31}
+    256e:	e920 4ff0 	stmdb	r0!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    2572:	6010      	str	r0, [r2, #0]
+    2574:	e92d 0009 	stmdb	sp!, {r0, r3}
+    2578:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    257c:	f380 8811 	msr	BASEPRI, r0
+    2580:	f3bf 8f4f 	dsb	sy
+    2584:	f3bf 8f6f 	isb	sy
+    2588:	f7fe fd34 	bl	ff4 <vTaskSwitchContext>
+    258c:	f04f 0000 	mov.w	r0, #0
+    2590:	f380 8811 	msr	BASEPRI, r0
+    2594:	e8bd 0009 	ldmia.w	sp!, {r0, r3}
+    2598:	6819      	ldr	r1, [r3, #0]
+    259a:	6808      	ldr	r0, [r1, #0]
+    259c:	e8b0 4ff0 	ldmia.w	r0!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    25a0:	f01e 0f10 	tst.w	lr, #16
+    25a4:	bf08      	it	eq
+    25a6:	ecb0 8a10 	vldmiaeq	r0!, {s16-s31}
+    25aa:	f380 8809 	msr	PSP, r0
+    25ae:	f3bf 8f6f 	isb	sy
+    25b2:	4770      	bx	lr
+    25b4:	200042e0 	.word	0x200042e0
+
+000025b8 <vPortSetupTimerInterrupt>:
+    25b8:	f24e 0010 	movw	r0, #57360	@ 0xe010
+    25bc:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    25c0:	2100      	movs	r1, #0
+    25c2:	6001      	str	r1, [r0, #0]
+    25c4:	6081      	str	r1, [r0, #8]
+    25c6:	f246 11a7 	movw	r1, #24999	@ 0x61a7
+    25ca:	6041      	str	r1, [r0, #4]
+    25cc:	2107      	movs	r1, #7
+    25ce:	6001      	str	r1, [r0, #0]
+    25d0:	4770      	bx	lr
+	...
+
+000025d4 <vPortEnableVFP>:
+    25d4:	f8df 000c 	ldr.w	r0, [pc, #12]	@ 25e4 <vPortEnableVFP+0x10>
+    25d8:	6801      	ldr	r1, [r0, #0]
+    25da:	f441 0170 	orr.w	r1, r1, #15728640	@ 0xf00000
+    25de:	6001      	str	r1, [r0, #0]
+    25e0:	4770      	bx	lr
+    25e2:	0000      	movs	r0, r0
+    25e4:	e000ed88 	.word	0xe000ed88
+
+000025e8 <prvPortStartFirstTask>:
+    25e8:	4808      	ldr	r0, [pc, #32]	@ (260c <prvPortStartFirstTask+0x24>)
+    25ea:	6800      	ldr	r0, [r0, #0]
+    25ec:	6800      	ldr	r0, [r0, #0]
+    25ee:	f380 8808 	msr	MSP, r0
+    25f2:	f04f 0000 	mov.w	r0, #0
+    25f6:	f380 8814 	msr	CONTROL, r0
+    25fa:	b662      	cpsie	i
+    25fc:	b661      	cpsie	f
+    25fe:	f3bf 8f4f 	dsb	sy
+    2602:	f3bf 8f6f 	isb	sy
+    2606:	df00      	svc	0
+    2608:	bf00      	nop
+    260a:	0000      	movs	r0, r0
+    260c:	e000ed08 	.word	0xe000ed08
+
+00002610 <vPortEnterCritical>:
+    2610:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    2614:	f380 8811 	msr	BASEPRI, r0
+    2618:	f3bf 8f6f 	isb	sy
+    261c:	f3bf 8f4f 	dsb	sy
+    2620:	f240 0000 	movw	r0, #0
+    2624:	f2c2 0000 	movt	r0, #8192	@ 0x2000
+    2628:	6801      	ldr	r1, [r0, #0]
+    262a:	1c4a      	adds	r2, r1, #1
+    262c:	2900      	cmp	r1, #0
+    262e:	6002      	str	r2, [r0, #0]
+    2630:	bf18      	it	ne
+    2632:	4770      	bxne	lr
+    2634:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    2638:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    263c:	6800      	ldr	r0, [r0, #0]
+    263e:	0600      	lsls	r0, r0, #24
+    2640:	d004      	beq.n	264c <vPortEnterCritical+0x3c>
+    2642:	f240 10e7 	movw	r0, #487	@ 0x1e7
+    2646:	f7fe b8fd 	b.w	844 <fc_fail>
+    264a:	bf00      	nop
+    264c:	4770      	bx	lr
+	...
+
+00002650 <vPortExitCritical>:
+    2650:	b510      	push	{r4, lr}
+    2652:	f240 0400 	movw	r4, #0
+    2656:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+    265a:	6820      	ldr	r0, [r4, #0]
+    265c:	b920      	cbnz	r0, 2668 <vPortExitCritical+0x18>
+    265e:	f44f 70f7 	mov.w	r0, #494	@ 0x1ee
+    2662:	f7fe f8ef 	bl	844 <fc_fail>
+    2666:	6820      	ldr	r0, [r4, #0]
+    2668:	3801      	subs	r0, #1
+    266a:	6020      	str	r0, [r4, #0]
+    266c:	bf18      	it	ne
+    266e:	bd10      	popne	{r4, pc}
+    2670:	2000      	movs	r0, #0
+    2672:	f380 8811 	msr	BASEPRI, r0
+    2676:	bd10      	pop	{r4, pc}
+
+00002678 <xPortSysTickHandler>:
+    2678:	b580      	push	{r7, lr}
+    267a:	f04f 0080 	mov.w	r0, #128	@ 0x80
+    267e:	f380 8811 	msr	BASEPRI, r0
+    2682:	f3bf 8f6f 	isb	sy
+    2686:	f3bf 8f4f 	dsb	sy
+    268a:	f7fe fd29 	bl	10e0 <xTaskIncrementTick>
+    268e:	b130      	cbz	r0, 269e <xPortSysTickHandler+0x26>
+    2690:	f64e 5004 	movw	r0, #60676	@ 0xed04
+    2694:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    2698:	f04f 5180 	mov.w	r1, #268435456	@ 0x10000000
+    269c:	6001      	str	r1, [r0, #0]
+    269e:	2000      	movs	r0, #0
+    26a0:	f380 8811 	msr	BASEPRI, r0
+    26a4:	bd80      	pop	{r7, pc}
+	...
+
+000026a8 <vPortValidateInterruptPriority>:
+    26a8:	b510      	push	{r4, lr}
+    26aa:	f644 4488 	movw	r4, #19592	@ 0x4c88
+    26ae:	f3ef 8005 	mrs	r0, IPSR
+    26b2:	2810      	cmp	r0, #16
+    26b4:	f2c2 0400 	movt	r4, #8192	@ 0x2000
+    26b8:	d30b      	bcc.n	26d2 <vPortValidateInterruptPriority+0x2a>
+    26ba:	f24e 31f0 	movw	r1, #58352	@ 0xe3f0
+    26be:	f2ce 0100 	movt	r1, #57344	@ 0xe000
+    26c2:	5c40      	ldrb	r0, [r0, r1]
+    26c4:	7821      	ldrb	r1, [r4, #0]
+    26c6:	4288      	cmp	r0, r1
+    26c8:	d203      	bcs.n	26d2 <vPortValidateInterruptPriority+0x2a>
+    26ca:	f44f 705e 	mov.w	r0, #888	@ 0x378
+    26ce:	f7fe f8b9 	bl	844 <fc_fail>
+    26d2:	f64e 500c 	movw	r0, #60684	@ 0xed0c
+    26d6:	f2ce 0000 	movt	r0, #57344	@ 0xe000
+    26da:	6800      	ldr	r0, [r0, #0]
+    26dc:	6861      	ldr	r1, [r4, #4]
+    26de:	f400 60e0 	and.w	r0, r0, #1792	@ 0x700
+    26e2:	4288      	cmp	r0, r1
+    26e4:	bf98      	it	ls
+    26e6:	bd10      	popls	{r4, pc}
+    26e8:	f44f 7062 	mov.w	r0, #904	@ 0x388
+    26ec:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+    26f0:	f7fe b8a8 	b.w	844 <fc_fail>
+
+000026f4 <memcpy>:
+    26f4:	2a00      	cmp	r2, #0
+    26f6:	bf08      	it	eq
+    26f8:	4770      	bxeq	lr
+    26fa:	b5f0      	push	{r4, r5, r6, r7, lr}
+    26fc:	f002 0c03 	and.w	ip, r2, #3
+    2700:	0893      	lsrs	r3, r2, #2
+    2702:	f04f 0200 	mov.w	r2, #0
+    2706:	d015      	beq.n	2734 <memcpy+0x40>
+    2708:	eba2 0e83 	sub.w	lr, r2, r3, lsl #2
+    270c:	1c43      	adds	r3, r0, #1
+    270e:	1c4c      	adds	r4, r1, #1
+    2710:	f06f 0203 	mvn.w	r2, #3
+    2714:	18a5      	adds	r5, r4, r2
+    2716:	78ee      	ldrb	r6, [r5, #3]
+    2718:	189f      	adds	r7, r3, r2
+    271a:	70fe      	strb	r6, [r7, #3]
+    271c:	792e      	ldrb	r6, [r5, #4]
+    271e:	3204      	adds	r2, #4
+    2720:	713e      	strb	r6, [r7, #4]
+    2722:	796e      	ldrb	r6, [r5, #5]
+    2724:	717e      	strb	r6, [r7, #5]
+    2726:	79ad      	ldrb	r5, [r5, #6]
+    2728:	eb0e 0602 	add.w	r6, lr, r2
+    272c:	3604      	adds	r6, #4
+    272e:	71bd      	strb	r5, [r7, #6]
+    2730:	d1f0      	bne.n	2714 <memcpy+0x20>
+    2732:	3204      	adds	r2, #4
+    2734:	f1bc 0f00 	cmp.w	ip, #0
+    2738:	d00d      	beq.n	2756 <memcpy+0x62>
+    273a:	5c8b      	ldrb	r3, [r1, r2]
+    273c:	f1bc 0f01 	cmp.w	ip, #1
+    2740:	5483      	strb	r3, [r0, r2]
+    2742:	d008      	beq.n	2756 <memcpy+0x62>
+    2744:	1c53      	adds	r3, r2, #1
+    2746:	5ccc      	ldrb	r4, [r1, r3]
+    2748:	f1bc 0f02 	cmp.w	ip, #2
+    274c:	54c4      	strb	r4, [r0, r3]
+    274e:	d002      	beq.n	2756 <memcpy+0x62>
+    2750:	3202      	adds	r2, #2
+    2752:	5c89      	ldrb	r1, [r1, r2]
+    2754:	5481      	strb	r1, [r0, r2]
+    2756:	e8bd 40f0 	ldmia.w	sp!, {r4, r5, r6, r7, lr}
+    275a:	4770      	bx	lr
+
+0000275c <memset>:
+    275c:	b33a      	cbz	r2, 27ae <memset+0x52>
+    275e:	f002 0c03 	and.w	ip, r2, #3
+    2762:	0892      	lsrs	r2, r2, #2
+    2764:	f04f 0300 	mov.w	r3, #0
+    2768:	d013      	beq.n	2792 <memset+0x36>
+    276a:	b5b0      	push	{r4, r5, r7, lr}
+    276c:	f100 0e01 	add.w	lr, r0, #1
+    2770:	eba3 0282 	sub.w	r2, r3, r2, lsl #2
+    2774:	f06f 0303 	mvn.w	r3, #3
+    2778:	eb0e 0403 	add.w	r4, lr, r3
+    277c:	3304      	adds	r3, #4
+    277e:	18d5      	adds	r5, r2, r3
+    2780:	3504      	adds	r5, #4
+    2782:	70e1      	strb	r1, [r4, #3]
+    2784:	7121      	strb	r1, [r4, #4]
+    2786:	7161      	strb	r1, [r4, #5]
+    2788:	71a1      	strb	r1, [r4, #6]
+    278a:	d1f5      	bne.n	2778 <memset+0x1c>
+    278c:	3304      	adds	r3, #4
+    278e:	e8bd 40b0 	ldmia.w	sp!, {r4, r5, r7, lr}
+    2792:	f1bc 0f00 	cmp.w	ip, #0
+    2796:	bf08      	it	eq
+    2798:	4770      	bxeq	lr
+    279a:	f1bc 0f01 	cmp.w	ip, #1
+    279e:	54c1      	strb	r1, [r0, r3]
+    27a0:	d005      	beq.n	27ae <memset+0x52>
+    27a2:	18c2      	adds	r2, r0, r3
+    27a4:	f1bc 0f02 	cmp.w	ip, #2
+    27a8:	7051      	strb	r1, [r2, #1]
+    27aa:	bf18      	it	ne
+    27ac:	7091      	strbne	r1, [r2, #2]
+    27ae:	4770      	bx	lr
+    27b0:	746e6f63 	.word	0x746e6f63
+    27b4:	006c6f72 	.word	0x006c6f72
+    27b8:	00776f6c 	.word	0x00776f6c
+    27bc:	68676968 	.word	0x68676968
+    27c0:	64696d00 	.word	0x64696d00
+    27c4:	00656c64 	.word	0x00656c64
+    27c8:	4d5f4346 	.word	0x4d5f4346
+    27cc:	48435f34 	.word	0x48435f34
+    27d0:	0a4b4345 	.word	0x0a4b4345
+    27d4:	5f434600 	.word	0x5f434600
+    27d8:	505f344d 	.word	0x505f344d
+    27dc:	3a535341 	.word	0x3a535341
+    27e0:	75657571 	.word	0x75657571
+    27e4:	6e692d65 	.word	0x6e692d65
+    27e8:	69726568 	.word	0x69726568
+    27ec:	636e6174 	.word	0x636e6174
+    27f0:	69742d65 	.word	0x69742d65
+    27f4:	756f656d 	.word	0x756f656d
+    27f8:	6c632d74 	.word	0x6c632d74
+    27fc:	756e6165 	.word	0x756e6165
+    2800:	46000a70 	.word	0x46000a70
+    2804:	344d5f43 	.word	0x344d5f43
+    2808:	5541465f 	.word	0x5541465f
+    280c:	000a544c 	.word	0x000a544c
+
+00002810 <uxTopUsedPriority>:
+    2810:	00000004                                ....

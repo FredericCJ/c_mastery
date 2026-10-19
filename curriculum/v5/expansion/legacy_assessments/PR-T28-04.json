@@ -5,7 +5,12 @@
   "title": "Bounded SPI and one-byte I2C transaction — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/spi/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/i2c/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -98,6 +103,67 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-PI-RM21",
+      "path": "research/v5/expansion/legacy_advanced_i2c/resources.json",
+      "passages": [
+        "RM0090 Rev21 pp849–855 master start/address/one-byte/two-byte/N>2 receive and NACK/arbitration",
+        "SR1/SR2 side effects and reserved/ordinary own address pp867–872; CR1 command-write restrictions pp863–865",
+        "Clock/filter configuration pp866,873–874; p866 contradictory upper limit explicitly avoided by2..42MHz scope"
+      ]
+    },
+    {
+      "id": "R-PI-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_i2c/resources.json",
+      "passages": [
+        "ES0206 Rev24 §2.10 pp25–27 spurious master BERR, repeated-START timing and misplaced STOP; RCC gate readback §2.2.7 prior inspected dependency"
+      ]
+    },
+    {
+      "id": "R-PI-DS14",
+      "path": "research/v5/expansion/legacy_advanced_i2c/resources.json",
+      "passages": [
+        "DS9484 Rev14 Table12 p76 PB8/PB9 AF4; primary PDF text inspected"
+      ]
+    },
+    {
+      "id": "R-PI-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_i2c/resources.json",
+      "passages": [
+        "UM1974 Rev11 Table17 p55 CN7/2 PB8,CN7/4 PB9,ground8; Table12 p32 SB138/143 and conflicting ADC bridges"
+      ]
+    },
+    {
+      "id": "R-PS-RM21",
+      "path": "research/v5/expansion/legacy_advanced_spi/resources.json",
+      "passages": [
+        "RM0090 Rev21 pp881–882 Figure248 CPOL/CPHA; p882 rendered and visually inspected",
+        "Master setup p885; full-duplex flow and completion pp889–891; DMA/disable/error sequencing pp897–902",
+        "Register widths and fields pp919–923; low8 bits meaningful with DFF0",
+        "DMA2 stream/channel Table44 p311 rendered and visually inspected; equal direct-mode widths pp317,322,332; alignment/counts pp315–319; completion pp322–325"
+      ]
+    },
+    {
+      "id": "R-PS-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_spi/resources.json",
+      "passages": [
+        "ES0206 Rev24 §2.2.7 p11 RCC gate readback (prior UART inspection reused); §2.12 pp29–31 SPI error conditions and §2.12.4 p30 internal SCK/APB/load limits"
+      ]
+    },
+    {
+      "id": "R-PS-DS14",
+      "path": "research/v5/expansion/legacy_advanced_spi/resources.json",
+      "passages": [
+        "DS9484 Rev14 Table12 p75 PA5/PA6/PA7 AF5"
+      ]
+    },
+    {
+      "id": "R-PS-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_spi/resources.json",
+      "passages": [
+        "UM1974 Rev11 Table12 p31 SB121/SB122; Table17 pp55–56 PA5/PA6/PA7/PD14 connector routing and JP6 Ethernet conflict"
+      ]
     }
   ],
   "reference_gaps": [
@@ -110,13 +176,58 @@
     "curriculum/projects/PR-T28-04.md",
     "fixtures/embedded/PR-T28-04.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/spi/analyze_capture.py",
+    "labs/peripheral_depth/spi/audit_target.py",
+    "labs/peripheral_depth/spi/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/spi/capture_template.json",
+    "labs/peripheral_depth/spi/CONTRACTS.md",
+    "labs/peripheral_depth/spi/run.py",
+    "labs/peripheral_depth/spi/spi.c",
+    "labs/peripheral_depth/spi/spi.h",
+    "labs/peripheral_depth/spi/target.c",
+    "labs/peripheral_depth/spi/tests.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/peripheral_depth/i2c/audit_target.py",
+    "labs/peripheral_depth/i2c/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/i2c/capture_template.json",
+    "labs/peripheral_depth/i2c/CONTRACTS.md",
+    "labs/peripheral_depth/i2c/i2c.c",
+    "labs/peripheral_depth/i2c/i2c.h",
+    "labs/peripheral_depth/i2c/run.py",
+    "labs/peripheral_depth/i2c/target.c",
+    "labs/peripheral_depth/i2c/tests.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "spi_transaction_successor": {
+      "path": "research/v5/expansion/legacy_advanced_spi/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-04-T28.07.a",
+        "AX-PR-T28-04-T28.07.b",
+        "AX-PR-T28-04-T28.07.c"
+      ],
+      "scope": "Three T28.07 ordinary and three unchanged delayed tasks; actual pu_rates/sd_spi/fw_spi providers; physical, independent and remaining T28 scope separate"
+    },
+    "i2c_sequence_successor": {
+      "path": "research/v5/expansion/legacy_advanced_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-04-T28.08.a",
+        "AX-PR-T28-04-T28.08.b",
+        "AX-PR-T28-04-T28.08.c"
+      ],
+      "scope": "Three T28.08 ordinary and three unchanged delayed tasks; actual pu_rates/sd_i2c_begin/fw_i2c_recover providers; physical, independent and remaining T28 scope separate"
+    }
   },
   "criteria": [
     {
@@ -654,7 +765,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-04.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -662,5 +773,25 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_i2c/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-04-T28.08.a",
+        "AX-PR-T28-04-T28.08.b",
+        "AX-PR-T28-04-T28.08.c"
+      ],
+      "scope": "Three T28.08 ordinary and three unchanged delayed tasks; actual pu_rates/sd_i2c_begin/fw_i2c_recover providers; physical, independent and remaining T28 scope separate"
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_spi/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-04-T28.07.a",
+        "AX-PR-T28-04-T28.07.b",
+        "AX-PR-T28-04-T28.07.c"
+      ],
+      "scope": "Three T28.07 ordinary and three unchanged delayed tasks; actual pu_rates/sd_spi/fw_spi providers; physical, independent and remaining T28 scope separate"
+    }
+  ]
 }

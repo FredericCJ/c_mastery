@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "PR-T70-01",
+  "exercise": "X-T70-001",
+  "anchor": "dod.columns",
+  "input_contract": "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
+  "expected": "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.",
+  "independent_oracle": "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": [
+    5,
+    0,
+    5,
+    4
+  ],
+  "verification_method": "labs/dod/tests/verify_fixtures.py recomputes the bounded mathematical model independently of C"
+}

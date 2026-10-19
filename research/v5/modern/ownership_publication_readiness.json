@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-011-R1",
+      "objective": "T66.02.a",
+      "criterion": "Derive the parse/storage/commit product state and explain why unchanged parser output does not preserve a separately destroyed owner; identify the atomic publication point and callback restrictions.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The actual parse/storage/publication product state distinguishes parser output from owner lifetime. Current and staged versions coexist before exclusive-owner publication; nonfailing allocator release is an explicit premise. Empty, invalid, range, missing-field, trailing and oversized-span calls preserve all old pointers/values and perform no additional allocations. Published C17 access remains an explicit source gap; the runtime profile is C17 and does not imply standards inspection.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-011.md",
+        "labs/modern_composition/CONTRACTS.md",
+        "labs/modern_composition/publication_depth/PUBLICATION.md",
+        "assessor/modern_composition/publication_depth/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/recovery.c",
+        "assessor/errors/errors.c",
+        "assessor/ownership/ownership.c",
+        "labs/modern_composition/publication_depth/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "tools/verify_ownership_publication.py",
+        "tools/verify_modern_composition_recovery.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_publication_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-011-R2",
+      "objective": "T66.02.b",
+      "criterion": "Implement the adapter with the actual typed allocator and owner operations, preserving old pointer identity and values on every precommit failure and releasing old storage after successful publication.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The retained mc_publish_pair implementation calls actual er_parse_pair, ow_construct and ow_publish with the unchanged current T66 typed counting allocator. Input3:7 publishes10,2,3. Every staged allocation failure preserves current identity; success transfers staged ownership before releasing the prior owner. New scoped tests execute those exact implementations, without substituting a parser or owner mechanism. ISO C does not automatically enforce struct moves or callback lifetime.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-011.md",
+        "labs/modern_composition/CONTRACTS.md",
+        "labs/modern_composition/publication_depth/PUBLICATION.md",
+        "assessor/modern_composition/publication_depth/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/recovery.c",
+        "assessor/errors/errors.c",
+        "assessor/ownership/ownership.c",
+        "labs/modern_composition/publication_depth/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "tools/verify_ownership_publication.py",
+        "tools/verify_modern_composition_recovery.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_publication_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-011-R3",
+      "objective": "T66.02.c",
+      "criterion": "Predict and execute all three allocation failures, invalid and range syntax, empty input and successful replacement; account for temporary versus old releases and reject both adapter mutants at their named assertions.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six C17 profiles execute six scoped anchors, four compiled original semantic controls and six compiling-stub rejections. Failure on staged allocation1/2/3 produces0/1/2temporary releases and peaks3/4/5live blocks; success peaks6 and releases3old blocks. Final destroy leaves zero owners and invalid releases. The original actual12allocation/open-prefix rows are re-executed alongside a separate independent81close-outcome set model. Compiler include/link closure, object disassembly/imports, stack/executable sizes and seven10000-update samples bind current code and actual30000allocator attempts/releases per sample. Finite observations do not prove all states.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-011.md",
+        "labs/modern_composition/CONTRACTS.md",
+        "labs/modern_composition/publication_depth/PUBLICATION.md",
+        "assessor/modern_composition/publication_depth/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/recovery.c",
+        "assessor/errors/errors.c",
+        "assessor/ownership/ownership.c",
+        "labs/modern_composition/publication_depth/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "tools/verify_ownership_publication.py",
+        "tools/verify_modern_composition_recovery.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_publication_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-011-R4",
+      "objective": "T66.02.d",
+      "criterion": "Replace the nonfailing release callback with a fallible external resource close; derive a recovery-required result and retained ownership instead of asserting that memory rollback reverses an external effect.",
+      "levels": {
+        "0": "Missing, contradicted or violates the stated ownership/order invariant.",
+        "1": "Runs the supplied nominal case but cannot derive the failure transition or enforcement boundary.",
+        "2": "Meets the complete criterion with an independent state prediction and source-bound checks.",
+        "3": "Transfers the argument to the withheld changed contract and identifies a concrete counterexample to the old proof."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The required five-resource delayed variant already has substantive retained implementation, now revalidated per criterion. Three cells and two actual local descriptors are staged; precommit open failure may retain staged cleanup while old current stays authoritative, whereas successful new publication may retain old cleanup. RELEASED_ERROR is diagnostic after actual successful close and must never retry that identity; RETAINED injects before close and permits retry. All81four-result words over two cleanup attempts verify pending masks, diagnostics, exact calls and live ownership through an independent set model. Stale token and blocked publication preserve outputs and call counts. MAX-2 final publication reserves MAX-1 for final retirement to MAX; cleanup still drains. This does not force real kernel errors, prove filesystem durability or establish independent delayed learner mastery.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-011.md",
+        "labs/modern_composition/CONTRACTS.md",
+        "labs/modern_composition/publication_depth/PUBLICATION.md",
+        "assessor/modern_composition/publication_depth/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/recovery.c",
+        "assessor/errors/errors.c",
+        "assessor/ownership/ownership.c",
+        "labs/modern_composition/publication_depth/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "tools/verify_ownership_publication.py",
+        "tools/verify_modern_composition_recovery.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_publication_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-011-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-011.md",
+        "labs/modern_composition/CONTRACTS.md",
+        "labs/modern_composition/publication_depth/PUBLICATION.md",
+        "assessor/modern_composition/publication_depth/ANALYSIS.md",
+        "assessor/modern_composition/composition.c",
+        "assessor/modern_composition/recovery.c",
+        "assessor/errors/errors.c",
+        "assessor/ownership/ownership.c",
+        "labs/modern_composition/publication_depth/tests.c",
+        "labs/modern_composition/tests/recovery.c",
+        "tools/verify_ownership_publication.py",
+        "tools/verify_modern_composition_recovery.py",
+        "research/v5/modern/ownership_publication_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_publication_validation.json": "c19023f2002d9631737c18142a18183e61fc43623bd6bd7bb917aa6d6d8a28bd"
+  },
+  "input_sha256": {
+    "assessor/coroutines/coroutines.c": "05ba8fa83bb84aaec0c0f517b076ce2d8f95f0b8122fc3e39f851c0b306081b0",
+    "assessor/errors/errors.c": "5eba0560d7dd51697b02aff1b9642ad94a9cded49fbad6ef871e7340f960ac19",
+    "assessor/messaging/messaging.c": "cc4a75aea1cd1ad97a4ead00d20fab7d6fa115b5202c9a76bbd65f04b2441ede",
+    "assessor/modern_composition/composition.c": "2a3e8a0159f8e18f1a3ec146be41c9399ae30be31b136f81467853be83416742",
+    "assessor/modern_composition/linux_port.c": "84d78e24683a52716315a9823d60f532366568035c904bec8e0edd3c07a7da4e",
+    "assessor/modern_composition/publication_depth/ANALYSIS.md": "62bf495eea7e0bada3a8653680c6877c5c8f511e4873f18b2b1a5ee180bf7b1a",
+    "assessor/modern_composition/recovery.c": "19c62dc036269f26bfc3beea90b4c3abf27c42801072c9d608a28414eda32a80",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "fixtures/modern_composition/recovery.json": "3c3a2337686aae9dff42f5d909de3a9682cb284eaf58dbedbd1cfcfd1a55ec84",
+    "labs/coroutines/include/coroutines.h": "14d08fdbfe9db614e6188b1c26793b715a544a153a4b8269f647ea5d55f123e2",
+    "labs/coroutines/src/coroutines.c": "9ec0ed43406b82f80edf4983f963c2c9bb20fa63e4320200e41ba684cd226069",
+    "labs/errors/include/errors.h": "8347154cf68575293d6da9a9e72a887c2981afc0fa6162fec25beb454dfb2e77",
+    "labs/errors/src/errors.c": "67c17c1b0046f74bba1f5e0a72fbd897a86ddf66488dc4f4087fed60c9de159a",
+    "labs/messaging/include/messaging.h": "b09389c56892bdff3d55c2240f602af351947b12de2d38998730439245877be1",
+    "labs/messaging/src/messaging.c": "b63c151af6e332cdaf87219688e857130979141ddd44fd25829151194e25eb78",
+    "labs/modern_composition/CONTRACTS.md": "b1abb933ca0513d4331f2c8ee53c78293af9f09dee8ec872a02d1254d2a63d95",
+    "labs/modern_composition/include/composition.h": "a65fe2192a0ee10669a34c2143267d6767e843e44b8c90162146a596dd282fe3",
+    "labs/modern_composition/include/linux_port.h": "b7e35eaee7b867c23c58e4ff05346489abd421da4bd5cde44c3d9ef2f9803c3f",
+    "labs/modern_composition/include/recovery.h": "4b18a23ac3175dafbb19ffee4616e7b64ddfeb2bded27e875503ed997f84993f",
+    "labs/modern_composition/publication_depth/CMakeLists.txt": "75d222dd7d6fa1f92f0e5ffceb3be403257ea44c833132b38a527837e10bc5f5",
+    "labs/modern_composition/publication_depth/PUBLICATION.md": "ed3ee802a9c2fbde1548203827ff5936883cb433899f50dd8417690deb5a8bb1",
+    "labs/modern_composition/publication_depth/campaign.json": "9bed828f9d3c8856877724e1c534ff0346ac692450b76eecf9d4b657ea07f48c",
+    "labs/modern_composition/publication_depth/tests.c": "20928dc7bdfb27f81412e6aa69984baa44d3d93a71a21b12ccf88d7359a0c723",
+    "labs/modern_composition/src/composition.c": "c374154bc524f42b8c77360697e5d8959e882e9785f3db87c7df2ef46a2e50bd",
+    "labs/modern_composition/src/linux_port.c": "6334df5a617c313ec6909ea6134de66bea73ead975d528a8106b1d18f5fd5a08",
+    "labs/modern_composition/src/recovery.c": "8cc82bbe155332ec10ab8f9b3315538e7a5583c217c89949144f2d9c00924cfe",
+    "labs/modern_composition/tests/recovery.c": "379be8fb418ccca3846a474d1e5c816bfd5143cb7d3b8260b1cb51f4a8dea6a3",
+    "labs/modern_composition/tests/reject_mutant.py": "fcce8f433a72203487a73997b688a8bf137e4f86e84d1376ae786a74ee1d0b46",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "research/v5/modern/ownership_publication_research_gate.json": "e645e724aabc4ed9c364f8444f82290f6721e4101c06d65d4d2da1c1eb76eb94",
+    "research/v5/modern/ownership_publication_resources.json": "c63beae8edb807ebfd3d03c79c5c702f62908060ee854578966f8385e9903513",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_publication.py": "594ae50e46ef7ae18ee6960c4b40f1045361bd1a09398bbb7c7e997a02f7c1c9",
+    "tools/run_ownership_publication.py": "42b9fe6911ed802c1e7c0b518f8fffc512007f8929d4e37b9dd9a529e0006a58",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_modern_composition_recovery.py": "72138f679decc2984c0d4b281d887c1bc09277ea0d5f78781979f2fe87da2b63",
+    "tools/verify_ownership_publication.py": "63bbebee879e44cd2f29ac7f6c3c33248b83d6721cae1ac4e9a64dae5013ff30",
+    "curriculum/v5/exercises/X-T66-011.md": "77bc0e1799d2ba5b1ea1c991d4e73fbac45415b9087a40a618cf94be813c7097",
+    "research/v5/modern/ownership_publication_validation.json": "c19023f2002d9631737c18142a18183e61fc43623bd6bd7bb917aa6d6d8a28bd",
+    "tools/build_ownership_publication_readiness.py": "754d10a445292f0281c4e7501cab0cc02f98881d9d7a9169c02e68e33daab258",
+    "tools/check_ownership_publication.py": "ce0a34325b439a7946fcd2ac657d18adbec69288771df049822dfc6a3a037b6d"
+  },
+  "limits": [
+    "Synchronous externally serialized valid callbacks and live ownership required.",
+    "Actual local descriptor close succeeds; diagnostics are injected before or after it.",
+    "No filesystem durability, arbitrary scheduling proof or physical validation.",
+    "Original broad family report is preserved as historical evidence; its later metadata staleness is not relabeled a new execution.",
+    "No independent human or learner assessment; published C17 source remains inaccessible."
+  ]
+}

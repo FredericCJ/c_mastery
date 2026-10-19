@@ -1,0 +1,232 @@
+
+/tmp/debug-connection-ozd95ard/gcc-debug-target-2/debug.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <dc_vectors>:
+   0:	00 00 01 20 59 00 00 00 4f 00 00 00 4f 00 00 00     ... Y...O...O...
+	...
+
+00000040 <dc_checkpoint>:
+#include "routine.h"
+extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
+volatile uint32_t dc_input,dc_output,dc_counter,dc_done;
+unsigned char dc_bytes[4];
+__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile("nop":::"memory");}
+  40:	b480      	push	{r7}
+  42:	af00      	add	r7, sp, #0
+  44:	bf00      	nop
+  46:	bf00      	nop
+  48:	46bd      	mov	sp, r7
+  4a:	bc80      	pop	{r7}
+  4c:	4770      	bx	lr
+
+0000004e <failed>:
+static void failed(void){for(;;)__asm__ volatile("wfi");}
+  4e:	b480      	push	{r7}
+  50:	af00      	add	r7, sp, #0
+  52:	bf30      	wfi
+  54:	e7fd      	b.n	52 <failed+0x4>
+	...
+
+00000058 <cl_reset>:
+void cl_reset(void){
+  58:	b580      	push	{r7, lr}
+  5a:	b084      	sub	sp, #16
+  5c:	af00      	add	r7, sp, #0
+ uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;
+  5e:	4b2f      	ldr	r3, [pc, #188]	@ (11c <cl_reset+0xc4>)
+  60:	60fb      	str	r3, [r7, #12]
+  62:	4b2f      	ldr	r3, [pc, #188]	@ (120 <cl_reset+0xc8>)
+  64:	60bb      	str	r3, [r7, #8]
+  66:	e008      	b.n	7a <cl_reset+0x22>
+  68:	68fb      	ldr	r3, [r7, #12]
+  6a:	1d1a      	adds	r2, r3, #4
+  6c:	60fa      	str	r2, [r7, #12]
+  6e:	681a      	ldr	r2, [r3, #0]
+  70:	68bb      	ldr	r3, [r7, #8]
+  72:	601a      	str	r2, [r3, #0]
+  74:	68bb      	ldr	r3, [r7, #8]
+  76:	3304      	adds	r3, #4
+  78:	60bb      	str	r3, [r7, #8]
+  7a:	68bb      	ldr	r3, [r7, #8]
+  7c:	4a29      	ldr	r2, [pc, #164]	@ (124 <cl_reset+0xcc>)
+  7e:	4293      	cmp	r3, r2
+  80:	d3f2      	bcc.n	68 <cl_reset+0x10>
+  82:	4b29      	ldr	r3, [pc, #164]	@ (128 <cl_reset+0xd0>)
+  84:	607b      	str	r3, [r7, #4]
+  86:	e005      	b.n	94 <cl_reset+0x3c>
+  88:	687b      	ldr	r3, [r7, #4]
+  8a:	2200      	movs	r2, #0
+  8c:	601a      	str	r2, [r3, #0]
+  8e:	687b      	ldr	r3, [r7, #4]
+  90:	3304      	adds	r3, #4
+  92:	607b      	str	r3, [r7, #4]
+  94:	687b      	ldr	r3, [r7, #4]
+  96:	4a25      	ldr	r2, [pc, #148]	@ (12c <cl_reset+0xd4>)
+  98:	4293      	cmp	r3, r2
+  9a:	d3f5      	bcc.n	88 <cl_reset+0x30>
+ dc_bytes[0]=1;dc_bytes[1]=2;dc_bytes[2]=3;dc_bytes[3]=4;dc_input=5;dc_counter=0;dc_checkpoint();
+  9c:	4b24      	ldr	r3, [pc, #144]	@ (130 <cl_reset+0xd8>)
+  9e:	2201      	movs	r2, #1
+  a0:	701a      	strb	r2, [r3, #0]
+  a2:	4b23      	ldr	r3, [pc, #140]	@ (130 <cl_reset+0xd8>)
+  a4:	2202      	movs	r2, #2
+  a6:	705a      	strb	r2, [r3, #1]
+  a8:	4b21      	ldr	r3, [pc, #132]	@ (130 <cl_reset+0xd8>)
+  aa:	2203      	movs	r2, #3
+  ac:	709a      	strb	r2, [r3, #2]
+  ae:	4b20      	ldr	r3, [pc, #128]	@ (130 <cl_reset+0xd8>)
+  b0:	2204      	movs	r2, #4
+  b2:	70da      	strb	r2, [r3, #3]
+  b4:	4b1f      	ldr	r3, [pc, #124]	@ (134 <cl_reset+0xdc>)
+  b6:	2205      	movs	r2, #5
+  b8:	601a      	str	r2, [r3, #0]
+  ba:	4b1f      	ldr	r3, [pc, #124]	@ (138 <cl_reset+0xe0>)
+  bc:	2200      	movs	r2, #0
+  be:	601a      	str	r2, [r3, #0]
+  c0:	f7ff ffbe 	bl	40 <dc_checkpoint>
+ dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();
+  c4:	2104      	movs	r1, #4
+  c6:	481a      	ldr	r0, [pc, #104]	@ (130 <cl_reset+0xd8>)
+  c8:	f000 f83c 	bl	144 <dc_checksum>
+  cc:	4603      	mov	r3, r0
+  ce:	4a1b      	ldr	r2, [pc, #108]	@ (13c <cl_reset+0xe4>)
+  d0:	6013      	str	r3, [r2, #0]
+  d2:	f7ff ffb5 	bl	40 <dc_checkpoint>
+ dc_bytes[1]=7;dc_output=dc_checksum(dc_bytes,4);dc_checkpoint();
+  d6:	4b16      	ldr	r3, [pc, #88]	@ (130 <cl_reset+0xd8>)
+  d8:	2207      	movs	r2, #7
+  da:	705a      	strb	r2, [r3, #1]
+  dc:	2104      	movs	r1, #4
+  de:	4814      	ldr	r0, [pc, #80]	@ (130 <cl_reset+0xd8>)
+  e0:	f000 f830 	bl	144 <dc_checksum>
+  e4:	4603      	mov	r3, r0
+  e6:	4a15      	ldr	r2, [pc, #84]	@ (13c <cl_reset+0xe4>)
+  e8:	6013      	str	r3, [r2, #0]
+  ea:	f7ff ffa9 	bl	40 <dc_checkpoint>
+ dc_counter=7;dc_checkpoint();dc_counter=7;dc_checkpoint();
+  ee:	4b12      	ldr	r3, [pc, #72]	@ (138 <cl_reset+0xe0>)
+  f0:	2207      	movs	r2, #7
+  f2:	601a      	str	r2, [r3, #0]
+  f4:	f7ff ffa4 	bl	40 <dc_checkpoint>
+  f8:	4b0f      	ldr	r3, [pc, #60]	@ (138 <cl_reset+0xe0>)
+  fa:	2207      	movs	r2, #7
+  fc:	601a      	str	r2, [r3, #0]
+  fe:	f7ff ff9f 	bl	40 <dc_checkpoint>
+ dc_output=dc_tail(9);dc_done=1;dc_checkpoint();for(;;)__asm__ volatile("wfi");
+ 102:	2009      	movs	r0, #9
+ 104:	f000 f860 	bl	1c8 <dc_tail>
+ 108:	4603      	mov	r3, r0
+ 10a:	4a0c      	ldr	r2, [pc, #48]	@ (13c <cl_reset+0xe4>)
+ 10c:	6013      	str	r3, [r2, #0]
+ 10e:	4b0c      	ldr	r3, [pc, #48]	@ (140 <cl_reset+0xe8>)
+ 110:	2201      	movs	r2, #1
+ 112:	601a      	str	r2, [r3, #0]
+ 114:	f7ff ff94 	bl	40 <dc_checkpoint>
+ 118:	bf30      	wfi
+ 11a:	e7fd      	b.n	118 <cl_reset+0xc0>
+ 11c:	000001e0 	.word	0x000001e0
+ 120:	20000000 	.word	0x20000000
+ 124:	20000000 	.word	0x20000000
+ 128:	20000000 	.word	0x20000000
+ 12c:	20000014 	.word	0x20000014
+ 130:	20000010 	.word	0x20000010
+ 134:	20000000 	.word	0x20000000
+ 138:	20000008 	.word	0x20000008
+ 13c:	20000004 	.word	0x20000004
+ 140:	2000000c 	.word	0x2000000c
+
+00000144 <dc_checksum>:
+#if DC_INLINE
+#define ATTR
+#else
+#define ATTR __attribute__((noinline))
+#endif
+ATTR uint32_t dc_checksum(const unsigned char*p,unsigned n){
+ 144:	b480      	push	{r7}
+ 146:	b087      	sub	sp, #28
+ 148:	af00      	add	r7, sp, #0
+ 14a:	6078      	str	r0, [r7, #4]
+ 14c:	6039      	str	r1, [r7, #0]
+ uint32_t dead=dc_input*7u;uint32_t invariant=DC_ROUTINE_MUTANT==2?4:3;uint32_t sum=0;
+ 14e:	4b14      	ldr	r3, [pc, #80]	@ (1a0 <dc_checksum+0x5c>)
+ 150:	681a      	ldr	r2, [r3, #0]
+ 152:	4613      	mov	r3, r2
+ 154:	00db      	lsls	r3, r3, #3
+ 156:	1a9b      	subs	r3, r3, r2
+ 158:	60fb      	str	r3, [r7, #12]
+ 15a:	2304      	movs	r3, #4
+ 15c:	60bb      	str	r3, [r7, #8]
+ 15e:	2300      	movs	r3, #0
+ 160:	617b      	str	r3, [r7, #20]
+ (void)dead;
+ for(unsigned i=0;i<n-(unsigned)(DC_ROUTINE_MUTANT==1&&n!=0);++i)sum+=p[i]*invariant;
+ 162:	2300      	movs	r3, #0
+ 164:	613b      	str	r3, [r7, #16]
+ 166:	e00d      	b.n	184 <dc_checksum+0x40>
+ 168:	687a      	ldr	r2, [r7, #4]
+ 16a:	693b      	ldr	r3, [r7, #16]
+ 16c:	4413      	add	r3, r2
+ 16e:	781b      	ldrb	r3, [r3, #0]
+ 170:	461a      	mov	r2, r3
+ 172:	68bb      	ldr	r3, [r7, #8]
+ 174:	fb02 f303 	mul.w	r3, r2, r3
+ 178:	697a      	ldr	r2, [r7, #20]
+ 17a:	4413      	add	r3, r2
+ 17c:	617b      	str	r3, [r7, #20]
+ 17e:	693b      	ldr	r3, [r7, #16]
+ 180:	3301      	adds	r3, #1
+ 182:	613b      	str	r3, [r7, #16]
+ 184:	693a      	ldr	r2, [r7, #16]
+ 186:	683b      	ldr	r3, [r7, #0]
+ 188:	429a      	cmp	r2, r3
+ 18a:	d3ed      	bcc.n	168 <dc_checksum+0x24>
+ dc_output=sum;
+ 18c:	4a05      	ldr	r2, [pc, #20]	@ (1a4 <dc_checksum+0x60>)
+ 18e:	697b      	ldr	r3, [r7, #20]
+ 190:	6013      	str	r3, [r2, #0]
+ return sum;
+ 192:	697b      	ldr	r3, [r7, #20]
+}
+ 194:	4618      	mov	r0, r3
+ 196:	371c      	adds	r7, #28
+ 198:	46bd      	mov	sp, r7
+ 19a:	bc80      	pop	{r7}
+ 19c:	4770      	bx	lr
+ 19e:	bf00      	nop
+ 1a0:	20000000 	.word	0x20000000
+ 1a4:	20000004 	.word	0x20000004
+
+000001a8 <dc_leaf>:
+__attribute__((noinline)) uint32_t dc_leaf(uint32_t v){dc_counter=v;return v+1;}
+ 1a8:	b480      	push	{r7}
+ 1aa:	b083      	sub	sp, #12
+ 1ac:	af00      	add	r7, sp, #0
+ 1ae:	6078      	str	r0, [r7, #4]
+ 1b0:	4a04      	ldr	r2, [pc, #16]	@ (1c4 <dc_leaf+0x1c>)
+ 1b2:	687b      	ldr	r3, [r7, #4]
+ 1b4:	6013      	str	r3, [r2, #0]
+ 1b6:	687b      	ldr	r3, [r7, #4]
+ 1b8:	3301      	adds	r3, #1
+ 1ba:	4618      	mov	r0, r3
+ 1bc:	370c      	adds	r7, #12
+ 1be:	46bd      	mov	sp, r7
+ 1c0:	bc80      	pop	{r7}
+ 1c2:	4770      	bx	lr
+ 1c4:	20000008 	.word	0x20000008
+
+000001c8 <dc_tail>:
+__attribute__((noinline)) uint32_t dc_tail(uint32_t v){return dc_leaf(v);}
+ 1c8:	b580      	push	{r7, lr}
+ 1ca:	b082      	sub	sp, #8
+ 1cc:	af00      	add	r7, sp, #0
+ 1ce:	6078      	str	r0, [r7, #4]
+ 1d0:	6878      	ldr	r0, [r7, #4]
+ 1d2:	f7ff ffe9 	bl	1a8 <dc_leaf>
+ 1d6:	4603      	mov	r3, r0
+ 1d8:	4618      	mov	r0, r3
+ 1da:	3708      	adds	r7, #8
+ 1dc:	46bd      	mov	sp, r7
+ 1de:	bd80      	pop	{r7, pc}

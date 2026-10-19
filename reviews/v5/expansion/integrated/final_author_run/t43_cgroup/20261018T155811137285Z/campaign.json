@@ -1,0 +1,1604 @@
+{
+  "passed": true,
+  "error": null,
+  "scope": "AX-PR-T43-10-T43.11.a-DELAYED; author observation, no learner or hardware PMU claim",
+  "original_workload_source": "labs/performance_followthrough/observations.c",
+  "input_sha256": {
+    "assessor/performance_delegated/delegated.c": "4faa9804e38ca95363ea1f3ffcf49525ffe9ec4385a1a6236346df91aaeb8d29",
+    "tools/run_performance_delegated.py": "b345e629a3ffbae0f69ea66f7d8f51198fb3551dd56b39c94b38119195a7727e",
+    "labs/performance_followthrough/observations.c": "47682912a49a19e7f93838eac0520ddae049a2d81efc34ca5622c5b6be8d2d26",
+    "assessor/algorithms/x86_64.S": "0426a490cdd9621763e045f13bd599f7833dfa4ca81aa4317f11f8ac24909bcc",
+    "labs/algorithms/src/x86_64.S": "dfeb7b7c979d37bc2cbe81f629861a9d4a5075a78337120163c9939d8c709888",
+    "labs/performance_followthrough/cost.h": "f9f42440f76967ec3f0e8e20a83f65ad4e23f15c7baad8c433375b56dffb5836",
+    "labs/algorithms/include/algo.h": "d7cd32dbc308060a1fa0396412b525ab7aa426f3c03549c19d86bd4cc1213f5c",
+    "labs/realtime_depth/linux/guest.py": "a207f65050d94a12e83082a90895da1841e803975ce971c570e8722cd3dff526",
+    "labs/performance_followthrough/CONTRACTS.md": "d247f0f19144efdcf10a8a1ba9ff269c4087ff9f8312eef545f87790b472692e",
+    "labs/performance_delegated/CONTRACTS.md": "e897792560dddc8137165b2890396798f6f92ec2480ee9da7a6ae557b062c041",
+    "labs/performance_delegated/learner.c": "9852a2c503199c27699bc4c817d2b39c41055ac239afe75c32bf83bc93ef846d",
+    "labs/performance_delegated/guest.py": "876b79600f3158ddf8dfdbf8a47a149f37678299c0a745b4fb7b2199cf290154",
+    "labs/performance_delegated/build.py": "60c7f0765629f0510c72754e3f41e0d004235ab26c82b6d93ccf6c8b5fd1863c",
+    "labs/performance_delegated/fixtures.json": "27589af19bb69b76345fb1aab29729d114ad29ff0e3b4e28a25ddd053ceac350"
+  },
+  "external_sha256": {
+    "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage": "5a876b0f4bca0bd306e7cdf4edf1bc821f12f2f93eebe52bcc0b0490dd193409",
+    "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/.config": "c66d041e3315f5f9bde11d0ee3f0d6b96b5cf62f7802d882d2b2abb29d26e9e6",
+    "/home/frede/cmastery-b06-tools/usr/bin/busybox": "df12634c17fcdca839ae5dc47d7627b7558511f7645de7c99ccf097a0f28ed5b",
+    "/usr/bin/qemu-system-x86_64": "0cd4112a8f0cb891eb7c10e8df38c9dfeec8c7389bb22db6aa425f0d6fe733dc"
+  },
+  "commands": [
+    {
+      "label": "host-policy-readonly",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-c",
+        "from pathlib import Path; import json; print(json.dumps({p:Path(p).read_text() for p in [\"/proc/self/cgroup\",\"/proc/sys/kernel/perf_event_paranoid\",\"/sys/fs/cgroup/cgroup.subtree_control\"]}))"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/host-policy-readonly.txt",
+      "log_sha256": "8e35925419d03fc98c7c37eb741aed77ab2c667342536e77597e138aa17dbd76"
+    },
+    {
+      "label": "gcc-version",
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-version.txt",
+      "log_sha256": "6e876a25bb7fdb71ab2914e8f1eeaa00cc61d20a36a6c2981ab7d4d7ceab42f8"
+    },
+    {
+      "label": "gcc-workload-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-g",
+        "-static",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/algorithms/include",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough/observations.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/algorithms/x86_64.S",
+        "-pthread",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-workload"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-workload-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-normal-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-static",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/performance_delegated/delegated.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-normal-probe"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-normal-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-normal-guest",
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-normal.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet t43_owned=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-normal-guest.txt",
+      "log_sha256": "73eb907eb3437e9da91c1f34a0e9056549218c560ec7a829da28b051c628df9e"
+    },
+    {
+      "label": "gcc-no-placement-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-static",
+        "-DPF_SKIP_MOVE=1",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/performance_delegated/delegated.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-placement-probe"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-placement-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-no-placement-guest",
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-placement.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet t43_owned=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-placement-guest.txt",
+      "log_sha256": "45da91b45ec320358a086f07a61837ded15a24eaf1230c8f23c621b8d9b824fa"
+    },
+    {
+      "label": "gcc-no-restoration-build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-static",
+        "-DPF_SKIP_RESTORE=1",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/performance_delegated/delegated.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-restoration-probe"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-restoration-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "gcc-no-restoration-guest",
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-restoration.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet t43_owned=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-restoration-guest.txt",
+      "log_sha256": "78772208b13229a5bb026e054258b7fa6730d948767b7b881fda8f7402667fd6"
+    },
+    {
+      "label": "clang-version",
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-version.txt",
+      "log_sha256": "77467400b91c4cebb6c3e29d8a611af518a2f4078c22baf276b0a1373e996bf5"
+    },
+    {
+      "label": "clang-workload-build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-g",
+        "-static",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/algorithms/include",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/performance_followthrough/observations.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/algorithms/x86_64.S",
+        "-pthread",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-workload"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-workload-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "clang-normal-build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "-static",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/performance_delegated/delegated.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-normal-probe"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-normal-build.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "clang-normal-guest",
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-normal.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet t43_owned=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-normal-guest.txt",
+      "log_sha256": "75473589dd91770c170e966b6b121e42f4dea50aaba911b16eefc84f4555d591"
+    },
+    {
+      "label": "learner-build-run",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/performance_delegated/build.py",
+        "--work",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/learner",
+        "--cc",
+        "gcc",
+        "--run",
+        "--kernel",
+        "/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "--busybox",
+        "/home/frede/cmastery-b06-tools/usr/bin/busybox"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/learner-build-run.txt",
+      "log_sha256": "f17010755e6b119106f0cf334757e95211ff077b987ecc2f2198fa6b323839a5"
+    }
+  ],
+  "profiles": [
+    {
+      "compiler": "gcc",
+      "passed": true,
+      "workload_sha256": "3b670f194e8e1092d498aa6d7d33604ae214652b9d95adb01648e1675db0568b",
+      "probe_sha256": "8e090b1c8be6376aec0d7e3ee717dd10d368bbce8223958587b13f0cd9cd7efa",
+      "image_sha256": "3850eaa924964b936ef0ac938cd83daea75cb3c1ab00eb7b2355319eb57ee34e",
+      "observations": {
+        "unlimited": {
+          "raw": [
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "82",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 6528\nuser_usec 0\nsystem_usec 6528\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "262144",
+              "/sys/fs/cgroup/t43/work/memory.peak": "262144",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 279465\nuser_usec 5008\nsystem_usec 274456\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "1044480",
+              "/sys/fs/cgroup/t43/memory.peak": "1048576",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            },
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 307550\nuser_usec 124847\nsystem_usec 182703\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "405504",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1503232",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 807964\nuser_usec 132650\nsystem_usec 675313\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "897024",
+              "/sys/fs/cgroup/t43/memory.peak": "1994752",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            }
+          ],
+          "cpu_delta": {
+            "user_usec": 124847,
+            "nr_bursts": 0,
+            "system_usec": 176175,
+            "nr_periods": 0,
+            "nice_usec": 0,
+            "burst_usec": 0,
+            "throttled_usec": 0,
+            "usage_usec": 301022,
+            "nr_throttled": 0
+          },
+          "workload": [
+            {
+              "case": "clocks",
+              "resolution_ns": 1,
+              "elapsed_ns": 74959227,
+              "process_cpu_ns": 90318723,
+              "main_thread_cpu_ns": 19712844,
+              "worker_cpu_ns": [
+                37650571,
+                25788769
+              ],
+              "wall_minus_process_ns": -15359496
+            },
+            {
+              "case": "child-clock-scope",
+              "parent_process_cpu_ns": 9634643,
+              "waited_child_cpu_us": 45310
+            },
+            {
+              "case": "write-sync",
+              "accepted": 8192,
+              "calls": 1,
+              "write_ns": 901351,
+              "sync_ns": 253488,
+              "fsync_status": 0,
+              "errno_if_failure": 0
+            },
+            {
+              "case": "read-pass",
+              "pass": 0,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 889143,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 1,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 129967,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 2,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 356056,
+              "device_bytes": null,
+              "after_owned_other_process": true
+            },
+            {
+              "case": "injected-fsync-error",
+              "source": "local-adapter",
+              "status": "failed",
+              "readable_bytes": 8192
+            },
+            {
+              "case": "publish",
+              "boundaries": [
+                "write8",
+                "file-fsync",
+                "rename",
+                "directory-fsync"
+              ],
+              "power_loss": "unobserved"
+            },
+            {
+              "case": "sparse-preallocated",
+              "logical_length": 1048576,
+              "payload": 8,
+              "sparse_512_blocks": 16,
+              "after_512_blocks": 2048,
+              "preallocate_status": 0,
+              "physical_device_traffic": null
+            },
+            {
+              "case": "memory",
+              "payload_live": [
+                0,
+                1048576,
+                0
+              ],
+              "rss_pages": [
+                247,
+                520,
+                264
+              ],
+              "page_bytes": 4096,
+              "allocator_metadata": null,
+              "checksum": 0,
+              "leak_conclusion": "not-established"
+            }
+          ],
+          "live_membership": {
+            "processes": [
+              [
+                "82"
+              ],
+              [
+                "82",
+                "85"
+              ],
+              [
+                "82"
+              ],
+              [
+                "82",
+                "86"
+              ],
+              [
+                "82"
+              ],
+              []
+            ],
+            "threads": [
+              [
+                "82"
+              ],
+              [
+                "82",
+                "83"
+              ],
+              [
+                "82",
+                "83",
+                "84"
+              ],
+              [
+                "82",
+                "83"
+              ],
+              [
+                "82"
+              ],
+              [
+                "82",
+                "85"
+              ],
+              [
+                "82"
+              ],
+              [
+                "82",
+                "86"
+              ],
+              [
+                "82"
+              ],
+              []
+            ]
+          },
+          "positive_live_membership": {
+            "processes": [
+              [
+                82
+              ],
+              [
+                82,
+                85
+              ],
+              [
+                82
+              ],
+              [
+                82,
+                86
+              ],
+              [
+                82
+              ],
+              []
+            ],
+            "threads": [
+              [
+                82
+              ],
+              [
+                82,
+                83
+              ],
+              [
+                82,
+                83,
+                84
+              ],
+              [
+                82,
+                83
+              ],
+              [
+                82
+              ],
+              [
+                82,
+                85
+              ],
+              [
+                82
+              ],
+              [
+                82,
+                86
+              ],
+              [
+                82
+              ],
+              []
+            ]
+          },
+          "maximum_observed_positive_ids": {
+            "processes": 2,
+            "threads": 3
+          },
+          "zero_id_scope": "Raw zero retained; cannot identify a positive task and does not count as inheritance evidence. No particular cause inferred.",
+          "psi": {
+            "status": "unavailable",
+            "errno": 2,
+            "reason": "selected private kernel omits PSI interface",
+            "value": null
+          },
+          "memory_peak_is_historical": true,
+          "same_descriptor_peak_reset": false,
+          "io_backend": "guest tmpfs; no physical device traffic inferred"
+        },
+        "quota": {
+          "raw": [
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "87",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "20000 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 313130\nuser_usec 125048\nsystem_usec 188081\nnice_usec 0\nnr_periods 1\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "401408",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1503232",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 904946\nuser_usec 132650\nsystem_usec 772295\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "1155072",
+              "/sys/fs/cgroup/t43/memory.peak": "1994752",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            },
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "20000 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 521341\nuser_usec 224872\nsystem_usec 296468\nnice_usec 0\nnr_periods 11\nnr_throttled 9\nthrottled_usec 893103\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "188416",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1564672",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 1666962\nuser_usec 244870\nsystem_usec 1422092\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "606208",
+              "/sys/fs/cgroup/t43/memory.peak": "2277376",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            }
+          ],
+          "cpu_delta": {
+            "user_usec": 99824,
+            "nr_bursts": 0,
+            "system_usec": 108387,
+            "nr_periods": 10,
+            "nice_usec": 0,
+            "burst_usec": 0,
+            "throttled_usec": 893103,
+            "usage_usec": 208211,
+            "nr_throttled": 9
+          },
+          "workload": [
+            {
+              "case": "clocks",
+              "resolution_ns": 1,
+              "elapsed_ns": 308194661,
+              "process_cpu_ns": 67428451,
+              "main_thread_cpu_ns": 3337025,
+              "worker_cpu_ns": [
+                32003159,
+                30741690
+              ],
+              "wall_minus_process_ns": 240766210
+            },
+            {
+              "case": "child-clock-scope",
+              "parent_process_cpu_ns": 6679263,
+              "waited_child_cpu_us": 42808
+            },
+            {
+              "case": "write-sync",
+              "accepted": 8192,
+              "calls": 1,
+              "write_ns": 341604,
+              "sync_ns": 10574,
+              "fsync_status": 0,
+              "errno_if_failure": 0
+            },
+            {
+              "case": "read-pass",
+              "pass": 0,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 100835,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 1,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 51224,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 2,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 175505,
+              "device_bytes": null,
+              "after_owned_other_process": true
+            },
+            {
+              "case": "injected-fsync-error",
+              "source": "local-adapter",
+              "status": "failed",
+              "readable_bytes": 8192
+            },
+            {
+              "case": "publish",
+              "boundaries": [
+                "write8",
+                "file-fsync",
+                "rename",
+                "directory-fsync"
+              ],
+              "power_loss": "unobserved"
+            },
+            {
+              "case": "sparse-preallocated",
+              "logical_length": 1048576,
+              "payload": 8,
+              "sparse_512_blocks": 16,
+              "after_512_blocks": 2048,
+              "preallocate_status": 0,
+              "physical_device_traffic": null
+            },
+            {
+              "case": "memory",
+              "payload_live": [
+                0,
+                1048576,
+                0
+              ],
+              "rss_pages": [
+                247,
+                520,
+                264
+              ],
+              "page_bytes": 4096,
+              "allocator_metadata": null,
+              "checksum": 0,
+              "leak_conclusion": "not-established"
+            }
+          ],
+          "live_membership": {
+            "processes": [
+              [
+                "87"
+              ],
+              [
+                "87",
+                "90"
+              ],
+              [
+                "87"
+              ],
+              [
+                "87",
+                "91"
+              ],
+              [
+                "87"
+              ],
+              []
+            ],
+            "threads": [
+              [
+                "87"
+              ],
+              [
+                "87",
+                "88",
+                "89"
+              ],
+              [
+                "87",
+                "88"
+              ],
+              [
+                "87"
+              ],
+              [
+                "87",
+                "90"
+              ],
+              [
+                "87"
+              ],
+              [
+                "87",
+                "91"
+              ],
+              [
+                "87"
+              ],
+              []
+            ]
+          },
+          "positive_live_membership": {
+            "processes": [
+              [
+                87
+              ],
+              [
+                87,
+                90
+              ],
+              [
+                87
+              ],
+              [
+                87,
+                91
+              ],
+              [
+                87
+              ],
+              []
+            ],
+            "threads": [
+              [
+                87
+              ],
+              [
+                87,
+                88,
+                89
+              ],
+              [
+                87,
+                88
+              ],
+              [
+                87
+              ],
+              [
+                87,
+                90
+              ],
+              [
+                87
+              ],
+              [
+                87,
+                91
+              ],
+              [
+                87
+              ],
+              []
+            ]
+          },
+          "maximum_observed_positive_ids": {
+            "processes": 2,
+            "threads": 3
+          },
+          "zero_id_scope": "Raw zero retained; cannot identify a positive task and does not count as inheritance evidence. No particular cause inferred.",
+          "psi": {
+            "status": "unavailable",
+            "errno": 2,
+            "reason": "selected private kernel omits PSI interface",
+            "value": null
+          },
+          "memory_peak_is_historical": true,
+          "same_descriptor_peak_reset": false,
+          "io_backend": "guest tmpfs; no physical device traffic inferred"
+        }
+      },
+      "negative_controls": [
+        "membership",
+        "uid",
+        "quota",
+        "restore",
+        "cleanup",
+        "exit",
+        "ancestor_permission",
+        "boundary_permission",
+        "workload_result",
+        "final_marker",
+        "missing_interface_record",
+        "missing_inherited_child",
+        "missing_inherited_threads",
+        "wrong-member-pid",
+        "zero-child",
+        "zero-threads",
+        "malformed-child",
+        "malformed-thread",
+        "overflow-id"
+      ],
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-normal-guest.txt"
+    },
+    {
+      "compiler": "clang",
+      "passed": true,
+      "workload_sha256": "2d4829f4a36130da874d8208acb66dd4560ccbb21a8466f7d27fe7e5cde7c6b3",
+      "probe_sha256": "55fa63abeeae0b88baf05d719936b1403e2be826b8864cf0b39684f03a89713f",
+      "image_sha256": "8b6d1d0c3f549993b8a2143bc1ccdbe290c119b8fd7f7678c45ca17569d20926",
+      "observations": {
+        "unlimited": {
+          "raw": [
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "81",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 6037\nuser_usec 0\nsystem_usec 6037\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "262144",
+              "/sys/fs/cgroup/t43/work/memory.peak": "262144",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 295210\nuser_usec 7005\nsystem_usec 288205\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "1044480",
+              "/sys/fs/cgroup/t43/memory.peak": "1048576",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            },
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 332808\nuser_usec 137574\nsystem_usec 195234\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "389120",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1507328",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 877476\nuser_usec 147911\nsystem_usec 729564\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "884736",
+              "/sys/fs/cgroup/t43/memory.peak": "2002944",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            }
+          ],
+          "cpu_delta": {
+            "user_usec": 137574,
+            "nr_bursts": 0,
+            "system_usec": 189197,
+            "nr_periods": 0,
+            "nice_usec": 0,
+            "burst_usec": 0,
+            "throttled_usec": 0,
+            "usage_usec": 326771,
+            "nr_throttled": 0
+          },
+          "workload": [
+            {
+              "case": "clocks",
+              "resolution_ns": 1,
+              "elapsed_ns": 79519380,
+              "process_cpu_ns": 96700932,
+              "main_thread_cpu_ns": 21848362,
+              "worker_cpu_ns": [
+                33932739,
+                29483335
+              ],
+              "wall_minus_process_ns": -17181552
+            },
+            {
+              "case": "child-clock-scope",
+              "parent_process_cpu_ns": 9462080,
+              "waited_child_cpu_us": 47882
+            },
+            {
+              "case": "write-sync",
+              "accepted": 8192,
+              "calls": 1,
+              "write_ns": 1001584,
+              "sync_ns": 267699,
+              "fsync_status": 0,
+              "errno_if_failure": 0
+            },
+            {
+              "case": "read-pass",
+              "pass": 0,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 870022,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 1,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 57141,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 2,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 455414,
+              "device_bytes": null,
+              "after_owned_other_process": true
+            },
+            {
+              "case": "injected-fsync-error",
+              "source": "local-adapter",
+              "status": "failed",
+              "readable_bytes": 8192
+            },
+            {
+              "case": "publish",
+              "boundaries": [
+                "write8",
+                "file-fsync",
+                "rename",
+                "directory-fsync"
+              ],
+              "power_loss": "unobserved"
+            },
+            {
+              "case": "sparse-preallocated",
+              "logical_length": 1048576,
+              "payload": 8,
+              "sparse_512_blocks": 16,
+              "after_512_blocks": 2048,
+              "preallocate_status": 0,
+              "physical_device_traffic": null
+            },
+            {
+              "case": "memory",
+              "payload_live": [
+                0,
+                1048576,
+                0
+              ],
+              "rss_pages": [
+                268,
+                525,
+                269
+              ],
+              "page_bytes": 4096,
+              "allocator_metadata": null,
+              "checksum": 0,
+              "leak_conclusion": "not-established"
+            }
+          ],
+          "live_membership": {
+            "processes": [
+              [
+                "81"
+              ],
+              [
+                "81",
+                "84"
+              ],
+              [
+                "81"
+              ],
+              [
+                "81",
+                "85"
+              ],
+              [
+                "81"
+              ],
+              []
+            ],
+            "threads": [
+              [
+                "81"
+              ],
+              [
+                "81",
+                "82"
+              ],
+              [
+                "81",
+                "82",
+                "83"
+              ],
+              [
+                "81",
+                "82"
+              ],
+              [
+                "81"
+              ],
+              [
+                "81",
+                "84"
+              ],
+              [
+                "81"
+              ],
+              []
+            ]
+          },
+          "positive_live_membership": {
+            "processes": [
+              [
+                81
+              ],
+              [
+                81,
+                84
+              ],
+              [
+                81
+              ],
+              [
+                81,
+                85
+              ],
+              [
+                81
+              ],
+              []
+            ],
+            "threads": [
+              [
+                81
+              ],
+              [
+                81,
+                82
+              ],
+              [
+                81,
+                82,
+                83
+              ],
+              [
+                81,
+                82
+              ],
+              [
+                81
+              ],
+              [
+                81,
+                84
+              ],
+              [
+                81
+              ],
+              []
+            ]
+          },
+          "maximum_observed_positive_ids": {
+            "processes": 2,
+            "threads": 3
+          },
+          "zero_id_scope": "Raw zero retained; cannot identify a positive task and does not count as inheritance evidence. No particular cause inferred.",
+          "psi": {
+            "status": "unavailable",
+            "errno": 2,
+            "reason": "selected private kernel omits PSI interface",
+            "value": null
+          },
+          "memory_peak_is_historical": true,
+          "same_descriptor_peak_reset": false,
+          "io_backend": "guest tmpfs; no physical device traffic inferred"
+        },
+        "quota": {
+          "raw": [
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "86",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "20000 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 337681\nuser_usec 138510\nsystem_usec 199171\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "385024",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1507328",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 978268\nuser_usec 150041\nsystem_usec 828226\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "1142784",
+              "/sys/fs/cgroup/t43/memory.peak": "2002944",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            },
+            {
+              "/sys/fs/cgroup/t43/work/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/work/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/work/cgroup.subtree_control": "",
+              "/sys/fs/cgroup/t43/work/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/work/cpu.max": "20000 100000",
+              "/sys/fs/cgroup/t43/work/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/work/cpu.stat": "usage_usec 565186\nuser_usec 246828\nsystem_usec 318357\nnice_usec 0\nnr_periods 12\nnr_throttled 11\nthrottled_usec 1002529\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/work/memory.max": "max",
+              "/sys/fs/cgroup/t43/work/memory.current": "475136",
+              "/sys/fs/cgroup/t43/work/memory.peak": "1581056",
+              "/sys/fs/cgroup/t43/work/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/work/io.stat": "",
+              "/sys/fs/cgroup/t43/cgroup.procs": "",
+              "/sys/fs/cgroup/t43/cgroup.controllers": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.subtree_control": "cpu io memory",
+              "/sys/fs/cgroup/t43/cgroup.type": "domain",
+              "/sys/fs/cgroup/t43/cpu.max": "max 100000",
+              "/sys/fs/cgroup/t43/cpu.max.burst": "0",
+              "/sys/fs/cgroup/t43/cpu.stat": "usage_usec 1879866\nuser_usec 279590\nsystem_usec 1600275\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "/sys/fs/cgroup/t43/memory.max": "max",
+              "/sys/fs/cgroup/t43/memory.current": "913408",
+              "/sys/fs/cgroup/t43/memory.peak": "2318336",
+              "/sys/fs/cgroup/t43/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+              "/sys/fs/cgroup/t43/io.stat": ""
+            }
+          ],
+          "cpu_delta": {
+            "user_usec": 108318,
+            "nr_bursts": 0,
+            "system_usec": 119186,
+            "nr_periods": 12,
+            "nice_usec": 0,
+            "burst_usec": 0,
+            "throttled_usec": 1002529,
+            "usage_usec": 227505,
+            "nr_throttled": 11
+          },
+          "workload": [
+            {
+              "case": "clocks",
+              "resolution_ns": 1,
+              "elapsed_ns": 396225683,
+              "process_cpu_ns": 77462743,
+              "main_thread_cpu_ns": 5199824,
+              "worker_cpu_ns": [
+                30659626,
+                38940370
+              ],
+              "wall_minus_process_ns": 318762940
+            },
+            {
+              "case": "child-clock-scope",
+              "parent_process_cpu_ns": 6855704,
+              "waited_child_cpu_us": 47625
+            },
+            {
+              "case": "write-sync",
+              "accepted": 8192,
+              "calls": 1,
+              "write_ns": 430568,
+              "sync_ns": 13123,
+              "fsync_status": 0,
+              "errno_if_failure": 0
+            },
+            {
+              "case": "read-pass",
+              "pass": 0,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 386440,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 1,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 77839,
+              "device_bytes": null,
+              "after_owned_other_process": false
+            },
+            {
+              "case": "read-pass",
+              "pass": 2,
+              "accepted_bytes": 8192,
+              "syscalls": 1,
+              "elapsed_ns": 171344,
+              "device_bytes": null,
+              "after_owned_other_process": true
+            },
+            {
+              "case": "injected-fsync-error",
+              "source": "local-adapter",
+              "status": "failed",
+              "readable_bytes": 8192
+            },
+            {
+              "case": "publish",
+              "boundaries": [
+                "write8",
+                "file-fsync",
+                "rename",
+                "directory-fsync"
+              ],
+              "power_loss": "unobserved"
+            },
+            {
+              "case": "sparse-preallocated",
+              "logical_length": 1048576,
+              "payload": 8,
+              "sparse_512_blocks": 16,
+              "after_512_blocks": 2048,
+              "preallocate_status": 0,
+              "physical_device_traffic": null
+            },
+            {
+              "case": "memory",
+              "payload_live": [
+                0,
+                1048576,
+                0
+              ],
+              "rss_pages": [
+                266,
+                523,
+                267
+              ],
+              "page_bytes": 4096,
+              "allocator_metadata": null,
+              "checksum": 0,
+              "leak_conclusion": "not-established"
+            }
+          ],
+          "live_membership": {
+            "processes": [
+              [
+                "86"
+              ],
+              [
+                "86",
+                "89"
+              ],
+              [
+                "86"
+              ],
+              [
+                "86",
+                "90"
+              ],
+              [
+                "86"
+              ],
+              []
+            ],
+            "threads": [
+              [
+                "86"
+              ],
+              [
+                "86",
+                "87"
+              ],
+              [
+                "86",
+                "87",
+                "88"
+              ],
+              [
+                "86",
+                "88"
+              ],
+              [
+                "86"
+              ],
+              [
+                "86",
+                "89"
+              ],
+              [
+                "86"
+              ],
+              [
+                "86",
+                "90"
+              ],
+              [
+                "86"
+              ],
+              []
+            ]
+          },
+          "positive_live_membership": {
+            "processes": [
+              [
+                86
+              ],
+              [
+                86,
+                89
+              ],
+              [
+                86
+              ],
+              [
+                86,
+                90
+              ],
+              [
+                86
+              ],
+              []
+            ],
+            "threads": [
+              [
+                86
+              ],
+              [
+                86,
+                87
+              ],
+              [
+                86,
+                87,
+                88
+              ],
+              [
+                86,
+                88
+              ],
+              [
+                86
+              ],
+              [
+                86,
+                89
+              ],
+              [
+                86
+              ],
+              [
+                86,
+                90
+              ],
+              [
+                86
+              ],
+              []
+            ]
+          },
+          "maximum_observed_positive_ids": {
+            "processes": 2,
+            "threads": 3
+          },
+          "zero_id_scope": "Raw zero retained; cannot identify a positive task and does not count as inheritance evidence. No particular cause inferred.",
+          "psi": {
+            "status": "unavailable",
+            "errno": 2,
+            "reason": "selected private kernel omits PSI interface",
+            "value": null
+          },
+          "memory_peak_is_historical": true,
+          "same_descriptor_peak_reset": false,
+          "io_backend": "guest tmpfs; no physical device traffic inferred"
+        }
+      },
+      "negative_controls": [
+        "membership",
+        "uid",
+        "quota",
+        "restore",
+        "cleanup",
+        "exit",
+        "ancestor_permission",
+        "boundary_permission",
+        "workload_result",
+        "final_marker",
+        "missing_interface_record",
+        "missing_inherited_child",
+        "missing_inherited_threads",
+        "wrong-member-pid",
+        "zero-child",
+        "zero-threads",
+        "malformed-child",
+        "malformed-thread",
+        "overflow-id"
+      ],
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/clang-normal-guest.txt"
+    }
+  ],
+  "compiled_controls": [
+    {
+      "name": "no-placement",
+      "compiled_macro": "PF_SKIP_MOVE",
+      "guest_refused": true,
+      "cleanup": true,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-placement-guest.txt"
+    },
+    {
+      "name": "no-restoration",
+      "compiled_macro": "PF_SKIP_RESTORE",
+      "guest_refused": true,
+      "cleanup": true,
+      "log": "reviews/v5/expansion/integrated/final_author_run/t43_cgroup/20261018T155811137285Z/gcc-no-restoration-guest.txt"
+    }
+  ],
+  "host_policy_changed": false,
+  "physical_observation": false,
+  "independent_learner": false,
+  "schema_version": 1
+}

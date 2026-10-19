@@ -1,0 +1,25 @@
+import importlib.util
+def run(c,root):
+ c.group='framing';pub=root/'labs/hosted_systems/stream_depth';private=root/'assessor/hosted_systems/stream_depth';source=private/'stream.c';signal=root/'assessor/hosted_systems/event_depth/signals.c';flags=['-D_GNU_SOURCE','-std=c17','-Wall','-Wextra','-Werror','-fno-stack-protector','-pthread','-I'+str(pub),'-I'+str(root/'labs/hosted_systems/event_depth')]
+ spec=importlib.util.spec_from_file_location('sequence_set_oracle',private/'sequence_oracle.py');oracle=importlib.util.module_from_spec(spec);spec.loader.exec_module(oracle);rows,states=oracle.cases();inputs=c.write('sequence_histories.txt','\n'.join(h for h,_ in rows)+'\n');c.require(states==25 and len(rows)==175,'independent sequence history graph',dict(states=states,edges=len(rows)))
+ for cc in ('gcc','clang'):
+  for profile,extra in [('debug',['-O0']),('release',['-O2','-DNDEBUG']),('sanitize',['-O1','-fsanitize=address,undefined','-fno-pie','-no-pie'])]:
+   prefix=cc+'-'+profile
+   for name,test,providers,modes in [('core',pub/'tests.c',[],[(None,'all_chunk_partitions=2611210;queue_budget_cells=2313;')]),('streams',private/'streams.c',[signal],[('halfclose','STREAM-HALFCLOSE:'),('replay','STREAM-REPLAY:'),('pressure','STREAM-PRESSURE:actual_connections=4;queued_frames=32;')]),('datagrams',private/'datagrams.c',[],[('truncation','DATAGRAM-TRUNCATION:'),('ancillary','DATAGRAM-ANCILLARY:'),('ack','DATAGRAM-ACK:')])]:
+    exe=c.root/(prefix+'-'+name);c.run([cc,*flags,*extra,test,source,*providers,'-o',exe])
+    for mode,marker in modes:c.run([exe,*([mode] if mode else [])],contains=marker,timeout=90)
+   exe=c.root/(prefix+'-sequence');c.run([cc,*flags,*extra,private/'sequence_trace.c',source,'-o',exe]);out=c.run([exe,inputs]);checked=oracle.check(out,rows);c.require(checked=={'rows':175,'reachable_states':25},'independent sequence oracle '+prefix,checked)
+  obj=c.root/(cc+'-stream.o');c.run([cc,*flags,'-O2','-c',source,'-o',obj]);imports=c.run(['nm','-u',obj]);c.require(not any(name in imports for name in ['malloc','calloc','realloc','free']),'no heap service '+cc,imports);c.run(['size','-A',obj])
+ for name,macro in [('length','RF_MUTANT_LENGTH'),('eof','RF_MUTANT_EOF'),('global','RF_MUTANT_GLOBAL'),('replay','RF_MUTANT_REPLAY'),('current-result','RF_MUTANT_CURRENT_RESULT'),('session','RF_MUTANT_SESSION'),('advance-all','RF_MUTANT_ADVANCE_ALL')]:
+  exe=c.root/('stream-'+name);c.run(['gcc',*flags,'-O2','-D'+macro,pub/'tests.c',source,'-o',exe]);c.run([exe],expected=1,contains='STREAM-CHECK:')
+ exe=c.root/'stream-truncation';c.run(['gcc',*flags,'-O2','-DRF_MUTANT_TRUNCATION',private/'datagrams.c',source,'-o',exe]);c.run([exe,'truncation'],expected=1,contains='DATAGRAM-CHECK:')
+ for name,test,providers,mode,marker in [('core',pub/'tests.c',[],None,'STREAM-CHECK:'),('streams',private/'streams.c',[signal],'halfclose','STREAM-NATIVE-CHECK:'),('datagrams',private/'datagrams.c',[],'truncation','DATAGRAM-CHECK:')]:
+  exe=c.root/('stream-learner-'+name);c.run(['gcc',*flags,'-O2',test,pub/'stream.c',*providers,'-o',exe]);c.run([exe,*([mode] if mode else [])],expected=1,contains=marker)
+ for objective,ordinary,changed in [
+ ('05.a','2611210 complete chunk partitions for adjacent0..8byte frames under both header widths against absolute-extent decoder; all prefix EOF classifications','Two-byte BE header partial state and all65536 lengths, invalid latching and output preservation'),
+ ('05.b','Actual SHUT_WR retains response direction, mid-header/body EOF rejected, fresh parser after reconnect','Two actual connections share bounded live-server request cache; lost reply replay returns original result without second effect; crash durability not claimed'),
+ ('05.c','Actual4stalled connections retain32frames/256payloadbytes and reject four ninth frames; EAGAIN preserves owners,320one-byte frame steps; independent short-return callback exercises committed-vs-requested cursor','2313 independently counted global byte/admission cells and256attempt zero-drain producer under64byte bound; headers/metadata/kernel buffers counted separately'),
+ ('06.a','Actual12-byte datagram into8 reports payload truncation and is rejected; inputMSG_TRUNC returns12 separately; valid zero datagram consumed thenEAGAIN','One-byte ancillary capacity yields separateCTRUNC; mandatory-control policy rejects despite complete payload; discarded rights do not leak, complete2descriptor transfer closes both'),
+ ('06.b','Script7,9,8,9,6 yields delivered7,8,9 with duplicate/stale distinctions; independent25-state175-edge set oracle and explicit gap expiration','New session2 starts0 and rejects delayed session1; no modulo reuse, finite maximum retires; absence/expiration is not proof of network loss'),
+ ('06.c','Actual local send succeeds before receiver discards; receipt acknowledgment precedes effect acknowledgment with distinct observable state','Drop only effect acknowledgment; retry under bounded cache keeps total8 while original flawed duplicate effect gives13; no durable exactly-once claim')]:
+  c.observe('T24.'+objective,ordinary,['framing']);c.observe('T24.'+objective,changed,['framing'],True)

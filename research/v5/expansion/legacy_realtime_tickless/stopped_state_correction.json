@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "corrected-and-author-validated",
+  "affected_support": "research/v5/expansion/legacy_realtime_tickless/support.json",
+  "criterion_ids": [
+    "AX-PR-T52-08-T52.08.a",
+    "AX-PR-T52-08-T52.08.b",
+    "AX-PR-T52-08-T52.08.c"
+  ],
+  "prior_campaign": "reviews/v5/expansion/legacy_realtime_tickless/campaign_attempt2.json",
+  "prior_sources_and_support": {
+    "labs/realtime_depth/tickless/port.h": {
+      "sha256": "468cd78bdc501e30b28c83929a238c9bddcde8dcacd14413abbb306ddbc0d6d2",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/port.h"
+    },
+    "assessor/legacy_realtime/tickless_port.c": {
+      "sha256": "0a49c4d9f0082c5ca339d93f2b40be6cfae4fb07e59076268f4d6a067c12483b",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/tickless_port.c"
+    },
+    "labs/realtime_depth/tickless/guest.c": {
+      "sha256": "7bdb19bd438b9228a2ef526435e16935ad1db5f192c779264d329b1226086004",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/guest.c"
+    },
+    "labs/realtime_depth/tickless/CONTRACTS.md": {
+      "sha256": "47ebce6a3019d0a4a026f736b0cbf37126ab150b7d740330b4fb788ae6489f2f",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/CONTRACTS.md"
+    },
+    "research/v5/expansion/legacy_realtime_tickless/support.json": {
+      "sha256": "5c9dd8d13242aa25918fbe90bd50a04caa27c3e2ea174b0fa9cb02160bdde557",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/support.json"
+    },
+    "reviews/v5/expansion/legacy_realtime_tickless/support_validation.json": {
+      "sha256": "7a4ac0c4cfe83ad70fa5a818fc2f20288db1b9dcc0c875223def047a8ce454ab",
+      "snapshot": "reviews/v5/expansion/legacy_realtime_tickless/stopped_state_before/support_validation.json"
+    }
+  },
+  "discovery": "Bounded non-author-agent source review found tp_wait/tp_at admitted advancement while stopped, so resume could count the same raw interval twice. The old campaign did not contain this state sequence.",
+  "counterexample": "stop at raw100/kernel100; wait at raw110 advances kernel110; resume at raw120 adds20 and gives130 while projected time is120.",
+  "repair_plan": "Reject wait/at/manual interrupt/second stop while stopped under saved PRIMASK; distinguish shutdown from resumable stop; verify unchanged timer/resume state and actual single accounting, then rerun all profiles/controls/exports.",
+  "limits": [
+    "Author-team source review, not independent human or physical timing evidence."
+  ],
+  "active_defect_id": "G-FOLLOWTHROUGH-T52-08-STOPPED",
+  "correction": "All stopped or retired admission checks run under saved PRIMASK before kernel/resume mutation. Shutdown is retired, distinct from resumable stop. The guest attempts every forbidden transition and compares resumed kernel time with the single elapsed raw interval.",
+  "corrected_campaign": "reviews/v5/expansion/legacy_realtime_tickless/campaign_attempt3.json",
+  "regression_guard": "reviews/v5/expansion/legacy_realtime_tickless/support_validation.json",
+  "observed_campaign": {
+    "host": 120,
+    "strict_M4": 27,
+    "actual_timer_port": 18,
+    "passed": true
+  },
+  "regression_checks": 32,
+  "regression_result": "Preserved old adapter compiled successfully against current guest and failed with TP_CHECK at stopped-state admission; full current campaign and learner export guards passed.",
+  "bounded_peer_recheck": "Non-author agent reread current tickless_port.c stopped/resume/shutdown admission and found reported double-accounting path addressed; did not reread guest tests, rerun campaign, assess physical timing or all interleavings."
+}

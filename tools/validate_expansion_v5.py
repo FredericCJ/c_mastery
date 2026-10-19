@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from copy import deepcopy
+import hashlib
 import json
 import os
 import re
@@ -14,6 +16,169 @@ from common import ROOT, dump, read_json, sha
 from expansion_evidence import preserve_receipts, historical_errors, require_research
 from v2_common import source_identity
 from v5_common import RECEIPTS, pins, python_command
+
+
+PARENT_IDS = ('G-BASE-DEPTH', 'G-NEW-DOMAINS', 'G-V5-DOMAIN-TOOLS')
+PARENT_DECLARATIONS = 'research/v5/expansion/followthrough/global_dispositions.json'
+ACTIVE_DISPOSITIONS = 'curriculum/v5/expansion/implementation_updates.json'
+PARENT_STATE = 'component-evidence-verified;current-integrated-result-reported-separately'
+PARENT_CHECKS = ('exercise_workflow', 'exercise_workflow_linux', 'exercise_integration_linux',
+                 'release_guards_linux', 'publication_routing_linux', 'baseline_learning',
+                 'legacy_cli', 'authoring_contracts', 'legacy_assessments', 'authored_content',
+                 'modern_coverage', 'expansion_campaigns')
+PARENT_LIMIT = ('The current integrated author outcome is reported separately against the exact active '
+                'parent rows and source identity; this declaration does not supply a passing integrated '
+                'result or override any child source, review, learner or physical-observation requirement.')
+
+
+def parent_report_requirement():
+    return {'producer': 'tools/validate_expansion_v5.py',
+            'report': 'reviews/v5/expansion/integrated/validation.json',
+            'field': 'parent_adjudication', 'required_checks': list(PARENT_CHECKS),
+            'binding': 'Exact canonical and active row hashes, current unchanged source identity, '
+                       'actual check results and log digests, current publication/campaign/structure '
+                       'evidence, and preserved historical receipts.',
+            'limits': PARENT_LIMIT}
+
+
+def parent_declarations(document):
+    """Produce only a declarative metadata delta, never a validation outcome."""
+    result = deepcopy(document)
+    for ident in PARENT_IDS:
+        matches = [row for row in result['updates'] if row['id'] == ident]
+        if len(matches) != 1:
+            raise ValueError('Expected exactly one parent declaration: ' + ident)
+        row = matches[0]
+        row['dimensions']['author_validation']['state'] = PARENT_STATE
+        row['integrated_validation'] = parent_report_requirement()
+        if PARENT_LIMIT not in row['closure_rationale']:
+            row['closure_rationale'] += ' ' + PARENT_LIMIT
+    return result
+
+
+def row_digest(row):
+    return hashlib.sha256(json.dumps(row, sort_keys=True, separators=(',', ':'),
+                                     ensure_ascii=False).encode('utf-8')).hexdigest()
+
+
+def parent_delta_errors(previous, current, updates):
+    """Guard the metadata-only three-row merge separately from runtime results."""
+    try:
+        expected = parent_declarations(previous)
+        if current != expected:
+            return ['parent declaration changed claims beyond the exact allowed delta']
+        selected = [row for row in expected['updates'] if row['id'] in PARENT_IDS]
+        if updates != selected:
+            return ['merge rows do not match the exact three parent declarations']
+        return []
+    except (KeyError, TypeError, ValueError) as exc:
+        return ['malformed parent declaration: ' + str(exc)]
+
+
+def adjudicate_parents(report, identity, current, declaration_bytes, active_bytes, read_evidence):
+    """Bind three parents to this run, without promoting child/external evidence.
+
+    Inputs are the actual report observations and captured source bytes. This
+    function does not execute or accept an alternative validation path.
+    """
+    errors, parents = [], []
+    try:
+        for label, value in [('start', identity), ('end', current)]:
+            digest = hashlib.sha256(json.dumps(value['files'], sort_keys=True).encode()).hexdigest()
+            if value['sha256'] != digest:
+                errors.append(label + ' source identity does not bind its file mapping')
+        if identity != current or report.get('input_sha256') != identity['sha256']:
+            errors.append('integrated source identity is stale or changed')
+        if report.get('source_changed_during_run') is not False:
+            errors.append('source stability was not established')
+        for path, payload in [(PARENT_DECLARATIONS, declaration_bytes), (ACTIVE_DISPOSITIONS, active_bytes)]:
+            actual = hashlib.sha256(payload).hexdigest()
+            if any(value['files'].get(path) != actual for value in (identity, current)):
+                errors.append('parent source file differs from the integrated identity: ' + path)
+        canonical = json.loads(declaration_bytes)['updates']
+        active = json.loads(active_bytes)['updates']
+        for ident in PARENT_IDS:
+            expected = [r for r in canonical if r.get('id') == ident]
+            selected = [r for r in active if r.get('id') == ident]
+            if len(expected) != 1 or len(selected) != 1:
+                errors.append('missing or duplicate exact parent: ' + ident)
+                continue
+            row = selected[0]
+            if row != expected[0]:
+                errors.append('active parent differs from its declaration: ' + ident)
+            if (row['dimensions']['author_validation']['state'] != PARENT_STATE
+                    or row.get('integrated_validation') != parent_report_requirement()):
+                errors.append('parent has no exact separate-result requirement: ' + ident)
+            parents.append({'id': ident, 'active_row_sha256': row_digest(row),
+                            'canonical_row_sha256': row_digest(expected[0]),
+                            'declared_author_validation_state': row['dimensions']['author_validation']['state'],
+                            'child_requirements': 'retained; no child dimension is changed by this report',
+                            'external_dimensions': {key: row['dimensions'][key] for key in
+                                                    ('external_review', 'independent_learner', 'physical_observation')}})
+        checks = report.get('checks', [])
+        if sorted(r.get('check', '') for r in checks) != sorted(PARENT_CHECKS):
+            errors.append('missing, duplicate or unexpected integrated check')
+        for row in checks:
+            if row.get('exit_code') != 0:
+                errors.append('integrated check failed: ' + row.get('check', '?'))
+            if row.get('check') in ('exercise_workflow_linux', 'publication_routing_linux') and row.get('skipped') != 0:
+                errors.append('required Linux coverage was skipped: ' + row['check'])
+            try:
+                if Path(row['log']).name != row.get('check', '') + '.log':
+                    errors.append('check log belongs to another check: ' + row.get('check', '?'))
+                payload = read_evidence(row['log'])
+                if not payload or hashlib.sha256(payload).hexdigest() != row.get('log_sha256'):
+                    errors.append('missing or stale check log: ' + row.get('check', '?'))
+            except (OSError, KeyError, ValueError):
+                errors.append('unavailable check log: ' + row.get('check', '?'))
+        if report.get('passed') is not True or report.get('status') != 'passed':
+            errors.append('existing integrated validation did not pass')
+        if report.get('publication_current') is not True:
+            errors.append('publication is not passed and current')
+        campaign = report.get('campaign_summary', {})
+        if (campaign.get('passed') is not True or campaign.get('source_current') is not True
+                or not campaign.get('families') or campaign.get('failed_families') != []
+                or not campaign.get('distinct_execution_receipts')):
+            errors.append('campaign evidence is missing, failed or stale')
+        structure = report.get('structure', {})
+        if (structure.get('passed') is not True or structure.get('status') != 'passed'
+                or structure.get('input_sha256') != identity['sha256']):
+            errors.append('exercise structure is missing, failed or stale')
+        if report.get('historical_receipts_current') is not True:
+            errors.append('historical receipt preservation did not pass')
+    except (KeyError, TypeError, ValueError, UnicodeError) as exc:
+        errors.append('malformed parent adjudication input: ' + str(exc))
+    passed = not errors
+    for row in parents:
+        row['result'] = 'passed-current-integrated-author-checks' if passed else 'failed-or-unbound'
+    return {'passed': passed, 'status': 'passed' if passed else 'failed',
+            'input_sha256': identity.get('sha256'), 'parents': parents, 'errors': errors,
+            'declarations': PARENT_DECLARATIONS, 'active_dispositions': ACTIVE_DISPOSITIONS,
+            'scope': 'This run only; exact required integrated author checks and source bindings. '
+                     'No curriculum completion, child source-gap closure, external review, learner '
+                     'performance or physical validation is inferred.'}
+
+
+def bind_final_source(report, identity, final_identity):
+    """A final source change can only fail, never repair, this run's result."""
+    stable = final_identity == identity
+    report['final_source_sha256'] = final_identity['sha256']
+    adjudication = report['parent_adjudication']
+    if not stable:
+        report['source_changed_during_run'] = True
+        adjudication.update(passed=False, status='failed')
+        adjudication['errors'].append('source identity changed before the final report')
+        for row in adjudication['parents']:
+            row['result'] = 'failed-or-unbound'
+    passed = report['passed'] and adjudication['passed'] and stable
+    report.update(passed=passed, status='passed' if passed else 'failed')
+
+
+def read_review_evidence(name):
+    path = (ROOT / name).resolve()
+    if not path.is_relative_to((ROOT / 'reviews').resolve()) or not path.is_file():
+        raise ValueError('Integrated check log is outside reviews or absent')
+    return path.read_bytes()
 
 
 def publication_routing_command():
@@ -70,7 +235,9 @@ def main():
                     ('legacy_assessments', [sys.executable, '-X', 'utf8', 'tools/check_legacy_assessments.py']),
                     ('authored_content', [sys.executable, '-X', 'utf8', 'tools/check_authored_v5.py']),
                     ('modern_coverage', [sys.executable, '-X', 'utf8', 'tools/check_modern_coverage.py']),
-                    ('expansion_campaigns', [sys.executable, '-X', 'utf8', 'tools/check_expansion_campaigns.py'])]
+                    # Mechanism-specific guards also recheck the actual Linux
+                    # compiler/model-checker inputs pinned by the campaigns.
+                    ('expansion_campaigns', python_command('tools/check_expansion_campaigns.py', platform='wsl'))]
         results = []
         for name, command in commands:
             result = execute(command, run / (name + '.log'))
@@ -100,18 +267,26 @@ def main():
             'distinct_execution_receipts': len({row.get('receipt') for row in families if row.get('receipt')})}
         routing_passed = all(r['exit_code'] == 0 and r['skipped'] == 0 for r in results
                              if r['check'] == 'publication_routing_linux')
+        historical_current = not historical_errors()
         passed = (structure['passed'] and workflow_passed and routing_passed and publication_current
                   and campaign_summary['passed'] and campaign_summary['source_current']
-                  and all(r['exit_code'] == 0 for r in results) and not changed and not historical_errors())
+                  and all(r['exit_code'] == 0 for r in results) and not changed and historical_current)
         report = {'schema_version': 2, 'batch': 'integrated-expansion', 'status': 'passed' if passed else 'failed', 'passed': passed,
                   'input_sha256': identity['sha256'], 'source_changed_during_run': changed,
                   'recorded_at': datetime.now(timezone.utc).isoformat(), 'checks': results,
                   'publication_current': publication_current, 'campaign_summary': campaign_summary,
+                  'historical_receipts_current': historical_current,
                   'structure': structure, 'physical_validation': 'not-run', 'learner_mastery': 'not-assessed',
                   'independent_review': 'separate-record-required',
                   'limits': ['Finite tested domains do not prove arbitrary inputs correct.',
                              'Target link audit does not establish target execution or physical behavior.',
                              'Edition acceptance still requires every manifest receipt and non-author review.']}
+        report['parent_adjudication'] = adjudicate_parents(
+            report, identity, current, (ROOT / PARENT_DECLARATIONS).read_bytes(),
+            (ROOT / ACTIVE_DISPOSITIONS).read_bytes(), read_review_evidence)
+        final_identity = source_identity()
+        bind_final_source(report, identity, final_identity)
+        passed = report['passed']
         dump(run / 'validation.json', report)
         dump(destination / 'validation.json', report)
         lines = ['# Integrated expansion author validation', '', 'Status: **' + report['status'] + '**. Source SHA-256: `' + identity['sha256'] + '`.', '',
@@ -125,6 +300,9 @@ def main():
         lines += ['', 'Structure: ' + str(structure.get('exercise_count')) + ' exercises; ' + structure['status'] + '.', '',
                   'Full publication checks passed against this source identity: ' + str(publication_current) + '.', '',
                   'Observed laboratory campaign: ' + str(campaign_summary) + '.', '',
+                  'Exact parent adjudication: **' + report['parent_adjudication']['status'] + '**. '
+                  'The three active row hashes and any failures are in `validation.json`; this result '
+                  'does not change child source gaps or external evidence.', '',
                   'Exact argument arrays, timings and log hashes are in `validation.json`. `expansion_campaigns.json` links each original source-bound campaign, its compiler profiles, oracle results, mutation controls and separate target audits. Shared campaign observations are not multiplied by the number of consuming domains.', '',
                   'Historical receipt preservation is checked separately in `historical_preservation.json`. Physical validation: not run. Learner mastery: not assessed. Scoped agent review, if present, is not an independent human or full-edition review.', '']
         markdown = '\n'.join(lines)

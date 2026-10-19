@@ -86,6 +86,61 @@ def main():
    audit.append(dict(project=pid,objectives=[c['objective'] for c in criteria],baseline_bindings=bindings,teaching='Substantive retained topic and parent contract',construction='Concrete retained implementation requirements remain binding',boundary='Named baseline cases plus individually authored controlled counterexamples',independent_assessment_before='General acceptance/transfer wording lacks these explicit per-leaf rubrics and discriminators',expansion='Three distinct leaf tasks with expected causal arguments, two graduated topic hints and seven-day changed conditions',tests=tests,fixture_limit='Synthetic '+read(fixture)['oracle']+' branch only; not execution of the learner or target',specific_gap=SPECIAL.get(pid,'Broader new criterion execution and physical/independent evidence remain open.')))
    # Audit is written before the learner and assessor contracts.
    write(HERE/(d+'_audit.json'),dict(domain=d,status='author passage/depth audit',projects=audit,limitations=['No independent human review or fresh complete target/learner validation.']))
+   # Additive current support is retained separately from original execution.
+   from importlib.util import spec_from_file_location, module_from_spec
+   successor_path=ROOT/'research/v5/expansion/legacy_concurrency_lifecycle/author_support.py'
+   if successor_path.is_file():
+    successor_spec=spec_from_file_location('legacy_concurrency_lifecycle_support',successor_path)
+    successor=module_from_spec(successor_spec);successor_spec.loader.exec_module(successor)
+    record=successor.attach(record)
+   wait_path=ROOT/'research/v5/expansion/legacy_concurrency_wait/author_support.py'
+   if wait_path.exists():
+    wait_spec=spec_from_file_location('legacy_concurrency_wait_support',wait_path)
+    wait_support=module_from_spec(wait_spec);wait_spec.loader.exec_module(wait_support)
+    record=wait_support.attach(record)
+   pi_path=ROOT/'research/v5/expansion/legacy_concurrency_sync/author_support.py'
+   if pi_path.exists():
+    pi_spec=spec_from_file_location('legacy_concurrency_pi_support',pi_path)
+    pi_support=module_from_spec(pi_spec);pi_spec.loader.exec_module(pi_support)
+    record=pi_support.attach(record)
+   sem_path=ROOT/'research/v5/expansion/legacy_concurrency_semaphore/author_support.py'
+   if sem_path.exists():
+    sem_spec=spec_from_file_location('legacy_concurrency_semaphore_support',sem_path)
+    sem_support=module_from_spec(sem_spec);sem_spec.loader.exec_module(sem_support)
+    record=sem_support.attach(record)
+   mutex_path=ROOT/'research/v5/expansion/legacy_concurrency_mutex/author_support.py'
+   if mutex_path.exists():
+    mutex_spec=spec_from_file_location('legacy_concurrency_mutex_support',mutex_path)
+    mutex_support=module_from_spec(mutex_spec);mutex_spec.loader.exec_module(mutex_support)
+    record=mutex_support.attach(record)
+   condition_path=ROOT/'research/v5/expansion/legacy_concurrency_condition/author_support.py'
+   if condition_path.exists():
+    condition_spec=spec_from_file_location('legacy_concurrency_condition_support',condition_path)
+    condition_support=module_from_spec(condition_spec);condition_spec.loader.exec_module(condition_support)
+    record=condition_support.attach(record)
+   mailbox_path=ROOT/'research/v5/expansion/legacy_concurrency_mailbox/author_support.py'
+   if mailbox_path.exists():
+    mailbox_spec=spec_from_file_location('legacy_concurrency_mailbox_support',mailbox_path)
+    mailbox_support=module_from_spec(mailbox_spec);mailbox_spec.loader.exec_module(mailbox_support)
+    record=mailbox_support.attach(record)
+   # These optional hooks preserve additive exact-project successors when they
+   # exist; naming a future hook neither creates nor accepts its laboratory.
+   for mechanism in ('events','notifications','barrier','once','rwlock','queue_port'):
+    mechanism_path=ROOT/('research/v5/expansion/legacy_concurrency_'+mechanism+'/author_support.py')
+    if mechanism_path.is_file():
+     mechanism_spec=spec_from_file_location('legacy_concurrency_'+mechanism+'_support',mechanism_path)
+     mechanism_support=module_from_spec(mechanism_spec);mechanism_spec.loader.exec_module(mechanism_support)
+     record=mechanism_support.attach(record)
+   # Only actually present authored realtime successors are attached. Scanning
+   # this local namespace creates no laboratory or acceptance for a future name.
+   for realtime_path in sorted((ROOT/'research/v5/expansion').glob('legacy_realtime_*/author_support.py')):
+    realtime_spec=spec_from_file_location(realtime_path.parent.name+'_support',realtime_path)
+    realtime_support=module_from_spec(realtime_spec);realtime_spec.loader.exec_module(realtime_support)
+    record=realtime_support.attach(record)
+   for smp_path in sorted((ROOT/'research/v5/expansion').glob('legacy_smp_*/author_support.py')):
+    smp_spec=spec_from_file_location(smp_path.parent.name+'_support',smp_path)
+    smp_support=module_from_spec(smp_spec);smp_spec.loader.exec_module(smp_support)
+    record=smp_support.attach(record)
    write(ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json'),record)
    ap=ROOT/record['assessor_analysis'];ap.write_text('\n'.join(analysis)+'\n',encoding='utf8',newline='\n')
    allgaps.append(dict(id='G-LCON-'+pid,project=pid,objectives=[c['objective'] for c in criteria],kind='unvalidated-experiments',status='open',required=True,work=SPECIAL.get(pid,'Complete every new criterion-specific experiment/derivation and delayed learner assessment; baseline anchor names are not this evidence.')))

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "model": "One fixed-priority preemptive processor; one higher-priority sporadic interrupt; bounded nonpreemptive blocking. Integer microseconds; no self-suspension, release overhead beyond stated WCET, multicore interference or DMA contention.",
+  "response_cases": [
+    {"name":"baseline","execution_us":40,"blocking_us":10,"interrupt_execution_us":12,"interrupt_period_us":50,"interrupt_jitter_us":5,"deadline_us":200,"expected_iterations":[50,74,74],"expected_response_us":74,"expected_meets_deadline":true},
+    {"name":"higher_interrupt_cost","execution_us":40,"blocking_us":10,"interrupt_execution_us":18,"interrupt_period_us":50,"interrupt_jitter_us":5,"deadline_us":200,"expected_iterations":[50,86,86],"expected_response_us":86,"expected_meets_deadline":true},
+    {"name":"high_utilization_but_bounded","execution_us":40,"blocking_us":10,"interrupt_execution_us":35,"interrupt_period_us":50,"interrupt_jitter_us":0,"deadline_us":200,"expected_iterations":[50,85,120,155,190,190],"expected_response_us":190,"expected_meets_deadline":true},
+    {"name":"overloaded","execution_us":40,"blocking_us":10,"interrupt_execution_us":40,"interrupt_period_us":50,"interrupt_jitter_us":5,"deadline_us":200,"expected_iterations":[50,130,170,210],"expected_response_us":null,"expected_meets_deadline":false}
+  ],
+  "arrival_window":{"minimum_separation_us":25,"blackout_us":74,"closed_interval":true,"physical_ring_slots":4,"expected_arrivals":3,"expected_usable_slots":3},
+  "uart":{"baud":115200,"bits_per_byte":10,"frame_bytes":18,"arrival_period_us":1000,"burst_duration_us":20000,"expected_service_us":"3125/2","expected_required_bits_per_second":180000,"expected_completed":12,"expected_peak_outstanding":9,"expected_stable":false},
+  "observation_limits":["The stated execution and blocking bounds are synthetic inputs, not measured WCET.","The recurrence is a sufficient fixed-priority response bound only under its stated task/release model; passing it is not a schedulability proof for an arbitrary firmware image.","An actual target requires measured clock, compiler/map provenance, trace losses, instrumentation overhead and a justified WCET upper bound; finite observed maxima alone are not that bound."]
+}

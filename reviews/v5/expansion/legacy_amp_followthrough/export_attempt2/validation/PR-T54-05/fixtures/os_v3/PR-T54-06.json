@@ -1,0 +1,26 @@
+{
+  "id": "PR-T54-06",
+  "description": "DMA buffers and CPU ownership transitions finite independent example",
+  "oracle": "buffer_states",
+  "input": {
+    "actions": [
+      "fill",
+      "submit",
+      "complete",
+      "consume",
+      "release"
+    ]
+  },
+  "expected": {
+    "states": [
+      "cpu_filling",
+      "device_owned",
+      "completed",
+      "cpu_consuming",
+      "free"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A DMA engine is another memory actor. A CPU may not modify a buffer while DMA owns it, and a completion interrupt does not by itself fix cache visibility. Model free, CPU-filling, device-owned, completed and CPU-consuming states explicitly.",
+  "required_observation": "Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus."
+}

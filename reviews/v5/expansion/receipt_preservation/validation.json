@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "passed": true,
+  "created_utc": "2026-10-18T13:55:16.012343+00:00",
+  "source_sha256": {
+    "tools/expansion_evidence.py": "16fb21c80b056c905f9432c9e86ae08dfdcd235e3fda738ddb4fd512539d7cbd",
+    "tools/check_receipt_preservation.py": "5424ffa470864b4845c4f870afa1b233ab49a3a77b87ca43205087d891ffe9b0"
+  },
+  "scope": "Isolated temporary-tree preservation regression; no actual repository review snapshot or full build executed.",
+  "commands": [
+    {
+      "command": ".conda/python.exe tools/check_receipt_preservation.py",
+      "exit_code": 0,
+      "tests_run": 14,
+      "skipped": 2,
+      "skip_scope": "Windows symlink creation unavailable; both controls actually passed under WSL.",
+      "passed": true
+    },
+    {
+      "command": "wsl -d Ubuntu --cd /mnt/f/Learning/Curricula/c_mastery --exec python3 tools/check_receipt_preservation.py",
+      "exit_code": 0,
+      "tests_run": 14,
+      "skipped": 0,
+      "passed": true
+    }
+  ],
+  "observations": [
+    "All242 historical digest fixture is checked after restoration, including changed/deleted paths.",
+    "Changed and new producer outputs retained separately; deleted original files restored; unchanged file timestamps not rewritten.",
+    "Current destination including nested outputs remains current; existing top-level current snapshot convention retained.",
+    "Producer exceptions propagate after successful restoration.",
+    "9MiB binary file plus tail copied/compared/restored with 1MiB chunks; whole-file Path.read_bytes forbidden for receipt and backup payload; measured Python allocation peak below6MiB.",
+    "Unreadable receipt subtree and failed snapshot/index initialization prevent producer execution.",
+    "Failed restoration retains complete disk backup and SQLite index for recovery.",
+    "File/directory replacements restored; redirected receipt and archive links reject external writes."
+  ],
+  "development_findings": [
+    {
+      "finding": "Regression fixture SQLite context manager did not close its inspection connection, preventing Windows temporary-directory cleanup.",
+      "resolution": "Use contextlib.closing; production connection cleanup unchanged."
+    },
+    {
+      "finding": "An os.walk fault injection initially also intercepted shutil.rmtree cleanup.",
+      "resolution": "Restrict injection to the reviews tree; actual inaccessible subtree still fails closed."
+    }
+  ],
+  "limitations": [
+    "No concurrent producer or redirected review tree is supported.",
+    "Temporary disk must hold complete outside-destination snapshot; copy failure prevents producer execution.",
+    "Abrupt process/OS termination is not an automatic restoration guarantee; failed in-process restoration leaves named backup.",
+    "No learner mastery, independent human review, physical observation or actual12.3GB performance measurement is inferred."
+  ]
+}

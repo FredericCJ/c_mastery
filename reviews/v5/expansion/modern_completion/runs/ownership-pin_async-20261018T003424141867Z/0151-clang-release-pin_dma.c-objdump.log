@@ -1,0 +1,324 @@
+
+/tmp/cmastery-rp-pin_async-4rqglqbp/clang-release/CMakeFiles/ownership-pin_async.dir/mnt/f/Learning/Curricula/c_mastery/assessor/ownership/pin_async/pin_dma.c.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <opa_dma_init>:
+   0:	41 57                	push   %r15
+   2:	41 56                	push   %r14
+   4:	53                   	push   %rbx
+   5:	48 81 ec 20 01 00 00 	sub    $0x120,%rsp
+   c:	f3 0f 6f 84 24 48 01 	movdqu 0x148(%rsp),%xmm0
+  13:	00 00 
+  15:	66 48 0f 6e ce       	movq   %rsi,%xmm1
+  1a:	66 48 0f 6e d7       	movq   %rdi,%xmm2
+  1f:	66 0f 6c d1          	punpcklqdq %xmm1,%xmm2
+  23:	66 0f ef c9          	pxor   %xmm1,%xmm1
+  27:	66 0f 76 c1          	pcmpeqd %xmm1,%xmm0
+  2b:	66 0f 76 d1          	pcmpeqd %xmm1,%xmm2
+  2f:	66 0f 6f ca          	movdqa %xmm2,%xmm1
+  33:	0f c6 c8 dd          	shufps $0xdd,%xmm0,%xmm1
+  37:	0f c6 d0 88          	shufps $0x88,%xmm0,%xmm2
+  3b:	0f 54 d1             	andps  %xmm1,%xmm2
+  3e:	0f 50 ca             	movmskps %xmm2,%ecx
+  41:	b8 01 00 00 00       	mov    $0x1,%eax
+  46:	85 c9                	test   %ecx,%ecx
+  48:	0f 85 99 00 00 00    	jne    e7 <opa_dma_init+0xe7>
+  4e:	48 83 bc 24 58 01 00 	cmpq   $0x0,0x158(%rsp)
+  55:	00 00 
+  57:	0f 84 8a 00 00 00    	je     e7 <opa_dma_init+0xe7>
+  5d:	48 83 bc 24 60 01 00 	cmpq   $0x0,0x160(%rsp)
+  64:	00 00 
+  66:	74 7f                	je     e7 <opa_dma_init+0xe7>
+  68:	48 83 bc 24 68 01 00 	cmpq   $0x0,0x168(%rsp)
+  6f:	00 00 
+  71:	74 74                	je     e7 <opa_dma_init+0xe7>
+  73:	48 89 fb             	mov    %rdi,%rbx
+  76:	4c 8d 74 24 08       	lea    0x8(%rsp),%r14
+  7b:	ba 18 01 00 00       	mov    $0x118,%edx
+  80:	4c 89 f7             	mov    %r14,%rdi
+  83:	49 89 f7             	mov    %rsi,%r15
+  86:	31 f6                	xor    %esi,%esi
+  88:	e8 00 00 00 00       	call   8d <opa_dma_init+0x8d>
+			89: R_X86_64_PLT32	memset-0x4
+  8d:	ba 07 00 00 00       	mov    $0x7,%edx
+  92:	b9 09 00 00 00       	mov    $0x9,%ecx
+  97:	4c 89 f7             	mov    %r14,%rdi
+  9a:	4c 89 fe             	mov    %r15,%rsi
+  9d:	e8 00 00 00 00       	call   a2 <opa_dma_init+0xa2>
+			9e: R_X86_64_PLT32	opa_init-0x4
+  a2:	85 c0                	test   %eax,%eax
+  a4:	75 41                	jne    e7 <opa_dma_init+0xe7>
+  a6:	48 8d 8c 24 40 01 00 	lea    0x140(%rsp),%rcx
+  ad:	00 
+  ae:	0f 10 01             	movups (%rcx),%xmm0
+  b1:	0f 10 49 10          	movups 0x10(%rcx),%xmm1
+  b5:	0f 10 51 20          	movups 0x20(%rcx),%xmm2
+  b9:	0f 11 94 24 f8 00 00 	movups %xmm2,0xf8(%rsp)
+  c0:	00 
+  c1:	0f 11 8c 24 e8 00 00 	movups %xmm1,0xe8(%rsp)
+  c8:	00 
+  c9:	0f 11 84 24 d8 00 00 	movups %xmm0,0xd8(%rsp)
+  d0:	00 
+  d1:	48 8d 74 24 08       	lea    0x8(%rsp),%rsi
+  d6:	ba 18 01 00 00       	mov    $0x118,%edx
+  db:	48 89 df             	mov    %rbx,%rdi
+  de:	89 c3                	mov    %eax,%ebx
+  e0:	e8 00 00 00 00       	call   e5 <opa_dma_init+0xe5>
+			e1: R_X86_64_PLT32	memcpy-0x4
+  e5:	89 d8                	mov    %ebx,%eax
+  e7:	48 81 c4 20 01 00 00 	add    $0x120,%rsp
+  ee:	5b                   	pop    %rbx
+  ef:	41 5e                	pop    %r14
+  f1:	41 5f                	pop    %r15
+  f3:	c3                   	ret
+  f4:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+  fb:	00 00 00 00 00 
+
+0000000000000100 <opa_dma_submit>:
+ 100:	48 85 ff             	test   %rdi,%rdi
+ 103:	41 0f 94 c2          	sete   %r10b
+ 107:	4d 85 c9             	test   %r9,%r9
+ 10a:	41 0f 94 c3          	sete   %r11b
+ 10e:	b8 01 00 00 00       	mov    $0x1,%eax
+ 113:	45 08 d3             	or     %r10b,%r11b
+ 116:	75 0b                	jne    123 <opa_dma_submit+0x23>
+ 118:	b8 04 00 00 00       	mov    $0x4,%eax
+ 11d:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+ 121:	74 01                	je     124 <opa_dma_submit+0x24>
+ 123:	c3                   	ret
+ 124:	83 bf c0 00 00 00 00 	cmpl   $0x0,0xc0(%rdi)
+ 12b:	75 f6                	jne    123 <opa_dma_submit+0x23>
+ 12d:	55                   	push   %rbp
+ 12e:	41 57                	push   %r15
+ 130:	41 56                	push   %r14
+ 132:	41 55                	push   %r13
+ 134:	41 54                	push   %r12
+ 136:	53                   	push   %rbx
+ 137:	48 81 ec 88 00 00 00 	sub    $0x88,%rsp
+ 13e:	4d 89 cd             	mov    %r9,%r13
+ 141:	49 89 fc             	mov    %rdi,%r12
+ 144:	c7 44 24 3c 00 00 00 	movl   $0x0,0x3c(%rsp)
+ 14b:	00 
+ 14c:	48 8d 44 24 3c       	lea    0x3c(%rsp),%rax
+ 151:	41 89 ce             	mov    %ecx,%r14d
+ 154:	89 cf                	mov    %ecx,%edi
+ 156:	44 89 c5             	mov    %r8d,%ebp
+ 159:	49 89 f1             	mov    %rsi,%r9
+ 15c:	44 89 c6             	mov    %r8d,%esi
+ 15f:	89 d1                	mov    %edx,%ecx
+ 161:	4d 89 cf             	mov    %r9,%r15
+ 164:	4c 89 ca             	mov    %r9,%rdx
+ 167:	89 cb                	mov    %ecx,%ebx
+ 169:	49 89 c0             	mov    %rax,%r8
+ 16c:	e8 00 00 00 00       	call   171 <opa_dma_submit+0x71>
+			16d: R_X86_64_PLT32	pd_validate-0x4
+ 171:	89 c1                	mov    %eax,%ecx
+ 173:	b8 01 00 00 00       	mov    $0x1,%eax
+ 178:	85 c9                	test   %ecx,%ecx
+ 17a:	0f 85 e8 00 00 00    	jne    268 <opa_dma_submit+0x168>
+ 180:	4c 89 e7             	mov    %r12,%rdi
+ 183:	41 0f 10 04 24       	movups (%r12),%xmm0
+ 188:	41 0f 10 4c 24 10    	movups 0x10(%r12),%xmm1
+ 18e:	41 0f 10 54 24 20    	movups 0x20(%r12),%xmm2
+ 194:	41 0f 10 5c 24 30    	movups 0x30(%r12),%xmm3
+ 19a:	0f 29 5c 24 70       	movaps %xmm3,0x70(%rsp)
+ 19f:	0f 29 54 24 60       	movaps %xmm2,0x60(%rsp)
+ 1a4:	0f 29 4c 24 50       	movaps %xmm1,0x50(%rsp)
+ 1a9:	0f 29 44 24 40       	movaps %xmm0,0x40(%rsp)
+ 1ae:	c7 44 24 38 00 00 00 	movl   $0x0,0x38(%rsp)
+ 1b5:	00 
+ 1b6:	49 8b 34 24          	mov    (%r12),%rsi
+ 1ba:	48 8d 4c 24 38       	lea    0x38(%rsp),%rcx
+ 1bf:	ba 07 00 00 00       	mov    $0x7,%edx
+ 1c4:	e8 00 00 00 00       	call   1c9 <opa_dma_submit+0xc9>
+			1c5: R_X86_64_PLT32	opa_submit-0x4
+ 1c9:	85 c0                	test   %eax,%eax
+ 1cb:	0f 85 97 00 00 00    	jne    268 <opa_dma_submit+0x168>
+ 1d1:	49 8d 7c 24 40       	lea    0x40(%r12),%rdi
+ 1d6:	44 8b 4c 24 38       	mov    0x38(%rsp),%r9d
+ 1db:	41 0f 10 84 24 d0 00 	movups 0xd0(%r12),%xmm0
+ 1e2:	00 00 
+ 1e4:	41 0f 10 8c 24 e0 00 	movups 0xe0(%r12),%xmm1
+ 1eb:	00 00 
+ 1ed:	41 0f 10 94 24 f0 00 	movups 0xf0(%r12),%xmm2
+ 1f4:	00 00 
+ 1f6:	0f 11 54 24 20       	movups %xmm2,0x20(%rsp)
+ 1fb:	0f 11 4c 24 10       	movups %xmm1,0x10(%rsp)
+ 200:	0f 11 04 24          	movups %xmm0,(%rsp)
+ 204:	44 89 f6             	mov    %r14d,%esi
+ 207:	89 ea                	mov    %ebp,%edx
+ 209:	4c 89 f9             	mov    %r15,%rcx
+ 20c:	41 89 d8             	mov    %ebx,%r8d
+ 20f:	e8 00 00 00 00       	call   214 <opa_dma_submit+0x114>
+			210: R_X86_64_PLT32	pd_submit-0x4
+ 214:	85 c0                	test   %eax,%eax
+ 216:	74 3a                	je     252 <opa_dma_submit+0x152>
+ 218:	0f 28 44 24 40       	movaps 0x40(%rsp),%xmm0
+ 21d:	0f 28 4c 24 50       	movaps 0x50(%rsp),%xmm1
+ 222:	0f 28 54 24 60       	movaps 0x60(%rsp),%xmm2
+ 227:	0f 28 5c 24 70       	movaps 0x70(%rsp),%xmm3
+ 22c:	41 0f 11 5c 24 30    	movups %xmm3,0x30(%r12)
+ 232:	41 0f 11 54 24 20    	movups %xmm2,0x20(%r12)
+ 238:	41 0f 11 4c 24 10    	movups %xmm1,0x10(%r12)
+ 23e:	41 0f 11 04 24       	movups %xmm0,(%r12)
+ 243:	31 c9                	xor    %ecx,%ecx
+ 245:	83 f8 02             	cmp    $0x2,%eax
+ 248:	0f 94 c1             	sete   %cl
+ 24b:	8d 04 49             	lea    (%rcx,%rcx,2),%eax
+ 24e:	ff c0                	inc    %eax
+ 250:	eb 16                	jmp    268 <opa_dma_submit+0x168>
+ 252:	41 c7 84 24 10 01 00 	movl   $0x0,0x110(%r12)
+ 259:	00 00 00 00 00 
+ 25e:	8b 44 24 38          	mov    0x38(%rsp),%eax
+ 262:	41 89 45 00          	mov    %eax,0x0(%r13)
+ 266:	31 c0                	xor    %eax,%eax
+ 268:	48 81 c4 88 00 00 00 	add    $0x88,%rsp
+ 26f:	5b                   	pop    %rbx
+ 270:	41 5c                	pop    %r12
+ 272:	41 5d                	pop    %r13
+ 274:	41 5e                	pop    %r14
+ 276:	41 5f                	pop    %r15
+ 278:	5d                   	pop    %rbp
+ 279:	c3                   	ret
+ 27a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+0000000000000280 <opa_dma_timeout>:
+ 280:	48 85 ff             	test   %rdi,%rdi
+ 283:	74 20                	je     2a5 <opa_dma_timeout+0x25>
+ 285:	55                   	push   %rbp
+ 286:	53                   	push   %rbx
+ 287:	48 83 ec 38          	sub    $0x38,%rsp
+ 28b:	48 89 fb             	mov    %rdi,%rbx
+ 28e:	ba 07 00 00 00       	mov    $0x7,%edx
+ 293:	89 f5                	mov    %esi,%ebp
+ 295:	e8 00 00 00 00       	call   29a <opa_dma_timeout+0x1a>
+			296: R_X86_64_PLT32	opa_timeout-0x4
+ 29a:	85 c0                	test   %eax,%eax
+ 29c:	74 0d                	je     2ab <opa_dma_timeout+0x2b>
+ 29e:	48 83 c4 38          	add    $0x38,%rsp
+ 2a2:	5b                   	pop    %rbx
+ 2a3:	5d                   	pop    %rbp
+ 2a4:	c3                   	ret
+ 2a5:	b8 01 00 00 00       	mov    $0x1,%eax
+ 2aa:	c3                   	ret
+ 2ab:	48 8d 7b 40          	lea    0x40(%rbx),%rdi
+ 2af:	0f 10 83 d0 00 00 00 	movups 0xd0(%rbx),%xmm0
+ 2b6:	0f 10 8b e0 00 00 00 	movups 0xe0(%rbx),%xmm1
+ 2bd:	0f 10 93 f0 00 00 00 	movups 0xf0(%rbx),%xmm2
+ 2c4:	0f 11 54 24 20       	movups %xmm2,0x20(%rsp)
+ 2c9:	0f 11 4c 24 10       	movups %xmm1,0x10(%rsp)
+ 2ce:	0f 11 04 24          	movups %xmm0,(%rsp)
+ 2d2:	89 ee                	mov    %ebp,%esi
+ 2d4:	e8 00 00 00 00       	call   2d9 <opa_dma_timeout+0x59>
+			2d5: R_X86_64_PLT32	pd_cancel-0x4
+ 2d9:	89 c1                	mov    %eax,%ecx
+ 2db:	31 c0                	xor    %eax,%eax
+ 2dd:	83 f9 02             	cmp    $0x2,%ecx
+ 2e0:	0f 95 c0             	setne  %al
+ 2e3:	48 83 c4 38          	add    $0x38,%rsp
+ 2e7:	5b                   	pop    %rbx
+ 2e8:	5d                   	pop    %rbp
+ 2e9:	c3                   	ret
+ 2ea:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+00000000000002f0 <opa_dma_poll>:
+ 2f0:	48 85 ff             	test   %rdi,%rdi
+ 2f3:	0f 94 c1             	sete   %cl
+ 2f6:	48 85 d2             	test   %rdx,%rdx
+ 2f9:	41 0f 94 c0          	sete   %r8b
+ 2fd:	b8 01 00 00 00       	mov    $0x1,%eax
+ 302:	41 08 c8             	or     %cl,%r8b
+ 305:	0f 85 4a 01 00 00    	jne    455 <opa_dma_poll+0x165>
+ 30b:	b8 03 00 00 00       	mov    $0x3,%eax
+ 310:	3b 77 1c             	cmp    0x1c(%rdi),%esi
+ 313:	0f 85 3c 01 00 00    	jne    455 <opa_dma_poll+0x165>
+ 319:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+ 31d:	0f 84 32 01 00 00    	je     455 <opa_dma_poll+0x165>
+ 323:	55                   	push   %rbp
+ 324:	41 57                	push   %r15
+ 326:	41 56                	push   %r14
+ 328:	53                   	push   %rbx
+ 329:	48 83 ec 38          	sub    $0x38,%rsp
+ 32d:	83 bf 10 01 00 00 00 	cmpl   $0x0,0x110(%rdi)
+ 334:	74 3f                	je     375 <opa_dma_poll+0x85>
+ 336:	83 7f 30 00          	cmpl   $0x0,0x30(%rdi)
+ 33a:	0f 84 e3 00 00 00    	je     423 <opa_dma_poll+0x133>
+ 340:	48 89 d3             	mov    %rdx,%rbx
+ 343:	c7 44 24 34 00 00 00 	movl   $0x0,0x34(%rsp)
+ 34a:	00 
+ 34b:	48 8d 4c 24 34       	lea    0x34(%rsp),%rcx
+ 350:	ba 07 00 00 00       	mov    $0x7,%edx
+ 355:	49 89 fe             	mov    %rdi,%r14
+ 358:	e8 00 00 00 00       	call   35d <opa_dma_poll+0x6d>
+			359: R_X86_64_PLT32	opa_finish-0x4
+ 35d:	85 c0                	test   %eax,%eax
+ 35f:	0f 85 e6 00 00 00    	jne    44b <opa_dma_poll+0x15b>
+ 365:	41 0f 10 86 00 01 00 	movups 0x100(%r14),%xmm0
+ 36c:	00 
+ 36d:	0f 11 03             	movups %xmm0,(%rbx)
+ 370:	e9 d6 00 00 00       	jmp    44b <opa_dma_poll+0x15b>
+ 375:	49 89 d6             	mov    %rdx,%r14
+ 378:	48 8d 5f 40          	lea    0x40(%rdi),%rbx
+ 37c:	0f 10 87 d0 00 00 00 	movups 0xd0(%rdi),%xmm0
+ 383:	0f 10 8f e0 00 00 00 	movups 0xe0(%rdi),%xmm1
+ 38a:	49 89 ff             	mov    %rdi,%r15
+ 38d:	0f 10 97 f0 00 00 00 	movups 0xf0(%rdi),%xmm2
+ 394:	0f 11 54 24 20       	movups %xmm2,0x20(%rsp)
+ 399:	0f 11 4c 24 10       	movups %xmm1,0x10(%rsp)
+ 39e:	0f 11 04 24          	movups %xmm0,(%rsp)
+ 3a2:	48 89 df             	mov    %rbx,%rdi
+ 3a5:	89 f5                	mov    %esi,%ebp
+ 3a7:	e8 00 00 00 00       	call   3ac <opa_dma_poll+0xbc>
+			3a8: R_X86_64_PLT32	pd_poll-0x4
+ 3ac:	85 c0                	test   %eax,%eax
+ 3ae:	74 1a                	je     3ca <opa_dma_poll+0xda>
+ 3b0:	89 c1                	mov    %eax,%ecx
+ 3b2:	b8 04 00 00 00       	mov    $0x4,%eax
+ 3b7:	83 f9 02             	cmp    $0x2,%ecx
+ 3ba:	0f 84 8b 00 00 00    	je     44b <opa_dma_poll+0x15b>
+ 3c0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 3c5:	e9 81 00 00 00       	jmp    44b <opa_dma_poll+0x15b>
+ 3ca:	49 8d 87 d0 00 00 00 	lea    0xd0(%r15),%rax
+ 3d1:	49 8d 97 00 01 00 00 	lea    0x100(%r15),%rdx
+ 3d8:	0f 10 00             	movups (%rax),%xmm0
+ 3db:	0f 10 48 10          	movups 0x10(%rax),%xmm1
+ 3df:	0f 10 50 20          	movups 0x20(%rax),%xmm2
+ 3e3:	0f 11 54 24 20       	movups %xmm2,0x20(%rsp)
+ 3e8:	0f 11 4c 24 10       	movups %xmm1,0x10(%rsp)
+ 3ed:	0f 11 04 24          	movups %xmm0,(%rsp)
+ 3f1:	48 89 df             	mov    %rbx,%rdi
+ 3f4:	89 ee                	mov    %ebp,%esi
+ 3f6:	e8 00 00 00 00       	call   3fb <opa_dma_poll+0x10b>
+			3f7: R_X86_64_PLT32	pd_finalize-0x4
+ 3fb:	89 c1                	mov    %eax,%ecx
+ 3fd:	b8 01 00 00 00       	mov    $0x1,%eax
+ 402:	85 c9                	test   %ecx,%ecx
+ 404:	75 45                	jne    44b <opa_dma_poll+0x15b>
+ 406:	89 ee                	mov    %ebp,%esi
+ 408:	4c 89 ff             	mov    %r15,%rdi
+ 40b:	4c 89 f2             	mov    %r14,%rdx
+ 40e:	41 c7 87 10 01 00 00 	movl   $0x1,0x110(%r15)
+ 415:	01 00 00 00 
+ 419:	83 7f 30 00          	cmpl   $0x0,0x30(%rdi)
+ 41d:	0f 85 1d ff ff ff    	jne    340 <opa_dma_poll+0x50>
+ 423:	8b 8f 04 01 00 00    	mov    0x104(%rdi),%ecx
+ 429:	49 89 d6             	mov    %rdx,%r14
+ 42c:	ba 09 00 00 00       	mov    $0x9,%edx
+ 431:	48 89 fb             	mov    %rdi,%rbx
+ 434:	89 f5                	mov    %esi,%ebp
+ 436:	e8 00 00 00 00       	call   43b <opa_dma_poll+0x14b>
+			437: R_X86_64_PLT32	opa_notify-0x4
+ 43b:	89 ee                	mov    %ebp,%esi
+ 43d:	48 89 df             	mov    %rbx,%rdi
+ 440:	4c 89 f2             	mov    %r14,%rdx
+ 443:	85 c0                	test   %eax,%eax
+ 445:	0f 84 f5 fe ff ff    	je     340 <opa_dma_poll+0x50>
+ 44b:	48 83 c4 38          	add    $0x38,%rsp
+ 44f:	5b                   	pop    %rbx
+ 450:	41 5e                	pop    %r14
+ 452:	41 5f                	pop    %r15
+ 454:	5d                   	pop    %rbp
+ 455:	c3                   	ret
+

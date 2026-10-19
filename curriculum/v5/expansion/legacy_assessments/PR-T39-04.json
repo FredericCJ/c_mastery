@@ -4,7 +4,11 @@
   "domain": "T39",
   "title": "Independent depth assessment: RMII clock and bounded PHY management",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/ethernet_followthrough/phy/CONTRACTS.md",
+    "labs/ethernet_followthrough/phy/BOARD_CAPTURE.md",
+    "labs/ethernet_depth/CONTRACTS.md",
+    "labs/link_transfer/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -105,6 +109,64 @@
         "curriculum/modules/T39.md: ten Study sequence and teaching subsections",
         "PR-T39-04: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-EP-LAN11",
+      "path": "research/v5/expansion/legacy_ethernet_phy/resources.json",
+      "passages": [
+        "Printed pp28\u201331: negotiation/restart, duplex, RMII and SMI",
+        "Printed pp65,67\u201371,89: register effects, reset/control, latch-low BSR, R/W identity and resolved mode",
+        "Printed pp27,36,53: autonegotiation triggers, strap versus software-reset configuration and soft-reset completion bound"
+      ]
+    },
+    {
+      "id": "R-EP-RM21",
+      "path": "research/v5/expansion/legacy_ethernet_phy/resources.json",
+      "passages": [
+        "Printed p1131: SMI read/write transaction effects",
+        "Printed pp1199\u20131200: MACMIIAR/MIIDR offsets, fields, divider and busy restrictions",
+        "Printed p65 selected Ethernet MAC base, p1132 MDC table and p1194 legal register access widths"
+      ]
+    },
+    {
+      "id": "R-EP-BOARD8",
+      "path": "research/v5/expansion/legacy_ethernet_phy/resources.json",
+      "passages": [
+        "Section6.11/Table11 printed28\u201329: Ethernet route, reference source and bridge/jumper assignments"
+      ]
+    },
+    {
+      "id": "R-EP-BOARD11",
+      "path": "research/v5/expansion/legacy_ethernet_phy/resources.json",
+      "passages": [
+        "Section7.11/Table11 printed29\u201330: Ethernet route, reference source and bridge/jumper assignments"
+      ]
+    },
+    {
+      "id": "R-EP-ERRATA24",
+      "path": "research/v5/expansion/legacy_ethernet_phy/resources.json",
+      "passages": [
+        "Sections2.16.3\u20132.16.6 printed34\u201337: Tx flush, FIFO corruption and successive-write limits",
+        "Sections2.16.8\u20132.16.12 printed38\u201339: counter rollover, status/checksum limits, giant frames and unavailable automatic pause"
+      ]
+    },
+    {
+      "id": "R-LT-ORIGINAL",
+      "path": "research/v5/expansion/legacy_link_transfer/resources.json",
+      "passages": [
+        "X-T39-002/004/005 and X-T40-001/003: Problem, objective rubric and exact V1/V2 text",
+        "ethernet_depth.h: EDBridge/EDBus/EDPhy interfaces; ethernet_depth.c: ed_bridge, ed_mdio_word/read/query",
+        "edu7_depth.h: E7Sender; edu7_depth.c: begin/offer/accept/ack/expire",
+        "com_edu7.h and communications/edu7.c: fragment_valid and fragment encode/decode"
+      ]
+    },
+    {
+      "id": "R-LT-DP83848",
+      "path": "research/v5/expansion/legacy_link_transfer/resources.json",
+      "passages": [
+        "SLLSEC6E June2019 printed59\u201360: BMSR table5-10 and PHYID tables5-11/12",
+        "SLLSEC6E June2019 printed65\u201366: PHYSTS table5-18, especially link/negotiation/loopback/duplex/speed bits"
+      ]
     }
   ],
   "reference_gaps": [
@@ -114,13 +176,68 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T39-04.json",
     "curriculum/projects/PR-T39-04.md",
-    "labs/communications/README.md"
+    "labs/communications/README.md",
+    "labs/ethernet_followthrough/phy/BOARD_CAPTURE.md",
+    "labs/ethernet_followthrough/phy/CONTRACTS.md",
+    "labs/ethernet_followthrough/phy/guest.c",
+    "labs/ethernet_followthrough/phy/learner.c",
+    "labs/ethernet_followthrough/phy/leases.c",
+    "labs/ethernet_followthrough/phy/mapped.c",
+    "labs/ethernet_followthrough/phy/model.c",
+    "labs/ethernet_followthrough/phy/model.h",
+    "labs/ethernet_followthrough/phy/native.c",
+    "labs/ethernet_followthrough/phy/phy.h",
+    "labs/ethernet_followthrough/phy/target.ld",
+    "labs/ethernet_followthrough/phy/target_build.py",
+    "labs/ethernet_followthrough/phy/target_learner.c",
+    "labs/ethernet_followthrough/phy/tests.c",
+    "labs/ethernet_depth/include/ethernet_depth.h",
+    "labs/ethernet_depth/src/ethernet_depth.c",
+    "labs/ethernet_depth/CONTRACTS.md",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/communications/include/com_edu7.h",
+    "labs/communications/include/com_http.h",
+    "labs/communications/include/com_mcu.h",
+    "labs/communications/include/com_net.h",
+    "labs/communications/include/v4_com.h",
+    "labs/communications/learner/edu7.c",
+    "labs/edu7_depth/include/edu7_depth.h",
+    "labs/edu7_depth/src/edu7_depth.c",
+    "labs/link_transfer/CONTRACTS.md",
+    "labs/link_transfer/freestanding/string.h",
+    "labs/link_transfer/guest.c",
+    "labs/link_transfer/learner.c",
+    "labs/link_transfer/native.c",
+    "labs/link_transfer/target.ld",
+    "labs/link_transfer/target_build.py",
+    "labs/link_transfer/tests.c",
+    "labs/link_transfer/transfer.h",
+    "labs/network_followthrough/driver/target.S",
+    "labs/link_transfer_prerequisites/codec.c"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Detailed MDIO/PHY fixture and inspected local source-backed project obligations.",
     "tests": [],
-    "fresh_execution": "No retained baseline execution repeated by this assessment sidecar; X-T39-001 b04_depth campaign covers only its named ownership/cache model."
+    "fresh_execution": "No retained baseline execution repeated by this assessment sidecar; X-T39-001 b04_depth campaign covers only its named ownership/cache model.",
+    "ethernet_phy_successor": {
+      "path": "research/v5/expansion/legacy_ethernet_phy/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-04-T39.05.a",
+        "AX-PR-T39-04-T39.05.b",
+        "AX-PR-T39-04-T39.05.c"
+      ],
+      "scope": "Three original criterion/V1 pairs; author implementation and bounded model execution, separate physical and independent gates."
+    },
+    "link_transfer_successor": {
+      "path": "research/v5/expansion/legacy_link_transfer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-04-T39.05.a",
+        "AX-PR-T39-04-T39.05.b",
+        "AX-PR-T39-04-T39.05.c"
+      ],
+      "scope": "Additive original X changed-condition service package; original parent criteria unchanged."
+    }
   },
   "criteria": [
     {
@@ -341,12 +458,32 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T39-04.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Actual bounded author MDIO/reset/link implementation, native and Thumb RAM-effect observations; normal descriptor ring, physical PHY/board observations and independent assessment remain separate required evidence.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Actual bounded C transaction/identity/status adapter and physical clock/link observations remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_ethernet_phy/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-04-T39.05.a",
+        "AX-PR-T39-04-T39.05.b",
+        "AX-PR-T39-04-T39.05.c"
+      ],
+      "scope": "Three original criterion/V1 pairs; author implementation and bounded model execution, separate physical and independent gates."
+    },
+    {
+      "path": "research/v5/expansion/legacy_link_transfer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-04-T39.05.a",
+        "AX-PR-T39-04-T39.05.b",
+        "AX-PR-T39-04-T39.05.c"
+      ],
+      "scope": "Additive original X changed-condition service package; original parent criteria unchanged."
+    }
+  ]
 }

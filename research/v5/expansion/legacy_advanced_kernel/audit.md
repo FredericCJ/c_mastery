@@ -1,0 +1,13 @@
+# T26 kernel boundary follow-through audit
+
+Inspected all six original PR-T26-03 criterion/task/delayed objects, parent project, complete synthetic ordinary-work fixture and retained assessor analysis. Those records already distinguish models from execution but had no complete newly bound guest/context/backend package. Preserve their exact objects and historical evidence; attach this successor only.
+
+Actual sources read: selected Linux7.0.14 tree `kernel/workqueue.c` cancel_work_sync lines4479–4499; `include/linux/uaccess.h` lines53–91; `Documentation/locking/locktypes.rst` raw_spinlock_t/spinlock_t and PREEMPT_RT sections; `tools/memory-model/linux-kernel.cat` basic relations through propagation; complete strong/weak MP litmus files; `Documentation/memory-barriers.txt` DMA barrier lines1914–1957 and default MMIO ordering lines2570–2620; `Documentation/core-api/dma-api-howto.rst` coherent/streaming distinction lines350–405. Online official workqueue/DMA/lock documents were also accessed for discovery; the exact local source hashes govern the registered comparisons.
+
+Directly inspected actual original T57 owner module, IRQ module and guest probe, and frozen ASQueue header/contract/implementation. Reused those implementations unchanged. Two actual kernel releases/configurations are built and booted separately; their resulting manifests, ABI inspections and logs are not inferred from names. New external-requeue module supplies the previously missing producer-mediated requeue/drain experiment.
+
+N1570 private cached PDF was extracted with pypdf and inspected at printed pages17–20 (5.1.2.4): release/acquire synchronization, inter-thread happens-before, visible atomic sequence and data race. It is a C11 draft, not exact final C17/C23. The extraction warned about unavailable fontTools for Courier encoding; the prose clauses used here were legible. The private source file is misleadingly named N1570.txt but has PDF bytes; no extracts are published. Published-edition gaps remain.
+
+Implemented all560 bounded residual-copy cases and explicit map/sync/submit/quiesce/unmap adapter using the real ASQueue. Synthetic device ownership is executable author analysis; it is not a physical DMA measurement. The marked four-event LKMM relation fragment is explicitly limited and independently matches the inspected strong/weak litmus expected classifications. No herd7 execution is claimed.
+
+Author implementation and observed commands are distinct from external review, independent delayed learner evidence and physical observations. PREEMPT_RT behavior remains source comparison: both executed configurations are non-RT. The original changed-condition identities remain exact and their seven-day intervals apply to learner assessment.

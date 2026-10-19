@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "X-T69-004",
+  "title": "Capture ownership and shared, mutable, consuming invocation",
+  "project": "PR-T69-04",
+  "domain": "T69",
+  "objectives": [
+    "T69.04.a",
+    "T69.04.b",
+    "T69.04.c",
+    "T69.04.d"
+  ],
+  "families": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "F",
+    "G",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T03-003",
+    "X-T66-006"
+  ],
+  "prerequisite_artifacts": [
+    "containers.array"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DISPATCH-RUST",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "Call traits and coercions: FnOnce, FnMut, Fn and move capture note"
+      ]
+    },
+    {
+      "id": "R-MOD-DISPATCH-LAYOUT",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "layout.pointer.unsized: guarantees and non-guaranteed two-word observation",
+        "layout.tuple.unit and layout.closure",
+        "layout.repr.rust.struct-zst"
+      ]
+    },
+    {
+      "id": "R-MC-PTHREAD-JOIN",
+      "path": "research/v5/modern/completion_resources.json",
+      "passages": [
+        "DESCRIPTION",
+        "RETURN VALUE and ERRORS",
+        "NOTES"
+      ]
+    },
+    {
+      "id": "R-DS-PTHREAD-CONDITION",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "DESCRIPTION: mutex-associated predicate and atomic unlock/wait/relock",
+        "CANCELLATION and ASYNC-SIGNAL SAFETY",
+        "EXAMPLE: predicate loop under the same mutex"
+      ]
+    },
+    {
+      "id": "R-DS-PTHREAD-MUTEX",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "DESCRIPTION: ownership, default mutex and initialized-object requirements",
+        "RETURN VALUE, ERRORS and APPLICATION USAGE: normal versus robust mutexes"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dispatch",
+    "tests": [
+      "dispatch.closures",
+      "dispatch.owned_closure",
+      "dispatch.closure_histories",
+      "dispatch.retained_closure"
+    ],
+    "scaffold": "labs/dispatch"
+  },
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-04.json",
+    "fixtures/dispatch/laws.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dispatch/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dispatch/analyses/X-T69-004.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/b07/dispatch_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T69.04.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-004-R1"
+      ]
+    },
+    {
+      "objective": "T69.04.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-004-R2"
+      ]
+    },
+    {
+      "objective": "T69.04.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-004-R3"
+      ]
+    },
+    {
+      "objective": "T69.04.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-004-R4"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T69-004-R1",
+      "objective": "T69.04.a",
+      "criterion": "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-004-R2",
+      "objective": "T69.04.b",
+      "criterion": "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-004-R3",
+      "objective": "T69.04.c",
+      "criterion": "Enumerate operation sequences including repeated calls, failed calls, reinitialization under its ownership precondition and copied-state misuse; compare state transitions with an independent finite model.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-004-R4",
+      "objective": "T69.04.d",
+      "criterion": "Transfer to a retained asynchronous callback. Establish an environment outlives relation, cancellation ownership and reentrancy policy; show how copying an active C struct defeats a local consumed bit even when every ordinary call checks it.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T69-004-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T69-004.md",
+  "brief_sha256": "f8a448a7ddfccc7dce702763c154cc1cd1d1eb3d87cc48298102251d2ebf3d42",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dispatch/PR-T69-04.json": "bf09266acea7a9fb6e49abeec4693084382eafc2199d9cfdfffd91523c56a517",
+    "fixtures/dispatch/laws.json": "441c1add95eaed52e456abb9605e7c9bd52095c1423a56f35141135239a1346d",
+    "labs/dispatch/CONTRACTS.md": "46353fb78346148e82a553da4764838dd1d078462c6f1b054aff77dbc3953c56",
+    "research/v5/modern/completion_resources.json": "2a9069e7ce7bd599c3fd8a0fa0da0bbcb1d181bc1f547f41e4ce0b332b5728de",
+    "research/v5/modern/dispatch_resources.json": "fbf4a364ad9bc35877589ef9781f43a9a15323d0d4eff7d4a70a8978305f1ecc"
+  }
+}

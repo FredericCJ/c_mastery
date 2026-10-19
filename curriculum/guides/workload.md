@@ -77,9 +77,9 @@ The five values are reading / implementation / verification / assessment / conso
 | {ref}`T67` | shared | T03, T06, T14, T19, T64 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
 | {ref}`T68` | shared | T06, T14, T19, T32, T67 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
 | {ref}`T70` | shared | T14, T16, T18, T36, T68 | 5 / 32 / 32 / 8 / 8 | 85 | 0 |
-| {ref}`T69` | shared | T18, T19, T21, T22, T70 | 11 / 44 / 44 / 8 / 8 | 115 | 0 |
+| {ref}`T69` | shared | T18, T19, T21, T22, T70 | 12 / 48 / 48 / 8 / 8 | 124 | 0 |
 | {ref}`T71` | shared | T20, T39, T52, T67 | 12 / 48 / 48 / 12 / 12 | 132 | 0 |
-| {ref}`T72` | shared | T19, T42, T50, T62, T71 | 20 / 54 / 54 / 12 / 12 | 152 | 0 |
+| {ref}`T72` | shared | T19, T42, T50, T62, T71 | 21 / 58 / 58 / 12 / 12 | 161 | 0 |
 | {ref}`T73` | shared | T28, T31, T51, T55, T66, T72 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
 | {ref}`T74` | shared | T20, T33, T46, T68 | 20 / 66 / 66 / 12 / 12 | 176 | 0 |
 | {ref}`T75` | linux | T24, T30, T41, T50, T73 | 11 / 36 / 36 / 8 / 8 | 99 | 0 |
@@ -104,15 +104,15 @@ The T49–T56 operating-system, concurrency and multicore route contributes **1,
 
 The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage, kernel and OS/concurrency families contribute **1,471 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
 
-The fifth-edition domains T57 onward contribute **2,103 hours**, already included in the totals below.
+The fifth-edition domains T57 onward contribute **2,121 hours**, already included in the totals below.
 
-The full catalog estimate is **6,982 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **6,902 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+The full catalog estimate is **7,000 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **6,920 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
 
-With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **6,880 hours**, or 688 / 344 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
+With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **6,898 hours**, or 690 / 345 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
 
 New integration implementation/verification adds 160 hours, plus 48 hours of reading, assessment and delayed transfer. This 208-hour integration slice is already included in both the full-catalog and core totals above. The shared protocol, containers and their prior tests are charged in their original modules, not again in both capstones. Each capstone budget pays for its platform-specific assembly, campaigns and defense.
 
-At **10 hours/week**, the conservative core arithmetic is 6902/10, rounded up to **691 weeks**. At **20 hours/week**, it is 6902/20, rounded up to **346 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
+At **10 hours/week**, the conservative core arithmetic is 6920/10, rounded up to **692 weeks**. At **20 hours/week**, it is 6920/20, rounded up to **346 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
 
 ## Weekly rhythm
 

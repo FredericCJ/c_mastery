@@ -6,7 +6,10 @@
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
     "curriculum/v5/expansion/legacy_assessments/capstone-contract.md",
-    "curriculum/v5/exercises/modern-cost-contract.md"
+    "curriculum/v5/exercises/modern-cost-contract.md",
+    "labs/capstone_followthrough/core/CONTRACTS.md",
+    "labs/capstone_followthrough/firmware/CONTRACTS.md",
+    "labs/capstone_followthrough/firmware/BOARD_CAPTURE.md"
   ],
   "baseline_binding": {
     "files": [
@@ -162,6 +165,24 @@
         "2.4.2-2.4.4 fault escalation,status and lockup",
         "4.3.10 CFSR opening and subregister access"
       ]
+    },
+    {
+      "id": "R-CAPM-ARM",
+      "path": "research/v5/expansion/legacy_capstone_firmware/resources.json",
+      "passages": [
+        "PDF pp40\u201341: exception frame and exception return",
+        "PDF pp251\u2013255: SysTick calibration and MPU overview/type/control",
+        "PDF pp257\u2013261: MPU base/size/permission encodings and update barriers"
+      ]
+    },
+    {
+      "id": "R-CAPM-F439",
+      "path": "research/v5/expansion/legacy_capstone_firmware/resources.json",
+      "passages": [
+        "Printed/PDF pp65,68: DMA2/RCC mapping and AHB SRAM versus CPU-only CCM",
+        "Printed/PDF pp314\u2013315,321: DMA2-only memory-to-memory, increment and FIFO constraints",
+        "Printed/PDF pp324\u2013327: flow, configuration/disable/drain, completion and error handling"
+      ]
     }
   ],
   "reference_gaps": [
@@ -173,13 +194,81 @@
     "curriculum/projects/PR-CAP-MCU-01.md",
     "curriculum/guides/integrations.md",
     "fixtures/legacy_capstones/boundaries.json",
-    "fixtures/integration/irq.json"
+    "fixtures/integration/irq.json",
+    "labs/capstone_followthrough/core/CMakeLists.txt",
+    "labs/capstone_followthrough/core/CONTRACTS.md",
+    "labs/capstone_followthrough/core/consumer.c",
+    "labs/capstone_followthrough/core/fuzz_driver.c",
+    "labs/capstone_followthrough/core/learner.c",
+    "labs/capstone_followthrough/core/service.h",
+    "labs/capstone_followthrough/core/target_helpers.c",
+    "labs/capstone_followthrough/core/tests.c",
+    "labs/capstone_followthrough/firmware/BOARD_CAPTURE.md",
+    "labs/capstone_followthrough/firmware/CONTRACTS.md",
+    "labs/capstone_followthrough/firmware/checks.c",
+    "labs/capstone_followthrough/firmware/evidence.py",
+    "labs/capstone_followthrough/firmware/firmware.h",
+    "labs/capstone_followthrough/firmware/learner.c",
+    "labs/capstone_followthrough/firmware/representation.c",
+    "labs/capstone_followthrough/firmware/run.py",
+    "labs/capstone_followthrough/firmware/startup.S",
+    "labs/capstone_followthrough/firmware/tests.c",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/include/checkpoint_async.h",
+    "labs/checkpoint_depth/include/checkpoint_channel.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_linux.h",
+    "labs/checkpoint_depth/include/checkpoint_memory.h",
+    "labs/checkpoint_depth/include/checkpoint_numeric.h",
+    "labs/checkpoint_depth/include/checkpoint_operation.h",
+    "labs/checkpoint_depth/include/checkpoint_vector.h",
+    "labs/checkpoint_depth/include/checkpoint_writer.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/src/checkpoint_firmware.c",
+    "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+    "labs/errors/CONTRACTS.md",
+    "labs/errors/include/errors.h",
+    "labs/errors/src/errors.c",
+    "labs/interrupt_depth/frame/CONTRACTS.md",
+    "labs/interrupt_depth/frame/frame.c",
+    "labs/interrupt_depth/frame/frame.h",
+    "labs/interrupt_depth/frame/run.py",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.c",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/interrupt_depth/frame/target_build.py",
+    "labs/interrupt_depth/frame/tests.c",
+    "labs/peripheral_depth/dma/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/peripheral_depth/dma/audit_target.py",
+    "labs/peripheral_depth/dma/board_capture.py",
+    "labs/peripheral_depth/dma/capture_template.json",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/h745_audit.ld",
+    "labs/peripheral_depth/dma/notice.c",
+    "labs/peripheral_depth/dma/notice_port.c",
+    "labs/peripheral_depth/dma/notice_tests.c",
+    "labs/peripheral_depth/dma/run.py",
+    "labs/peripheral_depth/dma/target.c",
+    "labs/peripheral_depth/dma/tests.c",
+    "fixtures/legacy_capstones/firmware_timing_matrix.json"
   ],
   "execution_support": {
     "kind": "Retained partial component integration plus new deterministic boundary fixtures",
     "scope": "integration.mcu is a host ADC/filter/watchdog slice; it does not verify startup, deployment, DMA hardware or timing.",
     "tests": [],
-    "fresh_execution": "New host boundary-oracle execution recorded separately; no complete service, firmware or physical run in this authoring wave."
+    "fresh_execution": "New host boundary-oracle execution recorded separately; no complete service, firmware or physical run in this authoring wave.",
+    "capstone_firmware_followthrough": {
+      "path": "research/v5/expansion/legacy_capstone_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-CAP-MCU-01-T20.01.b",
+        "AX-PR-CAP-MCU-01-T30.07.b",
+        "AX-PR-CAP-MCU-01-T35.01.a"
+      ],
+      "scope": "Exact twelve ordinary and twelve delayed MCU capstone tasks, native models, actual selected CPU/startup/MPU execution, actual P4/Pd F439 cross-build, release and later physical protocol."
+    }
   },
   "criteria": [
     {
@@ -428,5 +517,16 @@
       "Selected integration objectives deepen actual parent topics; domain-level leaf assessments remain separately required",
       "No complete target acceptance or universal mastery inferred"
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_capstone_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-CAP-MCU-01-T20.01.b",
+        "AX-PR-CAP-MCU-01-T30.07.b",
+        "AX-PR-CAP-MCU-01-T35.01.a"
+      ],
+      "scope": "Exact twelve ordinary and twelve delayed MCU capstone tasks, native models, actual selected CPU/startup/MPU execution, actual P4/Pd F439 cross-build, release and later physical protocol."
+    }
+  ]
 }

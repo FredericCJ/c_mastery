@@ -2024,17 +2024,36 @@
       "id": "X-T65-001",
       "project": "PR-T65-01",
       "tests": [
-        "errors.optional"
+        "errors.optional",
+        "errors.option_scalar",
+        "errors.option_owner",
+        "errors.option_failure",
+        "errors.option_base"
       ],
       "capabilities": [
         "linux-c17"
+      ],
+      "dependencies": [
+        {
+          "family": "ownership",
+          "artifact": "memory.adversarial_allocator",
+          "producer": "PR-T66-09",
+          "learner_source": "labs/ownership/src/ownership.c",
+          "assessor_source": "assessor/ownership/ownership.c",
+          "include": "labs/ownership/include",
+          "contract": "labs/ownership/CONTRACTS.md"
+        }
       ]
     },
     {
       "id": "X-T65-002",
       "project": "PR-T65-02",
       "tests": [
-        "errors.propagation"
+        "errors.propagation",
+        "errors.prop_ordinary",
+        "errors.prop_stream",
+        "errors.prop_macro",
+        "errors.prop_base"
       ],
       "capabilities": [
         "linux-c17"
@@ -2044,27 +2063,66 @@
       "id": "X-T65-003",
       "project": "PR-T65-03",
       "tests": [
-        "errors.progress"
+        "errors.progress",
+        "errors.progress_core",
+        "errors.progress_cancel",
+        "errors.progress_epochs",
+        "errors.progress_uncertain",
+        "errors.progress_base",
+        "errors.progress_native"
       ],
       "capabilities": [
         "linux-c17"
+      ],
+      "dependencies": [
+        {
+          "family": "api_depth",
+          "artifact": "io.stream",
+          "producer": "PR-T19-04",
+          "learner_source": "labs/api_depth/stream/stream.c",
+          "assessor_source": "assessor/api_depth/stream.c",
+          "include": "labs/api_depth/stream",
+          "contract": "labs/api_depth/stream/CONTRACTS.md"
+        }
       ]
     },
     {
       "id": "X-T65-004",
       "project": "PR-T65-04",
       "tests": [
-        "errors.composition"
+        "errors.composition",
+        "errors.compose_laws",
+        "errors.compose_effects",
+        "errors.compose_owner",
+        "errors.compose_failure",
+        "errors.compose_cause",
+        "errors.compose_base"
       ],
       "capabilities": [
         "linux-c17"
+      ],
+      "dependencies": [
+        {
+          "family": "ownership",
+          "artifact": "memory.adversarial_allocator",
+          "producer": "PR-T66-09",
+          "learner_source": "labs/ownership/src/ownership.c",
+          "assessor_source": "assessor/ownership/ownership.c",
+          "include": "labs/ownership/include",
+          "contract": "labs/ownership/CONTRACTS.md"
+        }
       ]
     },
     {
       "id": "X-T65-005",
       "project": "PR-T65-05",
       "tests": [
-        "errors.validation"
+        "errors.validation",
+        "errors.validate_base",
+        "errors.validate_ratio",
+        "errors.validate_nested",
+        "errors.validate_admission",
+        "errors.validate_security"
       ],
       "capabilities": [
         "linux-c17"
@@ -2074,17 +2132,46 @@
       "id": "X-T65-006",
       "project": "PR-T65-06",
       "tests": [
-        "errors.boundary"
+        "errors.boundary",
+        "errors.jump_stack",
+        "errors.jump_resources",
+        "errors.jump_nested",
+        "errors.jump_effects",
+        "errors.jump_admission"
       ],
       "capabilities": [
         "linux-c17"
+      ],
+      "dependencies": [
+        {
+          "family": "ownership",
+          "artifact": "cleanup.scope",
+          "producer": "PR-T66-02",
+          "additional_artifacts": [
+            {
+              "artifact": "memory.adversarial_allocator",
+              "producer": "PR-T66-09"
+            }
+          ],
+          "learner_source": "labs/ownership/src/ownership.c",
+          "assessor_source": "assessor/ownership/ownership.c",
+          "include": "labs/ownership/include",
+          "contract": "labs/ownership/CONTRACTS.md",
+          "scope": "One completed ownership workspace supplies both actual scope and counting allocator; family-level source binding does not separately certify learner mastery of either producer."
+        }
       ]
     },
     {
       "id": "X-T65-007",
       "project": "PR-T65-07",
       "tests": [
-        "errors.arithmetic"
+        "errors.arithmetic",
+        "errors.timer_base",
+        "errors.timer_relation",
+        "errors.timer_window",
+        "errors.timer_lifetime",
+        "errors.timer_epoch",
+        "errors.timer_admission"
       ],
       "capabilities": [
         "linux-c17"
@@ -2094,7 +2181,12 @@
       "id": "X-T65-008",
       "project": "PR-T65-08",
       "tests": [
-        "errors.contracts"
+        "errors.contracts",
+        "errors.modes_base",
+        "errors.modes_bounds",
+        "errors.modes_exhaustion",
+        "errors.modes_admission",
+        "errors.modes_concurrent"
       ],
       "capabilities": [
         "linux-c17"
@@ -2104,7 +2196,13 @@
       "id": "X-T65-009",
       "project": "PR-T65-09",
       "tests": [
-        "errors.refinement"
+        "errors.refinement",
+        "errors.rational_base",
+        "errors.rational_consumer",
+        "errors.rational_add",
+        "errors.rational_signed",
+        "errors.rational_opaque",
+        "errors.rational_admission"
       ],
       "capabilities": [
         "linux-c17"
@@ -2120,7 +2218,54 @@
     "errors.boundary",
     "errors.arithmetic",
     "errors.contracts",
-    "errors.refinement"
+    "errors.refinement",
+    "errors.option_scalar",
+    "errors.option_owner",
+    "errors.option_failure",
+    "errors.option_base",
+    "errors.prop_ordinary",
+    "errors.prop_stream",
+    "errors.prop_macro",
+    "errors.prop_base",
+    "errors.progress_core",
+    "errors.progress_cancel",
+    "errors.progress_epochs",
+    "errors.progress_uncertain",
+    "errors.progress_base",
+    "errors.progress_native",
+    "errors.compose_laws",
+    "errors.compose_effects",
+    "errors.compose_owner",
+    "errors.compose_failure",
+    "errors.compose_cause",
+    "errors.compose_base",
+    "errors.validate_base",
+    "errors.validate_ratio",
+    "errors.validate_nested",
+    "errors.validate_admission",
+    "errors.validate_security",
+    "errors.jump_stack",
+    "errors.jump_resources",
+    "errors.jump_nested",
+    "errors.jump_effects",
+    "errors.jump_admission",
+    "errors.timer_base",
+    "errors.timer_relation",
+    "errors.timer_window",
+    "errors.timer_lifetime",
+    "errors.timer_epoch",
+    "errors.timer_admission",
+    "errors.modes_base",
+    "errors.modes_bounds",
+    "errors.modes_exhaustion",
+    "errors.modes_admission",
+    "errors.modes_concurrent",
+    "errors.rational_base",
+    "errors.rational_consumer",
+    "errors.rational_add",
+    "errors.rational_signed",
+    "errors.rational_opaque",
+    "errors.rational_admission"
   ],
   "modules": [
     "T65"
@@ -2140,7 +2285,25 @@
     "mutants_per_anchor": 2,
     "assertion_marker": "ER_CHECK:",
     "fixture_oracle": "tools/verify_errors_fixtures.py",
-    "oracle_driver": "errors-oracle-driver"
+    "oracle_driver": "errors-oracle-driver",
+    "owning_option_producer": "tools/run_errors_owning_option.py",
+    "owning_option_report": "research/v5/modern/errors_owning_option_validation.json",
+    "propagation_producer": "tools/run_errors_propagation.py",
+    "propagation_report": "research/v5/modern/errors_propagation_validation.json",
+    "progress_producer": "tools/run_errors_progress.py",
+    "progress_report": "research/v5/modern/errors_progress_validation.json",
+    "composition_producer": "tools/run_errors_composition.py",
+    "composition_report": "research/v5/modern/errors_composition_validation.json",
+    "validation_producer": "tools/run_errors_validation.py",
+    "validation_report": "research/v5/modern/errors_validation_validation.json",
+    "jump_scope_producer": "tools/run_errors_jump_scope.py",
+    "jump_scope_report": "research/v5/modern/errors_jump_scope_validation.json",
+    "serial_timer_producer": "tools/run_errors_serial_timer.py",
+    "serial_timer_report": "research/v5/modern/errors_serial_timer_validation.json",
+    "contract_modes_producer": "tools/run_errors_contract_modes.py",
+    "contract_modes_report": "research/v5/modern/errors_contract_modes_validation.json",
+    "rational_producer": "tools/run_errors_rational.py",
+    "rational_report": "research/v5/modern/errors_rational_validation.json"
   },
   "dependencies": [],
   "scope": "Hosted C17 pilot; actual observations and unexecuted written obligations remain separate."

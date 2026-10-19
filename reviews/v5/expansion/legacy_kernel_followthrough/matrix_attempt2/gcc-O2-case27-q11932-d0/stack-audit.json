@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "method": "static compiler rows + conservative direct/tail call graph + audited single CvmHost callback; every call adds eight extra bytes",
+  "maximum_native_chain_bytes": 2352,
+  "maximum_chain": [
+    "_start",
+    "kf_vm_probe",
+    "kf_load_scratch",
+    "cvm_load",
+    "cvm_decode",
+    "layout"
+  ],
+  "usage": {
+    "memset": 8,
+    "memcpy": 8,
+    "layout": 8,
+    "mark": 24,
+    "cvm_int": 48,
+    "cvm_status_name": 8,
+    "cvm_init": 8,
+    "cvm_verify": 80,
+    "cvm_decode": 1104,
+    "cvm_encode": 32,
+    "cvm_load": 1104,
+    "cvm_save": 40,
+    "cvm_field": 24,
+    "cvm_root_push": 24,
+    "cvm_root_pop": 8,
+    "cvm_collect": 64,
+    "cvm_pair": 64,
+    "cvm_run.part.0": 112,
+    "cvm_run": 32,
+    "kf_load_scratch": 8,
+    "kf_run_scratch": 32,
+    "callback": 24,
+    "kf_vm_probe": 64,
+    "number": 40,
+    "_start": 16
+  },
+  "calls": {
+    "_start": [
+      "kf_vm_probe",
+      "number"
+    ],
+    "number": [],
+    "callback": [],
+    "kf_vm_probe": [
+      "cvm_init",
+      "cvm_int",
+      "kf_load_scratch",
+      "kf_run_scratch"
+    ],
+    "layout": [],
+    "mark": [],
+    "cvm_int": [],
+    "cvm_init": [],
+    "cvm_verify": [],
+    "cvm_decode": [
+      "layout"
+    ],
+    "cvm_load": [
+      "cvm_decode",
+      "cvm_verify"
+    ],
+    "cvm_root_push": [],
+    "cvm_collect": [
+      "mark"
+    ],
+    "cvm_pair": [
+      "cvm_collect",
+      "cvm_root_push"
+    ],
+    "cvm_run.part.0": [
+      "callback",
+      "cvm_collect",
+      "cvm_pair"
+    ],
+    "kf_load_scratch": [
+      "cvm_load"
+    ],
+    "kf_run_scratch": [
+      "cvm_run.part.0",
+      "cvm_verify"
+    ],
+    "CSWTCH.20": [],
+    "recursive.0": [],
+    "names.0": []
+  },
+  "indirect_calls": [
+    {
+      "from": "cvm_run.part.0",
+      "line": "40001b67:\tff d0                \tcall   *%rax",
+      "audited_target": "callback"
+    }
+  ],
+  "one_page_user_capacity_bytes": 4088,
+  "fits_one_page": true,
+  "separate_stacks": {
+    "normal_user_bytes": 131072,
+    "kernel_task_bytes": 8192,
+    "double_fault_IST_bytes": 8192,
+    "exception_frame_bytes": 176
+  },
+  "scope": "Fixed probe source and compiler profile only; no claim about an arbitrary future callback, physical latency, SMP or unlisted compiler."
+}

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "exercise": "X-T74-010",
+  "status": "author-measured-host-scope",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_rc_probe.json",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed ORRHeap114, ORCounts66, trial token80, concurrent owner160 and handle2 bytes on Linux x86-64."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Sixteen identities with32strong fields,16root counters,8decrement obligations and16candidate bits. Queued decrements retain removed references until flush."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Generation1..3 then slot retirement; external roots max255; revision1..65535 then mutation refusal and quiescent owner close. Tokens borrow owner lifetime and are not portable serialized authority."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Count equation includes pending charges. Replacement increments before publishing/decrementing; queue space is admitted before any of those changes. Duplicate edges are independent references."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Fixed typed owner; no native allocation for object admission or buffering. Full queue/root/identity/revision failures are unchanged; candidate bits coalesce without allocating."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "No payload movement; trial copies66-byte counts into80-byte token. Strong closure and zero selection rescan bounded arrays; generalized time O(V squared+E), not a claimed linear implementation."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Immediate cascade retires at most16objects/32edges per initial decrement; flush budget limits queue entries, each of which may cascade. No recursive destructor or external resource cleanup."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual O2 code calls decrement and original or_trial_delete in both compilers. Concurrent adapter calls real pthread mutex functions; no callback or virtual dispatch in the core."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Mutex gives coherent analysis; nonwrapping revision rejects intervening retain/release/store/flush. Actual late worker and1000-versus1000 workload plus TSan are evidence of those bounded runs, not fairness or all-interleaving proof."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Atomic admission and unchanged refusal outputs tested for full queue, root limit, stale/foreign trial and pending analysis. Revision exhaustion has explicit quiescent teardown rather than count wrap."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "GCC/Clang O0/O2/O3 exact commands and clean/no-change/header rebuild records. O2 seconds GCC0.70120/0.04443/0.72292; Clang0.55004/0.04327/0.44775. Observed host build work only."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 text/data/bss GCC15024/616/16, Clang18256/600/16. release/flush/prepare/commit frames GCC24/48/128/8, Clang24/56/88/0; trial kernel128/104. GCC prepare has stack-check helper. No freestanding or whole-call-chain bound."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Original serialized C17 core and hosted POSIX wrapper. No concurrent raw traversal or atomic-load-before-retain safety follows; clients still supply owner lifetime, quiescence and unmodified tokens."
+    }
+  ],
+  "observation": "540retained+36warmups;1000 eight-object cycles/sample. O2 cycle immediate/deferred1/deferred8 medians ns: GCC295003/324066/292237; Clang195693/221868/216454. Terminal identity/count contracts equal within each graph shape; no universal ordering inferred.",
+  "sealed_decision": {
+    "choice": "Keep ordinary zero release separate; use bounded deferred charges and explicit mutex/revision trial publication when the caller needs deferred work.",
+    "reason": "Deferred queue reduces immediate count work but adds retention and admission/flush obligations; a mutex snapshot gives a simple stated correctness model.",
+    "reopen_when": "Unbounded heaps, hard latency deadlines, raw concurrent traversal or lock-free progress become requirements."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_rc_probe.json": "e3a5a8b5dbc36ca8bf1dd248f643f3d06bcf477e41142bcacf9e7239659f0b62",
+    "labs/object_runtime/REFERENCE_COUNT_EXTENSIONS.md": "d730993675bfd9a590106a569b8316f2e09f05009d80c6a2b10d53d1a5c3a9b2",
+    "curriculum/v5/exercises/X-T74-010.md": "a09675efef4de5dd1c8ca78b7ed6619f8db6b46185d526399cde1dc74926dc80",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

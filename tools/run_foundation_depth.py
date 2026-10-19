@@ -32,7 +32,8 @@ def main() -> int:
         paths = []
         for directory in ("labs/foundation_depth", "assessor/foundation_depth", "fixtures/foundation_depth"):
             paths.extend(p for p in (ROOT / directory).rglob("*") if p.is_file() and "__pycache__" not in p.parts)
-        paths.extend((Path(__file__).resolve(), ROOT / "tools/verify_foundation_depth_fixtures.py"))
+        paths.extend((Path(__file__).resolve(), ROOT / "tools/verify_foundation_depth_fixtures.py",
+                      ROOT / "tools/run_foundation_transfer.py"))
         return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
     hashes = source_hashes()
     curriculum_input = curriculum_identity()
@@ -103,6 +104,13 @@ def main() -> int:
                 report["profiles"].append({"compiler": cc, "profile": profile, "assessor_tests": 17,
                                             "compiled_mutants_rejected": 8, "learner_stubs_rejected": 8,
                                             "oracle_cases": 2048, "status": "passed"})
+        transfer_path = report_path.parent / "foundation_transfer_campaign.json"
+        run([sys.executable, "tools/run_foundation_transfer.py", "--report", str(transfer_path),
+             *[item for cc in compilers for item in ("--compiler", cc)]], "changed-condition-transfer")
+        report["changed_condition_campaign"] = {
+            "path": str(transfer_path.relative_to(ROOT)),
+            "sha256": hashlib.sha256(transfer_path.read_bytes()).hexdigest(),
+            "scope": "Eight assessor transfer assignments and their prerequisite variants, bounded positive tests, twelve compiled semantic controls and full strict object closure. No independent learner attempt."}
         if args.skip_target:
             report["target_audit"] = {"status": "unavailable", "reason": "explicit --skip-target", "execution": "not-run"}
         else:

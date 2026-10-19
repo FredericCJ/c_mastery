@@ -1,0 +1,18 @@
+{
+  "id": "PR-T50-03",
+  "description": "Cooperative assembly context switching finite independent example",
+  "oracle": "frame",
+  "input": {
+    "software_words": 9,
+    "hardware_words": 0,
+    "word_bytes": 4,
+    "alignment": 8
+  },
+  "expected": {
+    "payload_bytes": 36,
+    "aligned_bytes": 40
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A cooperative switch occurs at an ABI call boundary. Save the callee-preserved register set, stack pointer and return path required by the selected ABI; asynchronous preemption later needs a different contract. A task entry that returns must reach a controlled exit trampoline.",
+  "required_observation": "Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant."
+}

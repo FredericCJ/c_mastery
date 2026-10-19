@@ -1,0 +1,50 @@
+=================================================================
+==5064==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x797febde0013 at pc 0x000000401401 bp 0x7ffd10aa8b80 sp 0x7ffd10aa8b70
+READ of size 1 at 0x797febde0013 thread T0
+    #0 0x000000401400 in tf_teaching_bounds /mnt/f/Learning/Curricula/c_mastery/labs/testing_depth/fuzzing/defect.c:16
+    #1 0x00000040154e in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_depth/fuzzing/triage.c:12
+    #2 0x7d5feca2a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x7d5feca2a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x000000401234 in _start (/tmp/testing-fuzzing-ed0bk0js/gcc-bounds+0x401234) (BuildId: cb9207cdc62fc8d3aa58f077947b4c8c00550cea)
+
+0x797febde0013 is located 0 bytes after 3-byte region [0x797febde0010,0x797febde0013)
+allocated by thread T0 here:
+    #0 0x7d5fecf2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x000000401510 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_depth/fuzzing/triage.c:10
+    #2 0x7d5feca2a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x7d5feca2a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x000000401234 in _start (/tmp/testing-fuzzing-ed0bk0js/gcc-bounds+0x401234) (BuildId: cb9207cdc62fc8d3aa58f077947b4c8c00550cea)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /mnt/f/Learning/Curricula/c_mastery/labs/testing_depth/fuzzing/defect.c:16 in tf_teaching_bounds
+Shadow bytes around the buggy address:
+  0x797febddfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x797febddfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x797febddfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x797febddff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x797febddff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x797febde0000: fa fa[03]fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x797febde0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x797febde0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x797febde0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x797febde0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x797febde0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==5064==ABORTING

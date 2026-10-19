@@ -1,0 +1,114 @@
+"""Session-only sequencing of unchanged established author producers."""
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib
+import json
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/'tools'))
+from v2_common import source_identity
+
+OUT = ROOT/'reviews/v5/expansion/integrated/final_author_run'
+FIX = OUT/'author_environment_dependency_fix'
+FRESH = OUT/'foundation_after_environment_fix_20261019'
+EXPECTED = sys.argv[1]
+STATUS = ROOT/'build/final_pipeline_status.json'
+
+def read(path):
+    return json.loads(path.read_text(encoding='utf8'))
+
+def sha(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2)+'\n', encoding='utf8')
+
+def status(phase, **extra):
+    value = dict(phase=phase, input_sha256=EXPECTED,
+                 updated_utc=datetime.now(timezone.utc).isoformat(), **extra)
+    write(STATUS, value)
+    print(json.dumps(value), flush=True)
+
+def ready_foundation():
+    ready = read(FRESH/'ready.json')
+    assert ready['passed'] and ready['input_sha256'] == EXPECTED
+    for field in ('campaign', 'changed_condition_campaign', 'outer_execution',
+                  'outer_invocation', 'source_comparison'):
+        ref = ready[field]
+        assert sha(ROOT/ref['path']) == ref['sha256'], field
+    for field in ('raw', 'tool_versions'):
+        for ref in ready[field]:
+            assert sha(ROOT/ref['path']) == ref['sha256'], ref['path']
+    comparison = read(ROOT/ready['source_comparison']['path'])
+    assert comparison['before_after_equal']
+    pins = comparison['scoped_pin_comparisons']
+    assert len(pins) == 61
+    for pin in pins:
+        assert pin['matches_before'] and pin['matches_after'] and pin['matches_current_bytes']
+        assert sha(ROOT/pin['path']) == pin['sha256'], pin['path']
+    fresh = ROOT/ready['campaign']['path']
+    foundation = read(fresh)
+    assert foundation['passed'] and foundation['canonical_source_stable']
+    assert foundation['input_sha256'] == EXPECTED
+    transfer = read(ROOT/ready['changed_condition_campaign']['path'])
+    assert transfer['passed'] and transfer['scope_source_stable']
+    assert read(ROOT/ready['outer_execution']['path'])['exit_code'] == 0
+    active = ROOT/'reviews/v5/expansion/integrated/foundation_depth_campaign.json'
+    archived = read(FIX/'retained_receipts/manifest.json')
+    previous = next(row for row in archived['files'] if row['original']==active.relative_to(ROOT).as_posix())
+    assert sha(active) == previous['sha256'] == sha(ROOT/previous['retained'])
+    active.write_bytes(fresh.read_bytes())
+    assert sha(active) == ready['campaign']['sha256']
+    write(FRESH/'routing.json', dict(passed=True, source=ready['campaign'],
+        destination=active.relative_to(ROOT).as_posix(), previous_receipt=previous,
+        scope='Exact fresh author receipt routed after full-build preservation finished.'))
+    return sha(active)
+
+try:
+    assert source_identity()['sha256'] == EXPECTED
+    for phase in ('build', 'campaigns', 'validate', 'candidate'):
+        status(phase, status='running', source_and_review_writers_forbidden=phase=='candidate')
+        before = set(OUT.glob(phase+'_*/result.json'))
+        command = [sys.executable, '-X', 'utf8',
+                   'reviews/v5/expansion/followthrough/final_author_run/driver.py', phase]
+        result = subprocess.run(command, cwd=ROOT)
+        new = set(OUT.glob(phase+'_*/result.json'))-before
+        assert len(new) == 1, (phase, 'expected exactly one fresh result')
+        receipt_path = new.pop()
+        receipt = read(receipt_path)
+        if result.returncode or not receipt['passed']:
+            status(phase, status='failed', exit_code=result.returncode,
+                   result=receipt_path.relative_to(ROOT).as_posix())
+            sys.exit(result.returncode or 1)
+        assert source_identity()['sha256'] == EXPECTED, 'Source changed during '+phase
+        status(phase, status='passed', result=receipt_path.relative_to(ROOT).as_posix())
+        if phase == 'build':
+            publication_path = ROOT/'reviews/v5/expansion/integrated/publication.json'
+            publication = read(publication_path)
+            assert publication['passed'] and publication['input_sha256'] == EXPECTED
+            assert len(publication['checks']) == 34 and not publication['stale_checks']
+            assert all(row['status']=='passed' and row['exit_code']==0 for row in publication['checks'])
+            forbidden = {'private', 'assessor', '.venv', '__pycache__'}
+            for relative in ('build/source', 'build/html'):
+                folder = ROOT/relative
+                files = [path for path in folder.rglob('*') if path.is_file()]
+                assert not [path for path in files if forbidden.intersection(path.relative_to(folder).parts)]
+                assert not [path for path in files if path.name=='rm0090-rev21.pdf']
+            page = (ROOT/'build/html/references/R-LCS-ST.html').read_text(encoding='utf8')
+            assert 'https://www.st.com/resource/en/reference_manual/dm00031020.pdf' in page
+            assert 'research/private/root' not in page and 'rm0090-rev21.pdf' not in page
+            foundation_sha = ready_foundation()
+            write(FIX/'full_build_comparison.json', dict(passed=True,
+                input_sha256=EXPECTED, publication_sha256=sha(publication_path),
+                foundation_sha256=foundation_sha, checks=34,
+                source_and_html_forbidden_payloads=[], previous_pdf_copies_absent=True,
+                public_bibliography_link_present=True,
+                scope='Actual full regeneration removes both previously observed private copies; no release acceptance.'))
+    status('all-final-producers-passed', status='passed', automatic_commit=False,
+           automatic_staging=False, release_accepted=False)
+except Exception as error:
+    status('gate-or-producer-error', status='failed', error=repr(error))
+    raise

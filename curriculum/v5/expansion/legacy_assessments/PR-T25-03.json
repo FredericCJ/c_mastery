@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T25-03",
   "domain": "T25",
-  "title": "Publication, atomics and CAS traces — explicit depth assessments",
+  "title": "Publication, atomics and CAS traces \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/thread_depth/atomics/CONTRACTS.md",
+    "labs/consume_index_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -90,27 +92,91 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-TATOM-N1570",
+      "path": "research/v5/expansion/legacy_thread_atomics/resources.json",
+      "passages": [
+        "3.14 definition/example;5.1.2.4 paragraphs1\u201328",
+        "7.17.2.2;7.17.3 paragraphs1\u201310 and7.17.3.1",
+        "7.17.4 through7.17.4.2;7.17.5/.1;7.17.7.1 through7.17.7.4"
+      ]
+    },
+    {
+      "id": "R-TATOM-N3096",
+      "path": "research/v5/expansion/legacy_thread_atomics/resources.json",
+      "passages": [
+        "Cover/status;7.17.2.2 paragraphs2\u20136",
+        "7.17.3 paragraphs1\u201311 and7.17.3.1;7.17.4 through7.17.4.2",
+        "7.17.7.1 through7.17.7.5"
+      ]
+    },
+    {
+      "id": "R-TATOM-GCC",
+      "path": "research/v5/expansion/legacy_thread_atomics/resources.json",
+      "passages": [
+        "Memory-order introduction, consume implemented as acquire and target/runtime fallback",
+        "Atomic load/store/exchange/CAS and fetch arithmetic descriptions",
+        "Thread/signal fences and always/is_lock_free descriptions"
       ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T25-03.md",
     "fixtures/systems/PR-T25-03.json",
     "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/thread_depth/atomics/CONTRACTS.md",
+    "labs/thread_depth/atomics/atomics.h",
+    "labs/thread_depth/atomics/cas_tests.c",
+    "labs/thread_depth/atomics/learner.c",
+    "labs/thread_depth/atomics/operation_tests.c",
+    "labs/thread_depth/atomics/publication_tests.c",
+    "labs/thread_depth/atomics/target.c",
+    "labs/consume_index_depth/consume_index.h",
+    "labs/consume_index_depth/CONTRACTS.md",
+    "labs/consume_index_depth/learner.c",
+    "labs/consume_index_depth/run.py",
+    "labs/consume_index_depth/tests.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "thread_atomics_successor": {
+      "path": "research/v5/expansion/legacy_thread_atomics/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-03-T25.06.a",
+        "AX-PR-T25-03-T25.06.b",
+        "AX-PR-T25-03-T25.06.c",
+        "AX-PR-T25-03-T25.07.a",
+        "AX-PR-T25-03-T25.07.b",
+        "AX-PR-T25-03-T25.07.c",
+        "AX-PR-T25-03-T25.08.a",
+        "AX-PR-T25-03-T25.08.b",
+        "AX-PR-T25-03-T25.08.c",
+        "AX-PR-T25-03-T25.09.a",
+        "AX-PR-T25-03-T25.09.b",
+        "AX-PR-T25-03-T25.09.c"
+      ],
+      "scope": "All twelve original atomic/CAS ordinary and changed packets; exact final-edition source comparison stays partial and external evidence is separate."
+    },
+    "thread_consume_index_successor": {
+      "path": "research/v5/expansion/consume_index_depth/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-03-T25.08.c"
+      ],
+      "scope": "Exact branch-selected versus value-derived index delayed specimen and finite dependency graph; immutable-data tests and target object audits. Exact final-edition source comparison remains partial."
+    }
   },
   "criteria": [
     {
@@ -129,8 +195,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -165,7 +231,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The observed release is essential; the graph determines which ordinary payload access is ordered. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Insert a second writer reusing the payload and derive the reverse handoff needed before mutation. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -209,8 +275,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -245,7 +311,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Conflicting unsynchronized ordinary accesses can create a C data race; volatile is not the required synchronization. Disjoint objects need separate analysis. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace disjoint elements with adjacent bit-fields and re-evaluate memory-location and concurrency assumptions. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -289,8 +355,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -325,7 +391,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Atomicity of components can coexist with an invalid aggregate observation. Ordering/lifetime and abstract-state correctness are distinct proofs. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Require linearizable snapshots without a global lock and design a bounded retry/version protocol with wrap limits. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -370,8 +436,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -406,7 +472,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Initialization precedes concurrent access; each operation's return value and modification order matter. Atomicity does not change unsigned arithmetic rules. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace the counter with a multi-field atomic aggregate where supported and inspect changed initialization/representation obligations. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -451,8 +517,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -487,7 +553,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Lock freedom is type/object/implementation dependent; available operations and algorithmic progress are separate claims. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change alignment or target ABI using valid declared objects and explain which previous progress conclusion must be re-established. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -532,8 +598,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -568,7 +634,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Compiler lowering may introduce helpers or locks. Exact generated code and link closure decide whether a restricted target contract is met. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Increase atomic width beyond the native instruction width and diagnose the first new dependency rather than adding an undeclared library. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -613,8 +679,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -649,7 +715,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Orders constrain specified atomic relations; payload safety still needs a valid happens-before/lifetime argument. Failure to observe a permitted outcome does not forbid it. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Mix seq_cst and relaxed operations and identify precisely which events no longer participate in the global order. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -694,8 +760,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -730,7 +796,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The next write must wait for the previous reader's completion; reverse release/acquire handoff prevents overlap with ongoing reads. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Permit two readers and redesign retirement before reusing the one slot. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -775,8 +841,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -811,7 +877,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Fences need the specified atomic relation; dependency ordering is edition/implementation-sensitive. Uninspected edition differences remain unresolved rather than guessed. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace pointer-dependent access with an index computed after a control branch and reassess whether any consume argument survives. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -857,8 +923,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -893,7 +959,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Failure does not perform the desired write; its ordering constraints differ. The conservative pair must satisfy both paths' needs. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change success ordering to release-only and derive a valid weaker failure order instead of retaining acquire blindly. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -939,8 +1005,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -975,7 +1041,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Spurious failure is permitted; strong/weak choice and retry requirements follow the algorithm. A retry counter is not a wait-free proof. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Move the operation outside a retry loop and determine when strong CAS is necessary for the promised one-attempt semantics. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1021,8 +1087,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -1057,7 +1123,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Desired ownership and expected's output role are distinct. Failure updates expected as specified while leaving the desired object unpublished. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Let desired depend on expected's fields and identify the additional protection/lifetime rule before dereferencing the newly observed pointer. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1089,7 +1155,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T25-03.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; independent learner and exact-source gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -1097,5 +1163,32 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_thread_atomics/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-03-T25.06.a",
+        "AX-PR-T25-03-T25.06.b",
+        "AX-PR-T25-03-T25.06.c",
+        "AX-PR-T25-03-T25.07.a",
+        "AX-PR-T25-03-T25.07.b",
+        "AX-PR-T25-03-T25.07.c",
+        "AX-PR-T25-03-T25.08.a",
+        "AX-PR-T25-03-T25.08.b",
+        "AX-PR-T25-03-T25.08.c",
+        "AX-PR-T25-03-T25.09.a",
+        "AX-PR-T25-03-T25.09.b",
+        "AX-PR-T25-03-T25.09.c"
+      ],
+      "scope": "All twelve original atomic/CAS ordinary and changed packets; exact final-edition source comparison stays partial and external evidence is separate."
+    },
+    {
+      "path": "research/v5/expansion/consume_index_depth/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-03-T25.08.c"
+      ],
+      "scope": "Exact branch-selected versus value-derived index delayed specimen and finite dependency graph; immutable-data tests and target object audits. Exact final-edition source comparison remains partial."
+    }
+  ]
 }

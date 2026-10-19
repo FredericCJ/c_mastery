@@ -2,11 +2,14 @@
   "schema_version": 1,
   "project": "PR-P3-01",
   "domain": "INTEGRATION",
-  "title": "One wire format for both tracks — explicit composition assessments",
+  "title": "One wire format for both tracks \u2014 explicit composition assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/integration/CONTRACTS.md"
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_followthrough/protocol/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -148,9 +151,9 @@
       "id": "R-LCP-C11",
       "path": "research/v5/expansion/legacy_checkpoints/resources.json",
       "passages": [
-        "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-        "6.2.8 paragraphs1–7: alignment requirements",
-        "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+        "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+        "6.2.8 paragraphs1\u20137: alignment requirements",
+        "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
       ]
     },
     {
@@ -158,6 +161,36 @@
       "path": "research/v5/expansion/legacy_checkpoints/resources.json",
       "passages": [
         "Checksum Functions: crc32 and crc32_z"
+      ]
+    },
+    {
+      "id": "R-CPA-MAC",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "Computing functions: EVP_Q_mac explicit output capacity/outlen, lines6321-6323; RETURN VALUES pointer or NULL line6439"
+      ]
+    },
+    {
+      "id": "R-CPA-COMPARE",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "DESCRIPTION/RETURN VALUES/NOTES lines6232-6241: equal-length content-independent comparison, zero/nonzero and no ordering"
+      ]
+    },
+    {
+      "id": "R-CPA-RFC4231",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "Section4.2 Test Case1, printedpage4: 20-byte0b key, Hi There data and full HMAC-SHA256 expected value"
+      ]
+    },
+    {
+      "id": "R-CPA-LOCAL",
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/resources.json",
+      "passages": [
+        "All original PR-P3-01/02 criterion and delayed-task objects; codec/stream/header/fixture contracts",
+        "Actual CPParser/CPQueue, protocol16/64, auth/OpenSSL adapter and durable receipt/store consumer source and public tests",
+        "Original minimizer and independent whole-buffer zlib oracle; new capacity replay and version1 admission counterexample"
       ]
     }
   ],
@@ -179,7 +212,29 @@
     "fixtures/legacy_checkpoints/P2.json",
     "fixtures/legacy_checkpoints/P4.json",
     "fixtures/legacy_checkpoints/P5.json",
-    "fixtures/legacy_checkpoints/P6.json"
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_followthrough/protocol/admission.h",
+    "labs/checkpoint_followthrough/protocol/check_replay.py",
+    "labs/checkpoint_followthrough/protocol/CONTRACTS.md",
+    "labs/checkpoint_followthrough/protocol/learner.c",
+    "labs/checkpoint_followthrough/protocol/policy.c",
+    "labs/checkpoint_followthrough/protocol/replay.c",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/tests/check_stream.py",
+    "labs/checkpoint_depth/transfer/protocol.h",
+    "labs/checkpoint_depth/transfer/protocol_stub.c",
+    "labs/checkpoint_depth/transfer/protocol_tests.c",
+    "labs/checkpoint_depth/transfer/auth.h",
+    "labs/checkpoint_depth/transfer/auth_stub.c",
+    "labs/checkpoint_depth/transfer/auth_tests.c",
+    "labs/checkpoint_depth/transfer/durable.h",
+    "labs/checkpoint_depth/transfer/durable_stub.c",
+    "labs/checkpoint_depth/transfer/durable_tests.c",
+    "labs/checkpoint_depth/transfer/openssl_mac.c",
+    "labs/checkpoint_depth/transfer/check_protocol.py",
+    "labs/service_depth/adapters/receipt.h",
+    "labs/storage/include/store.h"
   ],
   "prerequisite_artifacts": [
     "PR-T04-02/accepted-component-and-dossier",
@@ -195,7 +250,20 @@
     "tests": [
       "integration.p3"
     ],
-    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted."
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "checkpoint_protocol_followthrough": {
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P3-01-T04.06.b",
+        "AX-PR-P3-01-T15.12.b",
+        "AX-PR-P3-01-T15.12.c",
+        "AX-PR-P3-01-T18.01.b"
+      ],
+      "scope": "Every original/delayed P3 task with exact retained/new source-bound evidence and versioned configured-admission clarification."
+    }
   },
   "criteria": [
     {
@@ -214,9 +282,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -288,6 +356,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-01-T04.06.b"
       }
     },
     {
@@ -306,9 +378,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -347,14 +419,14 @@
       },
       "verification": {
         "procedure": "Predict before running. Exercise every task clause with normal/boundary/failure and falsification cases. Compare output plus internal ownership/state invariants through an instrumented public contract; do not rely on a checksum alone. Run the supplied host oracle separately and label its evidence as a bounded model.",
-        "expected": "Representability exceeds the permitted domain. Empty payload is a complete10-byte frame; maximum is42. Sequence65535→0 is valid framing. An unsupported extension needs a new explicit format/version policy.",
+        "expected": "Representability exceeds the permitted domain. Empty payload is a complete10-byte frame; maximum is42. Sequence65535\u21920 is valid framing. An unsupported extension needs a new explicit format/version policy.",
         "pass": "Every task clause and expected distinction is supported by source-bound learner evidence. Wrong ownership/failure semantics, erased accepted progress, unsupported target claims or the stated misconception fail this criterion regardless of test count.",
         "limits": "integration.p3 is a length-byte/decimal-record parser with terminal failure, not the shared A5/version/sequence/length<=32/CRC protocol and resynchronization required here. New host model checks do not execute the full new criterion; finite tests do not prove absolute mastery."
       },
       "rubric": {
         "0": "Missing, unsafe or incorrect artifacts; violated containment or false semantic guarantee.",
         "1": "Shows an ordinary example but cannot diagnose the stated misconception or changed interaction.",
-        "2": "Representability exceeds the permitted domain. Empty payload is a complete10-byte frame; maximum is42. Sequence65535→0 is valid framing. An unsupported extension needs a new explicit format/version policy. Supplies every task artifact and a discriminating negative control under the declared contract.",
+        "2": "Representability exceeds the permitted domain. Empty payload is a complete10-byte frame; maximum is42. Sequence65535\u21920 is valid framing. An unsupported extension needs a new explicit format/version policy. Supplies every task artifact and a discriminating negative control under the declared contract.",
         "3": "Add a version2 optional field and define compatibility without silently accepting old parsers that miscompute CRC extent. Predicts, implements/derives and verifies the changed obligations in an honestly recorded delayed independent attempt."
       },
       "hints": [
@@ -380,6 +452,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-01-T15.12.b"
       }
     },
     {
@@ -399,9 +475,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -412,7 +488,7 @@
           ]
         }
       ],
-      "task": "Implement reflected IEEE CRC32 from permitted byte/bit primitives, with polynomialEDB88320, initial/final XORFFFFFFFF. Compare123456789→CBF43926 and the P3 fixture against host zlib only as an independent verifier. Flip a payload bit, then recompute CRC for a changed synthetic payload and explain why both are not authenticity tests. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "task": "Implement reflected IEEE CRC32 from permitted byte/bit primitives, with polynomialEDB88320, initial/final XORFFFFFFFF. Compare123456789\u2192CBF43926 and the P3 fixture against host zlib only as an independent verifier. Flip a payload bit, then recompute CRC for a changed synthetic payload and explain why both are not authenticity tests. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
       "purpose": "A CRC-valid frame proves an authorized sender created it.",
       "prerequisites": {
         "knowledge": [
@@ -434,7 +510,7 @@
       ],
       "deliverables": {
         "D1": "Sealed prediction, ownership/state diagram and causal argument for: A CRC-valid frame proves an authorized sender created it.",
-        "D2": "Implement reflected IEEE CRC32 from permitted byte/bit primitives, with polynomialEDB88320, initial/final XORFFFFFFFF. Compare123456789→CBF43926 and the P3 fixture against host zlib only as an independent verifier. Flip a payload bit, then recompute CRC for a changed synthetic payload and explain why both are not authenticity tests. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+        "D2": "Implement reflected IEEE CRC32 from permitted byte/bit primitives, with polynomialEDB88320, initial/final XORFFFFFFFF. Compare123456789\u2192CBF43926 and the P3 fixture against host zlib only as an independent verifier. Flip a payload bit, then recompute CRC for a changed synthetic payload and explain why both are not authenticity tests. Supplied model inputs: fixtures/integration/wire.json and fixtures/legacy_checkpoints/P3.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
         "D3": "Source/adapter revisions, exact environment/commands, independently expected and actual traces, boundary/failure cases, and a criterion-specific falsification control. Count retained resources/copies/callback work where applicable; retain missing observations honestly.",
         "D4": "Change to an authenticated teaching protocol only after defining keys, replay policy and an inspected primitive contract; CRC equivalence is not claimed."
       },
@@ -484,6 +560,10 @@
         "repair": "Keep framing and authorization separate. The corrected target refuses to alter protected state in its unauthenticated mode; ordinary public framing may still accept the changed payload. If authenticated commands are required, add an independently specified keyed authentication and replay policy only after inspecting its primitive contract.",
         "regression": "Run original/stale-CRC/recomputed-CRC frames through flawed and corrected application gates. The corrected gate never changes protected state without authorization; ordinary framing behavior and valid CRC vectors remain unchanged.",
         "residual_limits": "Disabling unauthenticated protected commands contains this teaching defect but does not implement authenticated messaging. Key management, replay resistance, cryptographic primitive implementation and side channels remain separate required work for the authenticated transfer variant."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-01-T15.12.c"
       }
     },
     {
@@ -502,9 +582,9 @@
           "id": "R-LCP-C11",
           "path": "research/v5/expansion/legacy_checkpoints/resources.json",
           "passages": [
-            "6.2.4 paragraphs1–5: storage duration, lifetime and invalid pointers",
-            "6.2.8 paragraphs1–7: alignment requirements",
-            "6.5 paragraphs6–8: effective type, allowed lvalue access and FP contraction"
+            "6.2.4 paragraphs1\u20135: storage duration, lifetime and invalid pointers",
+            "6.2.8 paragraphs1\u20137: alignment requirements",
+            "6.5 paragraphs6\u20138: effective type, allowed lvalue access and FP contraction"
           ]
         },
         {
@@ -576,6 +656,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P3-01-T18.01.b"
       }
     }
   ],
@@ -590,5 +674,28 @@
       "Authored delayed opportunities are not completed assessments.",
       "Finite passing tests do not prove absolute mastery."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P3-01",
+    "criterion_ids": [
+      "AX-PR-P3-01-T04.06.b",
+      "AX-PR-P3-01-T15.12.b",
+      "AX-PR-P3-01-T15.12.c",
+      "AX-PR-P3-01-T18.01.b"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_protocol/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P3-01-T04.06.b",
+        "AX-PR-P3-01-T15.12.b",
+        "AX-PR-P3-01-T15.12.c",
+        "AX-PR-P3-01-T18.01.b"
+      ],
+      "scope": "Every original/delayed P3 task with exact retained/new source-bound evidence and versioned configured-admission clarification."
+    }
+  ]
 }

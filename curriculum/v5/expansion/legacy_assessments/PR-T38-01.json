@@ -4,7 +4,11 @@
   "domain": "T38",
   "title": "Independent depth assessment: UART architecture, frame and baud laboratory",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_variants/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -119,6 +123,79 @@
         "curriculum/modules/T38.md: twelve Study sequence and teaching subsections",
         "PR-T38-01: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-UA-RM21",
+      "path": "research/v5/expansion/legacy_serial_uart/resources.json",
+      "passages": [
+        "Printed p68: SRAM bus-master access and CPU-only CCM",
+        "Printed pp973\u2013977,981,991: transfer/parity, stop sampling, divisor and aggregate frequency deviation",
+        "Printed p1004: DMA completion followed by final USART TC",
+        "Printed pp1010\u20131017: SR/DR clearing, M/PCE/PS and stop configuration"
+      ]
+    },
+    {
+      "id": "R-UA-DS14",
+      "path": "research/v5/expansion/legacy_serial_uart/resources.json",
+      "passages": [
+        "Table12 printed pp78\u201379: AF column header and PD8/PD9 AF7 rows"
+      ]
+    },
+    {
+      "id": "R-UA-CACHE",
+      "path": "research/v5/expansion/legacy_serial_uart/resources.json",
+      "passages": [
+        "Printed pp3\u20136: 32-byte lines, write-back behavior and DMA coherency; F7 DTCM example not generalized to H7"
+      ]
+    },
+    {
+      "id": "R-UA-MAX",
+      "path": "research/v5/expansion/legacy_serial_uart/resources.json",
+      "passages": [
+        "Printed pp1,3\u20136,9: interface role, DIN/DOUT/ROUT/RIN, inversion, selected supply/load/signaling conditions"
+      ]
+    },
+    {
+      "id": "R-UA-CAN",
+      "path": "research/v5/expansion/legacy_serial_uart/resources.json",
+      "passages": [
+        "Printed pp1,3\u20134: separate SPI/control/CAN modules and interface",
+        "Printed pp15\u201316: copied transmit buffers, local priority versus arbitration, request/completion and abort distinctions"
+      ]
+    },
+    {
+      "id": "R-SV-RP2040",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed421 section4.2.3.2.1: divisor16-bit integer/six-bit fraction, formula and rounding",
+        "Printed432 tables430/431: IBRD/FBRD widths; table432 word/parity and stop-bit distinctions"
+      ]
+    },
+    {
+      "id": "R-SV-RM21",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed994 section30.3.7 Table147: M/PCE word and parity placement",
+        "Printed997\u2013998 section30.3.9: synchronous master CK and setup/hold premise",
+        "Printed1017 CR2 LBCL: last eighth/ninth hardware word bit",
+        "Printed1117\u20131118 section32.9.4: list/mask and16/32-bit scale"
+      ]
+    },
+    {
+      "id": "R-SV-THVD1450",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Web PDF page indexes8/9, sections7.4/7.7: terminal/differential limits, threshold extrema and minimum hysteresis footnote",
+        "Web PDF page indexes18/23, Table2 and section10.2.1.4: enabled/open/short/idle behavior and hysteresis explanation"
+      ]
+    },
+    {
+      "id": "R-SV-CAN2024",
+      "path": "research/v5/expansion/legacy_serial_variants/resources.json",
+      "passages": [
+        "Printed31\u201333 section6.6.10: SRR, r0/r1 and FD-tolerant protocol exception rules",
+        "Printed42\u201344 sections6.6.13\u20136.6.18: dynamic stuffing, receiver/transmitter final EOF validation and protocol-exception counter preservation"
+      ]
     }
   ],
   "reference_gaps": [
@@ -128,13 +205,67 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T38-01.json",
     "curriculum/projects/PR-T38-01.md",
-    "labs/serial_depth/CONTRACTS.md"
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_followthrough/uart/BOARD_CAPTURE.md",
+    "labs/serial_followthrough/uart/CONTRACTS.md",
+    "labs/serial_followthrough/uart/guest.c",
+    "labs/serial_followthrough/uart/learner.c",
+    "labs/serial_followthrough/uart/mapped.c",
+    "labs/serial_followthrough/uart/mapped_native.c",
+    "labs/serial_followthrough/uart/native.c",
+    "labs/serial_followthrough/uart/target_build.py",
+    "labs/serial_followthrough/uart/tests.c",
+    "labs/serial_followthrough/uart/uart_depth.h",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/target.c",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/interrupt_depth/frame/target.ld",
+    "labs/network_followthrough/driver/target.S",
+    "labs/serial_followthrough/can/can.h",
+    "labs/serial_followthrough/can/learner.c",
+    "labs/serial_variants/CONTRACTS.md",
+    "labs/serial_variants/freestanding/string.h",
+    "labs/serial_variants/guest.c",
+    "labs/serial_variants/learner.c",
+    "labs/serial_variants/native.c",
+    "labs/serial_variants/target.ld",
+    "labs/serial_variants/target_build.py",
+    "labs/serial_variants/tests.c",
+    "labs/serial_variants/variants.h"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Retained module communication-path explanation and project evidence gates; UART portable model X-T38-002.; New C UART encode/decode/baud/status model with independent exhaustive small-byte oracle.",
     "tests": [],
-    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied."
+    "fresh_execution": "See source-bound serial_depth/b045_systems reports for exact new anchors; no physical/independent assessment implied.",
+    "serial_uart_successor": {
+      "path": "research/v5/expansion/legacy_serial_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-01-T38.01.a",
+        "AX-PR-T38-01-T38.01.b",
+        "AX-PR-T38-01-T38.01.c",
+        "AX-PR-T38-01-T38.02.a",
+        "AX-PR-T38-01-T38.02.b",
+        "AX-PR-T38-01-T38.02.c"
+      ],
+      "scope": "Six exact architecture/UART criterion/V1 pairs; physical observations remain separately required."
+    },
+    "serial_variants_successor": {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-01-T38.01.a",
+        "AX-PR-T38-01-T38.01.b",
+        "AX-PR-T38-01-T38.01.c",
+        "AX-PR-T38-01-T38.02.a",
+        "AX-PR-T38-01-T38.02.b",
+        "AX-PR-T38-01-T38.02.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
   },
   "criteria": [
     {
@@ -569,7 +700,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T38-01.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Actual composed UART author experiments; physical waveform accuracy, external review and independent delayed learner evidence remain required.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -577,5 +708,31 @@
       "F439 register adapter and physical bit-period/error traces are not executed.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_serial_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-01-T38.01.a",
+        "AX-PR-T38-01-T38.01.b",
+        "AX-PR-T38-01-T38.01.c",
+        "AX-PR-T38-01-T38.02.a",
+        "AX-PR-T38-01-T38.02.b",
+        "AX-PR-T38-01-T38.02.c"
+      ],
+      "scope": "Six exact architecture/UART criterion/V1 pairs; physical observations remain separately required."
+    },
+    {
+      "path": "research/v5/expansion/legacy_serial_variants/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T38-01-T38.01.a",
+        "AX-PR-T38-01-T38.01.b",
+        "AX-PR-T38-01-T38.01.c",
+        "AX-PR-T38-01-T38.02.a",
+        "AX-PR-T38-01-T38.02.b",
+        "AX-PR-T38-01-T38.02.c"
+      ],
+      "scope": "Additive original X changed-condition serial package; original parent criteria unchanged."
+    }
+  ]
 }

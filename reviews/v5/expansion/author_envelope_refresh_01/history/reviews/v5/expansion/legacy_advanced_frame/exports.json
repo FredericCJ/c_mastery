@@ -1,0 +1,177 @@
+{
+  "passed": true,
+  "errors": [],
+  "commands": [
+    {
+      "label": "actual init",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "cmastery",
+        "init",
+        "PR-T29-01",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\n  \"project\": \"PR-T29-01\",\n  \"workspace\": \"/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z\",\n  \"family\": \"firmware_io\",\n  \"status\": \"not-run\",\n  \"next\": \"Implement the assigned boundary, then run cmastery check.\",\n  \"limits\": \"Instantiation does not establish implementation or mastery.\"\n}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "exported native False",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/labs/interrupt_depth/frame/run.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/native-False"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "XF_CHECK:",
+      "stdout": "XF_CHECK:20:xf_frame(words, 8, 0x20000000u, 0xfffffffdu, 1, 0, 1, 0, &f) == XF_OK\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "exported target build False",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/labs/interrupt_depth/frame/target_build.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-False",
+        "--runtime",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/support.c"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "XF_TARGET_BUILD_PASS",
+      "stdout": "         U __bss_end\n         U __bss_start\n         U __data_end\n         U __data_load\n         U __data_start\n         U __stack_top\n         U xf_fault\n         U xf_target_main\nXF_TARGET_BUILD_PASS explicit_objects=4\n",
+      "stderr": "arm-none-eabi-ld: warning: /mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-False/3.o: missing .note.GNU-stack section implies executable stack\narm-none-eabi-ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker\n",
+      "passed": true
+    },
+    {
+      "label": "exported target execute False",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-display",
+        "none",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-False/image.elf"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "XF_TARGET_UNIMPLEMENTED",
+      "stdout": "",
+      "stderr": "XF_TARGET_UNIMPLEMENTED\n",
+      "passed": true
+    },
+    {
+      "label": "exported native True",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/labs/interrupt_depth/frame/run.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/native-True",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/interrupt_depth/frame/frame.c"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "XF_PASS",
+      "stdout": "XF_PASS priority_cells=12288\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "exported target build True",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/labs/interrupt_depth/frame/target_build.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-True",
+        "--runtime",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/support.c",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/interrupt_depth/frame/frame.c",
+        "--driver",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/interrupt_depth/frame/target.c",
+        "--boot",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/interrupt_depth/frame/target.S",
+        "--fp-callee",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/interrupt_depth/frame/fp_callee.c"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "XF_TARGET_BUILD_PASS",
+      "stdout": "         U memcpy\n         U memset\n         U xf_fp_callee\n         U xf_frame\n         U xf_interrupted_begin\n         U xf_interrupted_end\n         U xf_trigger\n         U __bss_end\n         U __bss_start\n         U __data_end\n         U __data_load\n         U __data_start\n         U __stack_top\n         U xf_capture\n         U xf_fault\n         U xf_target_main\nXF_TARGET_BUILD_PASS explicit_objects=5\n",
+      "stderr": "arm-none-eabi-ld: warning: /mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-True/4.o: missing .note.GNU-stack section implies executable stack\narm-none-eabi-ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker\n",
+      "passed": true
+    },
+    {
+      "label": "exported target execute True",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-display",
+        "none",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/interrupt-frame-exports/20261017T200700610484Z/target-True/image.elf"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "XF_TARGET_PASS",
+      "stdout": "",
+      "stderr": "XF_PRIORITY_READBACK 000000ff 00000008 \nXF_TRACE 00000003 00000000 00000000 00000000 fffffffd ffffffe1 fffffffd 20001228 2000ff08 20001228 00000000 00000000 00000000 \nXF_TRACE 00000003 00000000 00000000 00000001 fffffffd ffffffe1 fffffffd 20001220 2000ff08 20001220 00000000 00000000 00000000 \nXF_TRACE 00000003 00000000 00000001 00000000 fffffffd ffffffe1 fffffffd 20001228 2000ff08 20001228 00000000 00000000 00000000 \nXF_TRACE 00000003 00000000 00000001 00000001 fffffffd ffffffe1 fffffffd 20001220 2000ff08 20001220 00000000 00000000 2000ff28 \nXF_TRACE 00000003 00000001 00000000 00000000 ffffffed ffffffe1 ffffffed 200011e0 2000ff08 200011e0 00000000 00000000 2000ff28 \nXF_TRACE 00000003 00000001 00000000 00000001 ffffffed ffffffe1 ffffffed 200011d8 2000ff08 200011d8 00000000 00000000 2000ff28 \nXF_TRACE 00000003 00000001 00000001 00000000 ffffffed ffffffe1 ffffffed 200011e0 2000ff08 200011e0 00000001 00000000 20001200 \nXF_TRACE 00000003 00000001 00000001 00000001 ffffffed ffffffe1 ffffffed 200011d8 2000ff08 200011d8 00000001 00000000 200011f8 \nXF_TRACE 00000006 00000000 00000000 00000000 fffffffd fffffffd fffffffd 20001228 20001228 20001228 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000000 00000000 00000001 fffffffd fffffffd fffffffd 20001220 20001220 20001220 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000000 00000001 00000000 fffffffd fffffffd fffffffd 20001228 20001228 20001228 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000000 00000001 00000001 fffffffd fffffffd fffffffd 20001220 20001220 20001220 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000001 00000000 00000000 ffffffed ffffffed ffffffed 200011e0 200011e0 200011e0 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000001 00000000 00000001 ffffffed ffffffed ffffffed 200011d8 200011d8 200011d8 00000000 00000000 2000ff28 \nXF_TRACE 00000006 00000001 00000001 00000000 ffffffed ffffffed ffffffed 200011e0 200011e0 200011e0 00000001 00000000 20001200 \nXF_TRACE 00000006 00000001 00000001 00000001 ffffffed ffffffed ffffffed 200011d8 200011d8 200011d8 00000001 00000000 200011f8 \nXF_TARGET_PASS\n",
+      "passed": true
+    }
+  ],
+  "input_sha256": {
+    "tools/check_interrupt_frame_exports.py": "672c0fccf7e4d0e39d6bfbb84290931ebe54cdfffb1846b5f2c39e52adbc85d2",
+    "cmastery/cli.py": "31f1c4b67b252e0a89eae6d92a9e424f84d479d0faf5cd7ce619fdd15835f63b",
+    "cmastery/assessments.py": "a75d66e7bf136ad29bf782498c7948f982c47644e3d2fa273da1a301af061b02",
+    "curriculum/v5/expansion/legacy_assessments/PR-T29-01.json": "7a7aa3e45ba32b5760970545c85cbae6af391e489c37496b1ad4a049131b226d",
+    "research/v5/expansion/legacy_advanced_frame/attachment_PR-T29-01.json": "774452a62851efaa90e5dac9a8983286b2b44993dd7479e85c9f8473b99bda89",
+    "labs/interrupt_depth/frame/CONTRACTS.md": "1d991f8091e01369ad4d71103e4caa93cbc8b06d91b3f37e28a391244b1c87f5",
+    "labs/interrupt_depth/frame/frame.c": "e9fcb804dc0283a622de3c83c3f17015d12fb820d1583c513516d3172487fa22",
+    "labs/interrupt_depth/frame/frame.h": "b9acf95b500191e8d368cadaf5ff33f7a4db2ae141bcba78f915f211a5b21e9c",
+    "labs/interrupt_depth/frame/run.py": "8567b63b9b14cf3102baf612eeded85c144aa201b6cb8d9fa24fd2520b67127c",
+    "labs/interrupt_depth/frame/target.c": "1b13dd7578d641ad65c4173a42d9a5188eb6b737732ed939636aaadc6debb742",
+    "labs/interrupt_depth/frame/target.ld": "bf771b0ec58ae443d60d065be00791db24d9259ef4b5f69de97437318cb6f162",
+    "labs/interrupt_depth/frame/target.S": "99141d41ca421a8da3b5a40134cf7dcdf75cf847edd87dba80a0aba8feb14a3a",
+    "labs/interrupt_depth/frame/target_build.py": "2e310a43dbe9b9e01cd848418747e9d3ea68d266a5f13dd67bf553d2fbf5b697",
+    "labs/interrupt_depth/frame/tests.c": "df74f753ce715356d0d1ecaeea258917a2b9630e4c171d8e8604fcc6bbe6140f",
+    "assessor/interrupt_depth/frame/ANALYSIS.md": "bd0427ed350826468509747da2e24b7b3090c9120bc1a057c210d0b58fa7b7fc",
+    "assessor/interrupt_depth/frame/fp_callee.c": "f723b2975befa8667fb7c091cb285673975fbe966874e54aedfb41382a4a8466",
+    "assessor/interrupt_depth/frame/frame.c": "09837f520e023756b018bee0b647dcfee7ccae56ba10bdd04fc3cec14e46e4e0",
+    "assessor/interrupt_depth/frame/late_arrival.py": "53322743d1ad318e9ff59b2eedd9d87727ab402a67d258d373b2c38e346ab116",
+    "assessor/interrupt_depth/frame/oracle.py": "dde224a4d235688c3f03bdffc0f9c6844b0c49e5dc9e7e8d71f665e87a6bc75e",
+    "assessor/interrupt_depth/frame/probe.c": "d4337b13b90524863b79ded7e8a44e4a54018447919794b6aaf8ccf8c5d285f7",
+    "assessor/interrupt_depth/frame/stack_ledger.py": "4d32c0ee5b715ba2afd48368eaa17c456118306d52ba4122f6f37e2ff739b71d",
+    "assessor/interrupt_depth/frame/target.c": "fd1063513806d1e342a4a30211e12cf5804f5290b50fac8f2607f1e78f5ab0d5",
+    "assessor/interrupt_depth/frame/target.S": "362b46732b6f32a42b69c6476e31bce9347bd1e7bc58f3ed6ffba870491aab58",
+    "assessor/interrupt_depth/frame/target_oracle.py": "41cc37d3ac8fcfe1dc360fdcf76dbe6f0457aefba57da1df492d7fae48d19387",
+    "assessor/execution/support.c": "d3512b1642b204d45407155493e6d8fee93de296d2348883d55554ca2cc37447"
+  },
+  "limits": [
+    "Reference providers explicitly selected; no learner mastery or physical evidence.",
+    "Exported target images execute in MPS2; original runtime selected explicitly, not supplied as learner work.",
+    "Solutions and withheld tests excluded by path and byte identity."
+  ]
+}

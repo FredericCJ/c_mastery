@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T23-03",
   "domain": "T23",
-  "title": "Mappings and relocatable shared records — explicit depth assessments",
+  "title": "Mappings and relocatable shared records \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/posix_lifecycle_depth/mapping/CONTRACTS.md",
+    "labs/posix_lifecycle_depth/workload/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -104,13 +106,22 @@
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T23-03.md",
     "fixtures/systems/PR-T23-03.json",
     "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/posix_lifecycle_depth/mapping/map.h",
+    "labs/posix_lifecycle_depth/mapping/map_stub.c",
+    "labs/posix_lifecycle_depth/mapping/tests.c",
+    "labs/posix_lifecycle_depth/mapping/fault_helper.c",
+    "labs/posix_lifecycle_depth/workload/record.h",
+    "labs/posix_lifecycle_depth/workload/record_stub.c",
+    "labs/posix_lifecycle_depth/workload/tests.c",
+    "labs/posix_lifecycle_depth/workload/bench.c",
+    "labs/posix_lifecycle_depth/workload/run_workload.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -118,7 +129,10 @@
     "tests": [
       "hosted_systems.mapping"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_posix_mapping/support.json"
   },
   "criteria": [
     {
@@ -174,7 +188,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Extent, fault counts and residency are separate observations with sampling/platform limits; no memory-pressure exhaustion experiment is required. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Repeat with a file-backed private mapping and identify which pages may share storage before and after a write. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -200,6 +214,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.08.a"
       }
     },
     {
@@ -255,7 +273,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Private mapping changes and protection faults are OS mechanisms. The fault experiment demonstrates denied access, not a defined ISO C result or exploit. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace MAP_PRIVATE with MAP_SHARED for the byte update while keeping synchronization explicit. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -281,6 +299,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.08.b"
       }
     },
     {
@@ -336,7 +358,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The observations support only the measured mapping/workload and chosen accounting interface; overcommit policy and future faults remain separate. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change page size or huge-page availability at analysis depth and state the revised accounting model without changing host policy. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -362,6 +384,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.08.c"
       }
     },
     {
@@ -417,7 +443,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Each successful acquisition has one cleanup; byte access is checked against current contract extent, not merely rounded mapped pages. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a remap operation that may move the base and invalidate all borrowed views explicitly. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -443,6 +469,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.09.a"
       }
     },
     {
@@ -498,7 +528,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Mapping introduces address/lifetime and asynchronous file-size assumptions; a faster trace cannot excuse weaker bounds or error reporting. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Change the workload to sparse random access and justify which measurement and failure controls must be repeated. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -524,6 +554,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_workload/support.json",
+        "id": "AX-PR-T23-03-T23.09.b"
       }
     },
     {
@@ -579,7 +613,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "On the selected Linux mapping contract the beyond-file access can SIGBUS; fault classification and containment are required. SIGBUS is not arbitrary code execution. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace truncation with another process writing within bounds and explain why synchronization and data consistency become different obligations. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -605,6 +639,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.09.c"
       }
     },
     {
@@ -667,7 +705,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Initialization and publication require a protocol; readers reject uncommitted or incompatible state. Atomics need an applicable interprocess implementation contract, not an unsupported portable-C claim. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a second concurrent initializer and derive a winner/cleanup protocol before allowing publication. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -693,6 +731,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.10.a"
       }
     },
     {
@@ -755,7 +797,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Checked offsets relocate; pointer bits and native structure padding do not form a cross-process/cross-ABI wire format. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Move to an opposite-endian serialized record and replace native scalar loads with explicit decoding. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -781,6 +823,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.10.b"
       }
     },
     {
@@ -843,7 +889,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Failure detection is not quiescence. Recovery needs ownership fencing or a process-shared robust contract and consistency repair, with uncertain states retained. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Permit restart with reused process identifiers and add a generation or session identity that does not rely on PID uniqueness over time. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -869,6 +915,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+        "id": "AX-PR-T23-03-T23.10.c"
       }
     }
   ],
@@ -883,5 +933,30 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_posix_mapping/support.json",
+    "project": "PR-T23-03",
+    "criterion_ids": [
+      "AX-PR-T23-03-T23.08.a",
+      "AX-PR-T23-03-T23.08.b",
+      "AX-PR-T23-03-T23.08.c",
+      "AX-PR-T23-03-T23.09.a",
+      "AX-PR-T23-03-T23.09.c",
+      "AX-PR-T23-03-T23.10.a",
+      "AX-PR-T23-03-T23.10.b",
+      "AX-PR-T23-03-T23.10.c"
+    ],
+    "scope": "Explicit mapping construction/platform observations for eight criteria; .09.b workload comparison remains open."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_posix_workload/support.json",
+      "project": "PR-T23-03",
+      "criterion_ids": [
+        "AX-PR-T23-03-T23.09.b"
+      ],
+      "scope": "Equivalent bounded record copies, atomic error output and delayed sparse random workload; prior mapping evidence retains its scope."
+    }
+  ]
 }

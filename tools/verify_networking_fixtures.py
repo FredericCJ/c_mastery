@@ -334,21 +334,28 @@ def type_controls(docs):
     return rejected
 
 def main():
+    import network_fixture_templates as captures
     files=sorted((ROOT/'fixtures/networking').rglob('*.json'));failures=[];fields=0;docs=[];documents={};modules={};projects={}
     for path in files:
         try:
-            doc=json.loads(path.read_text(encoding='utf-8'));docs.append(doc);documents[path.relative_to(ROOT).as_posix()]=doc;fields+=count(doc['expected']);check_doc(doc)
+            name=path.relative_to(ROOT).as_posix()
+            doc=captures.read_document(path,ROOT);documents[name]=doc
+            if name in captures.TEMPLATES:
+                captures.validate_template(name,doc)
+            else:
+                docs.append(doc);fields+=count(doc['expected']);check_doc(doc)
         except (ValueError,TypeError,KeyError,OverflowError) as error:failures.append(dict(file=path.name,error=str(error)))
     actual_files=[p.relative_to(ROOT).as_posix() for p in (ROOT/'fixtures/networking').rglob('*') if p.is_file()]
     catalogs=0;controls=0
     try:
         for domain in ('T40','T41'):modules[domain]=parse(ROOT/f'curriculum/modules/{domain}.md')[0]
         for path in sorted((ROOT/'curriculum/projects').glob('PR-T4[01]-*.md')):projects[path.relative_to(ROOT).as_posix()]=parse(path)[0]
-        validate_catalog(modules,projects,documents,actual_files)
-        catalogs=catalog_controls(modules,projects,documents,actual_files)
+        captures.validate_catalog(modules,projects,documents,actual_files,validate_catalog,captures.load_bindings(ROOT))
+        milestones={name:documents[name] for name in captures.MILESTONES}
+        catalogs=catalog_controls(modules,projects,milestones,sorted(captures.MILESTONES))
         if len(docs)==16:controls=type_controls(docs)
     except (ValueError,TypeError,KeyError) as error:failures.append(dict(error=str(error)))
-    print(json.dumps(dict(passed=not failures,fixtures=len(files),fields_checked=fields,type_confusion_controls_rejected=controls,catalog_corruption_controls_rejected=catalogs,failures=failures,scope='Actual canonical catalog and finite supplied expectations only; no learner C or physical execution'),ensure_ascii=False))
+    print(json.dumps(dict(passed=not failures,fixtures=len(files),milestones=len(docs),unobserved_capture_templates=sum(name in captures.TEMPLATES for name in documents),fields_checked=fields,type_confusion_controls_rejected=controls,catalog_corruption_controls_rejected=catalogs,failures=failures,physical_claim=False,scope='Actual canonical catalog, finite milestone expectations and blank capture-template schemas only; no learner C or physical execution'),ensure_ascii=False))
     if failures:raise SystemExit(1)
 
 if __name__=='__main__':main()

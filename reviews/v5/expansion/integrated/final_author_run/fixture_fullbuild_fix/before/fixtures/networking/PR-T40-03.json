@@ -1,0 +1,62 @@
+{
+  "id": "FX-NET-T40-03",
+  "description": "Fixed escaped link bytes, CRC witness and finite invalid candidates.",
+  "input": {
+    "case_kind": "link_bytes",
+    "body_before_crc_hex": "01000102047e7d0001",
+    "check_hex": "313233343536373839",
+    "cases": [
+      {
+        "wire_hex": "7e01000102047d5e7d5d000123217e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e017d7e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e01000102047d5e7d5d000123207e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e01000101047d5e7d5d0001edc17e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e01000102057d5e7d5d000189707e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e01000102290000000000000000000000000000000000000000000000000000000000000000000000000000000000eb6a7e",
+        "local": 2,
+        "granted": true
+      },
+      {
+        "wire_hex": "7e01000102047d5e7d5d000123217e",
+        "local": 2,
+        "granted": false
+      }
+    ]
+  },
+  "expected": {
+    "crc_hex": "2321",
+    "body_hex": "01000102047e7d00012321",
+    "wire_hex": "7e01000102047d5e7d5d000123217e",
+    "check_vector_hex": "29b1",
+    "results": [
+      "ok",
+      "escape",
+      "crc",
+      "address",
+      "length",
+      "capacity",
+      "grant"
+    ]
+  },
+  "verification_method": "Expected bytes generated with standard-library CRC; verifier independently performs polynomial long division and checks finite frame candidates."
+}

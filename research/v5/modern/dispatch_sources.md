@@ -14,3 +14,14 @@ Before T69 canonical authoring, an original dynamic-loader spike exported a type
 Additional non-equivalence passages actually inspected: Rust return-position impl Trait requires one concrete return type; Rust unit/zero-field layout and closure-layout limits; Haskell2010 kinds and a Functor type-constructor example. The C exercises derive counterexamples and do not assert that an erased void-pointer callback reproduces these static relations.
 
 The seL4 tutorial background and delete/revoke explanation were actually inspected to contrast kernel-controlled authority with the original C cooperative-token model. No seL4 image was built or run, and its unforgeability is not claimed for the C struct.
+
+
+For the X-T69-009 process continuation, actually inspected Linux man-pages6.19 fork, socketpair, send, recv and waitpid passages on2026-10-17. The source register names the bounded sections. Fork separates ordinary process address spaces but inherits descriptors; the harness closes unused pair ends and creates authority state after the split. The stream has no application record boundaries, so the original fixed-size protocol accumulates complete requests before applying effects. Send/receive results and per-call flags govern partial progress and failure; an application reply is separate from successful transmission. Waiting for the known child completes its lifecycle. These APIs do not establish protection against same-user debugging, a compromised kernel or an inherited privileged handle. The laboratory uses only unnamed local sockets, synthetic counters and its own child; it changes no host security settings.
+
+## R-DS-GCC-CONSTRUCTOR
+
+Inspected the GCC Common Attributes constructor/destructor section on 2026-10-17. This is a compiler extension, with automatic entry/exit calls and target-dependent priority support. It does not itself promise that validating a dynamic plugin descriptor precedes loader initialization. The separate Linux dlopen notes and original DSO constructor counter establish the latter distinction. No C++ initialization-order guarantee or uninspected platform ABI is inferred.
+
+## Actual callback quiescence inspection
+
+Read the named condition-variable and mutex passages in R-DS-PTHREAD-CONDITION and R-DS-PTHREAD-MUTEX on 2026-10-17, and reread the existing R-MC-PTHREAD-JOIN page DESCRIPTION/RETURN VALUE/ERRORS/NOTES. The worker predicate stays under one initialized default non-robust mutex, waiting releases and reacquires that mutex, and only the controller joins a joinable worker. A condition notification is not completion acknowledgement. No pthread_cancel, signal-handler mutex operation, robust-owner recovery or scheduling bound is claimed. Historical LinuxThreads-specific notes in the condition page are not generalized to the current host.

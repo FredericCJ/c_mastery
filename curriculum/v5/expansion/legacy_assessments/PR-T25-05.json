@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T25-05",
   "domain": "T25",
-  "title": "Concurrency argument plus detection — explicit depth assessments",
+  "title": "Concurrency argument plus detection \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/thread_depth/progress/CONTRACTS.md",
+    "labs/thread_depth/waiting/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -86,8 +88,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     },
     {
@@ -97,24 +99,90 @@
         "DESCRIPTION; RETURN VALUE; ERRORS",
         "NOTES: scheduling order, joinable/detached resources and stack defaults"
       ]
+    },
+    {
+      "id": "R-TPROG-PI",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "DESCRIPTION31\u2013108 including recursive inheritance50\u2013104;ERRORS117\u2013129"
+      ]
+    },
+    {
+      "id": "R-TPROG-SCHED",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "API86\u2013122;FIFO124\u2013171;RR172\u2013182;SCHED_OTHER273\u2013288"
+      ]
+    },
+    {
+      "id": "R-TPROG-CLOCK",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "CLOCK_MONOTONIC91\u2013117;CPU clocks130\u2013137;return values161\u2013165"
+      ]
+    },
+    {
+      "id": "R-TPROG-HW90",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "Printed463\u2013467 opening through history introduction",
+        "Printed468\u2013470 sections2.1/2.2 and2.3 queue examples; PDF indexes5\u20137"
+      ]
+    },
+    {
+      "id": "R-TPROG-CACHE",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "Complete article;What is false sharing1\u201336;pitfalls38\u201350;possible mitigations77\u2013118"
+      ]
+    },
+    {
+      "id": "R-TPROG-N1570",
+      "path": "research/v5/expansion/legacy_thread_progress/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs1\u201328;7.17.3 paragraphs1\u201310"
+      ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T25-05.md",
     "fixtures/systems/PR-T25-05.json",
     "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/thread_depth/progress/CONTRACTS.md",
+    "labs/thread_depth/progress/effects_probe.c",
+    "labs/thread_depth/progress/learner.c",
+    "labs/thread_depth/progress/metrics.h",
+    "labs/thread_depth/progress/metrics_learner.c",
+    "labs/thread_depth/progress/metrics_tests.c",
+    "labs/thread_depth/progress/progress.h",
+    "labs/thread_depth/progress/queue.h",
+    "labs/thread_depth/progress/queue_learner.c",
+    "labs/thread_depth/progress/queue_tests.c",
+    "labs/thread_depth/progress/tests.c",
+    "labs/thread_depth/waiting/waiting.h",
+    "labs/thread_depth/waiting/learner.c",
+    "labs/thread_depth/waiting/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "thread_progress_successor": {
+      "path": "research/v5/expansion/legacy_thread_progress/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-05-T25.12.a",
+        "AX-PR-T25-05-T25.12.b",
+        "AX-PR-T25-05-T25.12.c"
+      ],
+      "scope": "Original ordinary and delayed progress/resource/history/shutdown obligations; author execution with separate external dimensions."
+    }
   },
   "criteria": [
     {
@@ -133,8 +201,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -177,7 +245,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Deterministic tests target named interleavings; race detection is execution/instrumentation bounded; stress adds observed samples only. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Port to a weakly ordered target or model and identify ordering failures the original host may rarely expose. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -221,8 +289,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -265,7 +333,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Different tools answer different bounded questions; unsupported inputs or bounds cannot be counted as successful evidence. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Give the history checker an incomplete operation and require a justified completion/extension policy rather than silently dropping it. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -309,8 +377,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         },
         {
@@ -353,7 +421,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The causal argument explains transfer to unseen schedules; tests falsify specific errors but do not establish absolute mastery. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "After seven days adapt the queue to a different shutdown policy and independently re-derive both terminal ownership and wait predicates. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -385,7 +453,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T25-05.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; independent learner and exact-source gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -393,5 +461,16 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_thread_progress/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-05-T25.12.a",
+        "AX-PR-T25-05-T25.12.b",
+        "AX-PR-T25-05-T25.12.c"
+      ],
+      "scope": "Original ordinary and delayed progress/resource/history/shutdown obligations; author execution with separate external dimensions."
+    }
+  ]
 }

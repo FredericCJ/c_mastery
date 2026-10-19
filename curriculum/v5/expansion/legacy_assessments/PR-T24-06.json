@@ -5,7 +5,9 @@
   "title": "One parser, serial and test backends — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/posix_lifecycle_depth/terminal/CONTRACTS.md",
+    "labs/hosted_systems/can_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -90,6 +92,36 @@
         "Canonical and noncanonical mode: VMIN/VTIME cases and O_NONBLOCK qualification",
         "Raw mode; return-value readback qualification"
       ]
+    },
+    {
+      "id": "R-CAN-SOCKETCAN",
+      "path": "research/v5/expansion/legacy_can/resources.json",
+      "passages": [
+        "SocketCAN Concept: local loopback and network problem notifications",
+        "How to use SocketCAN: classical frame layout and raw DLC; CAN FD comparison; returned message flags",
+        "RAW socket defaults and FILTER, ERR_FILTER, LOOPBACK, RECV_OWN_MSGS and FD_FRAMES sections"
+      ]
+    },
+    {
+      "id": "R-CAN-CAN-H",
+      "path": "research/v5/expansion/legacy_can/resources.json",
+      "passages": [
+        "Installed header lines45–195: ID flags/masks, payload/DLC constants and classical/FD structures"
+      ]
+    },
+    {
+      "id": "R-CAN-CAN-RAW-H",
+      "path": "research/v5/expansion/legacy_can/resources.json",
+      "passages": [
+        "Installed header lines45–110: SOL_CAN_RAW, socket-option enumeration and comments"
+      ]
+    },
+    {
+      "id": "R-CAN-CAN-ERROR-H",
+      "path": "research/v5/expansion/legacy_can/resources.json",
+      "passages": [
+        "Installed header lines45–130: error length/class flags and diagnostic byte meanings"
+      ]
     }
   ],
   "reference_gaps": [
@@ -100,8 +132,23 @@
   "supplied_artifacts": [
     "curriculum/projects/PR-T24-06.md",
     "fixtures/systems/PR-T24-06.json",
-    "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/hosted_systems/can_depth/BENCH.md",
+    "labs/hosted_systems/can_depth/CAN.md",
+    "labs/hosted_systems/can_depth/CONTRACTS.md",
+    "labs/hosted_systems/can_depth/bench_plan.json",
+    "labs/hosted_systems/can_depth/check_bench.py",
+    "labs/hosted_systems/can_depth/frames.c",
+    "labs/hosted_systems/can_depth/frames.h",
+    "labs/hosted_systems/can_depth/tests.c",
+    "labs/posix_lifecycle_depth/terminal/run_stream.py",
+    "labs/posix_lifecycle_depth/terminal/stream.h",
+    "labs/posix_lifecycle_depth/terminal/stream_stub.c",
+    "labs/posix_lifecycle_depth/terminal/stream_tests.c",
+    "labs/posix_lifecycle_depth/terminal/terminal.h",
+    "labs/posix_lifecycle_depth/terminal/terminal_stub.c",
+    "labs/posix_lifecycle_depth/terminal/tests.c",
+    "tools/verify_systems_fixtures.py"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -190,6 +237,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+        "id": "AX-PR-T24-06-T24.10.a"
       }
     },
     {
@@ -272,6 +323,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+        "id": "AX-PR-T24-06-T24.10.b"
       }
     },
     {
@@ -354,6 +409,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_can/support.json",
+        "criterion_id": "AX-PR-T24-06-T24.10.c"
       }
     }
   ],
@@ -368,5 +427,23 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_posix_terminal/support.json",
+      "project": "PR-T24-06",
+      "criterion_ids": [
+        "AX-PR-T24-06-T24.10.a",
+        "AX-PR-T24-06-T24.10.b"
+      ],
+      "scope": "Exact hosted terminal/pipeline and explicit same-object parser criteria; no SocketCAN or physical serial/bus closure."
+    }
+  ],
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_can/support.json",
+    "criterion_ids": [
+      "AX-PR-T24-06-T24.10.c"
+    ],
+    "scope": "Only CAN/frame-adapter and authored two-node transfer packet; earlier terminal successor remains on its own criteria. Physical and independent/delayed evidence pending."
   }
 }

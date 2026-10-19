@@ -1,0 +1,5012 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-17T13:32:00.322778+00:00",
+  "inspected_paths": {
+    "tools/run_linux_policy_depth.py": "f42694066121d245fe619fd7b3b70ee04d8f4806285df90232a37f9b00ab9604",
+    "labs/realtime_depth/linux/CONTRACTS.md": "5c99533d350643040cb8b5983fd45b912d75c42429adc2eeb00094de9d755898",
+    "labs/realtime_depth/linux/guest.py": "a207f65050d94a12e83082a90895da1841e803975ce971c570e8722cd3dff526",
+    "labs/realtime_depth/linux/oracle.py": "d46543425328292848b9cddf1e55960b4ca81bf78dbecdd12c407c51cad43fb9",
+    "labs/realtime_depth/linux/policy.c": "99eb1d98c227fb0b9cd3aeb82fa49542ffbb9a7e152bb031c4727f8fa6b117e2",
+    "labs/realtime_depth/linux/policy.h": "7e26ba51534d9de0e827f9a42fe37153fb71a3b10290e8f0efbcb044e62a1687",
+    "labs/realtime_depth/linux/probe.c": "c53b58fab532589f10476b73305e6cd11c949792421da95c3f9f5837d7823910",
+    "labs/realtime_depth/linux/tests.c": "fc8a5afa7260326c6aba4b37aa9c6e4d8ee7160a49d5f22c280ddb46bbcf3106",
+    "assessor/legacy_realtime/linux_policy.c": "93c87c32a905eaa3824794c0b082a0888d53330f5556864465d04abe4c210890",
+    "assessor/legacy_realtime/linux_probe.c": "fc1c281b186cc10ab00e93f3ae25ce95943ee703275e85112b4eb86a42273456",
+    "assessor/legacy_realtime/linux_policy.md": "fce5ff76a507e7ca3cfce88985f80961b5ed15cb34aa55a59e14969790bf4095"
+  },
+  "external_source_sha256": {
+    "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage": "759bc4c72c50934741a763be1c53ef0f5793a4e2b83d4b45f6a4d9d3bb01b21a",
+    "/home/frede/cmastery-b06-tools/usr/bin/busybox": "df12634c17fcdca839ae5dc47d7627b7558511f7645de7c99ccf097a0f28ed5b",
+    "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/.config": "5a5adfc829a5762943625e56af6e9f1e3ff6e6451d28c6e3cc40a9b6558478a9",
+    "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/include/generated/utsrelease.h": "04284738feab38f4eeb2264d8858171b5acf83e8b026b79442228eb7a1272491",
+    "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/kernel/sched/fair.c": "786ef7027e28d72c8acaba3a6b023703818afc7dd39b642c71915e433e725338",
+    "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/kernel/sched/deadline.c": "de48b1c30dd8f1c2344cfcac69bca4e022d03f42e8bdcef53a65aa7dd9f47fdd"
+  },
+  "commands": [
+    {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0000-gcc.log"
+    },
+    {
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0001-clang.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0002-qemu-system-x86_64.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0003-gcc-debug-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0004-gcc-debug-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0005-gcc-debug-oracle.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0006-gcc-debug-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0007-gcc-debug-1.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0008-gcc-debug-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0009-gcc-debug-2.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0010-gcc-debug-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0011-gcc-debug-stub.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0012-gcc-release-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0013-gcc-release-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0014-gcc-release-oracle.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0015-gcc-release-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0016-gcc-release-1.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0017-gcc-release-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0018-gcc-release-2.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0019-gcc-release-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-release-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0020-gcc-release-stub.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0021-gcc-asan-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0022-gcc-asan-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0023-gcc-asan-oracle.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0024-gcc-asan-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0025-gcc-asan-1.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0026-gcc-asan-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0027-gcc-asan-2.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0028-gcc-asan-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0029-gcc-asan-stub.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0030-clang-debug-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0031-clang-debug-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0032-clang-debug-oracle.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0033-clang-debug-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0034-clang-debug-1.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0035-clang-debug-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0036-clang-debug-2.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O0",
+        "-g",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0037-clang-debug-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-debug-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0038-clang-debug-stub.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0039-clang-release-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0040-clang-release-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0041-clang-release-oracle.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0042-clang-release-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0043-clang-release-1.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0044-clang-release-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0045-clang-release-2.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0046-clang-release-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-release-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0047-clang-release-stub.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0048-clang-asan-0-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0049-clang-asan-0.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0",
+        "stream"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0050-clang-asan-oracle.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=1",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-1"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0051-clang-asan-1-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-1"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0052-clang-asan-1.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=2",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-2"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0053-clang-asan-2-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-2"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0054-clang-asan-2.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0055-clang-asan-stub-build.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/clang-asan-stub"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0056-clang-asan-stub.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O0",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0057-gcc-O0-0-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0058-gcc-O0-0-ELF.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0059-gcc-O0-outside-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-0-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0060-gcc-O0-0-2-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "1",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-0-1/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0061-gcc-O0-0-1-guest.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O0",
+        "-DLC_MUTANT=3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0062-gcc-O0-3-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0063-gcc-O0-3-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-3-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0064-gcc-O0-3-2-guest.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O0",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0065-gcc-O0-stub-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0066-gcc-O0-stub-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-stub-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0067-gcc-O0-stub-2-guest.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0068-gcc-O3-0-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0069-gcc-O3-0-ELF.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0070-gcc-O3-outside-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-0-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0071-gcc-O3-0-2-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "1",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-0-1/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0072-gcc-O3-0-1-guest.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0073-gcc-O3-3-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0074-gcc-O3-3-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-3-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0075-gcc-O3-3-2-guest.log"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0076-gcc-O3-stub-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0077-gcc-O3-stub-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-stub-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0078-gcc-O3-stub-2-guest.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0079-clang-O3-0-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0080-clang-O3-0-ELF.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0081-clang-O3-outside-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-O3-0-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0082-clang-O3-0-2-guest.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "1",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-O3-0-1/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0083-clang-O3-0-1-guest.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0084-clang-O3-3-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-3"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0085-clang-O3-3-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-O3-3-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0086-clang-O3-3-2-guest.log"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-static",
+        "-O3",
+        "-DLC_MUTANT=0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+        "-o",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0087-clang-O3-stub-guest-build.log"
+    },
+    {
+      "command": [
+        "readelf",
+        "-lW",
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-stub"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0088-clang-O3-stub-ELF.log"
+    },
+    {
+      "command": [
+        "qemu-system-x86_64",
+        "-accel",
+        "tcg",
+        "-machine",
+        "q35",
+        "-cpu",
+        "max",
+        "-smp",
+        "2",
+        "-m",
+        "768M",
+        "-nodefaults",
+        "-display",
+        "none",
+        "-serial",
+        "stdio",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-snapshot",
+        "-no-reboot",
+        "-kernel",
+        "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+        "-initrd",
+        "/tmp/linux-policy-depth-kwqerl9n/clang-O3-stub-2/scheduler.cpio",
+        "-append",
+        "console=ttyS0 rdinit=/init panic=-1 quiet"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0089-clang-O3-stub-2-guest.log"
+    }
+  ],
+  "observations": [
+    {
+      "target": "model",
+      "profile": "gcc-debug",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0003-gcc-debug-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0004-gcc-debug-0.log"
+      },
+      "binary_sha256": "80bb4d49c4a9e221a1077aa29878bc1b183dc4c130cfe20c2eb5ccc962f9b1bd"
+    },
+    {
+      "target": "oracle",
+      "profile": "gcc-debug",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0005-gcc-debug-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "gcc-debug",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0006-gcc-debug-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0007-gcc-debug-1.log"
+      },
+      "binary_sha256": "50a05beca34acd8b4f9473cfe5a79673c9f8ba7d7e8dbe556e634d06e48a01b7"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-debug",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0008-gcc-debug-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0009-gcc-debug-2.log"
+      },
+      "binary_sha256": "016abeb8f453259841d36c355ea3d28da6742c836df83f7ddc7e0f2ef4d90086"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-debug",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0010-gcc-debug-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-debug-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0011-gcc-debug-stub.log"
+      },
+      "binary_sha256": "dfed7ff15bfa0d7809cf44129cb67581b3f089028ed090f63d27e22a62843859"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-release",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0012-gcc-release-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0013-gcc-release-0.log"
+      },
+      "binary_sha256": "efb0e4362e69182d5ea2ef10a4179b85b5e308365c924f6cfb3dc9a07063d735"
+    },
+    {
+      "target": "oracle",
+      "profile": "gcc-release",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0014-gcc-release-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "gcc-release",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0015-gcc-release-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0016-gcc-release-1.log"
+      },
+      "binary_sha256": "e2fafda8f5686c68701df61738b0a89709b61735e823a5f859a54673ad7b3cab"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-release",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0017-gcc-release-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0018-gcc-release-2.log"
+      },
+      "binary_sha256": "9ace93fd5999551309f5944d46bb503f31ce5262c8d4acd70f9b90386c11b737"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-release",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0019-gcc-release-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-release-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0020-gcc-release-stub.log"
+      },
+      "binary_sha256": "f22175107ceddf575ecb96dcc5dd4c2f3822a155aec5092b4462e18cfa3c4ba8"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-asan",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0021-gcc-asan-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0022-gcc-asan-0.log"
+      },
+      "binary_sha256": "b9255e122a5dfaca0ab9df91a48351da4615fa3dea06889d1fe33049995e712f"
+    },
+    {
+      "target": "oracle",
+      "profile": "gcc-asan",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0023-gcc-asan-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "gcc-asan",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0024-gcc-asan-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0025-gcc-asan-1.log"
+      },
+      "binary_sha256": "26ee61df9f56795b49017e4a2160f11b26cc76218e136ee6d24b73f264935c48"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-asan",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0026-gcc-asan-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0027-gcc-asan-2.log"
+      },
+      "binary_sha256": "e228144cd54d6466a85caaf4cc10203595170f6b51d1182d28484c3513b5655e"
+    },
+    {
+      "target": "model",
+      "profile": "gcc-asan",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0028-gcc-asan-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-asan-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0029-gcc-asan-stub.log"
+      },
+      "binary_sha256": "3ae9e3bb93576f2ca6b411136a95025b579750d40766a70cf1050fc336d49483"
+    },
+    {
+      "target": "model",
+      "profile": "clang-debug",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0030-clang-debug-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0031-clang-debug-0.log"
+      },
+      "binary_sha256": "0a9e43da0aec0faf9408d4ddaae536abf085074b37981de757c79146bb3ac633"
+    },
+    {
+      "target": "oracle",
+      "profile": "clang-debug",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0032-clang-debug-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "clang-debug",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0033-clang-debug-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0034-clang-debug-1.log"
+      },
+      "binary_sha256": "c61cc04293fc9fe2e0e379e2296b5cce6175c905a1f5e2f85b955e3c7606fb1c"
+    },
+    {
+      "target": "model",
+      "profile": "clang-debug",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0035-clang-debug-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0036-clang-debug-2.log"
+      },
+      "binary_sha256": "6dff59d0be500d5afab98c015bc0c16e59e3c180e769d97d6b08b2cde9e25c37"
+    },
+    {
+      "target": "model",
+      "profile": "clang-debug",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O0",
+          "-g",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0037-clang-debug-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-debug-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0038-clang-debug-stub.log"
+      },
+      "binary_sha256": "c5d0c14190a2e719909b73b2917e3d876b2054698a05a4afe37553e616abe429"
+    },
+    {
+      "target": "model",
+      "profile": "clang-release",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0039-clang-release-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0040-clang-release-0.log"
+      },
+      "binary_sha256": "e569949f8cfd1af13f874aa599c074a7b2c4e000f51e134378231b21cb06d0f8"
+    },
+    {
+      "target": "oracle",
+      "profile": "clang-release",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0041-clang-release-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "clang-release",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0042-clang-release-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0043-clang-release-1.log"
+      },
+      "binary_sha256": "9a2251be1901f950c0ee8e7b9c12796dbfc26160eac508d22d955f967f4541af"
+    },
+    {
+      "target": "model",
+      "profile": "clang-release",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0044-clang-release-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0045-clang-release-2.log"
+      },
+      "binary_sha256": "2ddc05e1b1368076f130abae02a283ad8cc809584bbc2747aa7e011bf8bf7d13"
+    },
+    {
+      "target": "model",
+      "profile": "clang-release",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0046-clang-release-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-release-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0047-clang-release-stub.log"
+      },
+      "binary_sha256": "7da981c86edcb4c7b8576888bb6d76d087c87f86e43fa365f88d400383b4f0d3"
+    },
+    {
+      "target": "model",
+      "profile": "clang-asan",
+      "variant": 0,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0048-clang-asan-0-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0049-clang-asan-0.log"
+      },
+      "binary_sha256": "88a5c3097e766c6029dc7d30f5e900ed7cecb9c0545ff19b1c77bce2788377f2"
+    },
+    {
+      "target": "oracle",
+      "profile": "clang-asan",
+      "passed": true,
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-0",
+          "stream"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0050-clang-asan-oracle.log"
+      },
+      "oracle": {
+        "rows": 2916,
+        "ineligible_snapshots": 108
+      }
+    },
+    {
+      "target": "model",
+      "profile": "clang-asan",
+      "variant": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=1",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-1"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0051-clang-asan-1-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-1"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0052-clang-asan-1.log"
+      },
+      "binary_sha256": "384f12187eaa5a022febca2b129e6d6298f8a2853907593b589bfe7935368141"
+    },
+    {
+      "target": "model",
+      "profile": "clang-asan",
+      "variant": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=2",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-2"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0053-clang-asan-2-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-2"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0054-clang-asan-2.log"
+      },
+      "binary_sha256": "31e8259491cbf71147ce64beed7df7e9e07507a458adbc6657aa1aa600f48027"
+    },
+    {
+      "target": "model",
+      "profile": "clang-asan",
+      "variant": "stub",
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-no-pie",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/policy.c",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/tests.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0055-clang-asan-stub-build.log"
+      },
+      "execution": {
+        "command": [
+          "/tmp/linux-policy-depth-kwqerl9n/clang-asan-stub"
+        ],
+        "exit_code": 1,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0056-clang-asan-stub.log"
+      },
+      "binary_sha256": "33854e5a1af3b249600d9a4951b191e8cded31acfc9bfc8c337a79baf40f792c"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O0",
+      "variant": 0,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O0",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0057-gcc-O0-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0058-gcc-O0-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-0-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0060-gcc-O0-0-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 350425,
+            "median": 395853,
+            "p95": 510958,
+            "maximum": 1572152
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 617263,
+            "median": 678549,
+            "p95": 849229,
+            "maximum": 963369
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 404639,
+            "median": 470908,
+            "p95": 1228780,
+            "maximum": 1378965
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 494929,
+            "median": 602562,
+            "p95": 788689,
+            "maximum": 866978
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 421893,
+            "median": 466431,
+            "p95": 750544,
+            "maximum": 2882449
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 349974,
+            "median": 441901,
+            "p95": 545737,
+            "maximum": 551797
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 362452,
+            "median": 402919,
+            "p95": 705615,
+            "maximum": 805898
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 440405,
+            "median": 496091,
+            "p95": 850147,
+            "maximum": 1103665
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 380543,
+            "median": 469344,
+            "p95": 1121585,
+            "maximum": 1218149
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 886132,
+            "median": 1004886,
+            "p95": 1303457,
+            "maximum": 1331882
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 1,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 755490,
+            "median": 853737,
+            "p95": 3980702,
+            "maximum": 7759792
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 460482,
+            "median": 957976,
+            "p95": 1158498,
+            "maximum": 1563660
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 256204761,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 254830020,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 254946087,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 264440962,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "invalid"
+          ],
+          "exit_code": 0,
+          "invalid_before_policy": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 10,
+          "response_ns": {
+            "minimum": 22618154,
+            "median": 41784565,
+            "p95": 80747915,
+            "maximum": 80747915
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 496922,
+            "median": 604847,
+            "p95": 785163,
+            "maximum": 890291
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 411290,
+            "median": 501536,
+            "p95": 1196008,
+            "maximum": 1246215
+          },
+          "physical_deadline_guarantee": false
+        }
+      ],
+      "binary_sha256": "84ff145258b52eb77fae51ebdfdbc990243d84ce471451c37ee9cab3b18161fa",
+      "initramfs_sha256": "52785911982844192cdc4aad8e056e97173b5767c001be4021b4e11ff2295933"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O0",
+      "variant": 0,
+      "cpus": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O0",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0057-gcc-O0-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0058-gcc-O0-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "1",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-0-1/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0061-gcc-O0-0-1-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 368657,
+            "median": 468856,
+            "p95": 706922,
+            "maximum": 2208332
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 458572,
+            "median": 500078,
+            "p95": 668308,
+            "maximum": 1248291
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 522633,
+            "median": 656286,
+            "p95": 920579,
+            "maximum": 3610217
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 10,
+          "response_ns": {
+            "minimum": 22399627,
+            "median": 41814776,
+            "p95": 80524003,
+            "maximum": 80524003
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 262184206,
+          "terminated_and_reaped": true
+        }
+      ],
+      "binary_sha256": "84ff145258b52eb77fae51ebdfdbc990243d84ce471451c37ee9cab3b18161fa",
+      "initramfs_sha256": "d05c96941d51d917b95e4ee03da6d21fcb1a445feab4c5dbd6324abdb876f25e"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O0",
+      "variant": 3,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O0",
+          "-DLC_MUTANT=3",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0062-gcc-O0-3-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0063-gcc-O0-3-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-3-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0064-gcc-O0-3-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "9d049b8f3cf90542281206e7fd466b063c98ee93aeeb7b61e029353d8949131f",
+      "initramfs_sha256": "c80e9712590bf9e585149fa657c927db142bb0d14c3a8a391166b022ccd00a8b"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O0",
+      "variant": "stub",
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O0",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0065-gcc-O0-stub-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0066-gcc-O0-stub-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O0-stub-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0067-gcc-O0-stub-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "cc9cd7e80fbfb5cd2fe439ce14f275ce6f5ecf310685053dcf3ad372479014c7",
+      "initramfs_sha256": "bc6f952a350bccb7c099ffb8abf9c755f22e4def292259ee840f8d1de1234b7e"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O3",
+      "variant": 0,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0068-gcc-O3-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0069-gcc-O3-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-0-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0071-gcc-O3-0-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 327094,
+            "median": 369713,
+            "p95": 501381,
+            "maximum": 1230891
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 451045,
+            "median": 522154,
+            "p95": 1211604,
+            "maximum": 1242704
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 418915,
+            "median": 664371,
+            "p95": 1238349,
+            "maximum": 1490263
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 546337,
+            "median": 667570,
+            "p95": 807493,
+            "maximum": 869257
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 437926,
+            "median": 514096,
+            "p95": 574113,
+            "maximum": 2593972
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 386663,
+            "median": 447757,
+            "p95": 942831,
+            "maximum": 944314
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 333253,
+            "median": 373749,
+            "p95": 913404,
+            "maximum": 985418
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 409931,
+            "median": 452950,
+            "p95": 999096,
+            "maximum": 1006426
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 381204,
+            "median": 423792,
+            "p95": 532508,
+            "maximum": 550575
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 617655,
+            "median": 757443,
+            "p95": 1464566,
+            "maximum": 1715233
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 1,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 665594,
+            "median": 808327,
+            "p95": 1184222,
+            "maximum": 5777621
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 771506,
+            "median": 892835,
+            "p95": 1044314,
+            "maximum": 1076558
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 255522037,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 255837448,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 256361265,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 263211568,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "invalid"
+          ],
+          "exit_code": 0,
+          "invalid_before_policy": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 11,
+          "response_ns": {
+            "minimum": 22589940,
+            "median": 41770224,
+            "p95": 81874236,
+            "maximum": 81874236
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 381896,
+            "median": 450411,
+            "p95": 663941,
+            "maximum": 824163
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 396392,
+            "median": 633286,
+            "p95": 946794,
+            "maximum": 1403094
+          },
+          "physical_deadline_guarantee": false
+        }
+      ],
+      "binary_sha256": "5d3227d281bbf51976ef67aa6e232e17a7b02f1c7275f75feb631ba825603477",
+      "initramfs_sha256": "2464e3ebe4f8850fd0feeb3b642131b2191ea4201b838c825f68f0b6467c5111"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O3",
+      "variant": 0,
+      "cpus": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0068-gcc-O3-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0069-gcc-O3-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "1",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-0-1/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0072-gcc-O3-0-1-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 600257,
+            "median": 694178,
+            "p95": 1099676,
+            "maximum": 3087458
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 405582,
+            "median": 460079,
+            "p95": 960147,
+            "maximum": 1131092
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 328572,
+            "median": 481457,
+            "p95": 1685078,
+            "maximum": 3158487
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 10,
+          "response_ns": {
+            "minimum": 22496154,
+            "median": 41799267,
+            "p95": 73180541,
+            "maximum": 73180541
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 263416473,
+          "terminated_and_reaped": true
+        }
+      ],
+      "binary_sha256": "5d3227d281bbf51976ef67aa6e232e17a7b02f1c7275f75feb631ba825603477",
+      "initramfs_sha256": "c14ef3935be27c2ffe5a1e7e1e0aef5af0e8769c0a9aadc79964e6710b16e4f4"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O3",
+      "variant": 3,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=3",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0073-gcc-O3-3-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0074-gcc-O3-3-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-3-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0075-gcc-O3-3-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "3c5a71ac7b250c590fbc83bd728e53c6a2e9210c012e17d7070788b77cf12ab4",
+      "initramfs_sha256": "9a67aef2715df8a14f2a6a9fff1108497b7649a3fc184bd901116bdabc4d1633"
+    },
+    {
+      "target": "guest",
+      "profile": "gcc-O3",
+      "variant": "stub",
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "gcc",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0076-gcc-O3-stub-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0077-gcc-O3-stub-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/gcc-O3-stub-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0078-gcc-O3-stub-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "0fd40d23fe59010ade90f4ceb2026aa6a56c1f58c42b63820bf8ae03002ed41c",
+      "initramfs_sha256": "6d75b0d32fb58e60e66dab14c0e5cf05e879253777c8dad7f96afb06ee4cd254"
+    },
+    {
+      "target": "guest",
+      "profile": "clang-O3",
+      "variant": 0,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0079-clang-O3-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0080-clang-O3-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-O3-0-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0082-clang-O3-0-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 298145,
+            "median": 344021,
+            "p95": 527590,
+            "maximum": 1690021
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 428523,
+            "median": 473880,
+            "p95": 919806,
+            "maximum": 1039863
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 402519,
+            "median": 477740,
+            "p95": 1113066,
+            "maximum": 4842164
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 396281,
+            "median": 463399,
+            "p95": 713024,
+            "maximum": 736074
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 363417,
+            "median": 383810,
+            "p95": 536101,
+            "maximum": 3395643
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 320858,
+            "median": 585608,
+            "p95": 716009,
+            "maximum": 2075764
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 230482,
+            "median": 394038,
+            "p95": 710316,
+            "maximum": 711809
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 345222,
+            "median": 418258,
+            "p95": 490961,
+            "maximum": 492842
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 333836,
+            "median": 382759,
+            "p95": 618394,
+            "maximum": 967098
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 711522,
+            "median": 797462,
+            "p95": 1049730,
+            "maximum": 1413575
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "batch",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 407885,
+            "median": 986283,
+            "p95": 2381256,
+            "maximum": 4108245
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 553385,
+            "median": 662252,
+            "p95": 1058488,
+            "maximum": 1419717
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 255471606,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 256602861,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 255126303,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 262983798,
+          "terminated_and_reaped": true
+        },
+        {
+          "case": [
+            "deadline",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "rr",
+            "one",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "denied"
+          ],
+          "exit_code": 77,
+          "available": false,
+          "errno": 1,
+          "actual_policy": 0,
+          "reason": "deliberate privilege or root-domain affinity restriction"
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "invalid"
+          ],
+          "exit_code": 0,
+          "invalid_before_policy": true
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 10,
+          "response_ns": {
+            "minimum": 22364785,
+            "median": 41705956,
+            "p95": 80692059,
+            "maximum": 80692059
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 328304,
+            "median": 365024,
+            "p95": 514516,
+            "maximum": 623672
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "rr",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 486991,
+            "median": 635345,
+            "p95": 1015887,
+            "maximum": 1085756
+          },
+          "physical_deadline_guarantee": false
+        }
+      ],
+      "binary_sha256": "b001f8858a8309b56e972b3bd491fba63ba0a6070e7047870d6a13acc2649db2",
+      "initramfs_sha256": "26d5e3b6788d5e9e589d3021eb0dfa361b061e1d98506483bca6720954a5fb88"
+    },
+    {
+      "target": "guest",
+      "profile": "clang-O3",
+      "variant": 0,
+      "cpus": 1,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0079-clang-O3-0-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0080-clang-O3-0-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "1",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-O3-0-1/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0083-clang-O3-0-1-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "other",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 345279,
+            "median": 458782,
+            "p95": 1410332,
+            "maximum": 1452511
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 2,
+          "response_ns": {
+            "minimum": 408806,
+            "median": 501203,
+            "p95": 883699,
+            "maximum": 1131158
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "io",
+            "normal"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 20,
+          "application_misses": 0,
+          "overrun_signals": 0,
+          "response_ns": {
+            "minimum": 571992,
+            "median": 669467,
+            "p95": 950596,
+            "maximum": 3872128
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "overrun"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "jobs": 4,
+          "application_misses": 4,
+          "overrun_signals": 10,
+          "response_ns": {
+            "minimum": 22682260,
+            "median": 42135861,
+            "p95": 80637230,
+            "maximum": 80637230
+          },
+          "physical_deadline_guarantee": false
+        },
+        {
+          "case": [
+            "deadline",
+            "all",
+            "none",
+            "infinite"
+          ],
+          "exit_code": 0,
+          "available": true,
+          "supervisor_elapsed_ns": 265546373,
+          "terminated_and_reaped": true
+        }
+      ],
+      "binary_sha256": "b001f8858a8309b56e972b3bd491fba63ba0a6070e7047870d6a13acc2649db2",
+      "initramfs_sha256": "2ea7554af7cad4ba9f6db9729d14f9dfb43305e1a8c4b3f51d5805f6e8e1124b"
+    },
+    {
+      "target": "guest",
+      "profile": "clang-O3",
+      "variant": 3,
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=3",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0084-clang-O3-3-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-3"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0085-clang-O3-3-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-O3-3-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0086-clang-O3-3-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "a61297ae75e65da231d3234c5b1e005e4f0ec5a37a51575bd243ec443e690d17",
+      "initramfs_sha256": "99032045b7e9dcabf8a3c86bbc179ef7862b3bd2ba69e81ca6fb8f891eb532e5"
+    },
+    {
+      "target": "guest",
+      "profile": "clang-O3",
+      "variant": "stub",
+      "cpus": 2,
+      "passed": true,
+      "build": {
+        "command": [
+          "clang",
+          "-std=c17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-static",
+          "-O3",
+          "-DLC_MUTANT=0",
+          "-I/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux",
+          "/mnt/f/Learning/Curricula/c_mastery/labs/realtime_depth/linux/probe.c",
+          "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_realtime/linux_policy.c",
+          "-o",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0087-clang-O3-stub-guest-build.log"
+      },
+      "elf_audit": {
+        "command": [
+          "readelf",
+          "-lW",
+          "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-stub"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0088-clang-O3-stub-ELF.log"
+      },
+      "execution": {
+        "command": [
+          "qemu-system-x86_64",
+          "-accel",
+          "tcg",
+          "-machine",
+          "q35",
+          "-cpu",
+          "max",
+          "-smp",
+          "2",
+          "-m",
+          "768M",
+          "-nodefaults",
+          "-display",
+          "none",
+          "-serial",
+          "stdio",
+          "-monitor",
+          "none",
+          "-nic",
+          "none",
+          "-snapshot",
+          "-no-reboot",
+          "-kernel",
+          "/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0/arch/x86/boot/bzImage",
+          "-initrd",
+          "/tmp/linux-policy-depth-kwqerl9n/clang-O3-stub-2/scheduler.cpio",
+          "-append",
+          "console=ttyS0 rdinit=/init panic=-1 quiet"
+        ],
+        "exit_code": 0,
+        "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0089-clang-O3-stub-2-guest.log"
+      },
+      "cases": [
+        {
+          "case": [
+            "fifo",
+            "one",
+            "none",
+            "normal"
+          ],
+          "exit_code": 1,
+          "semantic_rejection": true
+        }
+      ],
+      "binary_sha256": "248dea26fd9924329fc628b6b2bdf2d424916d7b53dc4f7cee4d92266b58cec9",
+      "initramfs_sha256": "96c32891415bc40c0bc8bc63c41378a3e81fbe0f8bae1b28415b6a7639e8b9bf"
+    }
+  ],
+  "scope": "Six-profile finite rule oracle; actual source/configuration-pinned Linux7.0.14 owned one/two-CPU guest class/readback/affinity/interference/refusal/overrun and supervisor experiments.",
+  "limits": [
+    "Pure selector omits buddy/slice protection, hierarchy, placement and weighted-accounting updates; it is not a Linux scheduler simulator.",
+    "Actual debug/KASAN guest under QEMU TCG is not PREEMPT_RT or physical WCET/latency evidence.",
+    "Refused classes remain unavailable under their exact affinity/privilege assumptions.",
+    "No host scheduler/security changes; no independent learner/human assessment."
+  ],
+  "toolchains": {
+    "gcc": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "clang": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+    "qemu-system-x86_64": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)"
+  },
+  "kernel_release": "#define UTS_RELEASE \"7.0.14-cmastery-b06\"",
+  "configuration": "SMP/HIGH_RES_TIMERS/PREEMPT_DYNAMIC/PREEMPT_LAZY; not PREEMPT_RT",
+  "oracle_input": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/oracle.in",
+  "host_refusals": [
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O0-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0059-gcc-O0-outside-guest.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-gcc-O3-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0070-gcc-O3-outside-guest.log"
+    },
+    {
+      "command": [
+        "/tmp/linux-policy-depth-kwqerl9n/guest-clang-O3-0",
+        "fifo",
+        "one",
+        "none",
+        "normal"
+      ],
+      "exit_code": 1,
+      "log": "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0081-clang-O3-outside-guest.log"
+    }
+  ],
+  "source_stable": true,
+  "passed": true,
+  "log_sha256": {
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0000-gcc.log": "6e876a25bb7fdb71ab2914e8f1eeaa00cc61d20a36a6c2981ab7d4d7ceab42f8",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0001-clang.log": "77467400b91c4cebb6c3e29d8a611af518a2f4078c22baf276b0a1373e996bf5",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0002-qemu-system-x86_64.log": "3e4a849ec452d162b2339e53d80096f62c614705070eb2a5b49b2cef837a981d",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0003-gcc-debug-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0004-gcc-debug-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0005-gcc-debug-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0006-gcc-debug-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0007-gcc-debug-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0008-gcc-debug-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0009-gcc-debug-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0010-gcc-debug-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0011-gcc-debug-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0012-gcc-release-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0013-gcc-release-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0014-gcc-release-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0015-gcc-release-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0016-gcc-release-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0017-gcc-release-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0018-gcc-release-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0019-gcc-release-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0020-gcc-release-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0021-gcc-asan-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0022-gcc-asan-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0023-gcc-asan-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0024-gcc-asan-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0025-gcc-asan-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0026-gcc-asan-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0027-gcc-asan-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0028-gcc-asan-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0029-gcc-asan-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0030-clang-debug-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0031-clang-debug-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0032-clang-debug-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0033-clang-debug-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0034-clang-debug-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0035-clang-debug-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0036-clang-debug-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0037-clang-debug-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0038-clang-debug-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0039-clang-release-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0040-clang-release-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0041-clang-release-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0042-clang-release-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0043-clang-release-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0044-clang-release-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0045-clang-release-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0046-clang-release-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0047-clang-release-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0048-clang-asan-0-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0049-clang-asan-0.log": "b443c34bc974e5d5b564e089e82391fb4f145a1f0e7028c60f5283f33ba85ea6",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0050-clang-asan-oracle.log": "e3fbe8f3388239f6b92878ca4b932539d2f17463a7ccad9fb042368958a2a267",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0051-clang-asan-1-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0052-clang-asan-1.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0053-clang-asan-2-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0054-clang-asan-2.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0055-clang-asan-stub-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0056-clang-asan-stub.log": "f9490febd057e0f14b181fbcb3a0b2642fc8ed09e21fc4ab1e06b970108bf364",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0057-gcc-O0-0-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0058-gcc-O0-0-ELF.log": "0f7aafd658fcac9ff2cba7ea9567657848d7125e0f3b1f796b8650896245e026",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0059-gcc-O0-outside-guest.log": "48623edbd09f9541130c77a40c5b62babd4c24c71370607ce72be73e012146e3",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0060-gcc-O0-0-2-guest.log": "1f9f3ebef7c5d75934aed11e22839756c419cb01c703900bf660834adcdb07bc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0061-gcc-O0-0-1-guest.log": "56eef8cd8c1f3c98b94ac322737542bc2020b2c111008dcd7cd981caeacddef9",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0062-gcc-O0-3-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0063-gcc-O0-3-ELF.log": "c2b5c7d99600e5e5156dd6374a6c3c877f7eea1088ed2d62b206352eefa47a56",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0064-gcc-O0-3-2-guest.log": "3fc1b9bb940bfaafd40eb80a4b495b33fda9d6c912da3f5b7f2d6a51feac9e96",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0065-gcc-O0-stub-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0066-gcc-O0-stub-ELF.log": "3e1168715803ad1a4f3d7fcf2ced739c9e24d73b4fd9082cf27074c0dd1146ed",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0067-gcc-O0-stub-2-guest.log": "fdde31e525c9ae30686a9ffe85dacd1956414f342f0a79892a3ff55578df7113",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0068-gcc-O3-0-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0069-gcc-O3-0-ELF.log": "bbb236f3bb5e711808c5508514d304f055dae8cb12e11f4a8cd74f5cef239742",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0070-gcc-O3-outside-guest.log": "48623edbd09f9541130c77a40c5b62babd4c24c71370607ce72be73e012146e3",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0071-gcc-O3-0-2-guest.log": "78c5b12ef5da364008c85ce5ed2ec2959da141c944da4f239aaedc87e852d506",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0072-gcc-O3-0-1-guest.log": "b54bedb73e66043ef8474602d069d14372d8ab59723b2c035fc820b65252c175",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0073-gcc-O3-3-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0074-gcc-O3-3-ELF.log": "bbb236f3bb5e711808c5508514d304f055dae8cb12e11f4a8cd74f5cef239742",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0075-gcc-O3-3-2-guest.log": "c70260e6cf9c5dd16e9a2231b61b3816549085f42fbc82791a7bb80ec3a1244f",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0076-gcc-O3-stub-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0077-gcc-O3-stub-ELF.log": "f411d8831f041827d3890dadb6500e81fdce5769b3a50c8c4b118cc7d3e3b081",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0078-gcc-O3-stub-2-guest.log": "4e25938e1f90b5a12f9bd45c0dc94a5f53a203e7ae8f61d5b139fd8df93f7b1d",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0079-clang-O3-0-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0080-clang-O3-0-ELF.log": "6f115d3235f916b76a8559542a881fe15e1123a4360483d00ea98c2eea339c7e",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0081-clang-O3-outside-guest.log": "48623edbd09f9541130c77a40c5b62babd4c24c71370607ce72be73e012146e3",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0082-clang-O3-0-2-guest.log": "e57119e6927e262653414ee7472fe5d7b552be6a190a4393a7062ed84961b524",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0083-clang-O3-0-1-guest.log": "5f1e7a837481eb1ebbd875df68ff3ba138fd80ca34db1218a47c2760236aad86",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0084-clang-O3-3-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0085-clang-O3-3-ELF.log": "6f115d3235f916b76a8559542a881fe15e1123a4360483d00ea98c2eea339c7e",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0086-clang-O3-3-2-guest.log": "07b5b7cf42e98a3b459b819d5a1d252324c18d5b00ebb6fef2891295d3398e51",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0087-clang-O3-stub-guest-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0088-clang-O3-stub-ELF.log": "930a26cdfbe54b8a9e04214b88e9a7c86ca64cb0faed6792f1cee1d019c85cfb",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/0089-clang-O3-stub-2-guest.log": "03479861a2be5a461eeb83f3203affd81d24edad27a50eea186f7ab55e00eb90",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/clang-O3-0-1-init.txt": "ea966e613502b2a0dc251bdecf3d34c20dd68a74656fd0683fbb1e95960ef930",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/clang-O3-0-2-init.txt": "94212c29e79c090eac8bc6c56cdd5f7c38f5a830d8055bb5e68490237dfab208",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/clang-O3-3-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/clang-O3-stub-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O0-0-1-init.txt": "ea966e613502b2a0dc251bdecf3d34c20dd68a74656fd0683fbb1e95960ef930",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O0-0-2-init.txt": "94212c29e79c090eac8bc6c56cdd5f7c38f5a830d8055bb5e68490237dfab208",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O0-3-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O0-stub-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O3-0-1-init.txt": "ea966e613502b2a0dc251bdecf3d34c20dd68a74656fd0683fbb1e95960ef930",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O3-0-2-init.txt": "94212c29e79c090eac8bc6c56cdd5f7c38f5a830d8055bb5e68490237dfab208",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O3-3-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/gcc-O3-stub-2-init.txt": "ef216252b7f9b7072a0c04bc72d8e4dc2a0b49e2798198ba6eb27174218da3dc",
+    "reviews/v5/expansion/legacy_realtime_linux/runs/20261017T133200271943Z/oracle.in": "fc23e6b5f799d7c9ab93d58e4dfc513dc018ed5b241c8047c25a56c58e84a0a8"
+  }
+}

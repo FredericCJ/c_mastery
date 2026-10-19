@@ -1,0 +1,1744 @@
+
+/tmp/debug-fault-r3o8ajxz/gcc-O3-target-2/fault.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <df_vectors>:
+ *out=kind==0?(ignore?DF_IGNORED:DF_LOCKUP):kind==1?DF_PENDING:kind==2?(mpu?DF_LOCKUP:DF_IGNORED):DF_LOCKUP;return DF_OK;
+}
+int df_watermark(const unsigned char*s,size_t n,unsigned char fill,size_t*out){if(!s||!out)return DF_INVALID;size_t first=0;while(first<n&&s[first]==fill)++first;*out=n-first;return DF_OK;}
+int df_canary(const unsigned char*p,size_t n,unsigned char value,unsigned*out){if(!p||!out||!n)return DF_INVALID;unsigned intact=1;for(size_t i=0;i<n;++i)if(p[i]!=value)intact=0;*out=intact;return DF_OK;}
+int df_budget(const DfLiveFrame*f,size_t n,uint32_t allocated,unsigned recursion,unsigned opaque,DfBudget*out){
+ if(!f||!out||n>8||recursion>1||opaque>1)return DF_INVALID;
+   0:	00 00 01 20 65 00 00 00 41 00 00 00 41 00 00 00     ... e...A...A...
+  10:	dd 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+	...
+
+00000040 <failed>:
+#include "target.h"
+extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
+extern void df_memmanage(void);
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+static void failed(void){output("DF_TARGET_CHECK:unexpected-vector\n");done(1);}
+  40:	b082      	sub	sp, #8
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+  42:	2004      	movs	r0, #4
+  44:	4905      	ldr	r1, [pc, #20]	@ (5c <failed+0x1c>)
+  46:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+  48:	4a05      	ldr	r2, [pc, #20]	@ (60 <failed+0x20>)
+  4a:	2301      	movs	r3, #1
+  4c:	e9cd 2300 	strd	r2, r3, [sp]
+  50:	2020      	movs	r0, #32
+  52:	4669      	mov	r1, sp
+  54:	beab      	bkpt	0x00ab
+  56:	bf30      	wfi
+  58:	e7fd      	b.n	56 <failed+0x16>
+  5a:	bf00      	nop
+  5c:	00000ef4 	.word	0x00000ef4
+  60:	00020026 	.word	0x00020026
+
+00000064 <cl_reset>:
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+  64:	b530      	push	{r4, r5, lr}
+  66:	4b2e      	ldr	r3, [pc, #184]	@ (120 <cl_reset+0xbc>)
+  68:	4c2e      	ldr	r4, [pc, #184]	@ (124 <cl_reset+0xc0>)
+  6a:	429c      	cmp	r4, r3
+  6c:	b083      	sub	sp, #12
+  6e:	d222      	bcs.n	b6 <cl_reset+0x52>
+  70:	3b01      	subs	r3, #1
+  72:	1b1b      	subs	r3, r3, r4
+  74:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+  78:	2b03      	cmp	r3, #3
+  7a:	4d2b      	ldr	r5, [pc, #172]	@ (128 <cl_reset+0xc4>)
+  7c:	4622      	mov	r2, r4
+  7e:	f10e 0e01 	add.w	lr, lr, #1
+  82:	d916      	bls.n	b2 <cl_reset+0x4e>
+  84:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+  88:	462b      	mov	r3, r5
+  8a:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+  8e:	e9d3 0100 	ldrd	r0, r1, [r3]
+  92:	3308      	adds	r3, #8
+  94:	459c      	cmp	ip, r3
+  96:	e9c2 0100 	strd	r0, r1, [r2]
+  9a:	f102 0208 	add.w	r2, r2, #8
+  9e:	d1f6      	bne.n	8e <cl_reset+0x2a>
+  a0:	f01e 0f01 	tst.w	lr, #1
+  a4:	d007      	beq.n	b6 <cl_reset+0x52>
+  a6:	f02e 0e01 	bic.w	lr, lr, #1
+  aa:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+  ae:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+  b2:	682b      	ldr	r3, [r5, #0]
+  b4:	6023      	str	r3, [r4, #0]
+  b6:	481d      	ldr	r0, [pc, #116]	@ (12c <cl_reset+0xc8>)
+  b8:	4b1d      	ldr	r3, [pc, #116]	@ (130 <cl_reset+0xcc>)
+  ba:	4298      	cmp	r0, r3
+  bc:	d21b      	bcs.n	f6 <cl_reset+0x92>
+  be:	3b01      	subs	r3, #1
+  c0:	1a1a      	subs	r2, r3, r0
+  c2:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+  c6:	2a03      	cmp	r2, #3
+  c8:	4603      	mov	r3, r0
+  ca:	f10c 0c01 	add.w	ip, ip, #1
+  ce:	d910      	bls.n	f2 <cl_reset+0x8e>
+  d0:	ea4f 015c 	mov.w	r1, ip, lsr #1
+  d4:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+  d8:	2200      	movs	r2, #0
+  da:	e9c3 2200 	strd	r2, r2, [r3]
+  de:	3308      	adds	r3, #8
+  e0:	428b      	cmp	r3, r1
+  e2:	d1fa      	bne.n	da <cl_reset+0x76>
+  e4:	f01c 0f01 	tst.w	ip, #1
+  e8:	d005      	beq.n	f6 <cl_reset+0x92>
+  ea:	f02c 0c01 	bic.w	ip, ip, #1
+  ee:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+  f2:	2300      	movs	r3, #0
+  f4:	6003      	str	r3, [r0, #0]
+  f6:	f000 f9fd 	bl	4f4 <df_target>
+  fa:	4603      	mov	r3, r0
+  fc:	b168      	cbz	r0, 11a <cl_reset+0xb6>
+  fe:	490d      	ldr	r1, [pc, #52]	@ (134 <cl_reset+0xd0>)
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 100:	2004      	movs	r0, #4
+ 102:	beab      	bkpt	0x00ab
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 104:	4a0c      	ldr	r2, [pc, #48]	@ (138 <cl_reset+0xd4>)
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+ 106:	3b00      	subs	r3, #0
+ 108:	bf18      	it	ne
+ 10a:	2301      	movne	r3, #1
+static void done(unsigned n){uint32_t block[]={0x20026,n};register uintptr_t op __asm__("r0")=0x20;register void*arg __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");for(;;)__asm__ volatile("wfi");}
+ 10c:	e9cd 2300 	strd	r2, r3, [sp]
+ 110:	2020      	movs	r0, #32
+ 112:	4669      	mov	r1, sp
+ 114:	beab      	bkpt	0x00ab
+ 116:	bf30      	wfi
+ 118:	e7fd      	b.n	116 <cl_reset+0xb2>
+void cl_reset(void){uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;int result=df_target();output(result?"DF_TARGET_CHECK:contract\n":"DF_TARGET_PASS:actual-MPU fixed-record owned-store captured-PC unchanged-guard intra-region-allowed\n");done(result?1:0);}
+ 11a:	4908      	ldr	r1, [pc, #32]	@ (13c <cl_reset+0xd8>)
+ 11c:	e7f0      	b.n	100 <cl_reset+0x9c>
+ 11e:	bf00      	nop
+ 120:	20000000 	.word	0x20000000
+ 124:	20000000 	.word	0x20000000
+ 128:	00000fe0 	.word	0x00000fe0
+ 12c:	20000000 	.word	0x20000000
+ 130:	200001a8 	.word	0x200001a8
+ 134:	00000f18 	.word	0x00000f18
+ 138:	00020026 	.word	0x00020026
+ 13c:	00000f34 	.word	0x00000f34
+
+00000140 <df_init>:
+void df_init(DfCapture*c){atomic_init(&c->state,0);atomic_init(&c->secondary,0);c->record=(DfRecord){0};}
+ 140:	b508      	push	{r3, lr}
+ 142:	2100      	movs	r1, #0
+ 144:	6001      	str	r1, [r0, #0]
+ 146:	6041      	str	r1, [r0, #4]
+ 148:	2260      	movs	r2, #96	@ 0x60
+ 14a:	3008      	adds	r0, #8
+ 14c:	f000 fe9e 	bl	e8c <memset>
+ 150:	bd08      	pop	{r3, pc}
+      best = p.encoded;
+    }
+  }
+  if (!winner)
+    return XF_NONE;
+  *out = winner;
+ 152:	bf00      	nop
+
+00000154 <df_capture>:
+ if(!c||!i||i->readable>1||i->aligned>1||i->stacking_fault>1)return DF_INVALID;
+ 154:	2800      	cmp	r0, #0
+ 156:	d07a      	beq.n	24e <df_capture+0xfa>
+int df_capture(DfCapture*c,const DfInput*i,void(*hook)(void*),void*context){
+ 158:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 15c:	460c      	mov	r4, r1
+ 15e:	b0c3      	sub	sp, #268	@ 0x10c
+ if(!c||!i||i->readable>1||i->aligned>1||i->stacking_fault>1)return DF_INVALID;
+ 160:	2900      	cmp	r1, #0
+ 162:	d070      	beq.n	246 <df_capture+0xf2>
+ 164:	4616      	mov	r6, r2
+ 166:	6a0a      	ldr	r2, [r1, #32]
+ 168:	2a01      	cmp	r2, #1
+ 16a:	d86c      	bhi.n	246 <df_capture+0xf2>
+ 16c:	6a4a      	ldr	r2, [r1, #36]	@ 0x24
+ 16e:	2a01      	cmp	r2, #1
+ 170:	d869      	bhi.n	246 <df_capture+0xf2>
+ 172:	6a8a      	ldr	r2, [r1, #40]	@ 0x28
+ 174:	2a01      	cmp	r2, #1
+ 176:	d866      	bhi.n	246 <df_capture+0xf2>
+ if(!atomic_compare_exchange_strong(&c->state,&empty,1)){
+ 178:	f3bf 8f5b 	dmb	ish
+ 17c:	4605      	mov	r5, r0
+ 17e:	2201      	movs	r2, #1
+ 180:	e855 1f00 	ldrex	r1, [r5]
+ 184:	2900      	cmp	r1, #0
+ 186:	d103      	bne.n	190 <df_capture+0x3c>
+ 188:	e845 2000 	strex	r0, r2, [r5]
+ 18c:	2800      	cmp	r0, #0
+ 18e:	d1f7      	bne.n	180 <df_capture+0x2c>
+ 190:	f3bf 8f5b 	dmb	ish
+ 194:	bf0c      	ite	eq
+ 196:	4691      	moveq	r9, r2
+ 198:	f04f 0900 	movne.w	r9, #0
+ 19c:	f040 8098 	bne.w	2d0 <df_capture+0x17c>
+ DfRecord r={.version=1,.valid=DF_STATUS,.cfsr=i->cfsr,.hfsr=i->hfsr,.exc_return=i->exc_return,.frame_status=DF_INCOMPLETE};
+ 1a0:	2260      	movs	r2, #96	@ 0x60
+ 1a2:	2100      	movs	r1, #0
+ 1a4:	a80a      	add	r0, sp, #40	@ 0x28
+ 1a6:	9309      	str	r3, [sp, #36]	@ 0x24
+ 1a8:	f000 fe70 	bl	e8c <memset>
+ 1ac:	e9d4 7300 	ldrd	r7, r3, [r4]
+ 1b0:	9307      	str	r3, [sp, #28]
+ if((i->cfsr&0x8000u)||DF_MUTANT==1){r.valid|=DF_BUS_ADDRESS;r.bfar=i->bfar;}
+ 1b2:	f417 4b00 	ands.w	fp, r7, #32768	@ 0x8000
+ DfRecord r={.version=1,.valid=DF_STATUS,.cfsr=i->cfsr,.hfsr=i->hfsr,.exc_return=i->exc_return,.frame_status=DF_INCOMPLETE};
+ 1b6:	6923      	ldr	r3, [r4, #16]
+ 1b8:	9308      	str	r3, [sp, #32]
+ if((i->cfsr&0x8000u)||DF_MUTANT==1){r.valid|=DF_BUS_ADDRESS;r.bfar=i->bfar;}
+ 1ba:	9b09      	ldr	r3, [sp, #36]	@ 0x24
+ 1bc:	d072      	beq.n	2a4 <df_capture+0x150>
+ 1be:	f8d4 b008 	ldr.w	fp, [r4, #8]
+ 1c2:	2207      	movs	r2, #7
+ 1c4:	f04f 0803 	mov.w	r8, #3
+ if(i->cfsr&0x80u){r.valid|=DF_MEMORY_ADDRESS;r.mmfar=i->mmfar;}
+ 1c8:	f017 0a80 	ands.w	sl, r7, #128	@ 0x80
+ 1cc:	bf18      	it	ne
+ 1ce:	4690      	movne	r8, r2
+ if(i->image){for(unsigned n=0;n<32;++n)r.image[n]=i->image[n];r.valid|=DF_IMAGE;}
+ 1d0:	6ae2      	ldr	r2, [r4, #44]	@ 0x2c
+ if(i->cfsr&0x80u){r.valid|=DF_MEMORY_ADDRESS;r.mmfar=i->mmfar;}
+ 1d2:	bf18      	it	ne
+ 1d4:	f8d4 a00c 	ldrne.w	sl, [r4, #12]
+ if(i->image){for(unsigned n=0;n<32;++n)r.image[n]=i->image[n];r.valid|=DF_IMAGE;}
+ 1d8:	b18a      	cbz	r2, 1fe <df_capture+0xaa>
+ 1da:	6811      	ldr	r1, [r2, #0]
+ 1dc:	911a      	str	r1, [sp, #104]	@ 0x68
+ 1de:	6851      	ldr	r1, [r2, #4]
+ 1e0:	911b      	str	r1, [sp, #108]	@ 0x6c
+ 1e2:	6891      	ldr	r1, [r2, #8]
+ 1e4:	911c      	str	r1, [sp, #112]	@ 0x70
+ 1e6:	68d1      	ldr	r1, [r2, #12]
+ 1e8:	911d      	str	r1, [sp, #116]	@ 0x74
+ 1ea:	6911      	ldr	r1, [r2, #16]
+ 1ec:	911e      	str	r1, [sp, #120]	@ 0x78
+ 1ee:	6951      	ldr	r1, [r2, #20]
+ 1f0:	911f      	str	r1, [sp, #124]	@ 0x7c
+ 1f2:	6991      	ldr	r1, [r2, #24]
+ 1f4:	69d2      	ldr	r2, [r2, #28]
+ 1f6:	9120      	str	r1, [sp, #128]	@ 0x80
+ 1f8:	f048 0810 	orr.w	r8, r8, #16
+ 1fc:	9221      	str	r2, [sp, #132]	@ 0x84
+ if(hook)hook(context);
+ 1fe:	b10e      	cbz	r6, 204 <df_capture+0xb0>
+ 200:	4618      	mov	r0, r3
+ 202:	47b0      	blx	r6
+ if(i->readable){
+ 204:	6a23      	ldr	r3, [r4, #32]
+ 206:	b323      	cbz	r3, 252 <df_capture+0xfe>
+  XfFrame frame;int status=xf_frame(i->words,i->available,i->stack_address,i->exc_return,0,0,i->aligned,i->stacking_fault||(i->cfsr&0x3838u)!=0,&frame);
+ 208:	e9d4 6309 	ldrd	r6, r3, [r4, #36]	@ 0x24
+ 20c:	e9d4 0106 	ldrd	r0, r1, [r4, #24]
+ 210:	e9d4 c204 	ldrd	ip, r2, [r4, #16]
+ 214:	2b00      	cmp	r3, #0
+ 216:	d050      	beq.n	2ba <df_capture+0x166>
+ 218:	e9cd 6902 	strd	r6, r9, [sp, #8]
+ 21c:	2400      	movs	r4, #0
+ 21e:	ae22      	add	r6, sp, #136	@ 0x88
+ 220:	e9cd 4400 	strd	r4, r4, [sp]
+ 224:	4663      	mov	r3, ip
+ 226:	9604      	str	r6, [sp, #16]
+ 228:	f000 fd36 	bl	c98 <xf_frame>
+  if(status==XF_OK){for(unsigned n=0;n<4;++n)r.frame[n]=frame.r[n];r.frame[4]=frame.r12;r.frame[5]=frame.stacked_lr;r.frame[6]=frame.pc;r.frame[7]=frame.xpsr;r.valid|=DF_FRAME;}
+ 22c:	2800      	cmp	r0, #0
+ 22e:	d13c      	bne.n	2aa <df_capture+0x156>
+ 230:	e9dd 3922 	ldrd	r3, r9, [sp, #136]	@ 0x88
+ 234:	e9dd ec24 	ldrd	lr, ip, [sp, #144]	@ 0x90
+ 238:	e9dd 6126 	ldrd	r6, r1, [sp, #152]	@ 0x98
+ 23c:	e9dd 2428 	ldrd	r2, r4, [sp, #160]	@ 0xa0
+ 240:	f048 0808 	orr.w	r8, r8, #8
+ 244:	e00d      	b.n	262 <df_capture+0x10e>
+ if(!c||!i||i->readable>1||i->aligned>1||i->stacking_fault>1)return DF_INVALID;
+ 246:	2001      	movs	r0, #1
+}
+ 248:	b043      	add	sp, #268	@ 0x10c
+ 24a:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ if(!c||!i||i->readable>1||i->aligned>1||i->stacking_fault>1)return DF_INVALID;
+ 24e:	2001      	movs	r0, #1
+}
+ 250:	4770      	bx	lr
+ DfRecord r={.version=1,.valid=DF_STATUS,.cfsr=i->cfsr,.hfsr=i->hfsr,.exc_return=i->exc_return,.frame_status=DF_INCOMPLETE};
+ 252:	461c      	mov	r4, r3
+ 254:	461a      	mov	r2, r3
+ 256:	4619      	mov	r1, r3
+ 258:	461e      	mov	r6, r3
+ 25a:	469c      	mov	ip, r3
+ 25c:	469e      	mov	lr, r3
+ 25e:	4699      	mov	r9, r3
+ 260:	2002      	movs	r0, #2
+ c->record=r;atomic_store_explicit(&c->state,2,memory_order_release);return DF_OK;
+ 262:	e9cd 870b 	strd	r8, r7, [sp, #44]	@ 0x2c
+ 266:	9f07      	ldr	r7, [sp, #28]
+ 268:	970d      	str	r7, [sp, #52]	@ 0x34
+ 26a:	9f08      	ldr	r7, [sp, #32]
+ 26c:	9116      	str	r1, [sp, #88]	@ 0x58
+ 26e:	e9cd a310 	strd	sl, r3, [sp, #64]	@ 0x40
+ 272:	e9cd 4018 	strd	r4, r0, [sp, #96]	@ 0x60
+ 276:	9217      	str	r2, [sp, #92]	@ 0x5c
+ 278:	2301      	movs	r3, #1
+ 27a:	a90a      	add	r1, sp, #40	@ 0x28
+ 27c:	2260      	movs	r2, #96	@ 0x60
+ 27e:	f105 0008 	add.w	r0, r5, #8
+ 282:	e9cd 7b0e 	strd	r7, fp, [sp, #56]	@ 0x38
+ 286:	e9cd 9e12 	strd	r9, lr, [sp, #72]	@ 0x48
+ 28a:	e9cd c614 	strd	ip, r6, [sp, #80]	@ 0x50
+ 28e:	930a      	str	r3, [sp, #40]	@ 0x28
+ 290:	f000 fdca 	bl	e28 <memcpy>
+ 294:	f3bf 8f5b 	dmb	ish
+ 298:	2302      	movs	r3, #2
+ 29a:	602b      	str	r3, [r5, #0]
+ 29c:	2000      	movs	r0, #0
+}
+ 29e:	b043      	add	sp, #268	@ 0x10c
+ 2a0:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ DfRecord r={.version=1,.valid=DF_STATUS,.cfsr=i->cfsr,.hfsr=i->hfsr,.exc_return=i->exc_return,.frame_status=DF_INCOMPLETE};
+ 2a4:	46c8      	mov	r8, r9
+ 2a6:	2205      	movs	r2, #5
+ 2a8:	e78e      	b.n	1c8 <df_capture+0x74>
+ 2aa:	4622      	mov	r2, r4
+ 2ac:	4621      	mov	r1, r4
+ 2ae:	4626      	mov	r6, r4
+ 2b0:	46a4      	mov	ip, r4
+ 2b2:	46a6      	mov	lr, r4
+ 2b4:	46a1      	mov	r9, r4
+ 2b6:	4623      	mov	r3, r4
+ 2b8:	e7d3      	b.n	262 <df_capture+0x10e>
+  XfFrame frame;int status=xf_frame(i->words,i->available,i->stack_address,i->exc_return,0,0,i->aligned,i->stacking_fault||(i->cfsr&0x3838u)!=0,&frame);
+ 2ba:	6824      	ldr	r4, [r4, #0]
+ 2bc:	f643 0938 	movw	r9, #14392	@ 0x3838
+ 2c0:	ea09 0904 	and.w	r9, r9, r4
+ 2c4:	f1b9 0900 	subs.w	r9, r9, #0
+ 2c8:	bf18      	it	ne
+ 2ca:	f04f 0901 	movne.w	r9, #1
+ 2ce:	e7a3      	b.n	218 <df_capture+0xc4>
+  atomic_store(&c->secondary,1);return DF_AGAIN;
+ 2d0:	f3bf 8f5b 	dmb	ish
+ 2d4:	606a      	str	r2, [r5, #4]
+ 2d6:	f3bf 8f5b 	dmb	ish
+ 2da:	2004      	movs	r0, #4
+ 2dc:	e7b4      	b.n	248 <df_capture+0xf4>
+ 2de:	bf00      	nop
+
+000002e0 <df_read>:
+ if(!c||!out||!secondary)return DF_INVALID;
+ 2e0:	b1e0      	cbz	r0, 31c <df_read+0x3c>
+int df_read(const DfCapture*c,DfRecord*out,unsigned*secondary){
+ 2e2:	b538      	push	{r3, r4, r5, lr}
+ 2e4:	460b      	mov	r3, r1
+ if(!c||!out||!secondary)return DF_INVALID;
+ 2e6:	b1a9      	cbz	r1, 314 <df_read+0x34>
+ 2e8:	4615      	mov	r5, r2
+ 2ea:	b19a      	cbz	r2, 314 <df_read+0x34>
+ 2ec:	4604      	mov	r4, r0
+ if(atomic_load_explicit(&c->state,memory_order_acquire)!=2)return DF_BUSY;
+ 2ee:	6802      	ldr	r2, [r0, #0]
+ 2f0:	f3bf 8f5b 	dmb	ish
+ 2f4:	2a02      	cmp	r2, #2
+ 2f6:	d10f      	bne.n	318 <df_read+0x38>
+ *out=c->record;*secondary=atomic_load(&c->secondary);return DF_OK;
+ 2f8:	f100 0108 	add.w	r1, r0, #8
+ 2fc:	2260      	movs	r2, #96	@ 0x60
+ 2fe:	4618      	mov	r0, r3
+ 300:	f000 fd92 	bl	e28 <memcpy>
+ 304:	f3bf 8f5b 	dmb	ish
+ 308:	6863      	ldr	r3, [r4, #4]
+ 30a:	f3bf 8f5b 	dmb	ish
+ 30e:	2000      	movs	r0, #0
+ 310:	602b      	str	r3, [r5, #0]
+}
+ 312:	bd38      	pop	{r3, r4, r5, pc}
+ if(!c||!out||!secondary)return DF_INVALID;
+ 314:	2001      	movs	r0, #1
+}
+ 316:	bd38      	pop	{r3, r4, r5, pc}
+ if(atomic_load_explicit(&c->state,memory_order_acquire)!=2)return DF_BUSY;
+ 318:	2003      	movs	r0, #3
+}
+ 31a:	bd38      	pop	{r3, r4, r5, pc}
+ if(!c||!out||!secondary)return DF_INVALID;
+ 31c:	2001      	movs	r0, #1
+}
+ 31e:	4770      	bx	lr
+
+00000320 <df_access>:
+ if(!r||!image||!code||!out)return DF_INVALID;
+ 320:	b1e0      	cbz	r0, 35c <df_access+0x3c>
+ 322:	b1d9      	cbz	r1, 35c <df_access+0x3c>
+ 324:	b1d3      	cbz	r3, 35c <df_access+0x3c>
+int df_access(const DfRecord*r,const unsigned char image[32],uint32_t base,const unsigned char*code,size_t n,DfAccess*out){
+ 326:	b570      	push	{r4, r5, r6, lr}
+ if(!r||!image||!code||!out)return DF_INVALID;
+ 328:	9c05      	ldr	r4, [sp, #20]
+ 32a:	b1dc      	cbz	r4, 364 <df_access+0x44>
+ if(r->version!=1)return DF_UNSUPPORTED;
+ 32c:	6806      	ldr	r6, [r0, #0]
+ 32e:	2e01      	cmp	r6, #1
+ 330:	d11a      	bne.n	368 <df_access+0x48>
+ if((r->valid&(DF_FRAME|DF_IMAGE|DF_STATUS))!=(DF_FRAME|DF_IMAGE|DF_STATUS))return DF_INCOMPLETE;
+ 332:	6844      	ldr	r4, [r0, #4]
+ 334:	f004 0419 	and.w	r4, r4, #25
+ 338:	2c19      	cmp	r4, #25
+ 33a:	d111      	bne.n	360 <df_access+0x40>
+ 33c:	f101 3cff 	add.w	ip, r1, #4294967295	@ 0xffffffff
+ 340:	f100 0e3f 	add.w	lr, r0, #63	@ 0x3f
+ 344:	311f      	adds	r1, #31
+ 346:	e001      	b.n	34c <df_access+0x2c>
+ for(unsigned j=0;j<32;++j)if(DF_MUTANT!=2&&image[j]!=r->image[j])return DF_IDENTITY;
+ 348:	4561      	cmp	r1, ip
+ 34a:	d00f      	beq.n	36c <df_access+0x4c>
+ 34c:	f81c 5f01 	ldrb.w	r5, [ip, #1]!
+ 350:	f81e 4f01 	ldrb.w	r4, [lr, #1]!
+ 354:	42a5      	cmp	r5, r4
+ 356:	d0f7      	beq.n	348 <df_access+0x28>
+ 358:	2005      	movs	r0, #5
+}
+ 35a:	bd70      	pop	{r4, r5, r6, pc}
+ if(!r||!image||!code||!out)return DF_INVALID;
+ 35c:	2001      	movs	r0, #1
+}
+ 35e:	4770      	bx	lr
+ if((r->valid&(DF_FRAME|DF_IMAGE|DF_STATUS))!=(DF_FRAME|DF_IMAGE|DF_STATUS))return DF_INCOMPLETE;
+ 360:	2002      	movs	r0, #2
+}
+ 362:	bd70      	pop	{r4, r5, r6, pc}
+ if(!r||!image||!code||!out)return DF_INVALID;
+ 364:	2001      	movs	r0, #1
+}
+ 366:	bd70      	pop	{r4, r5, r6, pc}
+ if(r->version!=1)return DF_UNSUPPORTED;
+ 368:	2006      	movs	r0, #6
+}
+ 36a:	bd70      	pop	{r4, r5, r6, pc}
+ uint32_t pc=r->frame[6];if(n>UINT32_MAX-base||pc<base||pc-base>=n||n-(pc-base)<2)return DF_RANGE;
+ 36c:	9904      	ldr	r1, [sp, #16]
+ 36e:	1854      	adds	r4, r2, r1
+ 370:	d240      	bcs.n	3f4 <df_access+0xd4>
+ 372:	6b41      	ldr	r1, [r0, #52]	@ 0x34
+ 374:	4291      	cmp	r1, r2
+ 376:	d33d      	bcc.n	3f4 <df_access+0xd4>
+ 378:	9d04      	ldr	r5, [sp, #16]
+ 37a:	1a8a      	subs	r2, r1, r2
+ 37c:	42aa      	cmp	r2, r5
+ 37e:	d239      	bcs.n	3f4 <df_access+0xd4>
+ 380:	1a64      	subs	r4, r4, r1
+ 382:	2c01      	cmp	r4, #1
+ 384:	d936      	bls.n	3f4 <df_access+0xd4>
+ size_t offset=pc-base;unsigned instruction=code[offset]|(unsigned)code[offset+1]<<8;
+ 386:	189c      	adds	r4, r3, r2
+ 388:	5c9b      	ldrb	r3, [r3, r2]
+ 38a:	7862      	ldrb	r2, [r4, #1]
+ 38c:	ea43 2302 	orr.w	r3, r3, r2, lsl #8
+ unsigned opcode=instruction&0xf800u;if(opcode!=0x6000u&&opcode!=0x6800u)return DF_UNSUPPORTED;
+ 390:	f403 4478 	and.w	r4, r3, #63488	@ 0xf800
+ 394:	f5b4 4fc0 	cmp.w	r4, #24576	@ 0x6000
+ 398:	d02e      	beq.n	3f8 <df_access+0xd8>
+ 39a:	f5b4 4fd0 	cmp.w	r4, #26624	@ 0x6800
+ 39e:	d1e3      	bne.n	368 <df_access+0x48>
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 3a0:	f3c3 1284 	ubfx	r2, r3, #6, #5
+ 3a4:	f3c3 05c2 	ubfx	r5, r3, #3, #3
+ if(rn>3||(opcode==0x6000u&&rt>3))return DF_INCOMPLETE;
+ 3a8:	069b      	lsls	r3, r3, #26
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 3aa:	ea4f 0282 	mov.w	r2, r2, lsl #2
+ if(rn>3||(opcode==0x6000u&&rt>3))return DF_INCOMPLETE;
+ 3ae:	d4d7      	bmi.n	360 <df_access+0x40>
+ if(r->frame[rn]>UINT32_MAX-displacement)return DF_RANGE;
+ 3b0:	eb00 0585 	add.w	r5, r0, r5, lsl #2
+ 3b4:	69eb      	ldr	r3, [r5, #28]
+ 3b6:	18d2      	adds	r2, r2, r3
+ 3b8:	bf2c      	ite	cs
+ 3ba:	2501      	movcs	r5, #1
+ 3bc:	2500      	movcc	r5, #0
+ 3be:	d219      	bcs.n	3f4 <df_access+0xd4>
+ uint32_t event=r->cfsr&~UINT32_C(0x8080);
+ 3c0:	6883      	ldr	r3, [r0, #8]
+ 3c2:	f423 4300 	bic.w	r3, r3, #32768	@ 0x8000
+ DfAccess value={.pc=pc,.effective_address=r->frame[rn]+displacement,.operand=opcode==0x6000u?r->frame[rt]:0,.write=opcode==0x6000u};
+ 3c6:	f5a4 44c0 	sub.w	r4, r4, #24576	@ 0x6000
+ uint32_t event=r->cfsr&~UINT32_C(0x8080);
+ 3ca:	f023 0380 	bic.w	r3, r3, #128	@ 0x80
+ DfAccess value={.pc=pc,.effective_address=r->frame[rn]+displacement,.operand=opcode==0x6000u?r->frame[rt]:0,.write=opcode==0x6000u};
+ 3ce:	fab4 f484 	clz	r4, r4
+ value.precise=(event==2u||event==0x200u)||DF_MUTANT==3;
+ 3d2:	2b02      	cmp	r3, #2
+ DfAccess value={.pc=pc,.effective_address=r->frame[rn]+displacement,.operand=opcode==0x6000u?r->frame[rt]:0,.write=opcode==0x6000u};
+ 3d4:	ea4f 1454 	mov.w	r4, r4, lsr #5
+ value.precise=(event==2u||event==0x200u)||DF_MUTANT==3;
+ 3d8:	d004      	beq.n	3e4 <df_access+0xc4>
+ 3da:	f5a3 7600 	sub.w	r6, r3, #512	@ 0x200
+ 3de:	fab6 f686 	clz	r6, r6
+ 3e2:	0976      	lsrs	r6, r6, #5
+ *out=value;return DF_OK;
+ 3e4:	9b05      	ldr	r3, [sp, #20]
+ 3e6:	2000      	movs	r0, #0
+ 3e8:	e9c3 1200 	strd	r1, r2, [r3]
+ 3ec:	e9c3 5402 	strd	r5, r4, [r3, #8]
+ 3f0:	611e      	str	r6, [r3, #16]
+}
+ 3f2:	bd70      	pop	{r4, r5, r6, pc}
+ uint32_t pc=r->frame[6];if(n>UINT32_MAX-base||pc<base||pc-base>=n||n-(pc-base)<2)return DF_RANGE;
+ 3f4:	2007      	movs	r0, #7
+}
+ 3f6:	bd70      	pop	{r4, r5, r6, pc}
+ if(rn>3||(opcode==0x6000u&&rt>3))return DF_INCOMPLETE;
+ 3f8:	f013 0f24 	tst.w	r3, #36	@ 0x24
+ 3fc:	d1b0      	bne.n	360 <df_access+0x40>
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 3fe:	f3c3 02c2 	ubfx	r2, r3, #3, #3
+ if(r->frame[rn]>UINT32_MAX-displacement)return DF_RANGE;
+ 402:	eb00 0282 	add.w	r2, r0, r2, lsl #2
+ 406:	69d5      	ldr	r5, [r2, #28]
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 408:	f3c3 1284 	ubfx	r2, r3, #6, #5
+ 40c:	0092      	lsls	r2, r2, #2
+ if(r->frame[rn]>UINT32_MAX-displacement)return DF_RANGE;
+ 40e:	1952      	adds	r2, r2, r5
+ 410:	d2f0      	bcs.n	3f4 <df_access+0xd4>
+ unsigned rn=(instruction>>3)&7u,rt=instruction&7u,displacement=((instruction>>6)&31u)*4u;
+ 412:	f003 0307 	and.w	r3, r3, #7
+ DfAccess value={.pc=pc,.effective_address=r->frame[rn]+displacement,.operand=opcode==0x6000u?r->frame[rt]:0,.write=opcode==0x6000u};
+ 416:	eb00 0383 	add.w	r3, r0, r3, lsl #2
+ 41a:	69dd      	ldr	r5, [r3, #28]
+ 41c:	e7d0      	b.n	3c0 <df_access+0xa0>
+ 41e:	bf00      	nop
+
+00000420 <df_handler>:
+/* This is a synthetic acquisition token; the host envelope binds the actual ELF
+ * SHA256 separately. Never label this fixed token an embedded ELF digest. */
+static const unsigned char token[32]={1};
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+void df_handler(uint32_t*words,uint32_t er){
+ 420:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+ uint32_t status=REG(0xe000ed28),sp=(uint32_t)(uintptr_t)words,top=(uint32_t)(uintptr_t)&cl_stack_top;
+ unsigned readable=sp>=top-8192&&sp<=top-32&&(sp&3)==0;
+ 424:	4b2c      	ldr	r3, [pc, #176]	@ (4d8 <df_handler+0xb8>)
+ uint32_t status=REG(0xe000ed28),sp=(uint32_t)(uintptr_t)words,top=(uint32_t)(uintptr_t)&cl_stack_top;
+ 426:	f04f 22e0 	mov.w	r2, #3758153728	@ 0xe000e000
+ unsigned readable=sp>=top-8192&&sp<=top-32&&(sp&3)==0;
+ 42a:	4283      	cmp	r3, r0
+ uint32_t status=REG(0xe000ed28),sp=(uint32_t)(uintptr_t)words,top=(uint32_t)(uintptr_t)&cl_stack_top;
+ 42c:	f8d2 4d28 	ldr.w	r4, [r2, #3368]	@ 0xd28
+void df_handler(uint32_t*words,uint32_t er){
+ 430:	b08c      	sub	sp, #48	@ 0x30
+ 432:	4605      	mov	r5, r0
+ unsigned readable=sp>=top-8192&&sp<=top-32&&(sp&3)==0;
+ 434:	d803      	bhi.n	43e <df_handler+0x1e>
+ 436:	f503 53ff 	add.w	r3, r3, #8160	@ 0x1fe0
+ 43a:	4283      	cmp	r3, r0
+ 43c:	d234      	bcs.n	4a8 <df_handler+0x88>
+ 43e:	2300      	movs	r3, #0
+ 440:	461f      	mov	r7, r3
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 442:	f04f 26e0 	mov.w	r6, #3758153728	@ 0xe000e000
+ 446:	9400      	str	r4, [sp, #0]
+ 448:	f8d6 0d2c 	ldr.w	r0, [r6, #3372]	@ 0xd2c
+ 44c:	9001      	str	r0, [sp, #4]
+ 44e:	f8d6 0d38 	ldr.w	r0, [r6, #3384]	@ 0xd38
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 452:	4a22      	ldr	r2, [pc, #136]	@ (4dc <df_handler+0xbc>)
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 454:	9002      	str	r0, [sp, #8]
+ 456:	f8d6 0d34 	ldr.w	r0, [r6, #3380]	@ 0xd34
+ 45a:	9308      	str	r3, [sp, #32]
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 45c:	6813      	ldr	r3, [r2, #0]
+ 45e:	3301      	adds	r3, #1
+ 460:	6013      	str	r3, [r2, #0]
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 462:	f643 0238 	movw	r2, #14392	@ 0x3838
+ 466:	4014      	ands	r4, r2
+ 468:	4a1d      	ldr	r2, [pc, #116]	@ (4e0 <df_handler+0xc0>)
+ 46a:	920b      	str	r2, [sp, #44]	@ 0x2c
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 46c:	2300      	movs	r3, #0
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 46e:	2208      	movs	r2, #8
+ 470:	9207      	str	r2, [sp, #28]
+ 472:	1ae2      	subs	r2, r4, r3
+ 474:	bf18      	it	ne
+ 476:	2201      	movne	r2, #1
+ 478:	e9cd 0103 	strd	r0, r1, [sp, #12]
+ 47c:	920a      	str	r2, [sp, #40]	@ 0x28
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 47e:	4819      	ldr	r0, [pc, #100]	@ (4e4 <df_handler+0xc4>)
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 480:	f04f 0801 	mov.w	r8, #1
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 484:	461a      	mov	r2, r3
+ 486:	4669      	mov	r1, sp
+ DfInput input={.cfsr=status,.hfsr=REG(0xe000ed2c),.bfar=REG(0xe000ed38),.mmfar=REG(0xe000ed34),.exc_return=er,.stack_address=sp,.words=words,.available=8,.readable=readable,.aligned=1,.stacking_fault=(status&0x3838u)!=0,.image=token};
+ 488:	e9cd 5505 	strd	r5, r5, [sp, #20]
+ 48c:	f8cd 8024 	str.w	r8, [sp, #36]	@ 0x24
+ ++handler_count;int result=df_capture(&capture,&input,0,0);
+ 490:	f7ff fe60 	bl	154 <df_capture>
+ /* This continuation belongs only to the one original synthetic STR below. */
+ if(result==DF_OK&&readable&&!(status&0x3838u)&&words[6]==(uint32_t)(uintptr_t)df_fault_instruction){handler_ok=1;words[6]=(uint32_t)(uintptr_t)df_fault_resume;}
+ 494:	4304      	orrs	r4, r0
+ 496:	d104      	bne.n	4a2 <df_handler+0x82>
+ 498:	b11f      	cbz	r7, 4a2 <df_handler+0x82>
+ 49a:	4b13      	ldr	r3, [pc, #76]	@ (4e8 <df_handler+0xc8>)
+ 49c:	69aa      	ldr	r2, [r5, #24]
+ 49e:	429a      	cmp	r2, r3
+ 4a0:	d009      	beq.n	4b6 <df_handler+0x96>
+ else for(;;)__asm__ volatile("wfi");
+ 4a2:	bf30      	wfi
+ 4a4:	bf30      	wfi
+ 4a6:	e7fc      	b.n	4a2 <df_handler+0x82>
+ unsigned readable=sp>=top-8192&&sp<=top-32&&(sp&3)==0;
+ 4a8:	f000 0703 	and.w	r7, r0, #3
+ 4ac:	fab7 f787 	clz	r7, r7
+ 4b0:	097f      	lsrs	r7, r7, #5
+ 4b2:	463b      	mov	r3, r7
+ 4b4:	e7c5      	b.n	442 <df_handler+0x22>
+ if(result==DF_OK&&readable&&!(status&0x3838u)&&words[6]==(uint32_t)(uintptr_t)df_fault_instruction){handler_ok=1;words[6]=(uint32_t)(uintptr_t)df_fault_resume;}
+ 4b6:	4b0d      	ldr	r3, [pc, #52]	@ (4ec <df_handler+0xcc>)
+ 4b8:	f8c3 8000 	str.w	r8, [r3]
+ 4bc:	4b0c      	ldr	r3, [pc, #48]	@ (4f0 <df_handler+0xd0>)
+ 4be:	61ab      	str	r3, [r5, #24]
+ REG(0xe000ed94)=0;__asm__ volatile("dsb\nisb":::"memory");REG(0xe000ed28)=0x82;
+ 4c0:	f8c6 4d94 	str.w	r4, [r6, #3476]	@ 0xd94
+ 4c4:	f3bf 8f4f 	dsb	sy
+ 4c8:	f3bf 8f6f 	isb	sy
+ 4cc:	2382      	movs	r3, #130	@ 0x82
+ 4ce:	f8c6 3d28 	str.w	r3, [r6, #3368]	@ 0xd28
+}
+ 4d2:	b00c      	add	sp, #48	@ 0x30
+ 4d4:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+ 4d8:	2000e000 	.word	0x2000e000
+ 4dc:	20000004 	.word	0x20000004
+ 4e0:	00000fc0 	.word	0x00000fc0
+ 4e4:	20000140 	.word	0x20000140
+ 4e8:	00000ef0 	.word	0x00000ef0
+ 4ec:	20000000 	.word	0x20000000
+ 4f0:	00000ef2 	.word	0x00000ef2
+
+000004f4 <df_target>:
+int df_target(void){
+ unsigned regions=(REG(0xe000ed90)>>8)&255;if(!regions)return 1;
+ 4f4:	f04f 22e0 	mov.w	r2, #3758153728	@ 0xe000e000
+ 4f8:	f8d2 3d90 	ldr.w	r3, [r2, #3472]	@ 0xd90
+ 4fc:	f413 4f7f 	tst.w	r3, #65280	@ 0xff00
+ 500:	f3c3 2107 	ubfx	r1, r3, #8, #8
+ 504:	f000 83b5 	beq.w	c72 <df_target+0x77e>
+int df_target(void){
+ 508:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
+ REG(0xe000ed94)=0;for(unsigned i=0;i<regions;++i){REG(0xe000ed98)=i;REG(0xe000eda0)=0;}
+ 50c:	2000      	movs	r0, #0
+int df_target(void){
+ 50e:	b0a5      	sub	sp, #148	@ 0x94
+ REG(0xe000ed94)=0;for(unsigned i=0;i<regions;++i){REG(0xe000ed98)=i;REG(0xe000eda0)=0;}
+ 510:	4603      	mov	r3, r0
+ 512:	f8c2 0d94 	str.w	r0, [r2, #3476]	@ 0xd94
+ 516:	4604      	mov	r4, r0
+ 518:	f8c2 3d98 	str.w	r3, [r2, #3480]	@ 0xd98
+ 51c:	3301      	adds	r3, #1
+ 51e:	4299      	cmp	r1, r3
+ 520:	f8c2 0da0 	str.w	r0, [r2, #3488]	@ 0xda0
+ 524:	d1f8      	bne.n	518 <df_target+0x24>
+ REG(0xe000ed98)=0;REG(0xe000ed9c)=0xffffffe0;uint32_t alignment=REG(0xe000ed9c)&0xffffffe0u;
+ 526:	f06f 031f 	mvn.w	r3, #31
+ 52a:	f8c2 4d98 	str.w	r4, [r2, #3480]	@ 0xd98
+ 52e:	f8c2 3d9c 	str.w	r3, [r2, #3484]	@ 0xd9c
+ 532:	f8d2 3d9c 	ldr.w	r3, [r2, #3484]	@ 0xd9c
+ if((alignment&0x20)==0)return 2;
+ 536:	069a      	lsls	r2, r3, #26
+ 538:	f140 83a3 	bpl.w	c82 <df_target+0x78e>
+ 53c:	4ccc      	ldr	r4, [pc, #816]	@ (870 <df_target+0x37c>)
+ for(unsigned i=0;i<72;++i)sandbox[i]=0xaaaaaaaau;
+ 53e:	2300      	movs	r3, #0
+ 540:	f04f 32aa 	mov.w	r2, #2863311530	@ 0xaaaaaaaa
+ 544:	f844 2023 	str.w	r2, [r4, r3, lsl #2]
+ 548:	3301      	adds	r3, #1
+ 54a:	2b48      	cmp	r3, #72	@ 0x48
+ 54c:	d1fa      	bne.n	544 <df_target+0x50>
+ df_init(&capture);handler_count=handler_ok=0;
+ 54e:	48c9      	ldr	r0, [pc, #804]	@ (874 <df_target+0x380>)
+ 550:	4ec9      	ldr	r6, [pc, #804]	@ (878 <df_target+0x384>)
+ 552:	4fca      	ldr	r7, [pc, #808]	@ (87c <df_target+0x388>)
+ 554:	f7ff fdf4 	bl	140 <df_init>
+ REG(0xe000ed28)=0x030fbfbbu;REG(0xe000ed2c)=0x40000002u;REG(0xe000ed14)|=1u<<9;REG(0xe000ed24)|=1u<<16;
+ 558:	f04f 25e0 	mov.w	r5, #3758153728	@ 0xe000e000
+ df_init(&capture);handler_count=handler_ok=0;
+ 55c:	2300      	movs	r3, #0
+ 55e:	6033      	str	r3, [r6, #0]
+ 560:	603b      	str	r3, [r7, #0]
+ REG(0xe000ed28)=0x030fbfbbu;REG(0xe000ed2c)=0x40000002u;REG(0xe000ed14)|=1u<<9;REG(0xe000ed24)|=1u<<16;
+ 562:	4bc7      	ldr	r3, [pc, #796]	@ (880 <df_target+0x38c>)
+ 564:	f8c5 3d28 	str.w	r3, [r5, #3368]	@ 0xd28
+ 568:	4bc6      	ldr	r3, [pc, #792]	@ (884 <df_target+0x390>)
+ 56a:	f8c5 3d2c 	str.w	r3, [r5, #3372]	@ 0xd2c
+ 56e:	f8d5 3d14 	ldr.w	r3, [r5, #3348]	@ 0xd14
+ 572:	f443 7300 	orr.w	r3, r3, #512	@ 0x200
+ 576:	f8c5 3d14 	str.w	r3, [r5, #3348]	@ 0xd14
+ 57a:	f8d5 3d24 	ldr.w	r3, [r5, #3364]	@ 0xd24
+ 57e:	f443 3380 	orr.w	r3, r3, #65536	@ 0x10000
+ 582:	f8c5 3d24 	str.w	r3, [r5, #3364]	@ 0xd24
+ REG(0xe000ed9c)=(uint32_t)(uintptr_t)sandbox;REG(0xe000eda0)=(1u<<28)|(1u<<19)|(4u<<1)|1u;
+ if(DF_TARGET_MUTANT!=1)REG(0xe000ed94)=5;
+ 586:	f04f 0805 	mov.w	r8, #5
+ REG(0xe000ed9c)=(uint32_t)(uintptr_t)sandbox;REG(0xe000eda0)=(1u<<28)|(1u<<19)|(4u<<1)|1u;
+ 58a:	4bbf      	ldr	r3, [pc, #764]	@ (888 <df_target+0x394>)
+ 58c:	f8c5 4d9c 	str.w	r4, [r5, #3484]	@ 0xd9c
+ 590:	f8c5 3da0 	str.w	r3, [r5, #3488]	@ 0xda0
+ if(DF_TARGET_MUTANT!=1)REG(0xe000ed94)=5;
+ 594:	f8c5 8d94 	str.w	r8, [r5, #3476]	@ 0xd94
+ __asm__ volatile("dsb\nisb":::"memory");
+ 598:	f3bf 8f4f 	dsb	sy
+ 59c:	f3bf 8f6f 	isb	sy
+ sandbox[8]=0x55667788u;if(sandbox[8]!=0x55667788u||handler_count)return 3;
+ 5a0:	4aba      	ldr	r2, [pc, #744]	@ (88c <df_target+0x398>)
+ 5a2:	6222      	str	r2, [r4, #32]
+ 5a4:	6a23      	ldr	r3, [r4, #32]
+ 5a6:	4293      	cmp	r3, r2
+ 5a8:	f040 835e 	bne.w	c68 <df_target+0x774>
+ 5ac:	f8d7 9000 	ldr.w	r9, [r7]
+ 5b0:	f1b9 0f00 	cmp.w	r9, #0
+ 5b4:	f040 8358 	bne.w	c68 <df_target+0x774>
+ df_store(0x12345678u,sandbox);
+ 5b8:	49ad      	ldr	r1, [pc, #692]	@ (870 <df_target+0x37c>)
+ 5ba:	48b5      	ldr	r0, [pc, #724]	@ (890 <df_target+0x39c>)
+ 5bc:	f000 fc98 	bl	ef0 <df_store>
+ REG(0xe000ed94)=0;__asm__ volatile("dsb\nisb":::"memory");
+ 5c0:	f8c5 9d94 	str.w	r9, [r5, #3476]	@ 0xd94
+ 5c4:	f3bf 8f4f 	dsb	sy
+ 5c8:	f3bf 8f6f 	isb	sy
+ if(handler_count!=1||!handler_ok||sandbox[0]!=0xaaaaaaaau)return 4;
+ 5cc:	683b      	ldr	r3, [r7, #0]
+ 5ce:	2b01      	cmp	r3, #1
+ 5d0:	f040 8352 	bne.w	c78 <df_target+0x784>
+ 5d4:	6833      	ldr	r3, [r6, #0]
+ 5d6:	2b00      	cmp	r3, #0
+ 5d8:	f000 834e 	beq.w	c78 <df_target+0x784>
+ 5dc:	6823      	ldr	r3, [r4, #0]
+ 5de:	f1b3 3faa 	cmp.w	r3, #2863311530	@ 0xaaaaaaaa
+ 5e2:	f040 8349 	bne.w	c78 <df_target+0x784>
+ DfRecord record;unsigned secondary;if(df_read(&capture,&record,&secondary)!=DF_OK||secondary||record.cfsr!=0x82||record.mmfar!=(uint32_t)(uintptr_t)sandbox||!(record.valid&DF_FRAME)||record.frame[6]!=(uint32_t)(uintptr_t)df_fault_instruction)return 5;
+ 5e6:	48a3      	ldr	r0, [pc, #652]	@ (874 <df_target+0x380>)
+ 5e8:	aa03      	add	r2, sp, #12
+ 5ea:	a90c      	add	r1, sp, #48	@ 0x30
+ 5ec:	f7ff fe78 	bl	2e0 <df_read>
+ 5f0:	9b03      	ldr	r3, [sp, #12]
+ 5f2:	4318      	orrs	r0, r3
+ 5f4:	f040 834a 	bne.w	c8c <df_target+0x798>
+ 5f8:	9b0e      	ldr	r3, [sp, #56]	@ 0x38
+ 5fa:	2b82      	cmp	r3, #130	@ 0x82
+ 5fc:	f040 8346 	bne.w	c8c <df_target+0x798>
+ 600:	9b12      	ldr	r3, [sp, #72]	@ 0x48
+ 602:	429c      	cmp	r4, r3
+ 604:	f040 8342 	bne.w	c8c <df_target+0x798>
+ 608:	9b0d      	ldr	r3, [sp, #52]	@ 0x34
+ 60a:	071b      	lsls	r3, r3, #28
+ 60c:	f140 833e 	bpl.w	c8c <df_target+0x798>
+ 610:	9a19      	ldr	r2, [sp, #100]	@ 0x64
+ 612:	4ba0      	ldr	r3, [pc, #640]	@ (894 <df_target+0x3a0>)
+ 614:	429a      	cmp	r2, r3
+ 616:	f040 8339 	bne.w	c8c <df_target+0x798>
+ unsigned char code[2]={df_fault_instruction[0],df_fault_instruction[1]};DfAccess access;
+ if(DF_TARGET_MUTANT==2)record.frame[1]+=4;
+ 61a:	9b14      	ldr	r3, [sp, #80]	@ 0x50
+ unsigned char code[2]={df_fault_instruction[0],df_fault_instruction[1]};DfAccess access;
+ 61c:	8811      	ldrh	r1, [r2, #0]
+ 61e:	f8ad 1008 	strh.w	r1, [sp, #8]
+ if(df_access(&record,token,record.frame[6],code,2,&access)!=DF_OK||!access.precise||!access.write||access.effective_address!=record.mmfar||access.operand!=0x12345678u)return 6;
+ 622:	ac07      	add	r4, sp, #28
+ 624:	2002      	movs	r0, #2
+ 626:	9401      	str	r4, [sp, #4]
+ 628:	9000      	str	r0, [sp, #0]
+ if(DF_TARGET_MUTANT==2)record.frame[1]+=4;
+ 62a:	1d1c      	adds	r4, r3, #4
+ if(df_access(&record,token,record.frame[6],code,2,&access)!=DF_OK||!access.precise||!access.write||access.effective_address!=record.mmfar||access.operand!=0x12345678u)return 6;
+ 62c:	499a      	ldr	r1, [pc, #616]	@ (898 <df_target+0x3a4>)
+ if(DF_TARGET_MUTANT==2)record.frame[1]+=4;
+ 62e:	9414      	str	r4, [sp, #80]	@ 0x50
+ if(df_access(&record,token,record.frame[6],code,2,&access)!=DF_OK||!access.precise||!access.write||access.effective_address!=record.mmfar||access.operand!=0x12345678u)return 6;
+ 630:	ab02      	add	r3, sp, #8
+ 632:	a80c      	add	r0, sp, #48	@ 0x30
+ 634:	f7ff fe74 	bl	320 <df_access>
+ 638:	4603      	mov	r3, r0
+ 63a:	2800      	cmp	r0, #0
+ 63c:	f040 8328 	bne.w	c90 <df_target+0x79c>
+ 640:	9a0b      	ldr	r2, [sp, #44]	@ 0x2c
+ 642:	2a00      	cmp	r2, #0
+ 644:	f000 8324 	beq.w	c90 <df_target+0x79c>
+ 648:	9a0a      	ldr	r2, [sp, #40]	@ 0x28
+ 64a:	2a00      	cmp	r2, #0
+ 64c:	f000 8320 	beq.w	c90 <df_target+0x79c>
+ 650:	9908      	ldr	r1, [sp, #32]
+ 652:	9a12      	ldr	r2, [sp, #72]	@ 0x48
+ 654:	4291      	cmp	r1, r2
+ 656:	f040 831b 	bne.w	c90 <df_target+0x79c>
+ 65a:	4a8d      	ldr	r2, [pc, #564]	@ (890 <df_target+0x39c>)
+ 65c:	9909      	ldr	r1, [sp, #36]	@ 0x24
+ 65e:	4291      	cmp	r1, r2
+ 660:	f040 8316 	bne.w	c90 <df_target+0x79c>
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 664:	498d      	ldr	r1, [pc, #564]	@ (89c <df_target+0x3a8>)
+ 666:	2004      	movs	r0, #4
+ 668:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 66a:	990c      	ldr	r1, [sp, #48]	@ 0x30
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 66c:	4a8c      	ldr	r2, [pc, #560]	@ (8a0 <df_target+0x3ac>)
+ 66e:	f3c1 3403 	ubfx	r4, r1, #12, #4
+ 672:	f3c1 2003 	ubfx	r0, r1, #8, #4
+ 676:	5d15      	ldrb	r5, [r2, r4]
+ 678:	5c14      	ldrb	r4, [r2, r0]
+ 67a:	4618      	mov	r0, r3
+ 67c:	f365 0007 	bfi	r0, r5, #0, #8
+ 680:	f364 200f 	bfi	r0, r4, #8, #8
+ 684:	f3c1 1403 	ubfx	r4, r1, #4, #4
+ 688:	5d14      	ldrb	r4, [r2, r4]
+ 68a:	f364 4017 	bfi	r0, r4, #16, #8
+ 68e:	f001 040f 	and.w	r4, r1, #15
+ 692:	5d14      	ldrb	r4, [r2, r4]
+ 694:	f364 601f 	bfi	r0, r4, #24, #8
+ 698:	0f0c      	lsrs	r4, r1, #28
+ 69a:	9005      	str	r0, [sp, #20]
+ 69c:	5d14      	ldrb	r4, [r2, r4]
+ 69e:	4618      	mov	r0, r3
+ 6a0:	f364 0007 	bfi	r0, r4, #0, #8
+ 6a4:	f3c1 6403 	ubfx	r4, r1, #24, #4
+ 6a8:	5d14      	ldrb	r4, [r2, r4]
+ 6aa:	f364 200f 	bfi	r0, r4, #8, #8
+ 6ae:	f3c1 5403 	ubfx	r4, r1, #20, #4
+ 6b2:	f3c1 4103 	ubfx	r1, r1, #16, #4
+ 6b6:	5d14      	ldrb	r4, [r2, r4]
+ 6b8:	5c51      	ldrb	r1, [r2, r1]
+ 6ba:	f364 4017 	bfi	r0, r4, #16, #8
+ 6be:	f361 601f 	bfi	r0, r1, #24, #8
+ 6c2:	2420      	movs	r4, #32
+ 6c4:	9004      	str	r0, [sp, #16]
+ 6c6:	f8ad 4018 	strh.w	r4, [sp, #24]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 6ca:	2004      	movs	r0, #4
+ 6cc:	a904      	add	r1, sp, #16
+ 6ce:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 6d0:	980d      	ldr	r0, [sp, #52]	@ 0x34
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 6d2:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 6d6:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 6da:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 6de:	0f05      	lsrs	r5, r0, #28
+ 6e0:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 6e4:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 6e8:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 6ec:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 6f0:	5d57      	ldrb	r7, [r2, r5]
+ 6f2:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 6f6:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 6fa:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 6fe:	5d56      	ldrb	r6, [r2, r5]
+ 700:	461d      	mov	r5, r3
+ 702:	f369 0507 	bfi	r5, r9, #0, #8
+ 706:	f368 250f 	bfi	r5, r8, #8, #8
+ 70a:	f36e 4517 	bfi	r5, lr, #16, #8
+ 70e:	f000 0e0f 	and.w	lr, r0, #15
+ 712:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 716:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 71a:	f36e 651f 	bfi	r5, lr, #24, #8
+ 71e:	9505      	str	r5, [sp, #20]
+ 720:	5c15      	ldrb	r5, [r2, r0]
+ 722:	4618      	mov	r0, r3
+ 724:	f36c 0007 	bfi	r0, ip, #0, #8
+ 728:	f367 200f 	bfi	r0, r7, #8, #8
+ 72c:	f366 4017 	bfi	r0, r6, #16, #8
+ 730:	f365 601f 	bfi	r0, r5, #24, #8
+ 734:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 736:	2004      	movs	r0, #4
+ 738:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 73a:	980e      	ldr	r0, [sp, #56]	@ 0x38
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 73c:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 740:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 744:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 748:	0f05      	lsrs	r5, r0, #28
+ 74a:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 74e:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 752:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 756:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 75a:	5d57      	ldrb	r7, [r2, r5]
+ 75c:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 760:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 764:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 768:	5d56      	ldrb	r6, [r2, r5]
+ 76a:	461d      	mov	r5, r3
+ 76c:	f369 0507 	bfi	r5, r9, #0, #8
+ 770:	f368 250f 	bfi	r5, r8, #8, #8
+ 774:	f36e 4517 	bfi	r5, lr, #16, #8
+ 778:	f000 0e0f 	and.w	lr, r0, #15
+ 77c:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 780:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 784:	f36e 651f 	bfi	r5, lr, #24, #8
+ 788:	9505      	str	r5, [sp, #20]
+ 78a:	5c15      	ldrb	r5, [r2, r0]
+ 78c:	4618      	mov	r0, r3
+ 78e:	f36c 0007 	bfi	r0, ip, #0, #8
+ 792:	f367 200f 	bfi	r0, r7, #8, #8
+ 796:	f366 4017 	bfi	r0, r6, #16, #8
+ 79a:	f365 601f 	bfi	r0, r5, #24, #8
+ 79e:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 7a0:	2004      	movs	r0, #4
+ 7a2:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 7a4:	980f      	ldr	r0, [sp, #60]	@ 0x3c
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 7a6:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 7aa:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 7ae:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 7b2:	0f05      	lsrs	r5, r0, #28
+ 7b4:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 7b8:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 7bc:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 7c0:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 7c4:	5d57      	ldrb	r7, [r2, r5]
+ 7c6:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 7ca:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 7ce:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 7d2:	5d56      	ldrb	r6, [r2, r5]
+ 7d4:	461d      	mov	r5, r3
+ 7d6:	f369 0507 	bfi	r5, r9, #0, #8
+ 7da:	f368 250f 	bfi	r5, r8, #8, #8
+ 7de:	f36e 4517 	bfi	r5, lr, #16, #8
+ 7e2:	f000 0e0f 	and.w	lr, r0, #15
+ 7e6:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 7ea:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 7ee:	f36e 651f 	bfi	r5, lr, #24, #8
+ 7f2:	9505      	str	r5, [sp, #20]
+ 7f4:	5c15      	ldrb	r5, [r2, r0]
+ 7f6:	4618      	mov	r0, r3
+ 7f8:	f36c 0007 	bfi	r0, ip, #0, #8
+ 7fc:	f367 200f 	bfi	r0, r7, #8, #8
+ 800:	f366 4017 	bfi	r0, r6, #16, #8
+ 804:	f365 601f 	bfi	r0, r5, #24, #8
+ 808:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 80a:	2004      	movs	r0, #4
+ 80c:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 80e:	9810      	ldr	r0, [sp, #64]	@ 0x40
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 810:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 814:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 818:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 81c:	0f05      	lsrs	r5, r0, #28
+ 81e:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 822:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 826:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 82a:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 82e:	5d57      	ldrb	r7, [r2, r5]
+ 830:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 834:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 838:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 83c:	5d56      	ldrb	r6, [r2, r5]
+ 83e:	461d      	mov	r5, r3
+ 840:	f369 0507 	bfi	r5, r9, #0, #8
+ 844:	f368 250f 	bfi	r5, r8, #8, #8
+ 848:	f36e 4517 	bfi	r5, lr, #16, #8
+ 84c:	f000 0e0f 	and.w	lr, r0, #15
+ 850:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 854:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 858:	f36e 651f 	bfi	r5, lr, #24, #8
+ 85c:	9505      	str	r5, [sp, #20]
+ 85e:	5c15      	ldrb	r5, [r2, r0]
+ 860:	4618      	mov	r0, r3
+ 862:	f36c 0007 	bfi	r0, ip, #0, #8
+ 866:	f367 200f 	bfi	r0, r7, #8, #8
+ 86a:	f366 4017 	bfi	r0, r6, #16, #8
+ 86e:	e019      	b.n	8a4 <df_target+0x3b0>
+ 870:	20000020 	.word	0x20000020
+ 874:	20000140 	.word	0x20000140
+ 878:	20000000 	.word	0x20000000
+ 87c:	20000004 	.word	0x20000004
+ 880:	030fbfbb 	.word	0x030fbfbb
+ 884:	40000002 	.word	0x40000002
+ 888:	10080009 	.word	0x10080009
+ 88c:	55667788 	.word	0x55667788
+ 890:	12345678 	.word	0x12345678
+ 894:	00000ef0 	.word	0x00000ef0
+ 898:	00000fc0 	.word	0x00000fc0
+ 89c:	00000f9c 	.word	0x00000f9c
+ 8a0:	00000fac 	.word	0x00000fac
+ 8a4:	f365 601f 	bfi	r0, r5, #24, #8
+ 8a8:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 8aa:	2004      	movs	r0, #4
+ 8ac:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 8ae:	9812      	ldr	r0, [sp, #72]	@ 0x48
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 8b0:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 8b4:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 8b8:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 8bc:	0f05      	lsrs	r5, r0, #28
+ 8be:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 8c2:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 8c6:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 8ca:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 8ce:	5d57      	ldrb	r7, [r2, r5]
+ 8d0:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 8d4:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 8d8:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 8dc:	5d56      	ldrb	r6, [r2, r5]
+ 8de:	461d      	mov	r5, r3
+ 8e0:	f369 0507 	bfi	r5, r9, #0, #8
+ 8e4:	f368 250f 	bfi	r5, r8, #8, #8
+ 8e8:	f36e 4517 	bfi	r5, lr, #16, #8
+ 8ec:	f000 0e0f 	and.w	lr, r0, #15
+ 8f0:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 8f4:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 8f8:	f36e 651f 	bfi	r5, lr, #24, #8
+ 8fc:	9505      	str	r5, [sp, #20]
+ 8fe:	5c15      	ldrb	r5, [r2, r0]
+ 900:	4618      	mov	r0, r3
+ 902:	f36c 0007 	bfi	r0, ip, #0, #8
+ 906:	f367 200f 	bfi	r0, r7, #8, #8
+ 90a:	f366 4017 	bfi	r0, r6, #16, #8
+ 90e:	f365 601f 	bfi	r0, r5, #24, #8
+ 912:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 914:	2004      	movs	r0, #4
+ 916:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 918:	9813      	ldr	r0, [sp, #76]	@ 0x4c
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 91a:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 91e:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 922:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 926:	0f05      	lsrs	r5, r0, #28
+ 928:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 92c:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 930:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 934:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 938:	5d57      	ldrb	r7, [r2, r5]
+ 93a:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 93e:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 942:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 946:	5d56      	ldrb	r6, [r2, r5]
+ 948:	461d      	mov	r5, r3
+ 94a:	f369 0507 	bfi	r5, r9, #0, #8
+ 94e:	f368 250f 	bfi	r5, r8, #8, #8
+ 952:	f36e 4517 	bfi	r5, lr, #16, #8
+ 956:	f000 0e0f 	and.w	lr, r0, #15
+ 95a:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 95e:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 962:	f36e 651f 	bfi	r5, lr, #24, #8
+ 966:	9505      	str	r5, [sp, #20]
+ 968:	5c15      	ldrb	r5, [r2, r0]
+ 96a:	4618      	mov	r0, r3
+ 96c:	f36c 0007 	bfi	r0, ip, #0, #8
+ 970:	f367 200f 	bfi	r0, r7, #8, #8
+ 974:	f366 4017 	bfi	r0, r6, #16, #8
+ 978:	f365 601f 	bfi	r0, r5, #24, #8
+ 97c:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 97e:	2004      	movs	r0, #4
+ 980:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 982:	9814      	ldr	r0, [sp, #80]	@ 0x50
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 984:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 988:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 98c:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 990:	0f05      	lsrs	r5, r0, #28
+ 992:	f812 c005 	ldrb.w	ip, [r2, r5]
+ 996:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ 99a:	f812 8005 	ldrb.w	r8, [r2, r5]
+ 99e:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ 9a2:	5d57      	ldrb	r7, [r2, r5]
+ 9a4:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ 9a8:	f812 e005 	ldrb.w	lr, [r2, r5]
+ 9ac:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ 9b0:	5d56      	ldrb	r6, [r2, r5]
+ 9b2:	461d      	mov	r5, r3
+ 9b4:	f369 0507 	bfi	r5, r9, #0, #8
+ 9b8:	f368 250f 	bfi	r5, r8, #8, #8
+ 9bc:	f36e 4517 	bfi	r5, lr, #16, #8
+ 9c0:	f000 0e0f 	and.w	lr, r0, #15
+ 9c4:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ 9c8:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ 9cc:	f36e 651f 	bfi	r5, lr, #24, #8
+ 9d0:	9505      	str	r5, [sp, #20]
+ 9d2:	5c15      	ldrb	r5, [r2, r0]
+ 9d4:	4618      	mov	r0, r3
+ 9d6:	f36c 0007 	bfi	r0, ip, #0, #8
+ 9da:	f367 200f 	bfi	r0, r7, #8, #8
+ 9de:	f366 4017 	bfi	r0, r6, #16, #8
+ 9e2:	f365 601f 	bfi	r0, r5, #24, #8
+ 9e6:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ 9e8:	2004      	movs	r0, #4
+ 9ea:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ 9ec:	9815      	ldr	r0, [sp, #84]	@ 0x54
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ 9ee:	f8ad 4018 	strh.w	r4, [sp, #24]
+ 9f2:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ 9f6:	f812 9005 	ldrb.w	r9, [r2, r5]
+ 9fa:	0f05      	lsrs	r5, r0, #28
+ 9fc:	f812 c005 	ldrb.w	ip, [r2, r5]
+ a00:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ a04:	f812 8005 	ldrb.w	r8, [r2, r5]
+ a08:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ a0c:	5d57      	ldrb	r7, [r2, r5]
+ a0e:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ a12:	f812 e005 	ldrb.w	lr, [r2, r5]
+ a16:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ a1a:	5d56      	ldrb	r6, [r2, r5]
+ a1c:	461d      	mov	r5, r3
+ a1e:	f369 0507 	bfi	r5, r9, #0, #8
+ a22:	f368 250f 	bfi	r5, r8, #8, #8
+ a26:	f36e 4517 	bfi	r5, lr, #16, #8
+ a2a:	f000 0e0f 	and.w	lr, r0, #15
+ a2e:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ a32:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ a36:	f36e 651f 	bfi	r5, lr, #24, #8
+ a3a:	9505      	str	r5, [sp, #20]
+ a3c:	5c15      	ldrb	r5, [r2, r0]
+ a3e:	4618      	mov	r0, r3
+ a40:	f36c 0007 	bfi	r0, ip, #0, #8
+ a44:	f367 200f 	bfi	r0, r7, #8, #8
+ a48:	f366 4017 	bfi	r0, r6, #16, #8
+ a4c:	f365 601f 	bfi	r0, r5, #24, #8
+ a50:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ a52:	2004      	movs	r0, #4
+ a54:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ a56:	9816      	ldr	r0, [sp, #88]	@ 0x58
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ a58:	f8ad 4018 	strh.w	r4, [sp, #24]
+ a5c:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ a60:	f812 9005 	ldrb.w	r9, [r2, r5]
+ a64:	0f05      	lsrs	r5, r0, #28
+ a66:	f812 c005 	ldrb.w	ip, [r2, r5]
+ a6a:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ a6e:	f812 8005 	ldrb.w	r8, [r2, r5]
+ a72:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ a76:	5d57      	ldrb	r7, [r2, r5]
+ a78:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ a7c:	f812 e005 	ldrb.w	lr, [r2, r5]
+ a80:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ a84:	5d56      	ldrb	r6, [r2, r5]
+ a86:	461d      	mov	r5, r3
+ a88:	f369 0507 	bfi	r5, r9, #0, #8
+ a8c:	f368 250f 	bfi	r5, r8, #8, #8
+ a90:	f36e 4517 	bfi	r5, lr, #16, #8
+ a94:	f000 0e0f 	and.w	lr, r0, #15
+ a98:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ a9c:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ aa0:	f36e 651f 	bfi	r5, lr, #24, #8
+ aa4:	9505      	str	r5, [sp, #20]
+ aa6:	5c15      	ldrb	r5, [r2, r0]
+ aa8:	4618      	mov	r0, r3
+ aaa:	f36c 0007 	bfi	r0, ip, #0, #8
+ aae:	f367 200f 	bfi	r0, r7, #8, #8
+ ab2:	f366 4017 	bfi	r0, r6, #16, #8
+ ab6:	f365 601f 	bfi	r0, r5, #24, #8
+ aba:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ abc:	2004      	movs	r0, #4
+ abe:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ ac0:	9817      	ldr	r0, [sp, #92]	@ 0x5c
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ ac2:	f8ad 4018 	strh.w	r4, [sp, #24]
+ ac6:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ aca:	f812 9005 	ldrb.w	r9, [r2, r5]
+ ace:	0f05      	lsrs	r5, r0, #28
+ ad0:	f812 c005 	ldrb.w	ip, [r2, r5]
+ ad4:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ ad8:	f812 8005 	ldrb.w	r8, [r2, r5]
+ adc:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ ae0:	5d57      	ldrb	r7, [r2, r5]
+ ae2:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ ae6:	f812 e005 	ldrb.w	lr, [r2, r5]
+ aea:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ aee:	5d56      	ldrb	r6, [r2, r5]
+ af0:	461d      	mov	r5, r3
+ af2:	f369 0507 	bfi	r5, r9, #0, #8
+ af6:	f368 250f 	bfi	r5, r8, #8, #8
+ afa:	f36e 4517 	bfi	r5, lr, #16, #8
+ afe:	f000 0e0f 	and.w	lr, r0, #15
+ b02:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ b06:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ b0a:	f36e 651f 	bfi	r5, lr, #24, #8
+ b0e:	9505      	str	r5, [sp, #20]
+ b10:	5c15      	ldrb	r5, [r2, r0]
+ b12:	4618      	mov	r0, r3
+ b14:	f36c 0007 	bfi	r0, ip, #0, #8
+ b18:	f367 200f 	bfi	r0, r7, #8, #8
+ b1c:	f366 4017 	bfi	r0, r6, #16, #8
+ b20:	f365 601f 	bfi	r0, r5, #24, #8
+ b24:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ b26:	2004      	movs	r0, #4
+ b28:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ b2a:	9818      	ldr	r0, [sp, #96]	@ 0x60
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ b2c:	f8ad 4018 	strh.w	r4, [sp, #24]
+ b30:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ b34:	f812 9005 	ldrb.w	r9, [r2, r5]
+ b38:	0f05      	lsrs	r5, r0, #28
+ b3a:	f812 c005 	ldrb.w	ip, [r2, r5]
+ b3e:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ b42:	f812 8005 	ldrb.w	r8, [r2, r5]
+ b46:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ b4a:	5d57      	ldrb	r7, [r2, r5]
+ b4c:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ b50:	f812 e005 	ldrb.w	lr, [r2, r5]
+ b54:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ b58:	5d56      	ldrb	r6, [r2, r5]
+ b5a:	461d      	mov	r5, r3
+ b5c:	f369 0507 	bfi	r5, r9, #0, #8
+ b60:	f368 250f 	bfi	r5, r8, #8, #8
+ b64:	f36e 4517 	bfi	r5, lr, #16, #8
+ b68:	f000 0e0f 	and.w	lr, r0, #15
+ b6c:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ b70:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ b74:	f36e 651f 	bfi	r5, lr, #24, #8
+ b78:	9505      	str	r5, [sp, #20]
+ b7a:	5c15      	ldrb	r5, [r2, r0]
+ b7c:	4618      	mov	r0, r3
+ b7e:	f36c 0007 	bfi	r0, ip, #0, #8
+ b82:	f367 200f 	bfi	r0, r7, #8, #8
+ b86:	f366 4017 	bfi	r0, r6, #16, #8
+ b8a:	f365 601f 	bfi	r0, r5, #24, #8
+ b8e:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ b90:	2004      	movs	r0, #4
+ b92:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ b94:	9819      	ldr	r0, [sp, #100]	@ 0x64
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ b96:	f8ad 4018 	strh.w	r4, [sp, #24]
+ b9a:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ b9e:	f812 9005 	ldrb.w	r9, [r2, r5]
+ ba2:	0f05      	lsrs	r5, r0, #28
+ ba4:	f812 c005 	ldrb.w	ip, [r2, r5]
+ ba8:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ bac:	f812 8005 	ldrb.w	r8, [r2, r5]
+ bb0:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ bb4:	5d57      	ldrb	r7, [r2, r5]
+ bb6:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ bba:	f812 e005 	ldrb.w	lr, [r2, r5]
+ bbe:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ bc2:	5d56      	ldrb	r6, [r2, r5]
+ bc4:	461d      	mov	r5, r3
+ bc6:	f369 0507 	bfi	r5, r9, #0, #8
+ bca:	f368 250f 	bfi	r5, r8, #8, #8
+ bce:	f36e 4517 	bfi	r5, lr, #16, #8
+ bd2:	f000 0e0f 	and.w	lr, r0, #15
+ bd6:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ bda:	f812 e00e 	ldrb.w	lr, [r2, lr]
+ bde:	f36e 651f 	bfi	r5, lr, #24, #8
+ be2:	9505      	str	r5, [sp, #20]
+ be4:	5c15      	ldrb	r5, [r2, r0]
+ be6:	4618      	mov	r0, r3
+ be8:	f36c 0007 	bfi	r0, ip, #0, #8
+ bec:	f367 200f 	bfi	r0, r7, #8, #8
+ bf0:	f366 4017 	bfi	r0, r6, #16, #8
+ bf4:	f365 601f 	bfi	r0, r5, #24, #8
+ bf8:	9004      	str	r0, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ bfa:	2004      	movs	r0, #4
+ bfc:	beab      	bkpt	0x00ab
+ output("DF_CAPTURE:");hex(record.version);hex(record.valid);hex(record.cfsr);hex(record.hfsr);hex(record.exc_return);hex(record.mmfar);for(unsigned i=0;i<8;++i)hex(record.frame[i]);output("\n");
+ bfe:	981a      	ldr	r0, [sp, #104]	@ 0x68
+static void hex(uint32_t v){char text[10];for(unsigned i=0;i<8;++i)text[i]="0123456789abcdef"[(v>>(28-4*i))&15];text[8]=' ';text[9]=0;output(text);}
+ c00:	f8ad 4018 	strh.w	r4, [sp, #24]
+ c04:	f3c0 3503 	ubfx	r5, r0, #12, #4
+ c08:	461c      	mov	r4, r3
+ c0a:	5d55      	ldrb	r5, [r2, r5]
+ c0c:	f365 0407 	bfi	r4, r5, #0, #8
+ c10:	0f05      	lsrs	r5, r0, #28
+ c12:	f000 0c0f 	and.w	ip, r0, #15
+ c16:	5d57      	ldrb	r7, [r2, r5]
+ c18:	f812 c00c 	ldrb.w	ip, [r2, ip]
+ c1c:	f3c0 2503 	ubfx	r5, r0, #8, #4
+ c20:	5d55      	ldrb	r5, [r2, r5]
+ c22:	f365 240f 	bfi	r4, r5, #8, #8
+ c26:	f3c0 6503 	ubfx	r5, r0, #24, #4
+ c2a:	5d56      	ldrb	r6, [r2, r5]
+ c2c:	f3c0 1503 	ubfx	r5, r0, #4, #4
+ c30:	5d55      	ldrb	r5, [r2, r5]
+ c32:	f365 4417 	bfi	r4, r5, #16, #8
+ c36:	f3c0 5503 	ubfx	r5, r0, #20, #4
+ c3a:	f3c0 4003 	ubfx	r0, r0, #16, #4
+ c3e:	5d55      	ldrb	r5, [r2, r5]
+ c40:	5c10      	ldrb	r0, [r2, r0]
+ c42:	461a      	mov	r2, r3
+ c44:	f367 0207 	bfi	r2, r7, #0, #8
+ c48:	f366 220f 	bfi	r2, r6, #8, #8
+ c4c:	f365 4217 	bfi	r2, r5, #16, #8
+ c50:	f360 621f 	bfi	r2, r0, #24, #8
+ c54:	f36c 641f 	bfi	r4, ip, #24, #8
+ c58:	9405      	str	r4, [sp, #20]
+ c5a:	9204      	str	r2, [sp, #16]
+static void output(const char*s){register uintptr_t op __asm__("r0")=4;register const char*arg __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(op):"r"(arg):"memory");}
+ c5c:	2004      	movs	r0, #4
+ c5e:	beab      	bkpt	0x00ab
+ c60:	490c      	ldr	r1, [pc, #48]	@ (c94 <df_target+0x7a0>)
+ c62:	2004      	movs	r0, #4
+ c64:	beab      	bkpt	0x00ab
+ return 0;
+ c66:	e000      	b.n	c6a <df_target+0x776>
+ sandbox[8]=0x55667788u;if(sandbox[8]!=0x55667788u||handler_count)return 3;
+ c68:	2303      	movs	r3, #3
+}
+ c6a:	4618      	mov	r0, r3
+ c6c:	b025      	add	sp, #148	@ 0x94
+ c6e:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ unsigned regions=(REG(0xe000ed90)>>8)&255;if(!regions)return 1;
+ c72:	2301      	movs	r3, #1
+}
+ c74:	4618      	mov	r0, r3
+ c76:	4770      	bx	lr
+ if(handler_count!=1||!handler_ok||sandbox[0]!=0xaaaaaaaau)return 4;
+ c78:	2304      	movs	r3, #4
+}
+ c7a:	4618      	mov	r0, r3
+ c7c:	b025      	add	sp, #148	@ 0x94
+ c7e:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ if((alignment&0x20)==0)return 2;
+ c82:	2302      	movs	r3, #2
+}
+ c84:	4618      	mov	r0, r3
+ c86:	b025      	add	sp, #148	@ 0x94
+ c88:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
+ DfRecord record;unsigned secondary;if(df_read(&capture,&record,&secondary)!=DF_OK||secondary||record.cfsr!=0x82||record.mmfar!=(uint32_t)(uintptr_t)sandbox||!(record.valid&DF_FRAME)||record.frame[6]!=(uint32_t)(uintptr_t)df_fault_instruction)return 5;
+ c8c:	2305      	movs	r3, #5
+ c8e:	e7ec      	b.n	c6a <df_target+0x776>
+ if(df_access(&record,token,record.frame[6],code,2,&access)!=DF_OK||!access.precise||!access.write||access.effective_address!=record.mmfar||access.operand!=0x12345678u)return 6;
+ c90:	2306      	movs	r3, #6
+ c92:	e7ea      	b.n	c6a <df_target+0x776>
+ c94:	00000fa8 	.word	0x00000fa8
+
+00000c98 <xf_frame>:
+  if (!w || !out || fpu > 1 || material > 1 || align > 1 || fault > 1 || sp % 4)
+ c98:	2800      	cmp	r0, #0
+ c9a:	f000 80ad 	beq.w	df8 <xf_frame+0x160>
+             XfFrame *out) {
+ c9e:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ ca2:	b0a3      	sub	sp, #140	@ 0x8c
+ ca4:	4604      	mov	r4, r0
+  if (!w || !out || fpu > 1 || material > 1 || align > 1 || fault > 1 || sp % 4)
+ ca6:	9830      	ldr	r0, [sp, #192]	@ 0xc0
+ ca8:	2800      	cmp	r0, #0
+ caa:	f000 80a1 	beq.w	df0 <xf_frame+0x158>
+ cae:	e9dd 052e 	ldrd	r0, r5, [sp, #184]	@ 0xb8
+ cb2:	4328      	orrs	r0, r5
+ cb4:	9d2d      	ldr	r5, [sp, #180]	@ 0xb4
+ cb6:	4328      	orrs	r0, r5
+ cb8:	9d2c      	ldr	r5, [sp, #176]	@ 0xb0
+ cba:	4328      	orrs	r0, r5
+ cbc:	2801      	cmp	r0, #1
+ cbe:	f200 8097 	bhi.w	df0 <xf_frame+0x158>
+ cc2:	0796      	lsls	r6, r2, #30
+ cc4:	f040 8094 	bne.w	df0 <xf_frame+0x158>
+  if (fault)
+ cc8:	982f      	ldr	r0, [sp, #188]	@ 0xbc
+ cca:	2800      	cmp	r0, #0
+ ccc:	f040 8098 	bne.w	e00 <xf_frame+0x168>
+  if (er != 0xfffffff1u && er != 0xfffffff9u && er != 0xfffffffdu &&
+ cd0:	f103 051f 	add.w	r5, r3, #31
+ cd4:	2d1c      	cmp	r5, #28
+ cd6:	f200 8099 	bhi.w	e0c <xf_frame+0x174>
+ cda:	4852      	ldr	r0, [pc, #328]	@ (e24 <xf_frame+0x18c>)
+ cdc:	40e8      	lsrs	r0, r5
+ cde:	07c5      	lsls	r5, r0, #31
+ ce0:	f140 8094 	bpl.w	e0c <xf_frame+0x174>
+  if (extended && !fpu)
+ ce4:	f013 0610 	ands.w	r6, r3, #16
+ ce8:	f000 808c 	beq.w	e04 <xf_frame+0x16c>
+  if (material && !extended)
+ cec:	982d      	ldr	r0, [sp, #180]	@ 0xb4
+ cee:	2800      	cmp	r0, #0
+ cf0:	d17e      	bne.n	df0 <xf_frame+0x158>
+  unsigned count = extended ? 26 : 8;
+ cf2:	2708      	movs	r7, #8
+  if (n < count)
+ cf4:	428f      	cmp	r7, r1
+ cf6:	f200 8090 	bhi.w	e1a <xf_frame+0x182>
+  uint32_t psr = w[offset + 7];
+ cfa:	69e5      	ldr	r5, [r4, #28]
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ cfc:	01e8      	lsls	r0, r5, #7
+ cfe:	d57f      	bpl.n	e00 <xf_frame+0x168>
+ d00:	f8d4 8018 	ldr.w	r8, [r4, #24]
+ d04:	f018 0f01 	tst.w	r8, #1
+ d08:	d17a      	bne.n	e00 <xf_frame+0x168>
+ d0a:	f013 0908 	ands.w	r9, r3, #8
+      (thread ? ((psr & 511u) != 0) : ((psr & 511u) == 0)))
+ d0e:	f3c5 0008 	ubfx	r0, r5, #0, #9
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ d12:	d073      	beq.n	dfc <xf_frame+0x164>
+ d14:	2800      	cmp	r0, #0
+ d16:	d173      	bne.n	e00 <xf_frame+0x168>
+  if ((align || extended) ? sp % 8 != 0 : padding != 0)
+ d18:	982e      	ldr	r0, [sp, #184]	@ 0xb8
+  unsigned padding = (psr >> 9) & 1u;
+ d1a:	ea4f 2c55 	mov.w	ip, r5, lsr #9
+  if ((align || extended) ? sp % 8 != 0 : padding != 0)
+ d1e:	2800      	cmp	r0, #0
+ d20:	d176      	bne.n	e10 <xf_frame+0x178>
+ d22:	2e00      	cmp	r6, #0
+ d24:	d074      	beq.n	e10 <xf_frame+0x178>
+ d26:	f01c 0f01 	tst.w	ip, #1
+ d2a:	f00c 0a01 	and.w	sl, ip, #1
+ d2e:	d167      	bne.n	e00 <xf_frame+0x168>
+  if (n < count + padding)
+ d30:	eb07 000a 	add.w	r0, r7, sl
+ d34:	4288      	cmp	r0, r1
+ d36:	9300      	str	r3, [sp, #0]
+ d38:	d86f      	bhi.n	e1a <xf_frame+0x182>
+  if (sp > UINT32_MAX - 4u * (count + padding))
+ d3a:	0081      	lsls	r1, r0, #2
+ d3c:	eb11 0b02 	adds.w	fp, r1, r2
+ d40:	bf2c      	ite	cs
+ d42:	2101      	movcs	r1, #1
+ d44:	2100      	movcc	r1, #0
+ d46:	d25b      	bcs.n	e00 <xf_frame+0x168>
+  XfFrame r = {0};
+ d48:	2270      	movs	r2, #112	@ 0x70
+ d4a:	a806      	add	r0, sp, #24
+ d4c:	9101      	str	r1, [sp, #4]
+ d4e:	f000 f89d 	bl	e8c <memset>
+    r.r[i] = w[offset + i];
+ d52:	6822      	ldr	r2, [r4, #0]
+ d54:	9202      	str	r2, [sp, #8]
+ d56:	6862      	ldr	r2, [r4, #4]
+ d58:	9203      	str	r2, [sp, #12]
+ d5a:	68a2      	ldr	r2, [r4, #8]
+ d5c:	9204      	str	r2, [sp, #16]
+ d5e:	68e2      	ldr	r2, [r4, #12]
+ d60:	9205      	str	r2, [sp, #20]
+  r.r12 = w[offset + 4];
+ d62:	e9d4 0c04 	ldrd	r0, ip, [r4, #16]
+  if (extended && (material || XF_MUTANT == 3)) {
+ d66:	e9dd 3100 	ldrd	r3, r1, [sp]
+ d6a:	2e00      	cmp	r6, #0
+ d6c:	d157      	bne.n	e1e <xf_frame+0x186>
+ d6e:	9a2d      	ldr	r2, [sp, #180]	@ 0xb4
+ d70:	2a00      	cmp	r2, #0
+ d72:	d022      	beq.n	dba <xf_frame+0x122>
+      r.fp[i] = w[8 + i];
+ d74:	6a21      	ldr	r1, [r4, #32]
+ d76:	910a      	str	r1, [sp, #40]	@ 0x28
+ d78:	6a61      	ldr	r1, [r4, #36]	@ 0x24
+ d7a:	910b      	str	r1, [sp, #44]	@ 0x2c
+ d7c:	6aa1      	ldr	r1, [r4, #40]	@ 0x28
+ d7e:	910c      	str	r1, [sp, #48]	@ 0x30
+ d80:	6ae1      	ldr	r1, [r4, #44]	@ 0x2c
+ d82:	910d      	str	r1, [sp, #52]	@ 0x34
+ d84:	6b21      	ldr	r1, [r4, #48]	@ 0x30
+ d86:	910e      	str	r1, [sp, #56]	@ 0x38
+ d88:	6b61      	ldr	r1, [r4, #52]	@ 0x34
+ d8a:	910f      	str	r1, [sp, #60]	@ 0x3c
+ d8c:	6ba1      	ldr	r1, [r4, #56]	@ 0x38
+ d8e:	9110      	str	r1, [sp, #64]	@ 0x40
+ d90:	6be1      	ldr	r1, [r4, #60]	@ 0x3c
+ d92:	9111      	str	r1, [sp, #68]	@ 0x44
+ d94:	6c21      	ldr	r1, [r4, #64]	@ 0x40
+ d96:	9112      	str	r1, [sp, #72]	@ 0x48
+ d98:	6c61      	ldr	r1, [r4, #68]	@ 0x44
+ d9a:	9113      	str	r1, [sp, #76]	@ 0x4c
+ d9c:	6ca1      	ldr	r1, [r4, #72]	@ 0x48
+ d9e:	9114      	str	r1, [sp, #80]	@ 0x50
+ da0:	6ce1      	ldr	r1, [r4, #76]	@ 0x4c
+ da2:	9115      	str	r1, [sp, #84]	@ 0x54
+ da4:	6d21      	ldr	r1, [r4, #80]	@ 0x50
+ da6:	9116      	str	r1, [sp, #88]	@ 0x58
+ da8:	6d61      	ldr	r1, [r4, #84]	@ 0x54
+ daa:	9117      	str	r1, [sp, #92]	@ 0x5c
+ dac:	6da1      	ldr	r1, [r4, #88]	@ 0x58
+ dae:	9118      	str	r1, [sp, #96]	@ 0x60
+    r.fp_materialized = 1;
+ db0:	2201      	movs	r2, #1
+      r.fp[i] = w[8 + i];
+ db2:	6de1      	ldr	r1, [r4, #92]	@ 0x5c
+    r.fp_materialized = 1;
+ db4:	922d      	str	r2, [sp, #180]	@ 0xb4
+      r.fp[i] = w[8 + i];
+ db6:	9119      	str	r1, [sp, #100]	@ 0x64
+    r.fpscr = w[24];
+ db8:	6e21      	ldr	r1, [r4, #96]	@ 0x60
+  *out = r;
+ dba:	9721      	str	r7, [sp, #132]	@ 0x84
+  unsigned extended = (er & 16u) == 0, thread = (er & 8u) != 0,
+ dbc:	fab6 f686 	clz	r6, r6
+           psp = (er & 4u) != 0;
+ dc0:	f3c3 0380 	ubfx	r3, r3, #2, #1
+  unsigned extended = (er & 16u) == 0, thread = (er & 8u) != 0,
+ dc4:	0976      	lsrs	r6, r6, #5
+  *out = r;
+ dc6:	e9cd 361d 	strd	r3, r6, [sp, #116]	@ 0x74
+  unsigned extended = (er & 16u) == 0, thread = (er & 8u) != 0,
+ dca:	f3c9 02c0 	ubfx	r2, r9, #3, #1
+  *out = r;
+ dce:	9b2d      	ldr	r3, [sp, #180]	@ 0xb4
+ dd0:	921c      	str	r2, [sp, #112]	@ 0x70
+ dd2:	e9cd 0c06 	strd	r0, ip, [sp, #24]
+ dd6:	e9cd 1b1a 	strd	r1, fp, [sp, #104]	@ 0x68
+ dda:	9830      	ldr	r0, [sp, #192]	@ 0xc0
+ ddc:	2280      	movs	r2, #128	@ 0x80
+ dde:	a902      	add	r1, sp, #8
+ de0:	e9cd 8508 	strd	r8, r5, [sp, #32]
+ de4:	e9cd 3a1f 	strd	r3, sl, [sp, #124]	@ 0x7c
+ de8:	f000 f81e 	bl	e28 <memcpy>
+  return XF_OK;
+ dec:	2000      	movs	r0, #0
+ dee:	e000      	b.n	df2 <xf_frame+0x15a>
+    return XF_INVALID;
+ df0:	2001      	movs	r0, #1
+}
+ df2:	b023      	add	sp, #140	@ 0x8c
+ df4:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    return XF_INVALID;
+ df8:	2001      	movs	r0, #1
+}
+ dfa:	4770      	bx	lr
+  if (!(psr & (1u << 24)) || (w[offset + 6] & 1u) ||
+ dfc:	2800      	cmp	r0, #0
+ dfe:	d18b      	bne.n	d18 <xf_frame+0x80>
+    return XF_FRAME; /* Never dereference a stacking-fault capture. */
+ e00:	2004      	movs	r0, #4
+ e02:	e7f6      	b.n	df2 <xf_frame+0x15a>
+  if (extended && !fpu)
+ e04:	982c      	ldr	r0, [sp, #176]	@ 0xb0
+ e06:	b108      	cbz	r0, e0c <xf_frame+0x174>
+  unsigned count = extended ? 26 : 8;
+ e08:	271a      	movs	r7, #26
+ e0a:	e773      	b.n	cf4 <xf_frame+0x5c>
+    return XF_UNSUPPORTED;
+ e0c:	2003      	movs	r0, #3
+ e0e:	e7f0      	b.n	df2 <xf_frame+0x15a>
+  if ((align || extended) ? sp % 8 != 0 : padding != 0)
+ e10:	0750      	lsls	r0, r2, #29
+ e12:	d1f5      	bne.n	e00 <xf_frame+0x168>
+ e14:	f00c 0a01 	and.w	sl, ip, #1
+ e18:	e78a      	b.n	d30 <xf_frame+0x98>
+    return XF_SHORT;
+ e1a:	2002      	movs	r0, #2
+ e1c:	e7e9      	b.n	df2 <xf_frame+0x15a>
+  XfFrame r = {0};
+ e1e:	912d      	str	r1, [sp, #180]	@ 0xb4
+ e20:	e7cb      	b.n	dba <xf_frame+0x122>
+ e22:	bf00      	nop
+ e24:	11011101 	.word	0x11011101
+
+00000e28 <memcpy>:
+ * external libc/compiler archive is linked. Their symbols are intentionally
+ * visible in the image map, rather than hidden by a no-library claim. */
+void *memcpy(void *d, const void *s, size_t n) {
+  unsigned char *a = d;
+  const unsigned char *b = s;
+  for (size_t i = 0; i < n; i++)
+ e28:	b372      	cbz	r2, e88 <memcpy+0x60>
+void *memcpy(void *d, const void *s, size_t n) {
+ e2a:	b570      	push	{r4, r5, r6, lr}
+ e2c:	1e54      	subs	r4, r2, #1
+ e2e:	2c05      	cmp	r4, #5
+ e30:	d920      	bls.n	e74 <memcpy+0x4c>
+ e32:	1c4b      	adds	r3, r1, #1
+ e34:	1ac3      	subs	r3, r0, r3
+ e36:	2b02      	cmp	r3, #2
+ e38:	d91c      	bls.n	e74 <memcpy+0x4c>
+ e3a:	f022 0503 	bic.w	r5, r2, #3
+ e3e:	460b      	mov	r3, r1
+ e40:	4684      	mov	ip, r0
+ e42:	0896      	lsrs	r6, r2, #2
+ e44:	194c      	adds	r4, r1, r5
+    a[i] = b[i];
+ e46:	f853 eb04 	ldr.w	lr, [r3], #4
+ e4a:	f84c eb04 	str.w	lr, [ip], #4
+  for (size_t i = 0; i < n; i++)
+ e4e:	42a3      	cmp	r3, r4
+ e50:	d1f9      	bne.n	e46 <memcpy+0x1e>
+ e52:	42aa      	cmp	r2, r5
+ e54:	d00d      	beq.n	e72 <memcpy+0x4a>
+    a[i] = b[i];
+ e56:	f811 3026 	ldrb.w	r3, [r1, r6, lsl #2]
+ e5a:	f800 3026 	strb.w	r3, [r0, r6, lsl #2]
+  for (size_t i = 0; i < n; i++)
+ e5e:	1c6b      	adds	r3, r5, #1
+ e60:	429a      	cmp	r2, r3
+ e62:	d906      	bls.n	e72 <memcpy+0x4a>
+ e64:	3502      	adds	r5, #2
+    a[i] = b[i];
+ e66:	5ccc      	ldrb	r4, [r1, r3]
+ e68:	54c4      	strb	r4, [r0, r3]
+  for (size_t i = 0; i < n; i++)
+ e6a:	42aa      	cmp	r2, r5
+ e6c:	d901      	bls.n	e72 <memcpy+0x4a>
+    a[i] = b[i];
+ e6e:	5d4b      	ldrb	r3, [r1, r5]
+ e70:	5543      	strb	r3, [r0, r5]
+  return d;
+}
+ e72:	bd70      	pop	{r4, r5, r6, pc}
+ e74:	1e4b      	subs	r3, r1, #1
+ e76:	1e42      	subs	r2, r0, #1
+ e78:	4421      	add	r1, r4
+    a[i] = b[i];
+ e7a:	f813 4f01 	ldrb.w	r4, [r3, #1]!
+ e7e:	f802 4f01 	strb.w	r4, [r2, #1]!
+  for (size_t i = 0; i < n; i++)
+ e82:	428b      	cmp	r3, r1
+ e84:	d1f9      	bne.n	e7a <memcpy+0x52>
+}
+ e86:	bd70      	pop	{r4, r5, r6, pc}
+ e88:	4770      	bx	lr
+ e8a:	bf00      	nop
+
+00000e8c <memset>:
+void *memset(void *d, int v, size_t n) {
+  unsigned char *a = d;
+  for (size_t i = 0; i < n; i++)
+ e8c:	b31a      	cbz	r2, ed6 <memset+0x4a>
+ e8e:	1e53      	subs	r3, r2, #1
+ e90:	2b02      	cmp	r3, #2
+void *memset(void *d, int v, size_t n) {
+ e92:	b510      	push	{r4, lr}
+    a[i] = (unsigned char)v;
+ e94:	b2c9      	uxtb	r1, r1
+ e96:	d91f      	bls.n	ed8 <memset+0x4c>
+ e98:	f04f 0c00 	mov.w	ip, #0
+ e9c:	f361 0c07 	bfi	ip, r1, #0, #8
+ ea0:	f361 2c0f 	bfi	ip, r1, #8, #8
+ ea4:	f361 4c17 	bfi	ip, r1, #16, #8
+ ea8:	f022 0403 	bic.w	r4, r2, #3
+ eac:	f361 6c1f 	bfi	ip, r1, #24, #8
+ eb0:	4603      	mov	r3, r0
+ eb2:	eb04 0e00 	add.w	lr, r4, r0
+ eb6:	f843 cb04 	str.w	ip, [r3], #4
+  for (size_t i = 0; i < n; i++)
+ eba:	4573      	cmp	r3, lr
+ ebc:	d1fb      	bne.n	eb6 <memset+0x2a>
+ ebe:	4294      	cmp	r4, r2
+ ec0:	d008      	beq.n	ed4 <memset+0x48>
+ ec2:	1c63      	adds	r3, r4, #1
+ ec4:	429a      	cmp	r2, r3
+    a[i] = (unsigned char)v;
+ ec6:	5501      	strb	r1, [r0, r4]
+  for (size_t i = 0; i < n; i++)
+ ec8:	d904      	bls.n	ed4 <memset+0x48>
+ eca:	3402      	adds	r4, #2
+ ecc:	42a2      	cmp	r2, r4
+    a[i] = (unsigned char)v;
+ ece:	54c1      	strb	r1, [r0, r3]
+ ed0:	bf88      	it	hi
+ ed2:	5501      	strbhi	r1, [r0, r4]
+  return d;
+}
+ ed4:	bd10      	pop	{r4, pc}
+ ed6:	4770      	bx	lr
+  for (size_t i = 0; i < n; i++)
+ ed8:	2400      	movs	r4, #0
+ eda:	e7f2      	b.n	ec2 <memset+0x36>
+
+00000edc <df_memmanage>:
+.thumb
+.global df_memmanage
+.type df_memmanage,%function
+.thumb_func
+df_memmanage:
+ tst lr,#4
+ edc:	f01e 0f04 	tst.w	lr, #4
+ ite eq
+ ee0:	bf0c      	ite	eq
+ mrseq r0,msp
+ ee2:	f3ef 8008 	mrseq	r0, MSP
+ mrsne r0,psp
+ ee6:	f3ef 8009 	mrsne	r0, PSP
+ mov r1,lr
+ eea:	4671      	mov	r1, lr
+ b df_handler
+ eec:	f7ff ba98 	b.w	420 <df_handler>
+
+00000ef0 <df_store>:
+.type df_store,%function
+.thumb_func
+df_store:
+.global df_fault_instruction
+df_fault_instruction:
+ str r0,[r1,#0]
+ ef0:	6008      	str	r0, [r1, #0]
+
+00000ef2 <df_fault_resume>:
+.global df_fault_resume
+df_fault_resume:
+ bx lr
+ ef2:	4770      	bx	lr
+ ef4:	545f4644 	.word	0x545f4644
+ ef8:	45475241 	.word	0x45475241
+ efc:	48435f54 	.word	0x48435f54
+ f00:	3a4b4345 	.word	0x3a4b4345
+ f04:	78656e75 	.word	0x78656e75
+ f08:	74636570 	.word	0x74636570
+ f0c:	762d6465 	.word	0x762d6465
+ f10:	6f746365 	.word	0x6f746365
+ f14:	00000a72 	.word	0x00000a72
+ f18:	545f4644 	.word	0x545f4644
+ f1c:	45475241 	.word	0x45475241
+ f20:	48435f54 	.word	0x48435f54
+ f24:	3a4b4345 	.word	0x3a4b4345
+ f28:	746e6f63 	.word	0x746e6f63
+ f2c:	74636172 	.word	0x74636172
+ f30:	0000000a 	.word	0x0000000a
+ f34:	545f4644 	.word	0x545f4644
+ f38:	45475241 	.word	0x45475241
+ f3c:	41505f54 	.word	0x41505f54
+ f40:	613a5353 	.word	0x613a5353
+ f44:	61757463 	.word	0x61757463
+ f48:	504d2d6c 	.word	0x504d2d6c
+ f4c:	69662055 	.word	0x69662055
+ f50:	2d646578 	.word	0x2d646578
+ f54:	6f636572 	.word	0x6f636572
+ f58:	6f206472 	.word	0x6f206472
+ f5c:	64656e77 	.word	0x64656e77
+ f60:	6f74732d 	.word	0x6f74732d
+ f64:	63206572 	.word	0x63206572
+ f68:	75747061 	.word	0x75747061
+ f6c:	2d646572 	.word	0x2d646572
+ f70:	75204350 	.word	0x75204350
+ f74:	6168636e 	.word	0x6168636e
+ f78:	6465676e 	.word	0x6465676e
+ f7c:	6175672d 	.word	0x6175672d
+ f80:	69206472 	.word	0x69206472
+ f84:	6172746e 	.word	0x6172746e
+ f88:	6765722d 	.word	0x6765722d
+ f8c:	2d6e6f69 	.word	0x2d6e6f69
+ f90:	6f6c6c61 	.word	0x6f6c6c61
+ f94:	0a646577 	.word	0x0a646577
+ f98:	00000000 	.word	0x00000000
+ f9c:	435f4644 	.word	0x435f4644
+ fa0:	55545041 	.word	0x55545041
+ fa4:	003a4552 	.word	0x003a4552
+ fa8:	0000000a 	.word	0x0000000a
+ fac:	33323130 	.word	0x33323130
+ fb0:	37363534 	.word	0x37363534
+ fb4:	62613938 	.word	0x62613938
+ fb8:	66656463 	.word	0x66656463
+ fbc:	00000000 	.word	0x00000000
+
+00000fc0 <token>:
+ fc0:	00000001 00000000 00000000 00000000     ................
+	...

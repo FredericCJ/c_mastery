@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 CASES={'protocols':['typestate','builder','session','hsm','active','thread','behavior','driver'],'coroutines':['iterator','dataflow','generator','fiber','cps','parser','packrat','async','effect']}
 def main(family):
- p=argparse.ArgumentParser();p.add_argument('--report',type=Path);args=p.parse_args();build=ROOT/'build'/family/'campaign';build.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser();p.add_argument('--report',type=Path);p.add_argument('--build',type=Path,help='Explicit fresh output tree; default preserves the established path');args=p.parse_args();build=args.build or ROOT/'build'/family/'campaign';build=build.resolve();build.mkdir(parents=True,exist_ok=True)
  paths=[x for base in [ROOT/'labs'/family,ROOT/'assessor'/family,ROOT/'fixtures'/family] for x in base.rglob('*') if x.is_file()]
  paths += [ROOT/'tools'/n for n in ['run_ts_cr.py',f'run_{family}.py',f'verify_{family}_fixtures.py']]
  paths += list((ROOT/'research/v5/modern').glob(f'{family}_*'))

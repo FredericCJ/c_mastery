@@ -1,0 +1,111 @@
+
+labs/dod/tests/measure.c:33:4: error: misleading indentation; statement is not part of the previous 'for' [-Werror,-Wmisleading-indentation]
+   33 |   }free(rows);free(x);free(v);free(cold);
+      |    ^
+labs/dod/tests/measure.c:17:3: note: previous statement is here
+   17 |   for(unsigned condition=0;condition<2;++condition)for(unsigned trial=0;trial<7;++trial){unsigned order[]={0,1,2,3};
+      |   ^
+1 error generated.
+assessor/dod/dod.c:29:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   29 |  for(i=0;i<n;i++)dst[s->length+i]=p[i];
+      |  ^
+assessor/dod/dod.c:23:3: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   23 |   for(i=0;i<s->length;i++)dst[i]=d_small_data(s)[i];
+      |   ^
+assessor/dod/dod.c:24:3: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   24 |   for(i=0;i<n;i++)dst[s->length+i]=p[i];
+      |   ^
+assessor/dod/dod.c:32:106: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   32 | int d_small_compact(DSmall *s){size_t i;if(!s)return D_INVALID;if(s->length>16)return D_FULL;if(s->heap){for(i=0;i<s->length;i++)s->local[i]=s->heap[i];s->allocator.release(s->allocator.context,s->heap);s->heap=0;s->capacity=16;}return D_OK;}
+      |                                                                                                          ^
+assessor/dod/dod.c:33:199: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   33 | int d_small_move(DSmall *d,DSmall *s){size_t i;if(!d||!s||d==s||d->length||d->heap)return D_INVALID;d->allocator=s->allocator;d->length=s->length;d->capacity=s->capacity;d->heap=s->heap;if(!s->heap)for(i=0;i<s->length;i++)d->local[i]=s->local[i];s->heap=0;s->length=0;s->capacity=16;return D_OK;}
+      |                                                                                                                                                                                                       ^
+assessor/dod/dod.c:38:80: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   38 | int32_t next[4];size_t i;if(!c||c->count>4||ticks<0||ticks>10)return D_INVALID;for(i=0;i<c->count;i++){int64_t value=(int64_t)c->x[i]+(int64_t)c->velocity[i]*ticks;if(value<INT32_MIN||value>INT32_MAX)return D_RANGE;
+      |                                                                                ^
+assessor/dod/dod.c:75:1: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   75 | for(i=0;i<t->count;i++){long long v=(long long)t->position[i]+t->velocity[i];if(v<INT_MIN||v>INT_MAX)return D_RANGE;temp[i]=(int)v;}for(i=0;i<t->count;i++)t->position[i]=temp[i];return D_OK;}
+      | ^
+assessor/dod/dod.c:88:138: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   88 | int d_tree_get(const DTree *t,unsigned root,unsigned index,int *out){unsigned depth;if(!t||!out||root>t->used||index>=8)return D_INVALID;for(depth=0;depth<3&&root;depth++)root=index&(1u<<(2-depth))?t->nodes[root].right:t->nodes[root].left;*out=root?t->nodes[root].value:0;return D_OK;}
+      |                                                                                                                                          ^
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   90 | static unsigned rank4(unsigned mask,unsigned slot){unsigned r=0,i;for(i=0;i<slot;i++)if(mask&(1u<<i))r++;return r;}
+      |                                                                   ^
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod.c:102:272: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+  102 |  return hamt_alloc(h,n);}if(n.count==2)return 0;n.keys[n.count]=key;n.values[n.count++]=value;}else{slot=(key>>(2*depth))&3;rank=rank4(n.bitmap,slot);child=hamt_set(h,n.bitmap&(1u<<slot)?n.children[rank]:0,depth+1,key,value);if(!child)return 0;if(!(n.bitmap&(1u<<slot))){for(i=n.count;i>rank;i--)n.children[i]=n.children[i-1];n.count++;n.bitmap|=1u<<slot;}n.children[rank]=child;}
+      |                                                                                                                                                                                                                                                                                ^
+assessor/dod/dod.c:92:183: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   92 | static unsigned hamt_set(DHamt *h,unsigned root,unsigned depth,unsigned key,int value){DHamtNode n={0,{0},0,{0},{0}};unsigned i,slot,rank,child;if(root)n=h->nodes[root];if(depth==2){for(i=0;i<n.count;i++)if(
+      |                                                                                                                                                                                       ^
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   90 | static unsigned rank4(unsigned mask,unsigned slot){unsigned r=0,i;for(i=0;i<slot;i++)if(mask&(1u<<i))r++;return r;}
+      |                                                                   ^
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod.c:90:67: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod.c:108:338: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  108 | int d_hamt_get(const DHamt *h,unsigned root,unsigned key,int *out){unsigned depth,slot,i;if(!h||!out||root>h->used||key>=32)return D_INVALID;for(depth=0;depth<2;depth++){if(!root)return D_STALE;slot=(key>>(2*depth))&3;if(!(h->nodes[root].bitmap&(1u<<slot)))return D_STALE;root=h->nodes[root].children[rank4(h->nodes[root].bitmap,slot)];}for(i=0;i<h->nodes[root].count;i++)if(h->nodes[root].keys[i]==key){*out=h->nodes[root].values[i];return D_OK;}return D_STALE;}
+      |                                                                                                                                                                                                                                                                                                                                                  ^
+assessor/dod/dod.c:110:266: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+  110 | int d_rope_leaf(DRope *r,const unsigned char *bytes,size_t n,unsigned *out){unsigned i;if(!r||!out||(!bytes&&n)||n>8)return D_INVALID;if(!n){*out=0;return D_OK;}if(r->used==64)return D_FULL;DRopeNode *p=&r->nodes[r->used+1];p->left=p->right=0;p->length=(unsigned)n;for(i=0;i<n;i++)p->bytes[i]=bytes[i];*out=++r->used;return D_OK;}
+      |                                                                                                                                                                                                                                                                          ^
+assessor/dod/dod.c:110:266: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod.c:112:136: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  112 | static void flatten(const DRope *r,unsigned root,unsigned char *out,size_t *position){unsigned i;const DRopeNode *n=&r->nodes[root];if(n->left){
+      |                                                                                                                                        ^
+assessor/dod/dod.c:118:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  118 | }else for(i=0;i<n->length;i++)out[(*position)++]=n->bytes[i];}
+      |       ^
+assessor/dod/dod_ext.c:9:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+    9 |  for(size_t i=0;i<n;++i){
+      |  ^
+assessor/dod/dod_ext.c:9:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:18:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   18 |  for(size_t i=0;i<in->count;++i){
+      |  ^
+assessor/dod/dod_ext.c:18:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:27:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   27 |  for(size_t i=0;i<n;++i){int64_t v=(int64_t)rows[i].x+(int64_t)rows[i].velocity*ticks;
+      |  ^
+assessor/dod/dod_ext.c:30:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   30 |  for(size_t i=0;i<n;++i)rows[i].x=next[i];
+      |  ^
+assessor/dod/dod_ext.c:30:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:18:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   18 |  for(size_t i=0;i<in->count;++i){
+      |  ^
+assessor/dod/dod_ext.c:18:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:27:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   27 |  for(size_t i=0;i<n;++i){int64_t v=(int64_t)rows[i].x+(int64_t)rows[i].velocity*ticks;
+      |  ^
+assessor/dod/dod_ext.c:30:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   30 |  for(size_t i=0;i<n;++i)rows[i].x=next[i];
+      |  ^
+assessor/dod/dod_ext.c:30:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:9:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+    9 |  for(size_t i=0;i<n;++i){
+      |  ^
+assessor/dod/dod_ext.c:9:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:41:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   41 |  for(size_t i=0;i<n;++i){int64_t value=(int64_t)rows[i].x+(int64_t)rows[i].velocity*ticks;if(value<INT32_MIN||value>INT32_MAX)return D_RANGE;}
+      |  ^
+assessor/dod/dod_ext.c:42:2: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+   42 |  for(size_t i=0;i<n;++i)rows[i].x=(int32_t)((int64_t)rows[i].x+(int64_t)rows[i].velocity*ticks);
+      |  ^
+assessor/dod/dod_ext.c:42:2: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:47:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   47 |  for(size_t i=0;i<n;++i){int64_t value=(int64_t)x[i]+(int64_t)velocity[i]*ticks;if(value<INT32_MIN||value>INT32_MAX)return D_RANGE;}
+      |  ^
+assessor/dod/dod_ext.c:48:2: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+   48 |  for(size_t i=0;i<n;++i)x[i]=(int32_t)((int64_t)x[i]+(int64_t)velocity[i]*ticks);
+      |  ^
+assessor/dod/dod_ext.c:54:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   54 |  for(size_t i=0;i<n;++i){unsigned tile=(unsigned)i/3,lane=(unsigned)i%3;
+      |  ^
+assessor/dod/dod_ext.c:54:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+assessor/dod/dod_ext.c:62:2: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   62 |  for(size_t i=0;i<t->count;++i){unsigned tile=(unsigned)i/3,lane=(unsigned)i%3;
+      |  ^

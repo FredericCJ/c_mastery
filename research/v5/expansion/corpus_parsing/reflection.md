@@ -1,0 +1,5 @@
+# Mechanism depth disposition
+
+The actual retained T15 tokenizer/precedence project and runtime compiler provide useful parser prerequisites, but no Thompson automaton, SLR table construction or Pratt nud/led implementation was found in the scoped code inspection. The retained coroutine parser has forward sequence/choice/cut and separately revision-keyed direct-left-recursion memo growth. It lacks the new negative-lookahead/repetition/capture rollback contract. These are distinct mechanisms, not renamed parameter variants.
+
+Four required exercises therefore specify exact languages, caller-owned representations, failure semantics, independent models, mutation controls and changed conditions. Each uses existing objective semantics only for its named mechanism; it does not claim that every subtopic under an original leaf is thereby complete. The scannerless DAG deliberately excludes recursive grammar references, and the SLR implementation deliberately reports conflicts instead of pretending to implement all LR variants. Those limits are assessed as changed-assumption analysis, not hidden exclusions or fabricated execution.

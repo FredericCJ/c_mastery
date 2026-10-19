@@ -1,0 +1,26 @@
+"""Register bounded source inspections for exact original model obligations."""
+import hashlib,json
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];BASE=Path(__file__).resolve().parent
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def write(p,v):p.write_text(json.dumps(v,indent=2)+'\n',encoding='utf-8',newline='\n')
+def historical_authoring():
+ rows=[('R-LTM-PARENT','Original model and metamorphic contract','curriculum/projects/PR-T32-02.md','Original curriculum',['Complete PR-T32-02 project/fixture/assessor analysis and all six full criterion records','T32 module T32.04/.05 and surrounding test architecture teaching'],'Actual named passages read; original identities/hours retained. No fresh whole-book reading or unit-body inspection claim.'),
+ ('R-LTM-ORACLE','Actual retained fixture and property scopes','tools/verify_embedded_fixtures.py','Original curriculum source',['fir() rational convolution and queue() list reference functions','labs/foundations/tests/tests.c properties() seeded insertion-sort work/stability assertions opening'],'Inspected bounded functions show old properties anchor is sort-specific, not queue/borrow/schedule coverage. No whole-file validation claim.'),
+ ('R-LTM-QUEUE','Actual explicit queue provider','labs/testing_depth/architecture/CONTRACTS.md','Original completed PR-T32-01 successor',['Complete architecture.h, assessor/testing_depth/architecture.c and CONTRACTS.md'],'Actual provider authored/read and separately executed; imported unchanged. New borrow/clear logic remains separately assessed.'),
+ ('R-LTM-WAIT','Condition predicate and mutex binding','https://pubs.opengroup.org/onlinepubs/9799919799/functions/pthread_cond_wait.html','POSIX.1-2024 Issue8',['DESCRIPTION: locked mutex, atomic release/block and reacquisition','DESCRIPTION: spurious wakeup predicate and dynamic same-mutex binding','RETURN VALUE and ERRORS through no EINTR','RATIONALE Condition Wait Semantics opening'],'Actual retrieved primary text read through rationale timed-wait opening only. No cancellation/robust recovery implementation or full POSIX conformance claimed.'),
+ ('R-LTM-JOIN','Owned native thread termination','https://pubs.opengroup.org/onlinepubs/9799919799/functions/pthread_join.html','POSIX.1-2024 Issue8',['DESCRIPTION: joinable thread, successful termination and result, multiple join restrictions','RETURN VALUE and ERRORS','RATIONALE: reclaim thread resources after join'],'Actual full extracted page read. Harness uses normal owned threads, no asynchronous cancellation or foreign thread API mixing.')]
+ resources=[{'id':rid,'title':title,'authors':['Original curriculum authors or The Open Group'],'url':url,'edition':edition,'domains':['T32'],'kind':'documentation','access':'Actual bounded source passages inspected','role':'primary','assignable':True,'reason':'Distinguish model coverage, shared specification errors, carried state and reproducible native scheduling.','prerequisites':['T03','T04','T26'],'locators':loc,'inspection':{'date':'2026-10-18','method':'Actual canonical source and retrieved primary text read','scope':'; '.join(loc),'limits':limit}} for rid,title,url,edition,loc,limit in rows]
+ write(BASE/'resources.json',{'schema_version':1,'resources':resources,'reference_gaps':['Exact published C17 remains inaccessible.','Original wire and bounded rational/schedule models are explicit course constructions, not third-party protocol or complete concurrency claims.']})
+ paths=['curriculum/projects/PR-T32-02.md','fixtures/embedded/PR-T32-02.json','assessor/legacy_depth/PR-T32-02.md','curriculum/modules/T32.md','tools/verify_embedded_fixtures.py','labs/foundations/tests/tests.c','labs/testing_depth/architecture/architecture.h','labs/testing_depth/architecture/CONTRACTS.md','assessor/testing_depth/architecture.c']
+ write(BASE/'source_access.json',{'schema_version':1,'date':'2026-10-18','inspected_paths':{p:sha(ROOT/p) for p in paths},'private_source_identities':[{'path':'build/t32-sources/'+p+'.html','sha256':sha(ROOT/'build/t32-sources'/(p+'.html'))} for p in ('pthread_cond_wait','pthread_join')],'actual_inspections':[{'url':r[2],'edition':r[3],'passages':r[4],'limits':r[5]} for r in rows],'original_analysis':'List state/borrow revision, same-class reduction, exact Fraction relations, correlated endian/extent failures and six controlled schedules.','limits':'Bounded author evidence only; no physical, independent human or learner observation.'})
+ write(BASE/'research_gate.json',{'status':'passage-inspected','domains':['T32'],'inspection_kind':'Author passage inspection only','research_input_sha256':{p.relative_to(ROOT).as_posix():sha(p) for p in (BASE/'resources.json',BASE/'source_access.json')}})
+ print(json.dumps({'resources':len(resources)}))
+def main():
+ # The dated first inspection is immutable. Re-generation now checks the
+ # bounded current successor instead of rewriting historical inspection bytes.
+ import sys
+ sys.path.insert(0,str(ROOT))
+ from research.v5.expansion.legacy_testing_models.current_inspection import refresh
+ print(json.dumps(refresh()))
+if __name__=='__main__':main()

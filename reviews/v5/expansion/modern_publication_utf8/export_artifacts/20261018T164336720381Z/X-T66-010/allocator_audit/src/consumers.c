@@ -1,0 +1,5 @@
+#include "allocator_audit.h"
+OaaUpstream oaa_ow_upstream(OwAllocator *a){(void)a;return (OaaUpstream){0};}
+er_result oaa_parse_call(const unsigned char *a,size_t b,uint32_t *c,OaaFormat d,void *e){(void)a;(void)b;(void)c;(void)d;(void)e;er_result r={0};r.tag=ER_NOT_IMPLEMENTED;return r;}
+OwStatus oaa_format_result(OaaFormatting *a,er_result b){(void)a;(void)b;return OW_NOT_IMPLEMENTED;}
+void oaa_allocating_formatter(void *a,er_result b){(void)a;(void)b;}

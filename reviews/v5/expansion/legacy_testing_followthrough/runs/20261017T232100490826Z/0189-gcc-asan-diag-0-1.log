@@ -1,0 +1,57 @@
+=================================================================
+==1129==ERROR: AddressSanitizer: heap-use-after-free on address 0x79a2221e0010 at pc 0x0000004013c2 bp 0x7ffe05cef260 sp 0x7ffe05cef250
+READ of size 4 at 0x79a2221e0010 thread T0
+    #0 0x0000004013c1 in diagnostic_access /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:11
+    #1 0x000000401617 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:19
+    #2 0x7d8222e2a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x7d8222e2a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x0000004011d4 in _start (/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_testing_followthrough/runs/20261017T232100490826Z/gcc-asan-diag-0+0x4011d4) (BuildId: f899f0ecdb70c0d579156a61fe8c7f72eadad335)
+
+0x79a2221e0010 is located 0 bytes inside of 16-byte region [0x79a2221e0010,0x79a2221e0020)
+freed by thread T0 here:
+    #0 0x7d822332a3ff in free ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:51
+    #1 0x00000040160a in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:19
+    #2 0x7d8222e2a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x7d8222e2a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x0000004011d4 in _start (/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_testing_followthrough/runs/20261017T232100490826Z/gcc-asan-diag-0+0x4011d4) (BuildId: f899f0ecdb70c0d579156a61fe8c7f72eadad335)
+
+previously allocated by thread T0 here:
+    #0 0x7d822332b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x0000004014d3 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:17
+    #2 0x7d8222e2a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x7d8222e2a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x0000004011d4 in _start (/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_testing_followthrough/runs/20261017T232100490826Z/gcc-asan-diag-0+0x4011d4) (BuildId: f899f0ecdb70c0d579156a61fe8c7f72eadad335)
+
+SUMMARY: AddressSanitizer: heap-use-after-free /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:11 in diagnostic_access
+Shadow bytes around the buggy address:
+  0x79a2221dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x79a2221dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x79a2221dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x79a2221dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x79a2221dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x79a2221e0000: fa fa[fd]fd fa fa fa fa fa fa fa fa fa fa fa fa
+  0x79a2221e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x79a2221e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x79a2221e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x79a2221e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x79a2221e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1129==ABORTING

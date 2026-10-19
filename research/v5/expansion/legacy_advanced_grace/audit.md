@@ -1,0 +1,15 @@
+# T26 epoch/RCU implementation audit
+
+This packet supplies twelve original criterion instances and their twelve delayed tasks: T26.07abc/.08abc in PR-T26-02/05. The preceding packages cover30/48 original T26 instances. The six T26.09/.10 kernel criterion instances remain a separate required wave. Accepted identities, units, hours and receipts are not rewritten.
+
+The retained CMX epoch tracker uses ordinary externally serialized metadata; its advance policy rejects advancement beyond one generation past a stalled participant. Therefore the original active-at1/current5 ledger cannot be reached through valid tracker calls. Preserve that original investigation as an injected conservative state and add an explicit reachability explanation. The active-at4/current5 portion remains a valid trace. No test fabricates an execution of the unreachable part.
+
+The new AG model composes the actual retained epoch producer and actual ApiRegistry, adding nesting, registered identities, finite version storage and counted callback captures. ApiRegistry itself does not supply version reference counts; the new capture adapter does. The two-writer changed condition uses an actual common POSIX mutex. Native models do not substitute for Linux context execution.
+
+Directly inspected pinned Linux source: Documentation/RCU/whatisRCU.rst core APIs/nesting/grace/read-side contexts; include/linux/rcupdate.h rcu_read_lock contract; Documentation/RCU/rcubarrier.rst stop-producers/barrier/module-unload rules; include/linux/hrtimer.h HARD/PINNED modes. The exact local source, configuration, kernel image and tool inputs are hashed by the guest campaign. This selected non-RT PREEMPT_RCU kernel has KASAN, PROVE_LOCKING and DEBUG_ATOMIC_SLEEP enabled; no other kernel configuration is inferred.
+
+Initial native and guest pilots are separate from final receipts. A strict native compilation caught one missing-braces test initializer, and the selected kernel build caught misleading indentation in the unformatted original module; both were repaired before execution, with warnings still errors. The actual initial guest observation had nonzero in_hardirq mask65536, old1/new2, held grace, freed1 and errors0; a harmless observation mutant was rejected. These pilots are not physical interrupts, independent review or delayed learner evidence.
+
+Final author evidence must bind every original task/variant to the native model, actual callback composition or exact guest observation it requires. Legacy source gaps for final C17/C23 remain; no local type or atomic primitive guarantees the external serialization, quiescence or control-storage ownership preconditions.
+
+The GCC Cortex-M4 pilot exposed an implicit memset in the unchanged CMX epoch initializer. Bare strict linkage failed as expected. Explicitly composing the existing original execution/support.c byte provider closed that selected image. The final campaign must repeat the bare/composed dependency comparison across its declared target profiles; it must not label the first failed image runtime-free or silently link a compiler archive.

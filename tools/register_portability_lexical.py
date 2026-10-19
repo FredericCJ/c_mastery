@@ -1,0 +1,18 @@
+"""Attach exact stage-analysis support without replacing baseline evidence."""
+from common import ROOT,dump,sha,read_json
+BASE='research/v5/expansion/legacy_portability_followthrough';PUBLIC='labs/language_portability/lexical'
+LOCATORS=['Exact scope and prerequisites','Representation and experiment contract','Six exact investigations','Verification, pass criteria and limitations','Rubric and graduated hints']
+def main():
+ records=[];external={}
+ for name,year,edition,locators in [('n1570',2011,'C11 committee draft April12,2011',['5.1.1.1p1-2','5.1.1.2p1 phases1-8']),('n3096',2023,'C23 working draft April1,2023',['5.1.1.1p1-2','5.1.1.2p1 phases1-8'])]:
+  path='build/portability-sources/'+name+'.pdf';external[path]=sha(ROOT/path);records.append(dict(id='R-LP-'+name.upper()+'-PHASES',title='WG14 '+name.upper()+' translation phases',url='https://www.open-std.org/jtc1/sc22/wg14/www/docs/'+name+'.pdf',authors=['WG14'],edition=edition,year=year,kind='standard-draft',access='Passage inspected',domains=['T06'],role='primary',reason='Actual phase ordering,source-character mapping,comment replacement and literal concatenation.',prerequisites=['PR-T01-01'],assignable=True,locators=locators,inspection=dict(date='2026-10-18',method='Read actual PDF named clauses,including the earlier trigraph phase1 and later changed wording.',scope='; '.join(locators),limits='Draft only;exact published C17/C23 unavailable. Compiler observations independently recorded.',download_path=path,download_sha256=external[path])))
+ contract=PUBLIC+'/CONTRACTS.md';records.append(dict(id='R-LP-LEXICAL-CONTRACT',title='Translation stages,tokens and dependency authority',url=contract,authors=['Curriculum authors'],edition='Original repository contract2026-10-18',year=2026,kind='manual',access='Passage inspected',domains=['T06'],role='primary',reason='Concrete six-task stage and dependency experiment.',prerequisites=['PR-T05-02'],assignable=True,locators=LOCATORS,inspection=dict(date='2026-10-18',method='Read actual original specimens,experiment,private derivation and contract.',scope='; '.join(LOCATORS),limits='Finite author support;reasoning separately assessed.',local_sha256=sha(ROOT/contract))))
+ dump(ROOT/BASE/'lexical_resources.json',dict(resources=records))
+ passages={contract:LOCATORS,PUBLIC+'/experiment.py':['Stage observations and dependency-state rounds'],'assessor/language_portability/lexical/ANALYSIS.md':['All six technical analyses']}
+ dump(ROOT/BASE/'lexical_research_gate.json',dict(status='passage-inspected-author-only',resources=BASE+'/lexical_resources.json',input_sha256={p:sha(ROOT/p) for p in passages},passages=passages,external_source_sha256=external,inspection=dict(date='2026-10-18',scope='Only named actual source passages',limits='Published editions remain unavailable;source interpretation and compiler observations are separate.')))
+ p=ROOT/'curriculum/v5/expansion/legacy_assessments/PR-T06-01.json';d=read_json(p);assets=[p.relative_to(ROOT).as_posix() for p in (ROOT/PUBLIC).iterdir() if p.is_file()];d['supplied_artifacts']=list(dict.fromkeys(d['supplied_artifacts']+assets));d['shared_contracts']=list(dict.fromkeys(d['shared_contracts']+[contract]))
+ for c in d['criteria']:
+  if c['objective'].startswith('T06.01.'):
+   c['successor_support']=dict(path=BASE+'/lexical_completion_dispositions.json',scope='Exact ordinary stage diagnosis and changed-edition/string/header dependency task.',criterion_ids=[c['id']]+[v['id'] for v in c['variants']])
+ d['source_records']=[r for r in d['source_records'] if r['id'] not in {q['id'] for q in records}]+[dict(id=r['id'],path=BASE+'/lexical_resources.json',passages=r['locators']) for r in records];dump(p,d);print(dict(attached=6,assets=len(assets)))
+if __name__=='__main__':main()

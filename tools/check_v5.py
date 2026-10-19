@@ -45,6 +45,20 @@ def ledger_covers(path, expected_sha):
     return reverse_applies(path, expected_sha, read_json(ledger_path))
 
 
+def publication_successor_covers(path, expected_sha):
+    """Qualify only the two exact B06 public-asset attachments.
+
+    The predecessor remains the accepted teaching artifact. This separate
+    document proof does not reclassify the attachment as terminology, rewrite
+    the accepted hash, or establish fresh source inspection or execution.
+    """
+    if path not in {'curriculum/projects/PR-T28-06.md',
+                    'curriculum/projects/PR-T29-04.md'}:
+        return False
+    from check_legacy_assessments import baseline_inspection_matches
+    return baseline_inspection_matches({'path': path, 'sha256': expected_sha}, ROOT / path)
+
+
 def check_preserved(base, data, artifacts, recall, projects, resources, taxonomy):
     errors = []
     for path, expected_sha in base['files'].items():
@@ -55,8 +69,9 @@ def check_preserved(base, data, artifacts, recall, projects, resources, taxonomy
         file = ROOT / path
         if not file.is_file():
             errors.append('Accepted teaching file missing: ' + path)
-        elif sha(file) != expected_sha and not ledger_covers(path, expected_sha):
-            errors.append('Accepted teaching prose changed outside the terminology ledger: ' + path)
+        elif (sha(file) != expected_sha and not ledger_covers(path, expected_sha)
+              and not publication_successor_covers(path, expected_sha)):
+            errors.append('Accepted teaching prose changed without a terminology or exact publication-successor proof: ' + path)
     program = read_json(ROOT / 'curriculum/program.json')['order']
     if program[:len(base['program_order'])] != base['program_order']:
         errors.append('Accepted program order prefix changed')
@@ -138,7 +153,8 @@ def main():
               'input_sha256': identity()['sha256'], 'counts': counts, 'baseline_commit': base['commit'],
               'preserved': base['counts'], 'negative_controls': guards, 'errors': errors,
               'scope': 'Authored progression, exact accounting, manifest arithmetic and preserved fourth-edition '
-                       'identities; execution and learner evidence are separate.'}
+                       'identities. Exact document-only publication successors retain their accepted predecessor '
+                       'hashes and claims; execution and learner evidence are separate.'}
     dump(ROOT / RECEIPTS / 'structure.json', report)
     print({**report, 'errors': errors[:25], 'error_count': len(errors)})
     if errors:

@@ -1,0 +1,21 @@
+"""Canonical incremental/copy-owned text successor with inspected-source reuse."""
+import json
+from common import ROOT,dump,read_json,sha
+def register():
+    module='unicode_stream';anchors=['utf8_chunks','utf8_finalization','utf8_owner','utf8_base'];tests=['adt.'+a for a in anchors]
+    f=read_json(ROOT/'labs/adt/family.json')
+    for row in f.get('projects',[])+f.get('exercises',[]):
+        if row['id'] in ['PR-T67-04','X-T67-004']:row['tests']=list(dict.fromkeys(row['tests']+tests))
+    f['tests']=list(dict.fromkeys(f.get('tests',[])+tests));f.setdefault('campaign',{}).update(utf8_stream_producer='tools/run_adt_utf8_stream.py',utf8_stream_report='research/v5/modern/adt_utf8_stream_validation.json');dump(ROOT/'labs/adt/family.json',f)
+    p=ROOT/'labs/adt/CMakeLists.txt';body=p.read_text(encoding='utf8');line='include("${CMAKE_CURRENT_SOURCE_DIR}/unicode_stream/CMakeLists.txt")'
+    if line not in body:p.write_text(body.rstrip()+'\n'+line+'\n',encoding='utf8')
+    brief=ROOT/'curriculum/v5/exercises/X-T67-004.md';body=brief.read_text(encoding='utf8');a,rest=body.split('```json\n',1);raw,b=rest.split('\n```',1);m=json.loads(raw)
+    contract='labs/adt/unicode_stream/UTF8.md';source='research/v5/modern/adt_utf8_stream_resources.json'
+    m['lab']['tests']=list(dict.fromkeys(m['lab']['tests']+tests));m['shared_contracts']=list(dict.fromkeys(m['shared_contracts']+[contract,'labs/adt/owning_sum/OWNING_SUM.md']));m['prerequisite_exercises']=list(dict.fromkeys(m['prerequisite_exercises']+['X-T67-001']))
+    heading='\n## Required incremental and owned-text successor\n';b=b.split(heading,1)[0].rstrip()+heading+'\n[UTF8.md](../../../labs/adt/unicode_stream/UTF8.md) defines exact chunk rollback, early prefix refusal, cancellation/finalization and actual owning-sum composition. It includes independently checked byte partitions, actual Rust diagnostic controls and explicit validity-versus-lifetime limits. The original delayed IDs and unaided assessment remain active.\n'
+    brief.write_text(a+'```json\n'+json.dumps(m,indent=2,ensure_ascii=False)+'\n```'+b,encoding='utf8')
+    dump(ROOT/source,dict(schema_version=1,resources=[],reused_sources=[dict(id='R-ADMP-RFC3629',path='research/v5/modern/adt_resources.json',passages=['Section3 UTF-8 definition; section4 ABNF byte grammar'],reread='2026-10-18',method='Opened primary RFC and read sections3/4, including surrogate exclusion and second-byte bounds.',limits='These encoding clauses; no normalization/grapheme proof or all Unicode text-policy inspection.'),dict(id='R-ADMP-UTF8',path='research/v5/modern/adt_resources.json',passages=['Description and Errors; checked versus unchecked conversion'],reread='2026-10-18',method='Opened current Rust documentation description/errors and checked versus unchecked paragraphs.',limits='Rolling documentation reports1.99.1; available compiler probe is Rust1.93.1, recorded separately.')],original_construction='Whole-chunk rollback, cancellation and callback-owner composition are original teaching contracts.'))
+    dump(ROOT/'research/v5/modern/adt_utf8_stream_research_gate.json',dict(status='passage-inspected',domains=['T67'],reviewer='author only; no independent review',research_input_sha256={p:sha(ROOT/p) for p in [source,contract,'research/v5/modern/adt_resources.json','labs/adt/owning_sum/OWNING_SUM.md']}))
+    imports=['labs/adt/include/adt.h','labs/adt/src/adt.c','assessor/adt/adt.c','labs/adt/CONTRACTS.md',source,'research/v5/modern/adt_utf8_stream_research_gate.json','tools/register_adt_utf8_stream.py','labs/adt/owning_sum/owning_sum.h','labs/adt/owning_sum/owning_sum.c','labs/adt/owning_sum/test_support.h','labs/adt/owning_sum/OWNING_SUM.md','assessor/adt/owning_sum/owning_sum.c']
+    dump(ROOT/'labs/adt/unicode_stream/campaign.json',dict(module=module,target='adt-unicode_stream',learner_option='CMASTERY_ADU_LEARNER',anchors=anchors,control_count=8,observation_markers=['ADU_CHUNKS copied-pending','ADU_FINALIZE incomplete-refusal','ADU_OWNER actual-owning-sum','ADU_BASE actual-ad-text'],oracle='tools/verify_adt_utf8_stream.py',metrics=['metrics'],object_sources=['adt.c','unicode_stream.c','owning_sum.c'],producer='tools/run_adt_utf8_stream.py',report='research/v5/modern/adt_utf8_stream_validation.json',imports=imports))
+if __name__=='__main__':register()

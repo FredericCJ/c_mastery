@@ -4,7 +4,9 @@
   "domain": "T47",
   "title": "VM and kernel storage boundaries - explicit objective assessment",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/storage_followthrough/service/CONTRACTS.md",
+    "labs/storage_followthrough/async/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -97,6 +99,29 @@
       "passages": [
         "Hardware Assumptions"
       ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-SERVICE",
+      "path": "research/v5/expansion/legacy_storage_followthrough/service_resources.json",
+      "passages": [
+        "Prerequisites and exact component reuse",
+        "Budget, capacity, encoding and service authority",
+        "Actual kernel boundary",
+        "New workflow representation and ownership",
+        "Failure workload, costs and falsification",
+        "Deliverables and assessment"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-ASYNC",
+      "path": "research/v5/expansion/legacy_storage_followthrough/async_resources.json",
+      "passages": [
+        "Exact obligation and prerequisites",
+        "Representation, operations and authority",
+        "Actual CMK2 boundary and local containment",
+        "Workload, falsification and resource argument",
+        "Deliverables, hints and assessment"
+      ]
     }
   ],
   "reference_gaps": [
@@ -107,7 +132,70 @@
   "supplied_artifacts": [
     "curriculum/modules/T47.md",
     "curriculum/projects/PR-T47-12.md",
-    "fixtures/storage/PR-T47-12.json"
+    "fixtures/storage/PR-T47-12.json",
+    "labs/storage_followthrough/service/workflow.h",
+    "labs/storage_followthrough/service/workflow.c",
+    "labs/storage_followthrough/service/tests.c",
+    "labs/storage_followthrough/service/CMakeLists.txt",
+    "labs/storage_followthrough/service/expect_failure.py",
+    "labs/storage_followthrough/service/CONTRACTS.md",
+    "labs/storage/include/store.h",
+    "labs/storage/src/store.c",
+    "labs/storage/FORMAT.md",
+    "labs/storage/INTEGRATION.md",
+    "labs/runtime/include/cvm.h",
+    "labs/runtime/src/cvm.c",
+    "labs/runtime/SPEC.md",
+    "labs/runtime/adapters/store_host.h",
+    "labs/runtime/adapters/store_host.c",
+    "labs/runtime_followthrough/services/services.h",
+    "labs/runtime_followthrough/services/learner.c",
+    "labs/runtime_followthrough/services/CONTRACTS.md",
+    "labs/storage_followthrough/durability/medium.h",
+    "labs/storage_followthrough/durability/medium.c",
+    "labs/storage_followthrough/durability/CONTRACTS.md",
+    "labs/kernel_followthrough/runtime/service_user.c",
+    "labs/kernel_followthrough/device/device.h",
+    "labs/kernel_followthrough/guest/kf_abi.h",
+    "labs/kernel/include/cmk_abi.h",
+    "labs/kernel/include/cmk_contract.h",
+    "labs/storage_followthrough/async/async.c",
+    "labs/storage_followthrough/async/async.h",
+    "labs/storage_followthrough/async/CMakeLists.txt",
+    "labs/storage_followthrough/async/CONTRACTS.md",
+    "labs/storage_followthrough/async/expect_failure.py",
+    "labs/storage_followthrough/async/guest.c",
+    "labs/storage_followthrough/async/tests.c",
+    "labs/kernel_smp/CMakeLists.txt",
+    "labs/kernel_smp/family.json",
+    "labs/kernel_smp/HINTS.md",
+    "labs/kernel_smp/README.md",
+    "labs/kernel_smp/include/cmk2.h",
+    "labs/kernel_smp/include/cmk2_abi.h",
+    "labs/kernel_smp/include/cmk2_parallel.h",
+    "labs/kernel_smp/include/cmk_abi.h",
+    "labs/kernel_smp/include/cmk_contract.h",
+    "labs/kernel_smp/learner/ap.S",
+    "labs/kernel_smp/learner/boot.S",
+    "labs/kernel_smp/learner/cmk2_model.c",
+    "labs/kernel_smp/learner/interrupts.S",
+    "labs/kernel_smp/learner/kernel.c",
+    "labs/kernel_smp/learner/model.c",
+    "labs/kernel_smp/learner/parallel_user.c",
+    "labs/kernel_smp/learner/service_user.c",
+    "labs/kernel_smp/learner/smp.c",
+    "labs/kernel_smp/platform/link.ld",
+    "labs/kernel_smp/platform/user.ld",
+    "labs/kernel_smp/tests/cmk2_contracts.c",
+    "labs/kernel_smp/tests/contracts.c",
+    "labs/kernel_smp/tests/spawn_user.c",
+    "labs/kernel_smp/tests/storage_user.c",
+    "labs/kernel_smp/tests/user.c",
+    "labs/kernel_smp/tests/user_v2.c",
+    "labs/kernel_smp/tests/vm_user.c",
+    "labs/kernel_smp/tools/guest.py",
+    "labs/kernel_smp/tools/guest_mutations.py",
+    "labs/kernel_smp/tools/mutations.py"
   ],
   "execution_support": {
     "kind": "Retained partial anchors and criterion-specific new assessment tasks",
@@ -115,7 +203,25 @@
     "tests": [
       "storage.vm"
     ],
-    "fresh_execution": "not-run for these supplemental tasks"
+    "fresh_execution": "not-run for these supplemental tasks",
+    "storage_service_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-12-T47.12.a",
+        "AX-PR-T47-12-T47.12.a-DELAYED",
+        "AX-PR-T47-12-T47.12.b",
+        "AX-PR-T47-12-T47.12.c",
+        "AX-PR-T47-12-T47.12.c-DELAYED"
+      ],
+      "scope": "Exact synchronous VM/kernel provider reuse plus new capacity and compensation support; async queued I/O remains its own packet."
+    },
+    "storage_async_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/async_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-12-T47.12.b-DELAYED"
+      ],
+      "scope": "Actual queued CMK2 read with retained borrow through positive completion; native uncertain-result quarantine and no invented cancellation acknowledgement."
+    }
   },
   "criteria": [
     {
@@ -186,6 +292,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "service_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-12-T47.12.a",
+          "AX-PR-T47-12-T47.12.a-DELAYED"
+        ],
+        "scope": "Exact synchronous VM/kernel provider reuse plus new capacity and compensation support; async queued I/O remains its own packet."
       }
     },
     {
@@ -257,6 +371,20 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "service_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-12-T47.12.b"
+        ],
+        "scope": "Exact synchronous VM/kernel provider reuse plus new capacity and compensation support; async queued I/O remains its own packet."
+      },
+      "async_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/async_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-12-T47.12.b-DELAYED"
+        ],
+        "scope": "Actual queued CMK2 read with retained borrow through positive completion; native uncertain-result quarantine and no invented cancellation acknowledgement."
       }
     },
     {
@@ -327,6 +455,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "service_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/service_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-12-T47.12.c",
+          "AX-PR-T47-12-T47.12.c-DELAYED"
+        ],
+        "scope": "Exact synchronous VM/kernel provider reuse plus new capacity and compensation support; async queued I/O remains its own packet."
       }
     }
   ],

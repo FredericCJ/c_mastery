@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "X-T70-006",
+  "title": "Path copying, zipper contexts and retained-version costs",
+  "project": "PR-T70-06",
+  "domain": "T70",
+  "objectives": [
+    "T70.06.a",
+    "T70.06.b",
+    "T70.06.c",
+    "T70.06.d",
+    "T70.06.e"
+  ],
+  "families": [
+    "A",
+    "B",
+    "C",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T03-003"
+  ],
+  "prerequisite_artifacts": [
+    "memory.pool",
+    "containers.array"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DOD-IM",
+      "path": "research/v5/modern/dod_resources.json",
+      "passages": [
+        "Why Would I Want This?: structural sharing and workload tradeoffs",
+        "Values: Clone requirement for copied shared nodes"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dod",
+    "tests": [
+      "dod.persistent",
+      "dod.zipper",
+      "dod.refcount"
+    ],
+    "scaffold": "labs/dod"
+  },
+  "fixtures": [
+    "fixtures/dod/PR-T70-06.json",
+    "fixtures/dod/extensions.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dod/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dod/analyses/X-T70-006.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/modern_completion/dod_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T70.06.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-006-R1"
+      ]
+    },
+    {
+      "objective": "T70.06.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-006-R2"
+      ]
+    },
+    {
+      "objective": "T70.06.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-006-R3"
+      ]
+    },
+    {
+      "objective": "T70.06.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-006-R4"
+      ]
+    },
+    {
+      "objective": "T70.06.e",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-006-R5"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T70-006-R1",
+      "objective": "T70.06.a",
+      "criterion": "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-006-R2",
+      "objective": "T70.06.b",
+      "criterion": "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-006-R3",
+      "objective": "T70.06.c",
+      "criterion": "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-006-R4",
+      "objective": "T70.06.d",
+      "criterion": "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-006-R5",
+      "objective": "T70.06.e",
+      "criterion": "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T70-006-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T70-006.md",
+  "brief_sha256": "dc8a0afe88002d2c4b1583ec02a063059f873325d24204996ba636854fc9179d",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dod/PR-T70-06.json": "11572f6803e7e41aca4fb4f6425afe61187b8a8927f11db86fafd1a60fe1b784",
+    "fixtures/dod/extensions.json": "201a4430266f6ba67301ee427c0183bc88e58006472c9d28b056a0dc8d97c83c",
+    "labs/dod/CONTRACTS.md": "0c5321eb9afff79a479246240b3df494f46bd7f4b13ce95d52cb35d5b56497b9",
+    "research/v5/modern/dod_resources.json": "02da192d7d448ca1eb2e9ee2d3c2d2b1a827d951f2c29632a18d810b3c607dbf"
+  }
+}

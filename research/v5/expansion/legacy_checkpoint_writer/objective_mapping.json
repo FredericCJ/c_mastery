@@ -1,0 +1,87 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-P2-02-T10.07.b",
+      "objective": "T10.07.b",
+      "task": "Transfer nine bytes with outcomes3,EINTR,2,4, then repeat with0 and a permanent error after the first3. Produce remaining-before-call9,6,6,4 for the normal case; make zero progress return a bounded pending/error result instead of spinning. Supplied model inputs: fixtures/integration/binary.json and fixtures/legacy_checkpoints/P2.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P2-02-T10.07.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Use a nonblocking writer that alternates EAGAIN and readiness; bound work per event-loop turn.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/writer/CONTRACTS.md",
+      "checks": [
+        "gcc.O0.progress",
+        "clang.O3.progress",
+        "gcc.O0.mutant.short",
+        "gcc.O0.mutant.retry"
+      ],
+      "assessment": "assessor/checkpoint_followthrough/writer_analysis.md#t10-07-b"
+    },
+    {
+      "criterion": "AX-PR-P2-02-T23.04.c",
+      "objective": "T23.04.c",
+      "task": "Compose the queue with InTransfer: dequeue65, receive retry, later accept65, dequeue66, receive terminal error, then explicitly recover and accept66. Track queue, active byte and sink separately; use a mutant that requeues the accepted byte and demonstrate duplicate output. Supplied model inputs: fixtures/integration/binary.json and fixtures/legacy_checkpoints/P2.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P2-02-T23.04.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Generalize from one byte to a partial multi-byte span and retain exact accepted-prefix ownership.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/writer/CONTRACTS.md",
+      "checks": [
+        "gcc.O0.byte",
+        "gcc.O0.span",
+        "clang.O3.strict.run",
+        "gcc.O0.mutant.requeue",
+        "gcc.O0.mutant.suffix"
+      ],
+      "assessment": "assessor/checkpoint_followthrough/writer_analysis.md#t23-04-c"
+    },
+    {
+      "criterion": "AX-PR-P2-02-T23.04.b",
+      "objective": "T23.04.b",
+      "task": "Build separate raw-Linux-syscall and scripted-writer adapters to one progress result type. Distinguish raw negative errors from libc -1/errno and from the test callback's -2 retry convention. Test interruption before progress, short positive progress and permanent error with causal detail retained. Supplied model inputs: fixtures/integration/binary.json and fixtures/legacy_checkpoints/P2.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P2-02-T23.04.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Switch to a libc-backed harness while preserving the portable core result contract and separate dependency scopes.",
+        "prerequisite_artifacts": []
+      },
+      "teaching": "labs/checkpoint_followthrough/writer/CONTRACTS.md",
+      "checks": [
+        "gcc.O0.progress",
+        "clang.O3.progress",
+        "gcc.O0.strict.nm"
+      ],
+      "assessment": "assessor/checkpoint_followthrough/writer_analysis.md#t23-04-b"
+    },
+    {
+      "criterion": "AX-PR-P2-02-T21.02.b",
+      "objective": "T21.02.b",
+      "task": "Define a bounded error record containing stable category, operation ID, accepted byte count and first backend cause. Cause cleanup to fail after a transfer error; preserve both without overwriting the original cause. Verify no error reporting path recursively depends on the failed writer. Supplied model inputs: fixtures/integration/binary.json and fixtures/legacy_checkpoints/P2.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "delayed": {
+        "id": "AX-PR-P2-02-T21.02.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Remove the logging adapter entirely and prove core error propagation still preserves the required causal information. After PR-T65-03, adapt the completed progress/status product to this writer, preserving accepted count and first cause. Measure result size, branch/callback count and additional copying under the same contract. A C tag/accessor protocol does not automatically clean up, enforce exhaustive matching or guarantee a language-specific Result layout.",
+        "prerequisite_artifacts": [
+          "PR-T65-03/accepted-component-and-dossier"
+        ]
+      },
+      "teaching": "labs/checkpoint_followthrough/writer/CONTRACTS.md",
+      "checks": [
+        "gcc.O0.progress",
+        "gcc.O0.log",
+        "clang.O3.shapes",
+        "gcc.O0.mutant.cause",
+        "gcc.O0.mutant.product"
+      ],
+      "assessment": "assessor/checkpoint_followthrough/writer_analysis.md#t21-02-b"
+    }
+  ],
+  "limits": [
+    "Original criteria and historical bindings remain byte-equivalent objects.",
+    "Current implementation does not confer a learner or independent-review result."
+  ]
+}

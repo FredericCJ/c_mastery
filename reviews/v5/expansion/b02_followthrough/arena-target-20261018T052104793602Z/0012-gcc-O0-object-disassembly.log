@@ -1,0 +1,409 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/b02_followthrough/arena-target-20261018T052104793602Z/gcc-O0/1.o:     file format elf32-littlearm
+
+
+Disassembly of section .text.say:
+
+00000000 <say>:
+   0:	b480      	push	{r7}
+   2:	b083      	sub	sp, #12
+   4:	af00      	add	r7, sp, #0
+   6:	6078      	str	r0, [r7, #4]
+   8:	2004      	movs	r0, #4
+   a:	6879      	ldr	r1, [r7, #4]
+   c:	beab      	bkpt	0x00ab
+   e:	bf00      	nop
+  10:	370c      	adds	r7, #12
+  12:	46bd      	mov	sp, r7
+  14:	bc80      	pop	{r7}
+  16:	4770      	bx	lr
+
+Disassembly of section .text.finish:
+
+00000000 <finish>:
+   0:	b480      	push	{r7}
+   2:	b085      	sub	sp, #20
+   4:	af00      	add	r7, sp, #0
+   6:	6078      	str	r0, [r7, #4]
+   8:	4b04      	ldr	r3, [pc, #16]	@ (1c <finish+0x1c>)
+   a:	60bb      	str	r3, [r7, #8]
+   c:	687b      	ldr	r3, [r7, #4]
+   e:	60fb      	str	r3, [r7, #12]
+  10:	2020      	movs	r0, #32
+  12:	f107 0108 	add.w	r1, r7, #8
+  16:	beab      	bkpt	0x00ab
+  18:	bf00      	nop
+  1a:	e7fd      	b.n	18 <finish+0x18>
+  1c:	00020026 	.word	0x00020026
+
+Disassembly of section .text.close_resource:
+
+00000000 <close_resource>:
+   0:	b580      	push	{r7, lr}
+   2:	b088      	sub	sp, #32
+   4:	af02      	add	r7, sp, #8
+   6:	6078      	str	r0, [r7, #4]
+   8:	687b      	ldr	r3, [r7, #4]
+   a:	617b      	str	r3, [r7, #20]
+   c:	2300      	movs	r3, #0
+   e:	74fb      	strb	r3, [r7, #19]
+  10:	697b      	ldr	r3, [r7, #20]
+  12:	6818      	ldr	r0, [r3, #0]
+  14:	697a      	ldr	r2, [r7, #20]
+  16:	f107 0313 	add.w	r3, r7, #19
+  1a:	9300      	str	r3, [sp, #0]
+  1c:	2300      	movs	r3, #0
+  1e:	3204      	adds	r2, #4
+  20:	ca06      	ldmia	r2, {r1, r2}
+  22:	f7ff fffe 	bl	0 <bf_arena_get>
+			22: R_ARM_THM_CALL	bf_arena_get
+  26:	4603      	mov	r3, r0
+  28:	2b00      	cmp	r3, #0
+  2a:	d10d      	bne.n	48 <close_resource+0x48>
+  2c:	7cfb      	ldrb	r3, [r7, #19]
+  2e:	2b2a      	cmp	r3, #42	@ 0x2a
+  30:	d10a      	bne.n	48 <close_resource+0x48>
+  32:	697b      	ldr	r3, [r7, #20]
+  34:	6818      	ldr	r0, [r3, #0]
+  36:	f107 0308 	add.w	r3, r7, #8
+  3a:	2201      	movs	r2, #1
+  3c:	2101      	movs	r1, #1
+  3e:	f7ff fffe 	bl	0 <bf_arena_reserve>
+			3e: R_ARM_THM_CALL	bf_arena_reserve
+  42:	4603      	mov	r3, r0
+  44:	2b07      	cmp	r3, #7
+  46:	d005      	beq.n	54 <close_resource+0x54>
+  48:	480c      	ldr	r0, [pc, #48]	@ (7c <close_resource+0x7c>)
+  4a:	f7ff fffe 	bl	0 <close_resource>
+			4a: R_ARM_THM_CALL	say
+  4e:	2001      	movs	r0, #1
+  50:	f7ff fffe 	bl	0 <close_resource>
+			50: R_ARM_THM_CALL	finish
+  54:	697b      	ldr	r3, [r7, #20]
+  56:	68db      	ldr	r3, [r3, #12]
+  58:	1c5a      	adds	r2, r3, #1
+  5a:	697b      	ldr	r3, [r7, #20]
+  5c:	60da      	str	r2, [r3, #12]
+  5e:	697b      	ldr	r3, [r7, #20]
+  60:	691b      	ldr	r3, [r3, #16]
+  62:	2b00      	cmp	r3, #0
+  64:	d004      	beq.n	70 <close_resource+0x70>
+  66:	697b      	ldr	r3, [r7, #20]
+  68:	2200      	movs	r2, #0
+  6a:	611a      	str	r2, [r3, #16]
+  6c:	2301      	movs	r3, #1
+  6e:	e000      	b.n	72 <close_resource+0x72>
+  70:	2300      	movs	r3, #0
+  72:	4618      	mov	r0, r3
+  74:	3718      	adds	r7, #24
+  76:	46bd      	mov	sp, r7
+  78:	bd80      	pop	{r7, pc}
+  7a:	bf00      	nop
+  7c:	00000000 	.word	0x00000000
+			7c: R_ARM_ABS32	.rodata
+
+Disassembly of section .text.bf_target:
+
+00000000 <bf_target>:
+   0:	b580      	push	{r7, lr}
+   2:	b098      	sub	sp, #96	@ 0x60
+   4:	af02      	add	r7, sp, #8
+   6:	4898      	ldr	r0, [pc, #608]	@ (268 <bf_target+0x268>)
+   8:	f7ff fffe 	bl	0 <bf_arena_init>
+			8: R_ARM_THM_CALL	bf_arena_init
+   c:	2300      	movs	r3, #0
+   e:	f887 302f 	strb.w	r3, [r7, #47]	@ 0x2f
+  12:	f107 034c 	add.w	r3, r7, #76	@ 0x4c
+  16:	4619      	mov	r1, r3
+  18:	4893      	ldr	r0, [pc, #588]	@ (268 <bf_target+0x268>)
+  1a:	f7ff fffe 	bl	0 <bf_arena_mark>
+			1a: R_ARM_THM_CALL	bf_arena_mark
+  1e:	4603      	mov	r3, r0
+  20:	2b00      	cmp	r3, #0
+  22:	d115      	bne.n	50 <bf_target+0x50>
+  24:	f107 0338 	add.w	r3, r7, #56	@ 0x38
+  28:	2201      	movs	r2, #1
+  2a:	2103      	movs	r1, #3
+  2c:	488e      	ldr	r0, [pc, #568]	@ (268 <bf_target+0x268>)
+  2e:	f7ff fffe 	bl	0 <bf_arena_reserve>
+			2e: R_ARM_THM_CALL	bf_arena_reserve
+  32:	4603      	mov	r3, r0
+  34:	2b00      	cmp	r3, #0
+  36:	d10b      	bne.n	50 <bf_target+0x50>
+  38:	2309      	movs	r3, #9
+  3a:	9300      	str	r3, [sp, #0]
+  3c:	2300      	movs	r3, #0
+  3e:	f107 0238 	add.w	r2, r7, #56	@ 0x38
+  42:	ca06      	ldmia	r2, {r1, r2}
+  44:	4888      	ldr	r0, [pc, #544]	@ (268 <bf_target+0x268>)
+  46:	f7ff fffe 	bl	0 <bf_arena_set>
+			46: R_ARM_THM_CALL	bf_arena_set
+  4a:	4603      	mov	r3, r0
+  4c:	2b00      	cmp	r3, #0
+  4e:	d005      	beq.n	5c <bf_target+0x5c>
+  50:	4886      	ldr	r0, [pc, #536]	@ (26c <bf_target+0x26c>)
+  52:	f7ff fffe 	bl	0 <bf_target>
+			52: R_ARM_THM_CALL	say
+  56:	2001      	movs	r0, #1
+  58:	f7ff fffe 	bl	0 <bf_target>
+			58: R_ARM_THM_CALL	finish
+  5c:	f107 0340 	add.w	r3, r7, #64	@ 0x40
+  60:	4619      	mov	r1, r3
+  62:	4881      	ldr	r0, [pc, #516]	@ (268 <bf_target+0x268>)
+  64:	f7ff fffe 	bl	0 <bf_arena_mark>
+			64: R_ARM_THM_CALL	bf_arena_mark
+  68:	4603      	mov	r3, r0
+  6a:	2b00      	cmp	r3, #0
+  6c:	d119      	bne.n	a2 <bf_target+0xa2>
+  6e:	f107 0330 	add.w	r3, r7, #48	@ 0x30
+  72:	2208      	movs	r2, #8
+  74:	2105      	movs	r1, #5
+  76:	487c      	ldr	r0, [pc, #496]	@ (268 <bf_target+0x268>)
+  78:	f7ff fffe 	bl	0 <bf_arena_reserve>
+			78: R_ARM_THM_CALL	bf_arena_reserve
+  7c:	4603      	mov	r3, r0
+  7e:	2b00      	cmp	r3, #0
+  80:	d10f      	bne.n	a2 <bf_target+0xa2>
+  82:	232a      	movs	r3, #42	@ 0x2a
+  84:	9300      	str	r3, [sp, #0]
+  86:	2300      	movs	r3, #0
+  88:	f107 0230 	add.w	r2, r7, #48	@ 0x30
+  8c:	ca06      	ldmia	r2, {r1, r2}
+  8e:	4876      	ldr	r0, [pc, #472]	@ (268 <bf_target+0x268>)
+  90:	f7ff fffe 	bl	0 <bf_arena_set>
+			90: R_ARM_THM_CALL	bf_arena_set
+  94:	4603      	mov	r3, r0
+  96:	2b00      	cmp	r3, #0
+  98:	d103      	bne.n	a2 <bf_target+0xa2>
+  9a:	4b73      	ldr	r3, [pc, #460]	@ (268 <bf_target+0x268>)
+  9c:	681b      	ldr	r3, [r3, #0]
+  9e:	2b0d      	cmp	r3, #13
+  a0:	d005      	beq.n	ae <bf_target+0xae>
+  a2:	4873      	ldr	r0, [pc, #460]	@ (270 <bf_target+0x270>)
+  a4:	f7ff fffe 	bl	0 <bf_target>
+			a4: R_ARM_THM_CALL	say
+  a8:	2001      	movs	r0, #1
+  aa:	f7ff fffe 	bl	0 <bf_target>
+			aa: R_ARM_THM_CALL	finish
+  ae:	4b6e      	ldr	r3, [pc, #440]	@ (268 <bf_target+0x268>)
+  b0:	607b      	str	r3, [r7, #4]
+  b2:	f107 0308 	add.w	r3, r7, #8
+  b6:	f107 0230 	add.w	r2, r7, #48	@ 0x30
+  ba:	e892 0003 	ldmia.w	r2, {r0, r1}
+  be:	e883 0003 	stmia.w	r3, {r0, r1}
+  c2:	2300      	movs	r3, #0
+  c4:	613b      	str	r3, [r7, #16]
+  c6:	2300      	movs	r3, #0
+  c8:	617b      	str	r3, [r7, #20]
+  ca:	4b67      	ldr	r3, [pc, #412]	@ (268 <bf_target+0x268>)
+  cc:	61bb      	str	r3, [r7, #24]
+  ce:	f107 031c 	add.w	r3, r7, #28
+  d2:	f107 0230 	add.w	r2, r7, #48	@ 0x30
+  d6:	e892 0003 	ldmia.w	r2, {r0, r1}
+  da:	e883 0003 	stmia.w	r3, {r0, r1}
+  de:	2300      	movs	r3, #0
+  e0:	627b      	str	r3, [r7, #36]	@ 0x24
+  e2:	2301      	movs	r3, #1
+  e4:	62bb      	str	r3, [r7, #40]	@ 0x28
+  e6:	1d3b      	adds	r3, r7, #4
+  e8:	461a      	mov	r2, r3
+  ea:	4962      	ldr	r1, [pc, #392]	@ (274 <bf_target+0x274>)
+  ec:	485e      	ldr	r0, [pc, #376]	@ (268 <bf_target+0x268>)
+  ee:	f7ff fffe 	bl	0 <bf_arena_register>
+			ee: R_ARM_THM_CALL	bf_arena_register
+  f2:	4603      	mov	r3, r0
+  f4:	2b00      	cmp	r3, #0
+  f6:	d109      	bne.n	10c <bf_target+0x10c>
+  f8:	1d3b      	adds	r3, r7, #4
+  fa:	3314      	adds	r3, #20
+  fc:	461a      	mov	r2, r3
+  fe:	495d      	ldr	r1, [pc, #372]	@ (274 <bf_target+0x274>)
+ 100:	4859      	ldr	r0, [pc, #356]	@ (268 <bf_target+0x268>)
+ 102:	f7ff fffe 	bl	0 <bf_arena_register>
+			102: R_ARM_THM_CALL	bf_arena_register
+ 106:	4603      	mov	r3, r0
+ 108:	2b00      	cmp	r3, #0
+ 10a:	d005      	beq.n	118 <bf_target+0x118>
+ 10c:	485a      	ldr	r0, [pc, #360]	@ (278 <bf_target+0x278>)
+ 10e:	f7ff fffe 	bl	0 <bf_target>
+			10e: R_ARM_THM_CALL	say
+ 112:	2001      	movs	r0, #1
+ 114:	f7ff fffe 	bl	0 <bf_target>
+			114: R_ARM_THM_CALL	finish
+ 118:	f107 0340 	add.w	r3, r7, #64	@ 0x40
+ 11c:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 11e:	4852      	ldr	r0, [pc, #328]	@ (268 <bf_target+0x268>)
+ 120:	f7ff fffe 	bl	0 <bf_arena_commit>
+			120: R_ARM_THM_CALL	bf_arena_commit
+ 124:	4603      	mov	r3, r0
+ 126:	2b00      	cmp	r3, #0
+ 128:	d10d      	bne.n	146 <bf_target+0x146>
+ 12a:	4b4f      	ldr	r3, [pc, #316]	@ (268 <bf_target+0x268>)
+ 12c:	681b      	ldr	r3, [r3, #0]
+ 12e:	2b0d      	cmp	r3, #13
+ 130:	d109      	bne.n	146 <bf_target+0x146>
+ 132:	4b4d      	ldr	r3, [pc, #308]	@ (268 <bf_target+0x268>)
+ 134:	685b      	ldr	r3, [r3, #4]
+ 136:	2b01      	cmp	r3, #1
+ 138:	d105      	bne.n	146 <bf_target+0x146>
+ 13a:	693b      	ldr	r3, [r7, #16]
+ 13c:	2b00      	cmp	r3, #0
+ 13e:	d102      	bne.n	146 <bf_target+0x146>
+ 140:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 142:	2b00      	cmp	r3, #0
+ 144:	d005      	beq.n	152 <bf_target+0x152>
+ 146:	484d      	ldr	r0, [pc, #308]	@ (27c <bf_target+0x27c>)
+ 148:	f7ff fffe 	bl	0 <bf_target>
+			148: R_ARM_THM_CALL	say
+ 14c:	2001      	movs	r0, #1
+ 14e:	f7ff fffe 	bl	0 <bf_target>
+			14e: R_ARM_THM_CALL	finish
+ 152:	f107 034c 	add.w	r3, r7, #76	@ 0x4c
+ 156:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 158:	4843      	ldr	r0, [pc, #268]	@ (268 <bf_target+0x268>)
+ 15a:	f7ff fffe 	bl	0 <bf_arena_rollback>
+			15a: R_ARM_THM_CALL	bf_arena_rollback
+ 15e:	4603      	mov	r3, r0
+ 160:	2b08      	cmp	r3, #8
+ 162:	d109      	bne.n	178 <bf_target+0x178>
+ 164:	4b40      	ldr	r3, [pc, #256]	@ (268 <bf_target+0x268>)
+ 166:	681b      	ldr	r3, [r3, #0]
+ 168:	2b0d      	cmp	r3, #13
+ 16a:	d105      	bne.n	178 <bf_target+0x178>
+ 16c:	693b      	ldr	r3, [r7, #16]
+ 16e:	2b01      	cmp	r3, #1
+ 170:	d102      	bne.n	178 <bf_target+0x178>
+ 172:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 174:	2b01      	cmp	r3, #1
+ 176:	d005      	beq.n	184 <bf_target+0x184>
+ 178:	4841      	ldr	r0, [pc, #260]	@ (280 <bf_target+0x280>)
+ 17a:	f7ff fffe 	bl	0 <bf_target>
+			17a: R_ARM_THM_CALL	say
+ 17e:	2001      	movs	r0, #1
+ 180:	f7ff fffe 	bl	0 <bf_target>
+			180: R_ARM_THM_CALL	finish
+ 184:	f107 032f 	add.w	r3, r7, #47	@ 0x2f
+ 188:	9300      	str	r3, [sp, #0]
+ 18a:	2300      	movs	r3, #0
+ 18c:	f107 0238 	add.w	r2, r7, #56	@ 0x38
+ 190:	ca06      	ldmia	r2, {r1, r2}
+ 192:	4835      	ldr	r0, [pc, #212]	@ (268 <bf_target+0x268>)
+ 194:	f7ff fffe 	bl	0 <bf_arena_get>
+			194: R_ARM_THM_CALL	bf_arena_get
+ 198:	4603      	mov	r3, r0
+ 19a:	2b00      	cmp	r3, #0
+ 19c:	d116      	bne.n	1cc <bf_target+0x1cc>
+ 19e:	f897 302f 	ldrb.w	r3, [r7, #47]	@ 0x2f
+ 1a2:	2b09      	cmp	r3, #9
+ 1a4:	d112      	bne.n	1cc <bf_target+0x1cc>
+ 1a6:	f107 034c 	add.w	r3, r7, #76	@ 0x4c
+ 1aa:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 1ac:	482e      	ldr	r0, [pc, #184]	@ (268 <bf_target+0x268>)
+ 1ae:	f7ff fffe 	bl	0 <bf_arena_rollback>
+			1ae: R_ARM_THM_CALL	bf_arena_rollback
+ 1b2:	4603      	mov	r3, r0
+ 1b4:	2b00      	cmp	r3, #0
+ 1b6:	d109      	bne.n	1cc <bf_target+0x1cc>
+ 1b8:	4b2b      	ldr	r3, [pc, #172]	@ (268 <bf_target+0x268>)
+ 1ba:	681b      	ldr	r3, [r3, #0]
+ 1bc:	2b00      	cmp	r3, #0
+ 1be:	d105      	bne.n	1cc <bf_target+0x1cc>
+ 1c0:	693b      	ldr	r3, [r7, #16]
+ 1c2:	2b01      	cmp	r3, #1
+ 1c4:	d102      	bne.n	1cc <bf_target+0x1cc>
+ 1c6:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 1c8:	2b02      	cmp	r3, #2
+ 1ca:	d005      	beq.n	1d8 <bf_target+0x1d8>
+ 1cc:	482d      	ldr	r0, [pc, #180]	@ (284 <bf_target+0x284>)
+ 1ce:	f7ff fffe 	bl	0 <bf_target>
+			1ce: R_ARM_THM_CALL	say
+ 1d2:	2001      	movs	r0, #1
+ 1d4:	f7ff fffe 	bl	0 <bf_target>
+			1d4: R_ARM_THM_CALL	finish
+ 1d8:	f107 032f 	add.w	r3, r7, #47	@ 0x2f
+ 1dc:	9300      	str	r3, [sp, #0]
+ 1de:	2300      	movs	r3, #0
+ 1e0:	f107 0230 	add.w	r2, r7, #48	@ 0x30
+ 1e4:	ca06      	ldmia	r2, {r1, r2}
+ 1e6:	4820      	ldr	r0, [pc, #128]	@ (268 <bf_target+0x268>)
+ 1e8:	f7ff fffe 	bl	0 <bf_arena_get>
+			1e8: R_ARM_THM_CALL	bf_arena_get
+ 1ec:	4603      	mov	r3, r0
+ 1ee:	2b05      	cmp	r3, #5
+ 1f0:	d11f      	bne.n	232 <bf_target+0x232>
+ 1f2:	f107 0340 	add.w	r3, r7, #64	@ 0x40
+ 1f6:	4619      	mov	r1, r3
+ 1f8:	481b      	ldr	r0, [pc, #108]	@ (268 <bf_target+0x268>)
+ 1fa:	f7ff fffe 	bl	0 <bf_arena_mark>
+			1fa: R_ARM_THM_CALL	bf_arena_mark
+ 1fe:	4603      	mov	r3, r0
+ 200:	2b00      	cmp	r3, #0
+ 202:	d116      	bne.n	232 <bf_target+0x232>
+ 204:	f107 0338 	add.w	r3, r7, #56	@ 0x38
+ 208:	2201      	movs	r2, #1
+ 20a:	2101      	movs	r1, #1
+ 20c:	4816      	ldr	r0, [pc, #88]	@ (268 <bf_target+0x268>)
+ 20e:	f7ff fffe 	bl	0 <bf_arena_reserve>
+			20e: R_ARM_THM_CALL	bf_arena_reserve
+ 212:	4603      	mov	r3, r0
+ 214:	2b00      	cmp	r3, #0
+ 216:	d10c      	bne.n	232 <bf_target+0x232>
+ 218:	f107 032f 	add.w	r3, r7, #47	@ 0x2f
+ 21c:	9300      	str	r3, [sp, #0]
+ 21e:	2300      	movs	r3, #0
+ 220:	f107 0230 	add.w	r2, r7, #48	@ 0x30
+ 224:	ca06      	ldmia	r2, {r1, r2}
+ 226:	4810      	ldr	r0, [pc, #64]	@ (268 <bf_target+0x268>)
+ 228:	f7ff fffe 	bl	0 <bf_arena_get>
+			228: R_ARM_THM_CALL	bf_arena_get
+ 22c:	4603      	mov	r3, r0
+ 22e:	2b05      	cmp	r3, #5
+ 230:	d005      	beq.n	23e <bf_target+0x23e>
+ 232:	4815      	ldr	r0, [pc, #84]	@ (288 <bf_target+0x288>)
+ 234:	f7ff fffe 	bl	0 <bf_target>
+			234: R_ARM_THM_CALL	say
+ 238:	2001      	movs	r0, #1
+ 23a:	f7ff fffe 	bl	0 <bf_target>
+			23a: R_ARM_THM_CALL	finish
+ 23e:	f107 0340 	add.w	r3, r7, #64	@ 0x40
+ 242:	cb0e      	ldmia	r3, {r1, r2, r3}
+ 244:	4808      	ldr	r0, [pc, #32]	@ (268 <bf_target+0x268>)
+ 246:	f7ff fffe 	bl	0 <bf_arena_rollback>
+			246: R_ARM_THM_CALL	bf_arena_rollback
+ 24a:	4603      	mov	r3, r0
+ 24c:	2b00      	cmp	r3, #0
+ 24e:	d005      	beq.n	25c <bf_target+0x25c>
+ 250:	480e      	ldr	r0, [pc, #56]	@ (28c <bf_target+0x28c>)
+ 252:	f7ff fffe 	bl	0 <bf_target>
+			252: R_ARM_THM_CALL	say
+ 256:	2001      	movs	r0, #1
+ 258:	f7ff fffe 	bl	0 <bf_target>
+			258: R_ARM_THM_CALL	finish
+ 25c:	480c      	ldr	r0, [pc, #48]	@ (290 <bf_target+0x290>)
+ 25e:	f7ff fffe 	bl	0 <bf_target>
+			25e: R_ARM_THM_CALL	say
+ 262:	2000      	movs	r0, #0
+ 264:	f7ff fffe 	bl	0 <bf_target>
+			264: R_ARM_THM_CALL	finish
+ 268:	00000000 	.word	0x00000000
+			268: R_ARM_ABS32	.bss.a.0
+ 26c:	00000070 	.word	0x00000070
+			26c: R_ARM_ABS32	.rodata
+ 270:	000000f0 	.word	0x000000f0
+			270: R_ARM_ABS32	.rodata
+ 274:	00000000 	.word	0x00000000
+			274: R_ARM_ABS32	close_resource
+ 278:	00000180 	.word	0x00000180
+			278: R_ARM_ABS32	.rodata
+ 27c:	000001f8 	.word	0x000001f8
+			27c: R_ARM_ABS32	.rodata
+ 280:	00000268 	.word	0x00000268
+			280: R_ARM_ABS32	.rodata
+ 284:	000002d8 	.word	0x000002d8
+			284: R_ARM_ABS32	.rodata
+ 288:	0000036c 	.word	0x0000036c
+			288: R_ARM_ABS32	.rodata
+ 28c:	0000041c 	.word	0x0000041c
+			28c: R_ARM_ABS32	.rodata
+ 290:	00000450 	.word	0x00000450
+			290: R_ARM_ABS32	.rodata

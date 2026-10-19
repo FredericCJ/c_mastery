@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-008-R1",
+      "objective": "T66.08.a",
+      "criterion": "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The actual retained OwPin address/pending/logical-owner protocol is distinguished from native pthread identity, callback notification and terminal reclamation. A copied self-referential record is diagnosed by comparing two actual live objects without dangling dereference. Previously inspected Rust Pin passages remain a bounded comparison; C pointers, public fields and caller-supplied numbers cannot enforce the whole lifetime protocol.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-008.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/pin_async/PIN.md",
+        "assessor/ownership/pin_async/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/foundations/foundation.c",
+        "assessor/peripheral_depth/dma/dma.c",
+        "assessor/ownership/pin_async/pin_async.c",
+        "assessor/ownership/pin_async/pin_host.c",
+        "assessor/ownership/pin_async/pin_dma.c",
+        "labs/ownership/pin_async/tests/tests.c",
+        "labs/ownership/pin_async/tests/dma_tests.c",
+        "tools/verify_ownership_pin_async.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_pin_async_validation.json",
+        "research/v5/modern/ownership_pin_async_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-008-R2",
+      "objective": "T66.08.b",
+      "criterion": "Implement the address/thread/pending state machine and an explicit io.async adapter, identifying the actual event that permits storage reuse and the lifetime of every retained address.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The adapter actually composes FAsync f_submit/cancel/complete from canonical io.async PR-T21-02 with OwPin, reserving terminal counter headroom and publishing state/output transactionally. Notification stores a result without clearing pending. The real pthread adapter checks owner identity and joins the worker after its foreign receiver returns, before completing the core, rebinding or releasing actual OwAllocator backing. A callback or done flag alone does not authorize reuse.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-008.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/pin_async/PIN.md",
+        "assessor/ownership/pin_async/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/foundations/foundation.c",
+        "assessor/peripheral_depth/dma/dma.c",
+        "assessor/ownership/pin_async/pin_async.c",
+        "assessor/ownership/pin_async/pin_host.c",
+        "assessor/ownership/pin_async/pin_dma.c",
+        "labs/ownership/pin_async/tests/tests.c",
+        "labs/ownership/pin_async/tests/dma_tests.c",
+        "tools/verify_ownership_pin_async.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_pin_async_validation.json",
+        "research/v5/modern/ownership_pin_async_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-008-R3",
+      "objective": "T66.08.c",
+      "criterion": "Enumerate submit/cancel/complete/rebind traces with output-state canaries, include duplicate events and wrong-thread calls, and reject rebinding after cancellation while pending. Use only pointers to actual live test objects. Inspect a copied self-referential record to explain why its old internal address is wrong without dereferencing a dangling pointer.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six C17 profiles execute seven anchors, eight compiled controls and seven compiling-stub semantic rejections. An independent event specification checks37449histories of length0..5 with full state and output canaries; separate tests reach final generation/release counters. Eight controls distinguish timeout, notification, completion identity, reserved cleanup capacity, actual retained pin checks and both adapter/Pd quiescence gates. Actual object imports, stack/code sizes and seven same-contract timing samples are retained; finite traces and sanitizer observations do not prove arbitrary schedules or pointer lifetimes.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-008.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/pin_async/PIN.md",
+        "assessor/ownership/pin_async/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/foundations/foundation.c",
+        "assessor/peripheral_depth/dma/dma.c",
+        "assessor/ownership/pin_async/pin_async.c",
+        "assessor/ownership/pin_async/pin_host.c",
+        "assessor/ownership/pin_async/pin_dma.c",
+        "labs/ownership/pin_async/tests/tests.c",
+        "labs/ownership/pin_async/tests/dma_tests.c",
+        "tools/verify_ownership_pin_async.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_pin_async_validation.json",
+        "research/v5/modern/ownership_pin_async_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-008-R4",
+      "objective": "T66.08.d",
+      "criterion": "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The foreign-executor variant runs actual pthreads and holds the receiver before callback return, observing pending/recovery/no-release despite notification; actual join precedes reuse. Separate GCC/Clang C17 TSan runs are diagnostic-clean for these executions. The delayed device adapter imports the actual PR-T28-06 Pd provider through an exact public header/unfinished stub, and original RAM callbacks write after timeout and EN clear while FIFO remains nonempty. Matching token/disabled/FIFO-empty/TC plus actual Pd finalize is required; error results separate guaranteed complete from possibly written bytes. Exported native composition selects the exact external provider, rejects its absence and rejects the compiling unfinished provider semantically. This is implemented author support and a physical evidence protocol, not a physical DMA observation; dedicated device validation remains not run.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-008.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/pin_async/PIN.md",
+        "assessor/ownership/pin_async/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/foundations/foundation.c",
+        "assessor/peripheral_depth/dma/dma.c",
+        "assessor/ownership/pin_async/pin_async.c",
+        "assessor/ownership/pin_async/pin_host.c",
+        "assessor/ownership/pin_async/pin_dma.c",
+        "labs/ownership/pin_async/tests/tests.c",
+        "labs/ownership/pin_async/tests/dma_tests.c",
+        "tools/verify_ownership_pin_async.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_pin_async_validation.json",
+        "research/v5/modern/ownership_pin_async_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-run"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-008-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "physical_observation": "not-run",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-008.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/pin_async/PIN.md",
+        "assessor/ownership/pin_async/ANALYSIS.md",
+        "assessor/ownership/ownership.c",
+        "assessor/foundations/foundation.c",
+        "assessor/peripheral_depth/dma/dma.c",
+        "assessor/ownership/pin_async/pin_async.c",
+        "assessor/ownership/pin_async/pin_host.c",
+        "assessor/ownership/pin_async/pin_dma.c",
+        "labs/ownership/pin_async/tests/tests.c",
+        "labs/ownership/pin_async/tests/dma_tests.c",
+        "tools/verify_ownership_pin_async.py",
+        "research/v5/modern/ownership_pin_async_validation.json",
+        "research/v5/modern/ownership_pin_async_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_pin_async_validation.json": "ec34240f09386c052d97e301038c5335125705f335faa5e983ce1fc4280eba49",
+    "research/v5/modern/ownership_pin_async_investigation_validation.json": "4bd527c1da15c36e3fada54e137edb4a0057cf8bb599bd627cf03a4c2546b78d"
+  },
+  "input_sha256": {
+    "assessor/foundations/foundation.c": "fe6e3c37516406c3492ed8af006651d41c608a3cb4d887c164cbe908856672a1",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "assessor/ownership/pin_async/ANALYSIS.md": "c72878f5f0c78b829ea88a31fbd16d5341d41955dbe14cde221a0cc2720a89cd",
+    "assessor/ownership/pin_async/pin_async.c": "1b826c485426235ab24723364487a9b6110ddd3dac3c02527495c250d351c84d",
+    "assessor/ownership/pin_async/pin_dma.c": "04c3fabc3fa09c378b56d93c519ea5411152c943cab8908f9e14b1b716caa64a",
+    "assessor/ownership/pin_async/pin_host.c": "3db320cfdca613d93f9672a777763b5760a6c1ec0370ffe0afcd745cd9812ab8",
+    "assessor/peripheral_depth/dma/dma.c": "6e142737bb53b92950c73a09dedaff0e1fe776348ea9916f4fcd183017a5f096",
+    "labs/foundations/README.md": "242062f135123a283a4b70c24672783cc0e9e7091899e11a8036c820cfc2c311",
+    "labs/foundations/include/foundation.h": "b825d73caa30d1a01b7c84831f3842f58e680fbdba787a3fa8bfb37240e1c446",
+    "labs/foundations/src/foundation.c": "26758d1d73317e775790c3db99586b163f6b8ffc4f5a764a639a0d987869c089",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/pin_async/CMakeLists.txt": "c0e0126f5579947b77672434f216135eed317747623153a8675605cace6896b9",
+    "labs/ownership/pin_async/PIN.md": "8c9917009abe0181f5208f32e2016f667cdd458535db73e63a949b27aadf3f66",
+    "labs/ownership/pin_async/campaign.json": "79b85bd6af461c18d0bdeb86706eed6b665bb9776acc9fb0c5b77a0e6e28bbf7",
+    "labs/ownership/pin_async/expect_failure.py": "86fb9a4c859127951c2cf95a3bc8579c3d4e2941df5e3fae4807819fe1fe6ef7",
+    "labs/ownership/pin_async/imports/dma.c": "4447a05724395de9685eb657f6c2f29e3fd468ab47a992844d1eb45e89c72d2f",
+    "labs/ownership/pin_async/imports/dma.h": "be4d9a98edec087a6f866b4dbd4f7fd61e39ce298cd82fef14c15f00291625d5",
+    "labs/ownership/pin_async/include/pin_async.h": "6294f20d4dc4381102ea282cf9d66f7ceee3e8c0bdccd8a71c4c26ed16734355",
+    "labs/ownership/pin_async/include/pin_dma.h": "78da4b32e5806b7fbf1776c75397d6b677bae42f3bd73083ca2ec1e1eb199767",
+    "labs/ownership/pin_async/include/pin_host.h": "46f566aebd42c45f3ca124300ebecc06ba9b086dff74388c7768e43bc286aa28",
+    "labs/ownership/pin_async/src/pin_async.c": "3620633a7b3a7e57320c7ad2f2f618736abfa496fc5c4fd570a2444336d29ef6",
+    "labs/ownership/pin_async/src/pin_dma.c": "bf13dc4bba7f50bbb2bdb1e4cc615091d4c84639545957525c0268d4744f3351",
+    "labs/ownership/pin_async/src/pin_host.c": "9c2b38a40457f536a48f49010ac72c4b07b615484ddf4881af96ce04c5d1c4e3",
+    "labs/ownership/pin_async/tests/dma_tests.c": "a4831886ced7e5eb18c0184240982b28ffb5cb6789e580d218623ed3c95c838d",
+    "labs/ownership/pin_async/tests/tests.c": "079083d7b3b04439b434247d0f8f3e5086380792c4076fb6e958b8972ec731bb",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "labs/peripheral_depth/dma/CONTRACTS.md": "9fc4582d98ef84e2022655240c876baa12167c49298d97d260452c9d5d9da599",
+    "labs/peripheral_depth/dma/dma.c": "4447a05724395de9685eb657f6c2f29e3fd468ab47a992844d1eb45e89c72d2f",
+    "labs/peripheral_depth/dma/dma.h": "be4d9a98edec087a6f866b4dbd4f7fd61e39ce298cd82fef14c15f00291625d5",
+    "research/v5/modern/ownership_cell_guard_resources.json": "72d62d2d5d654983d591d79bfadfd6159e08a8983fae0ee2a3f769bd123340aa",
+    "research/v5/modern/ownership_pin_async_research_gate.json": "47e2f138e8a550b0a2c5b56c53d5679c3a08d20f371f6ac8e5051b523b41a3ce",
+    "research/v5/modern/ownership_pin_async_resources.json": "637a78649c4460c45ae214d5caa4e07fd318388f6825aea0e916b2491d73f420",
+    "research/v5/modern/ownership_resources.json": "c2f8efce3bc0958dbffd16b6c5e72b2d4cb446a577ee4c9791f3362c8a231451",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_pin_async.py": "8c64311b3d9418a90a06effd835905ea42479ce537f8e425ef8147a81308455c",
+    "tools/run_ownership_module.py": "5c4144294d6625388b8ba7fe143ceaaeae281653e837fd6930a4b53ea3ef9197",
+    "tools/run_ownership_pin_async.py": "ef459c23f9a27c0186b15e4ef7d9bc19efafe8e8c0426bc5c32cf10cc9e46959",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_ownership_pin_async.py": "e2e623b2ea49fdb6866b77ec22da8708b6bfa008dafd124e1d742761e772dc6f",
+    "tools/run_ownership_pin_async_investigation.py": "659f6980d87ea950a1b894e9d5b963b78428383db22e1fb1909439fbbef373a3",
+    "curriculum/v5/exercises/X-T66-008.md": "d597f1199ed5deea106f11698aea6877a946b6ac001d50e747542c2b124644d2",
+    "research/v5/modern/ownership_pin_async_validation.json": "ec34240f09386c052d97e301038c5335125705f335faa5e983ce1fc4280eba49",
+    "research/v5/modern/ownership_pin_async_investigation_validation.json": "4bd527c1da15c36e3fada54e137edb4a0057cf8bb599bd627cf03a4c2546b78d",
+    "tools/build_ownership_pin_async_readiness.py": "f9065f80a3b07cfaca1d8649ace723319eaecfac4da197ea01027e8e46443459",
+    "tools/check_ownership_pin_async.py": "9806fdf3bbe683ebc190ae0bd7b03fb108dc69f6dda5211758bf80c174929dd9"
+  },
+  "limits": [
+    "An abstract oracle finish event supplies quiescence; it does not derive a physical authority fact.",
+    "Actual host callback and join runs do not prove every schedule or platform-error recovery.",
+    "Pd numeric validation requires real allocation/lease/cache premises; model array writes are not DMA hardware observations.",
+    "pthread_create/join platform errors are documented but not injected.",
+    "Exact published C17 remains inaccessible; no independent human or unaided learner assessment."
+  ]
+}

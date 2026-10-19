@@ -12,20 +12,24 @@
   ],
   "tests": [
     "modern_composition.publish",
-    "modern_composition.async"
+    "modern_composition.async",
+    "modern_composition.publish_close",
+    "modern_composition.real_io"
   ],
   "projects": [
     {
       "id": "PR-T66-02",
       "tests": [
-        "modern_composition.publish"
+        "modern_composition.publish",
+        "modern_composition.publish_close"
       ],
       "scope": "Cross-component exercise; use its explicit prerequisites."
     },
     {
       "id": "PR-T73-03",
       "tests": [
-        "modern_composition.async"
+        "modern_composition.async",
+        "modern_composition.real_io"
       ],
       "scope": "Cross-component exercise; use its explicit prerequisites."
     }
@@ -35,14 +39,22 @@
       "id": "X-T66-011",
       "project": "PR-T66-02",
       "tests": [
-        "modern_composition.publish"
+        "modern_composition.publish",
+        "modern_composition.publish_close",
+        "modern_composition.publication_admission",
+        "modern_composition.publication_prefix",
+        "modern_composition.publication_close",
+        "modern_composition.publication_recovery",
+        "modern_composition.publication_limits",
+        "modern_composition.publication_original"
       ]
     },
     {
       "id": "X-T73-011",
       "project": "PR-T73-03",
       "tests": [
-        "modern_composition.async"
+        "modern_composition.async",
+        "modern_composition.real_io"
       ]
     }
   ],
@@ -55,12 +67,32 @@
       "gcc-asan",
       "clang-debug",
       "clang-release",
-      "clang-asan"
+      "clang-asan",
+      "gcc-tsan"
     ],
     "mutants_per_anchor": 2,
-    "assertion_marker": "MC_CHECK:"
+    "assertion_marker": "MC_CHECK:",
+    "fixture_oracle": "tools/verify_modern_composition_recovery.py",
+    "oracle_driver": "composition-recovery",
+    "publication_depth_producer": "tools/run_ownership_publication.py",
+    "publication_depth_report": "research/v5/modern/ownership_publication_validation.json",
+    "supplemental_tests": [
+      "modern_composition.publication_admission",
+      "modern_composition.publication_prefix",
+      "modern_composition.publication_close",
+      "modern_composition.publication_recovery",
+      "modern_composition.publication_limits",
+      "modern_composition.publication_original"
+    ],
+    "supplemental_controls": [
+      "modern_composition.mutation.publication_prefix.1",
+      "modern_composition.mutation.publication_prefix.2",
+      "modern_composition.mutation.publication_close.5",
+      "modern_composition.mutation.publication_close.6"
+    ],
+    "anchor_scope": "The four original mechanism anchors each have two causal controls. Six required publication successor tests and four causal controls execute in the same CTest run and are checked explicitly, with their dedicated source-bound publication campaign."
   },
   "limits": [
-    "Hosted serialized adapters; no real I/O cancellation, concurrency proof, physical execution or learner assessment."
+    "Hosted owner-serialized adapters with a real Linux readiness worker and local descriptors; no arbitrary concurrent owner calls, syscall cancellation, durability proof, target execution or learner assessment."
   ]
 }

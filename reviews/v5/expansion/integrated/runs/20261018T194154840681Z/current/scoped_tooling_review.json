@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "reviewer": "assistant subagent /root/lab_batch",
+  "review_type": "bounded separate-agent read-only source review with temporary output probes",
+  "status": "passed-with-resolved-finding",
+  "inspected_paths": {
+    "tools/publish_contracts_v5.py": "6b059912ab3b35030ede92ee20ad835a1754e990487a4f395183aabe297d01a1",
+    "tools/publish_exercises_v5.py": "46dfa6ef14bb28d07321692a24cab8627dd161fc75f6e97d36cde93be5964df3",
+    "tools/publish_legacy_assessments_v5.py": "5ea9dc78a70b7793904c3046cfec3e572cb908164d3080b3092b3522e7e22c0f",
+    "tools/package_v4.py": "a25e5b804e4116c2e887167267adefa49bdfc669fe67716ac4a8449003f362be",
+    "tools/package_v5.py": "cf59cda8d10a8f50981707ff41be8f87272e7560078d6108996fa45ed0408c6f",
+    "cmastery/assessments.py": "1c71137430d031627b3bff095dff928d1f9548997e4546ca1c0ec638774b6726",
+    "tools/check_legacy_assessments.py": "92e54970bb6bf2fc7d7578d4b184408a952b523429976d1d447d5d04046656e7",
+    "curriculum/v5/expansion/legacy_assessments/schema.json": "99d4c4e5cd192354158d6f5b3812b60a698e46c41fcf5c2d03ab71ddfc72a0be"
+  },
+  "scope": [
+    "Complete named publisher/packager/export/checker/schema sources read.",
+    "Cross-checked all source-record register paths and supplied-artifact paths present during the filter probe, plus shared-contract anchor uniqueness.",
+    "Executed real legacy publisher against temporary project/module pages, then checked per-project outputs and INTEGRATION routing; executed supplied-asset export for PR-T56-05 and one available integration supplement."
+  ],
+  "findings": [
+    {
+      "id": "R-TOOLS-01",
+      "severity": "high",
+      "path": "tools/publish_legacy_assessments_v5.py",
+      "location": "prepare shared_contracts loop and following write",
+      "defect": "The loop variable name overwrote the intended learning/legacy-assessments/PR-*.md path, so briefs were repeatedly written to a contract-derived path and the project pages were absent.",
+      "repair": "Parent changed the loop variable to contract_name; reviewer did not edit source.",
+      "status": "resolved",
+      "validation": "Actual temporary publisher produced all417 source records observed by the probe with no missing project pages; INTEGRATION routing succeeded for8 available integration records."
+    }
+  ],
+  "observed_checks": [
+    {
+      "check": "Learner filter applied to exact referenced register and supplied-asset paths; shared target collision check",
+      "result": "passed",
+      "source_registers": 40,
+      "supplied_artifact_paths": 861,
+      "registered_contracts": 28,
+      "excluded_references": [],
+      "duplicate_anchors": []
+    },
+    {
+      "check": "Actual prepare(temp_source, merged) and cmastery.assessments.export with all supplied/shared assets checked",
+      "result": "passed",
+      "temporary_outputs": "build/scoped_tooling_qzn0bo27",
+      "published_records": 417,
+      "integration_records": 8,
+      "exported_samples": 2,
+      "missing_pages": [],
+      "routing": "Each objective domain received its integration-project reference; no modules/INTEGRATION.md was created."
+    }
+  ],
+  "limits": [
+    "Same overall authoring session, separate assistant agent; not an independent human or whole-edition review.",
+    "The two publication probes used current authoring snapshots while remaining supplements were still being added; they do not cover future records.",
+    "No full HTML build, package promotion, extracted-source reproducibility run, security adversarial filesystem race test, hardware run or learner mastery assessment performed in this review.",
+    "No other concrete defect found in the bounded named-source review; this is not a guarantee of absence."
+  ]
+}

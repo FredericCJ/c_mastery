@@ -17,6 +17,22 @@ subjects historically marked elective. The [depth audit](curriculum/v5/expansion
 actual authoring, scoped execution and still-required work. Historical hours are
 descriptive; additional exercise work has no learner-time ceiling.
 
+The [reconciled obligation inventory](curriculum/v5/expansion/work_inventory.json)
+connects each original criterion and changed condition to its implementation and
+evidence. Read its six dimensions separately: teaching, implementation, author
+validation, external review, independent learner performance and physical
+observation. The [scope record](research/v5/expansion/followthrough/scope.md)
+explains the source boundary and required extensions whose authoritative inputs
+remain unavailable. An authored domain or passing reference suite is not release
+acceptance or a learner mastery result.
+
+The [finite corpus screen](research/v5/expansion/corpus_followthrough/README.md)
+maps 84 actually read design descriptions to concrete implementations and
+assessment criteria, including the completed parser, index, storage, Treiber
+stack and textual escape companions. The other 999 SWE entries remain metadata
+routing; this screen does not claim those works were read or replace their
+separately tracked curriculum obligations.
+
 ```sh
 python -m cmastery init PR-T04-01 ../extent-depth --exercise X-T04-001
 python -m cmastery check ../extent-depth --exercise X-T04-001
@@ -37,16 +53,16 @@ records the preserved fourth-edition counts, the domains and laboratory families
 added so far, the receipts acceptance requires and the status of physical and
 learner evidence. [The overhaul](planning/overhaul_v5.md) and
 [modern-techniques plan](planning/modern_techniques_plan.md) now have authored
-domains T57–T76: 178 added projects and 653 added objectives, including 114 modern
-abstraction projects. Their source registers, contracts, laboratories and scoped
+domains T57–T76; their current project and objective totals are derived in the
+manifest. Their source registers, contracts, laboratories and scoped
 campaigns retain explicit limits; authoring is not edition acceptance. The accepted
 baseline retains 56 domains, 429 projects, 1,881
 objectives, 1,357 working units and 58 artifact contracts. Its historical record
 contains 627 recall sets, 13 laboratory families and 4,879 planned hours. The
 current catalog and family counts are derived in the manifest and completion
 ledger. Additions have separate evidence and do not redefine those historical
-hours. Required F439/H745 and other physical observations, learner assessments
-and unexecuted changed-condition experiments remain distinct obligations.
+hours. Required F439/H745 and other physical observations, independent learner
+assessments and any still-unexecuted target experiments remain distinct obligations.
 
 ## Start studying and implementing
 
@@ -128,10 +144,29 @@ Executable and target campaigns are separate, and every receipt has a tracked pr
   Linux/FreeRTOS comparison.
 - `tools/run_workflow_v5.py` and `tools/run_release_guards_v5.py`: the learner
   workflow contracts and the isolated release guards on both host platforms.
+- `tools/validate_expansion_v5.py`: integrated author checks, including the
+  Linux campaign guards that verify the recorded compiler and tool identities.
+- `tools/check_candidate_exports_v5.py --work-directory PATH --report reviews/PATH.json`:
+  build fresh source, learner, assessor and HTML review archives, then rebuild the
+  extracted sources and compare all canonical inputs and published outputs. This
+  requires a current successful local publication; it does not accept or promote
+  a release. Use a fresh report path and a work directory with space for the full
+  source evidence and its extracted copy. Some current evidence checks require
+  private reference captures and retained experiment artifacts excluded from the
+  archives. For a local author reproduction, first run
+  `tools/candidate_author_environment.py --manifest reviews/ENVIRONMENT.json`,
+  then supply `--author-environment-manifest reviews/ENVIRONMENT.json` to the
+  candidate checker. This explicitly supplies only the enumerated, hash-verified
+  local files to the extracted workspace, after archive creation. The report
+  records these prerequisites; it does not claim that the ZIP alone reproduces
+  checks that require them. Absolute external dependencies are not copied.
 - `tools/record_review_v5.py INPUT.json`: an independent review receipt.
 - `tools/accept_v5.py` and `tools/package_v5.py`: verify current source-bound
   receipts, then stage four archives and reproduce HTML, Markdown and every tracked
-  generated file from extracted sources.
+  generated file from extracted sources. If local author inputs are needed,
+  acceptance must pass first; generate a fresh environment manifest afterwards,
+  then run `tools/package_v5.py --author-environment-manifest reviews/ENVIRONMENT.json`.
+  Packaging rechecks acceptance and the exact selected inputs before promotion.
 
 Run execution campaigns after source changes are complete. A changed input or
 failed current receipt requires revalidation; old acceptance is historical.
@@ -148,5 +183,6 @@ artifact contracts through `curriculum/v5/baseline.json` and `curriculum/v5/migr
 Canonical teaching lives in `curriculum/`, executable work in `labs/`, solutions in
 `assessor/`, and supplied data in `fixtures/`. References and bounded source
 inspections are in `references/` and `research/`; they use the local library and
-seed graphs. Rebuilding requires neither absolute library paths nor private book
-captures. Archives exclude private extracts and the publishing virtual environment.
+seed graphs. Full author validation requires the exact local evidence inputs
+described above; those inputs are not all included in the source archive.
+Archives exclude private extracts and the publishing virtual environment.

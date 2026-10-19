@@ -1,0 +1,55 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/registry-companion-20261018T082641652186Z/gcc-O3-generic5.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <lg_int>:
+   0:	8d 47 01             	lea    0x1(%rdi),%eax
+   3:	c3                   	ret
+   4:	90                   	nop
+   5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+   c:	00 00 00 00 
+
+0000000000000010 <lg_double>:
+  10:	f2 0f 58 05 00 00 00 	addsd  0x0(%rip),%xmm0        # 18 <lg_double+0x8>
+  17:	00 
+			14: R_X86_64_PC32	.LC0-0x4
+  18:	c3                   	ret
+  19:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000000020 <generic_int>:
+  20:	f3 0f 1e fa          	endbr64
+  24:	eb da                	jmp    0 <lg_int>
+  26:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  2d:	00 00 00 
+
+0000000000000030 <explicit_int>:
+  30:	f3 0f 1e fa          	endbr64
+  34:	eb ea                	jmp    20 <generic_int>
+  36:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  3d:	00 00 00 
+
+0000000000000040 <generic_double>:
+  40:	f3 0f 1e fa          	endbr64
+  44:	eb ca                	jmp    10 <lg_double>
+  46:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  4d:	00 00 00 
+
+0000000000000050 <explicit_double>:
+  50:	f3 0f 1e fa          	endbr64
+  54:	eb ea                	jmp    40 <generic_double>
+
+Disassembly of section .text.startup:
+
+0000000000000000 <main>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	f2 0f 10 05 00 00 00 	movsd  0x0(%rip),%xmm0        # c <main+0xc>
+   b:	00 
+			8: R_X86_64_PC32	.LC1-0x4
+   c:	31 c0                	xor    %eax,%eax
+   e:	e8 00 00 00 00       	call   13 <main+0x13>
+			f: R_X86_64_PLT32	generic_double-0x4
+  13:	66 0f 2e c0          	ucomisd %xmm0,%xmm0
+  17:	0f 9a c0             	setp   %al
+  1a:	c3                   	ret

@@ -1,0 +1,15 @@
+"""Register inspected full hazard algorithm and exact C ordering passages."""
+import hashlib,json,pathlib
+HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+def main():
+ rows=[]
+ for key,title,authors,url,locators,edition,year,method in [
+ ('MICHAEL','Hazard Pointers: Safe Memory Reclamation for Lock-Free Objects',['Maged Michael'],'https://www.cs.otago.ac.nz/cosc440/readings/hazard-pointers.pdf',['Sections2.1–2.3: asynchronous model and ABA, printed492–493','Section3: figures1–4, protection condition and scan/registration lemmas, printed493–496','Section4.1: figures5–7 complete queue adaptation and protection argument, printed496–498'],'IEEE TPDS15(6),2004',2004,'Direct PDF text reading and visual inspection of rendered PDFpages3–8 including figures1–7'),
+ ('MS','Corrected non-blocking concurrent queue pseudocode',['Maged Michael','Michael Scott'],'https://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html',['Opening memory-management assumptions','Non-Blocking Concurrent Queue Algorithm: initialize, E1–E17 and D1–D20'],'Author-hosted corrected pseudocode, last change30January2008',2008,'Direct author-hosted HTML passage reading'),
+ ('N1570','C11 draft atomic order and read-modify-write contracts',['WG14'],'https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf',['7.17.2.2 paragraphs1–5 atomic initialization','7.17.3 paragraphs1–7 and12: orders, SC total order, RMW predecessor','7.17.7.4 paragraphs1–5 atomic compare exchange'],'N1570 committee draft April2011',2011,'Direct primary PDF text passage reading')]:
+  rows.append(dict(id='R-AP-'+key,title=title,authors=authors,edition=edition,year=year,kind='committee-draft' if key=='N1570' else 'paper' if key=='MICHAEL' else 'author-source',url=url,access='Listed actual primary passages inspected',domains=['T26'],role='primary',reason='Complete publication/protection/reclamation protocol, allocator assumptions and narrowly justified atomic weakening',prerequisites=['T25 memory model','T26 SPSC, histories and identity'],locators=locators,assignable=True,inspection=dict(date='2026-10-17',method=method,scope='; '.join(locators),limits='Algorithmic asynchronous model is not a full C proof; N1570 is not final C17/C23; no independent review or hardware observation.')))
+ rows[0]['inspection']['source_sha256']='aba5f22c75f444fe53832e8dbe2c34c5e6c42a6928e322ede1fe2a272f18f74f'
+ (HERE/'resources.json').write_text(json.dumps(dict(resources=rows),indent=2)+'\n',encoding='utf8')
+ files=[HERE/'resources.json',HERE/'audit.md',pathlib.Path(__file__)]
+ (HERE/'research_gate.json').write_text(json.dumps(dict(status='passage-inspected',scope='T26.04/.06 author source inspection only',resource_ids=[x['id'] for x in rows],research_input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},limitations=['Final C17/C23 exact source remains separate.','Finite schedules/models do not establish all histories or physical weak-memory behavior.']),indent=2)+'\n',encoding='utf8')
+if __name__=='__main__':main()

@@ -2,11 +2,13 @@
   "schema_version": 1,
   "project": "PR-T23-01",
   "domain": "T23",
-  "title": "Process launcher and descriptor ledger — explicit depth assessments",
+  "title": "Process launcher and descriptor ledger \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/posix_lifecycle_depth/CONTRACTS.md"
+    "labs/posix_lifecycle_depth/CONTRACTS.md",
+    "labs/posix_lifecycle_depth/followthrough/CONTRACTS.md",
+    "labs/posix_context_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -110,21 +112,186 @@
         "DESCRIPTION; RETURN VALUE; ERRORS",
         "NOTES: scheduling order, joinable/detached resources and stack defaults"
       ]
+    },
+    {
+      "id": "R-PCONTEXT-FORK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: process context, address space, descriptors and multithreaded child restrictions"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-EXEC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: explicit argv/envp, image replacement, retained and removed attributes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-DUP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: shared open file description and separate descriptor flags"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SPAWN",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION/file actions; RETURN VALUE/ERRORS; implementation notes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SAFETY",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION and async-signal-safe table: close/dup2/execve/fchdir/write/_exit"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FSYNC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS, including EIO and pipe EINVAL"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FLOCK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; NOTES; Linux/network-filesystem differences"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-CLOCK",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: MONOTONIC, BOOTTIME, process CPU clock and discontinuities"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-SLEEP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES: absolute deadlines, interruption and dispatch delay"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-LIMIT",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: soft/hard limits and unprivileged changes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-AFFINITY",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; ERRORS EPERM/EINVAL; NOTES: current permitted intersection"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-FEATURES",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: before-header definition and selected feature visibility"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-PIPE",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: CLOEXEC and flags; STANDARDS/HISTORY: pipe2 in POSIX.1-2024"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-OPEN",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: open file description, flags and atomic close-on-exec creation"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-EPOLL",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: interest, level/edge flags, read readiness and HUP"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-POLL",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: readiness, timeout, HUP, invalid descriptors and wrapper distinction"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-MMAP",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: mapping lifetime, shared/private and anonymous semantics"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-THREAD",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES: creation, inheritance and joinable lifetime"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-WAIT",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "DESCRIPTION: owned child selection and exit/signal interpretation; RETURN VALUE/ERRORS: EINTR, ECHILD and EINVAL; wrapper notes"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-CLONE",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "SYNOPSIS and introductory DESCRIPTION: wrapper, raw syscall and sharing controls"
+      ]
+    },
+    {
+      "id": "R-PCONTEXT-GLIBC",
+      "path": "research/v5/expansion/legacy_posix_context/resources.json",
+      "passages": [
+        "sysdeps/unix/sysv/linux/spawni.c216-307 and351-482: actions, exec failure, clone flags/fallback and parent error collection"
+      ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T23-01.md",
+    "fixtures/posix_lifecycle_depth/cases.json",
     "fixtures/systems/PR-T23-01.json",
-    "tools/verify_systems_fixtures.py",
     "labs/hosted_systems/README.md",
+    "labs/posix_context_depth/CONTRACTS.md",
+    "labs/posix_context_depth/PERSISTENCE_EXPERIMENT.md",
+    "labs/posix_context_depth/PORTABILITY.md",
+    "labs/posix_context_depth/context.h",
+    "labs/posix_context_depth/learner.c",
+    "labs/posix_context_depth/tests/capability.c",
+    "labs/posix_context_depth/tests/helper.c",
+    "labs/posix_context_depth/tests/process.c",
+    "labs/posix_context_depth/tests/reap.c",
+    "labs/posix_context_depth/tests/storage.c",
+    "labs/posix_context_depth/tests/test.h",
+    "labs/posix_context_depth/tests/timing.c",
+    "labs/posix_lifecycle_depth/followthrough/io_inject.c",
+    "labs/posix_lifecycle_depth/followthrough/launch.h",
+    "labs/posix_lifecycle_depth/followthrough/launch_stub.c",
+    "labs/posix_lifecycle_depth/followthrough/original_inject.c",
+    "labs/posix_lifecycle_depth/followthrough/original_tests.c",
+    "labs/posix_lifecycle_depth/followthrough/tests.c",
     "labs/posix_lifecycle_depth/include/posix_lifecycle.h",
     "labs/posix_lifecycle_depth/src/posix_lifecycle.c",
-    "fixtures/posix_lifecycle_depth/cases.json"
+    "tools/verify_systems_fixtures.py"
   ],
   "execution_support": {
     "kind": "retained partial anchors plus additive lifecycle laboratory",
@@ -148,7 +315,27 @@
         "scope": "Close-on-exec channel and two parent acquisition failures; short error records and premature pre-exec death remain authored, unexecuted obligations."
       }
     ],
-    "campaign": "reviews/v5/expansion/legacy_runtime/posix_lifecycle_depth_campaign.json"
+    "campaign": "reviews/v5/expansion/legacy_runtime/posix_lifecycle_depth_campaign.json",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_posix_followthrough/support.json",
+    "posix_context_successor": {
+      "path": "research/v5/expansion/legacy_posix_context/completion_dispositions.json",
+      "project": "PR-T23-01",
+      "criterion_ids": [
+        "AX-PR-T23-01-T23.01.a",
+        "AX-PR-T23-01-T23.01.b",
+        "AX-PR-T23-01-T23.01.c",
+        "AX-PR-T23-01-T23.02.a",
+        "AX-PR-T23-01-T23.02.c",
+        "AX-PR-T23-01-T23.03.a",
+        "AX-PR-T23-01-T23.14.a",
+        "AX-PR-T23-01-T23.14.b",
+        "AX-PR-T23-01-T23.14.c"
+      ],
+      "scope": "Only these remaining original criteria and exact delayed author tasks; other existing successor pointers and independent learner obligations remain unchanged."
+    },
+    "current_preserved_launcher_binding": "research/v5/expansion/legacy_posix_context/launcher_binding_successor.json"
   },
   "criteria": [
     {
@@ -211,7 +398,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Private writes do not update the parent's private object; an explicitly shared mapping has different sharing rules. Identity, credentials and address-space ownership are independent attributes. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace fork with exec of a second original helper and determine which identity/context fields survive image replacement. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -299,7 +486,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Arguments retain element boundaries; environment entries and working directory are separate inputs. No real credentials or host environment dump belongs in the artifact. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace inherited environment with an allowlist and show how a missing configuration entry is reported without searching an ambient PATH. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -387,7 +574,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "POSIX-level contracts and Linux-only mechanisms occupy separate rows; unsupported interfaces cannot be promoted by a successful header compile. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Port the launcher contract to a declared non-Linux POSIX environment at analysis depth; identify the replacement for each Linux-only dependency. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -476,7 +663,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Creation, image replacement, child result and wait failure are different outcomes; the error channel distinguishes missing executable from a legitimate127 exit. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add an original helper terminated by its own SIGTERM and preserve signal termination separately from normal exit. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -502,6 +689,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_followthrough/support.json",
+        "id": "AX-PR-T23-01-T23.02.a"
       }
     },
     {
@@ -565,7 +756,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Within the declared noninterrupted pre-exec protocol EOF indicates descriptor closure at exec; premature child death or failed reporting requires a weaker outcome. Parent always reaps and closes its ends. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Introduce a bounded pre-exec failure stage with a stage-tagged record; reject unknown stages and short records. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -591,6 +782,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_followthrough/support.json",
+        "id": "AX-PR-T23-01-T23.02.b"
       }
     },
     {
@@ -654,7 +849,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Async-signal safety is stricter than thread safety. Preparing argv/storage before fork avoids allocator locks held by vanished threads; atfork handlers are not a general runtime reconstruction proof. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Compare an applicable posix_spawn contract with the restricted fork path, including file actions and failed launch reporting. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -735,7 +930,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Sequential results are a,b,c while pread obtains e without moving the shared offset; descriptor flags and shared status require different ownership ledgers. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace dup with a second open and predict the changed offset relation before running it. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -816,7 +1011,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "The equal-descriptor case must preserve the destination and deliberately handle its close-on-exec policy; atomic descriptor creation flags prevent an unrelated exec leak window. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add two redirections whose source descriptors cross; derive a temporary-descriptor plan that preserves both originals. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -842,6 +1037,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_followthrough/support.json",
+        "id": "AX-PR-T23-01-T23.03.b"
       }
     },
     {
@@ -897,7 +1096,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "EOF requires every write reference to close, including duplicates and children. A timeout exposes the leak without establishing its cause until the ledger names the remaining writer. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Move the hidden writer into a grandchild of the teaching helper and diagnose ownership without relying on PID ordering. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -923,6 +1122,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_posix_followthrough/support.json",
+        "id": "AX-PR-T23-01-T23.03.c"
       }
     },
     {
@@ -992,7 +1195,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "These interfaces have different standards/platform owners; the C17 compiler mode does not establish OS interface availability. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace Linux-specific epoll with a portability adapter and preserve the same operation-level contract. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1087,7 +1290,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Compile-time declarations and runtime capability are different gates; failure must reach an explicit supported fallback or unsupported result. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Run a binary built against newer headers on an older declared kernel model and identify the invalid cached capability conclusion. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1182,7 +1385,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Fallback equivalence is contract-specific; a blocking or less durable fallback may violate the workload despite transferring the same bytes. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Remove a capability during a running operation and define recovery without silently restarting a nonidempotent request. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -1214,7 +1417,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T23-01.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Per-criterion current successors, including posix_context_depth; historical observations retained and independent learner/review not inferred.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -1222,5 +1425,34 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_posix_followthrough/support.json",
+    "project": "PR-T23-01",
+    "criterion_ids": [
+      "AX-PR-T23-01-T23.02.a",
+      "AX-PR-T23-01-T23.02.b",
+      "AX-PR-T23-01-T23.03.b",
+      "AX-PR-T23-01-T23.03.c"
+    ],
+    "scope": "Current explicit successor for these four criteria only; preserve original observations and all other criterion obligations."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_posix_context/completion_dispositions.json",
+      "project": "PR-T23-01",
+      "criterion_ids": [
+        "AX-PR-T23-01-T23.01.a",
+        "AX-PR-T23-01-T23.01.b",
+        "AX-PR-T23-01-T23.01.c",
+        "AX-PR-T23-01-T23.02.a",
+        "AX-PR-T23-01-T23.02.c",
+        "AX-PR-T23-01-T23.03.a",
+        "AX-PR-T23-01-T23.14.a",
+        "AX-PR-T23-01-T23.14.b",
+        "AX-PR-T23-01-T23.14.c"
+      ],
+      "scope": "Only these remaining original criteria and exact delayed author tasks; other existing successor pointers and independent learner obligations remain unchanged."
+    }
+  ]
 }

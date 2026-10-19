@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T25-02",
   "domain": "T25",
-  "title": "Bounded queue with predicates — explicit depth assessments",
+  "title": "Bounded queue with predicates \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/thread_depth/waiting/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -99,18 +100,96 @@
         "DESCRIPTION; RETURN VALUE; ERRORS",
         "NOTES: scheduling order, joinable/detached resources and stack defaults"
       ]
+    },
+    {
+      "id": "R-TWAIT-COND",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION32\u2013120; ERRORS150\u2013167; RATIONALE193\u2013237,244\u2013285,325\u2013357"
+      ]
+    },
+    {
+      "id": "R-TWAIT-CLOCK",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION32\u201347; RETURN VALUE49\u201357; ERRORS60\u201365"
+      ]
+    },
+    {
+      "id": "R-TWAIT-DESTROY",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION32\u201370; RATIONALE106\u2013183"
+      ]
+    },
+    {
+      "id": "R-TWAIT-CANCEL",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION29\u201368; ATTRIBUTES89\u201396; NOTES110\u2013148"
+      ]
+    },
+    {
+      "id": "R-TWAIT-BARRIER",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "36.2.5 complete section: initialization, repeated batches, wait return and destruction"
+      ]
+    },
+    {
+      "id": "R-TWAIT-ONCE",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION30\u201350; APPLICATION USAGE71\u201377"
+      ]
+    },
+    {
+      "id": "R-TWAIT-RWLOCK",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION30\u201381; ERRORS94\u2013112"
+      ]
+    },
+    {
+      "id": "R-TWAIT-SEMAPHORE",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "DESCRIPTION29\u201345; RETURN VALUE48\u201353; ERRORS56\u201368"
+      ]
+    },
+    {
+      "id": "R-TWAIT-INTERCEPTOR",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "Lines6381\u20136400: pthread_setcancelstate/type interceptors and registration"
+      ]
+    },
+    {
+      "id": "R-TWAIT-TSANATTR",
+      "path": "research/v5/expansion/legacy_thread_waiting/resources.json",
+      "passages": [
+        "Sections no_sanitize(thread) and disable_sanitizer_instrumentation, lines215\u2013220"
+      ]
     }
   ],
   "reference_gaps": [
     "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
     "Historical reading metadata is not promoted to a new source-inspection claim.",
-    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+    "Exact POSIX/Linux interface passages not listed here\u2014including detailed signal restart/allowlist, pathname confinement and mmap fault rules\u2014remain required before stronger claims."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T25-02.md",
     "fixtures/systems/PR-T25-02.json",
     "tools/verify_systems_fixtures.py",
-    "labs/hosted_systems/README.md"
+    "labs/hosted_systems/README.md",
+    "labs/thread_depth/waiting/CONTRACTS.md",
+    "labs/thread_depth/waiting/learner.c",
+    "labs/thread_depth/waiting/primitive_tests.c",
+    "labs/thread_depth/waiting/queue_tests.c",
+    "labs/thread_depth/waiting/test_support.h",
+    "labs/thread_depth/waiting/tests.c",
+    "labs/thread_depth/waiting/transaction_tests.c",
+    "labs/thread_depth/waiting/waiting.h"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -118,7 +197,22 @@
     "tests": [
       "hosted_systems.queue"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "thread_waiting_successor": {
+      "path": "research/v5/expansion/legacy_thread_waiting/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-02-T25.03.a",
+        "AX-PR-T25-02-T25.03.b",
+        "AX-PR-T25-02-T25.03.c",
+        "AX-PR-T25-02-T25.04.a",
+        "AX-PR-T25-02-T25.04.b",
+        "AX-PR-T25-02-T25.04.c",
+        "AX-PR-T25-02-T25.05.a",
+        "AX-PR-T25-02-T25.05.b",
+        "AX-PR-T25-02-T25.05.c"
+      ],
+      "scope": "Nine original transaction/predicate/primitive tasks and exact changed-condition packets; source-author execution is separate from independent learner/reviewer evidence."
+    }
   },
   "criteria": [
     {
@@ -173,7 +267,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Atomic field access does not make a compound operation indivisible; the invariant needs one transaction protocol or a consistent snapshot. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add a reader that obtains totals without the writer's lock and derive the additional snapshot/version obligations. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -253,7 +347,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Circular ownership can deadlock regardless of duration; callback/reentrant edges belong in the order analysis. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Allow dynamic objects whose addresses can be reused and choose a stable ordering key with a lifetime rule. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -333,7 +427,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Destruction requires quiescence, not merely an unlocked instant. Partial initialization has a successful-prefix cleanup ledger. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Introduce a reference-counted service handle and explain why decrement-to-zero must also exclude new admissions. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -414,7 +508,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Notifications do not reserve items; mutex-protected predicates decide ownership. Wait return reacquires the mutex before observing state. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add two consumers racing for one item and show why exactly one proceeds while the other waits or observes close. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -495,7 +589,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "State may change before reacquisition and wakeups may be spurious. A loop preserves the contents/count invariant. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add another consumer that removes the item before the awakened consumer reacquires the mutex. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -576,7 +670,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Recomputed relative waits can extend the budget. Timeout does not eliminate mutex reacquisition or predicate re-evaluation obligations. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Enable deferred cancellation for the waiting thread and derive cleanup after the mutex is reacquired, using the inspected cancellation contract. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -663,7 +757,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Each primitive encodes different ownership, phase, failure and publication semantics; the table must include unsupported behavior rather than inventing it. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Let one participant leave before the phase completes and design an explicit broken-phase policy. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -750,7 +844,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Safety can hold while an individual participant never progresses; fairness needs a specified queue/scheduler policy. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Switch to writer preference and identify whether readers can now starve under an endless writer stream. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -837,7 +931,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Selection follows invariant and failure semantics, including initialization failure, abandoned permits and phase identity. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Add asynchronous cancellation to the resource pool and derive permit cleanup rather than increasing its initial count. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -869,7 +963,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T25-02.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; independent learner and exact-source gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -877,5 +971,22 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_thread_waiting/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T25-02-T25.03.a",
+        "AX-PR-T25-02-T25.03.b",
+        "AX-PR-T25-02-T25.03.c",
+        "AX-PR-T25-02-T25.04.a",
+        "AX-PR-T25-02-T25.04.b",
+        "AX-PR-T25-02-T25.04.c",
+        "AX-PR-T25-02-T25.05.a",
+        "AX-PR-T25-02-T25.05.b",
+        "AX-PR-T25-02-T25.05.c"
+      ],
+      "scope": "Nine original transaction/predicate/primitive tasks and exact changed-condition packets; source-author execution is separate from independent learner/reviewer evidence."
+    }
+  ]
 }

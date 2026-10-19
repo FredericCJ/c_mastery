@@ -1,0 +1,18 @@
+{
+  "id": "PR-T54-05",
+  "description": "Cache visibility and cache-line ownership finite independent example",
+  "oracle": "cache_span",
+  "input": {
+    "address": 536870947,
+    "length": 40,
+    "line_bytes": 32
+  },
+  "expected": {
+    "start": 536870944,
+    "end": 536871008,
+    "bytes": 64
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The M7 data cache is not automatically coherent with the M4. Cache maintenance operates on lines and can damage unrelated dirty data sharing a line. Keep control and payload ownership explicit; the baseline noncacheable channel and a cached-buffer experiment are separate variants.",
+  "required_observation": "Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware."
+}

@@ -61,12 +61,9 @@ def inspect(run_stub=False):
         if run_stub:
             edition = cli.read(cli.ROOT / 'curriculum/edition.json')
             for family in sorted(set(edition['new_families']) - checked_families):
-                meta = cli.read(cli.ROOT / 'labs' / family / 'family.json')
-                project = meta['projects'][0]
-                project = project['id'] if isinstance(project, dict) else project
                 workspace = temporary / ('project-' + family)
                 try:
-                    cli.instantiate(project, workspace, family_name=family)
+                    instantiate_family(family, workspace)
                     execution = check_exported_stub(workspace, temporary)
                     executions.append(execution)
                     checked_families.add(family)
@@ -100,18 +97,62 @@ def assertion_marker(meta):
     return marker
 
 
+def instantiate_family(family, destination):
+    """Export a declared CLI selection, including exercise/unit-only families.
+
+    An empty project list does not mean an unbound laboratory: instantiate()
+    also admits the project declared by a canonical exercise or learning unit.
+    Keep that selection so its public assets and test/dependency adapter survive.
+    No fallback copies assessor sources or invents a project relationship.
+    """
+    meta = cli.read(cli.ROOT / 'labs' / family / 'family.json')
+    projects = meta.get('projects', [])
+    if projects:
+        entry = next(iter(projects)) if isinstance(projects, dict) else projects[0]
+        project = entry.get('id') if isinstance(entry, dict) else entry
+        selection = {}
+    else:
+        for key, argument in (('exercises', 'exercise_id'), ('units', 'unit_id')):
+            entries = meta.get(key, [])
+            if entries:
+                entry = entries[0]
+                if not isinstance(entry, dict) or not isinstance(entry.get('id'), str) or not entry['id']:
+                    raise ValueError('Invalid family selection: ' + family + ' / ' + key)
+                project, selection = entry.get('project'), {argument: entry['id']}
+                break
+        else:
+            raise ValueError('Family has no declared project, exercise or unit selection: ' + family)
+    if not isinstance(project, str) or not project:
+        raise ValueError('Family selection has no project: ' + family)
+    return cli.instantiate(project, destination, family_name=family, **selection)
+
+
+def workspace_dependencies(workspace, meta, identifier=None):
+    """Use the same selected adapter precedence as cli.run_checks()."""
+    record = cli.read(workspace / '.cmastery/project.json')
+    entries = meta.get('projects', [])
+    if isinstance(entries, dict):
+        adapter = entries.get(record.get('project'), {})
+    else:
+        adapter = next((p for p in entries if isinstance(p, dict) and p['id'] == record.get('project')), {})
+    if record.get('unit'):
+        unit = next((u for u in meta.get('units', []) if u['id'] == record['unit']), {})
+        adapter = dict(adapter, **unit)
+    selected = identifier or record.get('exercise')
+    if selected:
+        adapter = next((e for e in meta.get('exercises', []) if e['id'] == selected), {})
+    return cli.dependency_contracts(meta, adapter)
+
+
 def check_exported_stub(workspace, temporary, identifier=None):
     meta = cli.read(workspace / 'family.json')
     family = meta.get('family', meta.get('id'))
     marker = assertion_marker(meta)
     dependencies = {}
-    for name in cli.dependency_contracts(meta, {}).keys():
+    for name in workspace_dependencies(workspace, meta, identifier):
         destination = temporary / ('dependency-' + name)
         if not destination.exists():
-            dependency = cli.read(cli.ROOT / 'labs' / name / 'family.json')
-            project = dependency['projects'][0]
-            project = project['id'] if isinstance(project, dict) else project
-            cli.instantiate(project, destination, family_name=name)
+            instantiate_family(name, destination)
         dependencies[name] = destination
     receipt = cli.run_checks(workspace, 'gcc', 'debug', exercise_id=identifier, dependencies=dependencies)
     steps = receipt.get('steps', [])

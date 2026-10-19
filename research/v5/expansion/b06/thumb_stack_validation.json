@@ -1,0 +1,340 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T03:32:39.618681+00:00",
+  "input_sha256": {
+    "tools/run_b06_thumb_stack.py": "cef6e4f97ce840f73ad3e32eaccc71b375189c35b8e9601728b05ce25fc7aea5",
+    "assessor/architecture_ports/targets/thumb_stack/probe.S": "b62a3f4c8a6c86c6e129d49422e2ec3d27a1114b9a2e82efd6621eada57f78d3",
+    "labs/architecture_ports/targets/thumb_stack/link.ld": "a41603b905bed84a49dc7134c1b836cda8f490a7f31603cea7133e080e25c711",
+    "labs/architecture_ports/targets/thumb_stack/probe.S": "7b1502d544b8363c7e77a0b2431283940698ff144e694a4ef7a511e4486e54f3",
+    "labs/architecture_ports/targets/thumb_stack/README.md": "e0847d7f6676ec7b08c0ba511df4725ed923fd709b497c4383e2c1c4a2a7e86b",
+    "labs/architecture_ports/targets/thumb_stack/start.c": "10644ba7382ac6c8369de6137a1b2307b38391ba8c46400facef4d837eb11567"
+  },
+  "checks": [
+    {
+      "label": "compiler identity",
+      "command": [
+        "arm-none-eabi-gcc",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "arm-none-eabi-gcc (15:14.2.rel1-1) 14.2.1 20241119\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "emulator identity",
+      "command": [
+        "qemu-system-arm",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)\nCopyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "reference link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m0",
+        "-mthumb",
+        "-std=c17",
+        "-O2",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fno-stack-protector",
+        "-nostdlib",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/link.ld",
+        "-Wl,-Map,/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.map",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/thumb_stack/probe.S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/start.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "reference undefined references",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "reference helper closure",
+      "passed": true
+    },
+    {
+      "label": "reference execute",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "microbit",
+        "-cpu",
+        "cortex-m0",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-nic",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_STACK_PASS\n",
+      "passed": true
+    },
+    {
+      "label": "reference disassembly",
+      "command": [
+        "arm-none-eabi-objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf:     file format elf32-littlearm\n\n\nDisassembly of section .text:\n\n00000040 <ts_probe>:\n  40:\tb5f0      \tpush\t{r4, r5, r6, r7, lr}\n  42:\tb081      \tsub\tsp, #4\n  44:\t466c      \tmov\tr4, sp\n  46:\t2880      \tcmp\tr0, #128\t@ 0x80\n  48:\td814      \tbhi.n\t74 <reject>\n  4a:\t4d10      \tldr\tr5, [pc, #64]\t@ (8c <misaligned+0x6>)\n  4c:\t1a2e      \tsubs\tr6, r5, r0\n  4e:\t2707      \tmovs\tr7, #7\n  50:\t43be      \tbics\tr6, r7\n  52:\t4f0f      \tldr\tr7, [pc, #60]\t@ (90 <misaligned+0xa>)\n  54:\t42be      \tcmp\tr6, r7\n  56:\td30d      \tbcc.n\t74 <reject>\n  58:\t46b5      \tmov\tsp, r6\n  5a:\tf000 f80e \tbl\t7a <ts_alignment>\n  5e:\t2801      \tcmp\tr0, #1\n  60:\td107      \tbne.n\t72 <wrong_alignment>\n  62:\t42ae      \tcmp\tr6, r5\n  64:\td001      \tbeq.n\t6a <no_store>\n  66:\t275a      \tmovs\tr7, #90\t@ 0x5a\n  68:\t9700      \tstr\tr7, [sp, #0]\n\n0000006a <no_store>:\n  6a:\t600e      \tstr\tr6, [r1, #0]\n  6c:\t46a5      \tmov\tsp, r4\n  6e:\t2001      \tmovs\tr0, #1\n  70:\te001      \tb.n\t76 <done>\n\n00000072 <wrong_alignment>:\n  72:\t46a5      \tmov\tsp, r4\n\n00000074 <reject>:\n  74:\t2000      \tmovs\tr0, #0\n\n00000076 <done>:\n  76:\tb001      \tadd\tsp, #4\n  78:\tbdf0      \tpop\t{r4, r5, r6, r7, pc}\n\n0000007a <ts_alignment>:\n  7a:\t4668      \tmov\tr0, sp\n  7c:\t2207      \tmovs\tr2, #7\n  7e:\t4210      \ttst\tr0, r2\n  80:\td101      \tbne.n\t86 <misaligned>\n  82:\t2001      \tmovs\tr0, #1\n  84:\t4770      \tbx\tlr\n\n00000086 <misaligned>:\n  86:\t2000      \tmovs\tr0, #0\n  88:\t4770      \tbx\tlr\n  8a:\t0000      \t.short\t0x0000\n  8c:\t20000090 \t.word\t0x20000090\n  90:\t20000010 \t.word\t0x20000010\n\n00000094 <stop>:\n  94:\t4b06      \tldr\tr3, [pc, #24]\t@ (b0 <stop+0x1c>)\n  96:\tb082      \tsub\tsp, #8\n  98:\t4906      \tldr\tr1, [pc, #24]\t@ (b4 <stop+0x20>)\n  9a:\t9300      \tstr\tr3, [sp, #0]\n  9c:\t9001      \tstr\tr0, [sp, #4]\n  9e:\t2800      \tcmp\tr0, #0\n  a0:\td000      \tbeq.n\ta4 <stop+0x10>\n  a2:\t4905      \tldr\tr1, [pc, #20]\t@ (b8 <stop+0x24>)\n  a4:\t2004      \tmovs\tr0, #4\n  a6:\tbeab      \tbkpt\t0x00ab\n  a8:\t2020      \tmovs\tr0, #32\n  aa:\t4669      \tmov\tr1, sp\n  ac:\tbeab      \tbkpt\t0x00ab\n  ae:\te7fe      \tb.n\tae <stop+0x1a>\n  b0:\t00020026 \t.word\t0x00020026\n  b4:\t00000190 \t.word\t0x00000190\n  b8:\t00000178 \t.word\t0x00000178\n\n000000bc <fault>:\n  bc:\t2003      \tmovs\tr0, #3\n  be:\tb510      \tpush\t{r4, lr}\n  c0:\tf7ff ffe8 \tbl\t94 <stop>\n\n000000c4 <reset>:\n  c4:\tb5f0      \tpush\t{r4, r5, r6, r7, lr}\n  c6:\t46de      \tmov\tlr, fp\n  c8:\t4657      \tmov\tr7, sl\n  ca:\t464e      \tmov\tr6, r9\n  cc:\t4645      \tmov\tr5, r8\n  ce:\tb5e0      \tpush\t{r5, r6, r7, lr}\n  d0:\tb087      \tsub\tsp, #28\n  d2:\tb672      \tcpsid\ti\n  d4:\t4f24      \tldr\tr7, [pc, #144]\t@ (168 <reset+0xa4>)\n  d6:\t22a5      \tmovs\tr2, #165\t@ 0xa5\n  d8:\t003c      \tmovs\tr4, r7\n  da:\t003b      \tmovs\tr3, r7\n  dc:\t3410      \tadds\tr4, #16\n  de:\t701a      \tstrb\tr2, [r3, #0]\n  e0:\t3301      \tadds\tr3, #1\n  e2:\t42a3      \tcmp\tr3, r4\n  e4:\td1fb      \tbne.n\tde <reset+0x1a>\n  e6:\t2363      \tmovs\tr3, #99\t@ 0x63\n  e8:\t4698      \tmov\tr8, r3\n  ea:\t3b5c      \tsubs\tr3, #92\t@ 0x5c\n  ec:\t4699      \tmov\tr9, r3\n  ee:\t4b1f      \tldr\tr3, [pc, #124]\t@ (16c <reset+0xa8>)\n  f0:\t2500      \tmovs\tr5, #0\n  f2:\t469a      \tmov\tsl, r3\n  f4:\t4e1e      \tldr\tr6, [pc, #120]\t@ (170 <reset+0xac>)\n  f6:\t4643      \tmov\tr3, r8\n  f8:\t9301      \tstr\tr3, [sp, #4]\n  fa:\t46eb      \tmov\tfp, sp\n  fc:\t0028      \tmovs\tr0, r5\n  fe:\ta901      \tadd\tr1, sp, #4\n 100:\tf7ff ff9e \tbl\t40 <ts_probe>\n 104:\t2801      \tcmp\tr0, #1\n 106:\td12c      \tbne.n\t162 <reset+0x9e>\n 108:\t4669      \tmov\tr1, sp\n 10a:\t0032      \tmovs\tr2, r6\n 10c:\t4648      \tmov\tr0, r9\n 10e:\t9b01      \tldr\tr3, [sp, #4]\n 110:\t4382      \tbics\tr2, r0\n 112:\t4293      \tcmp\tr3, r2\n 114:\td125      \tbne.n\t162 <reset+0x9e>\n 116:\t4553      \tcmp\tr3, sl\n 118:\td323      \tbcc.n\t162 <reset+0x9e>\n 11a:\t458b      \tcmp\tfp, r1\n 11c:\td121      \tbne.n\t162 <reset+0x9e>\n 11e:\t003b      \tmovs\tr3, r7\n 120:\t781a      \tldrb\tr2, [r3, #0]\n 122:\t2aa5      \tcmp\tr2, #165\t@ 0xa5\n 124:\td11d      \tbne.n\t162 <reset+0x9e>\n 126:\t3301      \tadds\tr3, #1\n 128:\t42a3      \tcmp\tr3, r4\n 12a:\td1f9      \tbne.n\t120 <reset+0x5c>\n 12c:\t3501      \tadds\tr5, #1\n 12e:\t3e01      \tsubs\tr6, #1\n 130:\t2d81      \tcmp\tr5, #129\t@ 0x81\n 132:\td1e0      \tbne.n\tf6 <reset+0x32>\n 134:\tad03      \tadd\tr5, sp, #12\n 136:\t002a      \tmovs\tr2, r5\n 138:\t4b0e      \tldr\tr3, [pc, #56]\t@ (174 <reset+0xb0>)\n 13a:\t2663      \tmovs\tr6, #99\t@ 0x63\n 13c:\tcb13      \tldmia\tr3!, {r0, r1, r4}\n 13e:\tc213      \tstmia\tr2!, {r0, r1, r4}\n 140:\t2400      \tmovs\tr4, #0\n 142:\t00a3      \tlsls\tr3, r4, #2\n 144:\t58e8      \tldr\tr0, [r5, r3]\n 146:\ta902      \tadd\tr1, sp, #8\n 148:\t9602      \tstr\tr6, [sp, #8]\n 14a:\tf7ff ff79 \tbl\t40 <ts_probe>\n 14e:\t2800      \tcmp\tr0, #0\n 150:\td107      \tbne.n\t162 <reset+0x9e>\n 152:\t9b02      \tldr\tr3, [sp, #8]\n 154:\t2b63      \tcmp\tr3, #99\t@ 0x63\n 156:\td104      \tbne.n\t162 <reset+0x9e>\n 158:\t3401      \tadds\tr4, #1\n 15a:\t2c03      \tcmp\tr4, #3\n 15c:\td1f1      \tbne.n\t142 <reset+0x7e>\n 15e:\tf7ff ff99 \tbl\t94 <stop>\n 162:\t2001      \tmovs\tr0, #1\n 164:\tf7ff ff96 \tbl\t94 <stop>\n 168:\t20000000 \t.word\t0x20000000\n 16c:\t20000010 \t.word\t0x20000010\n 170:\t20000090 \t.word\t0x20000090\n 174:\t000001a8 \t.word\t0x000001a8\n 178:\t5f363042 \t.word\t0x5f363042\n 17c:\t4d554854 \t.word\t0x4d554854\n 180:\t54535f42 \t.word\t0x54535f42\n 184:\t5f4b4341 \t.word\t0x5f4b4341\n 188:\t4c494146 \t.word\t0x4c494146\n 18c:\t0000000a \t.word\t0x0000000a\n 190:\t5f363042 \t.word\t0x5f363042\n 194:\t4d554854 \t.word\t0x4d554854\n 198:\t54535f42 \t.word\t0x54535f42\n 19c:\t5f4b4341 \t.word\t0x5f4b4341\n 1a0:\t53534150 \t.word\t0x53534150\n 1a4:\t0000000a \t.word\t0x0000000a\n 1a8:\t00000081 \t.word\t0x00000081\n 1ac:\t00000088 \t.word\t0x00000088\n 1b0:\tffffffff \t.word\t0xffffffff\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "reference section sizes",
+      "command": [
+        "arm-none-eabi-size",
+        "-A",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf  :\nsection           size        addr\n.vectors            64           0\n.text              372          64\n.bss               144   536870912\n.ARM.attributes     45           0\n.comment            38           0\nTotal              663\n\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "reference stack addresses",
+      "command": [
+        "arm-none-eabi-nm",
+        "-n",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/reference.elf"
+      ],
+      "returncode": 0,
+      "stdout": "00000000 D v\n00000040 T ts_probe\n0000006a t no_store\n00000072 t wrong_alignment\n00000074 t reject\n00000076 t done\n0000007a T ts_alignment\n00000086 t misaligned\n00000094 t stop\n000000bc t fault\n000000c4 T reset\n20000000 B test_guard\n20000010 B test_low\n20000090 B test_top\n20004000 B stack_top\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "alignment4 link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m0",
+        "-mthumb",
+        "-std=c17",
+        "-O2",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fno-stack-protector",
+        "-nostdlib",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/link.ld",
+        "-Wl,-Map,/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/alignment4.map",
+        "-DTS_MUTANT=1",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/thumb_stack/probe.S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/start.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/alignment4.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "alignment4 undefined references",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/alignment4.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "alignment4 helper closure",
+      "passed": true
+    },
+    {
+      "label": "alignment4 execute",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "microbit",
+        "-cpu",
+        "cortex-m0",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-nic",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/alignment4.elf"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_THUMB_STACK_FAIL\n",
+      "passed": true
+    },
+    {
+      "label": "excludes-exact link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m0",
+        "-mthumb",
+        "-std=c17",
+        "-O2",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fno-stack-protector",
+        "-nostdlib",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/link.ld",
+        "-Wl,-Map,/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/excludes-exact.map",
+        "-DTS_MUTANT=2",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/thumb_stack/probe.S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/start.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/excludes-exact.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "excludes-exact undefined references",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/excludes-exact.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "excludes-exact helper closure",
+      "passed": true
+    },
+    {
+      "label": "excludes-exact execute",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "microbit",
+        "-cpu",
+        "cortex-m0",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-nic",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/excludes-exact.elf"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_THUMB_STACK_FAIL\n",
+      "passed": true
+    },
+    {
+      "label": "learner-stub link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m0",
+        "-mthumb",
+        "-std=c17",
+        "-O2",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fno-stack-protector",
+        "-nostdlib",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/link.ld",
+        "-Wl,-Map,/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/learner-stub.map",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/probe.S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/architecture_ports/targets/thumb_stack/start.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/learner-stub.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "learner-stub undefined references",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/learner-stub.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "learner-stub helper closure",
+      "passed": true
+    },
+    {
+      "label": "learner-stub execute",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "microbit",
+        "-cpu",
+        "cortex-m0",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-nic",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-thumb-stack/learner-stub.elf"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_THUMB_STACK_FAIL\n",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Maskable interrupts disabled; exact exhaustion provides no exception or nested-call frame headroom; leaf alignment check uses no stack storage",
+    "Guard sentinels observe bounded test writes, not MPU isolation or detection of every transient corruption",
+    "QEMU Cortex-M0 microbit execution, not a physical board or timing measurement",
+    "Original learner stub remains unsolved; author reference results are not learner acceptance"
+  ]
+}

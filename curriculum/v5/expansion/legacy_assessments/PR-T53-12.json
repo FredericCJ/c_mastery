@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T53-12",
   "domain": "T53",
-  "title": "Dependency DAG execution and scaling limits — explicit depth assessments",
+  "title": "Dependency DAG execution and scaling limits \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/smp_depth/dag/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -130,8 +131,8 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
       ]
     }
   ],
@@ -146,7 +147,23 @@
     "curriculum/projects/PR-T53-12.md",
     "fixtures/os_v3/PR-T53-12.json",
     "labs/kernel_smp/README.md",
-    "curriculum/guides/concurrent-system-contracts.md"
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/smp_depth/dag/CONTRACTS.md",
+    "labs/smp_depth/dag/dag.c",
+    "labs/smp_depth/dag/dag.h",
+    "labs/smp_depth/dag/dag_guest.c",
+    "labs/smp_depth/dag/guest.py",
+    "labs/smp_depth/dag/native.c",
+    "labs/smp_depth/dag/oracle.py",
+    "labs/smp_depth/dag/replay.c",
+    "labs/smp_depth/dag/runtime_tests.c",
+    "labs/smp_depth/dag/target_runtime.c",
+    "labs/smp_depth/dag/tests.c",
+    "labs/smp_depth/locks/CONTRACTS.md",
+    "labs/smp_depth/locks/locks.h",
+    "labs/smp_depth/pool/CONTRACTS.md",
+    "labs/smp_depth/pool/guest.py",
+    "labs/smp_depth/pool/pool.h"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -181,12 +198,12 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
-      "task": "For DAG A2→B3/C5→D1 derive work11, span8 and lower bound max(11/P,8). Give a two-CPU schedule achieving8 in the ideal model. State that the execution DAG depends on input/dependencies, not processor count, and distinguish node costs from scheduler overhead.",
+      "task": "For DAG A2\u2192B3/C5\u2192D1 derive work11, span8 and lower bound max(11/P,8). Give a two-CPU schedule achieving8 in the ideal model. State that the execution DAG depends on input/dependencies, not processor count, and distinguish node costs from scheduler overhead.",
       "purpose": "Four CPUs guarantee a fourfold speedup for any DAG.",
       "prerequisites": {
         "knowledge": [
@@ -206,9 +223,9 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: Four CPUs guarantee a fourfold speedup for any DAG.",
-        "D2": "For DAG A2→B3/C5→D1 derive work11, span8 and lower bound max(11/P,8). Give a two-CPU schedule achieving8 in the ideal model. State that the execution DAG depends on input/dependencies, not processor count, and distinguish node costs from scheduler overhead.",
+        "D2": "For DAG A2\u2192B3/C5\u2192D1 derive work11, span8 and lower bound max(11/P,8). Give a two-CPU schedule achieving8 in the ideal model. State that the execution DAG depends on input/dependencies, not processor count, and distinguish node costs from scheduler overhead.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Add a dependencyB→C and derive the new span before running the scheduler."
+        "D4": "Add a dependencyB\u2192C and derive the new span before running the scheduler."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
@@ -220,7 +237,7 @@
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
         "2": "The critical path A,C,D costs8 and limits speedup to11/8 even with unlimited processors. The lower bound is not a measured runtime or universal upper bound. Added synchronization and memory costs can only change the stated model. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Add a dependencyB→C and derive the new span before running the scheduler. Independently derives and verifies the changed obligations after the recorded delay."
+        "3": "Add a dependencyB\u2192C and derive the new span before running the scheduler. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "The longest dependency path survives adding processors.",
@@ -230,7 +247,7 @@
         {
           "id": "AX-PR-T53-12-T53.12.a-DELAYED",
           "minimum_days": 7,
-          "task": "Add a dependencyB→C and derive the new span before running the scheduler."
+          "task": "Add a dependencyB\u2192C and derive the new span before running the scheduler."
         }
       ],
       "assessor_anchor": "#t5312a",
@@ -244,6 +261,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_dag/support.json",
+        "id": "AX-PR-T53-12-T53.12.a"
       }
     },
     {
@@ -271,8 +292,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -334,6 +355,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_dag/support.json",
+        "id": "AX-PR-T53-12-T53.12.b"
       }
     },
     {
@@ -361,8 +386,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -424,6 +449,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_dag/support.json",
+        "id": "AX-PR-T53-12-T53.12.c"
       }
     }
   ],
@@ -438,5 +467,16 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_smp_dag/support.json",
+      "criterion_ids": [
+        "AX-PR-T53-12-T53.12.a",
+        "AX-PR-T53-12-T53.12.b",
+        "AX-PR-T53-12-T53.12.c"
+      ],
+      "scope": "Arbitrary/runtime DAGs, dependency publication, equivalent split work and failure/cancellation with actual pool/CMK composition. Original status is historical; exact current evidence is in this successor."
+    }
+  ]
 }

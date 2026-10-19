@@ -1,0 +1,160 @@
+
+/tmp/smp-shootdown-xbd_5p2y/gcc-O3-1-0/image/guest/ap.S.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <cmk2_switch>:
+   0:	55                   	push   %rbp
+   1:	53                   	push   %rbx
+   2:	41 54                	push   %r12
+   4:	41 55                	push   %r13
+   6:	41 56                	push   %r14
+   8:	41 57                	push   %r15
+   a:	48 89 27             	mov    %rsp,(%rdi)
+   d:	48 89 f4             	mov    %rsi,%rsp
+  10:	41 5f                	pop    %r15
+  12:	41 5e                	pop    %r14
+  14:	41 5d                	pop    %r13
+  16:	41 5c                	pop    %r12
+  18:	5b                   	pop    %rbx
+  19:	5d                   	pop    %rbp
+  1a:	c3                   	ret
+
+000000000000001b <cmk2_timer>:
+  1b:	68 f0 00 00 00       	push   $0xf0
+  20:	eb 1c                	jmp    3e <cmk2_irq_common>
+
+0000000000000022 <cmk2_ipi>:
+  22:	68 f1 00 00 00       	push   $0xf1
+  27:	eb 15                	jmp    3e <cmk2_irq_common>
+
+0000000000000029 <cmk2_tlb>:
+  29:	68 f2 00 00 00       	push   $0xf2
+  2e:	eb 0e                	jmp    3e <cmk2_irq_common>
+
+0000000000000030 <cmk2_spurious>:
+  30:	68 ff 00 00 00       	push   $0xff
+  35:	eb 07                	jmp    3e <cmk2_irq_common>
+
+0000000000000037 <cmk2_fault>:
+  37:	68 fe 00 00 00       	push   $0xfe
+  3c:	eb 00                	jmp    3e <cmk2_irq_common>
+
+000000000000003e <cmk2_irq_common>:
+  3e:	fc                   	cld
+  3f:	50                   	push   %rax
+  40:	53                   	push   %rbx
+  41:	51                   	push   %rcx
+  42:	52                   	push   %rdx
+  43:	55                   	push   %rbp
+  44:	56                   	push   %rsi
+  45:	57                   	push   %rdi
+  46:	41 50                	push   %r8
+  48:	41 51                	push   %r9
+  4a:	41 52                	push   %r10
+  4c:	41 53                	push   %r11
+  4e:	41 54                	push   %r12
+  50:	41 55                	push   %r13
+  52:	41 56                	push   %r14
+  54:	41 57                	push   %r15
+  56:	48 8b 7c 24 78       	mov    0x78(%rsp),%rdi
+  5b:	49 89 e4             	mov    %rsp,%r12
+  5e:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  62:	e8 00 00 00 00       	call   67 <cmk2_irq_common+0x29>
+			63: R_X86_64_PLT32	cmk2_interrupt-0x4
+  67:	4c 89 e4             	mov    %r12,%rsp
+  6a:	41 5f                	pop    %r15
+  6c:	41 5e                	pop    %r14
+  6e:	41 5d                	pop    %r13
+  70:	41 5c                	pop    %r12
+  72:	41 5b                	pop    %r11
+  74:	41 5a                	pop    %r10
+  76:	41 59                	pop    %r9
+  78:	41 58                	pop    %r8
+  7a:	5f                   	pop    %rdi
+  7b:	5e                   	pop    %rsi
+  7c:	5d                   	pop    %rbp
+  7d:	5a                   	pop    %rdx
+  7e:	59                   	pop    %rcx
+  7f:	5b                   	pop    %rbx
+  80:	58                   	pop    %rax
+  81:	48 83 c4 08          	add    $0x8,%rsp
+  85:	48 cf                	iretq
+
+0000000000000087 <ss_park>:
+  87:	48 89 f4             	mov    %rsi,%rsp
+  8a:	31 ed                	xor    %ebp,%ebp
+  8c:	e8 00 00 00 00       	call   91 <ss_park+0xa>
+			8d: R_X86_64_PLT32	ss_parked-0x4
+  91:	fa                   	cli
+  92:	f4                   	hlt
+  93:	eb fc                	jmp    91 <ss_park+0xa>
+
+0000000000000095 <stg_bsp_enter>:
+  95:	48 89 fc             	mov    %rdi,%rsp
+  98:	31 ed                	xor    %ebp,%ebp
+  9a:	e8 00 00 00 00       	call   9f <stg_bsp_enter+0xa>
+			9b: R_X86_64_PLT32	stg_bsp-0x4
+  9f:	fa                   	cli
+  a0:	f4                   	hlt
+  a1:	eb fc                	jmp    9f <stg_bsp_enter+0xa>
+
+00000000000000a3 <stg_irq>:
+  a3:	6a 00                	push   $0x0
+  a5:	68 f6 00 00 00       	push   $0xf6
+  aa:	eb 02                	jmp    ae <stg_irq_common>
+
+00000000000000ac <stg_fault>:
+  ac:	6a 0e                	push   $0xe
+
+00000000000000ae <stg_irq_common>:
+  ae:	fc                   	cld
+  af:	50                   	push   %rax
+  b0:	53                   	push   %rbx
+  b1:	51                   	push   %rcx
+  b2:	52                   	push   %rdx
+  b3:	55                   	push   %rbp
+  b4:	56                   	push   %rsi
+  b5:	57                   	push   %rdi
+  b6:	41 50                	push   %r8
+  b8:	41 51                	push   %r9
+  ba:	41 52                	push   %r10
+  bc:	41 53                	push   %r11
+  be:	41 54                	push   %r12
+  c0:	41 55                	push   %r13
+  c2:	41 56                	push   %r14
+  c4:	41 57                	push   %r15
+  c6:	49 89 e4             	mov    %rsp,%r12
+  c9:	48 89 e7             	mov    %rsp,%rdi
+  cc:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  d0:	e8 00 00 00 00       	call   d5 <stg_irq_common+0x27>
+			d1: R_X86_64_PLT32	stg_interrupt-0x4
+  d5:	4c 89 e4             	mov    %r12,%rsp
+  d8:	41 5f                	pop    %r15
+  da:	41 5e                	pop    %r14
+  dc:	41 5d                	pop    %r13
+  de:	41 5c                	pop    %r12
+  e0:	41 5b                	pop    %r11
+  e2:	41 5a                	pop    %r10
+  e4:	41 59                	pop    %r9
+  e6:	41 58                	pop    %r8
+  e8:	5f                   	pop    %rdi
+  e9:	5e                   	pop    %rsi
+  ea:	5d                   	pop    %rbp
+  eb:	5a                   	pop    %rdx
+  ec:	59                   	pop    %rcx
+  ed:	5b                   	pop    %rbx
+  ee:	58                   	pop    %rax
+  ef:	48 83 c4 10          	add    $0x10,%rsp
+  f3:	48 cf                	iretq
+
+00000000000000f5 <stg_try_write>:
+  f5:	31 c0                	xor    %eax,%eax
+
+00000000000000f7 <stg_write_site>:
+  f7:	48 89 37             	mov    %rsi,(%rdi)
+  fa:	b8 01 00 00 00       	mov    $0x1,%eax
+
+00000000000000ff <stg_after_write>:
+  ff:	c3                   	ret

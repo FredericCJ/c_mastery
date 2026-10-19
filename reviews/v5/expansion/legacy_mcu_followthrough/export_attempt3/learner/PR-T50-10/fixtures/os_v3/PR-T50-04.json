@@ -1,0 +1,29 @@
+{
+  "id": "PR-T50-04",
+  "description": "Ready, blocked, sleeping and exited states finite independent example",
+  "oracle": "states",
+  "input": {
+    "initial": "ready",
+    "actions": [
+      "dispatch",
+      "block",
+      "wake",
+      "dispatch",
+      "exit",
+      "reap"
+    ]
+  },
+  "expected": {
+    "states": [
+      "running",
+      "blocked",
+      "ready",
+      "running",
+      "exited",
+      "free"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A task belongs to one scheduler state and at most one runnable queue. Blocking is not a busy wait. The idle task runs only when no ordinary task is runnable. Queue membership and current execution ownership must change together under the selected critical-section contract.",
+  "required_observation": "Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling."
+}

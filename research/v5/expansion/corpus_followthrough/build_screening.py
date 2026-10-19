@@ -1,0 +1,51 @@
+"""Reproducible metadata relevance screen, explicitly distinct from passage inspection."""
+import collections,hashlib,json,pathlib
+ROOT=pathlib.Path(__file__).resolve().parents[4];HERE=pathlib.Path(__file__).resolve().parent
+LIB=pathlib.Path('F:/Knowledge');SWE=pathlib.Path('F:/Projects/Writing/corpora/SWE/explorer/data')
+def read(p):return json.loads(p.read_text(encoding='utf-8-sig'))
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def write(p,d):p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+pointer=read(LIB/'_census/library_database/CURRENT.json');manifest=LIB/'Library/_database/manifest.json';assert sha(manifest)==pointer['manifest_sha256'];records=LIB/'Library/_database/documents.jsonl';assert sha(records)==read(manifest)['artifact_sha256']['documents.jsonl'];docs=[json.loads(x) for x in records.read_text(encoding='utf-8').splitlines()]
+elements=read(SWE/'elements.json')['nodes'];works=read(SWE/'corpus.json')['nodes']
+resolution_file=HERE/'mechanism_resolutions.json'
+resolutions={r['id']:r for r in read(resolution_file)['resolutions']} if resolution_file.is_file() else {}
+new={'fenwick-tree':'X-T14-003','segment-tree':'X-T14-004','interval-tree':'X-T14-005','suffix-array':'X-T15-003'}
+assigned={'count-min-sketch':'root/lab_batch probabilistic package','hyperloglog':'root/lab_batch probabilistic package','minhash':'root/lab_batch probabilistic package','compression':'root compression companion','error-correcting-codes':'root coding companion'}
+retained={
+ 'gap-buffer':['assessor/dod/dod_text.c','labs/dod/tests/text_ext.c','curriculum/v5/exercises/X-T70-008.md','tools/verify_dod_extensions.py'],
+ 'piece-table':['assessor/dod/dod_text.c','labs/dod/tests/text_ext.c','curriculum/v5/exercises/X-T70-008.md','tools/verify_dod_extensions.py'],
+ 'zipper':['assessor/dod/dod_persistent.c','labs/dod/tests/persistent_ext.c','curriculum/v5/exercises/X-T70-006.md','tools/verify_dod_extensions.py'],
+ 'packrat-parsing':['assessor/coroutines/coroutines.c','labs/coroutines/CONTRACTS.md','labs/coroutines/followthrough/CONTRACTS.md','curriculum/v5/exercises/X-T72-007.md']}
+candidate={'regular-expressions':'Verify actual finite-automaton construction rather than infer it from lexer/parser headings.','interval-arithmetic':'Verify directed-rounding containment and dependency overestimation rather than infer it from scalar floating arithmetic.','gap-buffer':'Localized mutation and gap movement differ from rope ownership.','piece-table':'Immutable original/add storage and edit-span ownership differ from a general vector.','zipper':'Persistent focus/context rebuilding is a distinct transfer from ordinary mutable iteration.','bitmap-index':'Multiple predicate bitmaps and maintained row identities require a composed query contract.','inverted-index':'Posting-list intersections and positional queries need exact semantics beyond hash maps.','zone-map':'Safe summary pruning under updates and false positives is not implied by min/max mention.','bounding-volume-hierarchy':'Conservative spatial enclosure/pruning and update behavior require mechanism evidence.','k-d-tree':'Nearest-neighbor lower bounds and dimension assumptions require evidence.','quadtree-octree':'Cell boundaries, subdivision termination and sparse storage require evidence.','r-tree':'Overlapping internal boxes change search behavior versus a scalar B-tree.','uniform-spatial-hash-grid':'Neighbor stencil, negative coordinates and duplicate candidates require evidence.','spatial-partition':'Grouped spatial-query mechanism, not every named implementation automatically required.','t-digest':'Approximate quantile behavior and merge-order/error limitations require separate assessment.','lr-parser':'Actual shift/reduce tables and conflicts are not equivalent to recursive descent.','packrat-parsing':'Memoization with ordered choice changes grammar and resource semantics.','pratt-parser':'Binding-power transfer can share an expression-language contract only if assessed explicitly.','scannerless-parsing':'Lexical versus grammar ambiguity must be examined before deciding equivalence.'}
+kind_domains={'data-structures':['T14','T70','T76'],'numeric-precision':['T04','T17','T64'],'parsing-text':['T15','T68','T46'],'resource-management':['T16','T66','T74'],'synchronization-coordination':['T25','T26','T51','T52','T53','T73'],'execution-concurrency':['T24','T72','T73'],'error-handling':['T21','T65'],'communication':['T24','T39','T40','T41','T75'],'robustness-security':['T32','T35','T63'],'data-representation':['T03','T67','T70'],'state-management':['T20','T54','T76'],'construction-api':['T18','T19','T22','T69','T71'],'persistence-durability':['T43','T76'],'data-flow-buffering':['T24','T29','T75'],'functional-type-idioms':['T67','T68','T71'],'scheduling-time':['T29','T30','T52','T75'],'serialization-framing':['T03','T15','T38','T40'],'caching-memoization':['T17','T68','T70'],'embedded-systems':['T27','T28','T29','T30'],'code-structure':['T18','T19','T22'],'testing-constructs':['T32','T33'],'oo-patterns':['T18','T19','T69','T71']}
+screen=[]
+for e in elements:
+ id=e['id'];kind=e['kind'];reviewed=kind in ['data-structures','numeric-precision','parsing-text'] or id in assigned
+ status='metadata-relevance-routing-only'
+ if id in new:status='required-companion-authored'
+ elif id in assigned:status='required-companion-assigned'
+ elif id in candidate:status='specific-coverage-check-required'
+ elif reviewed:status='relevant-mechanism-retained-coverage-must-resolve'
+ else:status='scope-routing-not-content-inspection'
+ if id in retained:status='retained-bounded-mechanism-identified'
+ screen.append(dict(id=id,title=e['name'],realm=e['realm'],kind=kind,metadata_description_read=reviewed,status=status,candidate_domains=kind_domains.get(kind,['T20','T55','T56']),specific_exercise=new.get(id),assigned_owner=assigned.get(id),reason=candidate.get(id,'A category/domain association is only a relevance lead. Existing explicit criterion/implementation evidence must establish coverage; it is not inferred here.'),retained_evidence=retained.get(id,[]),retained_review='Root actual-source audit of text/persistent C, extension tests and oracle; bounded mechanism only.' if id in ['gap-buffer','piece-table','zipper'] else 'Actual original fixed-grammar memoization and followthrough cache-key/seed-growth contracts inspected; not arbitrary mutual left recursion.' if id=='packrat-parsing' else None,named_primary_lead=e.get('named_in'),source_passages_inspected=id in new))
+categories=[]
+for row in screen:
+ if row['id'] in resolutions:
+  resolved=resolutions[row['id']]
+  row.update(status=resolved['status'],reason=resolved['mechanism'],specific_exercise=resolved['exercises'],assigned_owner=None,retained_evidence=resolved['evidence'],retained_review=resolved['inspection_provenance'],resolution_path='research/v5/expansion/corpus_followthrough/mechanism_resolutions.json',resolution_id=row['id'],mechanism_limits=resolved['limits'])
+  # Discovery metadata is never evidence that its named book was read.
+  row['source_passages_inspected']=False
+  row['source_inspection_scope']='See exact provider primary_passage_records; this metadata screen does not claim inspection of named_in.'
+  original=next(e for e in elements if e['id']==row['id'])
+  row['description_identity_sha256']=hashlib.sha256(json.dumps(original,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+for category,count in sorted(collections.Counter('/'.join(d.get('subjects',[])) for d in docs).items()):
+ if category.startswith('Computing/') and 'Office tools' not in category:decision='direct-or-mechanism-transfer-relevance';why='Systems, algorithms, representations, compiler/runtime or engineering mechanisms can require C implementation; individual titles remain discovery metadata.'
+ elif category.startswith('Mathematics') or category.startswith('Engineering/') and any(x in category for x in ['Electronics','Electrical','Systems','Robotics','Automotive']):decision='select-mechanism-bearing-passages';why='Numerical, scheduling, protocol, memory and architecture mechanisms are relevant; application-domain encyclopedic coverage is not inferred from the category.'
+ elif category in ['Computing','Engineering','Science and technology','']:decision='ambiguous-category-title-screen-required';why='Broad/unclassified metadata cannot justify exclusion or coverage.'
+ else:decision='no-general-domain-survey-required';why='Application subject matter alone is outside low-level C mastery; any actual computational/numerical mechanism discovered in a title remains eligible, not excluded by this category.'
+ categories.append(dict(category=category,documents=count,decision=decision,rationale=why))
+write(HERE/'screening_map.json',dict(schema_version=2,scope='Fixed84 actually read design descriptions now have explicit concrete mechanism resolutions;999 other elements are metadata routing, not passage inspection or mechanism certification.',inputs=dict(library_manifest_sha256=sha(manifest),library_documents_sha256=sha(records),library_pointer_sha256=sha(LIB/'_census/library_database/CURRENT.json'),swe_elements_sha256=sha(SWE/'elements.json'),swe_corpus_sha256=sha(SWE/'corpus.json')),counts=dict(library_documents=len(docs),categories=len(categories),swe_works=len(works),swe_elements=len(elements),actually_read_design_descriptions=sum(x['metadata_description_read'] for x in screen),resolved_description_mechanisms=len(resolutions)),library_categories=categories,elements=screen,remaining_discovery=['The fixed84 descriptions have bounded mechanism mappings; each retains its specific limits, actual primary-reference scope and six evidence dimensions.','Other999 metadata-routed records are not certified complete by this bounded screen. Existing assigned source/topic/objective obligations remain governed by the global inventory and gap ledger; the finite screen does not exclude them.','Library categories/title metadata do not establish whole-library passage coverage. No opaque package, Library/_old or payload tree was traversed by this catalogue screen.']))
+import runpy
+runpy.run_path(str(HERE/'register_gate.py'),run_name='__main__')
+print('PASS metadata relevance map',len(elements),'elements',len(categories),'categories;',len(resolutions),'bounded mechanism resolutions')

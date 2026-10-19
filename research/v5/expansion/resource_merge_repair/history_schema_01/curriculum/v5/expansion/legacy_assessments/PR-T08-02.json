@@ -1,0 +1,917 @@
+{
+  "schema_version": 1,
+  "project": "PR-T08-02",
+  "domain": "T08",
+  "title": "ABI boundary and frame laboratory — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T08.md",
+        "sha256": "b2554d1193ce38c00a1f7e4fc2443944058acf843673647680a2427510c59965",
+        "passages": [
+          "Topic teaching passages and reading guidance for T08.03, T08.04, T08.05"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T08-02.md",
+        "sha256": "6f1a06ac87d29f6515b43537c6523855ab48b1ce6d6d7e023112959c9ef638e6",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T08-02.json",
+        "sha256": "d63660f57a576526fe8616bdcda99806d38c2fcb5c7258cdc59c9fdcc221fdb2",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T08.md",
+        "anchors": [
+          "T08.03",
+          "T08.04",
+          "T08.05"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-01",
+      "U-T08-02-02",
+      "U-T08-02-03",
+      "U-T08-02-04"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-AMD64",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Data Representation scalar types and aggregates, lines 104-310; Registers, Stack Frame, Parameter Passing and Returning Values, lines 424-777; Initial Stack and Register State, lines 1051-1155"
+      ]
+    },
+    {
+      "id": "R-LABI-AMD64",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.2.1–3.2.3, printed14–22: register roles, stack, classification, parameter allocation, return ownership"
+      ]
+    },
+    {
+      "id": "R-LABI-DWARF",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "6.4–6.4.2.2, printed171–177; CFA/rules/CIE/FDE and row instructions"
+      ]
+    },
+    {
+      "id": "R-LABI-AS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "7.13.1–7.13.3",
+        "7.13.9–7.13.20: CFA offsets, saved registers, restore and state stack"
+      ]
+    },
+    {
+      "id": "R-LABI-ASM",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "6.11.2.1 Volatile",
+        "6.11.2.2 Assembler Template",
+        "6.11.2.6 Clobbers and Scratch Registers, lines566–569"
+      ]
+    },
+    {
+      "id": "R-LABI-ARMPCS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "VFP register usage conventions, lines874–921",
+        "The Standard Variants, lines1425–1429",
+        "Argument Passing Conventions, lines2055–2072"
+      ]
+    },
+    {
+      "id": "R-LABI-ARMFLAGS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.20.5 -mfloat-abi, lines26–30"
+      ]
+    },
+    {
+      "id": "R-LABI-M4",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.12.3 DMB, printed3-160",
+        "4.6.1 CPACR, printed4-48",
+        "4.6.6 Enabling the FPU, printed4-52"
+      ]
+    },
+    {
+      "id": "R-LABI-CMP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "CMP, printed3-161–3-162"
+      ]
+    },
+    {
+      "id": "R-LABI-CONTROL",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "MFENCE, printed4-15",
+        "MOV control registers, printed4-32–4-34",
+        "SYSCALL, printed4-699–4-701"
+      ]
+    },
+    {
+      "id": "R-LABI-LLP64",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "ILP32/LLP64 paragraphs, lines30–35"
+      ]
+    },
+    {
+      "id": "R-LABI-WRAP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.18 -fwrapv, lines67–69"
+      ]
+    },
+    {
+      "id": "R-LABI-CLANG-WRAP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "-fwrapv and -fno-wrapv option entry"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T08-02.md",
+    "fixtures/systems/PR-T08-02.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/machine_image/abi_depth/api.c",
+    "labs/machine_image/abi_depth/api.h",
+    "labs/machine_image/abi_depth/boundary.S",
+    "labs/machine_image/abi_depth/CONTRACTS.md",
+    "labs/machine_image/abi_depth/hostile.S",
+    "labs/machine_image/abi_depth/run_core.py",
+    "labs/machine_image/abi_depth/SOURCES.md",
+    "labs/machine_image/abi_depth/tests.c"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.abi"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T08-02-T08.03.a",
+      "title": "Map parameters and return values to the chosen ABI.",
+      "objective": "T08.03.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Annotate caller and callee of existing mi_mix for eight uint64_t arguments, including seventh/eighth locations before and after call. Independently derive outputs for (1..8) and the high-bit boundary case.",
+      "purpose": "All arguments fit in registers or have the same offsets on both sides of call.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "All arguments fit in registers or have the same offsets on both sides of call. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: All arguments fit in registers or have the same offsets on both sides of call.",
+        "D2": "Annotate caller and callee of existing mi_mix for eight uint64_t arguments, including seventh/eighth locations before and after call. Independently derive outputs for (1..8) and the high-bit boundary case.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a ninth argument and a mixed floating-point argument; classify register resources separately rather than shift every argument blindly."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The weighted sum is204 for1..8 and modulo arithmetic explains the boundary. The return-address push changes stack-relative offsets.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The weighted sum is204 for1..8 and modulo arithmetic explains the boundary. The return-address push changes stack-relative offsets. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a ninth argument and a mixed floating-point argument; classify register resources separately rather than shift every argument blindly. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify each eightbyte before assigning available register classes.",
+        "Account for the call-pushed return address and a hidden result pointer before locating later arguments."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a ninth argument and a mixed floating-point argument; classify register resources separately rather than shift every argument blindly."
+        }
+      ],
+      "assessor_anchor": "#t0803a",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.03.a"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.b",
+      "title": "Analyze aggregate passing and hidden return-storage conventions.",
+      "objective": "T08.03.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compile three return types: uint64_t, struct {uint64_t a,b;}, and struct {uint64_t a,b,c;}. Derive classification and hidden-result ownership, then verify call-site and callee agree without casting incompatible function pointers.",
+      "purpose": "Every structure return is a pointer or every small structure is returned identically.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every structure return is a pointer or every small structure is returned identically. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every structure return is a pointer or every small structure is returned identically.",
+        "D2": "Compile three return types: uint64_t, struct {uint64_t a,b;}, and struct {uint64_t a,b,c;}. Derive classification and hidden-result ownership, then verify call-site and callee agree without casting incompatible function pointers.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Use a mixed double/integer pair and explain separate register classes; retain a new pinned ABI classification."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "On declared SysV AMD64 integer pair and triple have distinct return mechanisms; hidden storage is caller-owned and must outlive the call. Demonstrate layout evidence before classifying.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "On declared SysV AMD64 integer pair and triple have distinct return mechanisms; hidden storage is caller-owned and must outlive the call. Demonstrate layout evidence before classifying. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a mixed double/integer pair and explain separate register classes; retain a new pinned ABI classification. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify each eightbyte before assigning available register classes.",
+        "Account for the call-pushed return address and a hidden result pointer before locating later arguments."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a mixed double/integer pair and explain separate register classes; retain a new pinned ABI classification."
+        }
+      ],
+      "assessor_anchor": "#t0803b",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.03.b"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.c",
+      "title": "Inspect stack alignment and argument spill areas.",
+      "objective": "T08.03.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Instrument an original assembly call boundary to record rsp modulo16 before call and at callee entry, including two stack arguments. Verify allocated argument space and cleanup across repeated calls.",
+      "purpose": "A16-byte-aligned rsp is required at every instruction including immediately after call.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A16-byte-aligned rsp is required at every instruction including immediately after call. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A16-byte-aligned rsp is required at every instruction including immediately after call.",
+        "D2": "Instrument an original assembly call boundary to record rsp modulo16 before call and at callee entry, including two stack arguments. Verify allocated argument space and cleanup across repeated calls.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add an over-aligned stack argument and derive the stronger alignment from its actual ABI requirement."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "For this non-vector SysV case the pre-call rsp is aligned and entry rsp+8 is aligned; return-address storage must be accounted for.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "For this non-vector SysV case the pre-call rsp is aligned and entry rsp+8 is aligned; return-address storage must be accounted for. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add an over-aligned stack argument and derive the stronger alignment from its actual ABI requirement. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify each eightbyte before assigning available register classes.",
+        "Account for the call-pushed return address and a hidden result pointer before locating later arguments."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add an over-aligned stack argument and derive the stronger alignment from its actual ABI requirement."
+        }
+      ],
+      "assessor_anchor": "#t0803c",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.03.c"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.a",
+      "title": "Identify frame setup, teardown, locals, spills, and saved registers.",
+      "objective": "T08.04.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compile an address-taken local array and a non-address-taken scalar at O0/O2; annotate frame setup, spills, saved registers and red-zone use. Reconcile every stack adjustment with an observed object or ABI obligation.",
+      "purpose": "Every source local has a permanent stack slot.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every source local has a permanent stack slot. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every source local has a permanent stack slot.",
+        "D2": "Compile an address-taken local array and a non-address-taken scalar at O0/O2; annotate frame setup, spills, saved registers and red-zone use. Reconcile every stack adjustment with an observed object or ABI obligation.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Force a value live across an external call and explain the changed spill/save choices."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Optimization may keep or eliminate values; observed frame size is configuration-specific. Do not infer source object absence merely from no named slot.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Optimization may keep or eliminate values; observed frame size is configuration-specific. Do not infer source object absence merely from no named slot. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Force a value live across an external call and explain the changed spill/save choices. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish a logical activation from an observed machine frame.",
+        "Look for live values across calls and data below rsp before claiming a stack bound."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Force a value live across an external call and explain the changed spill/save choices."
+        }
+      ],
+      "assessor_anchor": "#t0804a",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.04.a"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.b",
+      "title": "Analyze recursion, tail calls, and omitted frame pointers.",
+      "objective": "T08.04.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare recursive and iterative unsigned factorial for inputs0..12 with and without sibling-call optimization and frame pointers. Derive logical activation count separately from actual frame growth.",
+      "purpose": "Tail recursion is guaranteed constant-stack by ISO C.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Tail recursion is guaranteed constant-stack by ISO C. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Tail recursion is guaranteed constant-stack by ISO C.",
+        "D2": "Compare recursive and iterative unsigned factorial for inputs0..12 with and without sibling-call optimization and frame pointers. Derive logical activation count separately from actual frame growth.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add observable post-call work to prevent a tail call and redo the stack bound."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Result agreement does not promise tail-call elimination; report actual generated frames and conservative source-level depth separately.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Result agreement does not promise tail-call elimination; report actual generated frames and conservative source-level depth separately. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add observable post-call work to prevent a tail call and redo the stack bound. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish a logical activation from an observed machine frame.",
+        "Look for live values across calls and data below rsp before claiming a stack bound."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add observable post-call work to prevent a tail call and redo the stack bound."
+        }
+      ],
+      "assessor_anchor": "#t0804b",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.04.b"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.c",
+      "title": "Apply red-zone assumptions only to environments that support them.",
+      "objective": "T08.04.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Build a leaf routine with a64-byte temporary under ordinary userspace and -mno-red-zone; inspect addressing. Explain why kernel/interrupt contexts need a separately established environment contract.",
+      "purpose": "An x86-64 ABI red zone is universally safe on every execution stack.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "An x86-64 ABI red zone is universally safe on every execution stack. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: An x86-64 ABI red zone is universally safe on every execution stack.",
+        "D2": "Build a leaf routine with a64-byte temporary under ordinary userspace and -mno-red-zone; inspect addressing. Explain why kernel/interrupt contexts need a separately established environment contract.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Make the leaf routine call a helper and identify temporary data that must survive that call outside the red zone."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Userspace SysV conditions do not authorize using space below rsp in an unrelated exception environment; compile observations are not an interrupt-safety proof.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Userspace SysV conditions do not authorize using space below rsp in an unrelated exception environment; compile observations are not an interrupt-safety proof. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Make the leaf routine call a helper and identify temporary data that must survive that call outside the red zone. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish a logical activation from an observed machine frame.",
+        "Look for live values across calls and data below rsp before claiming a stack bound."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Make the leaf routine call a helper and identify temporary data that must survive that call outside the red zone."
+        }
+      ],
+      "assessor_anchor": "#t0804c",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.04.c"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.a",
+      "title": "Compare ILP32, LP64, and other relevant data models.",
+      "objective": "T08.05.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create sizeof/_Alignof/offsetof manifests for int,long,void*,size_t under LP64 and any available ILP32 target. Classify unavailable builds explicitly and analyze serialization of long as a proposed wire format.",
+      "purpose": "64-bit ISA means every C integer and pointer model is LP64.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "64-bit ISA means every C integer and pointer model is LP64. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: 64-bit ISA means every C integer and pointer model is LP64.",
+        "D2": "Create sizeof/_Alignof/offsetof manifests for int,long,void*,size_t under LP64 and any available ILP32 target. Classify unavailable builds explicitly and analyze serialization of long as a proposed wire format.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Compare LLP64 using documented widths and explain which LP64 source assumptions fail without inventing a local run."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Data model and ISA are separate; long-based wire layout is target-dependent. Compile-only manifests do not demonstrate target execution.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Data model and ISA are separate; long-based wire layout is target-dependent. Compile-only manifests do not demonstrate target execution. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Compare LLP64 using documented widths and explain which LP64 source assumptions fail without inventing a local run. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Measure widths, offsets and alignments independently.",
+        "An object linker usually sees symbols, not both translation units' complete C type layouts."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare LLP64 using documented widths and explain which LP64 source assumptions fail without inventing a local run."
+        }
+      ],
+      "assessor_anchor": "#t0805a",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.05.a"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.b",
+      "title": "Inspect structure padding, alignment, and exported layout.",
+      "objective": "T08.05.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Measure struct {char a; uint32_t b; uint16_t c;} and an explicitly packed extension variant; explain internal/tail padding and alignment. Compare member values, never use raw padding bytes as semantic equality.",
+      "purpose": "Equal member values imply identical representation bytes.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Equal member values imply identical representation bytes. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Equal member values imply identical representation bytes.",
+        "D2": "Measure struct {char a; uint32_t b; uint16_t c;} and an explicitly packed extension variant; explain internal/tail padding and alignment. Compare member values, never use raw padding bytes as semantic equality.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Reorder fields to reduce padding while explaining why an exported binary layout change still breaks compatibility."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The ordinary fixture predicts offsets0,4,8,size12 under its stated alignments; packed layout is an extension and can impose unaligned accesses.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The ordinary fixture predicts offsets0,4,8,size12 under its stated alignments; packed layout is an extension and can impose unaligned accesses. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Reorder fields to reduce padding while explaining why an exported binary layout change still breaks compatibility. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Measure widths, offsets and alignments independently.",
+        "An object linker usually sees symbols, not both translation units' complete C type layouts."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Reorder fields to reduce padding while explaining why an exported binary layout change still breaks compatibility."
+        }
+      ],
+      "assessor_anchor": "#t0805b",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.05.b"
+      }
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.c",
+      "title": "Detect mixed-object ABI mismatches before deployment.",
+      "objective": "T08.05.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compile producer/consumer manifests separately with intentionally different public layout macros. Check widths, offsets, alignment and interface version before linking/execution; retain the rejected pair.",
+      "purpose": "The linker checks C struct layouts across translation units.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The linker checks C struct layouts across translation units. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The linker checks C struct layouts across translation units.",
+        "D2": "Compile producer/consumer manifests separately with intentionally different public layout macros. Check widths, offsets, alignment and interface version before linking/execution; retain the rejected pair.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the exposed struct with an opaque handle and state which ABI obligations remain despite hiding layout."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Symbol names alone do not establish compatible object layouts; an explicit manifest/version gate must reject the pair before unsafe use.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Symbol names alone do not establish compatible object layouts; an explicit manifest/version gate must reject the pair before unsafe use. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the exposed struct with an opaque handle and state which ABI obligations remain despite hiding layout. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Measure widths, offsets and alignments independently.",
+        "An object linker usually sees symbols, not both translation units' complete C type layouts."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-02-T08.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the exposed struct with an opaque handle and state which ABI obligations remain despite hiding layout."
+        }
+      ],
+      "assessor_anchor": "#t0805c",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_systems_abi/support.json",
+        "criterion_id": "AX-PR-T08-02-T08.05.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T08-02.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_systems_abi/support.json",
+    "criterion_ids": [
+      "AX-PR-T08-02-T08.03.a",
+      "AX-PR-T08-02-T08.03.b",
+      "AX-PR-T08-02-T08.03.c",
+      "AX-PR-T08-02-T08.04.a",
+      "AX-PR-T08-02-T08.04.b",
+      "AX-PR-T08-02-T08.04.c",
+      "AX-PR-T08-02-T08.05.a",
+      "AX-PR-T08-02-T08.05.b",
+      "AX-PR-T08-02-T08.05.c"
+    ],
+    "scope": "Source-bound author experiments and assessor transfer package; independent learner evidence remains separate."
+  }
+}

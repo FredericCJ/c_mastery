@@ -1,0 +1,24 @@
+ORC_FENCE release-rmw-acquire-fence
+
+==================
+WARNING: ThreadSanitizer: data race (pid=4305)
+  Read of size 4 at 0x000000404088 by thread T2:
+    #0 drop /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:10 (gcc-fence-0+0x401316) (BuildId: 8415952603dd107448c9535c90919690bcaecc14)
+    #1 second /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:12 (gcc-fence-0+0x401375) (BuildId: 8415952603dd107448c9535c90919690bcaecc14)
+
+  Previous write of size 4 at 0x000000404088 by thread T1:
+    #0 first /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:11 (gcc-fence-0+0x40139c) (BuildId: 8415952603dd107448c9535c90919690bcaecc14)
+
+  Location is global 'values' of size 8 at 0x000000404088 (gcc-fence-0+0x404088)
+
+  Thread T2 (tid=4308, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:13 (gcc-fence-0+0x401423) (BuildId: 8415952603dd107448c9535c90919690bcaecc14)
+
+  Thread T1 (tid=4307, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:13 (gcc-fence-0+0x401407) (BuildId: 8415952603dd107448c9535c90919690bcaecc14)
+
+SUMMARY: ThreadSanitizer: data race /mnt/f/Learning/Curricula/c_mastery/labs/ownership/references/tests/fence.c:10 in drop
+==================
+ThreadSanitizer: reported 1 warnings

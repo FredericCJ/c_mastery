@@ -1,0 +1,28 @@
+{
+  "id": "PR-T50-01",
+  "description": "Freestanding image and runtime dependency audit finite independent example",
+  "oracle": "image",
+  "input": {
+    "symbols": [
+      "reset",
+      "main",
+      "memcpy",
+      "__aeabi_uidiv"
+    ],
+    "provided": [
+      "reset",
+      "main",
+      "memcpy"
+    ],
+    "libraries": []
+  },
+  "expected": {
+    "unresolved": [
+      "__aeabi_uidiv"
+    ],
+    "forbidden_libraries": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Freestanding compilation changes language/library expectations; it does not guarantee a self-contained link. A compiler can emit memcpy, division helpers or atomics support. The custom image must provide original required helpers and contain no linked libc, libgcc, compiler-rt or libatomic. Standard type headers and reviewed intrinsics are permitted.",
+  "required_observation": "Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases."
+}

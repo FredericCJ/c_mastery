@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "original_grammar": "opcode1,count0..4,exact2+2count,big-endian-u16",
+  "extension_grammar": "opcode2,count0..4,flag0-or1,big-endian-u16-values,one-tag-byte-if-flag1",
+  "seeds": [
+    {"id":"valid-pair","hex":"010200010002","profile":0,"expected":"ok"},
+    {"id":"truncated-pair","hex":"01020001","profile":0,"expected":"length"},
+    {"id":"empty-packet","hex":"0100","profile":0,"expected":"ok"},
+    {"id":"excessive-count","hex":"0105","profile":0,"expected":"count"},
+    {"id":"wrong-opcode","hex":"0000","profile":0,"expected":"opcode"},
+    {"id":"trailing-byte","hex":"010009","profile":0,"expected":"length"},
+    {"id":"maximal-values","hex":"0104ffffffffffffffff","profile":0,"expected":"ok"},
+    {"id":"tagged-pair","hex":"0202010102fedc4d","profile":1,"expected":"ok"},
+    {"id":"untagged-empty","hex":"020000","profile":1,"expected":"ok"},
+    {"id":"missing-tag","hex":"020001","profile":1,"expected":"length"},
+    {"id":"invalid-flag","hex":"020002","profile":1,"expected":"flags"}
+  ],
+  "intentional_bounds_original":"01020001",
+  "intentional_timeout_original":"ff00",
+  "limits":"Original local synthetic packets only; corpus variety/coverage is not an acceptance oracle or completeness proof."
+}

@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "AX-PR-T47-02-T47.02.a",
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual retained physical-page-tag cache and successor direct policy execute1,1,5,1 with three backend reads and one hit. Actual transactional scratch remains separate; scratch lookup induces no backend write. Native cache/entry/scratch sizes and actual compiler stack/import closure are recorded.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.a-DELAYED",
+      "author_readiness": "ready-bounded",
+      "demonstration": "A real four-entry two-way LRU policy replaces only the least recent way, updates recency on successful hit and preserves ownership. The original parent pinned-root variant also uses exactly four payload pages with three conflict slots, not an extra page. Exact five-read traces and the independent policy model distinguish replacements.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.b",
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual store commit/checkpoint are exercised, and each separately omitted invalidation is rejected by its explicit empty-cache postcondition. The companion comparisons expose that physical tags plus the other invalidation mask stale bytes for the selected valid trace. Combined omission demonstrates old raw generation0 at current generation1; actual store_get contains it as STORE_CORRUPT with unchanged value/length. This is an explicit bounded correction to overstated individual stale-value wording, not invented execution.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.b-DELAYED",
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual20-key insert, full deletion and another20-key insertion free and reallocate page2 while generation advances1 to3. Exact owner/generation/physical tuple prevents the repeated WAL slot from hitting old bytes. Separate image and home/WAL changes are tested; supplied current authority remains a trusted caller premise.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.c",
+      "author_readiness": "ready-bounded",
+      "demonstration": "The independent Python cache/tag/replacement model checks7203 four-operation histories and28812transitions across direct, two-way and root-pinned policies, including changed image/generation/view and partial-read failures. Observed cache attempts/hits, fixed memory and copied pages remain distinct from unmeasured filesystem/device traffic.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "AX-PR-T47-02-T47.02.c-DELAYED",
+      "author_readiness": "ready-bounded",
+      "demonstration": "The actual eight-page double scan produces16reads/0hits for direct/two-way and15reads/1hit with the root pinned; sixteen repeated root point reads produce1read/15hits under every policy. Each workload begins with a cold cache and the same four-page payload budget. No physical latency conclusion is inferred.",
+      "teaching": [
+        "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json",
+        "labs/storage/FORMAT.md",
+        "labs/storage_followthrough/cache/CONTRACTS.md",
+        "assessor/storage_followthrough/cache/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/storage/store.c",
+        "assessor/storage_followthrough/cache/cache.c",
+        "labs/storage_followthrough/cache/tests.c",
+        "labs/storage_followthrough/cache/mutate_store.py",
+        "tools/verify_storage_cache.py"
+      ],
+      "validation": [
+        "research/v5/expansion/legacy_storage_followthrough/cache_validation.json",
+        "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json"
+      ],
+      "external_review": "not-run",
+      "independent_learner": "not-assessed",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "input_sha256": {
+    "assessor/storage/store.c": "ff8f3b35057cfbd4e8834cd32c4b630cd66975289abe882ef4f9d0df2c549626",
+    "assessor/storage_followthrough/cache/ANALYSIS.md": "7de5bb7e2b170fc702bfa7f58517f4c9469801618e43670a570e206a546977ac",
+    "assessor/storage_followthrough/cache/cache.c": "075f9e197f2811826f1ceeffd2e5d2ec797bd4d94fe299d76b07c8f8fe90ce36",
+    "labs/storage/FORMAT.md": "fa93849005db990854bfe5252edfa9380e1fcb366725e1586af1792462f82ca4",
+    "labs/storage/INTEGRATION.md": "a3a9da074883d408fff70703295cec164b0667c36e33b6ce0def4bfbf36348df",
+    "labs/storage/include/store.h": "278dcc78bcf2756629c466e751e4358d1c3b21dd65aaf721ae8f43314e28d5d2",
+    "labs/storage/src/store.c": "d5cda535c5ea24d4522e4e1b621c0da27b4fa5b9ddf67153de5323325c3cb43d",
+    "labs/storage/tests/test_store.c": "ba1dc79f128d89f21a3f577c3a65407a2e607e9a5ba7f3e9b4411e2eb61a3462",
+    "labs/storage_followthrough/cache/CMakeLists.txt": "6bafe70a8d1a5a991dba6109de01ca5ecd00097fc644b3b909f1298a1c3333e5",
+    "labs/storage_followthrough/cache/CONTRACTS.md": "2b762aa7e236eed452d9a64977fe415ccf797c1426fa09ad259b92de500e13ad",
+    "labs/storage_followthrough/cache/cache.c": "0853cb18b7e69ebcaff7ef282fa4dd7fa28340e5298e9f350f76f45f5811ed2c",
+    "labs/storage_followthrough/cache/cache.h": "fd1e44922cf96cce95b15430c1f551ee92dedd2863d275ecf817d734bffbf543",
+    "labs/storage_followthrough/cache/campaign.json": "2c3adede42352e11483e04ee678905d05a89ad3ecdcff3d3bb193997f559a412",
+    "labs/storage_followthrough/cache/expect_failure.py": "820e492a06e839504631d6b19ee134371db5c9ed8bef67e20590154cfe4f6d43",
+    "labs/storage_followthrough/cache/mutate_store.py": "d344805b854b66c948e7410c4d42fd5b3559a7c3f8885c4088df8b69e0d49197",
+    "labs/storage_followthrough/cache/tests.c": "4768c80c8a51a4db9639351ae60a40fc8328e0f85e27257dc54f13dd16c34267",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/run_storage_cache.py": "3c9fab6cfb53c1c9e546d80aa85f9a6c9c50fd2e61634b0efa716434e1977606",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_storage_cache.py": "3263b88d9d48de3cc1cf862351f1bd12c22d7369242617340183d4b0db99e294",
+    "tools/run_storage_cache_export.py": "ebe1623bbb885eafeb34c3fda863044ee88233fdce3d516494a3801e6a93f228",
+    "cmastery/assessments.py": "a75d66e7bf136ad29bf782498c7948f982c47644e3d2fa273da1a301af061b02",
+    "cmastery/cli.py": "31f1c4b67b252e0a89eae6d92a9e424f84d479d0faf5cd7ce619fdd15835f63b",
+    "curriculum/v5/expansion/legacy_assessments/PR-T47-02.json": "9a9155123537c0c9eda1b74f541306cdc4a23caf206220205ed1d06cd4be6446",
+    "curriculum/modules/T47.md": "0bbf2db0e54b8a7ff20479f39ab021cbc230ca562c42e1fdecc4818ab789aa64",
+    "curriculum/projects/PR-T47-02.md": "9143d6092dbf064d017d0c63c4ffa705999dba784230f7fe5764b90243a19def",
+    "fixtures/storage/PR-T47-02.json": "4f7ed0731fcb01066218ad62b930f1d8d80839e60e78dd14cb6c41f28683ff1f",
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md": "862e3c0a1211bcca0ceaefeab25b54e7f6e81c6962dd027f714712852504e5e3",
+    "research/v5/expansion/legacy_storage_followthrough/cache_validation.json": "fb14d3cabfd6fb27e53c1268b93a3ef92a099838c9d721d9e34cbdb7bfa62070",
+    "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json": "d31a9adcc47be71a9bf481c32d676ab2e92bc111c9ab36e3bc308e007c226cb4",
+    "research/v5/expansion/legacy_storage_followthrough/cache_resources.json": "18a2014fb582602127b4713626eeff77ce11bcb15f6f2b436750a45452648469",
+    "research/v5/expansion/legacy_storage_followthrough/cache_research_gate.json": "5766aa267709a1ed39123a8909ef83fc47f5efb1ca0db649fd6f675b9c52801b",
+    "tools/check_storage_cache.py": "95945c77ecb6bc81a6828ff150dc7adf2575239cc63b92a5afd9dc74b2f8e19e",
+    "tools/register_storage_cache.py": "987239f68ec23d758ec5cd836efb15efc1b27cc4ebcf770011db568b18e0e8c8",
+    "tools/build_storage_cache_readiness.py": "58282df7c1c1d5efecd73829b8978f50f3270af728682f99040d00fc7c50b6ec",
+    "tools/check_replicated_replay_depth.py": "11fd9533a7d73a39f8d48d301365ca66e953cdcf7e8ce9a9846fe492327e7bdb"
+  },
+  "current_reports": {
+    "research/v5/expansion/legacy_storage_followthrough/cache_validation.json": "fb14d3cabfd6fb27e53c1268b93a3ef92a099838c9d721d9e34cbdb7bfa62070",
+    "research/v5/expansion/legacy_storage_followthrough/cache_export_validation.json": "d31a9adcc47be71a9bf481c32d676ab2e92bc111c9ab36e3bc308e007c226cb4"
+  },
+  "limits": [
+    "Preserved original task text is supplemented by the exact physical-tag masking correction.",
+    "Generated controls are reproduced byte-for-byte, archived and bound to the unchanged actual store source.",
+    "Finite serialized traces do not establish arbitrary concurrent cache behavior or physical performance."
+  ]
+}

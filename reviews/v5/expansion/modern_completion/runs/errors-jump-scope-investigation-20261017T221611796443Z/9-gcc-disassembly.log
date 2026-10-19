@@ -1,0 +1,374 @@
+
+/tmp/cmastery-jump-investigation-o_v29lg2/gcc-jump_scope.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <dispose>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	48 8b 77 08          	mov    0x8(%rdi),%rsi
+   8:	48 85 f6             	test   %rsi,%rsi
+   b:	74 53                	je     60 <dispose+0x60>
+   d:	48 8b 07             	mov    (%rdi),%rax
+  10:	8b 4f 10             	mov    0x10(%rdi),%ecx
+  13:	ba fe ff ff ff       	mov    $0xfffffffe,%edx
+  18:	48 c7 47 08 00 00 00 	movq   $0x0,0x8(%rdi)
+  1f:	00 
+  20:	d3 c2                	rol    %cl,%edx
+  22:	8b 88 e0 03 00 00    	mov    0x3e0(%rax),%ecx
+  28:	23 90 0c 04 00 00    	and    0x40c(%rax),%edx
+  2e:	89 90 0c 04 00 00    	mov    %edx,0x40c(%rax)
+  34:	83 f9 04             	cmp    $0x4,%ecx
+  37:	77 1c                	ja     55 <dispose+0x55>
+  39:	44 8d 41 01          	lea    0x1(%rcx),%r8d
+  3d:	44 89 80 e0 03 00 00 	mov    %r8d,0x3e0(%rax)
+  44:	8b 7f 10             	mov    0x10(%rdi),%edi
+  47:	89 94 88 f8 03 00 00 	mov    %edx,0x3f8(%rax,%rcx,4)
+  4e:	89 bc 88 e4 03 00 00 	mov    %edi,0x3e4(%rax,%rcx,4)
+  55:	48 8b 38             	mov    (%rax),%rdi
+  58:	ff 60 10             	jmp    *0x10(%rax)
+  5b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+  60:	c3                   	ret
+  61:	0f 1f 40 00          	nopl   0x0(%rax)
+  65:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  6c:	00 00 00 00 
+
+0000000000000070 <finish_scope>:
+  70:	f3 0f 1e fa          	endbr64
+  74:	83 87 10 04 00 00 01 	addl   $0x1,0x410(%rdi)
+  7b:	be 01 00 00 00       	mov    $0x1,%esi
+  80:	48 81 c7 70 02 00 00 	add    $0x270,%rdi
+  87:	e9 00 00 00 00       	jmp    8c <finish_scope+0x1c>
+			88: R_X86_64_PLT32	ow_finish-0x4
+  8c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+0000000000000090 <inner_body>:
+  90:	f3 0f 1e fa          	endbr64
+  94:	41 56                	push   %r14
+  96:	31 c0                	xor    %eax,%eax
+  98:	48 89 f2             	mov    %rsi,%rdx
+  9b:	49 89 fe             	mov    %rdi,%r14
+  9e:	41 55                	push   %r13
+  a0:	41 54                	push   %r12
+  a2:	55                   	push   %rbp
+  a3:	53                   	push   %rbx
+  a4:	48 83 be 48 03 00 00 	cmpq   $0x0,0x348(%rsi)
+  ab:	00 
+  ac:	48 89 f3             	mov    %rsi,%rbx
+  af:	c7 86 1c 04 00 00 01 	movl   $0x1,0x41c(%rsi)
+  b6:	00 00 00 
+  b9:	0f 95 c0             	setne  %al
+  bc:	89 86 20 04 00 00    	mov    %eax,0x420(%rsi)
+  c2:	48 8d 35 a7 ff ff ff 	lea    -0x59(%rip),%rsi        # 70 <finish_scope>
+  c9:	e8 00 00 00 00       	call   ce <inner_body+0x3e>
+			ca: R_X86_64_PLT32	er_defer-0x4
+  ce:	31 f6                	xor    %esi,%esi
+  d0:	bf 07 00 00 00       	mov    $0x7,%edi
+  d5:	85 c0                	test   %eax,%eax
+  d7:	0f 85 d2 00 00 00    	jne    1af <inner_body+0x11f>
+  dd:	89 c5                	mov    %eax,%ebp
+  df:	4c 8d ab 58 03 00 00 	lea    0x358(%rbx),%r13
+  e6:	41 bc 02 00 00 00    	mov    $0x2,%r12d
+  ec:	39 6b 18             	cmp    %ebp,0x18(%rbx)
+  ef:	0f 84 db 00 00 00    	je     1d0 <inner_body+0x140>
+  f5:	49 89 5d 00          	mov    %rbx,0x0(%r13)
+  f9:	4c 89 e6             	mov    %r12,%rsi
+  fc:	48 8b 3b             	mov    (%rbx),%rdi
+  ff:	45 89 65 10          	mov    %r12d,0x10(%r13)
+ 103:	ff 53 08             	call   *0x8(%rbx)
+ 106:	49 89 45 08          	mov    %rax,0x8(%r13)
+ 10a:	48 85 c0             	test   %rax,%rax
+ 10d:	0f 84 7d 00 00 00    	je     190 <inner_body+0x100>
+ 113:	44 89 20             	mov    %r12d,(%rax)
+ 116:	44 89 e1             	mov    %r12d,%ecx
+ 119:	b8 01 00 00 00       	mov    $0x1,%eax
+ 11e:	d3 e0                	shl    %cl,%eax
+ 120:	09 83 0c 04 00 00    	or     %eax,0x40c(%rbx)
+ 126:	48 8b 43 20          	mov    0x20(%rbx),%rax
+ 12a:	83 00 01             	addl   $0x1,(%rax)
+ 12d:	8d 45 01             	lea    0x1(%rbp),%eax
+ 130:	39 43 18             	cmp    %eax,0x18(%rbx)
+ 133:	0f 84 a7 00 00 00    	je     1e0 <inner_body+0x150>
+ 139:	31 c9                	xor    %ecx,%ecx
+ 13b:	48 8d bb 70 02 00 00 	lea    0x270(%rbx),%rdi
+ 142:	4c 89 ea             	mov    %r13,%rdx
+ 145:	48 8d 35 b4 fe ff ff 	lea    -0x14c(%rip),%rsi        # 0 <dispose>
+ 14c:	e8 00 00 00 00       	call   151 <inner_body+0xc1>
+			14d: R_X86_64_PLT32	ow_defer-0x4
+ 151:	85 c0                	test   %eax,%eax
+ 153:	0f 85 97 00 00 00    	jne    1f0 <inner_body+0x160>
+ 159:	83 c5 02             	add    $0x2,%ebp
+ 15c:	49 83 c5 18          	add    $0x18,%r13
+ 160:	49 83 c4 01          	add    $0x1,%r12
+ 164:	83 fd 06             	cmp    $0x6,%ebp
+ 167:	75 83                	jne    ec <inner_body+0x5c>
+ 169:	83 7b 18 06          	cmpl   $0x6,0x18(%rbx)
+ 16d:	74 51                	je     1c0 <inner_body+0x130>
+ 16f:	c7 83 d8 03 00 00 07 	movl   $0x7,0x3d8(%rbx)
+ 176:	00 00 00 
+ 179:	bf 25 00 00 00       	mov    $0x25,%edi
+ 17e:	5b                   	pop    %rbx
+ 17f:	5d                   	pop    %rbp
+ 180:	41 5c                	pop    %r12
+ 182:	41 5d                	pop    %r13
+ 184:	41 5e                	pop    %r14
+ 186:	e9 00 00 00 00       	jmp    18b <inner_body+0xfb>
+			187: R_X86_64_PLT32	er_ok-0x4
+ 18b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 190:	41 83 c4 06          	add    $0x6,%r12d
+ 194:	be 05 00 00 00       	mov    $0x5,%esi
+ 199:	44 89 a3 d8 03 00 00 	mov    %r12d,0x3d8(%rbx)
+ 1a0:	4c 89 f7             	mov    %r14,%rdi
+ 1a3:	e8 00 00 00 00       	call   1a8 <inner_body+0x118>
+			1a4: R_X86_64_PLT32	er_raise-0x4
+ 1a8:	31 f6                	xor    %esi,%esi
+ 1aa:	bf 02 00 00 00       	mov    $0x2,%edi
+ 1af:	5b                   	pop    %rbx
+ 1b0:	5d                   	pop    %rbp
+ 1b1:	41 5c                	pop    %r12
+ 1b3:	41 5d                	pop    %r13
+ 1b5:	41 5e                	pop    %r14
+ 1b7:	e9 00 00 00 00       	jmp    1bc <inner_body+0x12c>
+			1b8: R_X86_64_PLT32	er_error-0x4
+ 1bc:	0f 1f 40 00          	nopl   0x0(%rax)
+ 1c0:	c7 83 d8 03 00 00 06 	movl   $0x6,0x3d8(%rbx)
+ 1c7:	00 00 00 
+ 1ca:	8b 73 1c             	mov    0x1c(%rbx),%esi
+ 1cd:	eb d1                	jmp    1a0 <inner_body+0x110>
+ 1cf:	90                   	nop
+ 1d0:	89 ab d8 03 00 00    	mov    %ebp,0x3d8(%rbx)
+ 1d6:	eb f2                	jmp    1ca <inner_body+0x13a>
+ 1d8:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 1df:	00 
+ 1e0:	89 83 d8 03 00 00    	mov    %eax,0x3d8(%rbx)
+ 1e6:	4c 89 ef             	mov    %r13,%rdi
+ 1e9:	e8 12 fe ff ff       	call   0 <dispose>
+ 1ee:	eb da                	jmp    1ca <inner_body+0x13a>
+ 1f0:	4c 89 ef             	mov    %r13,%rdi
+ 1f3:	e8 08 fe ff ff       	call   0 <dispose>
+ 1f8:	be 03 00 00 00       	mov    $0x3,%esi
+ 1fd:	c7 83 d8 03 00 00 0b 	movl   $0xb,0x3d8(%rbx)
+ 204:	00 00 00 
+ 207:	eb 97                	jmp    1a0 <inner_body+0x110>
+ 209:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000000210 <outer_body>:
+ 210:	f3 0f 1e fa          	endbr64
+ 214:	41 54                	push   %r12
+ 216:	55                   	push   %rbp
+ 217:	48 89 fd             	mov    %rdi,%rbp
+ 21a:	53                   	push   %rbx
+ 21b:	48 89 f3             	mov    %rsi,%rbx
+ 21e:	48 8b 3e             	mov    (%rsi),%rdi
+ 221:	48 89 b6 40 03 00 00 	mov    %rsi,0x340(%rsi)
+ 228:	c7 86 50 03 00 00 01 	movl   $0x1,0x350(%rsi)
+ 22f:	00 00 00 
+ 232:	be 01 00 00 00       	mov    $0x1,%esi
+ 237:	ff 53 08             	call   *0x8(%rbx)
+ 23a:	48 89 83 48 03 00 00 	mov    %rax,0x348(%rbx)
+ 241:	48 85 c0             	test   %rax,%rax
+ 244:	0f 84 c6 00 00 00    	je     310 <outer_body+0x100>
+ 24a:	c7 00 01 00 00 00    	movl   $0x1,(%rax)
+ 250:	48 8d 93 40 03 00 00 	lea    0x340(%rbx),%rdx
+ 257:	48 8d 35 a2 fd ff ff 	lea    -0x25e(%rip),%rsi        # 0 <dispose>
+ 25e:	48 89 ef             	mov    %rbp,%rdi
+ 261:	83 8b 0c 04 00 00 02 	orl    $0x2,0x40c(%rbx)
+ 268:	e8 00 00 00 00       	call   26d <outer_body+0x5d>
+			269: R_X86_64_PLT32	er_defer-0x4
+ 26d:	85 c0                	test   %eax,%eax
+ 26f:	0f 85 bb 00 00 00    	jne    330 <outer_body+0x120>
+ 275:	48 89 da             	mov    %rbx,%rdx
+ 278:	48 8d bb 50 01 00 00 	lea    0x150(%rbx),%rdi
+ 27f:	48 8d 35 0a fe ff ff 	lea    -0x1f6(%rip),%rsi        # 90 <inner_body>
+ 286:	e8 00 00 00 00       	call   28b <outer_body+0x7b>
+			287: R_X86_64_PLT32	er_run-0x4
+ 28b:	48 89 9b a0 03 00 00 	mov    %rbx,0x3a0(%rbx)
+ 292:	48 8b 3b             	mov    (%rbx),%rdi
+ 295:	be 05 00 00 00       	mov    $0x5,%esi
+ 29a:	89 83 c8 03 00 00    	mov    %eax,0x3c8(%rbx)
+ 2a0:	48 89 93 d0 03 00 00 	mov    %rdx,0x3d0(%rbx)
+ 2a7:	c7 83 b0 03 00 00 05 	movl   $0x5,0x3b0(%rbx)
+ 2ae:	00 00 00 
+ 2b1:	ff 53 08             	call   *0x8(%rbx)
+ 2b4:	48 89 83 a8 03 00 00 	mov    %rax,0x3a8(%rbx)
+ 2bb:	48 85 c0             	test   %rax,%rax
+ 2be:	0f 84 8c 00 00 00    	je     350 <outer_body+0x140>
+ 2c4:	c7 00 05 00 00 00    	movl   $0x5,(%rax)
+ 2ca:	48 8d 93 a0 03 00 00 	lea    0x3a0(%rbx),%rdx
+ 2d1:	48 8d 35 28 fd ff ff 	lea    -0x2d8(%rip),%rsi        # 0 <dispose>
+ 2d8:	48 89 ef             	mov    %rbp,%rdi
+ 2db:	83 8b 0c 04 00 00 20 	orl    $0x20,0x40c(%rbx)
+ 2e2:	e8 00 00 00 00       	call   2e7 <outer_body+0xd7>
+			2e3: R_X86_64_PLT32	er_defer-0x4
+ 2e7:	85 c0                	test   %eax,%eax
+ 2e9:	0f 85 81 00 00 00    	jne    370 <outer_body+0x160>
+ 2ef:	8b 83 c8 03 00 00    	mov    0x3c8(%rbx),%eax
+ 2f5:	85 c0                	test   %eax,%eax
+ 2f7:	75 6f                	jne    368 <outer_body+0x158>
+ 2f9:	5b                   	pop    %rbx
+ 2fa:	bf 63 00 00 00       	mov    $0x63,%edi
+ 2ff:	5d                   	pop    %rbp
+ 300:	41 5c                	pop    %r12
+ 302:	e9 00 00 00 00       	jmp    307 <outer_body+0xf7>
+			303: R_X86_64_PLT32	er_ok-0x4
+ 307:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+ 30e:	00 00 
+ 310:	c7 83 d8 03 00 00 14 	movl   $0x14,0x3d8(%rbx)
+ 317:	00 00 00 
+ 31a:	be 14 00 00 00       	mov    $0x14,%esi
+ 31f:	5b                   	pop    %rbx
+ 320:	bf 05 00 00 00       	mov    $0x5,%edi
+ 325:	5d                   	pop    %rbp
+ 326:	41 5c                	pop    %r12
+ 328:	e9 00 00 00 00       	jmp    32d <outer_body+0x11d>
+			329: R_X86_64_PLT32	er_error-0x4
+ 32d:	0f 1f 00             	nopl   (%rax)
+ 330:	48 8d bb 40 03 00 00 	lea    0x340(%rbx),%rdi
+ 337:	e8 c4 fc ff ff       	call   0 <dispose>
+ 33c:	be 14 00 00 00       	mov    $0x14,%esi
+ 341:	5b                   	pop    %rbx
+ 342:	bf 07 00 00 00       	mov    $0x7,%edi
+ 347:	5d                   	pop    %rbp
+ 348:	41 5c                	pop    %r12
+ 34a:	e9 00 00 00 00       	jmp    34f <outer_body+0x13f>
+			34b: R_X86_64_PLT32	er_error-0x4
+ 34f:	90                   	nop
+ 350:	5b                   	pop    %rbx
+ 351:	be 15 00 00 00       	mov    $0x15,%esi
+ 356:	5d                   	pop    %rbp
+ 357:	bf 05 00 00 00       	mov    $0x5,%edi
+ 35c:	41 5c                	pop    %r12
+ 35e:	e9 00 00 00 00       	jmp    363 <outer_body+0x153>
+			35f: R_X86_64_PLT32	er_error-0x4
+ 363:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 368:	8b b3 d8 03 00 00    	mov    0x3d8(%rbx),%esi
+ 36e:	eb d1                	jmp    341 <outer_body+0x131>
+ 370:	48 8d bb a0 03 00 00 	lea    0x3a0(%rbx),%rdi
+ 377:	e8 84 fc ff ff       	call   0 <dispose>
+ 37c:	be 15 00 00 00       	mov    $0x15,%esi
+ 381:	eb be                	jmp    341 <outer_body+0x131>
+ 383:	66 90                	xchg   %ax,%ax
+ 385:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 38c:	00 00 00 00 
+
+0000000000000390 <ejd_run>:
+ 390:	f3 0f 1e fa          	endbr64
+ 394:	48 81 ec 48 04 00 00 	sub    $0x448,%rsp
+ 39b:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+ 3a2:	00 00 
+ 3a4:	48 89 84 24 38 04 00 	mov    %rax,0x438(%rsp)
+ 3ab:	00 
+ 3ac:	31 c0                	xor    %eax,%eax
+ 3ae:	48 85 f6             	test   %rsi,%rsi
+ 3b1:	0f 84 a1 01 00 00    	je     558 <ejd_run+0x1c8>
+ 3b7:	49 89 d0             	mov    %rdx,%r8
+ 3ba:	48 85 d2             	test   %rdx,%rdx
+ 3bd:	0f 84 95 01 00 00    	je     558 <ejd_run+0x1c8>
+ 3c3:	48 83 bc 24 58 04 00 	cmpq   $0x0,0x458(%rsp)
+ 3ca:	00 00 
+ 3cc:	0f 84 86 01 00 00    	je     558 <ejd_run+0x1c8>
+ 3d2:	48 83 bc 24 60 04 00 	cmpq   $0x0,0x460(%rsp)
+ 3d9:	00 00 
+ 3db:	0f 84 77 01 00 00    	je     558 <ejd_run+0x1c8>
+ 3e1:	8b 16                	mov    (%rsi),%edx
+ 3e3:	49 89 fa             	mov    %rdi,%r10
+ 3e6:	49 89 f1             	mov    %rsi,%r9
+ 3e9:	83 ff 07             	cmp    $0x7,%edi
+ 3ec:	0f 87 66 01 00 00    	ja     558 <ejd_run+0x1c8>
+ 3f2:	83 fa fc             	cmp    $0xfffffffc,%edx
+ 3f5:	0f 87 5d 01 00 00    	ja     558 <ejd_run+0x1c8>
+ 3fb:	48 89 f9             	mov    %rdi,%rcx
+ 3fe:	48 c1 e9 20          	shr    $0x20,%rcx
+ 402:	83 ff 07             	cmp    $0x7,%edi
+ 405:	0f 84 75 01 00 00    	je     580 <ejd_run+0x1f0>
+ 40b:	83 e9 01             	sub    $0x1,%ecx
+ 40e:	b8 01 00 00 00       	mov    $0x1,%eax
+ 413:	83 f9 07             	cmp    $0x7,%ecx
+ 416:	0f 87 41 01 00 00    	ja     55d <ejd_run+0x1cd>
+ 41c:	31 c0                	xor    %eax,%eax
+ 41e:	48 8d 7c 24 10       	lea    0x10(%rsp),%rdi
+ 423:	b9 85 00 00 00       	mov    $0x85,%ecx
+ 428:	31 f6                	xor    %esi,%esi
+ 42a:	f3 48 ab             	rep stos %rax,(%rdi)
+ 42d:	48 8b 84 24 60 04 00 	mov    0x460(%rsp),%rax
+ 434:	00 
+ 435:	bf 01 00 00 00       	mov    $0x1,%edi
+ 43a:	4c 89 0c 24          	mov    %r9,(%rsp)
+ 43e:	f3 0f 6f 84 24 50 04 	movdqu 0x450(%rsp),%xmm0
+ 445:	00 00 
+ 447:	4c 89 44 24 08       	mov    %r8,0x8(%rsp)
+ 44c:	48 89 44 24 20       	mov    %rax,0x20(%rsp)
+ 451:	4c 89 4c 24 30       	mov    %r9,0x30(%rsp)
+ 456:	0f 29 44 24 10       	movaps %xmm0,0x10(%rsp)
+ 45b:	4c 89 54 24 28       	mov    %r10,0x28(%rsp)
+ 460:	89 54 24 38          	mov    %edx,0x38(%rsp)
+ 464:	e8 00 00 00 00       	call   469 <ejd_run+0xd9>
+			465: R_X86_64_PLT32	er_error-0x4
+ 469:	48 8d 7c 24 40       	lea    0x40(%rsp),%rdi
+ 46e:	48 8d 35 9b fd ff ff 	lea    -0x265(%rip),%rsi        # 210 <outer_body>
+ 475:	48 89 94 24 e0 03 00 	mov    %rdx,0x3e0(%rsp)
+ 47c:	00 
+ 47d:	48 8d 54 24 10       	lea    0x10(%rsp),%rdx
+ 482:	89 84 24 d8 03 00 00 	mov    %eax,0x3d8(%rsp)
+ 489:	e8 00 00 00 00       	call   48e <ejd_run+0xfe>
+			48a: R_X86_64_PLT32	er_run-0x4
+ 48e:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+ 493:	4c 8b 0c 24          	mov    (%rsp),%r9
+ 497:	89 84 24 c8 03 00 00 	mov    %eax,0x3c8(%rsp)
+ 49e:	48 89 94 24 d0 03 00 	mov    %rdx,0x3d0(%rsp)
+ 4a5:	00 
+ 4a6:	41 8b 01             	mov    (%r9),%eax
+ 4a9:	f3 0f 6f 84 24 c8 03 	movdqu 0x3c8(%rsp),%xmm0
+ 4b0:	00 00 
+ 4b2:	89 84 24 ec 03 00 00 	mov    %eax,0x3ec(%rsp)
+ 4b9:	31 c0                	xor    %eax,%eax
+ 4bb:	48 83 bc 24 40 03 00 	cmpq   $0x0,0x340(%rsp)
+ 4c2:	00 00 
+ 4c4:	41 0f 11 00          	movups %xmm0,(%r8)
+ 4c8:	0f 94 c0             	sete   %al
+ 4cb:	f3 0f 6f 84 24 d8 03 	movdqu 0x3d8(%rsp),%xmm0
+ 4d2:	00 00 
+ 4d4:	89 84 24 24 04 00 00 	mov    %eax,0x424(%rsp)
+ 4db:	8b 84 24 0c 01 00 00 	mov    0x10c(%rsp),%eax
+ 4e2:	41 0f 11 40 10       	movups %xmm0,0x10(%r8)
+ 4e7:	0b 84 24 10 01 00 00 	or     0x110(%rsp),%eax
+ 4ee:	f3 0f 6f 84 24 e8 03 	movdqu 0x3e8(%rsp),%xmm0
+ 4f5:	00 00 
+ 4f7:	0b 84 24 2c 02 00 00 	or     0x22c(%rsp),%eax
+ 4fe:	0b 84 24 30 02 00 00 	or     0x230(%rsp),%eax
+ 505:	41 0f 11 40 20       	movups %xmm0,0x20(%r8)
+ 50a:	0f 94 c0             	sete   %al
+ 50d:	f3 0f 6f 84 24 f8 03 	movdqu 0x3f8(%rsp),%xmm0
+ 514:	00 00 
+ 516:	0f b6 c0             	movzbl %al,%eax
+ 519:	41 0f 11 40 30       	movups %xmm0,0x30(%r8)
+ 51e:	f3 0f 6f 84 24 08 04 	movdqu 0x408(%rsp),%xmm0
+ 525:	00 00 
+ 527:	89 84 24 28 04 00 00 	mov    %eax,0x428(%rsp)
+ 52e:	31 c0                	xor    %eax,%eax
+ 530:	41 0f 11 40 40       	movups %xmm0,0x40(%r8)
+ 535:	f3 0f 6f 84 24 18 04 	movdqu 0x418(%rsp),%xmm0
+ 53c:	00 00 
+ 53e:	41 0f 11 40 50       	movups %xmm0,0x50(%r8)
+ 543:	f3 0f 6f 84 24 28 04 	movdqu 0x428(%rsp),%xmm0
+ 54a:	00 00 
+ 54c:	41 0f 11 40 60       	movups %xmm0,0x60(%r8)
+ 551:	eb 0a                	jmp    55d <ejd_run+0x1cd>
+ 553:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 558:	b8 01 00 00 00       	mov    $0x1,%eax
+ 55d:	48 8b 94 24 38 04 00 	mov    0x438(%rsp),%rdx
+ 564:	00 
+ 565:	64 48 2b 14 25 28 00 	sub    %fs:0x28,%rdx
+ 56c:	00 00 
+ 56e:	75 1f                	jne    58f <ejd_run+0x1ff>
+ 570:	48 81 c4 48 04 00 00 	add    $0x448,%rsp
+ 577:	c3                   	ret
+ 578:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 57f:	00 
+ 580:	b8 01 00 00 00       	mov    $0x1,%eax
+ 585:	85 c9                	test   %ecx,%ecx
+ 587:	0f 84 8f fe ff ff    	je     41c <ejd_run+0x8c>
+ 58d:	eb ce                	jmp    55d <ejd_run+0x1cd>
+ 58f:	e8 00 00 00 00       	call   594 <ejd_run+0x204>
+			590: R_X86_64_PLT32	__stack_chk_fail-0x4
+

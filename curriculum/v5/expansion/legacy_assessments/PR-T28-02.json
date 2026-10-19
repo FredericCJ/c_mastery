@@ -5,7 +5,10 @@
   "title": "Clock-aware bounded UART — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -97,6 +100,37 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-PU-RM21",
+      "path": "research/v5/expansion/legacy_advanced_uart/resources.json",
+      "passages": [
+        "Figure16 pp154–155; RCC_CFGR pp167–169; USART3 gate p187; DCKCFGR TIMPRE p210",
+        "Table43 p310 (also rendered and visually inspected), DMA pp312,325–327,332–335 and stream3 map p339",
+        "USART pp973–975,977,981,1004–1006,1010–1018"
+      ]
+    },
+    {
+      "id": "R-PU-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_uart/resources.json",
+      "passages": [
+        "Summary applicability p2 and section2.2.7 p11"
+      ]
+    },
+    {
+      "id": "R-PU-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_uart/resources.json",
+      "passages": [
+        "Table12 p30 SB4/5/6/7"
+      ]
+    },
+    {
+      "id": "R-PU-DS14",
+      "path": "research/v5/expansion/legacy_advanced_uart/resources.json",
+      "passages": [
+        "Table10 p63 PD8/PD9 with package column header",
+        "Table12 pp78–79 AF0..AF15 header and PD8/PD9 AF7 rows"
+      ]
     }
   ],
   "reference_gaps": [
@@ -109,7 +143,22 @@
     "curriculum/projects/PR-T28-02.md",
     "fixtures/embedded/PR-T28-02.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/uart/audit_target.py",
+    "labs/peripheral_depth/uart/board_capture.json",
+    "labs/peripheral_depth/uart/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/run.py",
+    "labs/peripheral_depth/uart/target.c",
+    "labs/peripheral_depth/uart/tests.c",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/serial_depth/README.md",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -117,7 +166,19 @@
     "tests": [
       "firmware_io.uart"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "clock_uart_successor": {
+      "path": "research/v5/expansion/legacy_advanced_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-02-T28.03.a",
+        "AX-PR-T28-02-T28.03.b",
+        "AX-PR-T28-02-T28.03.c",
+        "AX-PR-T28-02-T28.05.a",
+        "AX-PR-T28-02-T28.05.b",
+        "AX-PR-T28-02-T28.05.c"
+      ],
+      "scope": "Only six T28.03/.05 ordinary and six delayed tasks; actual serial/FW providers; physical, independent and remaining T28 scope separate"
+    }
   },
   "criteria": [
     {
@@ -655,7 +716,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-02.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -663,5 +724,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-02-T28.03.a",
+        "AX-PR-T28-02-T28.03.b",
+        "AX-PR-T28-02-T28.03.c",
+        "AX-PR-T28-02-T28.05.a",
+        "AX-PR-T28-02-T28.05.b",
+        "AX-PR-T28-02-T28.05.c"
+      ],
+      "scope": "Only six T28.03/.05 ordinary and six delayed tasks; actual serial/FW providers; physical, independent and remaining T28 scope separate"
+    }
+  ]
 }

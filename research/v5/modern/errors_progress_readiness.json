@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "domain": "T65",
+  "criteria": [
+    {
+      "id": "X-T65-003-R1",
+      "objective": "T65.03.a",
+      "criterion": "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+      "levels": {
+        "0": "Incorrect or absent: Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+        "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+        "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+        "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The explicit product state separates accepted framed bytes, confirmed durable prefix/epoch, write diagnostic and two uncertainty kinds. IO with the final accepted bytes remains IO. Known flush IO may advance confirmed durability; unknown acknowledgement retains prior authority. No write, cancellation or local memory release is treated as rollback or physical durability.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T65-003.md",
+        "labs/errors/CONTRACTS.md",
+        "labs/errors/progress/PROGRESS.md",
+        "labs/api_depth/stream/CONTRACTS.md",
+        "assessor/errors/progress/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/errors/errors.c",
+        "assessor/api_depth/stream.c",
+        "assessor/errors/progress/progress.c",
+        "labs/errors/progress/include/progress.h",
+        "labs/errors/progress/tests/tests.c",
+        "labs/errors/progress/tests/native.c",
+        "tools/verify_errors_progress.py"
+      ],
+      "validation": [
+        "research/v5/modern/errors_progress_validation.json",
+        "research/v5/modern/errors_progress_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-run"
+    },
+    {
+      "id": "X-T65-003-R2",
+      "objective": "T65.03.b",
+      "criterion": "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+      "levels": {
+        "0": "Incorrect or absent: Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+        "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+        "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+        "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The copied staging adapter imports actual PR-T19-04 io.stream sf_start/pump/cancel and actual er_transfer, preserving the original framing and generation contracts. A synchronous bridge keeps count and diagnostic separate, bounds relative progress and retains copied ownership through cancellation or uncertainty. Admission/refusal and quiescent release have explicit unchanged-output or retained-owner rules.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T65-003.md",
+        "labs/errors/CONTRACTS.md",
+        "labs/errors/progress/PROGRESS.md",
+        "labs/api_depth/stream/CONTRACTS.md",
+        "assessor/errors/progress/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/errors/errors.c",
+        "assessor/api_depth/stream.c",
+        "assessor/errors/progress/progress.c",
+        "labs/errors/progress/include/progress.h",
+        "labs/errors/progress/tests/tests.c",
+        "labs/errors/progress/tests/native.c",
+        "tools/verify_errors_progress.py"
+      ],
+      "validation": [
+        "research/v5/modern/errors_progress_validation.json",
+        "research/v5/modern/errors_progress_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-run"
+    },
+    {
+      "id": "X-T65-003-R3",
+      "objective": "T65.03.c",
+      "criterion": "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+      "levels": {
+        "0": "Incorrect or absent: Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+        "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+        "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+        "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six compiler profiles execute6 anchors,10 compiled controls and6 compiling learner-stub rejections. Independent tables match2940 original transfer cases,540 framed-composition cases and3960 epoch-admission cases/profile, including callback counts, offered extents, canaries and invalid statuses. Actual retained ER_MUTANT5/6 are rejected separately. Native controls also reject false durability and discarded confirmed progress after real file synchronization.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T65-003.md",
+        "labs/errors/CONTRACTS.md",
+        "labs/errors/progress/PROGRESS.md",
+        "labs/api_depth/stream/CONTRACTS.md",
+        "assessor/errors/progress/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/errors/errors.c",
+        "assessor/api_depth/stream.c",
+        "assessor/errors/progress/progress.c",
+        "labs/errors/progress/include/progress.h",
+        "labs/errors/progress/tests/tests.c",
+        "labs/errors/progress/tests/native.c",
+        "tools/verify_errors_progress.py"
+      ],
+      "validation": [
+        "research/v5/modern/errors_progress_validation.json",
+        "research/v5/modern/errors_progress_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-run"
+    },
+    {
+      "id": "X-T65-003-R4",
+      "objective": "T65.03.d",
+      "criterion": "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+      "levels": {
+        "0": "Incorrect or absent: Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+        "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+        "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+        "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Changed-condition support executes copied-input mutation, cancellation after a two-byte prefix, explicit abandonment, stale generations, finite epochs and trusted lost-acknowledgement reconciliation. An actual nonblocking pipe reaches EAGAIN; an owned file has two actual fsync successes separated from injected pre-call refusal and post-success lost reply. The controller authority is explicit, not inferred from readable bytes. All13cost dimensions, seven workload samples, current producer imports and clean/incremental builds are retained; no asynchronous syscall cancellation or power-loss proof is claimed.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T65-003.md",
+        "labs/errors/CONTRACTS.md",
+        "labs/errors/progress/PROGRESS.md",
+        "labs/api_depth/stream/CONTRACTS.md",
+        "assessor/errors/progress/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/errors/errors.c",
+        "assessor/api_depth/stream.c",
+        "assessor/errors/progress/progress.c",
+        "labs/errors/progress/include/progress.h",
+        "labs/errors/progress/tests/tests.c",
+        "labs/errors/progress/tests/native.c",
+        "tools/verify_errors_progress.py"
+      ],
+      "validation": [
+        "research/v5/modern/errors_progress_validation.json",
+        "research/v5/modern/errors_progress_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-run"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T65-003-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T65-003.md",
+        "labs/errors/CONTRACTS.md",
+        "labs/errors/progress/PROGRESS.md",
+        "labs/api_depth/stream/CONTRACTS.md",
+        "assessor/errors/progress/ANALYSIS.md",
+        "assessor/errors/errors.c",
+        "assessor/api_depth/stream.c",
+        "assessor/errors/progress/progress.c",
+        "labs/errors/progress/include/progress.h",
+        "labs/errors/progress/tests/tests.c",
+        "labs/errors/progress/tests/native.c",
+        "tools/verify_errors_progress.py",
+        "research/v5/modern/errors_progress_validation.json",
+        "research/v5/modern/errors_progress_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/errors_progress_validation.json": "68faa8f0855f43e88c3c0a9d8a0f960d8bca07a97850e09db282f8dd06f5dcb8",
+    "research/v5/modern/errors_progress_investigation_validation.json": "6270716d46374941dc7a648ce01dc5621750350bb62da7eee0b8fdb70c1670aa"
+  },
+  "input_sha256": {
+    "assessor/api_depth/stream.c": "122658e57d527d762e14150784db6850093a071aa2359fe4e8d83c7c89c550ca",
+    "assessor/errors/errors.c": "5eba0560d7dd51697b02aff1b9642ad94a9cded49fbad6ef871e7340f960ac19",
+    "assessor/errors/progress/ANALYSIS.md": "8ade1fa7bda69b3fed9698c6c20997414f36fbc2cfc0a18843cb0245d7357523",
+    "assessor/errors/progress/progress.c": "b2986526bfb7bd3c528697feb46145ea8d98648fe6b1d003f410b31e494f0941",
+    "labs/api_depth/stream/CONTRACTS.md": "24b4b7237f2a4094ecaed2dee6114e59861420ca3a2a235768388ce9b6d9cd39",
+    "labs/api_depth/stream/stream.c": "a51579cd8cefc7aef79f1132c6d53943c34c3735521f8c80a16dea14167551f4",
+    "labs/api_depth/stream/stream.h": "e996cc09b186eb3e4a1b2c66e165dd523110fa932ad00543da26f9c0d5b13ee4",
+    "labs/errors/CONTRACTS.md": "e6864e6922218ba3d84deddd8629a9aebd3322e763526a75f4e51ba12261f567",
+    "labs/errors/include/errors.h": "8347154cf68575293d6da9a9e72a887c2981afc0fa6162fec25beb454dfb2e77",
+    "labs/errors/progress/CMakeLists.txt": "dd496da3b2e2fa7d596caa091b255b65238199794d7e2d93f34d76bfe4cfe089",
+    "labs/errors/progress/PROGRESS.md": "711f9c790e69d4184ebaaa23a7ddf320ff58054779b292e2513af2272df26d6c",
+    "labs/errors/progress/campaign.json": "fd28b075234f7383364c75830dc5f01ef154185db9e703233dd51852b15829ec",
+    "labs/errors/progress/expect_failure.py": "955d5fb4fa6b10063978a6b4bf5fceba7225ca6203606f1e9967220a26c33067",
+    "labs/errors/progress/include/progress.h": "8486ba0a26629624261663d421695207b1628f00e606ec6d15e2b96dfad63a57",
+    "labs/errors/progress/src/progress.c": "637bf405ab57f8af8429e816ac52901ae95c8189ba212a43a621e1aaeb341720",
+    "labs/errors/progress/tests/native.c": "c3ed64d0eba8fc6034a5f6d1b40c38ec27d27356b785d7eabf37605cb1b98101",
+    "labs/errors/progress/tests/tests.c": "4372fc4fff389b730b199e61d276322713544650c922b30e2f935523e11b655f",
+    "labs/errors/src/errors.c": "67c17c1b0046f74bba1f5e0a72fbd897a86ddf66488dc4f4087fed60c9de159a",
+    "research/v5/modern/errors_progress_research_gate.json": "72cc2b6226c036ef9a17a22969164ae839e331cd7278c059aad04242687d371b",
+    "research/v5/modern/errors_progress_resources.json": "997bf15c876b746bfe5bc3617ad71f6da0c71721e08fd9fb117236ff2a4aa045",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_errors_progress.py": "41862060bb262808ff7579e614e968d98a5626d3e8dc1359e6fffcbb1154726d",
+    "tools/run_errors_module.py": "b3a898919621ab83fd1d7e1d2684ae3f642a19acf2434005af491063e2496ab5",
+    "tools/run_errors_progress.py": "bd221b3f1e4e8fda9ff4008d9f9397a0715aef719e7fd3b458f78eaddc5ef667",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_errors_progress.py": "c62a3a2b86bf5342758a3224a149e51cc6ebeb9af4847a8da29107ce2b3f2726",
+    "tools/run_errors_progress_investigation.py": "7464ed21de26b6daa918ad813197971ae2d36c9d42328b2419c531ebee091b48",
+    "curriculum/v5/exercises/X-T65-003.md": "62628bf801560415f60dd3cc07866e82e36ff3a47356ea0a40371aafa70217c0",
+    "research/v5/modern/errors_progress_validation.json": "68faa8f0855f43e88c3c0a9d8a0f960d8bca07a97850e09db282f8dd06f5dcb8",
+    "research/v5/modern/errors_progress_investigation_validation.json": "6270716d46374941dc7a648ce01dc5621750350bb62da7eee0b8fdb70c1670aa",
+    "tools/build_errors_progress_readiness.py": "ba4b54140529d68b099b7cfd08378a89116e6b24d04e96661ef681f55d6fcc8d",
+    "tools/check_errors_progress.py": "79a45582d74c14634af88f43d9d053567fd85d0a57464241f829b8314d762e50"
+  },
+  "limits": [
+    "Live stable controls, disjoint storage and synchronous nonreentrant callbacks are explicit preconditions.",
+    "Accepted framed bytes are not application effects or durable commits.",
+    "Trusted reconciliation requires actual external authority; numeric checks do not prove it.",
+    "Known real fsync success and injected reply loss are not reboot, directory or physical power-loss evidence.",
+    "No arbitrary concurrent callback cancellation, independent-human assessment or learner mastery; published C17/C23 inaccessible."
+  ]
+}

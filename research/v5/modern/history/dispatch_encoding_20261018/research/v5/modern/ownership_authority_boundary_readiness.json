@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-010-R1",
+      "objective": "T66.10.a",
+      "criterion": "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual ow_flawed_write uses defined unsigned wrap and masked accesses within one real16-cell array. The selected tenant0 request modifies tenant1 indices12..15 and tenant0 indices0..3; the repaired original API preserves every cell. Logical authority failure is separate from C out-of-bounds access, sanitizer reporting, arbitrary code execution and privilege escalation. Trusted parent selection, live typed storage and external serialization are explicit premises rather than guarantees enforced by ISO C.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-010.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/authority_boundary/AUTHORITY.md",
+        "assessor/ownership/authority_boundary/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/authority_boundary/authority_boundary.c",
+        "labs/ownership/authority_boundary/tests/tests.c",
+        "labs/ownership/authority_boundary/tests/foreign.c",
+        "tools/verify_ownership_authority_boundary.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_authority_boundary_validation.json",
+        "research/v5/modern/ownership_authority_boundary_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-010-R2",
+      "objective": "T66.10.b",
+      "criterion": "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "OafRoot/OafView separate trusted authority from untrusted OafRequest numeric fields. A subtraction proof bounds parent and request intervals before a translation-unit-private Validated descriptor reaches the indexing core. Read stages its output, write changes only the admitted interval, and native/wire paths share the same validator. Syntactic validity, freshness and permission are distinct checks with specified status precedence. Same-process forged structs remain a counterexample to an unforgeable-capability claim.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-010.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/authority_boundary/AUTHORITY.md",
+        "assessor/ownership/authority_boundary/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/authority_boundary/authority_boundary.c",
+        "labs/ownership/authority_boundary/tests/tests.c",
+        "labs/ownership/authority_boundary/tests/foreign.c",
+        "tools/verify_ownership_authority_boundary.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_authority_boundary_validation.json",
+        "research/v5/modern/ownership_authority_boundary_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-010-R3",
+      "objective": "T66.10.c",
+      "criterion": "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six actual C17 compiler profiles execute six anchors, eight compiled semantic controls and six compiling-stub rejections. The independent mathematical set-membership oracle checks40320combinations, including all rights, both trusted tenants, malformed third tenant, epochs0/1/2/MAX and extreme extents. Separate tests enumerate363original ordinary extent cases, exact16-byte big-endian encoding, every truncated length, unknown version/rights/reserved data, overlap-safe decode, unchanged refusal, empty one-past and epoch retirement. Six separately compiled receivers execute66Python-generated foreign requests each. Exact object imports, code/stack measurements and seven equivalent workload samples retain source/toolchain pins; no whole-process or physical guarantee follows.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-010.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/authority_boundary/AUTHORITY.md",
+        "assessor/ownership/authority_boundary/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/authority_boundary/authority_boundary.c",
+        "labs/ownership/authority_boundary/tests/tests.c",
+        "labs/ownership/authority_boundary/tests/foreign.c",
+        "tools/verify_ownership_authority_boundary.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_authority_boundary_validation.json",
+        "research/v5/modern/ownership_authority_boundary_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-010-R4",
+      "objective": "T66.10.d",
+      "criterion": "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The required delayed change is implemented: nested read-only subviews cannot gain write rights or expand extent. Every decoded foreign request is revalidated against a server-selected trusted parent; arbitrary epoch/rights/tenant fields are not a credential. Revocation rejects both retained old views and old bytes under a fresh view; UINT32_MAX retires without wrapping. Native and serialized admission are compared through actual Python-to-C byte streams. An additional analysis variant changes who selects the parent and requires the learner to identify the missing authentication premise; independent learner assessment remains unobserved.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-010.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/authority_boundary/AUTHORITY.md",
+        "assessor/ownership/authority_boundary/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/authority_boundary/authority_boundary.c",
+        "labs/ownership/authority_boundary/tests/tests.c",
+        "labs/ownership/authority_boundary/tests/foreign.c",
+        "tools/verify_ownership_authority_boundary.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_authority_boundary_validation.json",
+        "research/v5/modern/ownership_authority_boundary_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-010-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-010.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/authority_boundary/AUTHORITY.md",
+        "assessor/ownership/authority_boundary/ANALYSIS.md",
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/authority_boundary/authority_boundary.c",
+        "labs/ownership/authority_boundary/tests/tests.c",
+        "labs/ownership/authority_boundary/tests/foreign.c",
+        "tools/verify_ownership_authority_boundary.py",
+        "research/v5/modern/ownership_authority_boundary_validation.json",
+        "research/v5/modern/ownership_authority_boundary_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_authority_boundary_validation.json": "810845c53a54c2569bdadc695842c9a4aed96a9557a7790459c2f8ae6bde3cfa",
+    "research/v5/modern/ownership_authority_boundary_investigation_validation.json": "9c9e0c3b650cd962f2c53c66e3ba490f1b4f8f83e7ba8ebc02fb8cd72989395a"
+  },
+  "input_sha256": {
+    "assessor/ownership/authority_boundary/ANALYSIS.md": "077bc1642ebd2ad393cd514ee0efecca4c6194c6acc71285467199949dcd30a9",
+    "assessor/ownership/authority_boundary/authority_boundary.c": "c067e74b5dd85046567952f96444e4ff0844b927024e699301b27e621b1c2630",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/authority_boundary/AUTHORITY.md": "4df303065432ac3409665d81b7e3ad5e8d76ccbe53a6999e23bb9ecb2ec0f63a",
+    "labs/ownership/authority_boundary/CMakeLists.txt": "98345e2c075fcb47a85caa2947b13967181229a14ed1b033660f02bb916181d7",
+    "labs/ownership/authority_boundary/campaign.json": "aecd2a0d3a574cc5c68e2eb8e11fadf0f83ccdfd29a8658b1a4378b93f813b4a",
+    "labs/ownership/authority_boundary/expect_failure.py": "86fb9a4c859127951c2cf95a3bc8579c3d4e2941df5e3fae4807819fe1fe6ef7",
+    "labs/ownership/authority_boundary/include/authority_boundary.h": "3007db491042de05104a7868e2a0e743020fcd5ded712c16c91ee83b86052fa7",
+    "labs/ownership/authority_boundary/src/authority_boundary.c": "50089bf101aad66d17f91896e68c2515473fa19268d3a2d2ed3fbb0e47d86b56",
+    "labs/ownership/authority_boundary/tests/foreign.c": "c4aa44fbb30552545c45d8a4f65677589cbe52ea3be8edaedf88203e6804c57f",
+    "labs/ownership/authority_boundary/tests/tests.c": "465e429fe2435e0c0c2486beb5b0601ccfdcf30a58f6edffa77957d0a2e95c94",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "research/v5/modern/ownership_authority_boundary_research_gate.json": "65a7e54e892a3f9b92d5ba70f7efbdd6e37ff3b56caa5f55df9f7feb3e9d0035",
+    "research/v5/modern/ownership_authority_boundary_resources.json": "bc70af83e089436b70354092e9143f37791f7ed496b97b6ae8ada0a4ce4e47e9",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_authority_boundary.py": "50ca12a8918d05103059b35cfb58fe5c16016cf32c26ef15e8a598785333266e",
+    "tools/run_ownership_authority_boundary.py": "f29acfe45bcbb683157be220186f0b90d73f7d2b29bc32fe70d61a31b970b454",
+    "tools/run_ownership_module.py": "5c4144294d6625388b8ba7fe143ceaaeae281653e837fd6930a4b53ea3ef9197",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_ownership_authority_boundary.py": "944fcab8f98eb64eb69cdb4eed39631e2c899b9efd5fd9a228aec20ed77c8af6",
+    "tools/run_ownership_authority_boundary_investigation.py": "dca99fb79e05faca1e42b6989761c2b7e88e5f59218dcc1dfc64a7fc5bb2c9e9",
+    "curriculum/v5/exercises/X-T66-010.md": "4df98cf6cc13f4a8794320f1bf8fab23e7dc2de2c38c649f6e96a603b1d04fd7",
+    "research/v5/modern/ownership_authority_boundary_validation.json": "810845c53a54c2569bdadc695842c9a4aed96a9557a7790459c2f8ae6bde3cfa",
+    "research/v5/modern/ownership_authority_boundary_investigation_validation.json": "9c9e0c3b650cd962f2c53c66e3ba490f1b4f8f83e7ba8ebc02fb8cd72989395a",
+    "tools/build_ownership_authority_boundary_readiness.py": "5aa121963e0b9e48ebd5243862d24463280b616cb96c0b7318733264b3314e0b",
+    "tools/check_ownership_authority_boundary.py": "72f14b9975ec4e80a8425d0e49b0a82f88bf89edbc8c783d862d621b468116ac"
+  },
+  "limits": [
+    "Cooperative native C lifetime and trusted server-selected parent are required.",
+    "No authenticated IPC, cryptographic capability or hardware memory isolation is supplied.",
+    "The oracle fixes one parent interval; separate anchors cover nested/empty/retired cases.",
+    "Published C17 inaccessible; no independent human or learner assessment."
+  ]
+}

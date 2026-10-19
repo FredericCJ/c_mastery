@@ -1,0 +1,9 @@
+rule cc
+ command = gcc -std=c17 -MMD -MF probe.d -I. -c probe.c -o probe.o
+ depfile = probe.d
+ deps = gcc
+rule link
+ command = gcc probe.o -o probe
+build probe.o: cc probe.c
+build probe: link probe.o
+default probe

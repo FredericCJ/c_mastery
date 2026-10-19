@@ -1,0 +1,51 @@
+SETUP:allocation8:mode=extent:fixed=0
+ENTRY
+=================================================================
+==3093==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6d2f673e0018 at pc 0x0000005150b9 bp 0x7ffc6f767190 sp 0x7ffc6f767188
+WRITE of size 1 at 0x6d2f673e0018 thread T0
+    #0 0x0000005150b8 in mw_dependency /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/dependency.c:3
+    #1 0x000000514d18 in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:17
+    #2 0x710f6802a600 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x710f6802a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #4 0x00000042b354 in _start ??:?
+
+0x6d2f673e0018 is located 0 bytes after 8-byte region [0x6d2f673e0010,0x6d2f673e0018)
+allocated by thread T0 here:
+    #0 0x0000004d08f8 in malloc ??:?
+    #1 0x000000514ac5 in main /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/observer.c:16
+    #2 0x710f6802a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #3 0x00000042b354 in _start ??:?
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/dependency.c:3 in mw_dependency
+Shadow bytes around the buggy address:
+  0x6d2f673dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x6d2f673dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x6d2f673dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x6d2f673dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x6d2f673dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x6d2f673e0000: fa fa 00[fa]fa fa fa fa fa fa fa fa fa fa fa fa
+  0x6d2f673e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x6d2f673e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x6d2f673e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x6d2f673e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x6d2f673e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==3093==ABORTING

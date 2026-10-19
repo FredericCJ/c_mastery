@@ -1,0 +1,133 @@
+{
+  "passed": false,
+  "errors": [],
+  "commands": [
+    {
+      "label": "actual PR-T28-01 init",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "cmastery",
+        "init",
+        "PR-T28-01",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": null,
+      "stdout": "{\n  \"project\": \"PR-T28-01\",\n  \"workspace\": \"/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z\",\n  \"family\": \"firmware_io\",\n  \"status\": \"not-run\",\n  \"next\": \"Implement the assigned boundary, then run cmastery check.\",\n  \"limits\": \"Instantiation does not establish implementation or mastery.\"\n}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled learner rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/core-stub"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PM_CHECK:",
+      "stdout": "PM_CHECK:40\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "external core reference",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/peripheral_depth/mmio/mmio.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/core-ref"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "PM_PASS",
+      "stdout": "PM_PASS widths effects W1C consuming-read GPIO readiness debounce line\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled target learner rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/target-stub"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PM_TARGET_REJECT",
+      "stdout": "PM_TARGET_REJECT missing/wrong word access or external import\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "external target reference",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/peripheral_depth/mmio/target.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/target-ref"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "marker": "PM_TARGET_PASS",
+      "stdout": "PM_TARGET_PASS word offsets and no imports; structural audit, not full semantic proof\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "compiled wrong-width rejected",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py",
+        "--target",
+        "--type-headers",
+        "/home/frede/cmastery-freestanding-tools/root/usr/include/newlib",
+        "--source",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z-wrong_width.c",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/target-width"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "marker": "PM_TARGET_REJECT",
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z-wrong_width.c: In function 'pm_target_read':\n/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z-wrong_width.c:2:52: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]\n    2 | uint32_t pm_target_read(const PmGpio *p) { return *(volatile const uint16_t *)&p->idr; }\n      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\ncc1: all warnings being treated as errors\nTraceback (most recent call last):\n  File \"/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio/run.py\", line 8, in <module>\n    subprocess.run([cc,*flags,str(source),*([str(HERE/'tests.c')] if not a.target else []),'-o',str(exe)],check=True)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/subprocess.py\", line 578, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['arm-none-eabi-gcc', '-std=c17', '-O2', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/peripheral_depth/mmio', '-I/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/labs/firmware_io/include', '-mcpu=cortex-m4', '-mthumb', '-mfloat-abi=soft', '-ffreestanding', '-fno-builtin', '-fno-stack-protector', '-c', '-isystem', '/home/frede/cmastery-freestanding-tools/root/usr/include/newlib', '/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z-wrong_width.c', '-o', '/mnt/f/Learning/Curricula/c_mastery/build/mmio-exports/20261017T144301646332Z/target-width/target.o']' returned non-zero exit status 1.\n",
+      "passed": false
+    }
+  ],
+  "input_sha256": {
+    "tools/check_mmio_exports.py": "cd8a5d6ef68f069a040c0e54e5edd3a42b1787131a1d65bdbea658834730bd3a",
+    "cmastery/cli.py": "31f1c4b67b252e0a89eae6d92a9e424f84d479d0faf5cd7ce619fdd15835f63b",
+    "cmastery/assessments.py": "a75d66e7bf136ad29bf782498c7948f982c47644e3d2fa273da1a301af061b02",
+    "curriculum/v5/expansion/legacy_assessments/PR-T28-01.json": "b65c3a4fa424e3b3faad17900a36230ed909e76ee3b9ac54e5d71a92e3482522",
+    "research/v5/expansion/legacy_advanced_mmio/attachment_PR-T28-01.json": "305513ca659513e487d4324d034e989f001611323da8ff4d4a7fe8b72d7e9883",
+    "labs/peripheral_depth/mmio/CONTRACTS.md": "22e8ef5ae241b4022cb3259b13af6a3f12fda55e2d5794a6dfef8ad0dcc655be",
+    "labs/peripheral_depth/mmio/mmio.c": "4794df4ec1b97a82b1fe1d1b8ad56cd143089eaceb4d766faab0bcb8843f1144",
+    "labs/peripheral_depth/mmio/mmio.h": "1ecf0b4b2bb7c452ccaec1b65957ad992b07eca074f125e6b9108cbdab2f9b6e",
+    "labs/peripheral_depth/mmio/run.py": "07784371213b14f7d7963dd4b9679e94bfab37eea812b766368e4c6ee78910eb",
+    "labs/peripheral_depth/mmio/target.c": "5ed9924756aeb7d65b300afe72053b1697c668e4c3c014bb177b0da8f3069e5f",
+    "labs/peripheral_depth/mmio/tests.c": "5c32bca8d0d6a7c18292987f95d07b041de679fff21550d320de90af028e3cf0",
+    "labs/firmware_io/include/firmware_io.h": "9670b6dbf07d778d80ddf14c7356d8a9a50814b44d8d6855bc0069682c28fd67",
+    "labs/firmware_io/CONTRACTS.md": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+    "labs/firmware_io/README.md": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293"
+  },
+  "limits": [
+    "Author reference selected explicitly; no learner work inferred.",
+    "Target structural access audit is not full semantic proof or physical execution."
+  ]
+}

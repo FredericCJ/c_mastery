@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-005-R1",
+      "objective": "T66.05.a",
+      "criterion": "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Dynamic guard authority is separate from const qualification and pointer lifetime. An original single-threaded raw-alias demonstration changes a cell through its exposed representation while a reader guard remains live; this is defined C access but an intentionally bypassed API contract, not a native data race. Safe-language RefCell guard lifetimes remain distinct from C caller discipline.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-005.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/cell_guard/CELL.md",
+        "assessor/ownership/cell_guard/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/cell_guard/cell_guard.c",
+        "labs/ownership/cell_guard/include/cell_guard.h",
+        "labs/ownership/cell_guard/tests/tests.c",
+        "tools/verify_ownership_cell_guard.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_cell_guard_validation.json",
+        "research/v5/modern/ownership_cell_guard_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-005-R2",
+      "objective": "T66.05.b",
+      "criterion": "Implement guarded read/write and transactional replacement, composing the range guard protocol without bypassing its identity or exclusivity checks.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The adapter actually imports ow_borrow/release and ow_cell_read/write/replace. One pthread mutex protects both permission registry and value. Callback updates retain a real writer while invoking user code outside that mutex; reentrant acquisition, replacement and nested update return BUSY. Candidate rejection and selected close preserve caller output and value while retaining callback side effects. Closing stops new work but existing guards drain, and final destruction requires externally joined/quiescent callers.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-005.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/cell_guard/CELL.md",
+        "assessor/ownership/cell_guard/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/cell_guard/cell_guard.c",
+        "labs/ownership/cell_guard/include/cell_guard.h",
+        "labs/ownership/cell_guard/tests/tests.c",
+        "tools/verify_ownership_cell_guard.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_cell_guard_validation.json",
+        "research/v5/modern/ownership_cell_guard_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-005-R3",
+      "objective": "T66.05.c",
+      "criterion": "Test shared readers, exclusive writer, stale/released token, zero-length and partial-range tokens, failed replacement output canaries and every allowed guard-release order. Reject replacement that ignores an active guard. Analyze an escaped raw-pointer API as a contract counterexample rather than treating a clean sanitizer run as proof.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six C17 profiles execute seven anchors, six compiled controls and seven compiling-stub rejections. Boundaries cover shared/readonly/empty/stale guards, output canaries, every24four-reader release permutation, cross-cell identity and final serial release. An independent56-case table checks callback admission/failure/close outcomes. Actual OW_MUTANT5/15 retain replacement and reader-write regressions; new controls isolate callback permission/publication defects.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-005.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/cell_guard/CELL.md",
+        "assessor/ownership/cell_guard/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/cell_guard/cell_guard.c",
+        "labs/ownership/cell_guard/include/cell_guard.h",
+        "labs/ownership/cell_guard/tests/tests.c",
+        "tools/verify_ownership_cell_guard.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_cell_guard_validation.json",
+        "research/v5/modern/ownership_cell_guard_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-005-R4",
+      "objective": "T66.05.d",
+      "criterion": "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The required multiple-thread variant is implemented with actual pthread synchronization around the entire guard/value protocol. Four workers complete4000updates; a separately paused worker callback is closed, resumed and joined before destruction, preserving staged outputs. Both GCC and Clang separately execute the actual thread and paused-close cases under C17 TSan without diagnostics. These observed histories do not prove arbitrary interleavings, fairness or recovery from unsupported cancellation/nonlocal exits. Independent delayed learner performance remains unassessed.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-005.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/cell_guard/CELL.md",
+        "assessor/ownership/cell_guard/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/cell_guard/cell_guard.c",
+        "labs/ownership/cell_guard/include/cell_guard.h",
+        "labs/ownership/cell_guard/tests/tests.c",
+        "tools/verify_ownership_cell_guard.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_cell_guard_validation.json",
+        "research/v5/modern/ownership_cell_guard_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-005-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-005.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/cell_guard/CELL.md",
+        "assessor/ownership/cell_guard/ANALYSIS.md",
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/cell_guard/cell_guard.c",
+        "labs/ownership/cell_guard/include/cell_guard.h",
+        "labs/ownership/cell_guard/tests/tests.c",
+        "tools/verify_ownership_cell_guard.py",
+        "research/v5/modern/ownership_cell_guard_validation.json",
+        "research/v5/modern/ownership_cell_guard_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_cell_guard_validation.json": "0e3975a85dae4014e679af19c8cedf89baf7f5cb3e6966169301100d774eca81",
+    "research/v5/modern/ownership_cell_guard_investigation_validation.json": "8a56df8a4b9a2349f85eefc44d92319fec87dfd034de6919ce8bc8237af6ff58"
+  },
+  "input_sha256": {
+    "assessor/ownership/cell_guard/ANALYSIS.md": "69eea51dfd2252f8dbbe7dbb93d348866c5b72c6b9b01eb357cbf8b497677c64",
+    "assessor/ownership/cell_guard/cell_guard.c": "50aba962f24612dccac6b6eb3594754cff02af323ba017d1d2d40637f83a793f",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/cell_guard/CELL.md": "d0f7180cee6083c875c31986f734b56522d99a7226384e3711492cbc34f75958",
+    "labs/ownership/cell_guard/CMakeLists.txt": "2698b6d7fffb37ea9936fde3a8c0684f9e2efa58eb05b4f0c3cfa99cab820328",
+    "labs/ownership/cell_guard/campaign.json": "948f8b41179cf066ac05b8c3a946b00e264db8916a14d68e1e1ddd228163b6d5",
+    "labs/ownership/cell_guard/expect_failure.py": "86fb9a4c859127951c2cf95a3bc8579c3d4e2941df5e3fae4807819fe1fe6ef7",
+    "labs/ownership/cell_guard/include/cell_guard.h": "8d9b1872e4c95ea6436b11f0d61433509492763ec80a0244e28ec1f9675b7e07",
+    "labs/ownership/cell_guard/src/cell_guard.c": "ac641625f9bdc8d2fe816c14ce928f6ee8fde7cfad636e7eb9cc4ec3006689a6",
+    "labs/ownership/cell_guard/tests/tests.c": "9d0dbe1545f222ed400cb0e90ab55ef87ea1f7b04fb77266352a14089502f5c7",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "research/v5/modern/ownership_cell_guard_research_gate.json": "d3174789131430ff900007f581cf0f4e1cd0ae3da2f9af5c623295b95fee7dd2",
+    "research/v5/modern/ownership_cell_guard_resources.json": "72d62d2d5d654983d591d79bfadfd6159e08a8983fae0ee2a3f769bd123340aa",
+    "research/v5/modern/ownership_resources.json": "c2f8efce3bc0958dbffd16b6c5e72b2d4cb446a577ee4c9791f3362c8a231451",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_cell_guard.py": "bdb433a9821a6cac64db8d7ea95cd79b141f7970d2022ea7537487dce60eeb0b",
+    "tools/run_ownership_cell_guard.py": "b05a0f7b80ba08193233a46988caed687d339e48cce9b858933a160df7baf725",
+    "tools/run_ownership_module.py": "5c4144294d6625388b8ba7fe143ceaaeae281653e837fd6930a4b53ea3ef9197",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_ownership_cell_guard.py": "d0a9a3c60ab14fdee19079fff22d0334e2950acaff74f32c1ccf9592150fc746",
+    "tools/run_ownership_cell_guard_investigation.py": "8c4126dc6c669177346c678f708dd03609d9ba9056ba2640db7ef8a94177e38c",
+    "curriculum/v5/exercises/X-T66-005.md": "b7ee5e4d3c39c3129320bf31c683a6392b24b71d8beaf5d0366f04823975efa9",
+    "research/v5/modern/ownership_cell_guard_validation.json": "0e3975a85dae4014e679af19c8cedf89baf7f5cb3e6966169301100d774eca81",
+    "research/v5/modern/ownership_cell_guard_investigation_validation.json": "8a56df8a4b9a2349f85eefc44d92319fec87dfd034de6919ce8bc8237af6ff58",
+    "tools/build_ownership_cell_guard_readiness.py": "1d3ba966fdae0e65113da40e687a9689418f925cb8352d60cfddf05df7d842e8",
+    "tools/check_ownership_cell_guard.py": "56bdb35003c514770795254e4760f4a7bae447e8fdf7546fdd78a2752a69fe3f"
+  },
+  "limits": [
+    "Sequential oracle and actual pthread/TSan histories do not prove all interleavings or fairness.",
+    "External quiescence and joined callers are required before mutex destruction.",
+    "Asynchronous cancellation, owner death and nonlocal callback exit are outside the selected contract.",
+    "Published C17 and current official POSIX2024 endpoints inaccessible; identified2017 specification reprints accurately labeled.",
+    "No independent human review or unaided learner assessment."
+  ]
+}

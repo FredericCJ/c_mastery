@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "family": "corpus_ring",
+  "title": "Consistent-hash ring views, membership and distinct replicas",
+  "build_system": "cmake",
+  "assessor_root": "assessor/corpus_ring",
+  "projects": [],
+  "units": [],
+  "exercises": [
+    {
+      "id": "X-T76-010",
+      "project": "PR-T76-07",
+      "tests": [
+        "corpus_ring.lookup",
+        "corpus_ring.membership",
+        "corpus_ring.replicas",
+        "corpus_ring.routing"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Bounded token ring and actual RphSha reference adapter; no data handoff or consistency claim"
+    }
+  ],
+  "campaign": {
+    "producer": "tools/run_corpus_ring.py",
+    "receipt": "corpus_ring_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "CR_CHECK:"
+  },
+  "profile": "C",
+  "limitations": [
+    "Routing and a bounded migration plan do not implement data transfer, durability, authenticated membership or consensus."
+  ]
+}

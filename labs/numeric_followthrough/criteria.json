@@ -1,0 +1,116 @@
+{
+  "criteria": [
+    {
+      "id": "AX-PR-P6-01-T17.02.b",
+      "objective": "T17.02.b",
+      "task": "Use binary64 round-to-nearest with explicit intermediate rounding to compare(2^53+1)-2^53 and(2^53-2^53)+1 against exact integer1. Then compare scalar and reordered FIR accumulation on cancellation-heavy inputs, recording contraction/fast-math and error metric. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "The first ordered sum can yield0 and the second1 under the stated model. C/compiler evaluation and contraction assumptions must be recorded. Exact rational reference, numerical tolerance and reproducibility are separate requirements.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-01-T17.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change to fixed-point accumulation and derive overflow/scaling/rounding obligations instead of carrying over floating tolerances.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-01-T17.06.b",
+      "objective": "T17.06.b",
+      "task": "Implement the causal FIR with coefficients[1,2,1]/4 and zero prehistory, yielding0,1,4,6,4 for samples0,4,8,4,0. Define coefficient representation, delay-line ownership and output overflow/rounding; distinguish the retained fixed V4Filter from this specified FIR. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "The anchor uses its own integer filter/output convention; its result is not evidence of this rational FIR. The required implementation must match the declared coefficient/history contract, with exact or justified rounded results and no equivalent library core.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-01-T17.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add first-order IIR state and derive its specific stability condition without generalizing a one-pole test to every filter.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-01-T17.06.c",
+      "objective": "T17.06.c",
+      "task": "Process the same samples one at a time, as one block and across every chunk split, preserving history. Refuse insufficient output capacity before mutating history/output; state an overlap policy. Inject failure after a partial block and define accepted-prefix versus rollback behavior explicitly. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "Chunk boundaries must not reset causal history. Extent refusal can be transactional; arithmetic failure during processing may need staging or a documented prefix. Compare both output and final history, not only one checksum.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-01-T17.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow exact in-place processing and prove why arbitrary partial overlap still needs refusal or a different traversal.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-01-T34.01.b",
+      "objective": "T34.01.b",
+      "task": "Seal correctness and numerical gates before timing: allowed inputs, overflow/NaN policy, absolute/relative tolerance near zero, bitwise requirements where applicable and output extent. Use tiny/tail/cancellation/large workloads and reject an optimized variant that violates the sealed contract even if faster. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "Performance is assessed only among implementations satisfying the same correctness contract. Relative error alone is unsuitable near zero; thresholds need a rationale. The original synthetic timing samples are not measurements.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-01-T34.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the application from approximate telemetry to reproducible audit output and revise which optimizations are permissible.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-02-T34.06.b",
+      "objective": "T34.06.b",
+      "task": "Compile the scalar kernel with vectorization reports; identify dependency, alias and reduction barriers. Add restrict/alignment claims only to an API excluding overlapping extents and guaranteeing actual base alignment. Test permitted offsets and a rejected-overlap adapter rather than executing undefined alias cases. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "Restrict is a semantic promise; false promises can invalidate correctness. Alignment of one pointer does not prove all iteration accesses aligned. Reports and disassembly show transformation, not correctness under illegal inputs.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-02-T34.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Expose an alias-permitting public wrapper and choose staging or scalar dispatch while preserving its stronger API contract.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-02-T34.07.b",
+      "objective": "T34.07.b",
+      "task": "Implement a supported explicit SIMD variant and scalar fallback, testing lengths0..2W+1 and offsets across an alignment period, with guarded valid extents and checked tails. Verify CPU and OS extended-state support before dispatch; do not infer availability from compile success. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "It relaxes alignment, not extent. Tails need valid masked semantics or scalar handling under the selected ISA. Runtime dispatch must satisfy actual ISA/OS requirements; unavailable hardware remains an unexecuted gate.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-02-T34.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Run on a machine lacking the selected extension and verify the fallback is chosen without executing unsupported instructions.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-02-T34.09.a",
+      "objective": "T34.09.a",
+      "task": "Build a paired scalar/variant harness that consumes outputs, verifies correctness outside the timed region and excludes allocation/input generation unless explicitly measured. Measure empty-harness overhead and inspect generated code to detect eliminated or hoisted work. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "Consumed results and assembly evidence are needed; repeated constant inputs can permit transformations. Setup separation and overhead matter most for tiny workloads. Keep raw paired measurements and exact binaries for review.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-02-T34.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the compiler/LTO setting and detect whether previously retained work has been optimized away.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": "AX-PR-P6-02-T34.09.c",
+      "objective": "T34.09.c",
+      "task": "Record repeated raw timing samples with workload, CPU/ISA, compiler/flags, affinity availability, clock and warm/cold state. Report median/spread, failures and unresolved noise; compare the synthetic90..110ns fixture only as summary arithmetic. Supplied model inputs: fixtures/integration/fir.json and fixtures/legacy_checkpoints/P6.json. Use the exact prerequisite dossiers listed below; additional inputs in this task are normative for this criterion.",
+      "expected": "A distribution supports a bounded empirical claim under the recorded setup. A slower vector version is valid evidence if explained; synthetic samples establish no physical speed. Correctness failures are not excluded as inconvenient outliers.",
+      "variants": [
+        {
+          "id": "AX-PR-P6-02-T34.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change working-set size across cache boundaries and predict then measure the transition under the same numerical contract.",
+          "prerequisite_artifacts": []
+        }
+      ]
+    }
+  ]
+}

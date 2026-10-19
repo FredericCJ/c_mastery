@@ -1,0 +1,161 @@
+{
+  "status": "passed",
+  "passed": true,
+  "recorded_at": "2026-10-16T22:17:49.837387+00:00",
+  "scope": "Scoped publication routing repair and regression checks; not a full handbook build or learner assessment.",
+  "warning_inventory": {
+    "fixtures": [
+      "tools/testdata/publication_links.json",
+      "tools/testdata/publication_code_labels.json"
+    ],
+    "count": 315,
+    "category": "myst.xref_missing",
+    "routes": {
+      "internal": 200,
+      "learner_safe_download": 97,
+      "restricted_source_evidence": 18
+    },
+    "runtime_dependency": "Both normalized fixtures are source-bound and record archived receipt path/hash; tests do not read mutable review output."
+  },
+  "checks": [
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-X",
+        "utf8",
+        "tools/check_publication_links.py"
+      ],
+      "exit_code": 0,
+      "tests": 23,
+      "skipped": 3,
+      "skip_reason": "Windows lacks symlink privilege; all three controls executed under Linux below.",
+      "canonical_inputs_routed": 1468,
+      "sphinx": {
+        "warnings_as_errors": true,
+        "exit_code": 0,
+        "warnings": 0,
+        "fixture": "315 attempt04/05 destinations through the actual Markdown scanner; target-label stubs and real eligible downloads"
+      },
+      "independent_parser": "After rewriting, markdown-it CommonMark re-parses all 1,468 rendered canonical inputs; no canonical local link remains silently unrouted. The same parser supplies block maps to the router, so this is a residual-link check, not an independently implemented parser."
+    },
+    {
+      "command": [
+        "wsl",
+        "--exec",
+        "/mnt/f/Learning/Curricula/c_mastery/build/publication-wsl-venv/bin/python",
+        "/mnt/f/Learning/Curricula/c_mastery/tools/check_publication_links.py",
+        "--routing-only"
+      ],
+      "exit_code": 0,
+      "tests": 21,
+      "skipped": 0,
+      "scope": "Routing and publisher call-site guards including real symlinks; Sphinx and corpus preflight intentionally not selected.",
+      "integrated_command": "The exact command returned by validate_expansion_v5.publication_routing_command() was separately executed with the override below: exit 0, 21 tests, zero skips."
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-X",
+        "utf8",
+        "tools/check_v5_authoring_contracts.py"
+      ],
+      "exit_code": 0,
+      "tests": 62,
+      "skipped": 0
+    }
+  ],
+  "source_sha256": {
+    "tools/publish_links.py": "c2ad39d11abeba8d5216b20a0465e48e31072040a3be2343c22d0c7b089cd0df",
+    "tools/check_publication_links.py": "27ba33932ea234b78171be0f9138292bc5db35a18b91aa6a4e603c98ae188743",
+    "tools/publish.py": "efeb8c272537e4b64fecaed838150a03702483daa45d49ec841927e8c041b3e0",
+    "tools/publish_contracts_v5.py": "a9ebb8e4fb65bcb4ae254c826392f58291aa23c2713e26977d2f0a5a29ad65ac",
+    "tools/publish_exercises_v5.py": "6b7aa89922cb266281ed19959877d911bdae4a42b714c9fce78c9c314eeef3e3",
+    "tools/publish_v4.py": "96a45d5c8eea2f9fa561a00580f57e251ba02e46ad08b3932517d1abb19228da",
+    "tools/build_v5.py": "6618e1512627dedcfb70f3b1e5adac930beda2f4ce46537f274774b0e96d5233",
+    "tools/validate_expansion_v5.py": "903044f54e2d5e5b5250d2f3f44ecd8bd9815960db4d44c4d39bd972793a72be",
+    "tools/package_v5.py": "cf59cda8d10a8f50981707ff41be8f87272e7560078d6108996fa45ed0408c6f",
+    "tools/testdata/publication_links.json": "f506514e06ab7a41dc728258d06ce37447e1127ed52f7389422e11d898c36955",
+    "tools/testdata/publication_code_labels.json": "96dc647f34f3c6a805a49e6ae710bf570b67d6382ebc0ec9a3c40fd0bfce1a8e",
+    "requirements-lock.txt": "b36a17960750e365d32720b5b44c8b691c4f8f1b2bbdeef46f21b51645e2e8ff"
+  },
+  "limitations": [
+    "The full canonical handbook still requires the parent-owned protected rebuild.",
+    "Reference target labels are stubbed only in the focused Sphinx fixture; registry uniqueness and actual publisher call sites have separate guards.",
+    "No assessor implementation or author-only research file was copied or linked. Restricted provenance remains identifiable as text.",
+    "No historical receipt, canonical teaching content or laboratory implementation changed in this repair."
+  ],
+  "scoped_agent_review": {
+    "reviewer": "author_batch",
+    "status": "no-blocking-finding",
+    "scope": "Read-only review of path containment, lexical and resolved learner policy, download destination containment, and canonical/generated context at publication call sites.",
+    "limits": "Author-team technical review only; reviewer did not rerun tests or perform a full build. Not independent human or whole-edition acceptance."
+  },
+  "inline_label_follow_up": {
+    "defect": "Splitting inline-code spans before matching links separated the label of [`file`](path) from its destination.",
+    "negative_control": "Before repair, the new test_code_in_link_label_still_routes_complete_link test rejected all four valid label variants.",
+    "repair": "Use CommonMark inline block maps so rewriting cannot cross paragraph or heading boundaries. Fenced code, indented code, and HTML blocks remain byte-for-byte unchanged; inline HTML is shielded. Within each prose range, match links and code spans in source order: the full link starts before code in its label, while an outer code span starts before link-shaped examples in it.",
+    "new_controls": [
+      "code-formatted and mixed-text link labels",
+      "square brackets and embedded backticks in code labels",
+      "outer multi-backtick code spans containing link examples",
+      "longer backtick and tilde fences",
+      "unterminated code fence",
+      "unmatched backtick cannot cross paragraph or heading boundary",
+      "indented and tab-indented code remain unchanged",
+      "HTML block and inline attribute examples remain unchanged",
+      "indented prose continuation and list prose still route",
+      "publication-only Linux interpreter override/default and invalid-path rejection"
+    ],
+    "source_changes": [
+      "tools/publish_links.py",
+      "tools/check_publication_links.py",
+      "tools/testdata/publication_code_labels.json"
+    ],
+    "review_findings": [
+      {
+        "finding": "Earlier bespoke scanner treated unmatched backticks across blank paragraphs as one code span.",
+        "resolution": "CommonMark inline block maps limit the source ranges; explicit regression passes."
+      },
+      {
+        "finding": "Earlier bespoke scanner rewrote link examples inside indented code.",
+        "resolution": "CommonMark code_block tokens are excluded from rewrite ranges; explicit regression passes."
+      }
+    ]
+  },
+  "dependency_setup": {
+    "scope": "Only the publication Linux check uses this ignored repository-local venv; no global or user install.",
+    "versions_observed": {
+      "python": "3.14.4",
+      "markdown-it-py": "3.0.0",
+      "mdurl": "0.1.2"
+    },
+    "commands": [
+      [
+        "wsl",
+        "--exec",
+        "python3",
+        "-m",
+        "venv",
+        "--without-pip",
+        "/mnt/f/Learning/Curricula/c_mastery/build/publication-wsl-venv"
+      ],
+      [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "pip",
+        "install",
+        "--target",
+        "build/publication-wsl-venv/lib/python3.14/site-packages",
+        "--only-binary=:all:",
+        "--no-deps",
+        "markdown-it-py==3.0.0",
+        "mdurl==0.1.2"
+      ]
+    ],
+    "explanation": "Linux ensurepip is absent. The venv is created without pip and host pip installs only the two locked pure-Python wheels into its site-packages. The Python-version directory must match the selected Linux interpreter on another host.",
+    "integrated_override": {
+      "CMASTERY_PUBLICATION_WSL_PYTHON": "/mnt/f/Learning/Curricula/c_mastery/build/publication-wsl-venv/bin/python"
+    },
+    "default": "Existing WSL python3, or current interpreter on Linux, must have the locked parser dependencies. Missing dependencies fail rather than skip the guards. Other Linux lab runners are unchanged."
+  }
+}

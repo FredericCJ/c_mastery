@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "domain": "T66",
+  "criteria": [
+    {
+      "id": "X-T66-003-R1",
+      "objective": "T66.03.a",
+      "criterion": "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Physical structure copying, logical ownership and runtime authority are distinguished. A legal copied-owner function compiles in both C17 compilers; no undefined double-consume is executed. OmmValue self validation rejects ordinary copied controls, while explicitly permitting no claim against malicious public-field edits or retained raw aliases. Opaque representation prevents ordinary field access but does not authenticate identical token holders.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-003.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/move/MOVE.md",
+        "assessor/ownership/move/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/move/move.c",
+        "assessor/ownership/move/registry.c",
+        "labs/ownership/move/include/move.h",
+        "labs/ownership/move/tests/tests.c",
+        "tools/verify_ownership_move.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_move_validation.json",
+        "research/v5/modern/ownership_move_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-003-R2",
+      "objective": "T66.03.b",
+      "criterion": "Implement checked move/consume operations and an isolated diagnostic probe that intentionally ignores OW_MUST_USE, with extension-enabled and portable builds reported separately.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Actual ow_move/ow_consume and typed ow_allocator are composed unchanged. The inline owner rebinds self and its internal data pointer, while a heap move preserves the existing typed pointer without allocation. Source poisoning and empty-before-release are explicit. Actual paired GCC/Clang C17 extension diagnostics and C23 recommended-warning/void-cast probes record what compilers enforce without claiming a linear-use type system.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-003.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/move/MOVE.md",
+        "assessor/ownership/move/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/move/move.c",
+        "assessor/ownership/move/registry.c",
+        "labs/ownership/move/include/move.h",
+        "labs/ownership/move/tests/tests.c",
+        "tools/verify_ownership_move.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_move_validation.json",
+        "research/v5/modern/ownership_move_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-003-R3",
+      "objective": "T66.03.c",
+      "criterion": "Test self-move, occupied destination, empty source, repeated consumption and allocator release counts. Reject the source-not-poisoned mutant. Compile a copied owner without consuming both copies: use it as a static counterexample, not an unbounded double-free experiment. Record whether GCC/Clang actually emit the ignored-result diagnostic.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six C17 profiles execute six anchors, six compiled controls and six compiling-stub rejections. Tests cover self and occupied moves, failed allocation, repeated consume, every length1-8, actual OW_MUTANT3/13, slot reuse and cross-registry rejection. The independent630-case generation model varies seven boundary seeds and nine move depths. Cost observations include actual raw registry size and matching release, separate from zero-allocation inline timing.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-003.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/move/MOVE.md",
+        "assessor/ownership/move/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/move/move.c",
+        "assessor/ownership/move/registry.c",
+        "labs/ownership/move/include/move.h",
+        "labs/ownership/move/tests/tests.c",
+        "tools/verify_ownership_move.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_move_validation.json",
+        "research/v5/modern/ownership_move_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    },
+    {
+      "id": "X-T66-003-R4",
+      "objective": "T66.03.d",
+      "criterion": "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "The required changed representation implements self-referential inline relocation and opaque two-slot checked generation authority. Every transfer invalidates old copies; MAX refuses transfer while preserving final consumption and permanent retirement. The harmless local duplicate-holder demonstration proves an identical live copy can act first and invalidate the nominal owner. No crash, arbitrary code execution or authentication guarantee is inferred. Independent delayed learner performance remains unassessed.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T66-003.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/move/MOVE.md",
+        "assessor/ownership/move/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/move/move.c",
+        "assessor/ownership/move/registry.c",
+        "labs/ownership/move/include/move.h",
+        "labs/ownership/move/tests/tests.c",
+        "tools/verify_ownership_move.py"
+      ],
+      "validation": [
+        "research/v5/modern/ownership_move_validation.json",
+        "research/v5/modern/ownership_move_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T66-003-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T66-003.md",
+        "labs/ownership/CONTRACTS.md",
+        "labs/ownership/move/MOVE.md",
+        "assessor/ownership/move/ANALYSIS.md",
+        "assessor/ownership/ownership.c",
+        "assessor/ownership/move/move.c",
+        "assessor/ownership/move/registry.c",
+        "labs/ownership/move/include/move.h",
+        "labs/ownership/move/tests/tests.c",
+        "tools/verify_ownership_move.py",
+        "research/v5/modern/ownership_move_validation.json",
+        "research/v5/modern/ownership_move_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/ownership_move_validation.json": "4ebc2187b51cb5195112ddd09c95f32cb734f743ec28c8d1ba92d04242076c56",
+    "research/v5/modern/ownership_move_investigation_validation.json": "131257c4b03b588869e761b196a7a9bd4207f8c1faf53527cdede0ffa0d81122"
+  },
+  "input_sha256": {
+    "assessor/ownership/move/ANALYSIS.md": "bf6fc9ff1b89789ecdf090215aa754c3ae098cfd510e984899d06cc6c800295b",
+    "assessor/ownership/move/move.c": "f7377424b8279210439a1cbf6ab90241df4dc9d967818eddd77b9ffafd0323ce",
+    "assessor/ownership/move/registry.c": "567dd381793467cd0c731e13758ae5383e3355bfa7810e176a0ef87e346a3ca2",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "labs/ownership/CONTRACTS.md": "9a9a89eb318f91576681b600f28731359ab46b943a45f62792308f325cb5177c",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/move/CMakeLists.txt": "35653f17d90d684fa17008e67a62b5495f7f9cb714581f15df3a1ea06555e07d",
+    "labs/ownership/move/MOVE.md": "c61b2325c343be5432f511f8ba524e16992eb91d6fb85514a74c6b18e1ace828",
+    "labs/ownership/move/campaign.json": "4f36a7c4dc54becdaa94019f99c28c0afad50621df21560e5ed57c94fefef178",
+    "labs/ownership/move/expect_failure.py": "97ac02e82347d0bb3a03749e548e2aa71e9881e7b383ed4b07229171ddaa0723",
+    "labs/ownership/move/include/move.h": "0d8264a5a42ae631bbb84e0f26fc94ab48e92456b6ece35e9a805e17e5c4f1e2",
+    "labs/ownership/move/src/move.c": "28b9f879d329e23706ea80bd70d3e1b0f78ffe8e84d8a7c486405b44a0f9a429",
+    "labs/ownership/move/src/registry.c": "b2e69b4ab5fc4af89ca61b7467ef124ba4dbe334702e8008aa648c6d8f5fca9e",
+    "labs/ownership/move/tests/diagnostic.c": "d439d759c78fef7d432c1c65637b41179de6fe392c420a6e2d47fca24da0a3f9",
+    "labs/ownership/move/tests/nodiscard.c": "2c4cd190b1b3280cd6247e3f876ac9ae55c447e4e93ada3d6b42e1fdd5e542d6",
+    "labs/ownership/move/tests/opaque_bad.c": "2fe6406a85865183e213cd731df9ee4073c036a35d78e7bfe7ee8950e50b47d7",
+    "labs/ownership/move/tests/tests.c": "ca951e91879b690cb8bc184b481ac49798be96dffaf9c69badb326781c620d5e",
+    "labs/ownership/src/ownership.c": "492f7804488fff04f35be1c97d05f191b9df65ff88acee69ef5a8f5418c22e50",
+    "research/v5/modern/ownership_move_research_gate.json": "5366f75091bc2d3f4d638acf9fb0ec0d1391377545f09a05b565427c3ddbe8b3",
+    "research/v5/modern/ownership_move_resources.json": "4003ac6437e1d6585e14575bf96d12e21615a7c94093cb92723582763a62afe0",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_ownership_move.py": "36a42caf789a67dd730ea35265487ddd0d831ced631f3d61f62a3cf6f7d0a995",
+    "tools/run_ownership_module.py": "5c4144294d6625388b8ba7fe143ceaaeae281653e837fd6930a4b53ea3ef9197",
+    "tools/run_ownership_move.py": "145d954cf5fbe94bddc5528be252df37dc54d851984a5490e6c01ee6420116fd",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_ownership_move.py": "2bf88efbe2dd3aef4531ff58196c77e774ec1ec5a412bf4d9fe5eda8951a7c33",
+    "tools/run_ownership_move_investigation.py": "5ec6937be5d1e8f2bd4e8e5f7880d7529aa30543069c0f469092a171ad26dc84",
+    "curriculum/v5/exercises/X-T66-003.md": "998bec33ce4aa52d4c1c124dea09f857ee0a2a2771ad688baeaceb2788717d4c",
+    "research/v5/modern/ownership_move_validation.json": "4ebc2187b51cb5195112ddd09c95f32cb734f743ec28c8d1ba92d04242076c56",
+    "research/v5/modern/ownership_move_investigation_validation.json": "131257c4b03b588869e761b196a7a9bd4207f8c1faf53527cdede0ffa0d81122",
+    "tools/build_ownership_move_readiness.py": "473a653f377993a5857bb7b94119c838cd5dd5eac3f860a694437fcfc7fe026f",
+    "tools/check_ownership_move.py": "9a07d96682902bba16069b2692cd8f2f01b14047013434ae2174df59a5e9e166"
+  },
+  "limits": [
+    "Finite traces and runtime checks do not prove arbitrary pointer/callback or concurrent safety.",
+    "Opaque generation authority does not authenticate identical holders.",
+    "Compiler diagnostics are observed with exact flags; C23 probes do not replace the C17 implementation baseline.",
+    "Exact published C17/C23 inaccessible; N3096 accurately labeled draft.",
+    "No independent human review or unaided learner assessment."
+  ]
+}

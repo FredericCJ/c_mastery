@@ -1,0 +1,2568 @@
+{
+  "version": 1,
+  "family": "object_runtime",
+  "title": "Managed-runtime object models",
+  "build_system": "cmake",
+  "assessor_root": "assessor/object_runtime",
+  "projects": [
+    {
+      "id": "PR-T74-01",
+      "tests": [
+        "object_runtime.value"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-02",
+      "tests": [
+        "object_runtime.intern"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-03",
+      "tests": [
+        "object_runtime.shapes"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-04",
+      "tests": [
+        "object_runtime.cache"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-05",
+      "tests": [
+        "object_runtime.mark"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-06",
+      "tests": [
+        "object_runtime.nursery"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-07",
+      "tests": [
+        "object_runtime.cards"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-08",
+      "tests": [
+        "object_runtime.compact"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-09",
+      "tests": [
+        "object_runtime.weak"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-10",
+      "tests": [
+        "object_runtime.trial"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T74-11",
+      "tests": [
+        "object_runtime.safepoint"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-OR-01",
+      "project": "PR-T74-01",
+      "title": "Pointer tags, NaN payloads and representation trust boundaries \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.01.a",
+        "T74.01.b"
+      ],
+      "tests": [
+        "object_runtime.value"
+      ],
+      "steps": [
+        "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+        "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload."
+      ],
+      "checks": [
+        "0x7ff9000000000042 as numeric input canonicalizes to0x7ff8000000000000; int32 minimum round-trips as -2147483648; negative zero remains0x8000000000000000. A low-bit-misaligned pointer rejects without changing output.",
+        "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects."
+      ],
+      "reasoning": [
+        "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions."
+      ],
+      "deliverables": [
+        "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+        "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+        "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-001-R1",
+          "objective": "T74.01.a",
+          "criterion": "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-001-R2",
+          "objective": "T74.01.b",
+          "criterion": "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "value bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-TAGS",
+          "locator": "Value tagging in V8",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-02",
+      "project": "PR-T74-01",
+      "title": "Pointer tags, NaN payloads and representation trust boundaries \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.01.c"
+      ],
+      "tests": [
+        "object_runtime.value"
+      ],
+      "steps": [
+        "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects."
+      ],
+      "checks": [
+        "0x7ff9000000000042 as numeric input canonicalizes to0x7ff8000000000000; int32 minimum round-trips as -2147483648; negative zero remains0x8000000000000000. A low-bit-misaligned pointer rejects without changing output.",
+        "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-001-R3",
+          "objective": "T74.01.c",
+          "criterion": "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "value bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-TAGS",
+          "locator": "Value tagging in V8",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-03",
+      "project": "PR-T74-01",
+      "title": "Pointer tags, NaN payloads and representation trust boundaries \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.01.d"
+      ],
+      "tests": [
+        "object_runtime.value"
+      ],
+      "steps": [
+        "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      ],
+      "checks": [
+        "0x7ff9000000000042 as numeric input canonicalizes to0x7ff8000000000000; int32 minimum round-trips as -2147483648; negative zero remains0x8000000000000000. A low-bit-misaligned pointer rejects without changing output.",
+        "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-001-R4",
+          "objective": "T74.01.d",
+          "criterion": "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "value bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-TAGS",
+          "locator": "Value tagging in V8",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-04",
+      "project": "PR-T74-02",
+      "title": "Owned binary interning and collision-safe symbol identity \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.02.a",
+        "T74.02.b"
+      ],
+      "tests": [
+        "object_runtime.intern"
+      ],
+      "steps": [
+        "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+        "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract."
+      ],
+      "checks": [
+        "Bytes00,01 intern asID1 and00,02 asID2; a repeat00,01 returnsID1 even with failure injected. A new string under failure leaves used and output unchanged. NULL with length0 interns the empty string.",
+        "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle."
+      ],
+      "reasoning": [
+        "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables."
+      ],
+      "deliverables": [
+        "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+        "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+        "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-002-R1",
+          "objective": "T74.02.a",
+          "criterion": "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-002-R2",
+          "objective": "T74.02.b",
+          "criterion": "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "intern bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-INTERN",
+          "locator": "luaS_resize failure restoration",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-05",
+      "project": "PR-T74-02",
+      "title": "Owned binary interning and collision-safe symbol identity \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.02.c"
+      ],
+      "tests": [
+        "object_runtime.intern"
+      ],
+      "steps": [
+        "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle."
+      ],
+      "checks": [
+        "Bytes00,01 intern asID1 and00,02 asID2; a repeat00,01 returnsID1 even with failure injected. A new string under failure leaves used and output unchanged. NULL with length0 interns the empty string.",
+        "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-002-R3",
+          "objective": "T74.02.c",
+          "criterion": "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "intern bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-INTERN",
+          "locator": "luaS_resize failure restoration",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-06",
+      "project": "PR-T74-02",
+      "title": "Owned binary interning and collision-safe symbol identity \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.02.d"
+      ],
+      "tests": [
+        "object_runtime.intern"
+      ],
+      "steps": [
+        "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      ],
+      "checks": [
+        "Bytes00,01 intern asID1 and00,02 asID2; a repeat00,01 returnsID1 even with failure injected. A new string under failure leaves used and output unchanged. NULL with length0 interns the empty string.",
+        "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-002-R4",
+          "objective": "T74.02.d",
+          "criterion": "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "intern bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-INTERN",
+          "locator": "luaS_resize failure restoration",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-07",
+      "project": "PR-T74-03",
+      "title": "Immutable hidden classes and reusable property transitions \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.03.a",
+        "T74.03.b"
+      ],
+      "tests": [
+        "object_runtime.shapes"
+      ],
+      "steps": [
+        "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+        "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract."
+      ],
+      "checks": [
+        "Objects built with keys1 then2 share shape; keys2 then1 have different offsets and a different shape. Updating an existing key changes only its value; adding a fifth distinct key returns FULL unchanged.",
+        "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary."
+      ],
+      "reasoning": [
+        "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches."
+      ],
+      "deliverables": [
+        "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+        "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+        "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-003-R1",
+          "objective": "T74.03.a",
+          "criterion": "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-003-R2",
+          "objective": "T74.03.b",
+          "criterion": "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "shapes bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-08",
+      "project": "PR-T74-03",
+      "title": "Immutable hidden classes and reusable property transitions \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.03.c"
+      ],
+      "tests": [
+        "object_runtime.shapes"
+      ],
+      "steps": [
+        "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary."
+      ],
+      "checks": [
+        "Objects built with keys1 then2 share shape; keys2 then1 have different offsets and a different shape. Updating an existing key changes only its value; adding a fifth distinct key returns FULL unchanged.",
+        "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-003-R3",
+          "objective": "T74.03.c",
+          "criterion": "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "shapes bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-09",
+      "project": "PR-T74-03",
+      "title": "Immutable hidden classes and reusable property transitions \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.03.d"
+      ],
+      "tests": [
+        "object_runtime.shapes"
+      ],
+      "steps": [
+        "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      ],
+      "checks": [
+        "Objects built with keys1 then2 share shape; keys2 then1 have different offsets and a different shape. Updating an existing key changes only its value; adding a fifth distinct key returns FULL unchanged.",
+        "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-003-R4",
+          "objective": "T74.03.d",
+          "criterion": "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "shapes bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-10",
+      "project": "PR-T74-04",
+      "title": "Monomorphic and polymorphic inline-cache guards \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.04.a",
+        "T74.04.b"
+      ],
+      "tests": [
+        "object_runtime.cache"
+      ],
+      "steps": [
+        "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+        "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects."
+      ],
+      "checks": [
+        "After caching key1 at offset0 in layout[1,2], key1 in layout[2,1] must read offset1. Looking up key2 in the first layout must read20, not the cached key1 value10; the third distinct pair selects generic mode.",
+        "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads."
+      ],
+      "reasoning": [
+        "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs."
+      ],
+      "deliverables": [
+        "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+        "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+        "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-004-R1",
+          "objective": "T74.04.a",
+          "criterion": "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-004-R2",
+          "objective": "T74.04.b",
+          "criterion": "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cache bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-11",
+      "project": "PR-T74-04",
+      "title": "Monomorphic and polymorphic inline-cache guards \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.04.c"
+      ],
+      "tests": [
+        "object_runtime.cache"
+      ],
+      "steps": [
+        "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads."
+      ],
+      "checks": [
+        "After caching key1 at offset0 in layout[1,2], key1 in layout[2,1] must read offset1. Looking up key2 in the first layout must read20, not the cached key1 value10; the third distinct pair selects generic mode.",
+        "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-004-R3",
+          "objective": "T74.04.c",
+          "criterion": "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cache bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-12",
+      "project": "PR-T74-04",
+      "title": "Monomorphic and polymorphic inline-cache guards \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.04.d",
+        "T74.04.a",
+        "T74.04.b"
+      ],
+      "tests": [
+        "object_runtime.cache"
+      ],
+      "steps": [
+        "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup.",
+        "Before exporting rt.object_model, re-derive and demonstrate on the actual composed artifact: Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+        "Before exporting rt.object_model, re-derive and demonstrate on the actual composed artifact: Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects."
+      ],
+      "checks": [
+        "After caching key1 at offset0 in layout[1,2], key1 in layout[2,1] must read offset1. Looking up key2 in the first layout must read20, not the cached key1 value10; the third distinct pair selects generic mode.",
+        "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+        "Export review fails if representation, reachability or relocation obligations fail in composition even if the isolated anchor passes."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-004-R4",
+          "objective": "T74.04.d",
+          "criterion": "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-004-R1",
+          "objective": "T74.04.a",
+          "criterion": "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-004-R2",
+          "objective": "T74.04.b",
+          "criterion": "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cache bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SHAPES",
+          "locator": "Hidden Classes and Map Transition Tree",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-13",
+      "project": "PR-T74-05",
+      "title": "Incremental marking and root/store write barriers \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.05.a",
+        "T74.05.b"
+      ],
+      "tests": [
+        "object_runtime.mark"
+      ],
+      "steps": [
+        "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+        "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy."
+      ],
+      "checks": [
+        "With live1..4 and roots1,2, one step blackens1. A subsequent1\u00e2\u2020\u20193 store grays3, adding root4 grays4, and the remaining three scans finish with all four black. Budget0 performs zero scans.",
+        "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time."
+      ],
+      "reasoning": [
+        "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier."
+      ],
+      "deliverables": [
+        "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+        "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+        "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-005-R1",
+          "objective": "T74.05.a",
+          "criterion": "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-005-R2",
+          "objective": "T74.05.b",
+          "criterion": "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "mark bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-14",
+      "project": "PR-T74-05",
+      "title": "Incremental marking and root/store write barriers \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.05.c"
+      ],
+      "tests": [
+        "object_runtime.mark"
+      ],
+      "steps": [
+        "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time."
+      ],
+      "checks": [
+        "With live1..4 and roots1,2, one step blackens1. A subsequent1\u00e2\u2020\u20193 store grays3, adding root4 grays4, and the remaining three scans finish with all four black. Budget0 performs zero scans.",
+        "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-005-R3",
+          "objective": "T74.05.c",
+          "criterion": "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "mark bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-15",
+      "project": "PR-T74-05",
+      "title": "Incremental marking and root/store write barriers \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.05.d"
+      ],
+      "tests": [
+        "object_runtime.mark"
+      ],
+      "steps": [
+        "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      ],
+      "checks": [
+        "With live1..4 and roots1,2, one step blackens1. A subsequent1\u00e2\u2020\u20193 store grays3, adding root4 grays4, and the remaining three scans finish with all four black. Budget0 performs zero scans.",
+        "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-005-R4",
+          "objective": "T74.05.d",
+          "criterion": "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "mark bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-16",
+      "project": "PR-T74-06",
+      "title": "Semispace evacuation, forwarding and promotion failure \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.06.a",
+        "T74.06.b"
+      ],
+      "tests": [
+        "object_runtime.nursery"
+      ],
+      "steps": [
+        "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+        "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract."
+      ],
+      "checks": [
+        "Roots reference young object3, which reaches2; an old object also reaches2. The first collection copies exactly two cells and preserves sharing; the second promotes both. Old-capacity1 on that second collection returns FULL with original heap and copied output unchanged.",
+        "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap."
+      ],
+      "reasoning": [
+        "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection."
+      ],
+      "deliverables": [
+        "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+        "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+        "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-006-R1",
+          "objective": "T74.06.a",
+          "criterion": "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-006-R2",
+          "objective": "T74.06.b",
+          "criterion": "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "nursery bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-17",
+      "project": "PR-T74-06",
+      "title": "Semispace evacuation, forwarding and promotion failure \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.06.c"
+      ],
+      "tests": [
+        "object_runtime.nursery"
+      ],
+      "steps": [
+        "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap."
+      ],
+      "checks": [
+        "Roots reference young object3, which reaches2; an old object also reaches2. The first collection copies exactly two cells and preserves sharing; the second promotes both. Old-capacity1 on that second collection returns FULL with original heap and copied output unchanged.",
+        "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-006-R3",
+          "objective": "T74.06.c",
+          "criterion": "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "nursery bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-18",
+      "project": "PR-T74-06",
+      "title": "Semispace evacuation, forwarding and promotion failure \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.06.d"
+      ],
+      "tests": [
+        "object_runtime.nursery"
+      ],
+      "steps": [
+        "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      ],
+      "checks": [
+        "Roots reference young object3, which reaches2; an old object also reaches2. The first collection copies exactly two cells and preserves sharing; the second promotes both. Old-capacity1 on that second collection returns FULL with original heap and copied output unchanged.",
+        "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-006-R4",
+          "objective": "T74.06.d",
+          "criterion": "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "nursery bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-19",
+      "project": "PR-T74-07",
+      "title": "Card marking and conservative remembered roots \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.07.a",
+        "T74.07.b"
+      ],
+      "tests": [
+        "object_runtime.cards"
+      ],
+      "steps": [
+        "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+        "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference."
+      ],
+      "checks": [
+        "Old object3 field1\u00e2\u2020\u2019young5 dirties card1; object2 field0\u00e2\u2020\u2019young7 shares it. Removing the first edge keeps the card dirty and root7 present; removing the second clears it after one four-field rescan.",
+        "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery."
+      ],
+      "reasoning": [
+        "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field."
+      ],
+      "deliverables": [
+        "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+        "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+        "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-007-R1",
+          "objective": "T74.07.a",
+          "criterion": "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-007-R2",
+          "objective": "T74.07.b",
+          "criterion": "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cards bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-20",
+      "project": "PR-T74-07",
+      "title": "Card marking and conservative remembered roots \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.07.c"
+      ],
+      "tests": [
+        "object_runtime.cards"
+      ],
+      "steps": [
+        "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery."
+      ],
+      "checks": [
+        "Old object3 field1\u00e2\u2020\u2019young5 dirties card1; object2 field0\u00e2\u2020\u2019young7 shares it. Removing the first edge keeps the card dirty and root7 present; removing the second clears it after one four-field rescan.",
+        "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-007-R3",
+          "objective": "T74.07.c",
+          "criterion": "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cards bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-21",
+      "project": "PR-T74-07",
+      "title": "Card marking and conservative remembered roots \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.07.d"
+      ],
+      "tests": [
+        "object_runtime.cards"
+      ],
+      "steps": [
+        "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      ],
+      "checks": [
+        "Old object3 field1\u00e2\u2020\u2019young5 dirties card1; object2 field0\u00e2\u2020\u2019young7 shares it. Removing the first edge keeps the card dirty and root7 present; removing the second clears it after one four-field rescan.",
+        "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-007-R4",
+          "objective": "T74.07.d",
+          "criterion": "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cards bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-BARRIER",
+          "locator": "Generational write barrier",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-22",
+      "project": "PR-T74-08",
+      "title": "Handle-based compaction and forwarding aliases \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.08.a",
+        "T74.08.b"
+      ],
+      "tests": [
+        "object_runtime.compact"
+      ],
+      "steps": [
+        "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+        "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles."
+      ],
+      "checks": [
+        "Live physical slots2 and4 compact to1 and2. Two handles to slot2 both become1; a handle to4 becomes2, while payload fields naming handle3 retain that identity. Any outstanding borrow rejects unchanged.",
+        "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants."
+      ],
+      "reasoning": [
+        "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields."
+      ],
+      "deliverables": [
+        "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+        "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+        "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-008-R1",
+          "objective": "T74.08.a",
+          "criterion": "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-008-R2",
+          "objective": "T74.08.b",
+          "criterion": "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "compact bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-23",
+      "project": "PR-T74-08",
+      "title": "Handle-based compaction and forwarding aliases \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.08.c"
+      ],
+      "tests": [
+        "object_runtime.compact"
+      ],
+      "steps": [
+        "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants."
+      ],
+      "checks": [
+        "Live physical slots2 and4 compact to1 and2. Two handles to slot2 both become1; a handle to4 becomes2, while payload fields naming handle3 retain that identity. Any outstanding borrow rejects unchanged.",
+        "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-008-R3",
+          "objective": "T74.08.c",
+          "criterion": "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "compact bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-24",
+      "project": "PR-T74-08",
+      "title": "Handle-based compaction and forwarding aliases \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.08.d"
+      ],
+      "tests": [
+        "object_runtime.compact"
+      ],
+      "steps": [
+        "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      ],
+      "checks": [
+        "Live physical slots2 and4 compact to1 and2. Two handles to slot2 both become1; a handle to4 becomes2, while payload fields naming handle3 retain that identity. Any outstanding borrow rejects unchanged.",
+        "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-008-R4",
+          "objective": "T74.08.d",
+          "criterion": "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "compact bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-GC",
+          "locator": "Generational layout",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-25",
+      "project": "PR-T74-09",
+      "title": "Ephemeron fixed points and staged finalization \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.09.a",
+        "T74.09.b"
+      ],
+      "tests": [
+        "object_runtime.weak"
+      ],
+      "steps": [
+        "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+        "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython."
+      ],
+      "checks": [
+        "Pairs2\u00e2\u2020\u20193 then1\u00e2\u2020\u20192 with strong root1 retain all three only after a fixed point. A pair4\u00e2\u2020\u20195 whose value5 points back to key4 dies without an external key root. A queued object clears weak references before one finalizer event and may be rooted before the next collection.",
+        "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants."
+      ],
+      "reasoning": [
+        "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release."
+      ],
+      "deliverables": [
+        "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+        "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+        "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-009-R1",
+          "objective": "T74.09.a",
+          "criterion": "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-009-R2",
+          "objective": "T74.09.b",
+          "criterion": "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "weak bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-WEAK",
+          "locator": "2.5.3 Garbage-Collection Metamethods",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-26",
+      "project": "PR-T74-09",
+      "title": "Ephemeron fixed points and staged finalization \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.09.c"
+      ],
+      "tests": [
+        "object_runtime.weak"
+      ],
+      "steps": [
+        "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants."
+      ],
+      "checks": [
+        "Pairs2\u00e2\u2020\u20193 then1\u00e2\u2020\u20192 with strong root1 retain all three only after a fixed point. A pair4\u00e2\u2020\u20195 whose value5 points back to key4 dies without an external key root. A queued object clears weak references before one finalizer event and may be rooted before the next collection.",
+        "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-009-R3",
+          "objective": "T74.09.c",
+          "criterion": "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "weak bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-WEAK",
+          "locator": "2.5.3 Garbage-Collection Metamethods",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-27",
+      "project": "PR-T74-09",
+      "title": "Ephemeron fixed points and staged finalization \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.09.d"
+      ],
+      "tests": [
+        "object_runtime.weak"
+      ],
+      "steps": [
+        "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      ],
+      "checks": [
+        "Pairs2\u00e2\u2020\u20193 then1\u00e2\u2020\u20192 with strong root1 retain all three only after a fixed point. A pair4\u00e2\u2020\u20195 whose value5 points back to key4 dies without an external key root. A queued object clears weak references before one finalizer event and may be rooted before the next collection.",
+        "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-009-R4",
+          "objective": "T74.09.d",
+          "criterion": "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "weak bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-WEAK",
+          "locator": "2.5.3 Garbage-Collection Metamethods",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-28",
+      "project": "PR-T74-10",
+      "title": "Trial deletion for reference-counted cycles \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.10.a",
+        "T74.10.b"
+      ],
+      "tests": [
+        "object_runtime.trial"
+      ],
+      "steps": [
+        "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+        "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle."
+      ],
+      "checks": [
+        "A1\u00e2\u2020\u201d2 cycle with true counts1,1 and no external root is reclaimed. Counts2,1 mean an external reference protects1 and therefore2, even though2 has residual zero. An outside-candidate reference conservatively protects its target.",
+        "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets."
+      ],
+      "reasoning": [
+        "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure."
+      ],
+      "deliverables": [
+        "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+        "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+        "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-010-R1",
+          "objective": "T74.10.a",
+          "criterion": "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-010-R2",
+          "objective": "T74.10.b",
+          "criterion": "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-010.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "trial bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-29",
+      "project": "PR-T74-10",
+      "title": "Trial deletion for reference-counted cycles \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.10.c"
+      ],
+      "tests": [
+        "object_runtime.trial"
+      ],
+      "steps": [
+        "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets."
+      ],
+      "checks": [
+        "A1\u00e2\u2020\u201d2 cycle with true counts1,1 and no external root is reclaimed. Counts2,1 mean an external reference protects1 and therefore2, even though2 has residual zero. An outside-candidate reference conservatively protects its target.",
+        "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-010-R3",
+          "objective": "T74.10.c",
+          "criterion": "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-010.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "trial bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-30",
+      "project": "PR-T74-10",
+      "title": "Trial deletion for reference-counted cycles \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.10.d"
+      ],
+      "tests": [
+        "object_runtime.trial"
+      ],
+      "steps": [
+        "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      ],
+      "checks": [
+        "A1\u00e2\u2020\u201d2 cycle with true counts1,1 and no external root is reclaimed. Counts2,1 mean an external reference protects1 and therefore2, even though2 has residual zero. An outside-candidate reference conservatively protects its target.",
+        "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-010-R4",
+          "objective": "T74.10.d",
+          "criterion": "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-010.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "trial bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-RC",
+          "locator": "Identifying reference cycles: candidate counts and rescue traversal",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-31",
+      "project": "PR-T74-11",
+      "title": "Precise root maps and derived-reference relocation \u00e2\u20ac\u201d derivation and construction",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T74.11.a",
+        "T74.11.b"
+      ],
+      "tests": [
+        "object_runtime.safepoint"
+      ],
+      "steps": [
+        "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+        "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact."
+      ],
+      "checks": [
+        "Two root slots with base2 offsets0 and8 and length8 relocate to base5, while scalar2 stays2. A map omitting one tagged root rejects; offset9 rejects the entire frame unchanged. One-past offset8 may be represented but not dereferenced.",
+        "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation."
+      ],
+      "reasoning": [
+        "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots."
+      ],
+      "deliverables": [
+        "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+        "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+        "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-011-R1",
+          "objective": "T74.11.a",
+          "criterion": "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-011-R2",
+          "objective": "T74.11.b",
+          "criterion": "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-011.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "safepoint bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-32",
+      "project": "PR-T74-11",
+      "title": "Precise root maps and derived-reference relocation \u00e2\u20ac\u201d falsification and failure analysis",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "verification",
+      "objectives": [
+        "T74.11.c"
+      ],
+      "tests": [
+        "object_runtime.safepoint"
+      ],
+      "steps": [
+        "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation."
+      ],
+      "checks": [
+        "Two root slots with base2 offsets0 and8 and length8 relocate to base5, while scalar2 stays2. A map omitting one tagged root rejects; offset9 rejects the entire frame unchanged. One-past offset8 may be represented but not dereferenced.",
+        "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation."
+      ],
+      "reasoning": [
+        "Explain every model/oracle assumption and demonstrate why each semantic mutant violates the contract."
+      ],
+      "deliverables": [
+        "Independent failing traces, fixed source revision, capacity/rollback evidence and exact commands."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-011-R3",
+          "objective": "T74.11.c",
+          "criterion": "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-011.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "safepoint bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-OR-33",
+      "project": "PR-T74-11",
+      "title": "Precise root maps and derived-reference relocation \u00e2\u20ac\u201d changed-contract integration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "transfer",
+      "objectives": [
+        "T74.11.d",
+        "T74.11.a",
+        "T74.11.b"
+      ],
+      "tests": [
+        "object_runtime.safepoint"
+      ],
+      "steps": [
+        "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live.",
+        "Before exporting rt.incremental_gc, re-derive and demonstrate on the actual composed artifact: Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+        "Before exporting rt.incremental_gc, re-derive and demonstrate on the actual composed artifact: Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact."
+      ],
+      "checks": [
+        "Two root slots with base2 offsets0 and8 and length8 relocate to base5, while scalar2 stays2. A map omitting one tagged root rejects; offset9 rejects the entire frame unchanged. One-past offset8 may be represented but not dereferenced.",
+        "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+        "Export review fails if representation, reachability or relocation obligations fail in composition even if the isolated anchor passes."
+      ],
+      "reasoning": [
+        "Re-derive lifetime, representation and cost when the original assumptions change."
+      ],
+      "deliverables": [
+        "Changed-condition implementation, explicit imported-artifact adapters, sealed cost decision and delayed assessment evidence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T74-011-R4",
+          "objective": "T74.11.d",
+          "criterion": "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-011-R1",
+          "objective": "T74.11.a",
+          "criterion": "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T74-011-R2",
+          "objective": "T74.11.b",
+          "criterion": "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+      ],
+      "assessor_analysis": "assessor/object_runtime/analyses/X-T74-011.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "safepoint bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-OR-SAFE",
+          "locator": "Overview and Core Concepts",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-ISO",
+          "locator": "6.3.2.3p1-7 Pointer conversions",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-OR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T74-001",
+      "project": "PR-T74-01",
+      "tests": [
+        "object_runtime.value",
+        "object_runtime.ext_values"
+      ]
+    },
+    {
+      "id": "X-T74-002",
+      "project": "PR-T74-02",
+      "tests": [
+        "object_runtime.intern"
+      ]
+    },
+    {
+      "id": "X-T74-003",
+      "project": "PR-T74-03",
+      "tests": [
+        "object_runtime.shapes",
+        "object_runtime.dictionary"
+      ]
+    },
+    {
+      "id": "X-T74-004",
+      "project": "PR-T74-04",
+      "tests": [
+        "object_runtime.cache",
+        "object_runtime.generic"
+      ]
+    },
+    {
+      "id": "X-T74-005",
+      "project": "PR-T74-05",
+      "tests": [
+        "object_runtime.mark",
+        "object_runtime.mark_allocation",
+        "object_runtime.mark_concurrent"
+      ]
+    },
+    {
+      "id": "X-T74-006",
+      "project": "PR-T74-06",
+      "tests": [
+        "object_runtime.nursery",
+        "object_runtime.gen_preflight",
+        "object_runtime.gen_composition",
+        "object_runtime.gen_large"
+      ]
+    },
+    {
+      "id": "X-T74-007",
+      "project": "PR-T74-07",
+      "tests": [
+        "object_runtime.cards",
+        "object_runtime.gen_composition",
+        "object_runtime.card_concurrent"
+      ]
+    },
+    {
+      "id": "X-T74-008",
+      "project": "PR-T74-08",
+      "tests": [
+        "object_runtime.compact",
+        "object_runtime.ext_pool",
+        "object_runtime.ext_foreign",
+        "object_runtime.ext_authority"
+      ]
+    },
+    {
+      "id": "X-T74-009",
+      "project": "PR-T74-09",
+      "tests": [
+        "object_runtime.weak",
+        "object_runtime.finalizers",
+        "object_runtime.ephemeron_graph"
+      ]
+    },
+    {
+      "id": "X-T74-010",
+      "project": "PR-T74-10",
+      "tests": [
+        "object_runtime.trial",
+        "object_runtime.rc_zero",
+        "object_runtime.rc_deferred",
+        "object_runtime.rc_concurrent"
+      ]
+    },
+    {
+      "id": "X-T74-011",
+      "project": "PR-T74-11",
+      "tests": [
+        "object_runtime.safepoint",
+        "object_runtime.vm_roots",
+        "object_runtime.vm_foreign"
+      ]
+    },
+    {
+      "id": "X-T74-012",
+      "project": "PR-T74-02",
+      "tests": [
+        "object_runtime.ext_intern"
+      ]
+    },
+    {
+      "id": "X-T74-013",
+      "project": "PR-T74-04",
+      "tests": [
+        "object_runtime.ext_shapes",
+        "object_runtime.ext_cache"
+      ]
+    }
+  ],
+  "tests": [
+    "object_runtime.value",
+    "object_runtime.intern",
+    "object_runtime.shapes",
+    "object_runtime.cache",
+    "object_runtime.mark",
+    "object_runtime.nursery",
+    "object_runtime.cards",
+    "object_runtime.compact",
+    "object_runtime.weak",
+    "object_runtime.trial",
+    "object_runtime.safepoint",
+    "object_runtime.ext_values",
+    "object_runtime.ext_pool",
+    "object_runtime.ext_intern",
+    "object_runtime.ext_foreign",
+    "object_runtime.ext_authority",
+    "object_runtime.ext_shapes",
+    "object_runtime.ext_cache",
+    "object_runtime.dictionary",
+    "object_runtime.generic",
+    "object_runtime.mark_allocation",
+    "object_runtime.mark_concurrent",
+    "object_runtime.gen_preflight",
+    "object_runtime.gen_composition",
+    "object_runtime.gen_large",
+    "object_runtime.card_concurrent",
+    "object_runtime.finalizers",
+    "object_runtime.ephemeron_graph",
+    "object_runtime.rc_zero",
+    "object_runtime.rc_deferred",
+    "object_runtime.rc_concurrent",
+    "object_runtime.vm_roots",
+    "object_runtime.vm_foreign"
+  ],
+  "modules": [
+    "T74"
+  ],
+  "contract": "labs/object_runtime/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_object_runtime.py",
+    "receipt": "object_runtime_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "gcc-tsan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "OR_CHECK:",
+    "fixture_oracle": "tools/verify_object_runtime_completion.py",
+    "oracle_driver": "object-runtime-extensions"
+  },
+  "dependencies": [
+    "ownership",
+    "runtime",
+    "algorithms"
+  ],
+  "scope": "Original managed-runtime kernels, scoped synchronized marking/card/foreign adapters, actual stopped-CVM relocation and real imported pool registrations. Compiler statepoint execution has a separate explicit LLVM/x86-64 report. No general concurrent collector, implicit C root tracking, instruction-resumption, physical or learner-mastery claim."
+}

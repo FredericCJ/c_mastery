@@ -1,0 +1,976 @@
+{
+  "schema_version": 1,
+  "project": "PR-T28-06",
+  "domain": "T28",
+  "title": "DMA buffer and portable service boundary — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/peripheral_depth/layers/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/g474_uart_followthrough/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "sha256": "7edcfdae8b3faae5296f5096fa9eac72a9515a7132fa329b58fd757b2d14a908",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T28-06.md",
+        "sha256": "da7d9ba8900b1a54004e0905f73a898aec7d41bcbae6ede1590df307f5af3f7b",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T28-06.json",
+        "sha256": "fd8f834eb546cd1fdcccf30073b4de5b0a0b7651421f1783c5f4a555858c4742",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "anchors": [
+          "T28.10",
+          "T28.11"
+        ]
+      }
+    ],
+    "units": [
+      "U-T28-06-01",
+      "U-T28-06-02",
+      "U-T28-06-03"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "C",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-PD-RM21",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp65/68 DMA2/RCC mapping, SRAM all-AHB banks and CPU-only CCM; pp182–183 RCC AHB1 offset30 DMA2EN22",
+        "pp314–315 DMA2-only M2M and address increment; pp317–327 width/FIFO, draining after disable, TC/NDTR, failure and configuration",
+        "pp333–336 selected CR/NDTR/PAR/M0AR/FCR registers"
+      ]
+    },
+    {
+      "id": "R-PD-RM0399",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp136–142 SRAM3 normal WBWA map, aliases and DMA2/HSEM/RCC mapping; pp487–490 AHB clocks and SRAM3 allocation",
+        "pp674–676,680–681 DMA2 M2M/FIFO/software enable; pp689–690 stop/flush/NDTR; pp698–701/703 CR and FIFO registers",
+        "pp555–557,559,561–562 HSEM one-step take, same-ID recursion limitation, release and register offsets; current port uses polling, not interrupt procedure"
+      ]
+    },
+    {
+      "id": "R-PD-PM0253",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp240–244 privileged cache-maintenance registers, PoC, DSB/ISB ordering and asynchronous BusFault limitations"
+      ]
+    },
+    {
+      "id": "R-PD-AN4839",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "pp3–6 cache-line/write-back/coherency discussion; F7 DTCM example is not the selected H745 DMA2 route"
+      ]
+    },
+    {
+      "id": "R-PD-ES0445",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "§2.1.1 p6 write-through erratum; §2.1.2 pp7–8 PLD side effects do not bypass MPU permission; §2.1.5 p9 barriers after invalidate",
+        "§2.3.12 p16 HASH/other-DMA concurrency restriction; §2.4–2.6 pp17–18 distinct MDMA/BDMA/DMAMUX limitations not transferred to M2M",
+        "§2.20.3 p36 USART TRBUFF workaround is a different request mode"
+      ]
+    },
+    {
+      "id": "R-PD-ES0206",
+      "path": "research/v5/expansion/legacy_advanced_dma/resources.json",
+      "passages": [
+        "§2.2.7 p11 AHB clock-enable delay and readback/DSB workarounds; Table3 pp2–3 inspected for applicable peripheral limits"
+      ]
+    },
+    {
+      "id": "R-G4INIT-1",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "FIFO enable/disable lines655-698; divisor rounding/prescaler and BRR admission lines610,1830-1915; TEACK definition; TDR operation"
+      ]
+    },
+    {
+      "id": "R-G4INIT-2",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "LL_USART_DeInit/Init lines150-304: reset force/release, UE-disabled setup, width/parity/TE/RE/oversampling, clock and baud"
+      ]
+    },
+    {
+      "id": "R-G4INIT-3",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "HSI enable/ready lines997-1035; USART2 HSI selector and clock-source modification near1527",
+        "LL MCO source/prescaler constants lines273-295 and LL_RCC_ConfigMCO body1475-1499: HSI16 selector3,divide16 encoding4"
+      ]
+    },
+    {
+      "id": "R-G4INIT-4",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "AHB2 enable/readback near451; APB1 enable/readback near910"
+      ]
+    },
+    {
+      "id": "R-G4INIT-5",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "AFRL per-pin nibble read-modify-write near568"
+      ]
+    },
+    {
+      "id": "R-G4INIT-6",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "USART_TypeDef lines897-911; RCC offsets38/4c/58/88; base addresses and HSI/USART2 clock/reset/selector/UE/TE/FIFO/TEACK/TCCF fields",
+        "RCC_CFGR MCOSEL/MCOPRE positions24/28 and GPIO AFRH offset24; actual independent layout assertions"
+      ]
+    },
+    {
+      "id": "R-G4INIT-UM2505",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed24-25 section7.6.5 Tables10/11: USART1 and PA2/PA3 LPUART1 bridge routes; default route and alternatives",
+        "printed31 CN9 pin8/D7 PA8 and printed33 CN10 pin23 PA8 route"
+      ]
+    },
+    {
+      "id": "R-G4INIT-DS12288",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed59 Table12 PA2 pin/functions; printed73 Table13 PA2 AF7 USART2_TX,AF8 COMP2_OUT,AF12 LPUART1_TX",
+        "printed120 Table43 HSI16 nominal/tolerance conditions and stabilization; printed121 characterization figure distinction",
+        "printed20 section3.5 SRAM1 base0x20000000 and capacity; printed84 Table17 standard supply and bus-clock bounds",
+        "printed73 Table13 PA8 AF0 MCO"
+      ]
+    },
+    {
+      "id": "R-G4INIT-ES0430",
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/resources.json",
+      "passages": [
+        "printed28 section2.16.1-.4 USART earlyTC SPI-slave, receive glitch, ABREN and ONEBIT cases",
+        "printed29 section2.17 LPUART distinct low-ratio jitter limitation"
+      ]
+    },
+    {
+      "id": "R-PL-HAL183",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "HAL_UART_Transmit lines1136–1208: TXE/DR/TC, timeout and READY",
+        "UART_WaitOnFlagUntilTimeout lines3185–3225: tick progression and HAL_MAX_DELAY",
+        "UART_EndTransmit_IT lines3569–3592: READY before callback; interrupt handler and selected transmit path"
+      ]
+    },
+    {
+      "id": "R-PL-HALMAC183",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "__HAL_UART_GET_FLAG line470 repeated flag expression; ENABLE_IT/DISABLE_IT lines558–580 selected register read-modify-write"
+      ]
+    },
+    {
+      "id": "R-PL-F4DEVICE2610",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef lines874–885: 32-bit volatile SR/DR/BRR/CR1/CR2/CR3/GTPR offsets",
+        "USART_SR_TXE/TC bit definitions checked by actual compile-time assertions"
+      ]
+    },
+    {
+      "id": "R-PL-F4MAC2610",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "READ_BIT/WRITE_REG/MODIFY_REG lines215–223; ATOMIC_SET_BIT lines229–235 uses exclusive primitives, not ISO atomic MMIO"
+      ]
+    },
+    {
+      "id": "R-PL-G4DEVICE",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef lines897–911: ISR1C, TDR28 and CR1/CR2 at old F4 offsets",
+        "USART_ISR_TC_Pos and TXE_TXFNF aliases lines16221–16229"
+      ]
+    },
+    {
+      "id": "R-PL-G4LL",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "LL_USART_DisableFIFO lines681–692; flag functions lines3007–3030",
+        "LL_USART_TransmitData8 lines4271–4281: selected TDR write"
+      ]
+    },
+    {
+      "id": "R-PL-G4HAL",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "HAL_UART_Transmit lines1119–1200: selected TDR/TC transfer plus BUSY_TX abort-state check",
+        "UART_WaitOnFlagUntilTimeout lines3379–3437: bounded tick rule and selected TX exclusions"
+      ]
+    },
+    {
+      "id": "R-PL-G4PINNED",
+      "path": "research/v5/expansion/legacy_advanced_layers/resources.json",
+      "passages": [
+        "USART_TypeDef ISR/TDR layout and TXE_TXFNF/TC bits; actual changed-device compile-time layout assertions"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T28-06.md",
+    "fixtures/embedded/PR-T28-06.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/dma/audit_target.py",
+    "labs/peripheral_depth/dma/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/dma/board_capture.py",
+    "labs/peripheral_depth/dma/capture_template.json",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/h745_audit.ld",
+    "labs/peripheral_depth/dma/notice.c",
+    "labs/peripheral_depth/dma/notice_port.c",
+    "labs/peripheral_depth/dma/notice_tests.c",
+    "labs/peripheral_depth/dma/run.py",
+    "labs/peripheral_depth/dma/target.c",
+    "labs/peripheral_depth/dma/tests.c",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/src/firmware_io.c",
+    "labs/firmware_io/CONTRACTS.md",
+    "labs/firmware_lifecycle/targets/h745_cache.h",
+    "labs/firmware_lifecycle/targets/h745_cache.c",
+    "labs/firmware_lifecycle/targets/h745_port.c",
+    "labs/firmware_lifecycle/targets/H745_CACHE.md",
+    "labs/firmware_lifecycle/targets/H745_ERRATA.md",
+    "labs/peripheral_depth/layers/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/layers/CONTRACTS.md",
+    "labs/peripheral_depth/layers/compare.c",
+    "labs/peripheral_depth/layers/compare.h",
+    "labs/peripheral_depth/layers/generate_registers.py",
+    "labs/peripheral_depth/layers/link.ld",
+    "labs/peripheral_depth/layers/posted.c",
+    "labs/peripheral_depth/layers/posted.h",
+    "labs/peripheral_depth/layers/registers.h",
+    "labs/peripheral_depth/layers/registers.json",
+    "labs/peripheral_depth/layers/run.py",
+    "labs/peripheral_depth/layers/service.c",
+    "labs/peripheral_depth/layers/service.h",
+    "labs/peripheral_depth/layers/stm32f4xx_hal_conf.h",
+    "labs/peripheral_depth/layers/stm32g4xx_hal_conf.h",
+    "labs/peripheral_depth/layers/target.c",
+    "labs/peripheral_depth/layers/target.h",
+    "labs/peripheral_depth/layers/tests.c",
+    "labs/peripheral_depth/layers/thumb_start.c",
+    "labs/peripheral_depth/layers/uart_adapter.c",
+    "labs/peripheral_depth/layers/uart_adapter.h",
+    "labs/peripheral_depth/uart/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/peripheral_depth/uart/audit_target.py",
+    "labs/peripheral_depth/uart/board_capture.json",
+    "labs/peripheral_depth/uart/run.py",
+    "labs/peripheral_depth/uart/target.c",
+    "labs/peripheral_depth/uart/tests.c",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/mmio/CONTRACTS.md",
+    "labs/peripheral_depth/mmio/mmio.c",
+    "labs/peripheral_depth/mmio/mmio.h",
+    "labs/peripheral_depth/mmio/run.py",
+    "labs/peripheral_depth/mmio/target.c",
+    "labs/peripheral_depth/mmio/tests.c",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/g474_uart_followthrough/BOARD_CAPTURE.md",
+    "labs/g474_uart_followthrough/capture.h",
+    "labs/g474_uart_followthrough/check_capture.py",
+    "labs/g474_uart_followthrough/CONTRACTS.md",
+    "labs/g474_uart_followthrough/learner.c",
+    "labs/g474_uart_followthrough/physical.c",
+    "labs/g474_uart_followthrough/port.h",
+    "labs/g474_uart_followthrough/run.py",
+    "labs/g474_uart_followthrough/startup.S",
+    "labs/g474_uart_followthrough/target_build.py",
+    "labs/g474_uart_followthrough/tests.c",
+    "labs/g474_uart_followthrough/clock_probe.c"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "dma_ownership_successor": {
+      "path": "research/v5/expansion/legacy_advanced_dma/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.10.a",
+        "AX-PR-T28-06-T28.10.b",
+        "AX-PR-T28-06-T28.10.c"
+      ],
+      "scope": "Three T28.10 ordinary and three unchanged delayed tasks; actual fw_dma/fw_cache_range/fw_peer_step providers; T28.11–.12 and physical/external work separate"
+    },
+    "layered_service_successor": {
+      "path": "research/v5/expansion/legacy_advanced_layers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.a",
+        "AX-PR-T28-06-T28.11.b",
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Three T28.11 ordinary and three unchanged delayed tasks; actual PuDriver/PmModel/HAL providers; T28.12 and physical/external work separate"
+    },
+    "g474_initialization_successor": {
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Additional selected original G474 initializer and changed-condition support; existing equivalent-transfer HAL/direct/generated comparison retained; source and physical gaps distinct"
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T28-06-T28.10.a",
+      "title": "Define buffer ownership, alignment, completion, and cancellation.",
+      "objective": "T28.10.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Implement submit/poll/cancel/finalize over caller storage with alignment, width, count and DMA-reachable-bank checks before publication. Reject capacity underflow/overflow and preserve caller ownership on failed submit.",
+      "purpose": "Passing an address transfers ownership even when validation fails.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Passing an address transfers ownership even when validation fails. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Passing an address transfers ownership even when validation fails.",
+        "D2": "Implement submit/poll/cancel/finalize over caller storage with alignment, width, count and DMA-reachable-bank checks before publication. Reject capacity underflow/overflow and preserve caller ownership on failed submit.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add scatter-gather descriptors and derive ownership/validation of both descriptor array and every payload extent."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Only successful publication transfers to the device; cancellation requests do not return storage until confirmed completion/quiescence.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Only successful publication transfers to the device; cancellation requests do not return storage until confirmed completion/quiescence. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add scatter-gather descriptors and derive ownership/validation of both descriptor array and every payload extent. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate buffer reachability and ownership before enabling DMA.",
+        "Cancellation requests a transition; only confirmed quiescence returns the buffer for CPU reuse."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.10.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add scatter-gather descriptors and derive ownership/validation of both descriptor array and every payload extent."
+        }
+      ],
+      "assessor_anchor": "#t2810a",
+      "facet_scope": {
+        "teaching": "Retained T28.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-06-T28.10.b",
+      "title": "Handle partial completion and transfer errors.",
+      "objective": "T28.10.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Inject partial transfer, transfer error and late completion after cancellation request. Return one terminal result per generation with a byte count that cannot exceed the submitted extent.",
+      "purpose": "Any transfer error means zero bytes moved and safe immediate reuse.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Any transfer error means zero bytes moved and safe immediate reuse. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Any transfer error means zero bytes moved and safe immediate reuse.",
+        "D2": "Inject partial transfer, transfer error and late completion after cancellation request. Return one terminal result per generation with a byte count that cannot exceed the submitted extent.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Permit retry of the remaining suffix and define whether the peripheral operation is safely resumable."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Partial effects remain possible; final ownership depends on confirmed device stop/completion, not only an error flag.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Partial effects remain possible; final ownership depends on confirmed device stop/completion, not only an error flag. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Permit retry of the remaining suffix and define whether the peripheral operation is safely resumable. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate buffer reachability and ownership before enabling DMA.",
+        "Cancellation requests a transition; only confirmed quiescence returns the buffer for CPU reuse."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.10.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit retry of the remaining suffix and define whether the peripheral operation is safely resumable."
+        }
+      ],
+      "assessor_anchor": "#t2810b",
+      "facet_scope": {
+        "teaching": "Retained T28.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-06-T28.10.c",
+      "title": "Keep peripheral and memory-coherency requirements visible in the API.",
+      "objective": "T28.10.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Attach memory-bank/cacheability and visibility requirements to the DMA API contract, keeping host verification outside target dependencies. Compare F439 SRAM with CPU-only CCM and reject unsupported storage before enabling the stream.",
+      "purpose": "Address alignment alone proves a buffer is usable by every DMA engine.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Address alignment alone proves a buffer is usable by every DMA engine. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Address alignment alone proves a buffer is usable by every DMA engine.",
+        "D2": "Attach memory-bank/cacheability and visibility requirements to the DMA API contract, keeping host verification outside target dependencies. Compare F439 SRAM with CPU-only CCM and reject unsupported storage before enabling the stream.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Move to an H745 cached/shared-bank adapter and derive both cache-line ownership and cross-core notification responsibilities."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Reachability, width, lifetime and visibility are independent requirements; cache maintenance is target-specific.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Reachability, width, lifetime and visibility are independent requirements; cache maintenance is target-specific. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Move to an H745 cached/shared-bank adapter and derive both cache-line ownership and cross-core notification responsibilities. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate buffer reachability and ownership before enabling DMA.",
+        "Cancellation requests a transition; only confirmed quiescence returns the buffer for CPU reuse."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.10.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Move to an H745 cached/shared-bank adapter and derive both cache-line ownership and cross-core notification responsibilities."
+        }
+      ],
+      "assessor_anchor": "#t2810c",
+      "facet_scope": {
+        "teaching": "Retained T28.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-06-T28.11.a",
+      "title": "Implement register access, a minimal driver, and a portable service.",
+      "objective": "T28.11.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Implement register-access, minimal-driver and service layers with explicit owned state and error translation. Reuse the service's original vectors through both scripted and available target adapters; inspect each dependency closure.",
+      "purpose": "Layering removes the need to specify underlying failure semantics.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Layering removes the need to specify underlying failure semantics. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Layering removes the need to specify underlying failure semantics.",
+        "D2": "Implement register-access, minimal-driver and service layers with explicit owned state and error translation. Reuse the service's original vectors through both scripted and available target adapters; inspect each dependency closure.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Compose UART framing with DMA cancellation and expose the interface interaction that determines whether a partial frame is discarded."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Abstractions must preserve or deliberately translate progress, ownership and errors; hiding them can make a service contract false.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Abstractions must preserve or deliberately translate progress, ownership and errors; hiding them can make a service contract false. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Compose UART framing with DMA cancellation and expose the interface interaction that determines whether a partial frame is discarded. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep each layer's state and error translation visible.",
+        "Changing a register adapter should preserve service semantics while exposing target-specific limitations, not erase them."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.11.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Compose UART framing with DMA cancellation and expose the interface interaction that determines whether a partial frame is discarded."
+        }
+      ],
+      "assessor_anchor": "#t2811a",
+      "facet_scope": {
+        "teaching": "Retained T28.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-06-T28.11.b",
+      "title": "Use mockable boundaries without pretending ordinary RAM fully models MMIO.",
+      "objective": "T28.11.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Extend the MMIO mock to model W1C, read-consume, delayed-ready and irreversible publication. Kill mutants that read DATA twice or clear unrelated flags; explain exactly which physical behaviors remain unmodeled.",
+      "purpose": "A RAM-backed fake is a complete peripheral oracle.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A RAM-backed fake is a complete peripheral oracle. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A RAM-backed fake is a complete peripheral oracle.",
+        "D2": "Extend the MMIO mock to model W1C, read-consume, delayed-ready and irreversible publication. Kill mutants that read DATA twice or clear unrelated flags; explain exactly which physical behaviors remain unmodeled.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Introduce a posted-write/device-ordering model and derive which old tests lacked the necessary visibility edge."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "An explicit side-effect model can falsify access errors but cannot establish bus timing, electrical or undocumented silicon behavior.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "An explicit side-effect model can falsify access errors but cannot establish bus timing, electrical or undocumented silicon behavior. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce a posted-write/device-ordering model and derive which old tests lacked the necessary visibility edge. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep each layer's state and error translation visible.",
+        "Changing a register adapter should preserve service semantics while exposing target-specific limitations, not erase them."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.11.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a posted-write/device-ordering model and derive which old tests lacked the necessary visibility edge."
+        }
+      ],
+      "assessor_anchor": "#t2811b",
+      "facet_scope": {
+        "teaching": "Retained T28.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-06-T28.11.c",
+      "title": "Compare generated headers, vendor HAL, and direct-register maintenance costs.",
+      "objective": "T28.11.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Compare generated header, inspected vendor HAL and original direct-register implementations for one bounded transfer. Audit macros, volatile widths, callback reentrancy, hidden delays and code/stack cost under equivalent contracts.",
+      "purpose": "Generated or vendor code is automatically correct for the selected revision.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-06 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Generated or vendor code is automatically correct for the selected revision. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Generated or vendor code is automatically correct for the selected revision.",
+        "D2": "Compare generated header, inspected vendor HAL and original direct-register implementations for one bounded transfer. Audit macros, volatile widths, callback reentrancy, hidden delays and code/stack cost under equivalent contracts.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Apply a documented register-revision change and estimate/test the required edits in each approach."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Maintenance convenience does not replace version, side-effect and dependency audits; direct-register code carries its own update burden.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Maintenance convenience does not replace version, side-effect and dependency audits; direct-register code carries its own update burden. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Apply a documented register-revision change and estimate/test the required edits in each approach. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep each layer's state and error translation visible.",
+        "Changing a register adapter should preserve service semantics while exposing target-specific limitations, not erase them."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-06-T28.11.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Apply a documented register-revision change and estimate/test the required edits in each approach."
+        }
+      ],
+      "assessor_anchor": "#t2811c",
+      "facet_scope": {
+        "teaching": "Retained T28.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T28-06.md",
+  "status": {
+    "content": "authored",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_dma/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.10.a",
+        "AX-PR-T28-06-T28.10.b",
+        "AX-PR-T28-06-T28.10.c"
+      ],
+      "scope": "Three T28.10 ordinary and three unchanged delayed tasks; actual fw_dma/fw_cache_range/fw_peer_step providers; T28.11–.12 and physical/external work separate"
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_g474_uart/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Additional selected original G474 initializer and changed-condition support; existing equivalent-transfer HAL/direct/generated comparison retained; source and physical gaps distinct"
+    },
+    {
+      "path": "research/v5/expansion/legacy_advanced_layers/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-06-T28.11.a",
+        "AX-PR-T28-06-T28.11.b",
+        "AX-PR-T28-06-T28.11.c"
+      ],
+      "scope": "Three T28.11 ordinary and three unchanged delayed tasks; actual PuDriver/PmModel/HAL providers; T28.12 and physical/external work separate"
+    }
+  ]
+}

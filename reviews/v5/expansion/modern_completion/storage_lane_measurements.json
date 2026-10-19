@@ -1,0 +1,6162 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "status": "passed",
+  "inspected_paths": {
+    "labs/dispatch/tests/storage_measure.c": "2a6a1b87ecf95e7f49afe70269aed68dce1080d125789a62d7af7964d15b7885",
+    "assessor/dispatch/capture.c": "6762c1e015f677488eb069ea9c7438cf331eeea59a6b9019111276a6caadba1a",
+    "assessor/dispatch/dispatch.c": "35d44213387945e2d066aac4b50376c57bc7c14bb06f4e9a7bcbe8586a8dff5a",
+    "assessor/dod/dod.c": "7cbaa04851a2f9b7508b464bec040994594fd799769da44d259514ebdba3fdbe",
+    "assessor/dod/dod_ext.c": "861f3060f8ac74ab49e0b9bdef9c407707132f769b5a54062f6f6fb4a9d4aa3a",
+    "assessor/dod/dod_buffers.c": "23ebb8f95b9f46f28a9fb7bccbd8b15abdc60e4e10bb24ac51400286f7e52523",
+    "assessor/ownership/ownership.c": "68bd5748a410325ac4bc6dc6b33d7cbc0a940e138fb500b52ec430d30b5f18c0",
+    "labs/dispatch/include/capture.h": "5d834ee92c90f0b3a83549a742e054aee169622f2a433509103ba9e809f2c3aa",
+    "labs/dispatch/include/dispatch.h": "db1e9391234b583e8e2203ff0432208a65e67b6e5e07f560f59a28dc419d6fe4",
+    "labs/dod/include/dod.h": "46552d466c3a41594fb65e7f010be39ed429492a2f5060df85b6cca286ee77ef",
+    "labs/dod/include/dod_ext.h": "860a995543ee88711b9428dac6b52f3a1019cf112a61ff13d46187e857f33b4d",
+    "labs/dod/include/dod_buffers.h": "50cd2155aa45010d23ddf5eba6ecde063d1b290d568dcfcf26470df90c835d21",
+    "labs/ownership/include/ownership.h": "2c2065f27de779c2f69a95656499244dab8a30ff2a21edc59f7dbb0a8b8ee0df",
+    "labs/ownership/include/imports/v4_algo.h": "0fc46e2913eb584c811770dd24141bd6f32af3b613a95e010dc1350302285ae3",
+    "tools/run_storage_lane_measurements.py": "9a2db6626391928a243f7f2b44af36429fe68eb53e1e7f01bf01605fff8cc448"
+  },
+  "scope_source_stable": true,
+  "instrumentation": {
+    "dod.c": {
+      "path": "build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+      "sha256": "628e5c65748437d7b6770d7e505fe02b1df83ae92015293fc0ca5f10d59b0cc4",
+      "statement_instrumentation": [
+        [
+          "dst[i]=d_small_data(s)[i];",
+          "{dst[i]=d_small_data(s)[i];d_copy_observe(1);}"
+        ],
+        [
+          "dst[s->length+i]=p[i];",
+          "{dst[s->length+i]=p[i];d_copy_observe(1);}"
+        ],
+        [
+          "s->local[i]=s->heap[i];",
+          "{s->local[i]=s->heap[i];d_copy_observe(1);}"
+        ],
+        [
+          "d->local[i]=s->local[i];",
+          "{d->local[i]=s->local[i];d_copy_observe(1);}"
+        ]
+      ]
+    },
+    "capture.c": {
+      "path": "build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+      "sha256": "0495878438688ea2de57912a81b943f1468cd9158f8c39257981d74399a933cf",
+      "statement_instrumentation": [
+        [
+          "bytes[4*i+b]=(unsigned char)(word>>(8*b));",
+          "{bytes[4*i+b]=(unsigned char)(word>>(8*b));d_copy_observe(1);}"
+        ],
+        [
+          "c->data.local[i]=p[i];",
+          "{c->data.local[i]=p[i];d_copy_observe(sizeof(int32_t));}"
+        ],
+        [
+          "copy[i]=p[i];",
+          "{copy[i]=p[i];d_copy_observe(sizeof(int32_t));}"
+        ]
+      ]
+    }
+  },
+  "observations": [
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "payload_write_and_allocation_rows": [
+        [
+          "O",
+          0,
+          1,
+          33,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          8,
+          40,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          0,
+          64,
+          96,
+          1,
+          1,
+          1
+        ],
+        [
+          "O",
+          1,
+          1,
+          49,
+          1,
+          1,
+          0
+        ],
+        [
+          "O",
+          1,
+          8,
+          280,
+          8,
+          8,
+          0
+        ],
+        [
+          "O",
+          1,
+          64,
+          2128,
+          64,
+          64,
+          0
+        ],
+        [
+          "C",
+          1,
+          8,
+          4,
+          0,
+          0
+        ],
+        [
+          "C",
+          2,
+          16,
+          8,
+          0,
+          0
+        ],
+        [
+          "C",
+          3,
+          24,
+          12,
+          0,
+          0
+        ],
+        [
+          "C",
+          4,
+          32,
+          16,
+          0,
+          0
+        ],
+        [
+          "C",
+          5,
+          40,
+          20,
+          2,
+          2
+        ],
+        [
+          "C",
+          6,
+          48,
+          24,
+          2,
+          2
+        ],
+        [
+          "C",
+          7,
+          56,
+          28,
+          2,
+          2
+        ],
+        [
+          "C",
+          8,
+          64,
+          32,
+          2,
+          2
+        ],
+        [
+          "L",
+          64,
+          24,
+          56,
+          8,
+          8
+        ]
+      ],
+      "model_matches": true
+    }
+  ],
+  "measurements": [
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        1068761,
+        1149927,
+        1127552,
+        1088085,
+        1110108,
+        1110992,
+        1027335
+      ],
+      "median_ns": 1110108,
+      "min_ns": 1027335,
+      "max_ns": 1149927
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        420235,
+        394261,
+        398009,
+        393827,
+        536632,
+        397893,
+        393456
+      ],
+      "median_ns": 397893,
+      "min_ns": 393456,
+      "max_ns": 536632
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        339827,
+        310307,
+        287195,
+        297970,
+        345352,
+        298313,
+        288584
+      ],
+      "median_ns": 298313,
+      "min_ns": 287195,
+      "max_ns": 345352
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        1709504,
+        1815352,
+        1827208,
+        2098893,
+        1877501,
+        1766027,
+        1823293
+      ],
+      "median_ns": 1823293,
+      "min_ns": 1709504,
+      "max_ns": 2098893
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        456865,
+        449881,
+        467546,
+        584659,
+        547032,
+        471713,
+        592623
+      ],
+      "median_ns": 471713,
+      "min_ns": 449881,
+      "max_ns": 592623
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        332651,
+        327053,
+        326996,
+        341435,
+        405698,
+        332543,
+        329776
+      ],
+      "median_ns": 332543,
+      "min_ns": 326996,
+      "max_ns": 405698
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        2250821,
+        2333183,
+        2210290,
+        2191062,
+        2193308,
+        2661081,
+        2194808
+      ],
+      "median_ns": 2210290,
+      "min_ns": 2191062,
+      "max_ns": 2661081
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        539444,
+        527902,
+        508985,
+        489176,
+        479326,
+        615573,
+        495473
+      ],
+      "median_ns": 508985,
+      "min_ns": 479326,
+      "max_ns": 615573
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        417595,
+        370173,
+        370704,
+        384843,
+        404700,
+        386635,
+        401797
+      ],
+      "median_ns": 386635,
+      "min_ns": 370173,
+      "max_ns": 417595
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        2776787,
+        2833867,
+        3180841,
+        2812274,
+        2826332,
+        3289896,
+        2819604
+      ],
+      "median_ns": 2826332,
+      "min_ns": 2776787,
+      "max_ns": 3289896
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        730981,
+        866123,
+        917138,
+        859004,
+        749152,
+        869535,
+        850135
+      ],
+      "median_ns": 859004,
+      "min_ns": 730981,
+      "max_ns": 917138
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        418172,
+        431777,
+        437502,
+        417782,
+        441553,
+        415676,
+        469041
+      ],
+      "median_ns": 431777,
+      "min_ns": 415676,
+      "max_ns": 469041
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        3301848,
+        3315817,
+        3333528,
+        3284237,
+        3370839,
+        3272823,
+        3259719
+      ],
+      "median_ns": 3301848,
+      "min_ns": 3259719,
+      "max_ns": 3370839
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        1018506,
+        613460,
+        981110,
+        871958,
+        596858,
+        791748,
+        991564
+      ],
+      "median_ns": 871958,
+      "min_ns": 596858,
+      "max_ns": 1018506
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        456754,
+        462508,
+        481298,
+        456929,
+        486987,
+        470225,
+        467871
+      ],
+      "median_ns": 467871,
+      "min_ns": 456754,
+      "max_ns": 486987
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        4056405,
+        3767767,
+        3756755,
+        3861404,
+        3738987,
+        3810224,
+        3813121
+      ],
+      "median_ns": 3810224,
+      "min_ns": 3738987,
+      "max_ns": 4056405
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        1116544,
+        1021389,
+        1063086,
+        1066680,
+        949779,
+        796007,
+        654263
+      ],
+      "median_ns": 1021389,
+      "min_ns": 654263,
+      "max_ns": 1116544
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        525449,
+        534739,
+        528948,
+        525727,
+        518095,
+        543450,
+        528715
+      ],
+      "median_ns": 528715,
+      "min_ns": 518095,
+      "max_ns": 543450
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        4377780,
+        4405367,
+        4411273,
+        4852593,
+        4326352,
+        4445852,
+        4383321
+      ],
+      "median_ns": 4405367,
+      "min_ns": 4326352,
+      "max_ns": 4852593
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        1154762,
+        1296272,
+        1066813,
+        833732,
+        1146053,
+        1179106,
+        1171204
+      ],
+      "median_ns": 1154762,
+      "min_ns": 833732,
+      "max_ns": 1296272
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        999081,
+        1007269,
+        970907,
+        944203,
+        937225,
+        1466259,
+        966808
+      ],
+      "median_ns": 970907,
+      "min_ns": 937225,
+      "max_ns": 1466259
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        5124667,
+        4978369,
+        5019315,
+        4983485,
+        5043326,
+        5186585,
+        5117123
+      ],
+      "median_ns": 5043326,
+      "min_ns": 4978369,
+      "max_ns": 5186585
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        1327108,
+        1227039,
+        1306123,
+        1153925,
+        1329498,
+        1355275,
+        1160710
+      ],
+      "median_ns": 1306123,
+      "min_ns": 1153925,
+      "max_ns": 1355275
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        1086016,
+        1098477,
+        1093948,
+        1205049,
+        752766,
+        979112,
+        1093103
+      ],
+      "median_ns": 1093103,
+      "min_ns": 752766,
+      "max_ns": 1205049
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        27277,
+        22333,
+        18097,
+        16107,
+        15724,
+        15681,
+        17068
+      ],
+      "median_ns": 17068,
+      "min_ns": 15681,
+      "max_ns": 27277
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        2606,
+        2335,
+        2337,
+        2332,
+        2391,
+        2340,
+        2721
+      ],
+      "median_ns": 2340,
+      "min_ns": 2332,
+      "max_ns": 2721
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        1820434,
+        1889985,
+        1844603,
+        1845715,
+        1819743,
+        1841883,
+        1835226
+      ],
+      "median_ns": 1841883,
+      "min_ns": 1819743,
+      "max_ns": 1889985
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        148319,
+        147881,
+        147791,
+        147623,
+        148858,
+        163981,
+        148184
+      ],
+      "median_ns": 148184,
+      "min_ns": 147623,
+      "max_ns": 163981
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        13180,
+        10662,
+        8872,
+        8324,
+        8512,
+        8882,
+        8888
+      ],
+      "median_ns": 8882,
+      "min_ns": 8324,
+      "max_ns": 13180
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        2837,
+        2338,
+        2334,
+        2331,
+        2717,
+        2744,
+        2711
+      ],
+      "median_ns": 2711,
+      "min_ns": 2331,
+      "max_ns": 2837
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        878532,
+        896139,
+        842975,
+        1078727,
+        968631,
+        988739,
+        944037
+      ],
+      "median_ns": 944037,
+      "min_ns": 842975,
+      "max_ns": 1078727
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        148714,
+        148454,
+        148825,
+        148369,
+        157850,
+        157645,
+        148949
+      ],
+      "median_ns": 148825,
+      "min_ns": 148369,
+      "max_ns": 157850
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        25061,
+        20742,
+        16363,
+        11625,
+        9973,
+        9222,
+        9180
+      ],
+      "median_ns": 11625,
+      "min_ns": 9180,
+      "max_ns": 25061
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        3417,
+        2977,
+        2989,
+        3017,
+        2980,
+        3021,
+        2979
+      ],
+      "median_ns": 2989,
+      "min_ns": 2977,
+      "max_ns": 3417
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        1641803,
+        1675923,
+        1617704,
+        1580622,
+        1588573,
+        1576798,
+        2032097
+      ],
+      "median_ns": 1617704,
+      "min_ns": 1576798,
+      "max_ns": 2032097
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        192786,
+        190035,
+        199995,
+        225132,
+        191825,
+        228575,
+        192831
+      ],
+      "median_ns": 192831,
+      "min_ns": 190035,
+      "max_ns": 228575
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        459216,
+        494342,
+        499070,
+        461580,
+        493530,
+        474562,
+        461911
+      ],
+      "median_ns": 474562,
+      "min_ns": 459216,
+      "max_ns": 499070
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        163282,
+        185730,
+        166978,
+        197199,
+        164282,
+        190012,
+        163285
+      ],
+      "median_ns": 166978,
+      "min_ns": 163282,
+      "max_ns": 197199
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        153062,
+        155493,
+        153056,
+        155064,
+        153120,
+        153037,
+        155080
+      ],
+      "median_ns": 153120,
+      "min_ns": 153037,
+      "max_ns": 155493
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        592818,
+        618585,
+        640633,
+        612071,
+        644214,
+        637526,
+        616380
+      ],
+      "median_ns": 618585,
+      "min_ns": 592818,
+      "max_ns": 644214
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        187430,
+        183658,
+        183673,
+        427433,
+        195770,
+        191493,
+        183652
+      ],
+      "median_ns": 187430,
+      "min_ns": 183652,
+      "max_ns": 427433
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        191057,
+        163243,
+        163241,
+        173984,
+        173904,
+        170248,
+        163278
+      ],
+      "median_ns": 170248,
+      "min_ns": 163241,
+      "max_ns": 191057
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        809649,
+        814788,
+        847422,
+        776134,
+        763240,
+        819088,
+        778528
+      ],
+      "median_ns": 809649,
+      "min_ns": 763240,
+      "max_ns": 847422
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        204066,
+        204103,
+        206024,
+        206619,
+        205790,
+        204060,
+        204082
+      ],
+      "median_ns": 204103,
+      "min_ns": 204060,
+      "max_ns": 206619
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        190695,
+        183676,
+        183683,
+        184594,
+        185553,
+        184203,
+        183836
+      ],
+      "median_ns": 184203,
+      "min_ns": 183676,
+      "max_ns": 190695
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        1028878,
+        1005110,
+        1048706,
+        938663,
+        1109809,
+        1086275,
+        1020611
+      ],
+      "median_ns": 1028878,
+      "min_ns": 938663,
+      "max_ns": 1109809
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        209818,
+        244906,
+        204044,
+        204028,
+        212267,
+        222081,
+        204055
+      ],
+      "median_ns": 209818,
+      "min_ns": 204028,
+      "max_ns": 244906
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        206018,
+        206213,
+        206213,
+        204041,
+        204078,
+        223475,
+        204065
+      ],
+      "median_ns": 206018,
+      "min_ns": 204041,
+      "max_ns": 223475
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        1151737,
+        1246832,
+        1216364,
+        1208776,
+        1225521,
+        1280118,
+        1164794
+      ],
+      "median_ns": 1216364,
+      "min_ns": 1151737,
+      "max_ns": 1280118
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        235520,
+        230438,
+        228304,
+        227643,
+        227610,
+        299149,
+        308116
+      ],
+      "median_ns": 230438,
+      "min_ns": 227610,
+      "max_ns": 308116
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        206628,
+        204034,
+        204049,
+        207769,
+        281838,
+        215220,
+        346843
+      ],
+      "median_ns": 207769,
+      "min_ns": 204034,
+      "max_ns": 346843
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        1299771,
+        1237713,
+        1238540,
+        1295806,
+        1236633,
+        1402665,
+        1225262
+      ],
+      "median_ns": 1238540,
+      "min_ns": 1225262,
+      "max_ns": 1402665
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        244885,
+        392629,
+        244863,
+        290309,
+        244848,
+        244841,
+        244864
+      ],
+      "median_ns": 244864,
+      "min_ns": 244841,
+      "max_ns": 392629
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        285304,
+        291256,
+        285645,
+        224436,
+        224575,
+        224564,
+        285643
+      ],
+      "median_ns": 285304,
+      "min_ns": 224436,
+      "max_ns": 291256
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        1589583,
+        1454329,
+        1655910,
+        1588106,
+        1571748,
+        1715818,
+        1689839
+      ],
+      "median_ns": 1589583,
+      "min_ns": 1454329,
+      "max_ns": 1715818
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        270934,
+        268947,
+        265276,
+        265251,
+        265241,
+        276726,
+        267004
+      ],
+      "median_ns": 267004,
+      "min_ns": 265241,
+      "max_ns": 276726
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        244871,
+        244848,
+        244986,
+        247014,
+        244844,
+        244839,
+        245240
+      ],
+      "median_ns": 244871,
+      "min_ns": 244839,
+      "max_ns": 247014
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        1550961,
+        1582143,
+        1605093,
+        1630829,
+        1968435,
+        1757278,
+        1680077
+      ],
+      "median_ns": 1630829,
+      "min_ns": 1550961,
+      "max_ns": 1968435
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        265273,
+        265268,
+        265287,
+        280091,
+        279708,
+        285759,
+        265244
+      ],
+      "median_ns": 265287,
+      "min_ns": 265244,
+      "max_ns": 285759
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        324759,
+        244831,
+        245359,
+        271806,
+        254735,
+        244873,
+        244886
+      ],
+      "median_ns": 245359,
+      "min_ns": 244831,
+      "max_ns": 324759
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        4713,
+        4618,
+        4616,
+        4626,
+        4624,
+        4641,
+        4620
+      ],
+      "median_ns": 4624,
+      "min_ns": 4616,
+      "max_ns": 4713
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1257,
+        1173,
+        1178,
+        1177,
+        1173,
+        1193,
+        1173
+      ],
+      "median_ns": 1177,
+      "min_ns": 1173,
+      "max_ns": 1257
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        294156,
+        323688,
+        308412,
+        294184,
+        314597,
+        294205,
+        294168
+      ],
+      "median_ns": 294205,
+      "min_ns": 294156,
+      "max_ns": 323688
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        74116,
+        73815,
+        74011,
+        73848,
+        73833,
+        73945,
+        96352
+      ],
+      "median_ns": 73945,
+      "min_ns": 73815,
+      "max_ns": 96352
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        2578,
+        2536,
+        2534,
+        2530,
+        2526,
+        2528,
+        2528
+      ],
+      "median_ns": 2530,
+      "min_ns": 2526,
+      "max_ns": 2578
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1415,
+        1190,
+        1168,
+        1168,
+        1168,
+        1167,
+        1169
+      ],
+      "median_ns": 1168,
+      "min_ns": 1167,
+      "max_ns": 1415
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        160562,
+        164990,
+        160576,
+        160707,
+        160589,
+        160691,
+        162857
+      ],
+      "median_ns": 160691,
+      "min_ns": 160562,
+      "max_ns": 164990
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        73777,
+        73803,
+        73957,
+        103377,
+        76262,
+        73893,
+        73968
+      ],
+      "median_ns": 73957,
+      "min_ns": 73777,
+      "max_ns": 103377
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        3403,
+        3530,
+        3543,
+        3579,
+        3548,
+        3571,
+        3536
+      ],
+      "median_ns": 3543,
+      "min_ns": 3403,
+      "max_ns": 3579
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1683,
+        1586,
+        1602,
+        1593,
+        1589,
+        1588,
+        1590
+      ],
+      "median_ns": 1590,
+      "min_ns": 1586,
+      "max_ns": 1683
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        238483,
+        222735,
+        251048,
+        225381,
+        225352,
+        242721,
+        225442
+      ],
+      "median_ns": 225442,
+      "min_ns": 222735,
+      "max_ns": 251048
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        102973,
+        101100,
+        103088,
+        100793,
+        100770,
+        100673,
+        100634
+      ],
+      "median_ns": 100793,
+      "min_ns": 100634,
+      "max_ns": 103088
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        474554,
+        418877,
+        409605,
+        395045,
+        455194,
+        414748,
+        387659
+      ],
+      "median_ns": 414748,
+      "min_ns": 387659,
+      "max_ns": 474554
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        189953,
+        192503,
+        189802,
+        191145,
+        183754,
+        198884,
+        183651
+      ],
+      "median_ns": 189953,
+      "min_ns": 183651,
+      "max_ns": 198884
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        166471,
+        169304,
+        169202,
+        183360,
+        163233,
+        163265,
+        163263
+      ],
+      "median_ns": 166471,
+      "min_ns": 163233,
+      "max_ns": 183360
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        428005,
+        422334,
+        420582,
+        432332,
+        440910,
+        417456,
+        417595
+      ],
+      "median_ns": 422334,
+      "min_ns": 417456,
+      "max_ns": 440910
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        204216,
+        206005,
+        245912,
+        205943,
+        206561,
+        206082,
+        210908
+      ],
+      "median_ns": 206082,
+      "min_ns": 204216,
+      "max_ns": 245912
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        211903,
+        205860,
+        207560,
+        214643,
+        207549,
+        206020,
+        214247
+      ],
+      "median_ns": 207560,
+      "min_ns": 205860,
+      "max_ns": 214643
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        462733,
+        462512,
+        462590,
+        465039,
+        465966,
+        468511,
+        462719
+      ],
+      "median_ns": 462733,
+      "min_ns": 462512,
+      "max_ns": 468511
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        226375,
+        226445,
+        224443,
+        228131,
+        241010,
+        226243,
+        224443
+      ],
+      "median_ns": 226375,
+      "min_ns": 224443,
+      "max_ns": 241010
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        204156,
+        204021,
+        204036,
+        207302,
+        204018,
+        204025,
+        204051
+      ],
+      "median_ns": 204036,
+      "min_ns": 204018,
+      "max_ns": 207302
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        933307,
+        932072,
+        944583,
+        943078,
+        920759,
+        939379,
+        950184
+      ],
+      "median_ns": 939379,
+      "min_ns": 920759,
+      "max_ns": 950184
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        205987,
+        205801,
+        204057,
+        204039,
+        204086,
+        204034,
+        204059
+      ],
+      "median_ns": 204059,
+      "min_ns": 204034,
+      "max_ns": 205987
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        183660,
+        183645,
+        185253,
+        185682,
+        183643,
+        183633,
+        183644
+      ],
+      "median_ns": 183645,
+      "min_ns": 183633,
+      "max_ns": 185682
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        951271,
+        1025466,
+        1074075,
+        1011986,
+        956337,
+        979778,
+        967547
+      ],
+      "median_ns": 979778,
+      "min_ns": 951271,
+      "max_ns": 1074075
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        247770,
+        244864,
+        271249,
+        294808,
+        252809,
+        247265,
+        247201
+      ],
+      "median_ns": 247770,
+      "min_ns": 244864,
+      "max_ns": 294808
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        229625,
+        226484,
+        516633,
+        235026,
+        224462,
+        224467,
+        224525
+      ],
+      "median_ns": 226484,
+      "min_ns": 224462,
+      "max_ns": 516633
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        986739,
+        989322,
+        970119,
+        984124,
+        1147224,
+        997951,
+        1026087
+      ],
+      "median_ns": 989322,
+      "min_ns": 970119,
+      "max_ns": 1147224
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        267709,
+        267116,
+        287898,
+        269745,
+        291051,
+        265273,
+        265270
+      ],
+      "median_ns": 267709,
+      "min_ns": 265270,
+      "max_ns": 291051
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        247477,
+        247081,
+        247105,
+        264921,
+        252524,
+        273547,
+        279100
+      ],
+      "median_ns": 252524,
+      "min_ns": 247081,
+      "max_ns": 279100
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        1032250,
+        1026785,
+        1033535,
+        1053640,
+        1021041,
+        1028939,
+        1022884
+      ],
+      "median_ns": 1028939,
+      "min_ns": 1021041,
+      "max_ns": 1053640
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        288163,
+        311421,
+        288197,
+        300393,
+        287967,
+        290130,
+        309076
+      ],
+      "median_ns": 290130,
+      "min_ns": 287967,
+      "max_ns": 311421
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        267734,
+        267643,
+        265248,
+        291642,
+        265233,
+        286416,
+        261488
+      ],
+      "median_ns": 267643,
+      "min_ns": 261488,
+      "max_ns": 291642
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        1269719,
+        1278178,
+        1262461,
+        1260203,
+        1259712,
+        1289837,
+        1288394
+      ],
+      "median_ns": 1269719,
+      "min_ns": 1259712,
+      "max_ns": 1289837
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        260757,
+        250838,
+        271849,
+        244906,
+        244859,
+        244859,
+        244991
+      ],
+      "median_ns": 244991,
+      "min_ns": 244859,
+      "max_ns": 271849
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        204062,
+        205895,
+        210409,
+        239348,
+        204026,
+        233428,
+        204057
+      ],
+      "median_ns": 205895,
+      "min_ns": 204026,
+      "max_ns": 239348
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        3100,
+        3062,
+        3068,
+        3079,
+        3051,
+        3095,
+        3056
+      ],
+      "median_ns": 3068,
+      "min_ns": 3051,
+      "max_ns": 3100
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1298,
+        1171,
+        1182,
+        1179,
+        1169,
+        1217,
+        1171
+      ],
+      "median_ns": 1179,
+      "min_ns": 1169,
+      "max_ns": 1298
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        206030,
+        203675,
+        194263,
+        194426,
+        194140,
+        194255,
+        200517
+      ],
+      "median_ns": 194426,
+      "min_ns": 194140,
+      "max_ns": 206030
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        74186,
+        73975,
+        73829,
+        73911,
+        73865,
+        73980,
+        76137
+      ],
+      "median_ns": 73975,
+      "min_ns": 73829,
+      "max_ns": 76137
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        1448,
+        1386,
+        1400,
+        1377,
+        1376,
+        1438,
+        1376
+      ],
+      "median_ns": 1386,
+      "min_ns": 1376,
+      "max_ns": 1448
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1461,
+        1184,
+        1171,
+        1168,
+        1167,
+        1167,
+        1169
+      ],
+      "median_ns": 1169,
+      "min_ns": 1167,
+      "max_ns": 1461
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        88598,
+        87363,
+        87068,
+        87479,
+        89195,
+        88894,
+        88911
+      ],
+      "median_ns": 88598,
+      "min_ns": 87068,
+      "max_ns": 89195
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        76125,
+        73933,
+        73773,
+        86527,
+        76007,
+        75928,
+        100940
+      ],
+      "median_ns": 76007,
+      "min_ns": 73773,
+      "max_ns": 100940
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        10582,
+        5927,
+        4888,
+        3294,
+        3814,
+        2620,
+        2405
+      ],
+      "median_ns": 3814,
+      "min_ns": 2405,
+      "max_ns": 10582
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        3839,
+        2882,
+        2841,
+        2394,
+        1580,
+        1487,
+        1756
+      ],
+      "median_ns": 2394,
+      "min_ns": 1487,
+      "max_ns": 3839
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        375158,
+        399407,
+        371285,
+        373918,
+        370614,
+        371005,
+        379225
+      ],
+      "median_ns": 373918,
+      "min_ns": 370614,
+      "max_ns": 399407
+    },
+    {
+      "compiler": "gcc",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        96284,
+        96578,
+        94316,
+        94409,
+        94137,
+        94232,
+        94391
+      ],
+      "median_ns": 94391,
+      "min_ns": 94137,
+      "max_ns": 96578
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        1072446,
+        1026556,
+        1032357,
+        1004331,
+        1006089,
+        943507,
+        974994
+      ],
+      "median_ns": 1006089,
+      "min_ns": 943507,
+      "max_ns": 1072446
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        431865,
+        388009,
+        392935,
+        388251,
+        453310,
+        390389,
+        424267
+      ],
+      "median_ns": 392935,
+      "min_ns": 388009,
+      "max_ns": 453310
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        285686,
+        285717,
+        301310,
+        298327,
+        292665,
+        285906,
+        285751
+      ],
+      "median_ns": 285906,
+      "min_ns": 285686,
+      "max_ns": 301310
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        1853154,
+        1859903,
+        1802722,
+        1786622,
+        1852011,
+        1897043,
+        1798227
+      ],
+      "median_ns": 1852011,
+      "min_ns": 1786622,
+      "max_ns": 1897043
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        480333,
+        480640,
+        474357,
+        483921,
+        434991,
+        435240,
+        438241
+      ],
+      "median_ns": 474357,
+      "min_ns": 434991,
+      "max_ns": 483921
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        327375,
+        330682,
+        326469,
+        326467,
+        326455,
+        350314,
+        326474
+      ],
+      "median_ns": 326474,
+      "min_ns": 326455,
+      "max_ns": 350314
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        2385878,
+        2406410,
+        2395666,
+        2402068,
+        2375225,
+        2311538,
+        2306540
+      ],
+      "median_ns": 2385878,
+      "min_ns": 2306540,
+      "max_ns": 2406410
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        556882,
+        586105,
+        557584,
+        581690,
+        494137,
+        492240,
+        493105
+      ],
+      "median_ns": 556882,
+      "min_ns": 492240,
+      "max_ns": 586105
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        373958,
+        367939,
+        370395,
+        396532,
+        367697,
+        370520,
+        373138
+      ],
+      "median_ns": 370520,
+      "min_ns": 367697,
+      "max_ns": 396532
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        3099381,
+        2786715,
+        2797008,
+        3218440,
+        2781035,
+        3017681,
+        3003429
+      ],
+      "median_ns": 3003429,
+      "min_ns": 2781035,
+      "max_ns": 3218440
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        815585,
+        808532,
+        776765,
+        1019764,
+        645792,
+        671967,
+        880052
+      ],
+      "median_ns": 808532,
+      "min_ns": 645792,
+      "max_ns": 1019764
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        439376,
+        417995,
+        456928,
+        409147,
+        422600,
+        446057,
+        527992
+      ],
+      "median_ns": 439376,
+      "min_ns": 409147,
+      "max_ns": 527992
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        3448469,
+        3555720,
+        3773075,
+        3326779,
+        3347601,
+        3571118,
+        3311984
+      ],
+      "median_ns": 3448469,
+      "min_ns": 3311984,
+      "max_ns": 3773075
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        955061,
+        865815,
+        987461,
+        947894,
+        931787,
+        662467,
+        706012
+      ],
+      "median_ns": 931787,
+      "min_ns": 662467,
+      "max_ns": 987461
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        455232,
+        465211,
+        497539,
+        456515,
+        455831,
+        453455,
+        483584
+      ],
+      "median_ns": 456515,
+      "min_ns": 453455,
+      "max_ns": 497539
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        4046634,
+        3795895,
+        3864705,
+        3875129,
+        3834176,
+        3841285,
+        3819069
+      ],
+      "median_ns": 3841285,
+      "min_ns": 3795895,
+      "max_ns": 4046634
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        926669,
+        789908,
+        1046098,
+        1008323,
+        1067603,
+        917981,
+        691501
+      ],
+      "median_ns": 926669,
+      "min_ns": 691501,
+      "max_ns": 1067603
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        521024,
+        494635,
+        492377,
+        527483,
+        530215,
+        491334,
+        602120
+      ],
+      "median_ns": 521024,
+      "min_ns": 491334,
+      "max_ns": 602120
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        4490244,
+        4397875,
+        4458200,
+        4423761,
+        4498956,
+        4376844,
+        4499354
+      ],
+      "median_ns": 4458200,
+      "min_ns": 4376844,
+      "max_ns": 4499354
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        835259,
+        846534,
+        1056430,
+        895921,
+        812375,
+        889014,
+        838298
+      ],
+      "median_ns": 846534,
+      "min_ns": 812375,
+      "max_ns": 1056430
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        963725,
+        771630,
+        1340644,
+        865230,
+        945170,
+        597738,
+        977315
+      ],
+      "median_ns": 945170,
+      "min_ns": 597738,
+      "max_ns": 1340644
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        4961335,
+        5341945,
+        5045864,
+        5115184,
+        5032018,
+        5865961,
+        4974751
+      ],
+      "median_ns": 5045864,
+      "min_ns": 4961335,
+      "max_ns": 5865961
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        1108909,
+        1120731,
+        1039580,
+        1104964,
+        1039394,
+        986730,
+        834425
+      ],
+      "median_ns": 1039580,
+      "min_ns": 834425,
+      "max_ns": 1120731
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        1057782,
+        1063397,
+        1050432,
+        1093101,
+        636630,
+        1083574,
+        780121
+      ],
+      "median_ns": 1057782,
+      "min_ns": 636630,
+      "max_ns": 1093101
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        29126,
+        25185,
+        22275,
+        21191,
+        19828,
+        18783,
+        18795
+      ],
+      "median_ns": 21191,
+      "min_ns": 18783,
+      "max_ns": 29126
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        2467,
+        2267,
+        2265,
+        2259,
+        2355,
+        2259,
+        2258
+      ],
+      "median_ns": 2265,
+      "min_ns": 2258,
+      "max_ns": 2467
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        1841698,
+        1665807,
+        1825240,
+        1812793,
+        1836307,
+        1810800,
+        1790800
+      ],
+      "median_ns": 1812793,
+      "min_ns": 1665807,
+      "max_ns": 1841698
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        147118,
+        156991,
+        143920,
+        143814,
+        144043,
+        146486,
+        148584
+      ],
+      "median_ns": 146486,
+      "min_ns": 143814,
+      "max_ns": 156991
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        13692,
+        11708,
+        10918,
+        11305,
+        11224,
+        10604,
+        10512
+      ],
+      "median_ns": 11224,
+      "min_ns": 10512,
+      "max_ns": 13692
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        3152,
+        2794,
+        2832,
+        2809,
+        2803,
+        2794,
+        2796
+      ],
+      "median_ns": 2803,
+      "min_ns": 2794,
+      "max_ns": 3152
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        905346,
+        914651,
+        906527,
+        905382,
+        928834,
+        898431,
+        895305
+      ],
+      "median_ns": 905382,
+      "min_ns": 895305,
+      "max_ns": 928834
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        153427,
+        153075,
+        153161,
+        155693,
+        152904,
+        155813,
+        177772
+      ],
+      "median_ns": 153427,
+      "min_ns": 152904,
+      "max_ns": 177772
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        26294,
+        21057,
+        17978,
+        14760,
+        11704,
+        10713,
+        10284
+      ],
+      "median_ns": 14760,
+      "min_ns": 10284,
+      "max_ns": 26294
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        3367,
+        3099,
+        3086,
+        3087,
+        3097,
+        3080,
+        3089
+      ],
+      "median_ns": 3089,
+      "min_ns": 3080,
+      "max_ns": 3367
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        1647624,
+        1640726,
+        1636789,
+        1648058,
+        1630886,
+        1646901,
+        2139085
+      ],
+      "median_ns": 1646901,
+      "min_ns": 1630886,
+      "max_ns": 2139085
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O0",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        194160,
+        192851,
+        222539,
+        197660,
+        198783,
+        218453,
+        256817
+      ],
+      "median_ns": 198783,
+      "min_ns": 192851,
+      "max_ns": 256817
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        373944,
+        374703,
+        388947,
+        370513,
+        393783,
+        376579,
+        326501
+      ],
+      "median_ns": 374703,
+      "min_ns": 326501,
+      "max_ns": 393783
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        192558,
+        204351,
+        193456,
+        193854,
+        193233,
+        207408,
+        173472
+      ],
+      "median_ns": 193456,
+      "min_ns": 173472,
+      "max_ns": 207408
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        130007,
+        138586,
+        132068,
+        139898,
+        131824,
+        135406,
+        122474
+      ],
+      "median_ns": 132068,
+      "min_ns": 122474,
+      "max_ns": 139898
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        367266,
+        367255,
+        367261,
+        367262,
+        367591,
+        421218,
+        391860
+      ],
+      "median_ns": 367266,
+      "min_ns": 367255,
+      "max_ns": 421218
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        183685,
+        183653,
+        189700,
+        183649,
+        183648,
+        193138,
+        259025
+      ],
+      "median_ns": 183685,
+      "min_ns": 183648,
+      "max_ns": 259025
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        138531,
+        132644,
+        135570,
+        132696,
+        132665,
+        132750,
+        132695
+      ],
+      "median_ns": 132696,
+      "min_ns": 132644,
+      "max_ns": 138531
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        408057,
+        476576,
+        441463,
+        407507,
+        434585,
+        409945,
+        387644
+      ],
+      "median_ns": 409945,
+      "min_ns": 387644,
+      "max_ns": 476576
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        231229,
+        204051,
+        206141,
+        239525,
+        206231,
+        206118,
+        226004
+      ],
+      "median_ns": 206231,
+      "min_ns": 204051,
+      "max_ns": 239525
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        142883,
+        145555,
+        142863,
+        142972,
+        144878,
+        142863,
+        144955
+      ],
+      "median_ns": 142972,
+      "min_ns": 142863,
+      "max_ns": 145555
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        435705,
+        472303,
+        452610,
+        418268,
+        425423,
+        475764,
+        474202
+      ],
+      "median_ns": 452610,
+      "min_ns": 418268,
+      "max_ns": 475764
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        232477,
+        205280,
+        204041,
+        206762,
+        206393,
+        211257,
+        213140
+      ],
+      "median_ns": 206762,
+      "min_ns": 204041,
+      "max_ns": 232477
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        163347,
+        155468,
+        155553,
+        183693,
+        179840,
+        161253,
+        161634
+      ],
+      "median_ns": 161634,
+      "min_ns": 155468,
+      "max_ns": 183693
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        557983,
+        510541,
+        525177,
+        561980,
+        508328,
+        528406,
+        513201
+      ],
+      "median_ns": 525177,
+      "min_ns": 508328,
+      "max_ns": 561980
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        243567,
+        258941,
+        234030,
+        236572,
+        226088,
+        226571,
+        237345
+      ],
+      "median_ns": 236572,
+      "min_ns": 226088,
+      "max_ns": 258941
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        500560,
+        166161,
+        170383,
+        163497,
+        165225,
+        170196,
+        165486
+      ],
+      "median_ns": 166161,
+      "min_ns": 163497,
+      "max_ns": 500560
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        524728,
+        525057,
+        533861,
+        612095,
+        505768,
+        608071,
+        572571
+      ],
+      "median_ns": 533861,
+      "min_ns": 505768,
+      "max_ns": 612095
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        224458,
+        224450,
+        229510,
+        224506,
+        227370,
+        249765,
+        243613
+      ],
+      "median_ns": 227370,
+      "min_ns": 224450,
+      "max_ns": 249765
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        188954,
+        183780,
+        183643,
+        183649,
+        183638,
+        184541,
+        391397
+      ],
+      "median_ns": 183780,
+      "min_ns": 183638,
+      "max_ns": 391397
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        582436,
+        560164,
+        520344,
+        527319,
+        518458,
+        599926,
+        518332
+      ],
+      "median_ns": 527319,
+      "min_ns": 518332,
+      "max_ns": 599926
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        255294,
+        257594,
+        247296,
+        245069,
+        254460,
+        244911,
+        247195
+      ],
+      "median_ns": 247296,
+      "min_ns": 244911,
+      "max_ns": 257594
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        194531,
+        201512,
+        184143,
+        183921,
+        184206,
+        186015,
+        189579
+      ],
+      "median_ns": 186015,
+      "min_ns": 183921,
+      "max_ns": 201512
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        439343,
+        434305,
+        431740,
+        440451,
+        478347,
+        445408,
+        458529
+      ],
+      "median_ns": 440451,
+      "min_ns": 431740,
+      "max_ns": 478347
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        244865,
+        244835,
+        252428,
+        247684,
+        247532,
+        245159,
+        245006
+      ],
+      "median_ns": 245159,
+      "min_ns": 244835,
+      "max_ns": 252428
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        204085,
+        209879,
+        204137,
+        204024,
+        209780,
+        204092,
+        208130
+      ],
+      "median_ns": 204137,
+      "min_ns": 204024,
+      "max_ns": 209879
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        15703,
+        11250,
+        8815,
+        7707,
+        7019,
+        6691,
+        6309
+      ],
+      "median_ns": 7707,
+      "min_ns": 6309,
+      "max_ns": 15703
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1547,
+        1273,
+        1279,
+        1278,
+        1281,
+        1285,
+        1306
+      ],
+      "median_ns": 1281,
+      "min_ns": 1273,
+      "max_ns": 1547
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        1005065,
+        1036498,
+        1009100,
+        1022682,
+        1008328,
+        1015760,
+        1011935
+      ],
+      "median_ns": 1011935,
+      "min_ns": 1005065,
+      "max_ns": 1036498
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        83164,
+        81991,
+        80508,
+        80439,
+        80684,
+        80406,
+        82457
+      ],
+      "median_ns": 80684,
+      "min_ns": 80406,
+      "max_ns": 83164
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        8864,
+        7236,
+        6900,
+        6500,
+        6039,
+        5724,
+        5522
+      ],
+      "median_ns": 6500,
+      "min_ns": 5522,
+      "max_ns": 8864
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1554,
+        1279,
+        1276,
+        1276,
+        1279,
+        1275,
+        1271
+      ],
+      "median_ns": 1276,
+      "min_ns": 1271,
+      "max_ns": 1554
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        531252,
+        531166,
+        538374,
+        534140,
+        539214,
+        528372,
+        535576
+      ],
+      "median_ns": 534140,
+      "min_ns": 528372,
+      "max_ns": 539214
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        83157,
+        87274,
+        82670,
+        80627,
+        82150,
+        80462,
+        154252
+      ],
+      "median_ns": 82670,
+      "min_ns": 80462,
+      "max_ns": 154252
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        9150,
+        6962,
+        6073,
+        5118,
+        4567,
+        4352,
+        4678
+      ],
+      "median_ns": 5118,
+      "min_ns": 4352,
+      "max_ns": 9150
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        2621,
+        3178,
+        2715,
+        2548,
+        2887,
+        2976,
+        3240
+      ],
+      "median_ns": 2887,
+      "min_ns": 2548,
+      "max_ns": 3240
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        419920,
+        415613,
+        414476,
+        419612,
+        420700,
+        412139,
+        411868
+      ],
+      "median_ns": 415613,
+      "min_ns": 411868,
+      "max_ns": 420700
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O2",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        118474,
+        100676,
+        107213,
+        107138,
+        100668,
+        100691,
+        100688
+      ],
+      "median_ns": 100691,
+      "min_ns": 100668,
+      "max_ns": 118474
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        0
+      ],
+      "samples_ns": [
+        346921,
+        346911,
+        362959,
+        354691,
+        357440,
+        413765,
+        334600
+      ],
+      "median_ns": 354691,
+      "min_ns": 334600,
+      "max_ns": 413765
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        1
+      ],
+      "samples_ns": [
+        183672,
+        173522,
+        173491,
+        183660,
+        173473,
+        173512,
+        185732
+      ],
+      "median_ns": 173522,
+      "min_ns": 173473,
+      "max_ns": 185732
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        1,
+        2
+      ],
+      "samples_ns": [
+        122498,
+        122489,
+        122462,
+        124958,
+        124426,
+        122473,
+        124394
+      ],
+      "median_ns": 122498,
+      "min_ns": 122462,
+      "max_ns": 124958
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        0
+      ],
+      "samples_ns": [
+        373385,
+        428511,
+        428614,
+        407721,
+        388527,
+        545788,
+        402598
+      ],
+      "median_ns": 407721,
+      "min_ns": 373385,
+      "max_ns": 545788
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        1
+      ],
+      "samples_ns": [
+        183679,
+        208728,
+        203653,
+        187731,
+        185679,
+        191515,
+        191507
+      ],
+      "median_ns": 191507,
+      "min_ns": 183679,
+      "max_ns": 208728
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        2,
+        2
+      ],
+      "samples_ns": [
+        132678,
+        132701,
+        132673,
+        135073,
+        142863,
+        315588,
+        138319
+      ],
+      "median_ns": 135073,
+      "min_ns": 132673,
+      "max_ns": 315588
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        0
+      ],
+      "samples_ns": [
+        391837,
+        427093,
+        408223,
+        433530,
+        415890,
+        436035,
+        428494
+      ],
+      "median_ns": 427093,
+      "min_ns": 391837,
+      "max_ns": 436035
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        1
+      ],
+      "samples_ns": [
+        212748,
+        212754,
+        204068,
+        211847,
+        206343,
+        246782,
+        204076
+      ],
+      "median_ns": 211847,
+      "min_ns": 204068,
+      "max_ns": 246782
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        3,
+        2
+      ],
+      "samples_ns": [
+        149026,
+        152032,
+        143027,
+        142965,
+        144926,
+        147163,
+        145121
+      ],
+      "median_ns": 145121,
+      "min_ns": 142965,
+      "max_ns": 152032
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        0
+      ],
+      "samples_ns": [
+        436858,
+        439777,
+        441533,
+        416811,
+        431543,
+        430853,
+        430551
+      ],
+      "median_ns": 431543,
+      "min_ns": 416811,
+      "max_ns": 441533
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        1
+      ],
+      "samples_ns": [
+        219528,
+        204092,
+        206143,
+        213705,
+        209923,
+        206167,
+        204174
+      ],
+      "median_ns": 206167,
+      "min_ns": 204092,
+      "max_ns": 219528
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        4,
+        2
+      ],
+      "samples_ns": [
+        153121,
+        160824,
+        171792,
+        181493,
+        158806,
+        164236,
+        161092
+      ],
+      "median_ns": 161092,
+      "min_ns": 153121,
+      "max_ns": 181493
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        0
+      ],
+      "samples_ns": [
+        448956,
+        535881,
+        527163,
+        503390,
+        553548,
+        527010,
+        513747
+      ],
+      "median_ns": 527010,
+      "min_ns": 448956,
+      "max_ns": 553548
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        1
+      ],
+      "samples_ns": [
+        235502,
+        224480,
+        234205,
+        224883,
+        228858,
+        224919,
+        224889
+      ],
+      "median_ns": 224919,
+      "min_ns": 224480,
+      "max_ns": 235502
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        5,
+        2
+      ],
+      "samples_ns": [
+        163330,
+        163615,
+        163662,
+        163286,
+        165571,
+        170225,
+        180216
+      ],
+      "median_ns": 163662,
+      "min_ns": 163286,
+      "max_ns": 180216
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        0
+      ],
+      "samples_ns": [
+        528555,
+        495990,
+        509434,
+        482548,
+        521659,
+        536470,
+        484280
+      ],
+      "median_ns": 509434,
+      "min_ns": 482548,
+      "max_ns": 536470
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        1
+      ],
+      "samples_ns": [
+        229570,
+        235684,
+        234350,
+        232427,
+        229241,
+        227524,
+        247425
+      ],
+      "median_ns": 232427,
+      "min_ns": 227524,
+      "max_ns": 247425
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        6,
+        2
+      ],
+      "samples_ns": [
+        185623,
+        180644,
+        185692,
+        185810,
+        190801,
+        185598,
+        185830
+      ],
+      "median_ns": 185692,
+      "min_ns": 180644,
+      "max_ns": 190801
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        0
+      ],
+      "samples_ns": [
+        526896,
+        557059,
+        585454,
+        550722,
+        618103,
+        579093,
+        558545
+      ],
+      "median_ns": 558545,
+      "min_ns": 526896,
+      "max_ns": 618103
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        1
+      ],
+      "samples_ns": [
+        244906,
+        244859,
+        249618,
+        247355,
+        262952,
+        252630,
+        256525
+      ],
+      "median_ns": 249618,
+      "min_ns": 244859,
+      "max_ns": 262952
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        7,
+        2
+      ],
+      "samples_ns": [
+        187299,
+        184017,
+        184313,
+        186394,
+        184290,
+        184012,
+        190848
+      ],
+      "median_ns": 184313,
+      "min_ns": 184012,
+      "max_ns": 190848
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        0
+      ],
+      "samples_ns": [
+        452936,
+        448725,
+        453671,
+        431536,
+        529919,
+        468633,
+        464156
+      ],
+      "median_ns": 453671,
+      "min_ns": 431536,
+      "max_ns": 529919
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        1
+      ],
+      "samples_ns": [
+        264987,
+        266818,
+        247454,
+        255893,
+        247424,
+        260843,
+        281756
+      ],
+      "median_ns": 260843,
+      "min_ns": 247424,
+      "max_ns": 281756
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "capture",
+        8,
+        2
+      ],
+      "samples_ns": [
+        204122,
+        204085,
+        218992,
+        204055,
+        208948,
+        217438,
+        204080
+      ],
+      "median_ns": 204122,
+      "min_ns": 204055,
+      "max_ns": 218992
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        15300,
+        15391,
+        13048,
+        11263,
+        11823,
+        10825,
+        11088
+      ],
+      "median_ns": 11823,
+      "min_ns": 10825,
+      "max_ns": 15391
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1438,
+        1117,
+        1081,
+        1080,
+        1079,
+        1073,
+        1082
+      ],
+      "median_ns": 1081,
+      "min_ns": 1073,
+      "max_ns": 1438
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        988195,
+        994382,
+        1011595,
+        994404,
+        988929,
+        1034064,
+        997357
+      ],
+      "median_ns": 994404,
+      "min_ns": 988195,
+      "max_ns": 1034064
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        0,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        69294,
+        68326,
+        67785,
+        67501,
+        69881,
+        67311,
+        67602
+      ],
+      "median_ns": 67785,
+      "min_ns": 67311,
+      "max_ns": 69881
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        7887,
+        7930,
+        5163,
+        4282,
+        3760,
+        3072,
+        3095
+      ],
+      "median_ns": 4282,
+      "min_ns": 3072,
+      "max_ns": 7930
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1351,
+        1101,
+        1081,
+        1073,
+        1074,
+        1068,
+        1070
+      ],
+      "median_ns": 1074,
+      "min_ns": 1068,
+      "max_ns": 1351
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        533924,
+        503831,
+        531920,
+        503284,
+        569202,
+        855222,
+        517043
+      ],
+      "median_ns": 531920,
+      "min_ns": 503284,
+      "max_ns": 855222
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        1,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        68036,
+        67633,
+        68662,
+        67900,
+        67398,
+        67290,
+        68365
+      ],
+      "median_ns": 67900,
+      "min_ns": 67290,
+      "max_ns": 68662
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        0
+      ],
+      "samples_ns": [
+        5342,
+        5103,
+        4786,
+        4428,
+        4200,
+        3989,
+        3682
+      ],
+      "median_ns": 4428,
+      "min_ns": 3682,
+      "max_ns": 5342
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        1024,
+        1
+      ],
+      "samples_ns": [
+        1521,
+        1430,
+        1384,
+        1397,
+        1381,
+        1376,
+        1382
+      ],
+      "median_ns": 1384,
+      "min_ns": 1376,
+      "max_ns": 1521
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        0
+      ],
+      "samples_ns": [
+        336504,
+        299928,
+        283023,
+        281006,
+        297724,
+        345165,
+        283489
+      ],
+      "median_ns": 297724,
+      "min_ns": 281006,
+      "max_ns": 345165
+    },
+    {
+      "compiler": "clang",
+      "optimization": "O3",
+      "workload": [
+        "lanes",
+        2,
+        65536,
+        1
+      ],
+      "samples_ns": [
+        90236,
+        109658,
+        87539,
+        87596,
+        116407,
+        109763,
+        139512
+      ],
+      "median_ns": 109658,
+      "min_ns": 87539,
+      "max_ns": 139512
+    }
+  ],
+  "executions": [
+    {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-version.log",
+      "log_sha256": "8c25a94209b149cff424925e8a212864e5d086f8523d25cc285af2b89a78f2d7"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-size.log",
+      "log_sha256": "c9eba88dfc24104fea9f29003c7ce45887f5bf03e2f0d395437bc467a26b69b6"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-assembly.log",
+      "log_sha256": "0b499f76ef5be49a50ed9ee6f46d611dbeee78dc8e4b890b2169ede54c5c2c05"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O0-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O0-timings.log",
+      "log_sha256": "b6e89c4993f2d50eaf492a10fb2068e9b76e5a8a8599b99fc961f04c10812e9c"
+    },
+    {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-version.log",
+      "log_sha256": "8c25a94209b149cff424925e8a212864e5d086f8523d25cc285af2b89a78f2d7"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-size.log",
+      "log_sha256": "6194fb6dc019cc33933d39fd4ab7b7ebd76ced459ee2bc7dd39039be6920c07a"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-assembly.log",
+      "log_sha256": "bcc7814dcb4731f8ea87caa223168c93fdd3efcbaa909ab8dfd4e62979e5590a"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O2-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O2-timings.log",
+      "log_sha256": "31a0e2efb322ba1735794177dc41aefd4d386141cabe3cd9e408d09580006b71"
+    },
+    {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-version.log",
+      "log_sha256": "8c25a94209b149cff424925e8a212864e5d086f8523d25cc285af2b89a78f2d7"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-size.log",
+      "log_sha256": "f584c9a5d07de7c665873de07e4c03d8c0c0ea1810e30d9d5638256d9abfd11c"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-assembly.log",
+      "log_sha256": "a57a6071f59c5406d862ae6f94681ccd7e0c5af07c125525df6a8ac5e5bb4f40"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/gcc-O3-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/gcc-O3-timings.log",
+      "log_sha256": "2bddba7857d0cba6940444329f05f9cd20580b03dc4f9dc76f4bd3532fbfe679"
+    },
+    {
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-version.log",
+      "log_sha256": "81c7227b613f6f7babb4025fd0a7f5957ad069f888f0e4b25f24d8a563109307"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-size.log",
+      "log_sha256": "bdc44b9637e78eecaeea2cae5fd5cce9321ccebca7eb17b9b894342c133510e9"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-assembly.log",
+      "log_sha256": "7fead560d38776a1d31d4ddc5f6268151f6eebca8b04673c3e5488fb94306416"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O0-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O0-timings.log",
+      "log_sha256": "f0e2009a9642ec231f8566400ea57c0176e389d28a267c23dd481f5884021aa2"
+    },
+    {
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-version.log",
+      "log_sha256": "81c7227b613f6f7babb4025fd0a7f5957ad069f888f0e4b25f24d8a563109307"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-size.log",
+      "log_sha256": "546377cca145f26484b583658bffcefeacb188641d04ba2bfcf591cd7267e961"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-assembly.log",
+      "log_sha256": "f3ab95a9a47ccc543bd803a77f53b84a4f66adea13c3dd133ac464c98eb0c3cc"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O2-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O2-timings.log",
+      "log_sha256": "131893d315a6f79b148ed14278c5503e8ddafc91c4a10d5eda4f000900f58371"
+    },
+    {
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-version.log",
+      "log_sha256": "81c7227b613f6f7babb4025fd0a7f5957ad069f888f0e4b25f24d8a563109307"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "assessor/dispatch/capture.c",
+        "assessor/dod/dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-raw-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-lto",
+        "-Ilabs/dispatch/include",
+        "-Ilabs/dod/include",
+        "-Ilabs/ownership/include",
+        "-DCOPY_OBSERVED=1",
+        "labs/dispatch/tests/storage_measure.c",
+        "assessor/dispatch/dispatch.c",
+        "assessor/dod/dod_ext.c",
+        "assessor/dod/dod_buffers.c",
+        "assessor/ownership/ownership.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-capture.c",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/observed-dod.c",
+        "-ldl",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-observed-build.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-observed",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-observations.log",
+      "log_sha256": "30953424aa23191e6be58e6d8e07a83cea4090a29b3dffecd9a9100b5b0d2b82"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-raw",
+        "observe"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-raw-observations.log",
+      "log_sha256": "140c881809667e7696502e4b80037bebd0f8e3d9339c2c955e3686ae6c6acecc"
+    },
+    {
+      "command": [
+        "size",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-raw",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-observed"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-size.log",
+      "log_sha256": "83e1b15fe1fd8a018a2d92a0b207fe9c0ba4168bd3f38d46d26013b18c0855e5"
+    },
+    {
+      "command": [
+        "objdump",
+        "-d",
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-raw"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-assembly.log",
+      "log_sha256": "6966bc0c695a0ddb16ec335000e80738b699080a6533711cae60d9e49967e5a6"
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/storage-lanes-20261017T024402469556Z/clang-O3-raw",
+        "time"
+      ],
+      "exit_code": 0,
+      "log": "reviews/v5/expansion/modern_completion/runs/storage-lanes-20261017T024402469556Z/clang-O3-timings.log",
+      "log_sha256": "965f2b934bea2efebb15298b304e2e0b4c4579c728c7d5f42ef010458ece0d1a"
+    }
+  ],
+  "limits": [
+    "Copy observations count explicit payload-byte writes at identified source statements, not all compiler-generated struct/metadata copies or hardware memory traffic.",
+    "Timing binaries omit the copy observer completely and reuse actual DSmall, signed/unsigned lane kernels, typed capture and T66 counting allocator.",
+    "Timing captures only repeated invocation after construction; capture encoding/allocation costs are reported by operation observations, not folded into call latency.",
+    "Seven host samples per cell, no affinity/frequency control, no universal speed threshold or second ABI claim.",
+    "Scalar comparison uses the same saturation contract; its compiler may itself vectorize or synthesize packed operations."
+  ]
+}

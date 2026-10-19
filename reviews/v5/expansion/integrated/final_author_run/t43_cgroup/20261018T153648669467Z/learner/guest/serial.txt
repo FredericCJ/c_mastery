@@ -1,0 +1,44 @@
+[    0.563936] ==================================================================
+[    0.563936] BUG: KASAN: wild-memory-access in do_raw_spin_lock+0x114/0x260
+[    0.563936] Write of size 4 at addr ff1100000108a8a8 by task swapper/0/0
+[    0.563936] 
+[    0.563936] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 7.0.14-cmastery-os-follow #2 PREEMPT(lazy) 
+[    0.563936] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.17.0-debian-1.17.0-1ubuntu1 04/01/2014
+[    0.563936] Call Trace:
+[    0.563936]  <IRQ>
+[    0.563936]  dump_stack_lvl+0x5d/0x80
+[    0.563936]  kasan_report+0xe4/0x1c0
+[    0.563936]  ? do_raw_spin_lock+0x114/0x260
+[    0.563936]  kasan_check_range+0x125/0x200
+[    0.563936]  do_raw_spin_lock+0x114/0x260
+[    0.563936]  ? __pfx_do_raw_spin_lock+0x10/0x10
+[    0.563936]  handle_edge_irq+0x28/0x880
+[    0.563936]  ? lock_release+0xd3/0x300
+[    0.563936]  __common_interrupt+0x6d/0x170
+[    0.563936]  common_interrupt+0x7a/0x90
+[    0.563936]  </IRQ>
+[    0.563936]  <TASK>
+[    0.563936]  asm_common_interrupt+0x26/0x40
+[    0.563936] RIP: 0010:identify_cpu+0x27e/0x1730
+[    0.563936] Code: f6 41 c7 84 24 18 01 00 00 40 00 00 00 48 89 c7 48 89 04 24 e8 83 31 79 00 ba 14 00 00 00 31 f6 49 8d 7c 24 0c e8 72 31 79 00 <49> 8d 74 24 24 48 b8 00 00 00 00 00 fc ff df 48 89 f2 48 c1 ea 03
+[    0.563936] RSP: 0000:ffffffffb2607e98 EFLAGS: 00010246
+[    0.563936] RAX: ffffffffb2df0eac RBX: ff11000028220060 RCX: 0000000000000000
+[    0.563936] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffb2df0ec0
+[    0.563936] RBP: ffffffffb2df0f40 R08: 0000000000000004 R09: 0000000000000004
+[    0.563936] R10: ffffffffb2df0eac R11: 0000000000000001 R12: ffffffffb2df0ea0
+[    0.563936] R13: ffffffffb2df0fe0 R14: ffffffffb2df0ec0 R15: ffffffffb2df0ec1
+[    0.563936]  ? identify_cpu+0x27e/0x1730
+[    0.563936]  ? static_key_slow_inc+0x22/0x30
+[    0.563936]  arch_cpu_finalize_init+0x25/0x340
+[    0.563936]  start_kernel+0x321/0x3b0
+[    0.563936]  x86_64_start_reservations+0x24/0x30
+[    0.563936]  x86_64_start_kernel+0xd6/0xe0
+[    0.563936]  common_startup_64+0x13e/0x148
+[    0.563936]  </TASK>
+[    0.563936] ==================================================================
+PC_GUEST_KERNEL
+Linux (none) 7.0.14-cmastery-os-follow #2 SMP PREEMPT_DYNAMIC Sun Oct 18 10:40:32 JST 2026 x86_64 GNU/Linux
+PC_TODO:prepared-delegation-and-exact-workload-observation
+PC_PROBE_EXIT=1
+PC_GUEST_DONE
+[    6.724083] reboot: Power down

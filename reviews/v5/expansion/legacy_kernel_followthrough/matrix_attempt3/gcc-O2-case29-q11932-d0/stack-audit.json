@@ -1,0 +1,94 @@
+{
+  "passed": true,
+  "method": "static compiler rows + conservative direct/tail call graph + audited single CvmHost callback; every call adds eight extra bytes",
+  "maximum_native_chain_bytes": 6400,
+  "maximum_chain": [
+    "_start",
+    "kf_vm_probe",
+    "cvm_load",
+    "cvm_verify"
+  ],
+  "usage": {
+    "memset": 8,
+    "memcpy": 8,
+    "layout": 8,
+    "mark": 24,
+    "cvm_int": 48,
+    "cvm_status_name": 8,
+    "cvm_init": 8,
+    "cvm_verify": 5184,
+    "cvm_decode": 1104,
+    "cvm_encode": 32,
+    "cvm_load": 1104,
+    "cvm_save": 32,
+    "cvm_field": 24,
+    "cvm_root_push": 24,
+    "cvm_root_pop": 8,
+    "cvm_collect": 64,
+    "cvm_pair": 64,
+    "cvm_run": 112,
+    "callback": 24,
+    "kf_vm_probe": 64,
+    "number": 40,
+    "_start": 16
+  },
+  "calls": {
+    "_start": [
+      "kf_vm_probe",
+      "number"
+    ],
+    "number": [],
+    "callback": [],
+    "kf_vm_probe": [
+      "cvm_init",
+      "cvm_int",
+      "cvm_load",
+      "cvm_run"
+    ],
+    "layout": [],
+    "mark": [],
+    "cvm_int": [],
+    "cvm_init": [],
+    "cvm_verify": [],
+    "cvm_decode": [
+      "layout"
+    ],
+    "cvm_load": [
+      "cvm_decode",
+      "cvm_verify"
+    ],
+    "cvm_root_push": [],
+    "cvm_collect": [
+      "mark"
+    ],
+    "cvm_pair": [
+      "cvm_collect",
+      "cvm_root_push"
+    ],
+    "cvm_run": [
+      "callback",
+      "cvm_collect",
+      "cvm_pair",
+      "cvm_verify"
+    ],
+    "CSWTCH.20": [],
+    "recursive.0": [],
+    "names.0": []
+  },
+  "indirect_calls": [
+    {
+      "from": "cvm_run",
+      "line": "40001c37:\tff d0                \tcall   *%rax",
+      "audited_target": "callback"
+    }
+  ],
+  "one_page_user_capacity_bytes": 4088,
+  "fits_one_page": false,
+  "separate_stacks": {
+    "normal_user_bytes": 131072,
+    "kernel_task_bytes": 8192,
+    "double_fault_IST_bytes": 8192,
+    "exception_frame_bytes": 176
+  },
+  "scope": "Fixed probe source and compiler profile only; no claim about an arbitrary future callback, physical latency, SMP or unlisted compiler."
+}

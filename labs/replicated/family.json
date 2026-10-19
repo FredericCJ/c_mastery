@@ -8,63 +8,114 @@
     {
       "id": "PR-T76-01",
       "tests": [
-        "replicated.log"
+        "replicated.log",
+        "replicated.durable_log",
+        "replicated.durable_snapshot",
+        "replicated.durable_bytes",
+        "replicated.ordinary_log"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-02",
       "tests": [
-        "replicated.projection"
+        "replicated.projection",
+        "replicated.outbox_receive",
+        "replicated.outbox_ack",
+        "replicated.outbox_transport",
+        "replicated.outbox_faults",
+        "replicated.outbox_native",
+        "replicated.ordinary_projection"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-03",
       "tests": [
-        "replicated.clocks"
+        "replicated.clocks",
+        "replicated.clock_identity",
+        "replicated.clock_store",
+        "replicated.clock_policy",
+        "replicated.ordinary_clocks"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-04",
       "tests": [
-        "replicated.counters"
+        "replicated.counters",
+        "replicated.membership_join",
+        "replicated.membership_wire",
+        "replicated.membership_auth",
+        "replicated.membership_replay",
+        "replicated.ordinary_counters",
+        "replicated.ordinary_laws"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-05",
       "tests": [
-        "replicated.sets"
+        "replicated.sets",
+        "replicated.delta_sets",
+        "replicated.delta_wire",
+        "replicated.delta_durable",
+        "replicated.delta_protocol",
+        "replicated.ordinary_sets"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-06",
       "tests": [
-        "replicated.sequence"
+        "replicated.sequence",
+        "replicated.seq_tree",
+        "replicated.seq_snapshot",
+        "replicated.ot_context",
+        "replicated.ot_delivery",
+        "replicated.ordinary_sequence"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-07",
       "tests": [
-        "replicated.merkle"
+        "replicated.merkle",
+        "replicated.sha_stream",
+        "replicated.hash_hmac",
+        "replicated.hash_lifecycle",
+        "replicated.hash_security",
+        "replicated.merkle_proof",
+        "replicated.merkle_wire",
+        "replicated.merkle_repair",
+        "replicated.merkle_cost",
+        "replicated.ordinary_merkle"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-08",
       "tests": [
-        "replicated.wire"
+        "replicated.wire",
+        "replicated.wire_nested",
+        "replicated.wire_limits",
+        "replicated.wire_stream",
+        "replicated.wire_evolution",
+        "replicated.ordinary_wire"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     },
     {
       "id": "PR-T76-09",
       "tests": [
-        "replicated.replay"
+        "replicated.replay",
+        "replicated.replay_prediction",
+        "replicated.replay_snapshot",
+        "replicated.replay_durable",
+        "replicated.replay_effects",
+        "replicated.replay_transport",
+        "replicated.replay_native",
+        "replicated.ordinary_replay"
       ],
       "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
     }
@@ -1357,24 +1408,35 @@
         "T76.07.a",
         "T76.07.b",
         "T76.07.c",
-        "T76.07.d"
+        "T76.07.d",
+        "T14.07.b",
+        "T14.07.c"
       ],
       "tests": [],
       "steps": [
         "Run replicated.merkle, standard empty/abc hash vectors, all padding boundaries and independent randomized hashlib differential cases. Kill omitted leaf-domain prefix and ignored right-child mutants. Inspect the generated code for the intended unsigned operations; benchmark nodes hashed versus full leaf comparison under equal correctness/security contracts.",
-        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite.",
+        "Retain the original X-T76-007 hashing/Merkle artifact and PR-T14-04 collision/tombstone-table knowledge. Complete X-T76-010 through its distinct corpus_ring workspace and explicit prior RphSha provider; a hash-table lookup is not a ring placement operation.",
+        "Required X-T76-010 transfer: derive token identity (owner,ordinal), ordered position collisions and clockwise successor lookup. Prove insertion monotonicity only while all preexisting tokens remain fixed.",
+        "Implement adjacent-view migration plans and distinct physical replica selection in the separate corpus_ring exercise. Stage every output before publication and retain the exact view/epoch and digest-byte-order premises.",
+        "Use the actual prior SHA component for byte-key routing, then compare ordered interval lookup with the independent clockwise-distance oracle. Explain why placement, availability, membership authority and durable anti-entropy remain different contracts."
       ],
       "checks": [
         "SHA256(empty)=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855. Trees[1,2,3] and[1,2,9] differ only at bit2 (mask4); empty trees give mask0. Compare every count0..8 with a separately implemented Python hashlib construction.",
-        "Run replicated.merkle, standard empty/abc hash vectors, all padding boundaries and independent randomized hashlib differential cases. Kill omitted leaf-domain prefix and ignored right-child mutants. Inspect the generated code for the intended unsigned operations; benchmark nodes hashed versus full leaf comparison under equal correctness/security contracts."
+        "Run replicated.merkle, standard empty/abc hash vectors, all padding boundaries and independent randomized hashlib differential cases. Kill omitted leaf-domain prefix and ignored right-child mutants. Inspect the generated code for the intended unsigned operations; benchmark nodes hashed versus full leaf comparison under equal correctness/security contracts.",
+        "Old tokens (10,1,0),(30,2,0), adding (20,3,0),(40,3,1) moves exactly keys11..20 and31..40 among65536 keys. Reseeding an old token invalidates this monotonicity premise; equal positions use owner/ordinal ties.",
+        "With repeated virtual nodes of owner1, requesting three replicas returns distinct physical owners[1,2,3]. A down mask, all-coincident tokens, stale epoch and undersized migration output must produce the exact declared result or leave outputs unchanged.",
+        "Run the distinct X-T76-010 corpus_ring.lookup/membership/replicas/routing anchors, causal controls and independent oracle through that exercise route; replicated.merkle alone does not exercise these criteria."
       ],
       "reasoning": [
-        "Derive a domain-separated Merkle root for an exact ordered leaf sequence, distinguishing hash equality under a collision assumption from identity authentication, availability or a proof that arbitrary bytes are well formed."
+        "Derive a domain-separated Merkle root for an exact ordered leaf sequence, distinguishing hash equality under a collision assumption from identity authentication, availability or a proof that arbitrary bytes are well formed.",
+        "Hash-table collision handling from T14.07 transfers to a different representation: ring collision ties and fixed-token placement. Derive bounded chosen-token load capture and show why monotonicity does not imply balanced load, authenticated membership or a completed data handoff."
       ],
       "deliverables": [
         "Derive padding across55/56/63/64/65-byte boundaries, uint32 modular arithmetic, round constants and endian conversion. Prove the tree shape for non-power-of-two counts and that a subtree comparison is meaningful only with the same position/range/domain. Account for hash collision and corrupt-peer assumptions; a matching root alone authenticates no sender and guarantees no retrievability.",
         "Run replicated.merkle, standard empty/abc hash vectors, all padding boundaries and independent randomized hashlib differential cases. Kill omitted leaf-domain prefix and ignored right-child mutants. Inspect the generated code for the intended unsigned operations; benchmark nodes hashed versus full leaf comparison under equal correctness/security contracts.",
-        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite.",
+        "Submit X-T76-010 D1-D4 and R1-R4 plus the changed-view delayed dossier. Preserve the original Merkle proof/transport deliverables; ring planning supplements rather than replaces them."
       ],
       "rubric": [
         {
@@ -1420,10 +1482,55 @@
             "2": "Meets this complete criterion with justified assumptions and independent evidence.",
             "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
           }
+        },
+        {
+          "id": "X-T76-010-R1",
+          "objective": "T14.07.b",
+          "criterion": "Derive stable token/physical-owner identity, collision ties, membership and monotonic remapping under fixed existing tokens.",
+          "levels": {
+            "0": "Incorrect placement, broken invariant or unsupported safety/distributed-system claim.",
+            "1": "Runs supplied cases but cannot explain this criterion\u2019s representation, boundary or premise.",
+            "2": "Correctly implements and derives the exact criterion with discriminating boundaries, independent expected results and bounded evidence.",
+            "3": "Independently derives an unseen changed-view/failure case, validates it without a worked solution, and states enforcement, cost and protocol limits."
+          }
+        },
+        {
+          "id": "X-T76-010-R2",
+          "objective": "T14.07.c",
+          "criterion": "Analyze adversarial token placement, stale views and distinct physical replicas with bounded property-violation demonstrations.",
+          "levels": {
+            "0": "Incorrect placement, broken invariant or unsupported safety/distributed-system claim.",
+            "1": "Runs supplied cases but cannot explain this criterion\u2019s representation, boundary or premise.",
+            "2": "Correctly implements and derives the exact criterion with discriminating boundaries, independent expected results and bounded evidence.",
+            "3": "Independently derives an unseen changed-view/failure case, validates it without a worked solution, and states enforcement, cost and protocol limits."
+          }
+        },
+        {
+          "id": "X-T76-010-R3",
+          "objective": "T76.07.c",
+          "criterion": "Compose the actual prior SHA contract with ring lookup; verify byte order, independent outputs and equal-contract storage/work costs.",
+          "levels": {
+            "0": "Incorrect placement, broken invariant or unsupported safety/distributed-system claim.",
+            "1": "Runs supplied cases but cannot explain this criterion\u2019s representation, boundary or premise.",
+            "2": "Correctly implements and derives the exact criterion with discriminating boundaries, independent expected results and bounded evidence.",
+            "3": "Independently derives an unseen changed-view/failure case, validates it without a worked solution, and states enforcement, cost and protocol limits."
+          }
+        },
+        {
+          "id": "X-T76-010-R4",
+          "objective": "T76.07.d",
+          "criterion": "Implement adjacent-view migration planning and failure-atomic publication; distinguish placement plans from actual anti-entropy or durable handoff.",
+          "levels": {
+            "0": "Incorrect placement, broken invariant or unsupported safety/distributed-system claim.",
+            "1": "Runs supplied cases but cannot explain this criterion\u2019s representation, boundary or premise.",
+            "2": "Correctly implements and derives the exact criterion with discriminating boundaries, independent expected results and bounded evidence.",
+            "3": "Independently derives an unseen changed-view/failure case, validates it without a worked solution, and states enforcement, cost and protocol limits."
+          }
         }
       ],
       "variants": [
-        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+        "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite.",
+        "Assess X-T76-010-DELAYED after its minimum delay: remove owner1 from epoch7, derive the five moved keys and degraded replica refusal, then falsify stale-view and capacity publication claims using the supplied original analysis."
       ],
       "assessor_analysis": "assessor/replicated/analyses/X-T76-007.md",
       "target_scope": "host",
@@ -1439,6 +1546,52 @@
           "resource_id": "R-RP-SHA",
           "locator": "Section4.1 padding; section5.1 SHA-256 functions and constants; section6.1 initial values; section6.2 processing",
           "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-CRING-KARGER",
+          "locator": "Sections4.1\u20134.3: monotonicity, balance/spread/load assumptions, nearest-point interval construction and costs",
+          "purpose": "Exact inspected source for required X-T76-010 cross-topic assessment; original source limits remain."
+        },
+        {
+          "resource_id": "R-CRING-DYNAMO",
+          "locator": "Sections4.2\u20134.3: clockwise placement, virtual nodes and distinct physical preference lists",
+          "purpose": "Exact inspected source for required X-T76-010 cross-topic assessment; original source limits remain."
+        },
+        {
+          "resource_id": "R-CRING-DYNAMO",
+          "locator": "Section4.7: compare Merkle roots only for shared key ranges",
+          "purpose": "Exact inspected source for required X-T76-010 cross-topic assessment; original source limits remain."
+        }
+      ],
+      "required_exercise_assessments": [
+        {
+          "exercise": "X-T76-010",
+          "prerequisite_exercises": [
+            "X-T76-007"
+          ],
+          "objectives": [
+            "T14.07.b",
+            "T14.07.c",
+            "T76.07.c",
+            "T76.07.d"
+          ],
+          "criteria": [
+            "X-T76-010-R1",
+            "X-T76-010-R2",
+            "X-T76-010-R3",
+            "X-T76-010-R4"
+          ],
+          "family": "corpus_ring",
+          "tests": [
+            "corpus_ring.lookup",
+            "corpus_ring.membership",
+            "corpus_ring.replicas",
+            "corpus_ring.routing"
+          ],
+          "assessor_analysis": "assessor/corpus_ring/ANALYSIS.md",
+          "prerequisite_policy": "Retain the original X-T76-007 hashing/Merkle artifact and PR-T14-04 collision/tombstone-table knowledge. Complete X-T76-010 through its distinct corpus_ring workspace and explicit prior RphSha provider; a hash-table lookup is not a ring placement operation.",
+          "accounting": "Required additive exercise scope; original unit minutes/project hours are preserved historical/descriptive values, not a ceiling.",
+          "assessment": "Use the separate exercise prerequisite and rubric gates; original unit test passage cannot discharge these later criteria."
         }
       ]
     },
@@ -1840,7 +1993,11 @@
       "id": "X-T76-001",
       "project": "PR-T76-01",
       "tests": [
-        "replicated.log"
+        "replicated.log",
+        "replicated.durable_log",
+        "replicated.durable_snapshot",
+        "replicated.durable_bytes",
+        "replicated.ordinary_log"
       ],
       "capabilities": [
         "linux-c17"
@@ -1850,7 +2007,13 @@
       "id": "X-T76-002",
       "project": "PR-T76-02",
       "tests": [
-        "replicated.projection"
+        "replicated.projection",
+        "replicated.outbox_receive",
+        "replicated.outbox_ack",
+        "replicated.outbox_transport",
+        "replicated.outbox_faults",
+        "replicated.outbox_native",
+        "replicated.ordinary_projection"
       ],
       "capabilities": [
         "linux-c17"
@@ -1860,7 +2023,11 @@
       "id": "X-T76-003",
       "project": "PR-T76-03",
       "tests": [
-        "replicated.clocks"
+        "replicated.clocks",
+        "replicated.clock_identity",
+        "replicated.clock_store",
+        "replicated.clock_policy",
+        "replicated.ordinary_clocks"
       ],
       "capabilities": [
         "linux-c17"
@@ -1870,7 +2037,13 @@
       "id": "X-T76-004",
       "project": "PR-T76-04",
       "tests": [
-        "replicated.counters"
+        "replicated.counters",
+        "replicated.membership_join",
+        "replicated.membership_wire",
+        "replicated.membership_auth",
+        "replicated.membership_replay",
+        "replicated.ordinary_counters",
+        "replicated.ordinary_laws"
       ],
       "capabilities": [
         "linux-c17"
@@ -1880,7 +2053,12 @@
       "id": "X-T76-005",
       "project": "PR-T76-05",
       "tests": [
-        "replicated.sets"
+        "replicated.sets",
+        "replicated.delta_sets",
+        "replicated.delta_wire",
+        "replicated.delta_durable",
+        "replicated.delta_protocol",
+        "replicated.ordinary_sets"
       ],
       "capabilities": [
         "linux-c17"
@@ -1890,7 +2068,12 @@
       "id": "X-T76-006",
       "project": "PR-T76-06",
       "tests": [
-        "replicated.sequence"
+        "replicated.sequence",
+        "replicated.seq_tree",
+        "replicated.seq_snapshot",
+        "replicated.ot_context",
+        "replicated.ot_delivery",
+        "replicated.ordinary_sequence"
       ],
       "capabilities": [
         "linux-c17"
@@ -1900,7 +2083,16 @@
       "id": "X-T76-007",
       "project": "PR-T76-07",
       "tests": [
-        "replicated.merkle"
+        "replicated.merkle",
+        "replicated.sha_stream",
+        "replicated.hash_hmac",
+        "replicated.hash_lifecycle",
+        "replicated.hash_security",
+        "replicated.merkle_proof",
+        "replicated.merkle_wire",
+        "replicated.merkle_repair",
+        "replicated.merkle_cost",
+        "replicated.ordinary_merkle"
       ],
       "capabilities": [
         "linux-c17"
@@ -1910,7 +2102,12 @@
       "id": "X-T76-008",
       "project": "PR-T76-08",
       "tests": [
-        "replicated.wire"
+        "replicated.wire",
+        "replicated.wire_nested",
+        "replicated.wire_limits",
+        "replicated.wire_stream",
+        "replicated.wire_evolution",
+        "replicated.ordinary_wire"
       ],
       "capabilities": [
         "linux-c17"
@@ -1920,7 +2117,14 @@
       "id": "X-T76-009",
       "project": "PR-T76-09",
       "tests": [
-        "replicated.replay"
+        "replicated.replay",
+        "replicated.replay_prediction",
+        "replicated.replay_snapshot",
+        "replicated.replay_durable",
+        "replicated.replay_effects",
+        "replicated.replay_transport",
+        "replicated.replay_native",
+        "replicated.ordinary_replay"
       ],
       "capabilities": [
         "linux-c17"
@@ -1936,7 +2140,58 @@
     "replicated.sequence",
     "replicated.merkle",
     "replicated.wire",
-    "replicated.replay"
+    "replicated.replay",
+    "replicated.durable_log",
+    "replicated.durable_snapshot",
+    "replicated.durable_bytes",
+    "replicated.outbox_receive",
+    "replicated.outbox_ack",
+    "replicated.outbox_transport",
+    "replicated.outbox_faults",
+    "replicated.outbox_native",
+    "replicated.clock_identity",
+    "replicated.clock_store",
+    "replicated.clock_policy",
+    "replicated.sha_stream",
+    "replicated.hash_hmac",
+    "replicated.hash_lifecycle",
+    "replicated.hash_security",
+    "replicated.membership_join",
+    "replicated.membership_wire",
+    "replicated.membership_auth",
+    "replicated.membership_replay",
+    "replicated.delta_sets",
+    "replicated.delta_wire",
+    "replicated.delta_durable",
+    "replicated.delta_protocol",
+    "replicated.seq_tree",
+    "replicated.seq_snapshot",
+    "replicated.ot_context",
+    "replicated.ot_delivery",
+    "replicated.merkle_proof",
+    "replicated.merkle_wire",
+    "replicated.merkle_repair",
+    "replicated.merkle_cost",
+    "replicated.wire_nested",
+    "replicated.wire_limits",
+    "replicated.wire_stream",
+    "replicated.wire_evolution",
+    "replicated.replay_prediction",
+    "replicated.replay_snapshot",
+    "replicated.replay_durable",
+    "replicated.replay_effects",
+    "replicated.replay_transport",
+    "replicated.replay_native",
+    "replicated.ordinary_log",
+    "replicated.ordinary_projection",
+    "replicated.ordinary_clocks",
+    "replicated.ordinary_counters",
+    "replicated.ordinary_sets",
+    "replicated.ordinary_sequence",
+    "replicated.ordinary_merkle",
+    "replicated.ordinary_wire",
+    "replicated.ordinary_replay",
+    "replicated.ordinary_laws"
   ],
   "modules": [
     "T76"
@@ -1959,10 +2214,36 @@
     "oracle_driver": "oracle-driver",
     "report": "reviews/v5/expansion/b07/replicated_campaign.json",
     "producer": "tools/run_replicated.py",
-    "receipt": "replicated_campaign.json"
+    "receipt": "replicated_campaign.json",
+    "successor_producer": "tools/run_replicated_followthrough.py",
+    "successor_report": "research/v5/modern/replicated_durable_validation.json",
+    "outbox_producer": "tools/run_replicated_outbox.py",
+    "outbox_report": "research/v5/modern/replicated_outbox_validation.json",
+    "clocks_producer": "tools/run_replicated_clocks.py",
+    "clocks_report": "research/v5/modern/replicated_clocks_validation.json",
+    "hashing_producer": "tools/run_replicated_hashing.py",
+    "hashing_report": "research/v5/modern/replicated_hashing_validation.json",
+    "membership_producer": "tools/run_replicated_membership.py",
+    "membership_report": "research/v5/modern/replicated_membership_validation.json",
+    "deltas_producer": "tools/run_replicated_deltas.py",
+    "deltas_report": "research/v5/modern/replicated_deltas_validation.json",
+    "sequence_depth_producer": "tools/run_replicated_sequence_depth.py",
+    "sequence_depth_report": "research/v5/modern/replicated_sequence_depth_validation.json",
+    "merkle_repair_producer": "tools/run_replicated_merkle_repair.py",
+    "merkle_repair_report": "research/v5/modern/replicated_merkle_repair_validation.json",
+    "wire_depth_producer": "tools/run_replicated_wire_depth.py",
+    "wire_depth_report": "research/v5/modern/replicated_wire_depth_validation.json",
+    "replay_depth_producer": "tools/run_replicated_replay_depth.py",
+    "replay_depth_report": "research/v5/modern/replicated_replay_depth_validation.json",
+    "replay_target_report": "research/v5/modern/replicated_replay_target_validation.json",
+    "ordinary_depth_producer": "tools/run_replicated_ordinary_depth.py",
+    "ordinary_depth_report": "research/v5/modern/replicated_ordinary_depth_validation.json"
   },
   "dependencies": [
-    "dod"
+    "dod",
+    "storage",
+    "api_depth",
+    "hosted_systems"
   ],
   "scope": "Hosted mechanism evidence only; no independent learner or strict target acceptance.",
   "source_imports": [
@@ -1974,6 +2255,35 @@
       "include": "labs/dod/include",
       "assessor_source": "assessor/dod/dod.c",
       "contract": "labs/dod/CONTRACTS.md"
+    },
+    {
+      "family": "storage",
+      "artifact": "storage.pages",
+      "producer": "PR-T47-10",
+      "learner_source": "labs/storage/src/store.c",
+      "assessor_source": "assessor/storage/store.c",
+      "include": "labs/storage/include",
+      "contract": "labs/storage/include/store.h"
+    },
+    {
+      "family": "api_depth",
+      "artifact": "codec.records",
+      "producer": "PR-T20-01",
+      "learner_source": "labs/api_depth/architecture/learner.c",
+      "assessor_source": "assessor/api_depth/architecture/core.c",
+      "include": "labs/api_depth/architecture",
+      "contract": "labs/api_depth/architecture/CONTRACTS.md"
+    },
+    {
+      "family": "hosted_systems",
+      "artifact": "ipc.local",
+      "producer": "PR-T24-02",
+      "adapter_producer": "PR-T24-03",
+      "learner_source": "labs/hosted_systems/stream_depth/stream.c",
+      "assessor_source": "assessor/hosted_systems/stream_depth/stream.c",
+      "include": "labs/hosted_systems/stream_depth",
+      "contract": "labs/hosted_systems/stream_depth/CONTRACTS.md",
+      "scope": "Explicit later stream/framing producer adapter plus original local socketpair harness; no assertion that the historical IPC exercise supplied a general reactor."
     }
   ]
 }

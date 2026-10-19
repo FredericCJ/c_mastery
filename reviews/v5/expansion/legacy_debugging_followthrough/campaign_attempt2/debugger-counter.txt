@@ -1,0 +1,21 @@
+
+Breakpoint 1, dx_marker (stage=10) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x00005595cfd282ed in dx_acquire () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:26
+26	 dx_marker(10);
+23	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+
+Hardware watchpoint 2: used
+
+Old value = 4
+New value = 5
+dx_acquire () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:32
+32	 dx_callback();
+
+Hardware watchpoint 2: used
+
+Old value = 5
+New value = 4
+0x00005595cfd2832c in dx_acquire () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:33
+33	 if(used>capacity){violations++;used=capacity;return 0;}
+DX_GDB_JSON:{"mode": "counter", "records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set print pretty off", "output": ""}, {"command": "break dx_marker if stage == 10 && used == capacity", "output": "Breakpoint 1 at 0x12b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "run counter", "output": "\nThis GDB supports auto-downloading debuginfo from the following URLs:\n  <https://debuginfod.ubuntu.com>\nDebuginfod has been disabled.\nTo make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.\n[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\n"}, {"command": "up", "output": ""}, {"command": "print used", "output": "$1 = 4\n"}, {"command": "print capacity", "output": "$2 = 4\n"}, {"command": "x/4i $pc", "output": "=> 0x5595cfd282ed <dx_acquire+18>:\tmov    0x2d25(%rip),%eax        # 0x5595cfd2b018 <used>\n   0x5595cfd282f3 <dx_acquire+24>:\tadd    $0x1,%eax\n   0x5595cfd282f6 <dx_acquire+27>:\tmov    %eax,0x2d1c(%rip)        # 0x5595cfd2b018 <used>\n   0x5595cfd282fc <dx_acquire+33>:\tcall   0x5595cfd282ba <dx_callback>\n"}, {"command": "stepi", "output": ""}, {"command": "watch used", "output": "Hardware watchpoint 2: used\n"}, {"command": "continue", "output": ""}, {"command": "print used", "output": "$3 = 5\n"}, {"command": "bt full", "output": "#0  dx_acquire () at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:32\nNo locals.\n#1  0x00005595cfd28746 in main (argc=2, argv=0x7ffc8f1f8ec8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:61\n        i = 4\n        configured = 0x0\n"}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n1       breakpoint     keep y   0x00005595cfd282b4 in dx_marker at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23\n\tstop only if stage == 10 && used == capacity\n\tbreakpoint already hit 1 time\n2       hw watchpoint  keep y                      used\n\tbreakpoint already hit 1 time\n"}, {"command": "continue", "output": ""}], "heap": "not-captured", "ASLR": "preserved", "scope": "bounded debugger observation;not full execution history"}

@@ -1,0 +1,1275 @@
+{
+  "schema_version": 1,
+  "role": "author reference experiments; no learner credit",
+  "environment": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "input_sha256": {
+    "tools/run_events_followthrough.py": "909f0fb72f0867bb9bb45812220f43fe611430722888c34beea012fddbfbe8cb",
+    "assessor/legacy_systems/toolchain/common.py": "b6122ec4ac3d34e809ada92282671b461b995ed7e923648648c886934dc6d7d9",
+    "labs/hosted_systems/event_depth/CONTRACTS.md": "af94d467abc1438023df48ca2293b349a8497644b941fe429c8d8f409318c0d5",
+    "labs/hosted_systems/event_depth/signals.c": "a7cadc9cd635b548aaadd8428c545d825a81123eb687f89f06826d1361f7b946",
+    "labs/hosted_systems/event_depth/signals.h": "3f32a57ebcf363f4bbc3c44756a1d8b9b3eb63a8e80b887b0e3bff9ab7032d9f",
+    "labs/hosted_systems/event_depth/SIGNALS.md": "f3503aa33d92bc527cc934840cb40a8969e81cbaf5aa3d8385006e72971aa4ba",
+    "labs/hosted_systems/event_depth/signals_tests.c": "0dd680baa5d35e6121e4605ad00b378370d3ca326be57aa3a24a19d0b4c99235",
+    "assessor/hosted_systems/event_depth/signals.c": "134f2a7529323adbaa92c7b854b058e38baae90fdb280cecf3f0276e8ab73719",
+    "assessor/hosted_systems/event_depth/SIGNALS.md": "11004781692f66aea92a07a6d7138a3b243c60188a50b42542d8ea90d6ced20e",
+    "assessor/hosted_systems/event_depth/signals.py": "cbed6afb94b98c28398bfcfd6ba25f5e59d0614df45d0e8e73e06be1cd9fc70c",
+    "assessor/hosted_systems/event_depth/signal_failures.c": "2705c0398a52cde37cd2ca3b88407135019054049cedf549930cc0ede5a0806e",
+    "assessor/hosted_systems/event_depth/signal_probes.c": "fcae3023f2e31218faccbd5c338d40806c473939cc835e76455b16bc8f578ad6",
+    "research/v5/expansion/legacy_events/research_gate.json": "10b8cff6944a2e70f732adb4c9164b8204581e4cdef315e713ed3e67e1620d2a",
+    "research/v5/expansion/legacy_events/resources.json": "3f7dc09ce3583e12bee65531b793e9b28e149b0bc9e0ef062681df277e812a37",
+    "research/v5/expansion/legacy_events/source_access.json": "29c53dd27d31ef74d00c02f139615b9458772977d447a9d78453be8a421ba262"
+  },
+  "commands": [
+    {
+      "group": "environment",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "environment",
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "environment",
+      "argv": [
+        "uname",
+        "-a"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "Linux MAIN 6.18.33.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026 x86_64 GNU/Linux\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "environment",
+      "argv": [
+        "getconf",
+        "GNU_LIBC_VERSION"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "glibc 2.43\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O0",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth/signals_tests.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "counted_histories=9841;",
+      "stdout": "SIGNALS-PASS:deadline_cases=160801;interruptions=3;full_pipe=65536;predicates=2;atomic_wait=1;mask_restored=1;counted_histories=9841;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_probes.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "coalesce"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "COALESCE:generated=2;accepted=1;",
+      "stdout": "COALESCE:generated=2;accepted=1;application_records=2;full_reject=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "realtime"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "REALTIME:accepted=4;",
+      "stdout": "REALTIME:accepted=4;ordered_payloads=7,9,8,9;child_soft_limit_zero=EAGAIN;restored=1;not_host_queue_capacity=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "restart0"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=0;return=-1;",
+      "stdout": "RESTART:flag=0;return=-1;errno=4;handler=10;byte=0;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "restart1"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=1;return=1;",
+      "stdout": "RESTART:flag=1;return=1;errno=0;handler=10;byte=88;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "partial"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "PARTIAL:requested=8;completed=2;",
+      "stdout": "PARTIAL:requested=8;completed=2;cursor=2;not_an_EINTR_result=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "lost"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=0;",
+      "stdout": "LOST-WAKE:repaired=0;predicate_set_before_wait=1;rescued_pause=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "repaired"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=1;",
+      "stdout": "LOST-WAKE:repaired=1;predicate_set_before_wait=1;rescued_pause=0;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "signalfd"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNALFD:records=2;",
+      "stdout": "SIGNALFD:records=2;predicates=3;empty=EAGAIN;blocked_mask_restored=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "threads"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "THREADS:workers=2;plugin=1;",
+      "stdout": "THREADS:workers=2;plugin=1;inherited_masks=3;receiver=1;owned_allocation_freed=1;joined=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "bad-plugin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;",
+      "stdout": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;receiver_pending=0;no_delivery_to_external_process=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "children"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=0;reaped=3;",
+      "stdout": "CHILDREN:late=0;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "late-child"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=1;reaped=3;",
+      "stdout": "CHILDREN:late=1;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes",
+        "deadline"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "DEADLINE:real_ppoll_interruptions=3;",
+      "stdout": "DEADLINE:real_ppoll_interruptions=3;absolute_timeout_observed=1;not_WCET=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_failures.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-Wl,--wrap=pipe2",
+        "-Wl,--wrap=sigaction",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-debug-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNAL-FAILURES:acquisition_cuts=4;",
+      "stdout": "SIGNAL-FAILURES:acquisition_cuts=4;descriptor_balance=4;dispositions_restored=12;masks_restored=4;retry_success=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O2",
+        "-DNDEBUG",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth/signals_tests.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "counted_histories=9841;",
+      "stdout": "SIGNALS-PASS:deadline_cases=160801;interruptions=3;full_pipe=65536;predicates=2;atomic_wait=1;mask_restored=1;counted_histories=9841;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O2",
+        "-DNDEBUG",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_probes.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "coalesce"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "COALESCE:generated=2;accepted=1;",
+      "stdout": "COALESCE:generated=2;accepted=1;application_records=2;full_reject=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "realtime"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "REALTIME:accepted=4;",
+      "stdout": "REALTIME:accepted=4;ordered_payloads=7,9,8,9;child_soft_limit_zero=EAGAIN;restored=1;not_host_queue_capacity=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "restart0"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=0;return=-1;",
+      "stdout": "RESTART:flag=0;return=-1;errno=4;handler=10;byte=0;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "restart1"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=1;return=1;",
+      "stdout": "RESTART:flag=1;return=1;errno=0;handler=10;byte=88;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "partial"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "PARTIAL:requested=8;completed=2;",
+      "stdout": "PARTIAL:requested=8;completed=2;cursor=2;not_an_EINTR_result=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "lost"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=0;",
+      "stdout": "LOST-WAKE:repaired=0;predicate_set_before_wait=1;rescued_pause=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "repaired"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=1;",
+      "stdout": "LOST-WAKE:repaired=1;predicate_set_before_wait=1;rescued_pause=0;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "signalfd"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNALFD:records=2;",
+      "stdout": "SIGNALFD:records=2;predicates=3;empty=EAGAIN;blocked_mask_restored=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "threads"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "THREADS:workers=2;plugin=1;",
+      "stdout": "THREADS:workers=2;plugin=1;inherited_masks=3;receiver=1;owned_allocation_freed=1;joined=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "bad-plugin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;",
+      "stdout": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;receiver_pending=0;no_delivery_to_external_process=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "children"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=0;reaped=3;",
+      "stdout": "CHILDREN:late=0;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "late-child"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=1;reaped=3;",
+      "stdout": "CHILDREN:late=1;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes",
+        "deadline"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "DEADLINE:real_ppoll_interruptions=3;",
+      "stdout": "DEADLINE:real_ppoll_interruptions=3;absolute_timeout_observed=1;not_WCET=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O2",
+        "-DNDEBUG",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_failures.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-Wl,--wrap=pipe2",
+        "-Wl,--wrap=sigaction",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-release-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNAL-FAILURES:acquisition_cuts=4;",
+      "stdout": "SIGNAL-FAILURES:acquisition_cuts=4;descriptor_balance=4;dispositions_restored=12;masks_restored=4;retry_success=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-pie",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth/signals_tests.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signals"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "counted_histories=9841;",
+      "stdout": "SIGNALS-PASS:deadline_cases=160801;interruptions=3;full_pipe=65536;predicates=2;atomic_wait=1;mask_restored=1;counted_histories=9841;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-pie",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_probes.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "coalesce"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "COALESCE:generated=2;accepted=1;",
+      "stdout": "COALESCE:generated=2;accepted=1;application_records=2;full_reject=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "realtime"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "REALTIME:accepted=4;",
+      "stdout": "REALTIME:accepted=4;ordered_payloads=7,9,8,9;child_soft_limit_zero=EAGAIN;restored=1;not_host_queue_capacity=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "restart0"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=0;return=-1;",
+      "stdout": "RESTART:flag=0;return=-1;errno=4;handler=10;byte=0;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "restart1"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "RESTART:flag=1;return=1;",
+      "stdout": "RESTART:flag=1;return=1;errno=0;handler=10;byte=88;enrollment=proc_syscall;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "partial"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "PARTIAL:requested=8;completed=2;",
+      "stdout": "PARTIAL:requested=8;completed=2;cursor=2;not_an_EINTR_result=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "lost"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=0;",
+      "stdout": "LOST-WAKE:repaired=0;predicate_set_before_wait=1;rescued_pause=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "repaired"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "LOST-WAKE:repaired=1;",
+      "stdout": "LOST-WAKE:repaired=1;predicate_set_before_wait=1;rescued_pause=0;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "signalfd"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNALFD:records=2;",
+      "stdout": "SIGNALFD:records=2;predicates=3;empty=EAGAIN;blocked_mask_restored=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "threads"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "THREADS:workers=2;plugin=1;",
+      "stdout": "THREADS:workers=2;plugin=1;inherited_masks=3;receiver=1;owned_allocation_freed=1;joined=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "bad-plugin"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;",
+      "stdout": "BAD-PLUGIN:sole_unmasked_worker_received_process_signal=1;receiver_pending=0;no_delivery_to_external_process=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "children"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=0;reaped=3;",
+      "stdout": "CHILDREN:late=0;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "late-child"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "CHILDREN:late=1;reaped=3;",
+      "stdout": "CHILDREN:late=1;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes",
+        "deadline"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "DEADLINE:real_ppoll_interruptions=3;",
+      "stdout": "DEADLINE:real_ppoll_interruptions=3;absolute_timeout_observed=1;not_WCET=1;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-pie",
+        "-no-pie",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signal_failures.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-Wl,--wrap=pipe2",
+        "-Wl,--wrap=sigaction",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-failures"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": "SIGNAL-FAILURES:acquisition_cuts=4;",
+      "stdout": "SIGNAL-FAILURES:acquisition_cuts=4;descriptor_balance=4;dispositions_restored=12;masks_restored=4;retry_success=4;\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "gcc",
+        "-D_GNU_SOURCE",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/hosted_systems/event_depth",
+        "-O2",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/hosted_systems/event_depth/signals.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-signal-port.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "nm",
+        "-u",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-signal-port.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "                 U __errno_location\n                 U __stack_chk_fail\n                 U clock_gettime\n                 U close\n                 U pipe2\n                 U ppoll\n                 U pthread_sigmask\n                 U read\n                 U sigaction\n                 U sigaddset\n                 U sigdelset\n                 U sigemptyset\n                 U sigismember\n                 U sigpending\n                 U sigtimedwait\n                 U waitpid\n                 U write\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    },
+    {
+      "group": "events-signals",
+      "argv": [
+        "objdump",
+        "-dr",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-signal-port.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z",
+      "exit": 0,
+      "expected": 0,
+      "diagnostic": null,
+      "stdout": "\n/mnt/f/Learning/Curricula/c_mastery/build/legacy_events/20261017T103940380841Z/gcc-signal-port.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <handler>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\t41 54                \tpush   %r12\n   6:\t55                   \tpush   %rbp\n   7:\t53                   \tpush   %rbx\n   8:\t48 83 ec 10          \tsub    $0x10,%rsp\n   c:\t64 48 8b 1c 25 28 00 \tmov    %fs:0x28,%rbx\n  13:\t00 00 \n  15:\t48 89 5c 24 08       \tmov    %rbx,0x8(%rsp)\n  1a:\t89 fb                \tmov    %edi,%ebx\n  1c:\te8 00 00 00 00       \tcall   21 <handler+0x21>\n\t\t\t1d: R_X86_64_PLT32\t__errno_location-0x4\n  21:\t44 8b 20             \tmov    (%rax),%r12d\n  24:\t48 89 c5             \tmov    %rax,%rbp\n  27:\t83 fb 0a             \tcmp    $0xa,%ebx\n  2a:\t74 64                \tje     90 <handler+0x90>\n  2c:\t83 fb 0c             \tcmp    $0xc,%ebx\n  2f:\t74 4f                \tje     80 <handler+0x80>\n  31:\t83 fb 11             \tcmp    $0x11,%ebx\n  34:\t75 0a                \tjne    40 <handler+0x40>\n  36:\tc7 05 00 00 00 00 01 \tmovl   $0x1,0x0(%rip)        # 40 <handler+0x40>\n  3d:\t00 00 00 \n\t\t\t38: R_X86_64_PC32\t.bss-0x4\n  40:\tc6 44 24 07 00       \tmovb   $0x0,0x7(%rsp)\n  45:\t48 8d 74 24 07       \tlea    0x7(%rsp),%rsi\n  4a:\tba 01 00 00 00       \tmov    $0x1,%edx\n  4f:\t8b 3d 00 00 00 00    \tmov    0x0(%rip),%edi        # 55 <handler+0x55>\n\t\t\t51: R_X86_64_PC32\t.data-0x4\n  55:\te8 00 00 00 00       \tcall   5a <handler+0x5a>\n\t\t\t56: R_X86_64_PLT32\twrite-0x4\n  5a:\t44 89 65 00          \tmov    %r12d,0x0(%rbp)\n  5e:\t48 8b 44 24 08       \tmov    0x8(%rsp),%rax\n  63:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n  6a:\t00 00 \n  6c:\t75 2e                \tjne    9c <handler+0x9c>\n  6e:\t48 83 c4 10          \tadd    $0x10,%rsp\n  72:\t5b                   \tpop    %rbx\n  73:\t5d                   \tpop    %rbp\n  74:\t41 5c                \tpop    %r12\n  76:\tc3                   \tret\n  77:\t66 0f 1f 84 00 00 00 \tnopw   0x0(%rax,%rax,1)\n  7e:\t00 00 \n  80:\tc7 05 00 00 00 00 01 \tmovl   $0x1,0x0(%rip)        # 8a <handler+0x8a>\n  87:\t00 00 00 \n\t\t\t82: R_X86_64_PC32\t.bss\n  8a:\teb b4                \tjmp    40 <handler+0x40>\n  8c:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  90:\tc7 05 00 00 00 00 01 \tmovl   $0x1,0x0(%rip)        # 9a <handler+0x9a>\n  97:\t00 00 00 \n\t\t\t92: R_X86_64_PC32\t.bss+0x4\n  9a:\teb a4                \tjmp    40 <handler+0x40>\n  9c:\te8 00 00 00 00       \tcall   a1 <handler+0xa1>\n\t\t\t9d: R_X86_64_PLT32\t__stack_chk_fail-0x4\n  a1:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  a5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  ac:\t00 00 00 00 \n\n00000000000000b0 <real_wait>:\n  b0:\tf3 0f 1e fa          \tendbr64\n  b4:\t48 83 ec 18          \tsub    $0x18,%rsp\n  b8:\t8b 07                \tmov    (%rdi),%eax\n  ba:\t31 c9                \txor    %ecx,%ecx\n  bc:\t64 48 8b 14 25 28 00 \tmov    %fs:0x28,%rdx\n  c3:\t00 00 \n  c5:\t48 89 54 24 08       \tmov    %rdx,0x8(%rsp)\n  ca:\t48 89 f2             \tmov    %rsi,%rdx\n  cd:\t48 89 e7             \tmov    %rsp,%rdi\n  d0:\tbe 01 00 00 00       \tmov    $0x1,%esi\n  d5:\tc7 44 24 04 01 00 00 \tmovl   $0x1,0x4(%rsp)\n  dc:\t00 \n  dd:\t89 04 24             \tmov    %eax,(%rsp)\n  e0:\te8 00 00 00 00       \tcall   e5 <real_wait+0x35>\n\t\t\te1: R_X86_64_PLT32\tppoll-0x4\n  e5:\t48 8b 54 24 08       \tmov    0x8(%rsp),%rdx\n  ea:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n  f1:\t00 00 \n  f3:\t75 05                \tjne    fa <real_wait+0x4a>\n  f5:\t48 83 c4 18          \tadd    $0x18,%rsp\n  f9:\tc3                   \tret\n  fa:\te8 00 00 00 00       \tcall   ff <real_wait+0x4f>\n\t\t\tfb: R_X86_64_PLT32\t__stack_chk_fail-0x4\n  ff:\t90                   \tnop\n\n0000000000000100 <real_now>:\n 100:\tf3 0f 1e fa          \tendbr64\n 104:\tbf 01 00 00 00       \tmov    $0x1,%edi\n 109:\te9 00 00 00 00       \tjmp    10e <real_now+0xe>\n\t\t\t10a: R_X86_64_PLT32\tclock_gettime-0x4\n 10e:\t66 90                \txchg   %ax,%ax\n\n0000000000000110 <es_open>:\n 110:\tf3 0f 1e fa          \tendbr64\n 114:\t41 57                \tpush   %r15\n 116:\t41 56                \tpush   %r14\n 118:\t41 55                \tpush   %r13\n 11a:\t41 54                \tpush   %r12\n 11c:\t55                   \tpush   %rbp\n 11d:\t53                   \tpush   %rbx\n 11e:\t48 81 ec 48 01 00 00 \tsub    $0x148,%rsp\n 125:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n 12c:\t00 00 \n 12e:\t48 89 84 24 38 01 00 \tmov    %rax,0x138(%rsp)\n 135:\t00 \n 136:\t31 c0                \txor    %eax,%eax\n 138:\t48 85 ff             \ttest   %rdi,%rdi\n 13b:\t0f 84 28 03 00 00    \tje     469 <es_open+0x359>\n 141:\t8b 15 00 00 00 00    \tmov    0x0(%rip),%edx        # 147 <es_open+0x37>\n\t\t\t143: R_X86_64_PC32\t.bss-0x4\n 147:\t85 d2                \ttest   %edx,%edx\n 149:\t0f 85 1a 03 00 00    \tjne    469 <es_open+0x359>\n 14f:\t8b 47 08             \tmov    0x8(%rdi),%eax\n 152:\t48 89 fb             \tmov    %rdi,%rbx\n 155:\t85 c0                \ttest   %eax,%eax\n 157:\t0f 85 0c 03 00 00    \tjne    469 <es_open+0x359>\n 15d:\t48 8d af 90 00 00 00 \tlea    0x90(%rdi),%rbp\n 164:\t48 89 ef             \tmov    %rbp,%rdi\n 167:\te8 00 00 00 00       \tcall   16c <es_open+0x5c>\n\t\t\t168: R_X86_64_PLT32\tsigemptyset-0x4\n 16c:\t48 89 ef             \tmov    %rbp,%rdi\n 16f:\tbe 0a 00 00 00       \tmov    $0xa,%esi\n 174:\te8 00 00 00 00       \tcall   179 <es_open+0x69>\n\t\t\t175: R_X86_64_PLT32\tsigaddset-0x4\n 179:\t48 89 ef             \tmov    %rbp,%rdi\n 17c:\tbe 0c 00 00 00       \tmov    $0xc,%esi\n 181:\te8 00 00 00 00       \tcall   186 <es_open+0x76>\n\t\t\t182: R_X86_64_PLT32\tsigaddset-0x4\n 186:\t48 89 ef             \tmov    %rbp,%rdi\n 189:\tbe 11 00 00 00       \tmov    $0x11,%esi\n 18e:\te8 00 00 00 00       \tcall   193 <es_open+0x83>\n\t\t\t18f: R_X86_64_PLT32\tsigaddset-0x4\n 193:\t48 8d 43 10          \tlea    0x10(%rbx),%rax\n 197:\t48 89 ee             \tmov    %rbp,%rsi\n 19a:\t31 ff                \txor    %edi,%edi\n 19c:\t48 89 c2             \tmov    %rax,%rdx\n 19f:\t48 89 44 24 08       \tmov    %rax,0x8(%rsp)\n 1a4:\te8 00 00 00 00       \tcall   1a9 <es_open+0x99>\n\t\t\t1a5: R_X86_64_PLT32\tpthread_sigmask-0x4\n 1a9:\t89 c5                \tmov    %eax,%ebp\n 1ab:\t85 c0                \ttest   %eax,%eax\n 1ad:\t0f 85 c3 02 00 00    \tjne    476 <es_open+0x366>\n 1b3:\t48 8d 7c 24 20       \tlea    0x20(%rsp),%rdi\n 1b8:\te8 00 00 00 00       \tcall   1bd <es_open+0xad>\n\t\t\t1b9: R_X86_64_PLT32\tsigpending-0x4\n 1bd:\t85 c0                \ttest   %eax,%eax\n 1bf:\t0f 88 ba 02 00 00    \tjs     47f <es_open+0x36f>\n 1c5:\t4c 8d 25 00 00 00 00 \tlea    0x0(%rip),%r12        # 1cc <es_open+0xbc>\n\t\t\t1c8: R_X86_64_PC32\t.rodata-0x4\n 1cc:\t4d 89 e7             \tmov    %r12,%r15\n 1cf:\t4d 8d 74 24 0c       \tlea    0xc(%r12),%r14\n 1d4:\t41 8b 37             \tmov    (%r15),%esi\n 1d7:\t48 8d 7c 24 20       \tlea    0x20(%rsp),%rdi\n 1dc:\te8 00 00 00 00       \tcall   1e1 <es_open+0xd1>\n\t\t\t1dd: R_X86_64_PLT32\tsigismember-0x4\n 1e1:\t83 f8 01             \tcmp    $0x1,%eax\n 1e4:\t0f 84 f6 01 00 00    \tje     3e0 <es_open+0x2d0>\n 1ea:\t49 83 c7 04          \tadd    $0x4,%r15\n 1ee:\t4d 39 f7             \tcmp    %r14,%r15\n 1f1:\t75 e1                \tjne    1d4 <es_open+0xc4>\n 1f3:\t48 8d 7c 24 18       \tlea    0x18(%rsp),%rdi\n 1f8:\tbe 00 08 08 00       \tmov    $0x80800,%esi\n 1fd:\te8 00 00 00 00       \tcall   202 <es_open+0xf2>\n\t\t\t1fe: R_X86_64_PLT32\tpipe2-0x4\n 202:\t85 c0                \ttest   %eax,%eax\n 204:\t0f 88 75 02 00 00    \tjs     47f <es_open+0x36f>\n 20a:\tf3 0f 6f 43 10       \tmovdqu 0x10(%rbx),%xmm0\n 20f:\t48 8b 44 24 18       \tmov    0x18(%rsp),%rax\n 214:\tbe 0a 00 00 00       \tmov    $0xa,%esi\n 219:\t48 8d bb 10 01 00 00 \tlea    0x110(%rbx),%rdi\n 220:\t4c 8d bb 90 01 00 00 \tlea    0x190(%rbx),%r15\n 227:\t45 31 ed             \txor    %r13d,%r13d\n 22a:\t0f 11 83 10 01 00 00 \tmovups %xmm0,0x110(%rbx)\n 231:\tf3 0f 6f 43 20       \tmovdqu 0x20(%rbx),%xmm0\n 236:\t48 89 03             \tmov    %rax,(%rbx)\n 239:\t0f 11 83 20 01 00 00 \tmovups %xmm0,0x120(%rbx)\n 240:\tf3 0f 6f 43 30       \tmovdqu 0x30(%rbx),%xmm0\n 245:\t0f 11 83 30 01 00 00 \tmovups %xmm0,0x130(%rbx)\n 24c:\tf3 0f 6f 43 40       \tmovdqu 0x40(%rbx),%xmm0\n 251:\t0f 11 83 40 01 00 00 \tmovups %xmm0,0x140(%rbx)\n 258:\tf3 0f 6f 43 50       \tmovdqu 0x50(%rbx),%xmm0\n 25d:\t0f 11 83 50 01 00 00 \tmovups %xmm0,0x150(%rbx)\n 264:\tf3 0f 6f 43 60       \tmovdqu 0x60(%rbx),%xmm0\n 269:\t0f 11 83 60 01 00 00 \tmovups %xmm0,0x160(%rbx)\n 270:\tf3 0f 6f 43 70       \tmovdqu 0x70(%rbx),%xmm0\n 275:\t0f 11 83 70 01 00 00 \tmovups %xmm0,0x170(%rbx)\n 27c:\tf3 0f 6f 83 80 00 00 \tmovdqu 0x80(%rbx),%xmm0\n 283:\t00 \n 284:\t0f 11 83 80 01 00 00 \tmovups %xmm0,0x180(%rbx)\n 28b:\te8 00 00 00 00       \tcall   290 <es_open+0x180>\n\t\t\t28c: R_X86_64_PLT32\tsigdelset-0x4\n 290:\tbe 0c 00 00 00       \tmov    $0xc,%esi\n 295:\t48 8d bb 10 01 00 00 \tlea    0x110(%rbx),%rdi\n 29c:\te8 00 00 00 00       \tcall   2a1 <es_open+0x191>\n\t\t\t29d: R_X86_64_PLT32\tsigdelset-0x4\n 2a1:\tbe 11 00 00 00       \tmov    $0x11,%esi\n 2a6:\t48 8d bb 10 01 00 00 \tlea    0x110(%rbx),%rdi\n 2ad:\te8 00 00 00 00       \tcall   2b2 <es_open+0x1a2>\n\t\t\t2ae: R_X86_64_PLT32\tsigdelset-0x4\n 2b2:\t66 0f ef c0          \tpxor   %xmm0,%xmm0\n 2b6:\t48 8d 05 43 fd ff ff \tlea    -0x2bd(%rip),%rax        # 0 <handler>\n 2bd:\t0f 11 84 24 28 01 00 \tmovups %xmm0,0x128(%rsp)\n 2c4:\t00 \n 2c5:\tf3 0f 6f 83 90 00 00 \tmovdqu 0x90(%rbx),%xmm0\n 2cc:\t00 \n 2cd:\t48 89 84 24 a0 00 00 \tmov    %rax,0xa0(%rsp)\n 2d4:\t00 \n 2d5:\t0f 11 84 24 a8 00 00 \tmovups %xmm0,0xa8(%rsp)\n 2dc:\t00 \n 2dd:\tf3 0f 6f 83 a0 00 00 \tmovdqu 0xa0(%rbx),%xmm0\n 2e4:\t00 \n 2e5:\t0f 11 84 24 b8 00 00 \tmovups %xmm0,0xb8(%rsp)\n 2ec:\t00 \n 2ed:\tf3 0f 6f 83 b0 00 00 \tmovdqu 0xb0(%rbx),%xmm0\n 2f4:\t00 \n 2f5:\t0f 11 84 24 c8 00 00 \tmovups %xmm0,0xc8(%rsp)\n 2fc:\t00 \n 2fd:\tf3 0f 6f 83 c0 00 00 \tmovdqu 0xc0(%rbx),%xmm0\n 304:\t00 \n 305:\t0f 11 84 24 d8 00 00 \tmovups %xmm0,0xd8(%rsp)\n 30c:\t00 \n 30d:\tf3 0f 6f 83 d0 00 00 \tmovdqu 0xd0(%rbx),%xmm0\n 314:\t00 \n 315:\t0f 11 84 24 e8 00 00 \tmovups %xmm0,0xe8(%rsp)\n 31c:\t00 \n 31d:\tf3 0f 6f 83 e0 00 00 \tmovdqu 0xe0(%rbx),%xmm0\n 324:\t00 \n 325:\t0f 11 84 24 f8 00 00 \tmovups %xmm0,0xf8(%rsp)\n 32c:\t00 \n 32d:\tf3 0f 6f 83 f0 00 00 \tmovdqu 0xf0(%rbx),%xmm0\n 334:\t00 \n 335:\t0f 11 84 24 08 01 00 \tmovups %xmm0,0x108(%rsp)\n 33c:\t00 \n 33d:\tf3 0f 6f 83 00 01 00 \tmovdqu 0x100(%rbx),%xmm0\n 344:\t00 \n 345:\t0f 11 84 24 18 01 00 \tmovups %xmm0,0x118(%rsp)\n 34c:\t00 \n 34d:\t43 8b 3c ac          \tmov    (%r12,%r13,4),%edi\n 351:\t4c 89 fa             \tmov    %r15,%rdx\n 354:\t48 8d b4 24 a0 00 00 \tlea    0xa0(%rsp),%rsi\n 35b:\t00 \n 35c:\te8 00 00 00 00       \tcall   361 <es_open+0x251>\n\t\t\t35d: R_X86_64_PLT32\tsigaction-0x4\n 361:\t85 c0                \ttest   %eax,%eax\n 363:\t0f 88 a7 00 00 00    \tjs     410 <es_open+0x300>\n 369:\t49 83 c5 01          \tadd    $0x1,%r13\n 36d:\t49 81 c7 98 00 00 00 \tadd    $0x98,%r15\n 374:\t49 83 fd 03          \tcmp    $0x3,%r13\n 378:\t75 d3                \tjne    34d <es_open+0x23d>\n 37a:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 384 <es_open+0x274>\n 381:\t00 00 00 \n\t\t\t37c: R_X86_64_PC32\t.bss-0x4\n 384:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 38e <es_open+0x27e>\n 38b:\t00 00 00 \n\t\t\t386: R_X86_64_PC32\t.bss\n 38e:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 398 <es_open+0x288>\n 395:\t00 00 00 \n\t\t\t390: R_X86_64_PC32\t.bss+0x4\n 398:\t8b 44 24 1c          \tmov    0x1c(%rsp),%eax\n 39c:\t87 05 00 00 00 00    \txchg   %eax,0x0(%rip)        # 3a2 <es_open+0x292>\n\t\t\t39e: R_X86_64_PC32\t.data-0x4\n 3a2:\tc7 05 00 00 00 00 01 \tmovl   $0x1,0x0(%rip)        # 3ac <es_open+0x29c>\n 3a9:\t00 00 00 \n\t\t\t3a4: R_X86_64_PC32\t.bss-0x8\n 3ac:\tc7 43 08 01 00 00 00 \tmovl   $0x1,0x8(%rbx)\n 3b3:\t48 8b 84 24 38 01 00 \tmov    0x138(%rsp),%rax\n 3ba:\t00 \n 3bb:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n 3c2:\t00 00 \n 3c4:\t0f 85 c4 00 00 00    \tjne    48e <es_open+0x37e>\n 3ca:\t48 81 c4 48 01 00 00 \tadd    $0x148,%rsp\n 3d1:\t89 e8                \tmov    %ebp,%eax\n 3d3:\t5b                   \tpop    %rbx\n 3d4:\t5d                   \tpop    %rbp\n 3d5:\t41 5c                \tpop    %r12\n 3d7:\t41 5d                \tpop    %r13\n 3d9:\t41 5e                \tpop    %r14\n 3db:\t41 5f                \tpop    %r15\n 3dd:\tc3                   \tret\n 3de:\t66 90                \txchg   %ax,%ax\n 3e0:\te8 00 00 00 00       \tcall   3e5 <es_open+0x2d5>\n\t\t\t3e1: R_X86_64_PLT32\t__errno_location-0x4\n 3e5:\tbd 10 00 00 00       \tmov    $0x10,%ebp\n 3ea:\tc7 00 10 00 00 00    \tmovl   $0x10,(%rax)\n 3f0:\t49 89 c6             \tmov    %rax,%r14\n 3f3:\t48 8b 74 24 08       \tmov    0x8(%rsp),%rsi\n 3f8:\t31 d2                \txor    %edx,%edx\n 3fa:\tbf 02 00 00 00       \tmov    $0x2,%edi\n 3ff:\te8 00 00 00 00       \tcall   404 <es_open+0x2f4>\n\t\t\t400: R_X86_64_PLT32\tpthread_sigmask-0x4\n 404:\t41 89 2e             \tmov    %ebp,(%r14)\n 407:\tbd ff ff ff ff       \tmov    $0xffffffff,%ebp\n 40c:\teb a5                \tjmp    3b3 <es_open+0x2a3>\n 40e:\t66 90                \txchg   %ax,%ax\n 410:\te8 00 00 00 00       \tcall   415 <es_open+0x305>\n\t\t\t411: R_X86_64_PLT32\t__errno_location-0x4\n 415:\t45 89 ef             \tmov    %r13d,%r15d\n 418:\t8b 28                \tmov    (%rax),%ebp\n 41a:\t49 89 c6             \tmov    %rax,%r14\n 41d:\t45 85 ed             \ttest   %r13d,%r13d\n 420:\t74 30                \tje     452 <es_open+0x342>\n 422:\t41 8d 45 ff          \tlea    -0x1(%r13),%eax\n 426:\t41 8b 3c 84          \tmov    (%r12,%rax,4),%edi\n 42a:\t41 83 ef 01          \tsub    $0x1,%r15d\n 42e:\t31 d2                \txor    %edx,%edx\n 430:\t4c 89 f8             \tmov    %r15,%rax\n 433:\t48 f7 d8             \tneg    %rax\n 436:\t25 98 00 00 00       \tand    $0x98,%eax\n 43b:\t48 8d b4 03 90 01 00 \tlea    0x190(%rbx,%rax,1),%rsi\n 442:\t00 \n 443:\te8 00 00 00 00       \tcall   448 <es_open+0x338>\n\t\t\t444: R_X86_64_PLT32\tsigaction-0x4\n 448:\tbf 0a 00 00 00       \tmov    $0xa,%edi\n 44d:\t45 85 ff             \ttest   %r15d,%r15d\n 450:\t75 d8                \tjne    42a <es_open+0x31a>\n 452:\t8b 7c 24 18          \tmov    0x18(%rsp),%edi\n 456:\te8 00 00 00 00       \tcall   45b <es_open+0x34b>\n\t\t\t457: R_X86_64_PLT32\tclose-0x4\n 45b:\t8b 7c 24 1c          \tmov    0x1c(%rsp),%edi\n 45f:\te8 00 00 00 00       \tcall   464 <es_open+0x354>\n\t\t\t460: R_X86_64_PLT32\tclose-0x4\n 464:\t41 89 2e             \tmov    %ebp,(%r14)\n 467:\teb 8a                \tjmp    3f3 <es_open+0x2e3>\n 469:\te8 00 00 00 00       \tcall   46e <es_open+0x35e>\n\t\t\t46a: R_X86_64_PLT32\t__errno_location-0x4\n 46e:\tc7 00 10 00 00 00    \tmovl   $0x10,(%rax)\n 474:\teb 91                \tjmp    407 <es_open+0x2f7>\n 476:\te8 00 00 00 00       \tcall   47b <es_open+0x36b>\n\t\t\t477: R_X86_64_PLT32\t__errno_location-0x4\n 47b:\t89 28                \tmov    %ebp,(%rax)\n 47d:\teb 88                \tjmp    407 <es_open+0x2f7>\n 47f:\te8 00 00 00 00       \tcall   484 <es_open+0x374>\n\t\t\t480: R_X86_64_PLT32\t__errno_location-0x4\n 484:\t8b 28                \tmov    (%rax),%ebp\n 486:\t49 89 c6             \tmov    %rax,%r14\n 489:\te9 65 ff ff ff       \tjmp    3f3 <es_open+0x2e3>\n 48e:\te8 00 00 00 00       \tcall   493 <es_open+0x383>\n\t\t\t48f: R_X86_64_PLT32\t__stack_chk_fail-0x4\n 493:\t66 90                \txchg   %ax,%ax\n 495:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n 49c:\t00 00 00 00 \n\n00000000000004a0 <es_wait>:\n 4a0:\tf3 0f 1e fa          \tendbr64\n 4a4:\t48 83 ec 28          \tsub    $0x28,%rsp\n 4a8:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n 4af:\t00 00 \n 4b1:\t48 89 44 24 18       \tmov    %rax,0x18(%rsp)\n 4b6:\t31 c0                \txor    %eax,%eax\n 4b8:\t48 85 ff             \ttest   %rdi,%rdi\n 4bb:\t74 43                \tje     500 <es_wait+0x60>\n 4bd:\t8b 47 08             \tmov    0x8(%rdi),%eax\n 4c0:\t85 c0                \ttest   %eax,%eax\n 4c2:\t74 3c                \tje     500 <es_wait+0x60>\n 4c4:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 4ca <es_wait+0x2a>\n\t\t\t4c6: R_X86_64_PC32\t.bss+0x8\n 4ca:\t85 c0                \ttest   %eax,%eax\n 4cc:\t75 14                \tjne    4e2 <es_wait+0x42>\n 4ce:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 4d4 <es_wait+0x34>\n\t\t\t4d0: R_X86_64_PC32\t.bss+0x4\n 4d4:\t85 c0                \ttest   %eax,%eax\n 4d6:\t75 0a                \tjne    4e2 <es_wait+0x42>\n 4d8:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 4de <es_wait+0x3e>\n\t\t\t4da: R_X86_64_PC32\t.bss\n 4de:\t85 c0                \ttest   %eax,%eax\n 4e0:\t74 36                \tje     518 <es_wait+0x78>\n 4e2:\tb8 01 00 00 00       \tmov    $0x1,%eax\n 4e7:\t48 8b 54 24 18       \tmov    0x18(%rsp),%rdx\n 4ec:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n 4f3:\t00 00 \n 4f5:\t0f 85 94 00 00 00    \tjne    58f <es_wait+0xef>\n 4fb:\t48 83 c4 28          \tadd    $0x28,%rsp\n 4ff:\tc3                   \tret\n 500:\te8 00 00 00 00       \tcall   505 <es_wait+0x65>\n\t\t\t501: R_X86_64_PLT32\t__errno_location-0x4\n 505:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n 50b:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n 510:\teb d5                \tjmp    4e7 <es_wait+0x47>\n 512:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n 518:\t8b 07                \tmov    (%rdi),%eax\n 51a:\t48 89 f2             \tmov    %rsi,%rdx\n 51d:\t48 8d 8f 10 01 00 00 \tlea    0x110(%rdi),%rcx\n 524:\tbe 01 00 00 00       \tmov    $0x1,%esi\n 529:\t48 8d 7c 24 10       \tlea    0x10(%rsp),%rdi\n 52e:\tc7 44 24 14 01 00 00 \tmovl   $0x1,0x14(%rsp)\n 535:\t00 \n 536:\t89 44 24 10          \tmov    %eax,0x10(%rsp)\n 53a:\te8 00 00 00 00       \tcall   53f <es_wait+0x9f>\n\t\t\t53b: R_X86_64_PLT32\tppoll-0x4\n 53f:\t89 c2                \tmov    %eax,%edx\n 541:\t85 c0                \ttest   %eax,%eax\n 543:\t78 33                \tjs     578 <es_wait+0xd8>\n 545:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 54b <es_wait+0xab>\n\t\t\t547: R_X86_64_PC32\t.bss+0x8\n 54b:\t85 c0                \ttest   %eax,%eax\n 54d:\t75 93                \tjne    4e2 <es_wait+0x42>\n 54f:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 555 <es_wait+0xb5>\n\t\t\t551: R_X86_64_PC32\t.bss+0x4\n 555:\t85 c0                \ttest   %eax,%eax\n 557:\t75 89                \tjne    4e2 <es_wait+0x42>\n 559:\t8b 0d 00 00 00 00    \tmov    0x0(%rip),%ecx        # 55f <es_wait+0xbf>\n\t\t\t55b: R_X86_64_PC32\t.bss\n 55f:\t85 d2                \ttest   %edx,%edx\n 561:\t0f 9f c0             \tsetg   %al\n 564:\t85 c9                \ttest   %ecx,%ecx\n 566:\t0f 95 c2             \tsetne  %dl\n 569:\t09 d0                \tor     %edx,%eax\n 56b:\t0f b6 c0             \tmovzbl %al,%eax\n 56e:\te9 74 ff ff ff       \tjmp    4e7 <es_wait+0x47>\n 573:\t0f 1f 44 00 00       \tnopl   0x0(%rax,%rax,1)\n 578:\t89 44 24 0c          \tmov    %eax,0xc(%rsp)\n 57c:\te8 00 00 00 00       \tcall   581 <es_wait+0xe1>\n\t\t\t57d: R_X86_64_PLT32\t__errno_location-0x4\n 581:\t8b 54 24 0c          \tmov    0xc(%rsp),%edx\n 585:\t83 38 04             \tcmpl   $0x4,(%rax)\n 588:\t74 bb                \tje     545 <es_wait+0xa5>\n 58a:\te9 7c ff ff ff       \tjmp    50b <es_wait+0x6b>\n 58f:\te8 00 00 00 00       \tcall   594 <es_wait+0xf4>\n\t\t\t590: R_X86_64_PLT32\t__stack_chk_fail-0x4\n 594:\t90                   \tnop\n 595:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n 59c:\t00 00 00 00 \n\n00000000000005a0 <es_take>:\n 5a0:\tf3 0f 1e fa          \tendbr64\n 5a4:\t41 54                \tpush   %r12\n 5a6:\t55                   \tpush   %rbp\n 5a7:\t53                   \tpush   %rbx\n 5a8:\t48 81 ec 90 00 00 00 \tsub    $0x90,%rsp\n 5af:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n 5b6:\t00 00 \n 5b8:\t48 89 84 24 88 00 00 \tmov    %rax,0x88(%rsp)\n 5bf:\t00 \n 5c0:\t31 c0                \txor    %eax,%eax\n 5c2:\t48 85 ff             \ttest   %rdi,%rdi\n 5c5:\t0f 84 c5 00 00 00    \tje     690 <es_take+0xf0>\n 5cb:\t8b 47 08             \tmov    0x8(%rdi),%eax\n 5ce:\t48 89 fb             \tmov    %rdi,%rbx\n 5d1:\t45 31 e4             \txor    %r12d,%r12d\n 5d4:\t85 c0                \ttest   %eax,%eax\n 5d6:\t74 5c                \tje     634 <es_take+0x94>\n 5d8:\t41 89 f4             \tmov    %esi,%r12d\n 5db:\t41 83 e4 01          \tand    $0x1,%r12d\n 5df:\t74 18                \tje     5f9 <es_take+0x59>\n 5e1:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 5e7 <es_take+0x47>\n\t\t\t5e3: R_X86_64_PC32\t.bss+0x8\n 5e7:\t85 c0                \ttest   %eax,%eax\n 5e9:\t0f 84 91 00 00 00    \tje     680 <es_take+0xe0>\n 5ef:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 5f9 <es_take+0x59>\n 5f6:\t00 00 00 \n\t\t\t5f1: R_X86_64_PC32\t.bss+0x4\n 5f9:\t40 f6 c6 02          \ttest   $0x2,%sil\n 5fd:\t74 18                \tje     617 <es_take+0x77>\n 5ff:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 605 <es_take+0x65>\n\t\t\t601: R_X86_64_PC32\t.bss+0x4\n 605:\t85 c0                \ttest   %eax,%eax\n 607:\t74 0e                \tje     617 <es_take+0x77>\n 609:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 613 <es_take+0x73>\n 610:\t00 00 00 \n\t\t\t60b: R_X86_64_PC32\t.bss\n 613:\t41 83 cc 02          \tor     $0x2,%r12d\n 617:\t83 e6 04             \tand    $0x4,%esi\n 61a:\t75 44                \tjne    660 <es_take+0xc0>\n 61c:\t48 89 e5             \tmov    %rsp,%rbp\n 61f:\t90                   \tnop\n 620:\t8b 3b                \tmov    (%rbx),%edi\n 622:\tba 80 00 00 00       \tmov    $0x80,%edx\n 627:\t48 89 ee             \tmov    %rbp,%rsi\n 62a:\te8 00 00 00 00       \tcall   62f <es_take+0x8f>\n\t\t\t62b: R_X86_64_PLT32\tread-0x4\n 62f:\t48 85 c0             \ttest   %rax,%rax\n 632:\t7f ec                \tjg     620 <es_take+0x80>\n 634:\t48 8b 84 24 88 00 00 \tmov    0x88(%rsp),%rax\n 63b:\t00 \n 63c:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n 643:\t00 00 \n 645:\t75 4e                \tjne    695 <es_take+0xf5>\n 647:\t48 81 c4 90 00 00 00 \tadd    $0x90,%rsp\n 64e:\t44 89 e0             \tmov    %r12d,%eax\n 651:\t5b                   \tpop    %rbx\n 652:\t5d                   \tpop    %rbp\n 653:\t41 5c                \tpop    %r12\n 655:\tc3                   \tret\n 656:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n 65d:\t00 00 00 \n 660:\t8b 05 00 00 00 00    \tmov    0x0(%rip),%eax        # 666 <es_take+0xc6>\n\t\t\t662: R_X86_64_PC32\t.bss\n 666:\t85 c0                \ttest   %eax,%eax\n 668:\t74 b2                \tje     61c <es_take+0x7c>\n 66a:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 674 <es_take+0xd4>\n 671:\t00 00 00 \n\t\t\t66c: R_X86_64_PC32\t.bss-0x4\n 674:\t41 83 cc 04          \tor     $0x4,%r12d\n 678:\teb a2                \tjmp    61c <es_take+0x7c>\n 67a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n 680:\t45 31 e4             \txor    %r12d,%r12d\n 683:\t40 f6 c6 02          \ttest   $0x2,%sil\n 687:\t74 8e                \tje     617 <es_take+0x77>\n 689:\te9 71 ff ff ff       \tjmp    5ff <es_take+0x5f>\n 68e:\t66 90                \txchg   %ax,%ax\n 690:\t45 31 e4             \txor    %r12d,%r12d\n 693:\teb 9f                \tjmp    634 <es_take+0x94>\n 695:\te8 00 00 00 00       \tcall   69a <es_take+0xfa>\n\t\t\t696: R_X86_64_PLT32\t__stack_chk_fail-0x4\n 69a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n00000000000006a0 <es_close>:\n 6a0:\tf3 0f 1e fa          \tendbr64\n 6a4:\t41 57                \tpush   %r15\n 6a6:\t41 56                \tpush   %r14\n 6a8:\t41 55                \tpush   %r13\n 6aa:\t41 54                \tpush   %r12\n 6ac:\t55                   \tpush   %rbp\n 6ad:\t53                   \tpush   %rbx\n 6ae:\t48 83 ec 28          \tsub    $0x28,%rsp\n 6b2:\t64 48 8b 04 25 28 00 \tmov    %fs:0x28,%rax\n 6b9:\t00 00 \n 6bb:\t48 89 44 24 18       \tmov    %rax,0x18(%rsp)\n 6c0:\t31 c0                \txor    %eax,%eax\n 6c2:\t48 85 ff             \ttest   %rdi,%rdi\n 6c5:\t0f 84 2d 01 00 00    \tje     7f8 <es_close+0x158>\n 6cb:\t8b 47 08             \tmov    0x8(%rdi),%eax\n 6ce:\t48 89 fd             \tmov    %rdi,%rbp\n 6d1:\t85 c0                \ttest   %eax,%eax\n 6d3:\t0f 84 1f 01 00 00    \tje     7f8 <es_close+0x158>\n 6d9:\t66 0f ef c0          \tpxor   %xmm0,%xmm0\n 6dd:\t0f 29 04 24          \tmovaps %xmm0,(%rsp)\n 6e1:\t31 f6                \txor    %esi,%esi\n 6e3:\t48 89 e2             \tmov    %rsp,%rdx\n 6e6:\t48 8d bd 90 00 00 00 \tlea    0x90(%rbp),%rdi\n 6ed:\te8 00 00 00 00       \tcall   6f2 <es_close+0x52>\n\t\t\t6ee: R_X86_64_PLT32\tsigtimedwait-0x4\n 6f2:\t85 c0                \ttest   %eax,%eax\n 6f4:\t7f eb                \tjg     6e1 <es_close+0x41>\n 6f6:\t0f 84 f4 00 00 00    \tje     7f0 <es_close+0x150>\n 6fc:\te8 00 00 00 00       \tcall   701 <es_close+0x61>\n\t\t\t6fd: R_X86_64_PLT32\t__errno_location-0x4\n 701:\t49 89 c6             \tmov    %rax,%r14\n 704:\t8b 00                \tmov    (%rax),%eax\n 706:\t83 f8 04             \tcmp    $0x4,%eax\n 709:\t74 d6                \tje     6e1 <es_close+0x41>\n 70b:\t83 f8 0b             \tcmp    $0xb,%eax\n 70e:\t0f 85 dc 00 00 00    \tjne    7f0 <es_close+0x150>\n 714:\t48 8d 1d 00 00 00 00 \tlea    0x0(%rip),%rbx        # 71b <es_close+0x7b>\n\t\t\t717: R_X86_64_PC32\t.rodata-0x4\n 71b:\t4c 8d a5 90 01 00 00 \tlea    0x190(%rbp),%r12\n 722:\t45 31 ed             \txor    %r13d,%r13d\n 725:\t4c 8d 7b 0c          \tlea    0xc(%rbx),%r15\n 729:\t8b 3b                \tmov    (%rbx),%edi\n 72b:\t31 d2                \txor    %edx,%edx\n 72d:\t4c 89 e6             \tmov    %r12,%rsi\n 730:\te8 00 00 00 00       \tcall   735 <es_close+0x95>\n\t\t\t731: R_X86_64_PLT32\tsigaction-0x4\n 735:\t85 c0                \ttest   %eax,%eax\n 737:\t79 03                \tjns    73c <es_close+0x9c>\n 739:\t45 8b 2e             \tmov    (%r14),%r13d\n 73c:\t48 83 c3 04          \tadd    $0x4,%rbx\n 740:\t49 81 c4 98 00 00 00 \tadd    $0x98,%r12\n 747:\t4c 39 fb             \tcmp    %r15,%rbx\n 74a:\t75 dd                \tjne    729 <es_close+0x89>\n 74c:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n 751:\t87 05 00 00 00 00    \txchg   %eax,0x0(%rip)        # 757 <es_close+0xb7>\n\t\t\t753: R_X86_64_PC32\t.data-0x4\n 757:\t8b 7d 00             \tmov    0x0(%rbp),%edi\n 75a:\te8 00 00 00 00       \tcall   75f <es_close+0xbf>\n\t\t\t75b: R_X86_64_PLT32\tclose-0x4\n 75f:\t85 c0                \ttest   %eax,%eax\n 761:\t79 03                \tjns    766 <es_close+0xc6>\n 763:\t45 8b 2e             \tmov    (%r14),%r13d\n 766:\t8b 7d 04             \tmov    0x4(%rbp),%edi\n 769:\te8 00 00 00 00       \tcall   76e <es_close+0xce>\n\t\t\t76a: R_X86_64_PLT32\tclose-0x4\n 76e:\t85 c0                \ttest   %eax,%eax\n 770:\t79 03                \tjns    775 <es_close+0xd5>\n 772:\t45 8b 2e             \tmov    (%r14),%r13d\n 775:\tc7 45 08 00 00 00 00 \tmovl   $0x0,0x8(%rbp)\n 77c:\t31 d2                \txor    %edx,%edx\n 77e:\t48 8d 75 10          \tlea    0x10(%rbp),%rsi\n 782:\tbf 02 00 00 00       \tmov    $0x2,%edi\n 787:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 791 <es_close+0xf1>\n 78e:\t00 00 00 \n\t\t\t789: R_X86_64_PC32\t.bss-0x4\n 791:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 79b <es_close+0xfb>\n 798:\t00 00 00 \n\t\t\t793: R_X86_64_PC32\t.bss-0x8\n 79b:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 7a5 <es_close+0x105>\n 7a2:\t00 00 00 \n\t\t\t79d: R_X86_64_PC32\t.bss\n 7a5:\tc7 05 00 00 00 00 00 \tmovl   $0x0,0x0(%rip)        # 7af <es_close+0x10f>\n 7ac:\t00 00 00 \n\t\t\t7a7: R_X86_64_PC32\t.bss+0x4\n 7af:\te8 00 00 00 00       \tcall   7b4 <es_close+0x114>\n\t\t\t7b0: R_X86_64_PLT32\tpthread_sigmask-0x4\n 7b4:\t85 c0                \ttest   %eax,%eax\n 7b6:\t75 27                \tjne    7df <es_close+0x13f>\n 7b8:\t45 85 ed             \ttest   %r13d,%r13d\n 7bb:\t75 25                \tjne    7e2 <es_close+0x142>\n 7bd:\t48 8b 44 24 18       \tmov    0x18(%rsp),%rax\n 7c2:\t64 48 2b 04 25 28 00 \tsub    %fs:0x28,%rax\n 7c9:\t00 00 \n 7cb:\t75 38                \tjne    805 <es_close+0x165>\n 7cd:\t48 83 c4 28          \tadd    $0x28,%rsp\n 7d1:\t44 89 e8             \tmov    %r13d,%eax\n 7d4:\t5b                   \tpop    %rbx\n 7d5:\t5d                   \tpop    %rbp\n 7d6:\t41 5c                \tpop    %r12\n 7d8:\t41 5d                \tpop    %r13\n 7da:\t41 5e                \tpop    %r14\n 7dc:\t41 5f                \tpop    %r15\n 7de:\tc3                   \tret\n 7df:\t41 89 c5             \tmov    %eax,%r13d\n 7e2:\t45 89 2e             \tmov    %r13d,(%r14)\n 7e5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n 7ec:\t00 00 00 00 \n 7f0:\t41 bd ff ff ff ff    \tmov    $0xffffffff,%r13d\n 7f6:\teb c5                \tjmp    7bd <es_close+0x11d>\n 7f8:\te8 00 00 00 00       \tcall   7fd <es_close+0x15d>\n\t\t\t7f9: R_X86_64_PLT32\t__errno_location-0x4\n 7fd:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n 803:\teb eb                \tjmp    7f0 <es_close+0x150>\n 805:\te8 00 00 00 00       \tcall   80a <es_close+0x16a>\n\t\t\t806: R_X86_64_PLT32\t__stack_chk_fail-0x4\n 80a:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n0000000000000810 <es_remaining>:\n 810:\tf3 0f 1e fa          \tendbr64\n 814:\t48 81 fe ff c9 9a 3b \tcmp    $0x3b9ac9ff,%rsi\n 81b:\t49 89 f1             \tmov    %rsi,%r9\n 81e:\t0f 97 c0             \tseta   %al\n 821:\t48 81 f9 ff c9 9a 3b \tcmp    $0x3b9ac9ff,%rcx\n 828:\t40 0f 97 c6          \tseta   %sil\n 82c:\t09 f0                \tor     %esi,%eax\n 82e:\t48 89 d6             \tmov    %rdx,%rsi\n 831:\t48 09 fe             \tor     %rdi,%rsi\n 834:\t48 c1 ee 3f          \tshr    $0x3f,%rsi\n 838:\t40 08 f0             \tor     %sil,%al\n 83b:\t75 05                \tjne    842 <es_remaining+0x32>\n 83d:\t4d 85 c0             \ttest   %r8,%r8\n 840:\t75 1e                \tjne    860 <es_remaining+0x50>\n 842:\t48 83 ec 08          \tsub    $0x8,%rsp\n 846:\te8 00 00 00 00       \tcall   84b <es_remaining+0x3b>\n\t\t\t847: R_X86_64_PLT32\t__errno_location-0x4\n 84b:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n 851:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n 856:\t48 83 c4 08          \tadd    $0x8,%rsp\n 85a:\tc3                   \tret\n 85b:\t0f 1f 44 00 00       \tnopl   0x0(%rax,%rax,1)\n 860:\t48 39 fa             \tcmp    %rdi,%rdx\n 863:\t7c 43                \tjl     8a8 <es_remaining+0x98>\n 865:\t74 29                \tje     890 <es_remaining+0x80>\n 867:\t48 29 fa             \tsub    %rdi,%rdx\n 86a:\t4c 29 c9             \tsub    %r9,%rcx\n 86d:\t49 89 10             \tmov    %rdx,(%r8)\n 870:\t49 89 48 08          \tmov    %rcx,0x8(%r8)\n 874:\t79 12                \tjns    888 <es_remaining+0x78>\n 876:\t48 83 ea 01          \tsub    $0x1,%rdx\n 87a:\t48 81 c1 00 ca 9a 3b \tadd    $0x3b9aca00,%rcx\n 881:\t49 89 10             \tmov    %rdx,(%r8)\n 884:\t49 89 48 08          \tmov    %rcx,0x8(%r8)\n 888:\tb8 01 00 00 00       \tmov    $0x1,%eax\n 88d:\tc3                   \tret\n 88e:\t66 90                \txchg   %ax,%ax\n 890:\t49 39 c9             \tcmp    %rcx,%r9\n 893:\t7d 13                \tjge    8a8 <es_remaining+0x98>\n 895:\t4c 29 c9             \tsub    %r9,%rcx\n 898:\t49 c7 00 00 00 00 00 \tmovq   $0x0,(%r8)\n 89f:\t49 89 48 08          \tmov    %rcx,0x8(%r8)\n 8a3:\teb e3                \tjmp    888 <es_remaining+0x78>\n 8a5:\t0f 1f 00             \tnopl   (%rax)\n 8a8:\t66 0f ef c0          \tpxor   %xmm0,%xmm0\n 8ac:\t31 c0                \txor    %eax,%eax\n 8ae:\t41 0f 11 00          \tmovups %xmm0,(%r8)\n 8b2:\tc3                   \tret\n 8b3:\t66 90                \txchg   %ax,%ax\n 8b5:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n 8bc:\t00 00 00 00 \n\n00000000000008c0 <es_wait_until>:\n 8c0:\tf3 0f 1e fa          \tendbr64\n 8c4:\t41 57                \tpush   %r15\n 8c6:\t41 56                \tpush   %r14\n 8c8:\t41 55                \tpush   %r13\n 8ca:\t41 54                \tpush   %r12\n 8cc:\t55                   \tpush   %rbp\n 8cd:\t53                   \tpush   %rbx\n 8ce:\t48 83 ec 48          \tsub    $0x48,%rsp\n 8d2:\t64 4c 8b 34 25 28 00 \tmov    %fs:0x28,%r14\n 8d9:\t00 00 \n 8db:\t4c 89 74 24 38       \tmov    %r14,0x38(%rsp)\n 8e0:\t4c 8b b4 24 80 00 00 \tmov    0x80(%rsp),%r14\n 8e7:\t00 \n 8e8:\t4c 8b bc 24 88 00 00 \tmov    0x88(%rsp),%r15\n 8ef:\t00 \n 8f0:\t4d 85 ff             \ttest   %r15,%r15\n 8f3:\t0f 84 90 00 00 00    \tje     989 <es_wait_until+0xc9>\n 8f9:\t4d 85 f6             \ttest   %r14,%r14\n 8fc:\t0f 84 87 00 00 00    \tje     989 <es_wait_until+0xc9>\n 902:\t48 8d 44 24 10       \tlea    0x10(%rsp),%rax\n 907:\t49 89 fc             \tmov    %rdi,%r12\n 90a:\t48 8d 6c 24 20       \tlea    0x20(%rsp),%rbp\n 90f:\t49 89 f5             \tmov    %rsi,%r13\n 912:\t48 89 44 24 08       \tmov    %rax,0x8(%rsp)\n 917:\t48 8b 9c 24 90 00 00 \tmov    0x90(%rsp),%rbx\n 91e:\t00 \n 91f:\t90                   \tnop\n 920:\t48 8b 74 24 08       \tmov    0x8(%rsp),%rsi\n 925:\t48 89 df             \tmov    %rbx,%rdi\n 928:\t41 ff d6             \tcall   *%r14\n 92b:\t85 c0                \ttest   %eax,%eax\n 92d:\t78 36                \tjs     965 <es_wait_until+0xa5>\n 92f:\t48 8b 7c 24 10       \tmov    0x10(%rsp),%rdi\n 934:\t48 8b 74 24 18       \tmov    0x18(%rsp),%rsi\n 939:\t49 89 e8             \tmov    %rbp,%r8\n 93c:\t4c 89 e2             \tmov    %r12,%rdx\n 93f:\t4c 89 e9             \tmov    %r13,%rcx\n 942:\te8 00 00 00 00       \tcall   947 <es_wait_until+0x87>\n\t\t\t943: R_X86_64_PLT32\tes_remaining-0x4\n 947:\t83 f8 01             \tcmp    $0x1,%eax\n 94a:\t75 1e                \tjne    96a <es_wait_until+0xaa>\n 94c:\t48 89 ee             \tmov    %rbp,%rsi\n 94f:\t48 89 df             \tmov    %rbx,%rdi\n 952:\t41 ff d7             \tcall   *%r15\n 955:\t85 c0                \ttest   %eax,%eax\n 957:\t7f 11                \tjg     96a <es_wait_until+0xaa>\n 959:\t74 c5                \tje     920 <es_wait_until+0x60>\n 95b:\te8 00 00 00 00       \tcall   960 <es_wait_until+0xa0>\n\t\t\t95c: R_X86_64_PLT32\t__errno_location-0x4\n 960:\t83 38 04             \tcmpl   $0x4,(%rax)\n 963:\t74 bb                \tje     920 <es_wait_until+0x60>\n 965:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n 96a:\t48 8b 54 24 38       \tmov    0x38(%rsp),%rdx\n 96f:\t64 48 2b 14 25 28 00 \tsub    %fs:0x28,%rdx\n 976:\t00 00 \n 978:\t75 21                \tjne    99b <es_wait_until+0xdb>\n 97a:\t48 83 c4 48          \tadd    $0x48,%rsp\n 97e:\t5b                   \tpop    %rbx\n 97f:\t5d                   \tpop    %rbp\n 980:\t41 5c                \tpop    %r12\n 982:\t41 5d                \tpop    %r13\n 984:\t41 5e                \tpop    %r14\n 986:\t41 5f                \tpop    %r15\n 988:\tc3                   \tret\n 989:\te8 00 00 00 00       \tcall   98e <es_wait_until+0xce>\n\t\t\t98a: R_X86_64_PLT32\t__errno_location-0x4\n 98e:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n 994:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n 999:\teb cf                \tjmp    96a <es_wait_until+0xaa>\n 99b:\te8 00 00 00 00       \tcall   9a0 <es_wait_fd>\n\t\t\t99c: R_X86_64_PLT32\t__stack_chk_fail-0x4\n\n00000000000009a0 <es_wait_fd>:\n 9a0:\tf3 0f 1e fa          \tendbr64\n 9a4:\t48 83 ec 38          \tsub    $0x38,%rsp\n 9a8:\t89 7c 24 0c          \tmov    %edi,0xc(%rsp)\n 9ac:\t85 ff                \ttest   %edi,%edi\n 9ae:\t78 40                \tjs     9f0 <es_wait_fd+0x50>\n 9b0:\tf3 0f 7e 0d 00 00 00 \tmovq   0x0(%rip),%xmm1        # 9b8 <es_wait_fd+0x18>\n 9b7:\t00 \n\t\t\t9b4: R_X86_64_PC32\t.data.rel.ro.local-0x4\n 9b8:\t48 8d 05 f1 f6 ff ff \tlea    -0x90f(%rip),%rax        # b0 <real_wait>\n 9bf:\t48 89 f7             \tmov    %rsi,%rdi\n 9c2:\t48 89 d6             \tmov    %rdx,%rsi\n 9c5:\t66 48 0f 6e d0       \tmovq   %rax,%xmm2\n 9ca:\t48 8d 44 24 0c       \tlea    0xc(%rsp),%rax\n 9cf:\t48 83 ec 20          \tsub    $0x20,%rsp\n 9d3:\t66 0f 6c ca          \tpunpcklqdq %xmm2,%xmm1\n 9d7:\t48 89 44 24 10       \tmov    %rax,0x10(%rsp)\n 9dc:\t0f 11 0c 24          \tmovups %xmm1,(%rsp)\n 9e0:\te8 00 00 00 00       \tcall   9e5 <es_wait_fd+0x45>\n\t\t\t9e1: R_X86_64_PLT32\tes_wait_until-0x4\n 9e5:\t48 83 c4 20          \tadd    $0x20,%rsp\n 9e9:\t48 83 c4 38          \tadd    $0x38,%rsp\n 9ed:\tc3                   \tret\n 9ee:\t66 90                \txchg   %ax,%ax\n 9f0:\te8 00 00 00 00       \tcall   9f5 <es_wait_fd+0x55>\n\t\t\t9f1: R_X86_64_PLT32\t__errno_location-0x4\n 9f5:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n 9fb:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n a00:\teb e7                \tjmp    9e9 <es_wait_fd+0x49>\n a02:\t0f 1f 00             \tnopl   (%rax)\n a05:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n a0c:\t00 00 00 00 \n\n0000000000000a10 <es_reap>:\n a10:\tf3 0f 1e fa          \tendbr64\n a14:\t41 55                \tpush   %r13\n a16:\t41 54                \tpush   %r12\n a18:\t55                   \tpush   %rbp\n a19:\t53                   \tpush   %rbx\n a1a:\t48 83 ec 08          \tsub    $0x8,%rsp\n a1e:\t83 fa 40             \tcmp    $0x40,%edx\n a21:\t0f 87 a4 00 00 00    \tja     acb <es_reap+0xbb>\n a27:\t48 85 ff             \ttest   %rdi,%rdi\n a2a:\t0f 94 c0             \tsete   %al\n a2d:\t48 85 f6             \ttest   %rsi,%rsi\n a30:\t0f 94 c1             \tsete   %cl\n a33:\t08 c8                \tor     %cl,%al\n a35:\t74 19                \tje     a50 <es_reap+0x40>\n a37:\t85 d2                \ttest   %edx,%edx\n a39:\t0f 85 8c 00 00 00    \tjne    acb <es_reap+0xbb>\n a3f:\t45 31 ed             \txor    %r13d,%r13d\n a42:\t48 83 c4 08          \tadd    $0x8,%rsp\n a46:\t44 89 e8             \tmov    %r13d,%eax\n a49:\t5b                   \tpop    %rbx\n a4a:\t5d                   \tpop    %rbp\n a4b:\t41 5c                \tpop    %r12\n a4d:\t41 5d                \tpop    %r13\n a4f:\tc3                   \tret\n a50:\t85 d2                \ttest   %edx,%edx\n a52:\t74 eb                \tje     a3f <es_reap+0x2f>\n a54:\t89 d2                \tmov    %edx,%edx\n a56:\t48 89 fb             \tmov    %rdi,%rbx\n a59:\t48 89 f5             \tmov    %rsi,%rbp\n a5c:\t45 31 ed             \txor    %r13d,%r13d\n a5f:\t4c 8d 24 97          \tlea    (%rdi,%rdx,4),%r12\n a63:\teb 28                \tjmp    a8d <es_reap+0x7d>\n a65:\t0f 1f 44 00 00       \tnopl   0x0(%rax,%rax,1)\n a6a:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n a71:\t00 00 00 00 \n a75:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n a7c:\t00 00 00 00 \n a80:\t48 83 c3 04          \tadd    $0x4,%rbx\n a84:\t48 83 c5 04          \tadd    $0x4,%rbp\n a88:\t4c 39 e3             \tcmp    %r12,%rbx\n a8b:\t74 b5                \tje     a42 <es_reap+0x32>\n a8d:\t8b 3b                \tmov    (%rbx),%edi\n a8f:\t85 ff                \ttest   %edi,%edi\n a91:\t74 ed                \tje     a80 <es_reap+0x70>\n a93:\t79 17                \tjns    aac <es_reap+0x9c>\n a95:\teb 34                \tjmp    acb <es_reap+0xbb>\n a97:\t66 0f 1f 84 00 00 00 \tnopw   0x0(%rax,%rax,1)\n a9e:\t00 00 \n aa0:\te8 00 00 00 00       \tcall   aa5 <es_reap+0x95>\n\t\t\taa1: R_X86_64_PLT32\t__errno_location-0x4\n aa5:\t83 38 04             \tcmpl   $0x4,(%rax)\n aa8:\t75 2c                \tjne    ad6 <es_reap+0xc6>\n aaa:\t8b 3b                \tmov    (%rbx),%edi\n aac:\tba 01 00 00 00       \tmov    $0x1,%edx\n ab1:\t48 89 ee             \tmov    %rbp,%rsi\n ab4:\te8 00 00 00 00       \tcall   ab9 <es_reap+0xa9>\n\t\t\tab5: R_X86_64_PLT32\twaitpid-0x4\n ab9:\t85 c0                \ttest   %eax,%eax\n abb:\t78 e3                \tjs     aa0 <es_reap+0x90>\n abd:\t74 c1                \tje     a80 <es_reap+0x70>\n abf:\tc7 03 00 00 00 00    \tmovl   $0x0,(%rbx)\n ac5:\t41 83 c5 01          \tadd    $0x1,%r13d\n ac9:\teb b5                \tjmp    a80 <es_reap+0x70>\n acb:\te8 00 00 00 00       \tcall   ad0 <es_reap+0xc0>\n\t\t\tacc: R_X86_64_PLT32\t__errno_location-0x4\n ad0:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n ad6:\t48 83 c4 08          \tadd    $0x8,%rsp\n ada:\t41 bd ff ff ff ff    \tmov    $0xffffffff,%r13d\n ae0:\t5b                   \tpop    %rbx\n ae1:\t44 89 e8             \tmov    %r13d,%eax\n ae4:\t5d                   \tpop    %rbp\n ae5:\t41 5c                \tpop    %r12\n ae7:\t41 5d                \tpop    %r13\n ae9:\tc3                   \tret\n aea:\t66 0f 1f 44 00 00    \tnopw   0x0(%rax,%rax,1)\n\n0000000000000af0 <es_counted_push>:\n af0:\tf3 0f 1e fa          \tendbr64\n af4:\t48 85 ff             \ttest   %rdi,%rdi\n af7:\t74 37                \tje     b30 <es_counted_push+0x40>\n af9:\t8b 47 0c             \tmov    0xc(%rdi),%eax\n afc:\t83 f8 02             \tcmp    $0x2,%eax\n aff:\t77 2f                \tja     b30 <es_counted_push+0x40>\n b01:\t8b 57 08             \tmov    0x8(%rdi),%edx\n b04:\t83 fa 01             \tcmp    $0x1,%edx\n b07:\t77 27                \tja     b30 <es_counted_push+0x40>\n b09:\t31 c9                \txor    %ecx,%ecx\n b0b:\t83 f8 02             \tcmp    $0x2,%eax\n b0e:\t74 13                \tje     b23 <es_counted_push+0x33>\n b10:\t01 c2                \tadd    %eax,%edx\n b12:\t83 c0 01             \tadd    $0x1,%eax\n b15:\tb9 01 00 00 00       \tmov    $0x1,%ecx\n b1a:\t83 e2 01             \tand    $0x1,%edx\n b1d:\t89 34 97             \tmov    %esi,(%rdi,%rdx,4)\n b20:\t89 47 0c             \tmov    %eax,0xc(%rdi)\n b23:\t89 c8                \tmov    %ecx,%eax\n b25:\tc3                   \tret\n b26:\t66 2e 0f 1f 84 00 00 \tcs nopw 0x0(%rax,%rax,1)\n b2d:\t00 00 00 \n b30:\t48 83 ec 08          \tsub    $0x8,%rsp\n b34:\te8 00 00 00 00       \tcall   b39 <es_counted_push+0x49>\n\t\t\tb35: R_X86_64_PLT32\t__errno_location-0x4\n b39:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n b3f:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n b44:\t48 83 c4 08          \tadd    $0x8,%rsp\n b48:\tc3                   \tret\n b49:\t0f 1f 80 00 00 00 00 \tnopl   0x0(%rax)\n\n0000000000000b50 <es_counted_pop>:\n b50:\tf3 0f 1e fa          \tendbr64\n b54:\t48 85 ff             \ttest   %rdi,%rdi\n b57:\t74 37                \tje     b90 <es_counted_pop+0x40>\n b59:\t48 85 f6             \ttest   %rsi,%rsi\n b5c:\t74 32                \tje     b90 <es_counted_pop+0x40>\n b5e:\t8b 57 0c             \tmov    0xc(%rdi),%edx\n b61:\t83 fa 02             \tcmp    $0x2,%edx\n b64:\t77 2a                \tja     b90 <es_counted_pop+0x40>\n b66:\t8b 4f 08             \tmov    0x8(%rdi),%ecx\n b69:\t83 f9 01             \tcmp    $0x1,%ecx\n b6c:\t77 22                \tja     b90 <es_counted_pop+0x40>\n b6e:\t31 c0                \txor    %eax,%eax\n b70:\t85 d2                \ttest   %edx,%edx\n b72:\t74 3c                \tje     bb0 <es_counted_pop+0x60>\n b74:\t8b 04 8f             \tmov    (%rdi,%rcx,4),%eax\n b77:\t89 06                \tmov    %eax,(%rsi)\n b79:\t8b 47 08             \tmov    0x8(%rdi),%eax\n b7c:\t83 6f 0c 01          \tsubl   $0x1,0xc(%rdi)\n b80:\t83 c0 01             \tadd    $0x1,%eax\n b83:\t83 e0 01             \tand    $0x1,%eax\n b86:\t89 47 08             \tmov    %eax,0x8(%rdi)\n b89:\tb8 01 00 00 00       \tmov    $0x1,%eax\n b8e:\tc3                   \tret\n b8f:\t90                   \tnop\n b90:\t48 83 ec 08          \tsub    $0x8,%rsp\n b94:\te8 00 00 00 00       \tcall   b99 <es_counted_pop+0x49>\n\t\t\tb95: R_X86_64_PLT32\t__errno_location-0x4\n b99:\tc7 00 16 00 00 00    \tmovl   $0x16,(%rax)\n b9f:\tb8 ff ff ff ff       \tmov    $0xffffffff,%eax\n ba4:\t48 83 c4 08          \tadd    $0x8,%rsp\n ba8:\tc3                   \tret\n ba9:\t0f 1f 80 00 00 00 00 \tnopl   0x0(%rax)\n bb0:\tc3                   \tret\n",
+      "stderr": "",
+      "environment": {
+        "LC_ALL": "C"
+      },
+      "passed": true
+    }
+  ],
+  "checks": [
+    {
+      "group": "events-signals",
+      "name": "no generated atomic helper gcc",
+      "passed": true,
+      "observed": "                 U __errno_location\n                 U __stack_chk_fail\n                 U clock_gettime\n                 U close\n                 U pipe2\n                 U ppoll\n                 U pthread_sigmask\n                 U read\n                 U sigaction\n                 U sigaddset\n                 U sigdelset\n                 U sigemptyset\n                 U sigismember\n                 U sigpending\n                 U sigtimedwait\n                 U waitpid\n                 U write\n"
+    },
+    {
+      "group": "events-signals",
+      "name": "handler body exists gcc",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "group": "events-signals",
+      "name": "handler call closure gcc",
+      "passed": false,
+      "observed": [
+        "__errno_location",
+        "write",
+        "__stack_chk_fail"
+      ]
+    }
+  ],
+  "observations": [],
+  "generated_inputs": {},
+  "error": "handler call closure gcc: ['__errno_location', 'write', '__stack_chk_fail']",
+  "passed": false,
+  "limits": [
+    "Bounded Linux/toolchain experiments; no physical target claim.",
+    "A successful reference run does not establish independent learner performance.",
+    "Source identity and reproducibility do not establish trust in a toolchain."
+  ],
+  "selected_modules": [
+    "signals"
+  ],
+  "topic_complete": false,
+  "retained_artifacts": {
+    "build/legacy_events/20261017T103940380841Z/gcc-debug-signal-failures": {
+      "sha256": "7c6ab212135a8dc28c7b0b1b2ecb3a8a7582e410bbf6fc73a9a89a314c324d6b",
+      "bytes": 21944
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-debug-signal-probes": {
+      "sha256": "422eb5133f32dbafbc1418919dfea0f623c7c8712edbb438ddd2be307a8d36b5",
+      "bytes": 48384
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-debug-signals": {
+      "sha256": "3256d5dd6350de6cff665e3c62c89c30ef495160e73c2f291bf356c23e47ed57",
+      "bytes": 25952
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-release-signal-failures": {
+      "sha256": "2cd1b2338c832811e8addc762ddecc049a2b9360c5929eed3573d876901858b1",
+      "bytes": 22024
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-release-signal-probes": {
+      "sha256": "f7e93fcf6831fb0c11c9b2affa4fabcefd46e39858a7cfb542045d3f30967c6a",
+      "bytes": 40240
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-release-signals": {
+      "sha256": "db8cead94bdff4f28da7a973be6799868c232e47efa0254735f7a64a35d44ba0",
+      "bytes": 21968
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-failures": {
+      "sha256": "f2a379d6de1e7b762fbf94dc5aaafc78180a0260320725b5dd2c704836cbf7e5",
+      "bytes": 83392
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-sanitize-signal-probes": {
+      "sha256": "8fc01c0e168e2939b72286649593cf48a6356116b30c4fe6b5ad12ac221997ca",
+      "bytes": 181232
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-sanitize-signals": {
+      "sha256": "4e331a0aed8b9d836d932b2bd8436da017c4534f05f493fe77eb8a0c18c66da9",
+      "bytes": 94312
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-signal-port.dis": {
+      "sha256": "21bf1ff451402ed8824fb3fc019755d3cda1277fe322b703a016dfa111a78af5",
+      "bytes": 41320
+    },
+    "build/legacy_events/20261017T103940380841Z/gcc-signal-port.o": {
+      "sha256": "ffb24e7bbacff7f28e94a1d75fcbb6948a9c2dd0d9f34ef020b703ff7a2caff7",
+      "bytes": 8720
+    }
+  }
+}

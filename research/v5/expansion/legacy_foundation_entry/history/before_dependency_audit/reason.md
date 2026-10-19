@@ -1,0 +1,1 @@
+The first hosted104-check campaign passed its stated semantic scope but omitted the profile-C generated-object/target dependency audit. It is retained as narrower evidence, not sufficient completion of the dependency obligation. The successor adds actual object/image inspection and M4 execution. No historical accepted receipt is changed.

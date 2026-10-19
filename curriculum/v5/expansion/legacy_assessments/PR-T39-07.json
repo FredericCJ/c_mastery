@@ -4,7 +4,10 @@
   "domain": "T39",
   "title": "Independent depth assessment: Ethernet transmit publication and bounded recovery",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/ethernet_followthrough/ring/CONTRACTS.md",
+    "labs/ethernet_followthrough/ring/BOARD_CAPTURE.md",
+    "labs/ethernet_depth/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -105,6 +108,56 @@
         "curriculum/modules/T39.md: ten Study sequence and teaching subsections",
         "PR-T39-07: Contract, Inputs, Steps, Failure cases, Acceptance and Transfer"
       ]
+    },
+    {
+      "id": "R-EN-RM21",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "Printed65\u201366/68: selected peripheral bases and AHB SRAM versus CPU-only CCM",
+        "Printed154 Figure16 visually inspected;172\u2013173/182\u2013183/189\u2013190: F42/43 clock tree, Ethernet/GPIO reset and clock gates",
+        "Printed284\u2013285/288\u2013289 and299/304: GPIO fields/AF11 and F42/43 RMII selection under reset before MAC clocks",
+        "Printed1173\u20131176/1178 and1184\u20131188: normal TX/RX descriptor ownership, fields, writeback and bounds; Figures379/382 visually inspected",
+        "Printed1194\u20131198/1205/1208\u20131209: MAC mode, filter, debug and address0",
+        "Printed1226\u20131234: software reset, normal format, stopped base writes, process state, W1C and store-forward/stop policy"
+      ]
+    },
+    {
+      "id": "R-EN-BOARD8",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "Section6.11/Table11 printed28\u201329: Ethernet route, reference source and bridge/jumper assignments"
+      ]
+    },
+    {
+      "id": "R-EN-BOARD11",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "Section7.11/Table11 printed29\u201330: Ethernet route, reference source and bridge/jumper assignments"
+      ]
+    },
+    {
+      "id": "R-EN-ERRATA24",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "Sections2.16.3\u20132.16.6 printed34\u201337: Tx flush, FIFO corruption and successive-write limits",
+        "Sections2.16.8\u20132.16.12 printed38\u201339: counter rollover, status/checksum limits, giant frames and unavailable automatic pause"
+      ]
+    },
+    {
+      "id": "R-EN-DS14",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "Printed75/77/82 Table12: PA1/2/7,PB13,PC1/4/5,PG11/13 alternate-function11 RMII/MDIO/MDC mappings",
+        "Printed156\u2013157 section6.3.20: selected output-speed/load/voltage conditions and Ethernet timing boundaries"
+      ]
+    },
+    {
+      "id": "R-EN-DWT",
+      "path": "research/v5/expansion/legacy_ethernet_ring/resources.json",
+      "passages": [
+        "C1-699/706\u2013707: DEMCR address/TRCENA and UNKNOWN DWT reads when disabled",
+        "C1-736\u2013738/740\u2013741: DWT register addresses, optional CYCCNT, enable, overflow and debug-state counting limits"
+      ]
     }
   ],
   "reference_gaps": [
@@ -114,13 +167,51 @@
   "supplied_artifacts": [
     "fixtures/communications/PR-T39-07.json",
     "curriculum/projects/PR-T39-07.md",
-    "labs/communications/README.md"
+    "labs/communications/README.md",
+    "labs/ethernet_followthrough/ring/BOARD_CAPTURE.md",
+    "labs/ethernet_followthrough/ring/CONTRACTS.md",
+    "labs/ethernet_followthrough/ring/guest.c",
+    "labs/ethernet_followthrough/ring/learner.c",
+    "labs/ethernet_followthrough/ring/mapped.c",
+    "labs/ethernet_followthrough/ring/model.c",
+    "labs/ethernet_followthrough/ring/model.h",
+    "labs/ethernet_followthrough/ring/native.c",
+    "labs/ethernet_followthrough/ring/ring.h",
+    "labs/ethernet_followthrough/ring/target.h",
+    "labs/ethernet_followthrough/ring/target.ld",
+    "labs/ethernet_followthrough/ring/target_build.py",
+    "labs/ethernet_followthrough/ring/target_learner.c",
+    "labs/ethernet_followthrough/ring/tests.c",
+    "labs/ethernet_followthrough/ring/variants.h",
+    "labs/ethernet_followthrough/ring/variants_learner.c",
+    "labs/ethernet_followthrough/ring/variants_tests.c",
+    "labs/ethernet_depth/include/ethernet_depth.h",
+    "labs/ethernet_depth/src/ethernet_depth.c",
+    "labs/ethernet_depth/CONTRACTS.md",
+    "labs/interrupt_depth/frame/target.S",
+    "labs/bringup_depth/bringup.h",
+    "labs/bringup_depth/bringup.c",
+    "labs/bringup_depth/CONTRACTS.md",
+    "labs/ethernet_followthrough/phy/phy.h",
+    "labs/ethernet_followthrough/phy/learner.c",
+    "labs/ethernet_followthrough/phy/model.h",
+    "labs/ethernet_followthrough/phy/model.c",
+    "labs/ethernet_followthrough/phy/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-new-portable-models",
     "scope": "Retained DmaSlot prepare/publish/complete anchor and TX ordering fixture.",
     "tests": [],
-    "fresh_execution": "No retained baseline execution repeated by this assessment sidecar; X-T39-001 b04_depth campaign covers only its named ownership/cache model."
+    "fresh_execution": "No retained baseline execution repeated by this assessment sidecar; X-T39-001 b04_depth campaign covers only its named ownership/cache model.",
+    "ethernet_ring_successor": {
+      "path": "research/v5/expansion/legacy_ethernet_ring/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-07-T39.08.a",
+        "AX-PR-T39-07-T39.08.b",
+        "AX-PR-T39-07-T39.08.c"
+      ],
+      "scope": "Original criterion/V1 pairs; actual normal-ring producer plus explicitly separate changed-condition models; physical and independent gates remain."
+    }
   },
   "criteria": [
     {
@@ -341,12 +432,23 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T39-07.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-named-portable-support",
+    "execution": "Source-bound actual normal-ring implementation, native and Thumb RAM-effect observations plus explicit changed-condition models; physical Ethernet and independent assessment remain separate required evidence.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Two-descriptor publication, two-slot ring, generation-safe reset/drain and actual target capture remain required.",
       "No complete leaf closure, physical validation or absolute mastery claimed."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_ethernet_ring/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T39-07-T39.08.a",
+        "AX-PR-T39-07-T39.08.b",
+        "AX-PR-T39-07-T39.08.c"
+      ],
+      "scope": "Original criterion/V1 pairs; actual normal-ring producer plus explicitly separate changed-condition models; physical and independent gates remain."
+    }
+  ]
 }

@@ -1,0 +1,233 @@
+
+/tmp/smp-percpu-2w6b5mq2/gcc-O0-0-0/image/guest/ap.S.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <cmk2_switch>:
+   0:	55                   	push   %rbp
+   1:	53                   	push   %rbx
+   2:	41 54                	push   %r12
+   4:	41 55                	push   %r13
+   6:	41 56                	push   %r14
+   8:	41 57                	push   %r15
+   a:	48 89 27             	mov    %rsp,(%rdi)
+   d:	48 89 f4             	mov    %rsi,%rsp
+  10:	41 5f                	pop    %r15
+  12:	41 5e                	pop    %r14
+  14:	41 5d                	pop    %r13
+  16:	41 5c                	pop    %r12
+  18:	5b                   	pop    %rbx
+  19:	5d                   	pop    %rbp
+  1a:	c3                   	ret
+
+000000000000001b <cmk2_timer>:
+  1b:	68 f0 00 00 00       	push   $0xf0
+  20:	eb 1c                	jmp    3e <cmk2_irq_common>
+
+0000000000000022 <cmk2_ipi>:
+  22:	68 f1 00 00 00       	push   $0xf1
+  27:	eb 15                	jmp    3e <cmk2_irq_common>
+
+0000000000000029 <cmk2_tlb>:
+  29:	68 f2 00 00 00       	push   $0xf2
+  2e:	eb 0e                	jmp    3e <cmk2_irq_common>
+
+0000000000000030 <cmk2_spurious>:
+  30:	68 ff 00 00 00       	push   $0xff
+  35:	eb 07                	jmp    3e <cmk2_irq_common>
+
+0000000000000037 <cmk2_fault>:
+  37:	68 fe 00 00 00       	push   $0xfe
+  3c:	eb 00                	jmp    3e <cmk2_irq_common>
+
+000000000000003e <cmk2_irq_common>:
+  3e:	fc                   	cld
+  3f:	50                   	push   %rax
+  40:	53                   	push   %rbx
+  41:	51                   	push   %rcx
+  42:	52                   	push   %rdx
+  43:	55                   	push   %rbp
+  44:	56                   	push   %rsi
+  45:	57                   	push   %rdi
+  46:	41 50                	push   %r8
+  48:	41 51                	push   %r9
+  4a:	41 52                	push   %r10
+  4c:	41 53                	push   %r11
+  4e:	41 54                	push   %r12
+  50:	41 55                	push   %r13
+  52:	41 56                	push   %r14
+  54:	41 57                	push   %r15
+  56:	48 8b 7c 24 78       	mov    0x78(%rsp),%rdi
+  5b:	49 89 e4             	mov    %rsp,%r12
+  5e:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  62:	e8 00 00 00 00       	call   67 <cmk2_irq_common+0x29>
+  67:	4c 89 e4             	mov    %r12,%rsp
+  6a:	41 5f                	pop    %r15
+  6c:	41 5e                	pop    %r14
+  6e:	41 5d                	pop    %r13
+  70:	41 5c                	pop    %r12
+  72:	41 5b                	pop    %r11
+  74:	41 5a                	pop    %r10
+  76:	41 59                	pop    %r9
+  78:	41 58                	pop    %r8
+  7a:	5f                   	pop    %rdi
+  7b:	5e                   	pop    %rsi
+  7c:	5d                   	pop    %rbp
+  7d:	5a                   	pop    %rdx
+  7e:	59                   	pop    %rcx
+  7f:	5b                   	pop    %rbx
+  80:	58                   	pop    %rax
+  81:	48 83 c4 08          	add    $0x8,%rsp
+  85:	48 cf                	iretq
+
+0000000000000087 <ss_park>:
+  87:	48 89 f4             	mov    %rsi,%rsp
+  8a:	31 ed                	xor    %ebp,%ebp
+  8c:	e8 00 00 00 00       	call   91 <ss_park+0xa>
+  91:	fa                   	cli
+  92:	f4                   	hlt
+  93:	eb fc                	jmp    91 <ss_park+0xa>
+
+0000000000000095 <sp_bsp_enter>:
+  95:	48 89 fc             	mov    %rdi,%rsp
+  98:	31 ed                	xor    %ebp,%ebp
+  9a:	e8 00 00 00 00       	call   9f <sp_bsp_enter+0xa>
+  9f:	fa                   	cli
+  a0:	f4                   	hlt
+  a1:	eb fc                	jmp    9f <sp_bsp_enter+0xa>
+
+00000000000000a3 <sp_probe_irq>:
+  a3:	6a 00                	push   $0x0
+  a5:	68 f4 00 00 00       	push   $0xf4
+  aa:	eb 0a                	jmp    b6 <sp_irq_common>
+
+00000000000000ac <sp_ud_irq>:
+  ac:	6a 00                	push   $0x0
+  ae:	6a 06                	push   $0x6
+  b0:	eb 04                	jmp    b6 <sp_irq_common>
+
+00000000000000b2 <sp_gp_irq>:
+  b2:	6a 0d                	push   $0xd
+  b4:	eb 00                	jmp    b6 <sp_irq_common>
+
+00000000000000b6 <sp_irq_common>:
+  b6:	fc                   	cld
+  b7:	50                   	push   %rax
+  b8:	53                   	push   %rbx
+  b9:	51                   	push   %rcx
+  ba:	52                   	push   %rdx
+  bb:	55                   	push   %rbp
+  bc:	56                   	push   %rsi
+  bd:	57                   	push   %rdi
+  be:	41 50                	push   %r8
+  c0:	41 51                	push   %r9
+  c2:	41 52                	push   %r10
+  c4:	41 53                	push   %r11
+  c6:	41 54                	push   %r12
+  c8:	41 55                	push   %r13
+  ca:	41 56                	push   %r14
+  cc:	41 57                	push   %r15
+  ce:	49 89 e4             	mov    %rsp,%r12
+  d1:	48 89 e7             	mov    %rsp,%rdi
+  d4:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  d8:	e8 00 00 00 00       	call   dd <sp_irq_common+0x27>
+  dd:	4c 89 e4             	mov    %r12,%rsp
+  e0:	41 5f                	pop    %r15
+  e2:	41 5e                	pop    %r14
+  e4:	41 5d                	pop    %r13
+  e6:	41 5c                	pop    %r12
+  e8:	41 5b                	pop    %r11
+  ea:	41 5a                	pop    %r10
+  ec:	41 59                	pop    %r9
+  ee:	41 58                	pop    %r8
+  f0:	5f                   	pop    %rdi
+  f1:	5e                   	pop    %rsi
+  f2:	5d                   	pop    %rbp
+  f3:	5a                   	pop    %rdx
+  f4:	59                   	pop    %rcx
+  f5:	5b                   	pop    %rbx
+  f6:	58                   	pop    %rax
+  f7:	48 83 c4 10          	add    $0x10,%rsp
+  fb:	48 cf                	iretq
+
+00000000000000fd <sp_raise_ud>:
+  fd:	0f 0b                	ud2
+
+00000000000000ff <sp_ud_return>:
+  ff:	c3                   	ret
+
+0000000000000100 <sp_raise_gp>:
+ 100:	b8 ad de 00 00       	mov    $0xdead,%eax
+
+0000000000000105 <sp_gp_site>:
+ 105:	8e d8                	mov    %eax,%ds
+
+0000000000000107 <sp_gp_return>:
+ 107:	c3                   	ret
+
+0000000000000108 <sp_switch>:
+ 108:	e9 f3 fe ff ff       	jmp    0 <cmk2_switch>
+
+000000000000010d <sp_register_probe>:
+ 10d:	55                   	push   %rbp
+ 10e:	53                   	push   %rbx
+ 10f:	41 54                	push   %r12
+ 111:	41 55                	push   %r13
+ 113:	41 56                	push   %r14
+ 115:	41 57                	push   %r15
+ 117:	48 83 ec 18          	sub    $0x18,%rsp
+ 11b:	49 89 fc             	mov    %rdi,%r12
+ 11e:	4c 8d 6f 01          	lea    0x1(%rdi),%r13
+ 122:	4c 8d 77 02          	lea    0x2(%rdi),%r14
+ 126:	4c 8d 7f 03          	lea    0x3(%rdi),%r15
+ 12a:	48 89 fb             	mov    %rdi,%rbx
+ 12d:	48 89 f8             	mov    %rdi,%rax
+ 130:	48 89 f9             	mov    %rdi,%rcx
+ 133:	48 89 fa             	mov    %rdi,%rdx
+ 136:	49 89 f8             	mov    %rdi,%r8
+ 139:	49 89 f9             	mov    %rdi,%r9
+ 13c:	49 89 fa             	mov    %rdi,%r10
+ 13f:	49 89 fb             	mov    %rdi,%r11
+ 142:	cd f4                	int    $0xf4
+ 144:	4c 39 e0             	cmp    %r12,%rax
+ 147:	75 4a                	jne    193 <sp_probe_bad>
+ 149:	4c 39 e1             	cmp    %r12,%rcx
+ 14c:	75 45                	jne    193 <sp_probe_bad>
+ 14e:	4c 39 e2             	cmp    %r12,%rdx
+ 151:	75 40                	jne    193 <sp_probe_bad>
+ 153:	4d 39 e0             	cmp    %r12,%r8
+ 156:	75 3b                	jne    193 <sp_probe_bad>
+ 158:	4d 39 e1             	cmp    %r12,%r9
+ 15b:	75 36                	jne    193 <sp_probe_bad>
+ 15d:	4d 39 e2             	cmp    %r12,%r10
+ 160:	75 31                	jne    193 <sp_probe_bad>
+ 162:	4d 39 e3             	cmp    %r12,%r11
+ 165:	75 2c                	jne    193 <sp_probe_bad>
+ 167:	e8 00 00 00 00       	call   16c <sp_register_probe+0x5f>
+ 16c:	4c 39 e3             	cmp    %r12,%rbx
+ 16f:	75 22                	jne    193 <sp_probe_bad>
+ 171:	49 8d 44 24 01       	lea    0x1(%r12),%rax
+ 176:	49 39 c5             	cmp    %rax,%r13
+ 179:	75 18                	jne    193 <sp_probe_bad>
+ 17b:	49 8d 44 24 02       	lea    0x2(%r12),%rax
+ 180:	49 39 c6             	cmp    %rax,%r14
+ 183:	75 0e                	jne    193 <sp_probe_bad>
+ 185:	49 8d 44 24 03       	lea    0x3(%r12),%rax
+ 18a:	49 39 c7             	cmp    %rax,%r15
+ 18d:	75 04                	jne    193 <sp_probe_bad>
+ 18f:	31 c0                	xor    %eax,%eax
+ 191:	eb 05                	jmp    198 <sp_probe_return>
+
+0000000000000193 <sp_probe_bad>:
+ 193:	b8 01 00 00 00       	mov    $0x1,%eax
+
+0000000000000198 <sp_probe_return>:
+ 198:	48 83 c4 18          	add    $0x18,%rsp
+ 19c:	41 5f                	pop    %r15
+ 19e:	41 5e                	pop    %r14
+ 1a0:	41 5d                	pop    %r13
+ 1a2:	41 5c                	pop    %r12
+ 1a4:	5b                   	pop    %rbx
+ 1a5:	5d                   	pop    %rbp
+ 1a6:	c3                   	ret

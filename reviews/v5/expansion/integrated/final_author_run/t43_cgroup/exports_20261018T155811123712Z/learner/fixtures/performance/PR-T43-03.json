@@ -1,0 +1,131 @@
+{
+  "id": "PR-T43-03",
+  "description": "Weighted CPI with connected function CFGs and an explicit code/storage decision.",
+  "kind": "mix_cfg",
+  "input": {
+    "mix": [
+      [
+        100,
+        1
+      ],
+      [
+        40,
+        2
+      ],
+      [
+        20,
+        4
+      ]
+    ],
+    "clock_hz": 100000000,
+    "n": 8,
+    "cfgs": [
+      {
+        "nodes": 6,
+        "edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            4,
+            3
+          ]
+        ],
+        "model": "sequential"
+      },
+      {
+        "nodes": 6,
+        "edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ]
+        ],
+        "model": "nested"
+      }
+    ],
+    "variants": [
+      {
+        "name": "A",
+        "cycles": 260,
+        "code": 128,
+        "retained": 64
+      },
+      {
+        "name": "B",
+        "cycles": 240,
+        "code": 256,
+        "retained": 96
+      }
+    ],
+    "limits": {
+      "code": 200,
+      "retained": 80
+    }
+  },
+  "expected": {
+    "instructions": 160,
+    "cycles": 260,
+    "average_cpi": 1.625,
+    "time_ns": 2600.0,
+    "cfgs": [
+      {
+        "cyclomatic": 3,
+        "body_executions": 16
+      },
+      {
+        "cyclomatic": 3,
+        "body_executions": 64
+      }
+    ],
+    "acceptable_variants": [
+      "A"
+    ]
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

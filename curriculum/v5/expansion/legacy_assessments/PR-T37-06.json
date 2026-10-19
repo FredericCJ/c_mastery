@@ -4,7 +4,9 @@
   "domain": "T37",
   "title": "Independent depth assessment: MCU master paths and DMA placement ledger",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/architecture_bus/CONTRACTS.md",
+    "labs/peripheral_depth/dma/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -97,6 +99,26 @@
         "curriculum/modules/T37.md: Study sequence and teaching, T37.01 through T37.10",
         "PR-T37-06: Contract, Inputs and expected results, Steps, Failure cases, Acceptance and evidence, Hints and recovery, Transfer challenge"
       ]
+    },
+    {
+      "id": "R-MB-RM21",
+      "path": "research/v5/expansion/legacy_architecture_bus/resources.json",
+      "passages": [
+        "RM0090 Rev21 pp59\u201364: F405/407 versus F42/43 masters/slaves, bus-port descriptions, round-robin arbitration and narrow APB expansion",
+        "RM0090 Rev21 Figures1/2 pp60/62: visually inspected CPU CCM path, DMA memory/peripheral paths and F439 SRAM3",
+        "RM0090 Rev21 p68 section2.3.1: ordinary SRAM/master accessibility, F42/43-only SRAM3 and CPU D-bus-only CCM",
+        "RM0090 Rev21 p1010 section30.6: USART register access by halfword16 or word32"
+      ]
+    },
+    {
+      "id": "R-MB-IMPORTS",
+      "path": "research/v5/expansion/legacy_architecture_bus/resources.json",
+      "passages": [
+        "PR-T37-06 complete project/fixture and module T37.08 teaching",
+        "PdTransfer public API, complete pd_validate/submit/cancel/poll/finalize/suffix implementation and DMA ownership contract",
+        "B06 f439_service.ld complete selected code/RAM/link assertions",
+        "PR-T37-02 placement.c actual AWRecord arrays; bytes.h and wrappers.h typed record declaration"
+      ]
     }
   ],
   "reference_gaps": [
@@ -105,13 +127,44 @@
   "supplied_artifacts": [
     "fixtures/algorithms/PR-T37-06.json",
     "curriculum/projects/PR-T37-06.md",
-    "labs/algorithms/SPEC.md"
+    "labs/algorithms/SPEC.md",
+    "labs/architecture_bus/CONTRACTS.md",
+    "labs/architecture_bus/bus.h",
+    "labs/architecture_bus/learner.c",
+    "labs/architecture_bus/ledger_bad.ld",
+    "labs/architecture_bus/ledger_ccm.ld",
+    "labs/architecture_bus/ledger_entry.c",
+    "labs/architecture_bus/ledger_objects.c",
+    "labs/architecture_bus/ledger_sram.ld",
+    "labs/architecture_bus/linked_map_example.h",
+    "labs/architecture_bus/model.ld",
+    "labs/architecture_bus/native.c",
+    "labs/architecture_bus/tests.c",
+    "labs/architecture_bus/thumb_start.c",
+    "labs/peripheral_depth/dma/dma.h",
+    "labs/peripheral_depth/dma/dma.c",
+    "labs/peripheral_depth/dma/CONTRACTS.md",
+    "labs/architecture_bytes/placement.c",
+    "labs/architecture_bytes/bytes.h",
+    "labs/algorithm_wrappers/wrappers.h",
+    "labs/containers_depth/containers.h",
+    "labs/containers_depth/byte_helpers.c",
+    "labs/firmware_lifecycle/targets/f439_service.ld"
   ],
   "execution_support": {
     "kind": "retained-implementation-and-assessment-analysis",
     "scope": "Actual local project/fixture master-target ledger",
     "tests": [],
-    "fresh_execution": "not-run-by-this-supplement; additive X campaigns have separate source-bound results"
+    "fresh_execution": "not-run-by-this-supplement; additive X campaigns have separate source-bound results",
+    "architecture_bus_successor": {
+      "path": "research/v5/expansion/legacy_architecture_bus/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-06-T37.08.a",
+        "AX-PR-T37-06-T37.08.b",
+        "AX-PR-T37-06-T37.08.c"
+      ],
+      "scope": "Three exact ordinary/changed memory topology, actual typed placement/lease and bounded arbitration/bridge mechanisms."
+    }
   },
   "criteria": [
     {
@@ -331,12 +384,23 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T37-06.md",
   "status": {
     "content": "authored",
-    "execution": "assessment-contract-and-retained-support",
+    "execution": "Actual typed-link ledger, frozen Pd composition and bounded model author execution; no F439 DMA, physical timing, external review or delayed learner evidence inferred.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
       "Exact primary part/revision passages and actual linker/map/ownership artifact need fresh inspection.",
       "No whole-leaf execution closure, absolute mastery or physical validation."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_architecture_bus/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-06-T37.08.a",
+        "AX-PR-T37-06-T37.08.b",
+        "AX-PR-T37-06-T37.08.c"
+      ],
+      "scope": "Three exact ordinary/changed memory topology, actual typed placement/lease and bounded arbitration/bridge mechanisms."
+    }
+  ]
 }

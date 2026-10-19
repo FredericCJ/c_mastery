@@ -20,3 +20,11 @@ literal abc%n and preserves91. This is a bounded integrity demonstration with
 defined arguments, not a demonstration of arbitrary-address writes. Removing
 percent characters alters data and does not express the intended literal-copy
 contract. Compare platform format restrictions; record mitigation and limits.
+
+## Implemented continuation
+
+The required [concrete continuation](EXTENSIONS.md) supplies the additional source,
+fixtures, failure controls, objective criteria and bounded author execution.
+Its evidence does not replace independent learner or physical obligations.
+
+Required changed-width, safe-language comparison and scan-code continuations are specified in [TRANSFER.md](TRANSFER.md).

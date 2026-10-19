@@ -1,0 +1,28 @@
+#include <pthread.h>
+#include <assert.h>
+#include <locks.c>
+#include <genmc.h>
+static SlLock lock;
+static unsigned counter;
+static void *turns(void *unused) {
+ (void)unused;
+ for(unsigned i=0;i<16;i++) {
+  SlGuard guard={0};assert(sl_enter(&lock,NULL,&guard,NULL)==SL_OK);
+  counter++;
+  assert(sl_leave(&guard,NULL)==SL_OK);
+ }
+ return NULL;
+}
+static void *newcomer(void *unused) {
+ (void)unused;
+ /* Observation constrains allocation order but adds no synchronizes-with. */
+ __VERIFIER_assume(atomic_load_explicit(&lock.next,memory_order_relaxed)==16);
+ SlGuard guard={0};assert(sl_enter(&lock,NULL,&guard,NULL)==SL_OK);
+ counter++;
+ assert(sl_leave(&guard,NULL)==SL_OK);return NULL;
+}
+int main(void) {
+ pthread_t a,b;assert(sl_init(&lock,SL_TICKET,1,0)==SL_OK);
+ pthread_create(&a,NULL,turns,NULL);pthread_create(&b,NULL,newcomer,NULL);
+ pthread_join(a,NULL);pthread_join(b,NULL);assert(counter==17);return 0;
+}

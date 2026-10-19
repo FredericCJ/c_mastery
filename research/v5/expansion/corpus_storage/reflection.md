@@ -1,0 +1,7 @@
+# Finite corpus omission and implementation decision
+
+The bounded84-element relevance screen found a complete skip-list/PRNG contract, immutable path-copy B-tree and LSM version merge absent from actual retained mechanisms. Ordinary AVL/B+tree updates, a whole-version reader copy, persistent HAMT and a host fixture LCG do not implement these three mechanisms. We retain them and add the exact new exercises; baseline elective labels and accepted hour/receipt records are unchanged.
+
+The smallest useful implementations must expose more than a happy path: upper-level link corruption, predictable low bits, rejected-state rollback, retained-root reclamation, tombstone vacuum, partial merge resurrection and sequence/capacity refusal. Independent map/version/run models assess these without mirroring the page algorithm. Two distinct semantic mutants per mechanism establish observation sensitivity. The hypothetical page/flush/root model deliberately demonstrates why RAM publication is insufficient for durability; it is not credited as a real storage adapter.
+
+The first pilot ran nine CTests and8136 independent commands successfully; those pilot results are not the final source-bound evidence because authoring and checks continued afterward. Final campaign/export reports bind their actual files and commands. No external reviewer, learner delay, physical device, cryptographic generator or all-history proof is invented.

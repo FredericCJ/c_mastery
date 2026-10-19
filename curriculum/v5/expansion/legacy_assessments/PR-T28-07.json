@@ -2,10 +2,14 @@
   "schema_version": 1,
   "project": "PR-T28-07",
   "domain": "T28",
-  "title": "Elective Ethernet diagnostic service — explicit depth assessments",
+  "title": "Elective Ethernet diagnostic service \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/diagnostic/CONTRACTS.md",
+    "labs/peripheral_depth/diagnostic/guest/README.md",
+    "labs/peripheral_depth/diagnostic/BOARD_CAPTURE.md",
+    "labs/diagnostic_ring/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -92,15 +96,107 @@
       "id": "R-LRUN-RM21",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
-        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
-        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
-        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
-        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68\u201369",
+        "6.2.1\u20136.2.3 clock sources/PLL and selected RCC_CR fields, pp156\u2013157 and164",
+        "8.3.3\u20138.3.7 GPIO control/data/BSRR/locking/AF, pp277\u2013278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309\u2013310",
+        "13.3.1\u201313.3.4 ADC control/clock/selection/single conversion and13.5\u201313.6 sampling/trigger, pp393\u2013394 and400",
         "18.3.9 PWM edge-aligned comparison, p614",
-        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
-        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849\u2013852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889\u2013890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    },
+    {
+      "id": "R-DG-USB2000",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFpp1\u20132 document identity; p81/printed53 full-speed bulk sizes/short or expected-length completion/no service-time guarantee",
+        "PDFp234/printed206 DATA/handshake; pp258\u2013263/printed230\u2013235 toggle/retry context",
+        "PDFpp270\u2013271/printed242\u2013243 states/reset; pp273\u2013279/245\u2013251 control timing and SETUP format",
+        "PDFpp284\u2013285/256\u2013257 halt-clear DATA0, address-after-status and configuration-before-status; contradictory zero-address prose retained as gap",
+        "PDFpp289\u2013299/261\u2013271 device/configuration/interface/endpoint descriptors"
+      ]
+    },
+    {
+      "id": "R-DG-USBERR2002",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFp2: bcdUSB0200 for full/low-speed-only devices and qualifier request error; separate high-speed NAK clarification"
+      ]
+    },
+    {
+      "id": "R-DG-USBERR2000",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "PDFpp12/16/19/22 selected standard/hub descriptor tables: hub-specific context does not define this vendor device"
+      ]
+    },
+    {
+      "id": "R-DG-POSIX2024",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "DESCRIPTION message-based excess discard and MSG_TRUNC; stream boundaries; nonblocking EAGAIN/EWOULDBLOCK; ERRORS EINTR"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-UDC",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines145\u2013176 endpoint disable completes pending requests before return",
+        "lines226\u2013340 documented queue ownership/deferred completion and asynchronous dequeue; lines996\u20131005 giveback invokes callback",
+        "lines1199\u20131204 reset callback is invoked unconditionally"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-DUMMY",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines1\u201380 module identity/parameters; lines718\u2013820 small IN FIFO copy/inline giveback and dequeue",
+        "lines1635\u20131680 controller-handled SET_ADDRESS; FIFO_BUFFER_SIZE64 definition"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-AUTOCONF",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines84\u2013109 and162\u2013175 endpoint assignment rewrites bulk maximum packet to64; restore chosen legal descriptor size before endpoint enable"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-USBFS",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines623\u2013680 completion queue/status and destroy_async unlock before kill",
+        "lines2007\u20132077 DISCARDURB selected implementation uses usb_kill_urb; processcompl copies completion results/user identity",
+        "lines2103\u20132133 reap/nonblocking EAGAIN; lines2744\u20132747 ioctl dispatch; lines2832\u20132845 poll writable means completed queue"
+      ]
+    },
+    {
+      "id": "R-DG-LINUX-GADGET-ABI",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "lines712\u2013832 selected driver callback/reset/register contract, controller-handled address/features"
+      ]
+    },
+    {
+      "id": "R-DG-RM21",
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/resources.json",
+      "passages": [
+        "printedp1138 frame length/type/padding; pp1166\u20131167 DMA list/init/normal descriptors",
+        "printedpp1183\u20131184 RX ownership and normal16-byte descriptors, reported frame length including CRC"
+      ]
+    },
+    {
+      "id": "R-DR-ORIGINAL",
+      "path": "research/v5/expansion/legacy_diagnostic_ring/resources.json",
+      "passages": [
+        "labs/ethernet_followthrough/ring/CONTRACTS.md: Representation and authority; Problem and concrete input/output contracts; Selected target port and limits",
+        "labs/ethernet_followthrough/ring/ring.h: EnMemory, EnBus, EnRing, EnTicket and TX/RX API declarations",
+        "assessor/ethernet_followthrough/ring/ring.c: en_tx_copy/en_tx_publish/en_tx_reap and en_rx_take/en_rx_release ownership transitions",
+        "assessor/peripheral_depth/diagnostic/ethernet.c: dg_ethernet_build/dg_ethernet_accept, fixed addresses, length versus stored padding, retained EDRx/EDTx routes",
+        "labs/diagnostic_ring/CONTRACTS.md and assessor/diagnostic_ring/bridge.c: copied admission, post-OWN quarantine, staged application acceptance after RX release",
+        "labs/diagnostic_ring/tests.c: actual EpPhy/EnRing initialization, faulted publication recovery, replayed receive leases and release failure"
       ]
     }
   ],
@@ -114,13 +210,83 @@
     "curriculum/projects/PR-T28-07.md",
     "fixtures/embedded/PR-T28-07.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/diagnostic/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/diagnostic/CONTRACTS.md",
+    "labs/peripheral_depth/diagnostic/diagnostic.c",
+    "labs/peripheral_depth/diagnostic/diagnostic.h",
+    "labs/peripheral_depth/diagnostic/ethernet.c",
+    "labs/peripheral_depth/diagnostic/ethernet.h",
+    "labs/peripheral_depth/diagnostic/evidence.py",
+    "labs/peripheral_depth/diagnostic/guest/Makefile",
+    "labs/peripheral_depth/diagnostic/guest/README.md",
+    "labs/peripheral_depth/diagnostic/guest/build.py",
+    "labs/peripheral_depth/diagnostic/guest/dg_gadget.c",
+    "labs/peripheral_depth/diagnostic/guest/headers/limits.h",
+    "labs/peripheral_depth/diagnostic/guest/headers/stddef.h",
+    "labs/peripheral_depth/diagnostic/guest/headers/stdint.h",
+    "labs/peripheral_depth/diagnostic/host.c",
+    "labs/peripheral_depth/diagnostic/host.h",
+    "labs/peripheral_depth/diagnostic/host_tests.c",
+    "labs/peripheral_depth/diagnostic/link.ld",
+    "labs/peripheral_depth/diagnostic/run.py",
+    "labs/peripheral_depth/diagnostic/tests.c",
+    "labs/peripheral_depth/diagnostic/thumb_start.c",
+    "labs/peripheral_depth/diagnostic/usb.c",
+    "labs/peripheral_depth/diagnostic/usb.h",
+    "labs/peripheral_depth/diagnostic/usb_tests.c",
+    "labs/foundations/include/foundation.h",
+    "labs/foundations/src/foundation.c",
+    "labs/ethernet_depth/include/ethernet_depth.h",
+    "labs/ethernet_depth/src/ethernet_depth.c",
+    "labs/bringup_depth/bringup.c",
+    "labs/bringup_depth/bringup.h",
+    "labs/bringup_depth/lifecycle.h",
+    "labs/diagnostic_ring/CONTRACTS.md",
+    "labs/diagnostic_ring/bridge.h",
+    "labs/diagnostic_ring/freestanding/string.h",
+    "labs/diagnostic_ring/guest.c",
+    "labs/diagnostic_ring/learner.c",
+    "labs/diagnostic_ring/native.c",
+    "labs/diagnostic_ring/target.ld",
+    "labs/diagnostic_ring/target_build.py",
+    "labs/diagnostic_ring/tests.c",
+    "labs/ethernet_followthrough/phy/CONTRACTS.md",
+    "labs/ethernet_followthrough/phy/model.c",
+    "labs/ethernet_followthrough/phy/model.h",
+    "labs/ethernet_followthrough/phy/phy.h",
+    "labs/ethernet_followthrough/ring/CONTRACTS.md",
+    "labs/ethernet_followthrough/ring/model.c",
+    "labs/ethernet_followthrough/ring/model.h",
+    "labs/ethernet_followthrough/ring/ring.h",
+    "labs/ethernet_followthrough/ring/target.h",
+    "labs/ethernet_followthrough/ring/variants.h",
+    "labs/foundations/include/v4_foundation.h",
+    "labs/network_followthrough/driver/target.S",
+    "labs/ethernet_followthrough/phy/learner.c",
+    "labs/ethernet_followthrough/ring/learner.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
     "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
     "tests": [],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "diagnostic_transport_successor": {
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a",
+        "AX-PR-T28-07-T28.12.b",
+        "AX-PR-T28-07-T28.12.c"
+      ],
+      "scope": "Three T28.12 ordinary and three unchanged delayed tasks; actual FCursor/ED/POSIX/Linux providers; T29/T38/T39 and physical/external work separate"
+    },
+    "diagnostic_ring_successor": {
+      "path": "research/v5/expansion/legacy_diagnostic_ring/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a"
+      ],
+      "scope": "Actual DG diagnostic over EnRing; original USB/changed-hardware tasks remain bound to their separate complete campaign. Physical Ethernet and independent learner evidence are separate."
+    }
   },
   "criteria": [
     {
@@ -148,14 +314,14 @@
           "id": "R-LRUN-RM21",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
-            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
-            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
-            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
-            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68\u201369",
+            "6.2.1\u20136.2.3 clock sources/PLL and selected RCC_CR fields, pp156\u2013157 and164",
+            "8.3.3\u20138.3.7 GPIO control/data/BSRR/locking/AF, pp277\u2013278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309\u2013310",
+            "13.3.1\u201313.3.4 ADC control/clock/selection/single conversion and13.5\u201313.6 sampling/trigger, pp393\u2013394 and400",
             "18.3.9 PWM edge-aligned comparison, p614",
-            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
-            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849\u2013852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889\u2013890",
             "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
           ]
         }
@@ -191,7 +357,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "This anchor covers only the chosen application representation; CAN, USB, controller and electrical mechanisms retain their distinct required assessments. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Port the same payload service to a verified USB endpoint contract and derive new enumeration, transfer and ownership obligations. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -244,14 +410,14 @@
           "id": "R-LRUN-RM21",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
-            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
-            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
-            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
-            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68\u201369",
+            "6.2.1\u20136.2.3 clock sources/PLL and selected RCC_CR fields, pp156\u2013157 and164",
+            "8.3.3\u20138.3.7 GPIO control/data/BSRR/locking/AF, pp277\u2013278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309\u2013310",
+            "13.3.1\u201313.3.4 ADC control/clock/selection/single conversion and13.5\u201313.6 sampling/trigger, pp393\u2013394 and400",
             "18.3.9 PWM edge-aligned comparison, p614",
-            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
-            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849\u2013852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889\u2013890",
             "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
           ]
         }
@@ -287,7 +453,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Representation reuse preserves byte-level properties only where message boundaries, length and replay contracts match. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Deliver fragments through a stream adapter and add framing state instead of treating every read as one datagram. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -340,14 +506,14 @@
           "id": "R-LRUN-RM21",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
-            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
-            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
-            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
-            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68\u201369",
+            "6.2.1\u20136.2.3 clock sources/PLL and selected RCC_CR fields, pp156\u2013157 and164",
+            "8.3.3\u20138.3.7 GPIO control/data/BSRR/locking/AF, pp277\u2013278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309\u2013310",
+            "13.3.1\u201313.3.4 ADC control/clock/selection/single conversion and13.5\u201313.6 sampling/trigger, pp393\u2013394 and400",
             "18.3.9 PWM edge-aligned comparison, p614",
-            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
-            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849\u2013852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889\u2013890",
             "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
           ]
         }
@@ -383,7 +549,7 @@
       },
       "rubric": {
         "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
-        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf\u2019s stated misconception or establish its boundary.",
         "2": "Evidence cannot jump abstraction layers; electrical/link and standards-conformance claims need their own observations and sources. Supplies the criterion-specific evidence and a distinct falsification control.",
         "3": "Replace the PHY or board routing while retaining the software stack and identify invalidated evidence. Derives and verifies the changed obligations independently after the recorded delay."
       },
@@ -415,7 +581,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-07.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -423,5 +589,23 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_diagnostic/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a",
+        "AX-PR-T28-07-T28.12.b",
+        "AX-PR-T28-07-T28.12.c"
+      ],
+      "scope": "Three T28.12 ordinary and three unchanged delayed tasks; actual FCursor/ED/POSIX/Linux providers; T29/T38/T39 and physical/external work separate"
+    },
+    {
+      "path": "research/v5/expansion/legacy_diagnostic_ring/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-07-T28.12.a"
+      ],
+      "scope": "Actual DG diagnostic over EnRing; original USB/changed-hardware tasks remain bound to their separate complete campaign. Physical Ethernet and independent learner evidence are separate."
+    }
+  ]
 }

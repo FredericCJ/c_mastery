@@ -1,0 +1,1595 @@
+[    0.530332] ==================================================================
+[    0.530332] BUG: KASAN: wild-memory-access in do_raw_spin_lock+0x114/0x260
+[    0.530332] Write of size 4 at addr ff1100000108a8a8 by task swapper/0/0
+[    0.530332] 
+[    0.530332] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 7.0.14-cmastery-os-follow #2 PREEMPT(lazy) 
+[    0.530332] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.17.0-debian-1.17.0-1ubuntu1 04/01/2014
+[    0.530332] Call Trace:
+[    0.530332]  <IRQ>
+[    0.530332]  dump_stack_lvl+0x5d/0x80
+[    0.530332]  kasan_report+0xe4/0x1c0
+[    0.530332]  ? do_raw_spin_lock+0x114/0x260
+[    0.530332]  kasan_check_range+0x125/0x200
+[    0.530332]  do_raw_spin_lock+0x114/0x260
+[    0.530332]  ? __pfx_do_raw_spin_lock+0x10/0x10
+[    0.530332]  handle_edge_irq+0x28/0x880
+[    0.530332]  ? lock_release+0xd3/0x300
+[    0.530332]  __common_interrupt+0x6d/0x170
+[    0.530332]  common_interrupt+0x7a/0x90
+[    0.530332]  </IRQ>
+[    0.530332]  <TASK>
+[    0.530332]  asm_common_interrupt+0x26/0x40
+[    0.530332] RIP: 0010:identify_cpu+0x2a5/0x1730
+[    0.530332] Code: 31 79 00 49 8d 74 24 24 48 b8 00 00 00 00 00 fc ff df 48 89 f2 48 c1 ea 03 0f b6 14 02 48 89 f0 83 e0 07 83 c0 03 38 d0 7c 08 <84> d2 0f 85 eb 13 00 00 41 c7 44 24 24 00 00 00 00 4c 89 e7 48 89
+[    0.530332] RSP: 0000:ffffffff98a07e98 EFLAGS: 00010202
+[    0.530332] RAX: 0000000000000007 RBX: ff11000028220060 RCX: 0000000000000000
+[    0.530332] RDX: 0000000000000000 RSI: ffffffff991f0ec4 RDI: ffffffff991f0ec0
+[    0.530332] RBP: ffffffff991f0f40 R08: 0000000000000004 R09: 0000000000000004
+[    0.530332] R10: ffffffff991f0eac R11: 0000000000000001 R12: ffffffff991f0ea0
+[    0.530332] R13: ffffffff991f0fe0 R14: ffffffff991f0ec0 R15: ffffffff991f0ec1
+[    0.530332]  ? identify_cpu+0x27e/0x1730
+[    0.530332]  ? static_key_slow_inc+0x22/0x30
+[    0.530332]  arch_cpu_finalize_init+0x25/0x340
+[    0.530332]  start_kernel+0x321/0x3b0
+[    0.530332]  x86_64_start_reservations+0x24/0x30
+[    0.530332]  x86_64_start_kernel+0xd6/0xe0
+[    0.530332]  common_startup_64+0x13e/0x148
+[    0.530332]  </TASK>
+[    0.530332] ==================================================================
+OF_KERNEL
+Linux (none) 7.0.14-cmastery-os-follow #2 SMP PREEMPT_DYNAMIC Sun Oct 18 10:40:32 JST 2026 x86_64 GNU/Linux
+OF_MOUNTS
+rootfs / rootfs rw,size=278460k,nr_inodes=69615 0 0
+none /proc proc rw,relatime 0 0
+none /sys sysfs rw,relatime 0 0
+none /dev devtmpfs rw,relatime,size=278460k,nr_inodes=69615,mode=755 0 0
+none /tmp tmpfs rw,relatime,size=131072k 0 0
+none /sys/fs/cgroup cgroup2 rw,relatime 0 0
+/dev/vda /disk ext4 rw,relatime 0 0
+OF_RAW_BEGIN /proc/self/cgroup
+0::/
+OF_RAW_END /proc/self/cgroup
+OF_NAMESPACE pid=1 parent_pid_ino=4026531836 child_pid_ino=4026532206 parent_mnt_ino=4026531832 child_mnt_ino=4026532205 private_mount=1
+OF_EXIT pid=87 raw=0 exited=1 code=0 signal=0
+OF_NAMESPACE_PARENT private_file_absent=1 budget_unchanged=1
+OF_RAW_BEGIN /sys/fs/cgroup/of/cgroup.controllers
+cpu io memory
+OF_RAW_END /sys/fs/cgroup/of/cgroup.controllers
+OF_TRIAL_BEGIN ungrouped
+OF_RAW_BEGIN /proc/self/cgroup
+0::/
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/89/cgroup
+0::/
+OF_RAW_END /proc/89/cgroup
+OF_ALLOCATED bytes=67108864
+OF_COMPUTE iterations=6078267392 checksum=9598362358716235777 wall_ns=1000019299 cpu_ns=996304840
+OF_ALLOC_CHECKSUM 2088960
+OF_EXIT pid=89 raw=0 exited=1 code=0 signal=0
+OF_TRIAL_END ungrouped
+OF_TRIAL_BEGIN unlimited
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/unlimited/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.events
+OF_RAW /sys/fs/cgroup/of/unlimited/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/io.max
+OF_RAW_END /sys/fs/cgroup/of/unlimited/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/io.stat
+OF_RAW_END /sys/fs/cgroup/of/unlimited/io.stat
+OF_RAW /sys/fs/cgroup/of/unlimited/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/unlimited
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/90/cgroup
+0::/of/unlimited
+OF_RAW_END /proc/90/cgroup
+OF_RAW_BEGIN /proc/90/status
+Name:	probe
+Umask:	0022
+State:	R (running)
+Tgid:	90
+Ngid:	0
+Pid:	90
+PPid:	86
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	64
+Groups:	 
+NStgid:	90
+NSpid:	90
+NSpgid:	0
+NSsid:	0
+Kthread:	0
+VmPeak:	   66624 kB
+VmSize:	   66624 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	   18948 kB
+VmRSS:	   18948 kB
+RssAnon:	   18496 kB
+RssFile:	       0 kB
+RssShmem:	     452 kB
+VmData:	   65708 kB
+VmStk:	     132 kB
+VmExe:	     560 kB
+VmLib:	       8 kB
+VmPTE:	      84 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	0
+untag_mask:	0xffffffffffffffff
+Threads:	1
+SigQ:	0/1088
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000000000
+SigCgt:	0000000000000000
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	vulnerable
+SpeculationIndirectBranch:	always enabled
+Cpus_allowed:	1
+Cpus_allowed_list:	0
+Mems_allowed:	00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	2
+nonvoluntary_ctxt_switches:	3
+OF_RAW_END /proc/90/status
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.current
+19398656
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.current
+OF_ALLOCATED bytes=67108864
+OF_COMPUTE iterations=6090129408 checksum=5040283334144425985 wall_ns=1000002328 cpu_ns=999722792
+OF_ALLOC_CHECKSUM 2088960
+OF_EXIT pid=90 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.stat
+usage_usec 1456013
+user_usec 1019510
+system_usec 436503
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/unlimited/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.current
+327680
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/unlimited/memory.events
+OF_RAW /sys/fs/cgroup/of/unlimited/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/io.max
+OF_RAW_END /sys/fs/cgroup/of/unlimited/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/unlimited/io.stat
+OF_RAW_END /sys/fs/cgroup/of/unlimited/io.stat
+OF_RAW /sys/fs/cgroup/of/unlimited/io.pressure unavailable errno=2
+OF_TRIAL_END unlimited cleanup=1
+OF_TRIAL_BEGIN cpu
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/cpu/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/cpu/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.events
+OF_RAW /sys/fs/cgroup/of/cpu/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/io.max
+OF_RAW_END /sys/fs/cgroup/of/cpu/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/io.stat
+OF_RAW_END /sys/fs/cgroup/of/cpu/io.stat
+OF_RAW /sys/fs/cgroup/of/cpu/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/cpu
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/92/cgroup
+0::/of/cpu
+OF_RAW_END /proc/92/cgroup
+OF_RAW_BEGIN /proc/92/status
+Name:	probe
+Umask:	0022
+State:	R (running)
+Tgid:	92
+Ngid:	0
+Pid:	92
+PPid:	86
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	64
+Groups:	 
+NStgid:	92
+NSpid:	92
+NSpgid:	0
+NSsid:	0
+Kthread:	0
+VmPeak:	   66624 kB
+VmSize:	   66624 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	    4996 kB
+VmRSS:	    4996 kB
+RssAnon:	    4544 kB
+RssFile:	       0 kB
+RssShmem:	     452 kB
+VmData:	   65708 kB
+VmStk:	     132 kB
+VmExe:	     560 kB
+VmLib:	       8 kB
+VmPTE:	      56 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	0
+untag_mask:	0xffffffffffffffff
+Threads:	1
+SigQ:	0/1088
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000000000
+SigCgt:	0000000000000000
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	vulnerable
+SpeculationIndirectBranch:	always enabled
+Cpus_allowed:	1
+Cpus_allowed_list:	0
+Mems_allowed:	00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	2
+nonvoluntary_ctxt_switches:	5
+OF_RAW_END /proc/92/status
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.current
+4980736
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.current
+OF_ALLOCATED bytes=67108864
+OF_COMPUTE iterations=1157758976 checksum=5810702034362564609 wall_ns=1000000903 cpu_ns=200187788
+OF_ALLOC_CHECKSUM 2088960
+OF_EXIT pid=92 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/cpu/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.stat
+usage_usec 717152
+user_usec 221040
+system_usec 496112
+nice_usec 0
+nr_periods 36
+nr_throttled 35
+throttled_usec 2786493
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/cpu.stat.local
+throttled_usec 2786493
+OF_RAW_END /sys/fs/cgroup/of/cpu/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/cpu/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.current
+286720
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/cpu/memory.events
+OF_RAW /sys/fs/cgroup/of/cpu/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/io.max
+OF_RAW_END /sys/fs/cgroup/of/cpu/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/cpu/io.stat
+OF_RAW_END /sys/fs/cgroup/of/cpu/io.stat
+OF_RAW /sys/fs/cgroup/of/cpu/io.pressure unavailable errno=2
+OF_TRIAL_END cpu cleanup=1
+OF_TRIAL_BEGIN memory
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/memory/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/memory/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.max
+16777216
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.events
+OF_RAW /sys/fs/cgroup/of/memory/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/io.max
+OF_RAW_END /sys/fs/cgroup/of/memory/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/io.stat
+OF_RAW_END /sys/fs/cgroup/of/memory/io.stat
+OF_RAW /sys/fs/cgroup/of/memory/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/memory
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/93/cgroup
+0::/of/memory
+OF_RAW_END /proc/93/cgroup
+OF_RAW_BEGIN /proc/93/status
+Name:	probe
+Umask:	0022
+State:	R (running)
+Tgid:	93
+Ngid:	0
+Pid:	93
+PPid:	86
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	64
+Groups:	 
+NStgid:	93
+NSpid:	93
+NSpgid:	0
+NSsid:	0
+Kthread:	0
+VmPeak:	   66624 kB
+VmSize:	   66624 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	   16832 kB
+VmRSS:	   16832 kB
+RssAnon:	   16380 kB
+RssFile:	       0 kB
+RssShmem:	     452 kB
+VmData:	   65708 kB
+VmStk:	     132 kB
+VmExe:	     560 kB
+VmLib:	       8 kB
+VmPTE:	      76 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	0
+untag_mask:	0xffffffffffffffff
+Threads:	1
+SigQ:	0/1088
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000000000
+SigCgt:	0000000000000000
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	vulnerable
+SpeculationIndirectBranch:	always enabled
+Cpus_allowed:	1
+Cpus_allowed_list:	0
+Mems_allowed:	00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	2
+nonvoluntary_ctxt_switches:	7
+OF_RAW_END /proc/93/status
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.current
+16777216
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.current
+[   13.349333] Memory cgroup out of memory: Killed process 93 (probe) total-vm:66624kB, anon-rss:16380kB, file-rss:0kB, shmem-rss:452kB, UID:0 pgtables:76kB oom_score_adj:0
+OF_EXIT pid=93 raw=9 exited=0 code=-1 signal=9
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/memory/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.stat
+usage_usec 159838
+user_usec 3015
+system_usec 156823
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/memory/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/memory/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.max
+16777216
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.current
+65536
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/memory.events
+low 0
+high 0
+max 35
+oom 1
+oom_kill 1
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/memory/memory.events
+OF_RAW /sys/fs/cgroup/of/memory/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/io.max
+OF_RAW_END /sys/fs/cgroup/of/memory/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/memory/io.stat
+OF_RAW_END /sys/fs/cgroup/of/memory/io.stat
+OF_RAW /sys/fs/cgroup/of/memory/io.pressure unavailable errno=2
+OF_TRIAL_END memory cleanup=1
+OF_TRIAL_BEGIN weighted
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.max
+30000 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 1
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/a/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/a/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/a/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.weight
+400
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/b/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/b/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/b/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/weighted/a
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/94/cgroup
+0::/of/weighted/a
+OF_RAW_END /proc/94/cgroup
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/weighted/b
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/95/cgroup
+0::/of/weighted/b
+OF_RAW_END /proc/95/cgroup
+OF_COMPUTE iterations=350420992 checksum=3242947231402885121 wall_ns=1002413546 cpu_ns=71658718
+OF_COMPUTE iterations=1279262720 checksum=2848038638162280449 wall_ns=1000004269 cpu_ns=236512123
+OF_EXIT pid=94 raw=0 exited=1 code=0 signal=0
+OF_EXIT pid=95 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.stat
+usage_usec 81277
+user_usec 73149
+system_usec 8127
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/cpu.stat.local
+throttled_usec 697829
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/a/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/a/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/a/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/a/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/a/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.weight
+400
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.stat
+usage_usec 245623
+user_usec 235679
+system_usec 9944
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/cpu.stat.local
+throttled_usec 698675
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/b/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/b/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/b/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/b/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/b/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/weighted/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.max
+30000 100000
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.stat
+usage_usec 326900
+user_usec 308906
+system_usec 17994
+nice_usec 0
+nr_periods 12
+nr_throttled 10
+throttled_usec 699269
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/cpu.stat.local
+throttled_usec 699269
+OF_RAW_END /sys/fs/cgroup/of/weighted/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/weighted/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.current
+782336
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/weighted/memory.events
+OF_RAW /sys/fs/cgroup/of/weighted/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/io.max
+OF_RAW_END /sys/fs/cgroup/of/weighted/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/weighted/io.stat
+OF_RAW_END /sys/fs/cgroup/of/weighted/io.stat
+OF_RAW /sys/fs/cgroup/of/weighted/io.pressure unavailable errno=2
+OF_TRIAL_END weighted cleanup=1
+OF_TRIAL_BEGIN ancestry0
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/child/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/child/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/child/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/ancestry/child
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/96/cgroup
+0::/of/ancestry/child
+OF_RAW_END /proc/96/cgroup
+OF_COMPUTE iterations=1114767360 checksum=7419519128068816897 wall_ns=1000002058 cpu_ns=210877784
+OF_EXIT pid=96 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat
+usage_usec 218129
+user_usec 209246
+system_usec 8883
+nice_usec 0
+nr_periods 11
+nr_throttled 10
+throttled_usec 786123
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+throttled_usec 786123
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/child/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/child/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/child/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat
+usage_usec 218129
+user_usec 209246
+system_usec 8883
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.current
+524288
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/io.pressure unavailable errno=2
+OF_TRIAL_END ancestry0
+OF_TRIAL_BEGIN ancestry1
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max
+10000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat
+usage_usec 218129
+user_usec 209246
+system_usec 8883
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.current
+524288
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat
+usage_usec 218129
+user_usec 209246
+system_usec 8883
+nice_usec 0
+nr_periods 12
+nr_throttled 10
+throttled_usec 786123
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+throttled_usec 786123
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/child/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/child/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/child/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/ancestry/child
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/97/cgroup
+0::/of/ancestry/child
+OF_RAW_END /proc/97/cgroup
+OF_COMPUTE iterations=507183104 checksum=7901836001624129537 wall_ns=1081521639 cpu_ns=107435616
+OF_EXIT pid=97 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max
+20000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat
+usage_usec 334956
+user_usec 316347
+system_usec 18608
+nice_usec 0
+nr_periods 23
+nr_throttled 10
+throttled_usec 786123
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+throttled_usec 1757852
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/child/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.current
+262144
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/child/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/child/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/child/io.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max
+10000 100000
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat
+usage_usec 334956
+user_usec 316347
+system_usec 18608
+nice_usec 0
+nr_periods 12
+nr_throttled 11
+throttled_usec 971729
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/cpu.stat.local
+throttled_usec 971729
+OF_RAW_END /sys/fs/cgroup/of/ancestry/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/ancestry/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.current
+524288
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/ancestry/memory.events
+OF_RAW /sys/fs/cgroup/of/ancestry/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW_END /sys/fs/cgroup/of/ancestry/io.stat
+OF_RAW /sys/fs/cgroup/of/ancestry/io.pressure unavailable errno=2
+OF_TRIAL_END ancestry1
+OF_TRIAL_BEGIN io-limit
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/io/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.stat
+usage_usec 0
+user_usec 0
+system_usec 0
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/io/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/io/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.current
+0
+OF_RAW_END /sys/fs/cgroup/of/io/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/io/memory.events
+OF_RAW /sys/fs/cgroup/of/io/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/io.max
+253:0 rbps=2097152 wbps=2097152 riops=max wiops=max
+OF_RAW_END /sys/fs/cgroup/of/io/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/io.stat
+253:0 
+OF_RAW_END /sys/fs/cgroup/of/io/io.stat
+OF_RAW /sys/fs/cgroup/of/io/io.pressure unavailable errno=2
+OF_RAW_BEGIN /proc/self/cgroup
+0::/of/io
+OF_RAW_END /proc/self/cgroup
+OF_RAW_BEGIN /proc/98/cgroup
+0::/of/io
+OF_RAW_END /proc/98/cgroup
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_OTHER_READER pid=99 logical=4194304
+OF_EXIT pid=99 raw=0 exited=1 code=0 signal=0
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=2244051520 cpu_ns=207065164 major_delta=0 minor_delta=1 sync_each=0 concurrent=1
+OF_RAW_BEGIN /proc/self/io
+rchar: 8388619
+wchar: 4194730
+syscr: 2053
+syscw: 1035
+read_bytes: 8192
+write_bytes: 4194304
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 11 6 16480 43 0 61 72 0 0 0 0 6 6
+OF_RAW_END /proc/diskstats
+OF_EXIT pid=98 raw=0 exited=1 code=0 signal=0
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cgroup.procs
+OF_RAW_END /sys/fs/cgroup/of/io/cgroup.procs
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.max
+max 100000
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.max.burst
+0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.max.burst
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.weight
+100
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.weight
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.stat
+usage_usec 309663
+user_usec 37079
+system_usec 272584
+nice_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.stat
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/cpu.stat.local
+throttled_usec 0
+OF_RAW_END /sys/fs/cgroup/of/io/cpu.stat.local
+OF_RAW /sys/fs/cgroup/of/io/cpu.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.max
+max
+OF_RAW_END /sys/fs/cgroup/of/io/memory.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.current
+200704
+OF_RAW_END /sys/fs/cgroup/of/io/memory.current
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+OF_RAW_END /sys/fs/cgroup/of/io/memory.events
+OF_RAW /sys/fs/cgroup/of/io/memory.pressure unavailable errno=2
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/io.max
+253:0 rbps=2097152 wbps=2097152 riops=max wiops=max
+OF_RAW_END /sys/fs/cgroup/of/io/io.max
+OF_RAW_BEGIN /sys/fs/cgroup/of/io/io.stat
+253:0 rbytes=8192 wbytes=4194304 rios=2 wios=2 dbytes=0 dios=0
+OF_RAW_END /sys/fs/cgroup/of/io/io.stat
+OF_RAW /sys/fs/cgroup/of/io/io.pressure unavailable errno=2
+OF_TRIAL_END io-limit cleanup=1
+OF_IO_PAIR trial=0 position=0 sync=0 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=161708591 cpu_ns=153938791 major_delta=0 minor_delta=0 sync_each=0 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 12593763
+wchar: 8432121
+syscr: 3574
+syscw: 2965
+read_bytes: 8192
+write_bytes: 8388608
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 19 13 24736 98 0 73 127 0 0 0 0 8 6
+OF_RAW_END /proc/diskstats
+OF_IO_PAIR trial=0 position=1 sync=1 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=3996610239 cpu_ns=1408150605 major_delta=0 minor_delta=0 sync_each=1 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 16788674
+wchar: 12627432
+syscr: 4603
+syscw: 3999
+read_bytes: 8192
+write_bytes: 12582912
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 3130 4096 82248 1603 0 1572 2145 0 0 0 0 2081 518
+OF_RAW_END /proc/diskstats
+OF_IO_PAIR trial=1 position=0 sync=1 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=3946365343 cpu_ns=1397718335 major_delta=0 minor_delta=0 sync_each=1 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 20983601
+wchar: 16822759
+syscr: 5632
+syscw: 5033
+read_bytes: 8192
+write_bytes: 16777216
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 6235 8178 139720 3066 0 2986 4116 0 0 0 0 4150 1026
+OF_RAW_END /proc/diskstats
+OF_IO_PAIR trial=1 position=1 sync=0 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=152436261 cpu_ns=136993612 major_delta=0 minor_delta=0 sync_each=0 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 25178530
+wchar: 21018086
+syscr: 6661
+syscw: 6067
+read_bytes: 8192
+write_bytes: 20971520
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 6242 8186 147984 3122 0 3005 4173 0 0 0 0 4152 1027
+OF_RAW_END /proc/diskstats
+OF_IO_PAIR trial=2 position=0 sync=0 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=151742563 cpu_ns=145903181 major_delta=0 minor_delta=0 sync_each=0 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 29373459
+wchar: 25213413
+syscr: 7690
+syscw: 7101
+read_bytes: 8192
+write_bytes: 25165824
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 6248 8194 156240 3149 0 3016 4200 0 0 0 0 4154 1028
+OF_RAW_END /proc/diskstats
+OF_IO_PAIR trial=2 position=1 sync=1 backend=ext4
+OF_IO_PLACEMENT dir=/disk device=253:0 available=53825536 block=4096
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=3926369102 cpu_ns=1405662638 major_delta=0 minor_delta=0 sync_each=1 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 33568388
+wchar: 29408742
+syscr: 8719
+syscw: 8135
+read_bytes: 8192
+write_bytes: 29360128
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 9356 12279 213752 4620 0 4421 6181 0 0 0 0 6225 1538
+OF_RAW_END /proc/diskstats
+OF_IO_BACKEND_CHANGED tmpfs
+OF_IO_PLACEMENT dir=/tmp device=0:22 available=134217728 block=4096
+OF_OTHER_READER pid=100 logical=4194304
+OF_EXIT pid=100 raw=0 exited=1 code=0 signal=0
+OF_IO wrote=4194304 read=4194304 fsync_ack=4194304 size=4194304 checksum=517283840 wall_ns=73830239 cpu_ns=73673784 major_delta=0 minor_delta=1 sync_each=0 concurrent=1
+OF_RAW_BEGIN /proc/self/io
+rchar: 41957622
+wchar: 33604132
+syscr: 10773
+syscw: 9172
+read_bytes: 8192
+write_bytes: 29360128
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 9356 12279 213752 4620 0 4421 6181 0 0 0 0 6225 1538
+OF_RAW_END /proc/diskstats
+OF_IO_PLACEMENT dir=/tiny device=0:24 available=2097152 block=4096
+OF_ENOSPC accepted=2097152 remaining=2097152 errno=28
+OF_IO wrote=2097152 read=2097152 fsync_ack=2097152 size=2097152 checksum=258641920 wall_ns=36756421 cpu_ns=36757598 major_delta=0 minor_delta=0 sync_each=0 concurrent=0
+OF_RAW_BEGIN /proc/self/io
+rchar: 44055401
+wchar: 35702309
+syscr: 11290
+syscw: 9695
+read_bytes: 8192
+write_bytes: 29360128
+cancelled_write_bytes: 0
+OF_RAW_END /proc/self/io
+OF_RAW_BEGIN /proc/diskstats
+   7       0 loop0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       3 loop3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       4 loop4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       5 loop5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       6 loop6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       7 loop7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 253       0 vda 41 0 322 22 9356 12279 213752 4620 0 4421 6181 0 0 0 0 6225 1538
+OF_RAW_END /proc/diskstats
+OF_PASS:guest:namespace:cpu-memory-weight-ancestry-io:cleanup
+OF_PROBE_EXIT=0
+OF_GUEST_DONE
+[   32.265372] reboot: Power down
+

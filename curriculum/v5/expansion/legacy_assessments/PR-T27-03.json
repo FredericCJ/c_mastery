@@ -5,7 +5,9 @@
   "title": "Startup memory and runtime hooks — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/bringup_depth/CONTRACTS.md",
+    "labs/bringup_depth/BOARD_CAPTURE.md"
   ],
   "baseline_binding": {
     "files": [
@@ -103,6 +105,78 @@
       "passages": [
         "3.6.8.2 Output Section LMA, complete short page"
       ]
+    },
+    {
+      "id": "R-BU-RM21",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.3.1 pp68;2.4 Table2 p69",
+        "6.2.1–6.2.3 pp156–157;RCC_CR p164;RCC_PLLCFGR p165",
+        "RCC_CSR reset flag and LSI fields pp202–204",
+        "21.1–21.4.5 IWDG startup, debug, keys, prescaler, update flags and register map pp711–715"
+      ]
+    },
+    {
+      "id": "R-BU-PM10",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.3 exception model pp38–44; rendered Figure12 p43",
+        "4.2.4–4.2.10 MPU pp199–206, including conflicting SIZE prose versus formula/Table43 p205",
+        "ICSR p225;4.6.6 enabling FPU p257"
+      ]
+    },
+    {
+      "id": "R-BU-H745",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "2.1.1–2.1.7 pp110–112",
+        "2.4–2.6 pp143–145; rendered Tables8–9 p144",
+        "Hold boot pp362–363;RCC_GCR p477"
+      ]
+    },
+    {
+      "id": "R-BU-DS14",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "3.4–3.8 pp22–23",
+        "3.14–3.15 pp25–26",
+        "8 Ordering information p226"
+      ]
+    },
+    {
+      "id": "R-BU-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "7.3–7.4 pp17–22",
+        "7.8.1 p26 MCO/crystal/bypass source and bridge configurations",
+        "8.1 p73 physical product/PCB/assembly markings"
+      ]
+    },
+    {
+      "id": "R-BU-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "Summary Table3 core limitations p2",
+        "2.1.1 interrupted SP loads p7",
+        "2.1.2 VDIV/VSQRT and lazy context p7–8",
+        "2.1.3 buffered store/exception return p8 beginning"
+      ]
+    },
+    {
+      "id": "R-BU-VENDOR",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "F429 reset template lines26–120;F439 template lines26–260",
+        "F429ZI linker script complete197 logical web lines; local full text including CCM warning and discard clauses"
+      ]
+    },
+    {
+      "id": "R-BU-QEMU",
+      "path": "research/v5/expansion/legacy_advanced_bringup/resources.json",
+      "passages": [
+        "source lines97–247 memory aliases, fixed clocks,32 IRQs, modeled interfaces",
+        "master manual AN386 identification and differences lines5–83; version line98"
+      ]
     }
   ],
   "reference_gaps": [
@@ -115,7 +189,23 @@
     "curriculum/projects/PR-T27-03.md",
     "fixtures/embedded/PR-T27-03.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/bringup_depth/authority_cases.json",
+    "labs/bringup_depth/board_capture.json",
+    "labs/bringup_depth/BOARD_CAPTURE.md",
+    "labs/bringup_depth/bringup.c",
+    "labs/bringup_depth/bringup.h",
+    "labs/bringup_depth/check_capture.py",
+    "labs/bringup_depth/check_image.py",
+    "labs/bringup_depth/CONTRACTS.md",
+    "labs/bringup_depth/run.py",
+    "labs/bringup_depth/target/image.ld.in",
+    "labs/bringup_depth/target/reset.S",
+    "labs/bringup_depth/target/run.py",
+    "labs/bringup_depth/tests.c",
+    "labs/bringup_depth/lifecycle.c",
+    "labs/bringup_depth/lifecycle.h",
+    "labs/bringup_depth/lifecycle_tests.c"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -123,7 +213,19 @@
     "tests": [
       "firmware_io.startup"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "bringup_successor": {
+      "path": "research/v5/expansion/legacy_advanced_bringup/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T27-03-T27.05.a",
+        "AX-PR-T27-03-T27.05.b",
+        "AX-PR-T27-03-T27.05.c",
+        "AX-PR-T27-03-T27.07.a",
+        "AX-PR-T27-03-T27.07.b",
+        "AX-PR-T27-03-T27.07.c"
+      ],
+      "scope": "Exact original T27 criteria, separate host/model/MPS2/cross-build/physical dimensions; no other project closed by association"
+    }
   },
   "criteria": [
     {
@@ -652,7 +754,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T27-03.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -660,5 +762,19 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_bringup/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T27-03-T27.05.a",
+        "AX-PR-T27-03-T27.05.b",
+        "AX-PR-T27-03-T27.05.c",
+        "AX-PR-T27-03-T27.07.a",
+        "AX-PR-T27-03-T27.07.b",
+        "AX-PR-T27-03-T27.07.c"
+      ],
+      "scope": "Exact original T27 criteria, separate host/model/MPS2/cross-build/physical dimensions; no other project closed by association"
+    }
+  ]
 }

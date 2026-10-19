@@ -1,0 +1,419 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-17T03:35:53.591225+00:00",
+  "input_sha256": {
+    "tools/run_b06_independent_audit.py": "ffbfa6a0e17fa9a08268944b9c964407eb0ae8f96efcb4bbeda0cece75e3872a",
+    "labs/verification_fuzzing/independent/audit.h": "b67e04401355c90b0d341f56e2f5cac7e460f75313a57ddc1adb7a3cfaeb3b25",
+    "labs/verification_fuzzing/independent/audit_target.c": "91ea756671a4680024f52c2841fbea47f2e3cf980d501102f27595dbc991c2bf",
+    "labs/verification_fuzzing/independent/README.md": "fbe8df3d2cf962aee035eb38e3417bc2dfe67705ad992d8384f57872fd49c72e",
+    "assessor/verification_fuzzing/independent/ANALYSIS.md": "1fae93634c87809fbfbf161c18cbfd29d1f966b678efe929de9cefeb548c7c5f",
+    "assessor/verification_fuzzing/independent/oracle.py": "8a1f7e0aeb214ced95ac4f4912f0df93a9aac432158a7e1d837d1c79d00a4623",
+    "assessor/verification_fuzzing/independent/proof.c": "52a05faa1ba89919257aec236fd307e1bd3a991c22b59fec0ce9ea8eeba42e86",
+    "assessor/verification_fuzzing/independent/repair.c": "07bdd9016236ede28adc67784302236a4e765d9a22205aa9d35e2e822adfc51e"
+  },
+  "checks": [
+    {
+      "label": "gcc identity",
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc0 build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc0.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc0 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc0.so"
+      ],
+      "returncode": 0,
+      "stdout": "B06_AUDIT_PASS cases=26694\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc1 build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=1",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc1.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc1 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc1.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0101000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc2 build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=2",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc2.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc2 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc2.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b6010058', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0000000000']}, {'input': 'b6010058', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f0a141e28']}, {'input': 'b601010102000058', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc3 build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc3.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc3 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc3.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [0, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [0, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [0, '0100000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc4 build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=4",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent/audit_target.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc4.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc4 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/gcc4.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0101000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang identity",
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang0 build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang0.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang0 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang0.so"
+      ],
+      "returncode": 0,
+      "stdout": "B06_AUDIT_PASS cases=26694\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang1 build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=1",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang1.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang1 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang1.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0101000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang2 build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=2",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang2.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang2 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang2.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b6010058', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0000000000']}, {'input': 'b6010058', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f0a141e28']}, {'input': 'b601010102000058', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang3 build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang3.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang3 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang3.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [0, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [0, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [0, '0100000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang4 build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O2",
+        "-shared",
+        "-fPIC",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=4",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent/audit_target.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang4.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang4 independent semantic oracle",
+      "command": [
+        "python3",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/oracle.py",
+        "/mnt/f/Learning/Curricula/c_mastery/build/b06-independent-audit/clang4.so"
+      ],
+      "returncode": 1,
+      "stdout": "B06_AUDIT_FAIL [{'input': 'b601020102000001020000', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0100000000']}, {'input': 'b601020102000001020000', 'initial': '0f0a141e28', 'expected': [0, '0f0a141e28'], 'actual': [1, '0f00141e28']}, {'input': 'b601020102000001020001', 'initial': '0000000000', 'expected': [0, '0000000000'], 'actual': [1, '0101000000']}]\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "solver identity",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/cbmc",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "6.11.0 (cbmc-6.11.0)\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "bounded22-byte safety and rollback proof",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/cbmc",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/proof.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "--function",
+        "main",
+        "--unwind",
+        "24",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check",
+        "--signed-overflow-check",
+        "--unsigned-overflow-check"
+      ],
+      "returncode": 0,
+      "stdout": "CBMC version 6.11.0 (cbmc-6.11.0) 64-bit x86_64 linux\nType-checking proof\nType-checking repair\nGenerating GOTO Program\nAdding CPROVER library (x86_64)\nRemoval of function pointers and virtual functions\nGeneric Property Instrumentation\nStarting Bounded Model Checking\nPassing problem to propositional reduction\nconverting SSA\nRunning propositional reduction\nSAT checker: instance is UNSATISFIABLE\n\n** Results:\n/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/proof.c function main\n[main.array_bounds.1] line 4 array 'input' upper bound in input[(signed long int)i]: SUCCESS\n[main.array_bounds.2] line 4 array 's'.value upper bound in s.value[(signed long int)i]: SUCCESS\n[main.array_bounds.3] line 4 array 's'.value upper bound in s.value[(signed long int)i]: SUCCESS\n[main.array_bounds.4] line 4 array 'before'.value upper bound in before.value[(signed long int)i]: SUCCESS\n[main.assertion.1] line 4 assertion s.present<=15: SUCCESS\n[main.assertion.2] line 4 assertion s.present==before.present: SUCCESS\n[main.assertion.3] line 4 assertion s.value[i]==before.value[i]: SUCCESS\n[main.overflow.1] line 4 arithmetic overflow on unsigned + in i + 1u: SUCCESS\n[main.overflow.2] line 4 arithmetic overflow on unsigned + in i + 1u: SUCCESS\n[main.overflow.3] line 4 arithmetic overflow on unsigned + in i + 1u: SUCCESS\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c function audit_packet\n[audit_packet.pointer_dereference.1] line 6 dereference failure: pointer NULL in s->present: SUCCESS\n[audit_packet.pointer_dereference.2] line 6 dereference failure: pointer invalid in s->present: SUCCESS\n[audit_packet.pointer_dereference.3] line 6 dereference failure: deallocated dynamic object in s->present: SUCCESS\n[audit_packet.pointer_dereference.4] line 6 dereference failure: dead object in s->present: SUCCESS\n[audit_packet.pointer_dereference.5] line 6 dereference failure: pointer outside object bounds in s->present: SUCCESS\n[audit_packet.pointer_dereference.6] line 6 dereference failure: invalid integer address in s->present: SUCCESS\n[audit_packet.pointer_dereference.7] line 6 dereference failure: pointer NULL in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.8] line 6 dereference failure: pointer invalid in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.9] line 6 dereference failure: deallocated dynamic object in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.10] line 6 dereference failure: dead object in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.11] line 6 dereference failure: pointer outside object bounds in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.12] line 6 dereference failure: invalid integer address in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.13] line 6 dereference failure: pointer NULL in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.14] line 6 dereference failure: pointer invalid in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.15] line 6 dereference failure: deallocated dynamic object in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.16] line 6 dereference failure: dead object in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.17] line 6 dereference failure: pointer outside object bounds in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.18] line 6 dereference failure: invalid integer address in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.19] line 6 dereference failure: pointer NULL in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.20] line 6 dereference failure: pointer invalid in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.21] line 6 dereference failure: deallocated dynamic object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.22] line 6 dereference failure: dead object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.23] line 6 dereference failure: pointer outside object bounds in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.24] line 6 dereference failure: invalid integer address in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.25] line 7 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.26] line 7 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.27] line 7 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.28] line 7 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.29] line 7 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.30] line 7 dereference failure: invalid integer address in *s: SUCCESS\n[audit_packet.overflow.7] line 8 arithmetic overflow on unsigned + in i + 1u: SUCCESS\n[audit_packet.pointer_dereference.31] line 8 dereference failure: pointer NULL in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.32] line 8 dereference failure: pointer invalid in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.33] line 8 dereference failure: deallocated dynamic object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.34] line 8 dereference failure: dead object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.35] line 8 dereference failure: pointer outside object bounds in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.36] line 8 dereference failure: invalid integer address in b[(signed long int)2]: SUCCESS\n[audit_packet.unwind.0] line 8 unwinding assertion loop 0: SUCCESS\n[audit_packet.overflow.1] line 9 arithmetic overflow on unsigned - in n - at: SUCCESS\n[audit_packet.overflow.2] line 9 arithmetic overflow on unsigned + in at + 1ul: SUCCESS\n[audit_packet.overflow.3] line 9 arithmetic overflow on unsigned + in at + 1ul: SUCCESS\n[audit_packet.overflow.4] line 9 arithmetic overflow on unsigned - in n - at: SUCCESS\n[audit_packet.pointer_dereference.37] line 9 dereference failure: pointer NULL in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.38] line 9 dereference failure: pointer invalid in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.39] line 9 dereference failure: deallocated dynamic object in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.40] line 9 dereference failure: dead object in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.41] line 9 dereference failure: pointer outside object bounds in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.42] line 9 dereference failure: invalid integer address in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.43] line 9 dereference failure: pointer NULL in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.44] line 9 dereference failure: pointer invalid in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.45] line 9 dereference failure: deallocated dynamic object in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.46] line 9 dereference failure: dead object in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.47] line 9 dereference failure: pointer outside object bounds in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.48] line 9 dereference failure: invalid integer address in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.49] line 10 dereference failure: pointer NULL in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.50] line 10 dereference failure: pointer invalid in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.51] line 10 dereference failure: deallocated dynamic object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.52] line 10 dereference failure: dead object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.53] line 10 dereference failure: pointer outside object bounds in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.54] line 10 dereference failure: invalid integer address in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.55] line 11 dereference failure: pointer NULL in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.56] line 11 dereference failure: pointer invalid in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.57] line 11 dereference failure: deallocated dynamic object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.58] line 11 dereference failure: dead object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.59] line 11 dereference failure: pointer outside object bounds in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.60] line 11 dereference failure: invalid integer address in b[(signed long int)at]: SUCCESS\n[audit_packet.undefined-shift.1] line 11 shift distance too large in 1u << key: SUCCESS\n[audit_packet.undefined-shift.2] line 11 shift distance too large in 1u << key: SUCCESS\n[audit_packet.array_bounds.1] line 12 array 'staged'.value upper bound in staged.value[(signed long int)key]: SUCCESS\n[audit_packet.array_bounds.2] line 12 array 'staged'.value upper bound in staged.value[(signed long int)key]: SUCCESS\n[audit_packet.overflow.5] line 12 arithmetic overflow on unsigned + in at + (unsigned long int)1: SUCCESS\n[audit_packet.overflow.6] line 12 arithmetic overflow on unsigned + in at + (unsigned long int)len: SUCCESS\n[audit_packet.pointer_dereference.61] line 12 dereference failure: pointer NULL in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.62] line 12 dereference failure: pointer invalid in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.63] line 12 dereference failure: deallocated dynamic object in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.64] line 12 dereference failure: dead object in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.65] line 12 dereference failure: pointer outside object bounds in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.66] line 12 dereference failure: invalid integer address in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.undefined-shift.3] line 12 shift distance too large in 1u << key: SUCCESS\n[audit_packet.pointer_dereference.67] line 13 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.68] line 13 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.69] line 13 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.70] line 13 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.71] line 13 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.72] line 13 dereference failure: invalid integer address in *s: SUCCESS\n[audit_packet.pointer_dereference.73] line 16 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.74] line 16 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.75] line 16 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.76] line 16 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.77] line 16 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.78] line 16 dereference failure: invalid integer address in *s: SUCCESS\n\n** 0 of 101 failed (1 iterations)\nVERIFICATION SUCCESSFUL\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "rollback mutant counterexample",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/cbmc",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/proof.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/independent",
+        "-DAUDIT_MUTANT=3",
+        "--function",
+        "main",
+        "--unwind",
+        "24",
+        "--unwinding-assertions",
+        "--bounds-check",
+        "--pointer-check"
+      ],
+      "returncode": 10,
+      "stdout": "CBMC version 6.11.0 (cbmc-6.11.0) 64-bit x86_64 linux\nType-checking proof\nType-checking repair\nGenerating GOTO Program\nAdding CPROVER library (x86_64)\nRemoval of function pointers and virtual functions\nGeneric Property Instrumentation\nStarting Bounded Model Checking\nPassing problem to propositional reduction\nconverting SSA\nRunning propositional reduction\nSAT checker: instance is SATISFIABLE\nRunning propositional reduction\nSAT checker: instance is SATISFIABLE\nRunning propositional reduction\nSAT checker: instance is UNSATISFIABLE\n\n** Results:\n/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/proof.c function main\n[main.array_bounds.1] line 4 array 'input' upper bound in input[(signed long int)i]: SUCCESS\n[main.array_bounds.2] line 4 array 's'.value upper bound in s.value[(signed long int)i]: SUCCESS\n[main.array_bounds.3] line 4 array 's'.value upper bound in s.value[(signed long int)i]: SUCCESS\n[main.array_bounds.4] line 4 array 'before'.value upper bound in before.value[(signed long int)i]: SUCCESS\n[main.assertion.1] line 4 assertion s.present<=15: SUCCESS\n[main.assertion.2] line 4 assertion s.present==before.present: FAILURE\n[main.assertion.3] line 4 assertion s.value[i]==before.value[i]: FAILURE\n\n/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/independent/repair.c function audit_packet\n[audit_packet.pointer_dereference.1] line 6 dereference failure: pointer NULL in s->present: SUCCESS\n[audit_packet.pointer_dereference.2] line 6 dereference failure: pointer invalid in s->present: SUCCESS\n[audit_packet.pointer_dereference.3] line 6 dereference failure: deallocated dynamic object in s->present: SUCCESS\n[audit_packet.pointer_dereference.4] line 6 dereference failure: dead object in s->present: SUCCESS\n[audit_packet.pointer_dereference.5] line 6 dereference failure: pointer outside object bounds in s->present: SUCCESS\n[audit_packet.pointer_dereference.6] line 6 dereference failure: invalid integer address in s->present: SUCCESS\n[audit_packet.pointer_dereference.7] line 6 dereference failure: pointer NULL in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.8] line 6 dereference failure: pointer invalid in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.9] line 6 dereference failure: deallocated dynamic object in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.10] line 6 dereference failure: dead object in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.11] line 6 dereference failure: pointer outside object bounds in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.12] line 6 dereference failure: invalid integer address in b[(signed long int)0]: SUCCESS\n[audit_packet.pointer_dereference.13] line 6 dereference failure: pointer NULL in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.14] line 6 dereference failure: pointer invalid in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.15] line 6 dereference failure: deallocated dynamic object in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.16] line 6 dereference failure: dead object in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.17] line 6 dereference failure: pointer outside object bounds in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.18] line 6 dereference failure: invalid integer address in b[(signed long int)1]: SUCCESS\n[audit_packet.pointer_dereference.19] line 6 dereference failure: pointer NULL in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.20] line 6 dereference failure: pointer invalid in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.21] line 6 dereference failure: deallocated dynamic object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.22] line 6 dereference failure: dead object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.23] line 6 dereference failure: pointer outside object bounds in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.24] line 6 dereference failure: invalid integer address in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.25] line 7 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.26] line 7 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.27] line 7 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.28] line 7 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.29] line 7 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.30] line 7 dereference failure: invalid integer address in *s: SUCCESS\n[audit_packet.pointer_dereference.31] line 8 dereference failure: pointer NULL in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.32] line 8 dereference failure: pointer invalid in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.33] line 8 dereference failure: deallocated dynamic object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.34] line 8 dereference failure: dead object in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.35] line 8 dereference failure: pointer outside object bounds in b[(signed long int)2]: SUCCESS\n[audit_packet.pointer_dereference.36] line 8 dereference failure: invalid integer address in b[(signed long int)2]: SUCCESS\n[audit_packet.unwind.0] line 8 unwinding assertion loop 0: SUCCESS\n[audit_packet.pointer_dereference.37] line 9 dereference failure: pointer NULL in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.38] line 9 dereference failure: pointer invalid in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.39] line 9 dereference failure: deallocated dynamic object in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.40] line 9 dereference failure: dead object in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.41] line 9 dereference failure: pointer outside object bounds in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.42] line 9 dereference failure: invalid integer address in b[(signed long int)tmp_post_at]: SUCCESS\n[audit_packet.pointer_dereference.43] line 9 dereference failure: pointer NULL in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.44] line 9 dereference failure: pointer invalid in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.45] line 9 dereference failure: deallocated dynamic object in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.46] line 9 dereference failure: dead object in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.47] line 9 dereference failure: pointer outside object bounds in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.48] line 9 dereference failure: invalid integer address in b[(signed long int)tmp_post_at$0]: SUCCESS\n[audit_packet.pointer_dereference.49] line 10 dereference failure: pointer NULL in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.50] line 10 dereference failure: pointer invalid in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.51] line 10 dereference failure: deallocated dynamic object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.52] line 10 dereference failure: dead object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.53] line 10 dereference failure: pointer outside object bounds in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.54] line 10 dereference failure: invalid integer address in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.55] line 11 dereference failure: pointer NULL in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.56] line 11 dereference failure: pointer invalid in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.57] line 11 dereference failure: deallocated dynamic object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.58] line 11 dereference failure: dead object in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.59] line 11 dereference failure: pointer outside object bounds in b[(signed long int)at]: SUCCESS\n[audit_packet.pointer_dereference.60] line 11 dereference failure: invalid integer address in b[(signed long int)at]: SUCCESS\n[audit_packet.undefined-shift.1] line 11 shift distance too large in 1u << key: SUCCESS\n[audit_packet.undefined-shift.2] line 11 shift distance too large in 1u << key: SUCCESS\n[audit_packet.array_bounds.1] line 12 array 'staged'.value upper bound in staged.value[(signed long int)key]: SUCCESS\n[audit_packet.array_bounds.2] line 12 array 'staged'.value upper bound in staged.value[(signed long int)key]: SUCCESS\n[audit_packet.pointer_dereference.61] line 12 dereference failure: pointer NULL in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.62] line 12 dereference failure: pointer invalid in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.63] line 12 dereference failure: deallocated dynamic object in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.64] line 12 dereference failure: dead object in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.65] line 12 dereference failure: pointer outside object bounds in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.pointer_dereference.66] line 12 dereference failure: invalid integer address in b[(signed long int)(at + (unsigned long int)1)]: SUCCESS\n[audit_packet.undefined-shift.3] line 12 shift distance too large in 1u << key: SUCCESS\n[audit_packet.pointer_dereference.67] line 13 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.68] line 13 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.69] line 13 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.70] line 13 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.71] line 13 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.72] line 13 dereference failure: invalid integer address in *s: SUCCESS\n[audit_packet.pointer_dereference.73] line 16 dereference failure: pointer NULL in *s: SUCCESS\n[audit_packet.pointer_dereference.74] line 16 dereference failure: pointer invalid in *s: SUCCESS\n[audit_packet.pointer_dereference.75] line 16 dereference failure: deallocated dynamic object in *s: SUCCESS\n[audit_packet.pointer_dereference.76] line 16 dereference failure: dead object in *s: SUCCESS\n[audit_packet.pointer_dereference.77] line 16 dereference failure: pointer outside object bounds in *s: SUCCESS\n[audit_packet.pointer_dereference.78] line 16 dereference failure: invalid integer address in *s: SUCCESS\n\n** 2 of 91 failed (3 iterations)\nVERIFICATION FAILED\n",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "22-byte bounded proof of safety/rollback, not full semantic acceptance or arbitrary packet lengths",
+    "Independent generated packet oracle plus10000 random bytes are finite tests; three semantic mutants and original target give causal negative controls",
+    "Author reference/method-selection evidence is not the unaided learner attempt or seven-day elapsed-time evidence"
+  ]
+}

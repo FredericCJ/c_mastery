@@ -8,7 +8,9 @@
     {
       "id": "PR-T69-01",
       "tests": [
-        "dispatch.traits"
+        "dispatch.traits",
+        "dispatch.nominal",
+        "dispatch.progress"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
@@ -22,49 +24,61 @@
     {
       "id": "PR-T69-03",
       "tests": [
-        "dispatch.dictionary"
+        "dispatch.dictionary",
+        "dispatch.reduction"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-04",
       "tests": [
-        "dispatch.closures"
+        "dispatch.closures",
+        "dispatch.owned_closure"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-05",
       "tests": [
-        "dispatch.erased"
+        "dispatch.erased",
+        "dispatch.capture_codec",
+        "dispatch.typed_capture",
+        "dispatch.clone_pair"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-06",
       "tests": [
-        "dispatch.multiple"
+        "dispatch.multiple",
+        "dispatch.resolution",
+        "dispatch.plugin_cache"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-07",
       "tests": [
-        "dispatch.intrusive"
+        "dispatch.intrusive",
+        "dispatch.dual_hook",
+        "dispatch.index_move"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-08",
       "tests": [
-        "dispatch.modules"
+        "dispatch.modules",
+        "dispatch.module_second",
+        "dispatch.shared_modules"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
     {
       "id": "PR-T69-09",
       "tests": [
-        "dispatch.capabilities"
+        "dispatch.capabilities",
+        "dispatch.broker"
       ],
       "scope": "Hosted anchors do not replace full exercise obligations."
     },
@@ -99,11 +113,15 @@
         "T69.01.d"
       ],
       "tests": [
-        "dispatch.traits"
+        "dispatch.traits",
+        "dispatch.nominal",
+        "dispatch.progress",
+        "dispatch.copy_laws"
       ],
       "steps": [
         "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
-        "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging."
+        "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.",
+        "Required rubric transfer: Implement DSCopyView and ds_copy_checked from dispatch_laws.h under the shared cross-method contract. Use counted bytes of lengths0..16, including embedded zeros, and independently state the length/copy relation before building. The102 oracle rows combine length, two failure positions and false reported count. A deliberately zero-terminated length paired with counted copying compiles but fails for [1,0,2]. Preserve caller bytes/count on failure, invoke each admitted method once, and distinguish checked count agreement from uncheckable arbitrary callback behavior. D3 includes both semantic mutants plus actual Rust trait positive and negative controls: missing method and wrong signature reject, yet the Rust implementation with length1/copy3 compiles and runs. A method call without the extension trait in scope rejects separately. Explain why naming C free functions does not provide trait method lookup or coherence."
       ],
       "checks": [
         "A borrowed int7 measures7. A callback returning DS_FAILED after writing123 into its private output leaves caller output99 unchanged. A missing table rejects before invocation. The wrong-return-type callback fixture must fail strict C17 compilation.",
@@ -179,7 +197,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "An operation table can validate the presence of a function pointer but cannot infer that the pointer uses the same concrete representation as its object or satisfies the promised law."
         }
       ]
@@ -199,11 +217,15 @@
         "T69.01.d"
       ],
       "tests": [
-        "dispatch.traits"
+        "dispatch.traits",
+        "dispatch.nominal",
+        "dispatch.progress",
+        "dispatch.copy_laws"
       ],
       "steps": [
         "Enumerate int values-8..8 and counted spans0..16; instrument callback count and outputs. Compile every diagnostic fixture separately under GCC/Clang -std=c17 -Wpedantic -Werror and retain the intended diagnostic. Wrong semantic callbacks must compile and be rejected by behavior/invariant checks, not by a cast or a runtime type-name string. Never execute a deliberately incompatible function-pointer call.",
-        "X-T69-001-DELAYED: add an interface whose read method may make partial progress. Preserve both progress and status and show why the original single-output success/failure wrapper cannot express it."
+        "X-T69-001-DELAYED: add an interface whose read method may make partial progress. Preserve both progress and status and show why the original single-output success/failure wrapper cannot express it.",
+        "Required rubric transfer: Implement DSCopyView and ds_copy_checked from dispatch_laws.h under the shared cross-method contract. Use counted bytes of lengths0..16, including embedded zeros, and independently state the length/copy relation before building. The102 oracle rows combine length, two failure positions and false reported count. A deliberately zero-terminated length paired with counted copying compiles but fails for [1,0,2]. Preserve caller bytes/count on failure, invoke each admitted method once, and distinguish checked count agreement from uncheckable arbitrary callback behavior. D3 includes both semantic mutants plus actual Rust trait positive and negative controls: missing method and wrong signature reject, yet the Rust implementation with length1/copy3 compiles and runs. A method call without the extension trait in scope rejects separately. Explain why naming C free functions does not provide trait method lookup or coherence."
       ],
       "checks": [
         "A borrowed int7 measures7. A callback returning DS_FAILED after writing123 into its private output leaves caller output99 unchanged. A missing table rejects before invocation. The wrong-return-type callback fixture must fail strict C17 compilation.",
@@ -279,7 +301,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "An operation table can validate the presence of a function pointer but cannot infer that the pointer uses the same concrete representation as its object or satisfies the promised law."
         }
       ]
@@ -299,11 +321,13 @@
         "T69.02.d"
       ],
       "tests": [
-        "dispatch.fat"
+        "dispatch.fat",
+        "dispatch.subobjects"
       ],
       "steps": [
         "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
-        "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication."
+        "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+        "Required rubric transfer: Implement ds_multi_views for the two actual subobjects in DSMulti. Use every length0..16 and scalar value-16..16; mutate each after obtaining the views and verify the same views observe the corresponding live subobject. Replace the scalar table with the failing table and reconstruct the view; output must remain unchanged. Record actual sizeof/alignment/offsets and explain both owner and byte-array lifetime requirements. Neither mutant performs an invalid cast: one supplies the wrong valid interface, the other a stable unrelated integer. D3 also compares the actual Rust zero-sized marker and trait-reference observations with the C occupied marker/strict empty-struct diagnostic, and checks Rust's rejection of an escaping borrowed trait object. These are exact target/compiler observations, not an ABI or C borrow-checking guarantee."
       ],
       "checks": [
         "DSBox containing int17 measures17 through its embedded table. If its table returns DS_FAILED, output99 remains99. Assigning char** to const char** produces the intended diagnostic. A successful cast compilation is not permission to perform the counterfactual const write.",
@@ -384,7 +408,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "A pair of pointers is an implementation choice, not a universal language ABI. Indirection changes where metadata lives, and apparently harmless qualifier widening can make a const object writable."
         }
       ]
@@ -404,11 +428,13 @@
         "T69.02.d"
       ],
       "tests": [
-        "dispatch.fat"
+        "dispatch.fat",
+        "dispatch.subobjects"
       ],
       "steps": [
         "Compare outputs and failure side effects for every int-16..16 and both valid/failing tables. Measure sizeof/_Alignof/offsetof rather than assuming sizes. Analyze all three pointer levels in the qualifier fixture and keep diagnostics apart from runtime evidence. Rebuild both representations under GCC/Clang with and without link-time optimization; a compiler eliminating the indirect call is an observation for that build.",
-        "X-T69-002-DELAYED: a view refers to the second field of a live parent and must outlive a temporary table built on the stack. Repair ownership by choosing a static table or owned metadata, and justify which borrows remain valid."
+        "X-T69-002-DELAYED: a view refers to the second field of a live parent and must outlive a temporary table built on the stack. Repair ownership by choosing a static table or owned metadata, and justify which borrows remain valid.",
+        "Required rubric transfer: Implement ds_multi_views for the two actual subobjects in DSMulti. Use every length0..16 and scalar value-16..16; mutate each after obtaining the views and verify the same views observe the corresponding live subobject. Replace the scalar table with the failing table and reconstruct the view; output must remain unchanged. Record actual sizeof/alignment/offsets and explain both owner and byte-array lifetime requirements. Neither mutant performs an invalid cast: one supplies the wrong valid interface, the other a stable unrelated integer. D3 also compares the actual Rust zero-sized marker and trait-reference observations with the C occupied marker/strict empty-struct diagnostic, and checks Rust's rejection of an escaping borrowed trait object. These are exact target/compiler observations, not an ABI or C borrow-checking guarantee."
       ],
       "checks": [
         "DSBox containing int17 measures17 through its embedded table. If its table returns DS_FAILED, output99 remains99. Assigning char** to const char** produces the intended diagnostic. A successful cast compilation is not permission to perform the counterfactual const write.",
@@ -489,7 +515,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "A pair of pointers is an implementation choice, not a universal language ABI. Indirection changes where metadata lives, and apparently harmless qualifier widening can make a const object writable."
         }
       ]
@@ -509,7 +535,8 @@
         "T69.03.d"
       ],
       "tests": [
-        "dispatch.dictionary"
+        "dispatch.dictionary",
+        "dispatch.reduction"
       ],
       "steps": [
         "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
@@ -524,7 +551,7 @@
         "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold."
       ],
       "deliverables": [
-        "Implement ds_fold for0–16 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.",
+        "Implement ds_fold for0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u015316 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.",
         "Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.",
         "X-T69-003-DELAYED: introduce a saturating signed policy and parallel tree reduction. Produce a minimal associativity counterexample and either retain fold order or narrow the algebraic contract before optimizing."
       ],
@@ -554,7 +581,7 @@
         {
           "id": "X-T69-003-R3",
           "objective": "T69.03.c",
-          "criterion": "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+          "criterion": "Exhaust length0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01535 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
           "levels": {
             "0": "Absent or contradicts the stated representation/contract.",
             "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
@@ -609,7 +636,8 @@
         "T69.03.d"
       ],
       "tests": [
-        "dispatch.dictionary"
+        "dispatch.dictionary",
+        "dispatch.reduction"
       ],
       "steps": [
         "Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.",
@@ -624,7 +652,7 @@
         "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold."
       ],
       "deliverables": [
-        "Implement ds_fold for0–16 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.",
+        "Implement ds_fold for0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u015316 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.",
         "Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.",
         "X-T69-003-DELAYED: introduce a saturating signed policy and parallel tree reduction. Produce a minimal associativity counterexample and either retain fold order or narrow the algebraic contract before optimizing."
       ],
@@ -654,7 +682,7 @@
         {
           "id": "X-T69-003-R3",
           "objective": "T69.03.c",
-          "criterion": "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+          "criterion": "Exhaust length0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01535 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
           "levels": {
             "0": "Absent or contradicts the stated representation/contract.",
             "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
@@ -709,11 +737,15 @@
         "T69.04.d"
       ],
       "tests": [
-        "dispatch.closures"
+        "dispatch.closures",
+        "dispatch.owned_closure",
+        "dispatch.closure_histories",
+        "dispatch.retained_closure"
       ],
       "steps": [
         "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
-        "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures."
+        "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+        "Required rubric transfer: Implement DSDeferred from dispatch_deferred.h using the actual T66 shared owner (X-T66-006). Bind retains an environment, and the original owner then releases its reference before the worker starts. Prove that queued and running cancellation preserve this owner until join/drain, suppress canceled output, and destroy/release exactly once. Test copied token reuse, pre-submit cancellation, failed body, dead/full owner admission and generation exhaustion. A mutex/condition barrier holds a real callback in progress; do not forcefully cancel it. D3 additionally compares59,049 actual scalar closure transitions to an independent model, checks integer extrema and demonstrates that copying a plain active once struct duplicates its local consumed bit. Actual Rust controls accept a move-capturing Fn closure and reject consuming an FnOnce closure twice. This does not make the C mode enum a compiler proof. Record every borrowed versus owned environment and reentrancy restriction."
       ],
       "checks": [
         "Capture3 shared calls with2 return5 repeatedly without capture mutation. Mutable calls return5 then7. Once capture1 with2 returns3 and later DS_EMPTY. Once INT_MAX with1 returns DS_RANGE with unchanged output and becomes inactive.",
@@ -809,11 +841,15 @@
         "T69.04.d"
       ],
       "tests": [
-        "dispatch.closures"
+        "dispatch.closures",
+        "dispatch.owned_closure",
+        "dispatch.closure_histories",
+        "dispatch.retained_closure"
       ],
       "steps": [
         "Enumerate captures/arguments-4..4 for all modes, retain mode/state/output after every call, then test int extrema. In the resource variant inject rejection before and after invocation admission and count release exactly once. Do not dereference ended borrowed storage; use an instrumented lifetime token to demonstrate rejection and separately analyze the raw-pointer counterexample.",
-        "X-T69-004-DELAYED: the once body takes ownership of a resource before returning a recoverable failure. Design a result that returns the resource when retry is possible, and distinguish that from the original consumed-on-attempt policy."
+        "X-T69-004-DELAYED: the once body takes ownership of a resource before returning a recoverable failure. Design a result that returns the resource when retry is possible, and distinguish that from the original consumed-on-attempt policy.",
+        "Required rubric transfer: Implement DSDeferred from dispatch_deferred.h using the actual T66 shared owner (X-T66-006). Bind retains an environment, and the original owner then releases its reference before the worker starts. Prove that queued and running cancellation preserve this owner until join/drain, suppress canceled output, and destroy/release exactly once. Test copied token reuse, pre-submit cancellation, failed body, dead/full owner admission and generation exhaustion. A mutex/condition barrier holds a real callback in progress; do not forcefully cancel it. D3 additionally compares59,049 actual scalar closure transitions to an independent model, checks integer extrema and demonstrates that copying a plain active once struct duplicates its local consumed bit. Actual Rust controls accept a move-capturing Fn closure and reject consuming an FnOnce closure twice. This does not make the C mode enum a compiler proof. Record every borrowed versus owned environment and reentrancy restriction."
       ],
       "checks": [
         "Capture3 shared calls with2 return5 repeatedly without capture mutation. Mutable calls return5 then7. Once capture1 with2 returns3 and later DS_EMPTY. Once INT_MAX with1 returns DS_RANGE with unchanged output and becomes inactive.",
@@ -910,11 +946,16 @@
         "T69.05.e"
       ],
       "tests": [
-        "dispatch.erased"
+        "dispatch.erased",
+        "dispatch.capture_codec",
+        "dispatch.typed_capture",
+        "dispatch.clone_pair",
+        "dispatch.capture_admission"
       ],
       "steps": [
         "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
-        "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback."
+        "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+        "Required rubric transfer: Implement ds_capture_checked and explicitly reject self-referential/arbitrary typed captures, over-aligned storage requests and borrowed-reference returns before allocation or ownership transfer. Accepted int32 encoding delegates to the actual previous capture/DSmall/T66 implementation. Show a typed self-reference copy still points into the original while both objects remain live, then repair it with an explicit typed relocation; never invoke it after its owner ends. Compare a genuine32-byte-aligned type to the admitted scalar schema. Compile the scalar-thunk positive control and incompatible borrowed-pointer-return negative control. Explain why the restricted interface cannot promise an arbitrary relocator or returned-reference lifetime. The two admission mutants accept a disallowed kind or borrowed result; they are rejected by state assertions before any invalid typed access."
       ],
       "checks": [
         "Capture byte7 called with3 produces10. Move leaves the source inactive/empty and destination active. Dropping source then destination twice invokes the resource destructor exactly once. Allocation failure during a large capture assignment leaves the destination empty and ownership with the caller.",
@@ -996,17 +1037,17 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-MOVE",
-          "locator": "func.wrap.move.class paragraphs1–2: wrapper and small-object recommendation",
+          "locator": "func.wrap.move.class paragraphs1\u20132: wrapper and small-object recommendation",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         },
         {
           "resource_id": "R-MOD-DISPATCH-REF",
-          "locator": "func.wrap.ref.class paragraphs1–3: thunk and bound entity",
+          "locator": "func.wrap.ref.class paragraphs1\u20133: thunk and bound entity",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         }
       ]
@@ -1027,11 +1068,16 @@
         "T69.05.e"
       ],
       "tests": [
-        "dispatch.erased"
+        "dispatch.erased",
+        "dispatch.capture_codec",
+        "dispatch.typed_capture",
+        "dispatch.clone_pair",
+        "dispatch.capture_admission"
       ],
       "steps": [
         "Drive assign/call/move/drop traces through a logical ownership model and an allocator request/release log. Exercise inline16 versus spill17 and capture128 versus129 using thunks that accept those schemas. Compile with sanitizers, but diagnose ownership-state errors before invoking an inactive or mismatched thunk. Count bytes copied, allocations, owner size, dispatch and destructors under the13-dimension contract.",
-        "X-T69-005-DELAYED: allow cloning only for captures whose clone callback can fail. Specify source preservation, destination rollback and destructor ordering when the second of two owned subresources fails to clone."
+        "X-T69-005-DELAYED: allow cloning only for captures whose clone callback can fail. Specify source preservation, destination rollback and destructor ordering when the second of two owned subresources fails to clone.",
+        "Required rubric transfer: Implement ds_capture_checked and explicitly reject self-referential/arbitrary typed captures, over-aligned storage requests and borrowed-reference returns before allocation or ownership transfer. Accepted int32 encoding delegates to the actual previous capture/DSmall/T66 implementation. Show a typed self-reference copy still points into the original while both objects remain live, then repair it with an explicit typed relocation; never invoke it after its owner ends. Compare a genuine32-byte-aligned type to the admitted scalar schema. Compile the scalar-thunk positive control and incompatible borrowed-pointer-return negative control. Explain why the restricted interface cannot promise an arbitrary relocator or returned-reference lifetime. The two admission mutants accept a disallowed kind or borrowed result; they are rejected by state assertions before any invalid typed access."
       ],
       "checks": [
         "Capture byte7 called with3 produces10. Move leaves the source inactive/empty and destination active. Dropping source then destination twice invokes the resource destructor exactly once. Allocation failure during a large capture assignment leaves the destination empty and ownership with the caller.",
@@ -1113,17 +1159,17 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-MOVE",
-          "locator": "func.wrap.move.class paragraphs1–2: wrapper and small-object recommendation",
+          "locator": "func.wrap.move.class paragraphs1\u20132: wrapper and small-object recommendation",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         },
         {
           "resource_id": "R-MOD-DISPATCH-REF",
-          "locator": "func.wrap.ref.class paragraphs1–3: thunk and bound entity",
+          "locator": "func.wrap.ref.class paragraphs1\u20133: thunk and bound entity",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract."
         }
       ]
@@ -1143,7 +1189,9 @@
         "T69.06.d"
       ],
       "tests": [
-        "dispatch.multiple"
+        "dispatch.multiple",
+        "dispatch.resolution",
+        "dispatch.plugin_cache"
       ],
       "steps": [
         "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
@@ -1151,7 +1199,7 @@
       ],
       "checks": [
         "Register subtraction for(0,1): arguments10,2 produce8; reversed types(1,0) are unsupported. Replace the same entry with addition: the old cached result must be invalidated and produce12. A third registration rejects at the finite epoch limit.",
-        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters."
+        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01532 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters."
       ],
       "reasoning": [
         "Caching a method is caching a semantic decision. Ignoring registration generation or sorting an ordered pair changes behavior even when the called functions are individually correct.",
@@ -1159,7 +1207,7 @@
       ],
       "deliverables": [
         "Implement a3x3 ordered binary-method table and one-entry cache. A cache is bound to one DSMethods object; its key includes ordered type pair and non-wrapping table epoch. Epoch1 is empty; each admitted registration/removal increments it and epoch3 forbids further changes. Add a two-entry cache and compare direct table lookup. Specify a separate subtype fallback graph and reject ambiguous equally specific matches instead of silently choosing registration order.",
-        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
+        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01532 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
         "X-T69-006-DELAYED: methods can be registered by a reloadable plugin. Integrate module ownership into each cache entry and prove quiescence before discarding code pointers, including cached misses after a new plugin loads."
       ],
       "rubric": [
@@ -1238,15 +1286,17 @@
         "T69.06.d"
       ],
       "tests": [
-        "dispatch.multiple"
+        "dispatch.multiple",
+        "dispatch.resolution",
+        "dispatch.plugin_cache"
       ],
       "steps": [
-        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
+        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01532 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
         "X-T69-006-DELAYED: methods can be registered by a reloadable plugin. Integrate module ownership into each cache entry and prove quiescence before discarding code pointers, including cached misses after a new plugin loads."
       ],
       "checks": [
         "Register subtraction for(0,1): arguments10,2 produce8; reversed types(1,0) are unsupported. Replace the same entry with addition: the old cached result must be invalidated and produce12. A third registration rejects at the finite epoch limit.",
-        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters."
+        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01532 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters."
       ],
       "reasoning": [
         "Caching a method is caching a semantic decision. Ignoring registration generation or sorting an ordered pair changes behavior even when the called functions are individually correct.",
@@ -1254,7 +1304,7 @@
       ],
       "deliverables": [
         "Implement a3x3 ordered binary-method table and one-entry cache. A cache is bound to one DSMethods object; its key includes ordered type pair and non-wrapping table epoch. Epoch1 is empty; each admitted registration/removal increments it and epoch3 forbids further changes. Add a two-entry cache and compare direct table lookup. Specify a separate subtype fallback graph and reject ambiguous equally specific matches instead of silently choosing registration order.",
-        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
+        "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01532 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
         "X-T69-006-DELAYED: methods can be registered by a reloadable plugin. Integrate module ownership into each cache entry and prove quiescence before discarding code pointers, including cached misses after a new plugin loads."
       ],
       "rubric": [
@@ -1333,7 +1383,9 @@
         "T69.07.d"
       ],
       "tests": [
-        "dispatch.intrusive"
+        "dispatch.intrusive",
+        "dispatch.dual_hook",
+        "dispatch.index_move"
       ],
       "steps": [
         "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
@@ -1408,7 +1460,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "Intrusive linkage avoids an allocation by putting lifetime and movement obligations on the payload owner. A familiar container_of macro does not establish provenance, active object type or sentinel identity."
         }
       ]
@@ -1428,7 +1480,9 @@
         "T69.07.d"
       ],
       "tests": [
-        "dispatch.intrusive"
+        "dispatch.intrusive",
+        "dispatch.dual_hook",
+        "dispatch.index_move"
       ],
       "steps": [
         "Check count and both link directions after every admitted trace of up to7 operations over four items. Test empty/singleton/head/tail/middle removal and checked-sum overflow. Retain removed objects live so rejection tests do not use ended storage. A separate diagnostic/assembly report must distinguish standard initial-member conversion from compiler-supported arbitrary-offset recovery.",
@@ -1503,7 +1557,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "Intrusive linkage avoids an allocation by putting lifetime and movement obligations on the payload owner. A familiar container_of macro does not establish provenance, active object type or sentinel identity."
         }
       ]
@@ -1523,7 +1577,9 @@
         "T69.08.d"
       ],
       "tests": [
-        "dispatch.modules"
+        "dispatch.modules",
+        "dispatch.module_second",
+        "dispatch.shared_modules"
       ],
       "steps": [
         "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
@@ -1623,7 +1679,9 @@
         "T69.08.d"
       ],
       "tests": [
-        "dispatch.modules"
+        "dispatch.modules",
+        "dispatch.module_second",
+        "dispatch.shared_modules"
       ],
       "steps": [
         "Use a scripted service with explicit read values/statuses and compare full call trace plus output. Test maximum two live instances, close/reopen, and accidental use of a closed lease through a separate lifetime-token wrapper; never dereference an ended raw object as a test oracle. Inspect separate compilation and public headers for private representation leakage.",
@@ -1723,7 +1781,8 @@
         "T69.09.d"
       ],
       "tests": [
-        "dispatch.capabilities"
+        "dispatch.capabilities",
+        "dispatch.broker"
       ],
       "steps": [
         "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
@@ -1731,7 +1790,7 @@
       ],
       "checks": [
         "A full-rights capability can add5. Its attenuated read-only capability cannot change the counter. Attempting to attenuate read-only rights to full rights rejects with output unchanged. After revocation, the former full capability returns stale and the counter remains5.",
-        "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state."
+        "Enumerate rights0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state."
       ],
       "reasoning": [
         "The attacker perspective reveals whether a token is actually authoritative or simply trusted data. A subset check is meaningful only under a threat model that prevents the caller from changing the checked authority metadata.",
@@ -1739,7 +1798,7 @@
       ],
       "deliverables": [
         "Implement the original DSAuthority/DSCapability model over a synthetic int counter. Rights bits1(read) and2(add), owner identity and finite epochs enforce checked API requests. Issue and attenuation must never add rights; add requires both root and capability permission; revoke invalidates old epochs and retires after3. Attack only this cooperative local model by requesting a stronger mask, reusing a revoked capability and crossing owners. Then analyze a C client that directly forges exposed fields: explain why this violates the model and refutes a broader security claim. Design an opaque broker/process boundary that can enforce the stronger threat model.",
-        "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
+        "Enumerate rights0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
         "X-T69-009-DELAYED: introduce a deputy that accepts a target owner plus caller capability. Construct a cross-owner request that would spend the deputy authority, then repair it by making the exact effect capability an explicit argument."
       ],
       "rubric": [
@@ -1798,7 +1857,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "The attacker perspective reveals whether a token is actually authoritative or simply trusted data. A subset check is meaningful only under a threat model that prevents the caller from changing the checked authority metadata."
         }
       ]
@@ -1818,15 +1877,16 @@
         "T69.09.d"
       ],
       "tests": [
-        "dispatch.capabilities"
+        "dispatch.capabilities",
+        "dispatch.broker"
       ],
       "steps": [
-        "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
+        "Enumerate rights0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
         "X-T69-009-DELAYED: introduce a deputy that accepts a target owner plus caller capability. Construct a cross-owner request that would spend the deputy authority, then repair it by making the exact effect capability an explicit argument."
       ],
       "checks": [
         "A full-rights capability can add5. Its attenuated read-only capability cannot change the counter. Attempting to attenuate read-only rights to full rights rejects with output unchanged. After revocation, the former full capability returns stale and the counter remains5.",
-        "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state."
+        "Enumerate rights0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state."
       ],
       "reasoning": [
         "The attacker perspective reveals whether a token is actually authoritative or simply trusted data. A subset check is meaningful only under a threat model that prevents the caller from changing the checked authority metadata.",
@@ -1834,7 +1894,7 @@
       ],
       "deliverables": [
         "Implement the original DSAuthority/DSCapability model over a synthetic int counter. Rights bits1(read) and2(add), owner identity and finite epochs enforce checked API requests. Issue and attenuation must never add rights; add requires both root and capability permission; revoke invalidates old epochs and retires after3. Attack only this cooperative local model by requesting a stronger mask, reusing a revoked capability and crossing owners. Then analyze a C client that directly forges exposed fields: explain why this violates the model and refutes a broader security claim. Design an opaque broker/process boundary that can enforce the stronger threat model.",
-        "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
+        "Enumerate rights0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
         "X-T69-009-DELAYED: introduce a deputy that accepts a target owner plus caller capability. Construct a cross-owner request that would spend the deputy authority, then repair it by making the exact effect capability an explicit argument."
       ],
       "rubric": [
@@ -1893,7 +1953,7 @@
       "references": [
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "The attacker perspective reveals whether a token is actually authoritative or simply trusted data. A subset check is meaningful only under a threat model that prevents the caller from changing the checked authority metadata."
         }
       ]
@@ -1913,7 +1973,9 @@
         "T69.10.d"
       ],
       "tests": [
-        "dispatch.plugin"
+        "dispatch.plugin",
+        "dispatch.plugin_compat",
+        "dispatch.async_registry"
       ],
       "steps": [
         "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
@@ -1998,7 +2060,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "A symbol address supplies neither semantic compatibility nor lifetime. A successful dlclose need not remove mappings, and a surviving address is not permission to keep using a logically unloaded API."
         }
       ]
@@ -2018,7 +2080,9 @@
         "T69.10.d"
       ],
       "tests": [
-        "dispatch.plugin"
+        "dispatch.plugin",
+        "dispatch.plugin_compat",
+        "dispatch.async_registry"
       ],
       "steps": [
         "Build DSOs and host separately with recorded flags. Use dlerror around symbol resolution and inspect dynamic symbols/dependencies. Retain handles after failed close and classify initialization side effects. All executable targets are original local DSOs; no external plugin/service load is authorized. No destructor, stale callback or invalid ABI is invoked after rejection.",
@@ -2103,7 +2167,7 @@
         },
         {
           "resource_id": "R-MOD-DISPATCH-C-POINTERS",
-          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "locator": "6.3.2.3p1\u20132 and7\u20138 Pointer conversions",
           "purpose": "A symbol address supplies neither semantic compatibility nor lifetime. A successful dlclose need not remove mappings, and a surviving address is not permission to keep using a logically unloaded API."
         }
       ]
@@ -2123,7 +2187,9 @@
         "T69.11.d"
       ],
       "tests": [
-        "dispatch.reload"
+        "dispatch.reload",
+        "dispatch.async_registry",
+        "dispatch.reload_owned"
       ],
       "steps": [
         "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
@@ -2131,15 +2197,15 @@
       ],
       "checks": [
         "Starting state7, load schema1 then schema2: state becomes14, generation2, candidate becomes empty and the former module is retired. Collect releases retired. With old state600, migration rejects and retains state600, generation2, current and candidate ownership unchanged.",
-        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment."
+        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01534 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment."
       ],
       "reasoning": [
         "Hot reload is a lifetime and state-compatibility transaction. Swapping a function pointer is insufficient when old callbacks, data schemas or cleanup failures remain live.",
         "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup."
       ],
       "deliverables": [
-        "Implement DSHost reload/collect with current and one retired DSLoaded owner, integer state and non-wrapping generation0–3. Stage candidate migration from old schema/state, then atomically transfer ownership and publish state only on success. The previous module remains owned in retired until explicit collection. Reject reload while current/candidate borrows exist, retired remains occupied or generation is exhausted. Plugin1 preserves state; plugin2 doubles admitted state0–500. Add a failure-injecting loader backend model for collection failure without passing invalid real loader handles.",
-        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
+        "Implement DSHost reload/collect with current and one retired DSLoaded owner, integer state and non-wrapping generation0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533. Stage candidate migration from old schema/state, then atomically transfer ownership and publish state only on success. The previous module remains owned in retired until explicit collection. Reject reload while current/candidate borrows exist, retired remains occupied or generation is exhausted. Plugin1 preserves state; plugin2 doubles admitted state0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u0153500. Add a failure-injecting loader backend model for collection failure without passing invalid real loader handles.",
+        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01534 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
         "X-T69-011-DELAYED: a candidate accepts state but its initialization registers two host callbacks and the second registration fails. Design precommit rollback and a postcommit retirement protocol, including exactly-once callback deregistration."
       ],
       "rubric": [
@@ -2223,23 +2289,25 @@
         "T69.11.d"
       ],
       "tests": [
-        "dispatch.reload"
+        "dispatch.reload",
+        "dispatch.async_registry",
+        "dispatch.reload_owned"
       ],
       "steps": [
-        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
+        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01534 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
         "X-T69-011-DELAYED: a candidate accepts state but its initialization registers two host callbacks and the second registration fails. Design precommit rollback and a postcommit retirement protocol, including exactly-once callback deregistration."
       ],
       "checks": [
         "Starting state7, load schema1 then schema2: state becomes14, generation2, candidate becomes empty and the former module is retired. Collect releases retired. With old state600, migration rejects and retains state600, generation2, current and candidate ownership unchanged.",
-        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment."
+        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01534 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment."
       ],
       "reasoning": [
         "Hot reload is a lifetime and state-compatibility transaction. Swapping a function pointer is insufficient when old callbacks, data schemas or cleanup failures remain live.",
         "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup."
       ],
       "deliverables": [
-        "Implement DSHost reload/collect with current and one retired DSLoaded owner, integer state and non-wrapping generation0–3. Stage candidate migration from old schema/state, then atomically transfer ownership and publish state only on success. The previous module remains owned in retired until explicit collection. Reject reload while current/candidate borrows exist, retired remains occupied or generation is exhausted. Plugin1 preserves state; plugin2 doubles admitted state0–500. Add a failure-injecting loader backend model for collection failure without passing invalid real loader handles.",
-        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
+        "Implement DSHost reload/collect with current and one retired DSLoaded owner, integer state and non-wrapping generation0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01533. Stage candidate migration from old schema/state, then atomically transfer ownership and publish state only on success. The previous module remains owned in retired until explicit collection. Reject reload while current/candidate borrows exist, retired remains occupied or generation is exhausted. Plugin1 preserves state; plugin2 doubles admitted state0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u0153500. Add a failure-injecting loader backend model for collection failure without passing invalid real loader handles.",
+        "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0\u00c3\u00a2\u00e2\u201a\u00ac\u00e2\u20ac\u01534 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
         "X-T69-011-DELAYED: a candidate accepts state but its initialization registers two host callbacks and the second registration fails. Design precommit rollback and a postcommit retirement protocol, including exactly-once callback deregistration."
       ],
       "rubric": [
@@ -2314,7 +2382,10 @@
       "id": "X-T69-001",
       "project": "PR-T69-01",
       "tests": [
-        "dispatch.traits"
+        "dispatch.traits",
+        "dispatch.nominal",
+        "dispatch.progress",
+        "dispatch.copy_laws"
       ],
       "capabilities": [
         "linux-c17"
@@ -2324,7 +2395,8 @@
       "id": "X-T69-002",
       "project": "PR-T69-02",
       "tests": [
-        "dispatch.fat"
+        "dispatch.fat",
+        "dispatch.subobjects"
       ],
       "capabilities": [
         "linux-c17"
@@ -2334,7 +2406,8 @@
       "id": "X-T69-003",
       "project": "PR-T69-03",
       "tests": [
-        "dispatch.dictionary"
+        "dispatch.dictionary",
+        "dispatch.reduction"
       ],
       "capabilities": [
         "linux-c17"
@@ -2344,7 +2417,10 @@
       "id": "X-T69-004",
       "project": "PR-T69-04",
       "tests": [
-        "dispatch.closures"
+        "dispatch.closures",
+        "dispatch.owned_closure",
+        "dispatch.closure_histories",
+        "dispatch.retained_closure"
       ],
       "capabilities": [
         "linux-c17"
@@ -2354,7 +2430,11 @@
       "id": "X-T69-005",
       "project": "PR-T69-05",
       "tests": [
-        "dispatch.erased"
+        "dispatch.erased",
+        "dispatch.capture_codec",
+        "dispatch.typed_capture",
+        "dispatch.clone_pair",
+        "dispatch.capture_admission"
       ],
       "capabilities": [
         "linux-c17"
@@ -2364,7 +2444,9 @@
       "id": "X-T69-006",
       "project": "PR-T69-06",
       "tests": [
-        "dispatch.multiple"
+        "dispatch.multiple",
+        "dispatch.resolution",
+        "dispatch.plugin_cache"
       ],
       "capabilities": [
         "linux-c17"
@@ -2374,7 +2456,9 @@
       "id": "X-T69-007",
       "project": "PR-T69-07",
       "tests": [
-        "dispatch.intrusive"
+        "dispatch.intrusive",
+        "dispatch.dual_hook",
+        "dispatch.index_move"
       ],
       "capabilities": [
         "linux-c17"
@@ -2384,7 +2468,9 @@
       "id": "X-T69-008",
       "project": "PR-T69-08",
       "tests": [
-        "dispatch.modules"
+        "dispatch.modules",
+        "dispatch.module_second",
+        "dispatch.shared_modules"
       ],
       "capabilities": [
         "linux-c17"
@@ -2394,7 +2480,8 @@
       "id": "X-T69-009",
       "project": "PR-T69-09",
       "tests": [
-        "dispatch.capabilities"
+        "dispatch.capabilities",
+        "dispatch.broker"
       ],
       "capabilities": [
         "linux-c17"
@@ -2404,7 +2491,9 @@
       "id": "X-T69-010",
       "project": "PR-T69-10",
       "tests": [
-        "dispatch.plugin"
+        "dispatch.plugin",
+        "dispatch.plugin_compat",
+        "dispatch.async_registry"
       ],
       "capabilities": [
         "linux-c17"
@@ -2414,7 +2503,9 @@
       "id": "X-T69-011",
       "project": "PR-T69-11",
       "tests": [
-        "dispatch.reload"
+        "dispatch.reload",
+        "dispatch.async_registry",
+        "dispatch.reload_owned"
       ],
       "capabilities": [
         "linux-c17"
@@ -2432,7 +2523,29 @@
     "dispatch.modules",
     "dispatch.capabilities",
     "dispatch.plugin",
-    "dispatch.reload"
+    "dispatch.reload",
+    "dispatch.capture_codec",
+    "dispatch.typed_capture",
+    "dispatch.nominal",
+    "dispatch.progress",
+    "dispatch.owned_closure",
+    "dispatch.clone_pair",
+    "dispatch.resolution",
+    "dispatch.plugin_cache",
+    "dispatch.reduction",
+    "dispatch.dual_hook",
+    "dispatch.index_move",
+    "dispatch.module_second",
+    "dispatch.shared_modules",
+    "dispatch.broker",
+    "dispatch.plugin_compat",
+    "dispatch.async_registry",
+    "dispatch.reload_owned",
+    "dispatch.copy_laws",
+    "dispatch.subobjects",
+    "dispatch.closure_histories",
+    "dispatch.retained_closure",
+    "dispatch.capture_admission"
   ],
   "modules": [
     "T69"
@@ -2447,14 +2560,17 @@
       "gcc-asan",
       "clang-debug",
       "clang-release",
-      "clang-asan"
+      "clang-asan",
+      "gcc-tsan"
     ],
     "mutants_per_anchor": 2,
     "assertion_marker": "DS_CHECK:",
-    "fixture_oracle": "labs/dispatch/tests/verify_fixtures.py"
+    "fixture_oracle": "tools/verify_dispatch_captures.py",
+    "oracle_driver": "dispatch-capture"
   },
   "dependencies": [
-    "dod"
+    "dod",
+    "ownership"
   ],
   "source_imports": [
     {
@@ -2465,6 +2581,36 @@
       "include": "labs/dod/include",
       "assessor_source": "assessor/dod/dod.c",
       "contract": "labs/dod/CONTRACTS.md"
+    },
+    {
+      "family": "ownership",
+      "artifact": "memory.adversarial_allocator",
+      "producer": "PR-T66-09",
+      "learner_source": "labs/ownership/src/ownership.c",
+      "include": "labs/ownership/include",
+      "assessor_source": "assessor/ownership/ownership.c",
+      "contract": "labs/ownership/CONTRACTS.md",
+      "adapter": "labs/dispatch/include/capture.h"
+    },
+    {
+      "family": "ownership",
+      "artifact": "cleanup.scope",
+      "producer": "PR-T66-02",
+      "learner_source": "labs/ownership/src/ownership.c",
+      "include": "labs/ownership/include",
+      "assessor_source": "assessor/ownership/ownership.c",
+      "contract": "labs/ownership/CONTRACTS.md",
+      "adapter": "labs/dispatch/include/dispatch_modules.h"
+    },
+    {
+      "family": "ownership",
+      "artifact": "ownership.shared",
+      "producer": "PR-T66-06",
+      "learner_source": "labs/ownership/src/ownership.c",
+      "include": "labs/ownership/include",
+      "assessor_source": "assessor/ownership/ownership.c",
+      "contract": "labs/ownership/CONTRACTS.md",
+      "adapter": "labs/dispatch/include/dispatch_modules.h"
     }
   ],
   "scope": "Hosted C17 plus explicit Linux loader; all original targets local and synthetic."

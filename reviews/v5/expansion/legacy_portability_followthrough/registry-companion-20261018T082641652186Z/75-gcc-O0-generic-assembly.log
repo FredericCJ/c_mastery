@@ -1,0 +1,112 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_portability_followthrough/registry-companion-20261018T082641652186Z/gcc-O0-generic5.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <lg_int>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	89 7d fc             	mov    %edi,-0x4(%rbp)
+   7:	8b 45 fc             	mov    -0x4(%rbp),%eax
+   a:	83 c0 01             	add    $0x1,%eax
+   d:	5d                   	pop    %rbp
+   e:	c3                   	ret
+
+000000000000000f <lg_double>:
+   f:	55                   	push   %rbp
+  10:	48 89 e5             	mov    %rsp,%rbp
+  13:	f2 0f 11 45 f8       	movsd  %xmm0,-0x8(%rbp)
+  18:	f2 0f 10 4d f8       	movsd  -0x8(%rbp),%xmm1
+  1d:	f2 0f 10 05 00 00 00 	movsd  0x0(%rip),%xmm0        # 25 <lg_double+0x16>
+  24:	00 
+			21: R_X86_64_PC32	.rodata-0x4
+  25:	f2 0f 58 c1          	addsd  %xmm1,%xmm0
+  29:	5d                   	pop    %rbp
+  2a:	c3                   	ret
+
+000000000000002b <generic_int>:
+  2b:	f3 0f 1e fa          	endbr64
+  2f:	55                   	push   %rbp
+  30:	48 89 e5             	mov    %rsp,%rbp
+  33:	48 83 ec 08          	sub    $0x8,%rsp
+  37:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  3a:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  3d:	89 c7                	mov    %eax,%edi
+  3f:	e8 bc ff ff ff       	call   0 <lg_int>
+  44:	c9                   	leave
+  45:	c3                   	ret
+
+0000000000000046 <explicit_int>:
+  46:	f3 0f 1e fa          	endbr64
+  4a:	55                   	push   %rbp
+  4b:	48 89 e5             	mov    %rsp,%rbp
+  4e:	48 83 ec 08          	sub    $0x8,%rsp
+  52:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  55:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  58:	89 c7                	mov    %eax,%edi
+  5a:	e8 a1 ff ff ff       	call   0 <lg_int>
+  5f:	c9                   	leave
+  60:	c3                   	ret
+
+0000000000000061 <generic_double>:
+  61:	f3 0f 1e fa          	endbr64
+  65:	55                   	push   %rbp
+  66:	48 89 e5             	mov    %rsp,%rbp
+  69:	48 83 ec 08          	sub    $0x8,%rsp
+  6d:	f2 0f 11 45 f8       	movsd  %xmm0,-0x8(%rbp)
+  72:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  76:	66 48 0f 6e c0       	movq   %rax,%xmm0
+  7b:	e8 8f ff ff ff       	call   f <lg_double>
+  80:	c9                   	leave
+  81:	c3                   	ret
+
+0000000000000082 <explicit_double>:
+  82:	f3 0f 1e fa          	endbr64
+  86:	55                   	push   %rbp
+  87:	48 89 e5             	mov    %rsp,%rbp
+  8a:	48 83 ec 08          	sub    $0x8,%rsp
+  8e:	f2 0f 11 45 f8       	movsd  %xmm0,-0x8(%rbp)
+  93:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  97:	66 48 0f 6e c0       	movq   %rax,%xmm0
+  9c:	e8 6e ff ff ff       	call   f <lg_double>
+  a1:	c9                   	leave
+  a2:	c3                   	ret
+
+00000000000000a3 <main>:
+  a3:	f3 0f 1e fa          	endbr64
+  a7:	55                   	push   %rbp
+  a8:	48 89 e5             	mov    %rsp,%rbp
+  ab:	53                   	push   %rbx
+  ac:	bf 03 00 00 00       	mov    $0x3,%edi
+  b1:	e8 00 00 00 00       	call   b6 <main+0x13>
+			b2: R_X86_64_PLT32	generic_int-0x4
+  b6:	89 c3                	mov    %eax,%ebx
+  b8:	bf 03 00 00 00       	mov    $0x3,%edi
+  bd:	e8 00 00 00 00       	call   c2 <main+0x1f>
+			be: R_X86_64_PLT32	explicit_int-0x4
+  c2:	39 c3                	cmp    %eax,%ebx
+  c4:	75 3d                	jne    103 <main+0x60>
+  c6:	48 8b 05 00 00 00 00 	mov    0x0(%rip),%rax        # cd <main+0x2a>
+			c9: R_X86_64_PC32	.rodata+0x4
+  cd:	66 48 0f 6e c0       	movq   %rax,%xmm0
+  d2:	e8 00 00 00 00       	call   d7 <main+0x34>
+			d3: R_X86_64_PLT32	generic_double-0x4
+  d7:	66 48 0f 7e c3       	movq   %xmm0,%rbx
+  dc:	48 8b 05 00 00 00 00 	mov    0x0(%rip),%rax        # e3 <main+0x40>
+			df: R_X86_64_PC32	.rodata+0x4
+  e3:	66 48 0f 6e c0       	movq   %rax,%xmm0
+  e8:	e8 00 00 00 00       	call   ed <main+0x4a>
+			e9: R_X86_64_PLT32	explicit_double-0x4
+  ed:	66 48 0f 6e cb       	movq   %rbx,%xmm1
+  f2:	66 0f 2e c8          	ucomisd %xmm0,%xmm1
+  f6:	7a 0b                	jp     103 <main+0x60>
+  f8:	66 48 0f 6e d3       	movq   %rbx,%xmm2
+  fd:	66 0f 2e d0          	ucomisd %xmm0,%xmm2
+ 101:	74 07                	je     10a <main+0x67>
+ 103:	b8 01 00 00 00       	mov    $0x1,%eax
+ 108:	eb 05                	jmp    10f <main+0x6c>
+ 10a:	b8 00 00 00 00       	mov    $0x0,%eax
+ 10f:	48 8b 5d f8          	mov    -0x8(%rbp),%rbx
+ 113:	c9                   	leave
+ 114:	c3                   	ret

@@ -1,0 +1,138 @@
+# X-T69-006: Ordered multiple dispatch and cache invalidation epochs
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for containers.array, measurement.capture; prerequisite exercises: X-T69-003. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement a3x3 ordered binary-method table and one-entry cache. A cache is bound to one DSMethods object; its key includes ordered type pair and non-wrapping table epoch. Epoch1 is empty; each admitted registration/removal increments it and epoch3 forbids further changes. Add a two-entry cache and compare direct table lookup. Specify a separate subtype fallback graph and reject ambiguous equally specific matches instead of silently choosing registration order.
+
+Supplied artifacts: labs/dispatch/include/dispatch.h, deliberately incomplete labs/dispatch/src/dispatch.c, executable anchors, fixture PR-T69-06.json and the shared CONTRACTS.md. Expected example: Register subtraction for(0,1): arguments10,2 produce8; reversed types(1,0) are unsupported. Replace the same entry with addition: the old cached result must be invalidated and produce12. A third registration rejects at the finite epoch limit.
+
+## Necessity
+
+Caching a method is caching a semantic decision. Ignoring registration generation or sorting an ordered pair changes behavior even when the called functions are individually correct.
+
+## Reasoning
+
+T69.06.a: Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.
+
+T69.06.b: Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.
+
+T69.06.c: Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.
+
+T69.06.d: Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dispatch -B build/dispatch` then build and `ctest --test-dir build/dispatch -R "^dispatch.multiple$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. Cache a miss as carefully as a hit.
+2. The tuple(left,right) is not a set.
+3. Finite versions need exhaustion or a proof that no stale cache can survive reuse.
+
+## Variants
+
+X-T69-006-DELAYED: methods can be registered by a reloadable plugin. Integrate module ownership into each cache entry and prove quiescence before discarding code pointers, including cached misses after a new plugin loads.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+
+## Completion stage: subtype decisions and reloadable method ownership
+
+Implement `dispatch_resolution.h` and its learner source alongside the original3x3 mechanism. Follow the exact four-type partial order, epoch1..31/terminal32 and two-entry FIFO policy in CONTRACTS.md. For(3,3), methods(1,2) and(2,1) are incomparable: return DS_AMBIGUOUS and keep output91. An exact(3,3) subtraction overrides both and returns8 for10,2. Removal restores ambiguity. Use the independent set-relation model in fixtures/dispatch/resolution.json for all256 registration/query combinations; both cached and uncached actual calls must agree with it. A new table identity and failed method must not reuse an old result.
+
+Implement X-T69-006-DELAYED with actual local DSLoaded borrows. Cache an unsupported result before registering a plugin method, then require a subsequent call to return12. Registration holds one lease; two positive entries hold two more. A fourth explicit borrow forces a new cache-fill acquisition to fail unchanged at the actual borrow limit. Remove the registration and show unload is still DS_BUSY until stale cache entries are cleared. Clear code pointers before releasing leases, close the DSO, reopen and register again with no stale miss reuse. No negative test calls an unloaded function pointer.
+
+D1 proves dominance/ambiguity and lists every lease owner; D2 supplies registration, uncached resolution, two-entry cache and clearing protocol; D3 requires `dispatch.resolution`, `dispatch.plugin_cache`, their four compiled mutants and256 independent rows. R1/R2 assess ordered keys and explicit eviction; R3 assesses misses, ownership identities and finite epochs; R4 distinguishes candidate partial order from distance heuristics and requires a measured cost comparison under the full cost contract. O(1) bounded capacity does not establish equal latency. This support closes the named author cache/fallback and synchronous plugin-lease implementation obligations; asynchronous queued callbacks, measured lookup costs and a learner's delayed independent attempt remain separately evidenced.
+
+## Reproducible cost and changed-ABI investigation
+
+Run tools/run_dispatch_costs.py and tools/run_dispatch_stack.py with explicit report paths under reviews/v5/expansion. The supplied1000-object workload compares the direct, embedded and external-view representations; fixed/runtime/per-element dictionary workloads keep different algebraic policies in separately comparable groups. The real two-entry cache is measured under one, two and four cyclic type pairs. Read research/v5/modern/dispatch_cost_analysis.md and the13-dimension dispatch_cost_review.json as author evidence, then reproduce and explain your own results. Retain all trials, compiler options, clean/incremental timings, symbols, disassembly, stack files and linker maps. Explain why link-time inlining or hoisting makes timing an optimizer-dependent whole-workload result, not an instruction latency.
+
+The additional ABI control compiles and actually runs the exact extracted core/public types as an original static i386 Linux process, with a documented integer-limits subset and syscall entry adapter. It checks33 values, failure-output behavior, exact sizes/alignments/offset and no unresolved link helpers. Compare its4-byte pointer and8-byte view with the observed8-byte pointer and16-byte view on x86-64. The current WSL compatibility run is not another physical CPU, a board run, or a complete32-bit hosted libc. Keep those limits, the initial missing-header failure and the corrected explicit adapter in the evidence. These measurements support the relevant author cost/ABI obligations; independent defense and delayed transfer remain separately assessed.
+
+## Objective-specific assessment anchors
+
+### X-T69-006-R1 / T69.06.a
+
+Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-006-R2 / T69.06.b
+
+Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-006-R3 / T69.06.c
+
+Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-006-R4 / T69.06.d
+
+Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T69-06
+
+Required earlier exercises: X-T69-003
+
+Required baseline units: none
+
+Required artifact imports: containers.array, measurement.capture
+
+
+- [R-MOD-DISPATCH-TRAIT-DECL](https://doc.rust-lang.org/reference/items/traits.html): items.traits.intro and impls; items.traits.dyn-compatible: receiver and method restrictions
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T69-006-DELAYED.
+
+Contract SHA-256: 3f4b7765bbe7954927eaeb7968fdd4be45bb96537ea716e508a6d63da3780a09

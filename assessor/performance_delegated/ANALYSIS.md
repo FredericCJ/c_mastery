@@ -1,0 +1,21 @@
+# Exact delayed cgroup observation
+
+The old T43 read-only observer deliberately supplied no environment preparation or membership writes. Its statement that no prepared subtree was selected was true of that run. With an authorized disposable guest, that is not a present blocker. The T49 guest already established available controllers and a safe private runner, but its distinct workload would not alone establish this T43 transfer.
+
+This reference therefore compiles and reuses the actual T43 observations source and assembly bytes. The prepared guest boundary has no internal processes; the experiment owner lives in a sibling control group, so work-group quota cannot throttle the observer. UID1000 cannot alter its boundary's resource allocation or move itself to root. The worker changes membership once before exec; its forked child and threads inherit the group. Matching both the worker's own membership statement and the supervisor's exact cgroup.procs PID prevents a different process from satisfying the placement check.
+
+The unlimited and 20ms/100ms trials preserve keyed cpu.stat deltas, raw ancestor policies and all ten original observations. Actual increased throttled periods and time support a quota-enforcement observation. They do not imply instructions became slower, establish a fixed wall-time ratio, or measure physical cache events. Two guest/compiler profiles are finite author experiments. The omitted-placement mutant fails before release; omitted restoration fails the final exact comparison. The root supervisor reaps the owner, terminates any remaining work descendants and removes the groups after both failures.
+
+The selected private kernel lacks PSI files; actual ENOENT is preserved. Group memory.current includes more than the live payload, memory.peak is historical across both trials, and the fresh guest's tmpfs does not expose physical storage traffic. Neither delayed independent learner performance nor physical PMU availability is promoted by this successor.
+
+## Original criterion evidence selectors
+
+This is an additive interpretation of the unchanged `AX-PR-T43-10-T43.11.a-DELAYED` rubric. The public contract and graduated hints bind the original T43 workload prerequisite and fixture boundaries. Do not award additional IDs or replace its original rubric levels.
+
+- Placement requires the child PID in its own membership record to equal the observer's independent cgroup.procs read before release; worker and observer PIDs must differ. The wrong-PID and compiled omitted-move controls must fail. Printing a path or finding any numeric PID is insufficient.
+- Prepared authority requires UID1000, the prepared boundary, denied writes to the boundary quota/root membership, sibling observer placement and inherited placement of the workload's actual threads/child. Root-only execution cannot substitute for the UID1000 experiment.
+- Accounting requires both exact quota values, zero burst, raw keyed before/after counters and unchanged ancestor policy, all ten actual original workload records, normal waited exits, and real throttled periods/time. Fabricated zero PSI or reordered/renamed unrelated counters do not pass.
+- Recovery requires exact prior-quota restoration and observed removal of every created group; a retained no-restoration mutant must fail even when the root supervisor cleans up afterward. A successful final reboot alone is insufficient.
+- Interpretation must retain historical peak, absent PSI, aggregate-versus-payload memory, guest tmpfs and TCG limitations. Physical PMU, independent review and the actual delayed learner attempt remain separate evidence gates.
+
+The live-sample guard retains original strings and derives a separate positive-ID set. Zero, duplicate IDs, nonnumeric tokens and out-of-range values cannot manufacture inherited child/thread witnesses; zero is preserved without attributing a cause. The C adapter prints raw lists and computes no live-task maximum. Every command label has a closed complete argv contract, including C17 flags, exact providers/control macros, output names and the networkless diskless QEMU invocation. Substituting a source or appending a filesystem/device argument fails before any evidence is accepted. Export commands are similarly exact.

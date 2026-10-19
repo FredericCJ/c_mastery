@@ -1,0 +1,76 @@
+"""Read-only receipt/source guard plus ordinary incomplete learner exports."""
+import argparse,copy,hashlib,json,re,subprocess,sys,tempfile
+from datetime import datetime,timezone
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1];BASE=ROOT/'reviews/v5/expansion/legacy_debugging_followthrough';LAB=ROOT/'labs/debugging_followthrough';REF=ROOT/'assessor/debugging_followthrough';sys.path[:0]=[str(ROOT),str(ROOT/'tools')]
+from run_debugging_followthrough import sources
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def need(x,message):
+ if not x:raise ValueError(message)
+def read(p):
+ path=(ROOT/p).resolve();need(path.is_relative_to(ROOT.resolve()),'Escaped path');return path.read_bytes()
+def validate_campaign(v):
+ need(v.get('passed') is True and v.get('error') is None,'Campaign failed');need(v['inspected_paths']=={p.relative_to(ROOT).as_posix():sha(p) for p in sources()},'Stale source closure');art=v['artifact_sha256'];need(art and all(hashlib.sha256(read(p)).hexdigest()==h for p,h in art.items()),'Missing/stale artifact');rows={r['label']:r for r in v['commands']};need(len(rows)==len(v['commands']) and len(rows)>220,'Missing/duplicate commands');obs=v['observations']
+ def text(name,code=0):
+  r=rows[name];need(r['exit_code']==r['expected_exit_code']==code,'Wrong outcome '+name);need(r['output'] in art,'Unbound command output');return read(r['output']).decode()
+ def flags(name,wanted):need(all(x in rows[name]['command'] for x in wanted),'Wrong command '+name)
+ need('15.2' in text('gcc-version') and '21.1.8' in text('clang-version') and '17.1' in text('gdb-version'),'Wrong tools');need('3.26' in text('valgrind-version') and '33' in text('framac-version'),'Missing analysis versions')
+ certificates=json.loads(text('certificates'));need(certificates==obs['certificates'] and certificates['passed'] and len(certificates['records'])==12,'Missing premise certificates');r=certificates['records'];need(r['captured-target']['vector_address']==0x0800004c and r['captured-target']['BFAR_usable']==[True,False] and r['reset-epoch']['completion_ticket7_matches_epoch8'] is False and r['property-oracles']['uninstrumented_dependency'],'Wrong target/tool premises')
+ markers=['DX:log:first1:last2,3,4:dropped1:nested-first9','DX:reducer:256:FAIL88:minimum2:one-minimal193:pair-deletions3:classes24,88,144','DX:memory:bounds-init-free-resize:failed-preserves:callback-generation:wrong-field-semantic','DX:write:64-positive-partitions:EINTR-EAGAIN:offset2,2,4,4,7:iovec-empty:close-generations:cases64','DX:firmware:bounded-basic-PSP:padding-policy:BFAR-validity:cancel-timeout-ack-duplicate-stale','DX:saturation:65536:failures32640:min-failing-sum256:checked-unchanged','DX_PASS:core']
+ for cc in ('gcc','clang'):
+  need(not text(cc+'-closed-undefined').strip(),'Unclosed freestanding core dependency');flags(cc+'-core-object',['-std=c17','-ffreestanding','-fno-builtin']);text(cc+'-core-object');raw=set(text(cc+'-core-undefined').split())-{'U'};need(raw<= {'memset'},'Unexpected generated dependency')
+  for profile,expected_flags in [('debug',['-O0','-g']),('release',['-O2','-DNDEBUG'])]:
+   prefix=cc+'-'+profile;flags(prefix+'-core-build',['-std=c17','-Werror','-pedantic',*expected_flags,str(REF/'diagnosis.c')]);text(prefix+'-core-build');need(all(s in text(prefix+'-core') for s in markers),'Core mechanism absent');need('fail-prefixes1,2,3' in text(prefix+'-allocation'),'Missing allocation failures')
+   for repaired in (0,1):
+    for logging in (0,1):
+     name=prefix+f'-specimen-{repaired}-{logging}';flags(name+'-build',[*expected_flags,'-DDX_FIXED='+str(repaired),'-DDX_LOGGING='+str(logging)]);warning=text(name+'-build');need(repaired or '-Wparentheses' in warning,'No actual assignment warning');need(text(name+'-assignment')==('ADMIT:0:0\nADMIT:1:1\nADMIT:4:1\nADMIT:5:0\n' if repaired else 'ADMIT:0:1\nADMIT:1:1\nADMIT:4:1\nADMIT:5:1\n'),'Wrong admission semantics');need(f'MACROS:1:1:{logging}:{logging+1}' in text(name+'-macros'),'Logging changed required behavior');need(('COUNTER:3:0:0' if repaired else 'COUNTER:3:1:5') in text(name+'-counter'),'Wrong callback boundary')
+  need('HISTORY:1,2,3,4,5,4' in text(cc+'-raw-history') and 'HISTORY:1,2,3,4,4,3' in text(cc+'-fixed-history'),'Original counter trajectories replaced');need('-Wparentheses' not in text(cc+'-parenthesized-build') and 'ADMIT:0:1' in text(cc+'-parenthesized'),'Warning suppression mistaken for repair');need('ADMIT:5:1' in text(cc+'-stale-config') and rows[cc+'-stale-config']['environment_overrides']=={'DX_CAP':'8'},'No actual changed configuration')
+  host=text(cc+'-host');need(all(s in host for s in ('ENOSPC-survives-EIO','ledger6-of7:EMFILE:direct-pthread-EINVAL','default-signal','ignored-EPIPE')),'Missing error/pipe mechanism');need('cancel-near-wake-ownership-checked' in text(cc+'-queue') and 'DX_PASS:queue' in text(cc+'-queue-tsan'),'Missing actual queue schedules/detector');flags(cc+'-queue-tsan-build',['-fsanitize=thread','-pthread']);need('predicate1' in text(cc+'-lost-wake') and 'timeout-breaks-cycle' in text(cc+'-cycle'),'Missing schedule mechanism')
+  for bad in (0,1):need(f'preserved={1-bad}:result=1' in text(cc+'-abi-'+str(bad)),'ABI return and preservation conflated')
+  for repaired in (0,1):
+   for instrument in ('plain','asan','ubsan'):
+    name=f'{cc}-{instrument}-diagnostic-{repaired}';cmd=rows[name+'-build']['command'];text(name+'-build');need(('-fsanitize=address' in cmd) if instrument=='asan' else ('-fsanitize=undefined' in cmd) if instrument=='ubsan' else not any('-fsanitize=' in f for f in cmd),'Wrong diagnostic separation')
+    for mode in ((0,1,2) if instrument in ('plain','asan') else (3,)):
+     code=0 if repaired else 89 if instrument=='plain' else 86 if instrument=='ubsan' or mode in (0,1) else 0;raw=text(name+'-'+str(mode),code);marker='ERROR SUMMARY: 0 errors' if repaired and instrument=='plain' else 'DIAG_TERMINATED' if repaired or(instrument=='asan' and mode==2) else ['Invalid write','Invalid read','Conditional jump or move depends on uninitialised'][mode] if instrument=='plain' else ['heap-buffer-overflow','heap-use-after-free'][mode] if instrument=='asan' else 'signed integer overflow';need(marker in raw,'Wrong diagnostic property')
+   need(('RACE_COMPLETED:20000' if repaired else 'WARNING: ThreadSanitizer: data race') in text(f'{cc}-tsan-{repaired}',0 if repaired else 86),'Missing race control');need(('ERROR SUMMARY: 0 errors' if repaired else 'Conditional jump or move depends on uninitialised') in text(f'{cc}-copied-init-{repaired}',0 if repaired else 89),'Copied init missing')
+  need('forced-relocation' in text(cc+'-allocation-sanitized'),'No instrumented allocation regression');need('stack-buffer-overflow' in text(cc+'-static-reached',86) and text(cc+'-unreached-1')=='','Static/dynamic path not distinguished');flags(cc+'-static-reached-build',['-O0','-fsanitize=address']);need('65536:failures32640' in text(cc+'-core-sanitized'),'No semantic oracle under tools')
+ replay=json.loads(text('replay'));need(replay==obs['replay'] and replay['passed'] and all(replay['identity_rejections'].values()),'Replay identity falsified');need([r['class'] for r in replay['classes'].values()]==['FAIL','PASS','UNRESOLVED','UNRESOLVED','UNRESOLVED'],'Wrong tri-state');need(replay['native_C_reducer']['selected']=='[A]' and replay['native_C_reducer']['trials'],'No actual C reduction');need(replay['tree_reducer']['selected']=='[[A]]' and replay['tree_reducer']['one_deletion_neighbors']==['[]','[[]]'] and replay['tree_reducer']['trials'],'Missing changed-grammar reduction');need(replay['expected_new_build']['source']==replay['rejected_stale_build']['source'] and replay['expected_new_build']['binary']!=replay['rejected_stale_build']['binary'],'No actual stale image rejection')
+ for name in ['scope-Og','scope-O2','scope-LTO',*['debugger-'+x for x in ('counter','candidate','relocate','lost','cycle','thread-watch')]]:
+  raw=text(name);value=json.loads(raw.split('DX_GDB_JSON:',1)[1].splitlines()[0]);o=obs[name];need(all(o[k]==v for k,v in value.items()),'GDB observation changed');need(o['native_core'] is False and o['heap']=='not-captured' and o['ASLR']=='preserved','GDB scope inflated');binary=Path(rows[name]['command'][-1]);need(sha(binary)==o['binary_sha256']==o['symbols_sha256'],'Wrong GDB image binding');need(not any('disable-randomization on' in r['command'] for r in o['records']),'Host debugger policy changed')
+ def observed(name,command):return [r['output'] for r in obs[name]['records'] if r['command']==command]
+ need(' = 5' in observed('debugger-counter','print used')[-1] and 'hw watchpoint' in ''.join(observed('debugger-counter','info breakpoints')),'No actual invalid watch');need(' = 5' in observed('debugger-candidate','print candidate')[0] and ' = 4' in observed('debugger-candidate','print used')[0],'Private/public ordering lost');need(any('optimized out' in s for s in observed('scope-O2','print vanished')),'Unknown local invented');need([s.split(' = ')[-1].strip() for s in observed('scope-Og','print status')]==['7','2','11'],'Scope confusion');need('pthread_cond' in ''.join(observed('debugger-lost','thread apply all bt full')) and 'pthread_mutex' in ''.join(observed('debugger-cycle','thread apply all bt full')),'No actual whole-thread wait stacks')
+ for mode in ('Og','O2'):need('dx_acquire' in text('mapping-'+mode),'No actual PC map')
+ need('dx_tail_leaf' in ''.join(observed('scope-LTO','info line *$pc')) and 'jmp' in ''.join(observed('scope-LTO','x/8i $pc')),'No actual LTO helper mapping');text('mapping-LTO')
+ for bad in (0,1):need(not text('thumb-undefined-'+str(bad)).strip() and ('clobber-detected-result1' if bad else 'preserved-result1') in text('thumb-'+str(bad)),'Thumb closure/ABI failure');text('thumb-build-'+str(bad))
+ need('0 alarms generated' in text('eva-0') and 'accessing out of bounds index' in text('eva-1'),'Wrong static premises');need('expired-borrow-rejected' in text('hidden-0') and 'stale-view-accepted-new-owner82' in text('hidden-1'),'Missing hidden changed component');need('DX_CHECK:' in text('stub',1),'Learner stub solved')
+ from research.v5.expansion.legacy_debugging_followthrough.criterion_notes import NOTES
+ need(len(NOTES)==36 and all(selector in rows for _,_,selectors in NOTES.values() for selector in selectors),'Exact criterion evidence selector missing');need(len(v['checks'])>130 and all(c['passed'] is True for c in v['checks']),'Missing producer checks');need(len(v['open_gates'])==3 and 'seven-day' in v['open_gates'][1] and 'Physical' in v['open_gates'][2],'External dimensions invented');return True
+def main(report):
+ from research.v5.expansion.legacy_debugging_followthrough.author_support import attach,SUPPORT,PROJECTS,public_paths
+ from cmastery import assessments
+ v=json.loads((BASE/'campaign.json').read_text());validate_campaign(v);checks=[{'name':'source-bound-exact-mechanisms','passed':True}]
+ def check(name,value):checks.append({'name':name,'passed':bool(value)})
+ controls=[('missing-command',lambda x:x['commands'].pop()),('stale-source',lambda x:x['inspected_paths'].update({'labs/debugging_followthrough/diagnosis.h':'0'*64})),('stale-artifact',lambda x:x['artifact_sha256'].update({next(iter(x['artifact_sha256'])):'0'*64})),('fake-stub-pass',lambda x:next(r for r in x['commands'] if r['label']=='stub').update(exit_code=0)),('wrong-tool-profile',lambda x:next(r for r in x['commands'] if r['label']=='clang-static-reached-build')['command'].remove('-O0')),('fake-core',lambda x:x['observations']['debugger-counter'].update(native_core=True)),('fake-replay',lambda x:x['observations']['replay']['identity_rejections'].update(environment=False)),('external-completed',lambda x:x.update(open_gates=[]))]
+ for name,mutate in controls:
+  d=copy.deepcopy(v);mutate(d)
+  try:validate_campaign(d);rejected=False
+  except (ValueError,KeyError,IndexError,AssertionError):rejected=True
+  check(name,rejected)
+ for pid in PROJECTS:
+  path=ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json');r=json.loads(path.read_text());old=json.loads(subprocess.check_output(['git','show','fd85773420a2fbb11003e83c8289417d62282ec4:'+path.relative_to(ROOT).as_posix()],cwd=ROOT,text=True));criteria=copy.deepcopy(r['criteria'])
+  for c in criteria:c.pop('successor_support',None)
+  check(pid+'-original-criteria',criteria==old['criteria']);check(pid+'-historical-contracts',all(r[k]==old[k] for k in ('baseline_binding','execution_support','status')));check(pid+'-idempotent',attach(copy.deepcopy(r))==r)
+  with tempfile.TemporaryDirectory(prefix='debugging-follow-export-') as d:
+   work=Path(d);assessments.export(ROOT,pid,work);check(pid+'-public-export',all((work/p).read_bytes()==(ROOT/p).read_bytes() for p in public_paths()) and not any('assessor' in p.relative_to(work).parts for p in work.rglob('*')))
+   if pid in ('PR-T44-01','PR-T44-10'):
+    for ref in (False,True):
+     exe=work/('core-'+str(ref));cmd=[sys.executable,work/'labs/debugging_followthrough/build.py','--output',exe]
+     if ref:cmd+=['--diagnosis-source',REF/'diagnosis.c','--ledger-source',ROOT/'assessor/architecture_frame/ledger.c','--frame-source',ROOT/'assessor/interrupt_depth/frame/frame.c','--firmware-source',ROOT/'assessor/firmware_io/firmware_io.c']
+     b=subprocess.run(list(map(str,cmd)),capture_output=True,text=True,timeout=60);okay=False
+     if b.returncode==0:
+      e=subprocess.run([exe],capture_output=True,text=True,timeout=10);okay=e.returncode==(0 if ref else 1) and ('DX_PASS:' if ref else 'DX_CHECK:') in e.stdout+e.stderr
+     check(pid+('-explicit-reference' if ref else '-incomplete-stub'),okay)
+ support=json.loads((ROOT/SUPPORT).read_text());original=[c for pid in PROJECTS for c in json.loads((ROOT/'curriculum/v5/expansion/legacy_assessments'/(pid+'.json')).read_text())['criteria']];expected={c['id'] for c in original}|{v['id'] for c in original for v in c['variants']};check('72-exact-identities',len(support['updates'])==72 and {r['id'] for r in support['updates']}==expected);check('support-source-pins',all(hashlib.sha256(read(p)).hexdigest()==h for p,h in support['source_sha256'].items()));check('external-authority-separate',all(r['dimensions']['external_review']['state']=='not-run' and r['dimensions']['independent_learner']['state']=='not-assessed' and r['dimensions']['physical_observation']['state'].startswith('not-run') for r in support['updates']))
+ result={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'passed':all(c['passed'] for c in checks),'checks':checks,'inspected_paths':{p.relative_to(ROOT).as_posix():sha(p) for p in (Path(__file__).resolve(),BASE/'campaign.json',ROOT/SUPPORT)},'scope':'Author source/receipt closure and incomplete public exports;independent and physical dimensions separate.'};dest=(ROOT/report).resolve();need(dest.is_relative_to(BASE.resolve()),'Report escapes');dest.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'passed':result['passed'],'checks':len(checks),'failed':[c['name'] for c in checks if not c['passed']]}));return 0 if result['passed'] else 1
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--report',required=True);raise SystemExit(main(p.parse_args().report))

@@ -1,0 +1,50 @@
+Test project /tmp/cmastery-modern_composition-uuzxtr_x/gcc-tsan
+      Start  1: modern_composition.publish
+ 1/12 Test  #1: modern_composition.publish ....................   Passed    0.01 sec
+      Start  2: modern_composition.mutation.publish.1
+ 2/12 Test  #2: modern_composition.mutation.publish.1 .........   Passed    0.18 sec
+      Start  3: modern_composition.mutation.publish.2
+ 3/12 Test  #3: modern_composition.mutation.publish.2 .........   Passed    0.06 sec
+      Start  4: modern_composition.async
+ 4/12 Test  #4: modern_composition.async ......................   Passed    0.01 sec
+      Start  5: modern_composition.mutation.async.1
+ 5/12 Test  #5: modern_composition.mutation.async.1 ...........   Passed    0.06 sec
+      Start  6: modern_composition.mutation.async.2
+ 6/12 Test  #6: modern_composition.mutation.async.2 ...........   Passed    0.05 sec
+      Start  7: modern_composition.publish_close
+ 7/12 Test  #7: modern_composition.publish_close ..............   Passed    0.01 sec
+      Start  8: modern_composition.mutation.publish_close.1
+ 8/12 Test  #8: modern_composition.mutation.publish_close.1 ...   Passed    0.06 sec
+      Start  9: modern_composition.mutation.publish_close.2
+ 9/12 Test  #9: modern_composition.mutation.publish_close.2 ...   Passed    0.06 sec
+      Start 10: modern_composition.real_io
+10/12 Test #10: modern_composition.real_io ....................   Passed    0.04 sec
+      Start 11: modern_composition.mutation.real_io.1
+11/12 Test #11: modern_composition.mutation.real_io.1 .........***Failed    0.16 sec
+Control survived or failed outside the named semantic assertion: MC_CHECK:95:mc_linux_quiescent(p)
+==================
+WARNING: ThreadSanitizer: thread leak (pid=3974)
+  Thread T1 (tid=3976, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 arm /mnt/f/Learning/Curricula/c_mastery/assessor/modern_composition/linux_port.c:68 (composition-mutant-7+0x760b) (BuildId: 5bead2538d09d6d98d0c5aab2867bb153a5daeb1)
+    #2 co_async_poll /mnt/f/Learning/Curricula/c_mastery/assessor/coroutines/coroutines.c:179 (composition-mutant-7+0xe64e) (BuildId: 5bead2538d09d6d98d0c5aab2867bb153a5daeb1)
+    #3 mc_read_poll /mnt/f/Learning/Curricula/c_mastery/assessor/modern_composition/composition.c:61 (composition-mutant-7+0x5cd8) (BuildId: 5bead2538d09d6d98d0c5aab2867bb153a5daeb1)
+    #4 real_io /mnt/f/Learning/Curricula/c_mastery/labs/modern_composition/tests/recovery.c:117 (composition-mutant-7+0x4a11) (BuildId: 5bead2538d09d6d98d0c5aab2867bb153a5daeb1)
+    #5 main /mnt/f/Learning/Curricula/c_mastery/labs/modern_composition/tests/recovery.c:161 (composition-mutant-7+0x55c9) (BuildId: 5bead2538d09d6d98d0c5aab2867bb153a5daeb1)
+
+SUMMARY: ThreadSanitizer: thread leak /mnt/f/Learning/Curricula/c_mastery/assessor/modern_composition/linux_port.c:68 in arm
+==================
+ThreadSanitizer: reported 1 warnings
+
+
+      Start 12: modern_composition.mutation.real_io.2
+12/12 Test #12: modern_composition.mutation.real_io.2 .........   Passed    0.13 sec
+
+92% tests passed, 1 tests failed out of 12
+
+Total Test time (real) =   0.82 sec
+
+The following tests FAILED:
+	 11 - modern_composition.mutation.real_io.1 (Failed)
+
+Errors while running CTest

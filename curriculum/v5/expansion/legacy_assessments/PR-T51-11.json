@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T51-11",
   "domain": "T51",
-  "title": "Once initialization and failure policy — explicit depth assessments",
+  "title": "Once initialization and failure policy \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/execution/sync_depth/ONCE.md"
   ],
   "baseline_binding": {
     "files": [
@@ -107,8 +108,51 @@
       "id": "R-LRUN-C11-ATOMICS",
       "path": "research/v5/expansion/legacy_runtime/resources.json",
       "passages": [
-        "7.17.3 paragraphs1–14 Order and consistency",
-        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-LCONCE-COURSE",
+      "path": "research/v5/expansion/legacy_concurrency_once/resources.json",
+      "passages": [
+        "PR-T51-11 complete brief; three original legacy criteria/variants and assessor/legacy_depth/PR-T51-11.md; curriculum/modules/T51.md T51.11",
+        "assessor/execution/cmx.c cmx_once_enter/finish and actual owned_sync/wait results",
+        "assessor/modern_bridge/bridge.c mb_once_init/enter/finish; bridge.h MBOnce; CONTRACTS.md Common ownership and Once API",
+        "X-T51-002 problem, reasoning, verification, target adapter/table/checksum and named delayed synthetic-journal variant"
+      ]
+    },
+    {
+      "id": "R-LCONCE-C11",
+      "path": "research/v5/expansion/legacy_concurrency_once/resources.json",
+      "passages": [
+        "N1570 7.26.2.1 paragraphs1\u20133, PDF page index395: prototype, exactly-once call, completion synchronization and void result"
+      ]
+    },
+    {
+      "id": "R-LCONCE-C23",
+      "path": "research/v5/expansion/legacy_concurrency_once/resources.json",
+      "passages": [
+        "N3096 7.24 paragraphs1\u20135 PDF page index372: stdlib.h once_flag/ONCE_FLAG_INIT/call_once",
+        "N3096 7.28.1 paragraphs1\u20134 PDF page index406: optional threads.h and once_flag",
+        "N3096 7.28.2.1 paragraphs1\u20133 PDF page index407: call_once exactly-once, completion synchronization and void result"
+      ]
+    },
+    {
+      "id": "R-LCONCE-CPP23",
+      "path": "research/v5/expansion/legacy_concurrency_once/resources.json",
+      "passages": [
+        "N4950 8.8 [stmt.dcl] paragraphs3\u20134 PDF page index180: initialization completion, thrown exception retry, concurrent wait, recursive reentry undefined and destruction only if constructed",
+        "N4950 33.6.7.1 [thread.once.onceflag] paragraphs1\u20133 PDF page index1862: opaque noncopyable flag and unsynchronized construction",
+        "N4950 33.6.7.2 [thread.once.callonce] paragraphs1\u20134 PDF page index1863: active/passive/exceptional/returning executions, exception propagation and synchronization order",
+        "N4950 14.3 [except.ctor] paragraphs1\u20132 PDF page indexes463\u2013464: constructed automatic object destruction during unwinding in reverse completion order"
+      ]
+    },
+    {
+      "id": "R-LCONCE-TSAN-C11",
+      "path": "research/v5/expansion/legacy_concurrency_once/resources.json",
+      "passages": [
+        "Issue1603 description: minimal thrd_create/thrd_join example and ThreadSanitizer null-address fatal diagnostic"
       ]
     }
   ],
@@ -123,7 +167,23 @@
     "fixtures/os_v3/PR-T51-11.json",
     "labs/execution/README.md",
     "curriculum/guides/concurrent-system-contracts.md",
-    "labs/modern_bridge/CONTRACTS.md"
+    "labs/modern_bridge/CONTRACTS.md",
+    "labs/execution/sync_depth/once.h",
+    "labs/execution/sync_depth/once.c",
+    "labs/execution/sync_depth/once_tests.c",
+    "labs/execution/sync_depth/once_m4.c",
+    "labs/execution/sync_depth/once_native_tests.c",
+    "labs/execution/sync_depth/once_compare.c",
+    "labs/execution/sync_depth/once_compare.cpp",
+    "labs/execution/sync_depth/ONCE.md",
+    "labs/execution/sync_depth/run_once.py",
+    "labs/execution/sync_depth/run_once_native.py",
+    "labs/execution/include/cmx.h",
+    "labs/execution/src/cmx.c",
+    "labs/execution/src/support.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld",
+    "labs/modern_bridge/include/bridge.h",
+    "labs/modern_bridge/src/bridge.c"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -150,8 +210,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -213,6 +273,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_once/support.json",
+        "id": "AX-PR-T51-11-T51.11.a"
       }
     },
     {
@@ -232,8 +296,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -295,6 +359,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_once/support.json",
+        "id": "AX-PR-T51-11-T51.11.b"
       }
     },
     {
@@ -313,8 +381,8 @@
           "id": "R-LRUN-C11-ATOMICS",
           "path": "research/v5/expansion/legacy_runtime/resources.json",
           "passages": [
-            "7.17.3 paragraphs1–14 Order and consistency",
-            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
           ]
         }
       ],
@@ -376,6 +444,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_once/support.json",
+        "id": "AX-PR-T51-11-T51.11.c"
       }
     }
   ],
@@ -390,5 +462,16 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_concurrency_once/support.json",
+      "criterion_ids": [
+        "AX-PR-T51-11-T51.11.a",
+        "AX-PR-T51-11-T51.11.b",
+        "AX-PR-T51-11-T51.11.c"
+      ],
+      "scope": "Actual CMX/MB once policies, resource cleanup, quiescent reset, native contenders and language comparison; target ABI/helper observations, no independent or physical claim."
+    }
+  ]
 }

@@ -1,0 +1,111 @@
+{
+  "inspected": [
+    {
+      "id": "R-PL-HAL183",
+      "capture": {
+        "path": "/home/frede/cmastery-architecture-tools/stm32f4xx-hal-driver-1.8.3/Src/stm32f4xx_hal_uart.c",
+        "sha256": "581f14026cba4ad2e4322376bfa6d626e55c83b2981ed2117d0ccdffa904ca23"
+      },
+      "passages": [
+        "HAL_UART_Transmit lines1136–1208: TXE/DR/TC, timeout and READY",
+        "UART_WaitOnFlagUntilTimeout lines3185–3225: tick progression and HAL_MAX_DELAY",
+        "UART_EndTransmit_IT lines3569–3592: READY before callback; interrupt handler and selected transmit path"
+      ]
+    },
+    {
+      "id": "R-PL-HALMAC183",
+      "capture": {
+        "path": "/home/frede/cmastery-architecture-tools/stm32f4xx-hal-driver-1.8.3/Inc/stm32f4xx_hal_uart.h",
+        "sha256": "42528bc9caa6e2fe96b7e6d7b3fcdf35d8d85ae38d33195a233e18a072f157a1"
+      },
+      "passages": [
+        "__HAL_UART_GET_FLAG line470 repeated flag expression; ENABLE_IT/DISABLE_IT lines558–580 selected register read-modify-write"
+      ]
+    },
+    {
+      "id": "R-PL-F4DEVICE2610",
+      "capture": {
+        "path": "/home/frede/cmastery-architecture-tools/cmsis-device-f4-2.6.10/Include/stm32f439xx.h",
+        "sha256": "2885b7e255ee54c479e9f28baad8e10b41912383923bbd03add5539e0103dcfc"
+      },
+      "passages": [
+        "USART_TypeDef lines874–885: 32-bit volatile SR/DR/BRR/CR1/CR2/CR3/GTPR offsets",
+        "USART_SR_TXE/TC bit definitions checked by actual compile-time assertions"
+      ]
+    },
+    {
+      "id": "R-PL-F4MAC2610",
+      "capture": {
+        "path": "/home/frede/cmastery-architecture-tools/cmsis-device-f4-2.6.10/Include/stm32f4xx.h",
+        "sha256": "13a76b267fceb37400f14d42a4c4ed3189e34b9cfb059c1c70b0419fda4dfb35"
+      },
+      "passages": [
+        "READ_BIT/WRITE_REG/MODIFY_REG lines215–223; ATOMIC_SET_BIT lines229–235 uses exclusive primitives, not ISO atomic MMIO"
+      ]
+    },
+    {
+      "id": "R-PL-G4DEVICE",
+      "capture": {
+        "path": "build/adc-primary/g474-header.h",
+        "sha256": "e7e5851721452c415c627e233d0a617b72ba891718a4f12a495b20dee25d82b0"
+      },
+      "passages": [
+        "USART_TypeDef lines897–911: ISR1C, TDR28 and CR1/CR2 at old F4 offsets",
+        "USART_ISR_TC_Pos and TXE_TXFNF aliases lines16221–16229"
+      ]
+    },
+    {
+      "id": "R-PL-G4LL",
+      "capture": {
+        "path": "build/layers-primary/stm32g4xx_ll_usart.h",
+        "sha256": "e684b5a51acc84370d27ff54909022512b4b5dbb8d8f7554558c5c7d834880ad"
+      },
+      "passages": [
+        "LL_USART_DisableFIFO lines681–692; flag functions lines3007–3030",
+        "LL_USART_TransmitData8 lines4271–4281: selected TDR write"
+      ]
+    },
+    {
+      "id": "R-PL-G4HAL",
+      "capture": {
+        "path": "/home/frede/cmastery-layers-tools/stm32g4xx-hal-driver-a6001282dfacfff57e9710250f15e4333b578865/Src/stm32g4xx_hal_uart.c",
+        "sha256": "8add873c0a903e515837f22454460ecc6d02f572c7f1f587710285f9ea720c2e"
+      },
+      "passages": [
+        "HAL_UART_Transmit lines1119–1200: selected TDR/TC transfer plus BUSY_TX abort-state check",
+        "UART_WaitOnFlagUntilTimeout lines3379–3437: bounded tick rule and selected TX exclusions"
+      ]
+    },
+    {
+      "id": "R-PL-G4PINNED",
+      "capture": {
+        "path": "/home/frede/cmastery-layers-tools/cmsis-device-g4-626ee412334a5ed2e5b320af5a8d77d69f03a558/Include/stm32g474xx.h",
+        "sha256": "e7e5851721452c415c627e233d0a617b72ba891718a4f12a495b20dee25d82b0"
+      },
+      "passages": [
+        "USART_TypeDef ISR/TDR layout and TXE_TXFNF/TC bits; actual changed-device compile-time layout assertions"
+      ]
+    }
+  ],
+  "reused_sources": [
+    "research/v5/expansion/legacy_advanced_uart/resources.json",
+    "research/v5/expansion/legacy_advanced_mmio/resources.json"
+  ],
+  "gaps": [
+    {
+      "id": "G-PL-G474-FULL-PORT",
+      "parent": "G-PA-RM0440-FULL",
+      "state": "source-dependent target extension",
+      "missing": "Full RM0440 selected USART clock/pin/FIFO initialization and errata argument; precise register map/LL operations inspected only",
+      "affected": [
+        "T28.11.c changed-device physical port"
+      ],
+      "implemented": "Generated ISR/TDR mapping, original bounded preconfigured transfer and stale-map rejection",
+      "required": "Obtain authorized RM0440 passages and target board route; implement/validate initialization before claiming actual G474 board operation"
+    }
+  ],
+  "limits": [
+    "No published C17 standard inspection inferred from draft access.",
+    "No physical UART or G474 port claim."
+  ]
+}

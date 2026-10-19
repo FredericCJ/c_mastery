@@ -1,0 +1,56 @@
+=================================================================
+==1105==ERROR: AddressSanitizer: heap-use-after-free on address 0x74e46a9e0010 at pc 0x000000514d77 bp 0x7ffd462e2ef0 sp 0x7ffd462e2ee8
+READ of size 4 at 0x74e46a9e0010 thread T0
+    #0 0x000000514d76 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:11
+    #1 0x78c46b82a600 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:59
+    #2 0x78c46b82a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #3 0x00000042b354 in _start ??:?
+
+0x74e46a9e0010 is located 0 bytes inside of 16-byte region [0x74e46a9e0010,0x74e46a9e0020)
+freed by thread T0 here:
+    #0 0x0000004d065a in free ??:?
+    #1 0x000000514c59 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:19
+    #2 0x78c46b82a600 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x78c46b82a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #4 0x00000042b354 in _start ??:?
+
+previously allocated by thread T0 here:
+    #0 0x0000004d08f8 in malloc ??:?
+    #1 0x000000514bf5 in main /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:17
+    #2 0x78c46b82a600 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x78c46b82a717 in __libc_start_main_impl csu/../csu/libc-start.c:360
+    #4 0x00000042b354 in _start ??:?
+
+SUMMARY: AddressSanitizer: heap-use-after-free /mnt/f/Learning/Curricula/c_mastery/labs/testing_followthrough/diagnostic.c:11 in main
+Shadow bytes around the buggy address:
+  0x74e46a9dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x74e46a9dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x74e46a9dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x74e46a9dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x74e46a9dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x74e46a9e0000: fa fa[fd]fd fa fa fa fa fa fa fa fa fa fa fa fa
+  0x74e46a9e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x74e46a9e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x74e46a9e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x74e46a9e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x74e46a9e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1105==ABORTING

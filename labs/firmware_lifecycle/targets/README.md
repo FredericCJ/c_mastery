@@ -18,3 +18,11 @@ core during shared-memory publication; account for cache maintenance, DMA and
 ownership. Inject watchdog and power-interruption faults only on dedicated
 equipment in a separately authorized run; retain actual traces, never substitute
 emulator logs. This task provides no flash command or option-byte change.
+
+## Implemented continuation
+
+The required [concrete continuation](EXTENSIONS.md) supplies the additional source,
+fixtures, failure controls, objective criteria and bounded author execution.
+Its evidence does not replace independent learner or physical obligations.
+
+Required actual cryptographic-adapter and key-policy composition is specified in [SIGNATURE.md](SIGNATURE.md).

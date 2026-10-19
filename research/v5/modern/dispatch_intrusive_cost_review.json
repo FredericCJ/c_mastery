@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_intrusive_probe.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Executed x86-64 layouts: dual item88, hook40, list48, index control64, slot28 and handle16 bytes; second hook offset48, item alignment8. The report records GCC/Clang at O0/O2/O3 and ASan/UBSan."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Four physical items plus two lists require448 bytes; four index slots plus one control require176 bytes, excluding external handles. A second relocation destination adds112 bytes during transfer. Lists retain borrowed storage, not resource ownership."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Physical parent/list/item addresses remain stable while linked. Index owner remains stable for all surviving tokens; slot storage may move only after ending raw borrows. Release rejects linked entries and retires after generation3."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Each hook has independent ownership; mutation changes only its chain. Relocation requires disjoint typed arrays or the identical array no-op. Raw structure copying of physical items leaves stale embedded addresses."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "No allocator or hidden heap storage is used by these mechanism functions. Index acquisition scans four generation/live controls and may permanently exhaust after12 issued handles."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Physical nodes cannot move while linked. Index relocation performs four typed slot assignments (112 bytes of slot storage on this ABI), then one backing-pointer publication; no handle rewrite. Pointer/member padding is ABI dependent."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Unlink both hooks then release logical identity; int payloads have no destructor. Each unlink uses bounded neighbor repairs; a resource-owning payload extension would require its own cleanup dictionary."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual O2 recovery code uses a48-byte address adjustment for conventional container recovery, a load at hook offset24 for explicit parent, and unchanged bits for initial-member conversion. Fold calls the external DSCombine once per visited element."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Single-owner nonreentrant protocol. Neither physical links nor stable generation handles provide concurrent reclamation or safe access through an expired owner pointer."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Full, busy, stale and invalid argument rejection occur before mutation; callback failure preserves final output but not callback side effects. The oracle covers16384 actual dual/index prefix transitions; original list enumeration covers14680064 transitions."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Exact separate translation and link commands/durations are retained for eight configurations. Public interfaces use fixed declared types and no per-payload generated monomorphization. Changing private implementation requires rebuilding that object and relinking; public layout changes require recompiling clients. A complete incremental workload timing is not inferred from clean commands."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 text/data/BSS bytes: GCC4369/608/8, Clang4066/584/8 for this probe. Observed dual-fold/index-fold frames are80/112 GCC and56/72 Clang, excluding callback frames/return paths/runtime; these are not whole-program peaks."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Initial-member conversion cites the inspected C rule. Arbitrary-offset subtraction is an actual GNU/Clang matching-member observation only; no invalid pointer case or broad provenance theorem. Additional i386 work elsewhere does not validate these new layouts."
+    }
+  ]
+}

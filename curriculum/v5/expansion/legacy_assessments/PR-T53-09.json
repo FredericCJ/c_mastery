@@ -2,10 +2,11 @@
   "schema_version": 1,
   "project": "PR-T53-09",
   "domain": "T53",
-  "title": "TLB shootdown and page reclamation — explicit depth assessments",
+  "title": "TLB shootdown and page reclamation \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/smp_depth/shootdown/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -122,9 +123,9 @@
       "id": "R-LCON-INTEL",
       "path": "research/v5/expansion/legacy_concurrency/resources.json",
       "passages": [
-        "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-        "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-        "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+        "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+        "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+        "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
         "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
       ]
     }
@@ -140,7 +141,17 @@
     "curriculum/projects/PR-T53-09.md",
     "fixtures/os_v3/PR-T53-09.json",
     "labs/kernel_smp/README.md",
-    "curriculum/guides/concurrent-system-contracts.md"
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/smp_depth/shootdown/CONTRACTS.md",
+    "labs/smp_depth/shootdown/guest.py",
+    "labs/smp_depth/shootdown/native.c",
+    "labs/smp_depth/shootdown/oracle.py",
+    "labs/smp_depth/shootdown/shootdown.c",
+    "labs/smp_depth/shootdown/shootdown.h",
+    "labs/smp_depth/shootdown/shootdown_frames.S",
+    "labs/smp_depth/shootdown/shootdown_guest.c",
+    "labs/smp_depth/shootdown/tests.c",
+    "labs/smp_depth/locks/locks.h"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -166,9 +177,9 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
@@ -232,6 +243,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_shootdown/support.json",
+        "id": "AX-PR-T53-09-T53.09.a"
       }
     },
     {
@@ -252,9 +267,9 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
@@ -318,6 +333,10 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_shootdown/support.json",
+        "id": "AX-PR-T53-09-T53.09.b"
       }
     },
     {
@@ -338,14 +357,14 @@
           "id": "R-LCON-INTEL",
           "path": "research/v5/expansion/legacy_concurrency/resources.json",
           "passages": [
-            "4.10.5 pp4-45–46: propagation and reclaim after invalidations",
-            "8.4.4.1 pp8-20–21: typical BSP initialization and AP startup page",
-            "10.5.4 pp10-16–17: local timer modes and clock qualifications",
+            "4.10.5 pp4-45\u201346: propagation and reclaim after invalidations",
+            "8.4.4.1 pp8-20\u201321: typical BSP initialization and AP startup page",
+            "10.5.4 pp10-16\u201317: local timer modes and clock qualifications",
             "10.6.1 opening and Figure10-12: ICR send and delivery-status fields"
           ]
         }
       ],
-      "task": "In an original disposable teaching guest or a deterministic translation-cache model, let CPU1 cache VA→frameA, revoke it, delay CPU1 invalidation, and prematurely reuseA for a synthetic NEW marker. Demonstrate only the stale-access property violation; compare a repaired wait-for-ack version. Label model evidence separately from guest evidence and from the retained early IPI/CR3 gate.",
+      "task": "In an original disposable teaching guest or a deterministic translation-cache model, let CPU1 cache VA\u2192frameA, revoke it, delay CPU1 invalidation, and prematurely reuseA for a synthetic NEW marker. Demonstrate only the stale-access property violation; compare a repaired wait-for-ack version. Label model evidence separately from guest evidence and from the retained early IPI/CR3 gate.",
       "purpose": "The early shootdown marker proves stale access to a reused frame is impossible.",
       "prerequisites": {
         "knowledge": [
@@ -366,7 +385,7 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: The early shootdown marker proves stale access to a reused frame is impossible.",
-        "D2": "In an original disposable teaching guest or a deterministic translation-cache model, let CPU1 cache VA→frameA, revoke it, delay CPU1 invalidation, and prematurely reuseA for a synthetic NEW marker. Demonstrate only the stale-access property violation; compare a repaired wait-for-ack version. Label model evidence separately from guest evidence and from the retained early IPI/CR3 gate.",
+        "D2": "In an original disposable teaching guest or a deterministic translation-cache model, let CPU1 cache VA\u2192frameA, revoke it, delay CPU1 invalidation, and prematurely reuseA for a synthetic NEW marker. Demonstrate only the stale-access property violation; compare a repaired wait-for-ack version. Label model evidence separately from guest evidence and from the retained early IPI/CR3 gate.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Run a permission-revocation variant with two address spaces and derive the exact target set and retained-frame lifetime."
       },
@@ -409,12 +428,16 @@
         "attacker_capabilities": "A teaching user task can repeatedly access its formerly mapped virtual address while the harness delays one CPU invalidation; it cannot target host memory or external systems.",
         "isolation": "Fresh VM, no host-disk/network/device passthrough, bounded execution and synthetic OLD/NEW markers; stop and discard the guest after each case.",
         "defect": "Reusing a physical frame while another CPU retains authority through a stale translation violates revocation and object isolation.",
-        "exposing_transition": "Cache VA→A on CPU1, revoke its PTE on CPU0, withhold CPU1 invalidation, prematurely repurpose A, then access the old VA.",
+        "exposing_transition": "Cache VA\u2192A on CPU1, revoke its PTE on CPU0, withhold CPU1 invalidation, prematurely repurpose A, then access the old VA.",
         "exploitability_limits": "Requires a still-usable cached mapping, actual or modeled missing invalidation and premature reuse. A model violation is not hardware evidence; a crash or stale marker does not demonstrate arbitrary execution or privilege escalation.",
         "success_condition": "Only the original teaching target observes or modifies the synthetic NEW object through the revoked OLD mapping.",
         "repair": "Complete appropriate invalidation on every relevant CPU before reuse, with address-space membership, generation and acknowledgement ordering; retain frames on timeout.",
         "regression": "Compare flawed and repaired paths; delay one CPU, inject stale/duplicate acknowledgements, timeout, CPU membership changes and permission-revocation variants. The repaired target must never expose NEW through OLD.",
         "residual_limits": "Exact PCID/global-page/large-page and current CPU behavior require separate ISA inspection and target validation. The early retained IPI marker establishes only its narrower gate."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_smp_shootdown/support.json",
+        "id": "AX-PR-T53-09-T53.09.c"
       }
     }
   ],
@@ -429,5 +452,16 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_smp_shootdown/support.json",
+      "criterion_ids": [
+        "AX-PR-T53-09-T53.09.a",
+        "AX-PR-T53-09-T53.09.b",
+        "AX-PR-T53-09-T53.09.c"
+      ],
+      "scope": "Actual bounded generation-qualified shootdown, retained frame authority, GLOBAL scope and two-address-space permissions."
+    }
+  ]
 }

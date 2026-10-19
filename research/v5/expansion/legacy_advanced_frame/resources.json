@@ -1,0 +1,120 @@
+{
+  "resources": [
+    {
+      "id": "R-XF-DUI",
+      "title": "Cortex-M4 Devices Generic User Guide",
+      "authors": [
+        "Arm"
+      ],
+      "edition": "DUI0553B ID012616",
+      "year": null,
+      "kind": "primary-specification",
+      "url": "https://documentation-service.arm.com/static/5f2ac76d60a93e65927bbdc5",
+      "access": "Actual listed passages inspected",
+      "domains": [
+        "T29"
+      ],
+      "role": "oracle",
+      "reason": "Exception representation, lazy FP ownership and interrupt eligibility",
+      "prerequisites": [
+        "T08 ABI stack",
+        "T10 startup/vectors",
+        "T11 original runtime",
+        "T27 architectural register access"
+      ],
+      "locators": [
+        "PDFpp20–23,35–43: processor mode/stacks, exception state/priorities, entry/return; PDFp40 Figure2-3 visually inspected",
+        "PDFpp226,232–234,237: NVIC enable/pending/active, priorities and AIRCR grouping"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actual named PDF text passages read; DUI Figure2-3 rendered and visually inspected. Only complete passages listed; truncated neighboring extraction excluded.",
+        "scope": [
+          "PDFpp20–23,35–43: processor mode/stacks, exception state/priorities, entry/return; PDFp40 Figure2-3 visually inspected",
+          "PDFpp226,232–234,237: NVIC enable/pending/active, priorities and AIRCR grouping"
+        ],
+        "limits": "No full manual review, physical latency or final published ISO C17/C23 claim.",
+        "external_source_sha256": {
+          "/home/frede/cmastery-architecture-alu-sources/dui0553.pdf": "a388721e2c87fdf0a70c40545b6a72d390afdf87d47f654a6577e5e61cd92b30"
+        }
+      }
+    },
+    {
+      "id": "R-XF-DDI",
+      "title": "Armv7-M Architecture Reference Manual",
+      "authors": [
+        "Arm"
+      ],
+      "edition": "DDI0403E.e ID021621",
+      "year": 2021,
+      "kind": "primary-specification",
+      "url": "https://documentation-service.arm.com/static/606dc36485368c4c2b1bf62f",
+      "access": "Actual listed passages inspected",
+      "domains": [
+        "T29"
+      ],
+      "role": "oracle",
+      "reason": "Exception representation, lazy FP ownership and interrupt eligibility",
+      "prerequisites": [
+        "T08 ABI stack",
+        "T10 startup/vectors",
+        "T11 original runtime",
+        "T27 architectural register access"
+      ],
+      "locators": [
+        "PDFpp523–529: pending/active, priority grouping and execution priority/masks",
+        "PDFpp531–533,535–542: exception entry, basic/extended/lazy frame, tail-chain/late-arrival, EXC_RETURN and integrity checks",
+        "PDFpp546–548,612,616–617: FP context/control and priority register constraints"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actual named PDF text passages read; DUI Figure2-3 rendered and visually inspected. Only complete passages listed; truncated neighboring extraction excluded.",
+        "scope": [
+          "PDFpp523–529: pending/active, priority grouping and execution priority/masks",
+          "PDFpp531–533,535–542: exception entry, basic/extended/lazy frame, tail-chain/late-arrival, EXC_RETURN and integrity checks",
+          "PDFpp546–548,612,616–617: FP context/control and priority register constraints"
+        ],
+        "limits": "No full manual review, physical latency or final published ISO C17/C23 claim.",
+        "external_source_sha256": {
+          "/home/frede/cmastery-architecture-alu-sources/armv7m.pdf": "76500176d20f897eaf05eeadb5a6202cef641e332073b107905c8898e0ee0747"
+        }
+      }
+    },
+    {
+      "id": "R-XF-FREERTOS",
+      "title": "FreeRTOS Kernel ARM_CM4F port",
+      "edition": "V11.2.0 commit0adc196d4bd52a2d91102b525b0aafc1e14a2386",
+      "authors": [
+        "FreeRTOS contributors"
+      ],
+      "kind": "source",
+      "url": "https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/0adc196d4bd52a2d91102b525b0aafc1e14a2386/portable/GCC/ARM_CM4F/port.c",
+      "role": "primary",
+      "domains": [
+        "T29"
+      ],
+      "access": "Actual named source lines read",
+      "assignable": true,
+      "locators": [
+        "port.c lines360–445: implemented priority-bit readback, max syscall priority and grouping bound",
+        "port.c lines851–925: vPortValidateInterruptPriority API threshold and grouping validation"
+      ],
+      "reason": "Exact selected RTOS admission convention including eight-bit subpriority exception; separate from ISO C or generic RTOS guarantees",
+      "prerequisites": [
+        "NVIC group/subpriority"
+      ],
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Actual local pinned C source read",
+        "scope": "Only named startup/validation passages",
+        "capture": {
+          "path": "build/dependencies/freertos-11.2.0/portable/GCC/ARM_CM4F/port.c",
+          "sha256": "1e7e155953ba7689af5244547438c76916f5973f103b5c09f3b75dee83e2146f"
+        },
+        "limits": "Helper checks a declared configuration; it does not execute or verify the scheduler. T30 supplies actual RTOS experiments."
+      }
+    }
+  ]
+}

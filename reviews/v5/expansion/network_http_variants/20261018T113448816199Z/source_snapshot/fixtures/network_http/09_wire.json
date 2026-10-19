@@ -1,0 +1,42 @@
+{
+  "id": "FX-HTTP-09_wire",
+  "description": "Exact shared close-mode HTTP serialization for hosted and custom-TCP adapters.",
+  "input": {
+    "mode": "one request per connection, close",
+    "utc_epoch_seconds": 1672531200,
+    "routes": [
+      "GET /health",
+      "HEAD /health",
+      "POST /echo"
+    ],
+    "echo_body_hex": "00ff410a",
+    "header_order": [
+      "status-line",
+      "Date",
+      "Content-Type",
+      "Content-Length",
+      "Connection"
+    ],
+    "interim_continue": "HTTP/1.1 100 Continue\r\n\r\n"
+  },
+  "expected": {
+    "messages": [
+      {
+        "method": "GET",
+        "header": "HTTP/1.1 200 OK\r\nDate: Sun, 01 Jan 2023 00:00:00 GMT\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 3\r\nConnection: close\r\n\r\n",
+        "body_hex": "6f6b0a"
+      },
+      {
+        "method": "HEAD",
+        "header": "HTTP/1.1 200 OK\r\nDate: Sun, 01 Jan 2023 00:00:00 GMT\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 3\r\nConnection: close\r\n\r\n",
+        "body_hex": ""
+      },
+      {
+        "method": "POST",
+        "header": "HTTP/1.1 200 OK\r\nDate: Sun, 01 Jan 2023 00:00:00 GMT\r\nContent-Type: application/octet-stream\r\nContent-Length: 4\r\nConnection: close\r\n\r\n",
+        "body_hex": "00ff410a"
+      }
+    ]
+  },
+  "verification_method": "Independently parse literal header octets and verify Date, declared representation length, HEAD exception, binary body and terminal CRLF. Fixed field order is original fixture policy, not a universal RFC requirement."
+}

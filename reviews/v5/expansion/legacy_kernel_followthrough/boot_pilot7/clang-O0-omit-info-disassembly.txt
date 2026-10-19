@@ -1,0 +1,421 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_kernel_followthrough/boot_pilot7/clang-O0-omit-info/kernel.elf:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000101000 <_start>:
+  101000:	fa                   	cli
+  101001:	fc                   	cld
+  101002:	a3 00 90 10 00 bc 10 	movabs %eax,0x10d010bc00109000
+  101009:	d0 10 
+  10100b:	00 b8 00 40 10 00    	add    %bh,0x104000(%rax)
+  101011:	83 c8 03             	or     $0x3,%eax
+  101014:	a3 00 30 10 00 31 c9 	movabs %eax,0xc889c93100103000
+  10101b:	89 c8 
+  10101d:	c1 e0 0c             	shl    $0xc,%eax
+  101020:	81 c0 00 50 10 00    	add    $0x105000,%eax
+  101026:	83 c8 03             	or     $0x3,%eax
+  101029:	89 04 cd 00 40 10 00 	mov    %eax,0x104000(,%rcx,8)
+  101030:	41 83 f9 04          	cmp    $0x4,%r9d
+  101034:	75 e5                	jne    10101b <_start+0x1b>
+  101036:	31 c9                	xor    %ecx,%ecx
+  101038:	89 c8                	mov    %ecx,%eax
+  10103a:	c1 e0 15             	shl    $0x15,%eax
+  10103d:	0d 83 00 00 00       	or     $0x83,%eax
+  101042:	89 04 cd 00 50 10 00 	mov    %eax,0x105000(,%rcx,8)
+  101049:	41 81 f9 00 08 00 00 	cmp    $0x800,%r9d
+  101050:	75 e6                	jne    101038 <_start+0x38>
+  101052:	0f 20 e0             	mov    %cr4,%rax
+  101055:	83 c8 20             	or     $0x20,%eax
+  101058:	0f 22 e0             	mov    %rax,%cr4
+  10105b:	b8 00 30 10 00       	mov    $0x103000,%eax
+  101060:	0f 22 d8             	mov    %rax,%cr3
+  101063:	b9 80 00 00 c0       	mov    $0xc0000080,%ecx
+  101068:	0f 32                	rdmsr
+  10106a:	0d 00 09 00 00       	or     $0x900,%eax
+  10106f:	0f 30                	wrmsr
+  101071:	0f 01 15 18 20 10 00 	lgdt   0x102018(%rip)        # 203090 <kernel_end+0xf6078>
+  101078:	0f 20 c0             	mov    %cr0,%rax
+  10107b:	0d 00 00 01 80       	or     $0x80010000,%eax
+  101080:	0f 22 c0             	mov    %rax,%cr0
+
+0000000000101083 <kf_mode_boundary>:
+  101083:	ea                   	(bad)
+  101084:	8a 10                	mov    (%rax),%dl
+  101086:	10 00                	adc    %al,(%rax)
+  101088:	08 00                	or     %al,(%rax)
+
+000000000010108a <long_start>:
+  10108a:	66 b8 10 00          	mov    $0x10,%ax
+  10108e:	8e d8                	mov    %eax,%ds
+  101090:	8e c0                	mov    %eax,%es
+  101092:	8e d0                	mov    %eax,%ss
+  101094:	31 c0                	xor    %eax,%eax
+  101096:	8e e0                	mov    %eax,%fs
+  101098:	8e e8                	mov    %eax,%gs
+  10109a:	48 c7 c4 10 d0 10 00 	mov    $0x10d010,%rsp
+  1010a1:	8b 3d 59 7f 00 00    	mov    0x7f59(%rip),%edi        # 109000 <boot_magic>
+  1010a7:	8b 35 57 7f 00 00    	mov    0x7f57(%rip),%esi        # 109004 <boot_info>
+  1010ad:	e8 06 00 00 00       	call   1010b8 <kernel_main>
+  1010b2:	fa                   	cli
+  1010b3:	f4                   	hlt
+  1010b4:	eb fc                	jmp    1010b2 <long_start+0x28>
+  1010b6:	66 90                	xchg   %ax,%ax
+
+00000000001010b8 <kernel_main>:
+  1010b8:	48 89 25 51 bf 00 00 	mov    %rsp,0xbf51(%rip)        # 10d010 <kf_entry_rsp>
+  1010bf:	e9 0c 00 00 00       	jmp    1010d0 <kf_boot_check>
+  1010c4:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  1010cb:	00 00 00 
+  1010ce:	66 90                	xchg   %ax,%ax
+
+00000000001010d0 <kf_boot_check>:
+  1010d0:	55                   	push   %rbp
+  1010d1:	48 89 e5             	mov    %rsp,%rbp
+  1010d4:	48 83 ec 40          	sub    $0x40,%rsp
+  1010d8:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  1010db:	89 75 f8             	mov    %esi,-0x8(%rbp)
+  1010de:	9c                   	pushf
+  1010df:	58                   	pop    %rax
+  1010e0:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+  1010e4:	0f 20 c0             	mov    %cr0,%rax
+  1010e7:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  1010eb:	0f 20 d8             	mov    %cr3,%rax
+  1010ee:	48 89 45 e0          	mov    %rax,-0x20(%rbp)
+  1010f2:	0f 20 e0             	mov    %cr4,%rax
+  1010f5:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+  1010f9:	66 8c c8             	mov    %cs,%ax
+  1010fc:	66 89 45 ce          	mov    %ax,-0x32(%rbp)
+  101100:	b9 80 00 00 c0       	mov    $0xc0000080,%ecx
+  101105:	0f 32                	rdmsr
+  101107:	89 45 d4             	mov    %eax,-0x2c(%rbp)
+  10110a:	89 55 d0             	mov    %edx,-0x30(%rbp)
+  10110d:	e8 9e 02 00 00       	call   1013b0 <serial>
+  101112:	48 bf 1e 20 10 00 00 	movabs $0x10201e,%rdi
+  101119:	00 00 00 
+  10111c:	e8 ff 02 00 00       	call   101420 <text>
+  101121:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  101124:	89 c7                	mov    %eax,%edi
+  101126:	e8 b5 03 00 00       	call   1014e0 <hex>
+  10112b:	48 bf 30 20 10 00 00 	movabs $0x102030,%rdi
+  101132:	00 00 00 
+  101135:	e8 e6 02 00 00       	call   101420 <text>
+  10113a:	8b 45 f8             	mov    -0x8(%rbp),%eax
+  10113d:	89 c7                	mov    %eax,%edi
+  10113f:	e8 9c 03 00 00       	call   1014e0 <hex>
+  101144:	48 bf 36 20 10 00 00 	movabs $0x102036,%rdi
+  10114b:	00 00 00 
+  10114e:	e8 cd 02 00 00       	call   101420 <text>
+  101153:	48 8b 3c 25 10 d0 10 	mov    0x10d010,%rdi
+  10115a:	00 
+  10115b:	e8 80 03 00 00       	call   1014e0 <hex>
+  101160:	48 bf 41 20 10 00 00 	movabs $0x102041,%rdi
+  101167:	00 00 00 
+  10116a:	e8 b1 02 00 00       	call   101420 <text>
+  10116f:	48 8b 7d e0          	mov    -0x20(%rbp),%rdi
+  101173:	e8 68 03 00 00       	call   1014e0 <hex>
+  101178:	48 bf 46 20 10 00 00 	movabs $0x102046,%rdi
+  10117f:	00 00 00 
+  101182:	e8 99 02 00 00       	call   101420 <text>
+  101187:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+  10118b:	e8 50 03 00 00       	call   1014e0 <hex>
+  101190:	48 bf 4b 20 10 00 00 	movabs $0x10204b,%rdi
+  101197:	00 00 00 
+  10119a:	e8 81 02 00 00       	call   101420 <text>
+  10119f:	48 8b 7d d8          	mov    -0x28(%rbp),%rdi
+  1011a3:	e8 38 03 00 00       	call   1014e0 <hex>
+  1011a8:	48 bf 50 20 10 00 00 	movabs $0x102050,%rdi
+  1011af:	00 00 00 
+  1011b2:	e8 69 02 00 00       	call   101420 <text>
+  1011b7:	8b 45 d0             	mov    -0x30(%rbp),%eax
+  1011ba:	89 c7                	mov    %eax,%edi
+  1011bc:	48 c1 e7 20          	shl    $0x20,%rdi
+  1011c0:	8b 45 d4             	mov    -0x2c(%rbp),%eax
+  1011c3:	48 09 c7             	or     %rax,%rdi
+  1011c6:	e8 15 03 00 00       	call   1014e0 <hex>
+  1011cb:	81 7d fc 89 62 d7 36 	cmpl   $0x36d76289,-0x4(%rbp)
+  1011d2:	75 11                	jne    1011e5 <kf_boot_check+0x115>
+  1011d4:	83 7d f8 00          	cmpl   $0x0,-0x8(%rbp)
+  1011d8:	74 0b                	je     1011e5 <kf_boot_check+0x115>
+  1011da:	8b 45 f8             	mov    -0x8(%rbp),%eax
+  1011dd:	83 e0 07             	and    $0x7,%eax
+  1011e0:	83 f8 00             	cmp    $0x0,%eax
+  1011e3:	74 19                	je     1011fe <kf_boot_check+0x12e>
+  1011e5:	48 bf 56 20 10 00 00 	movabs $0x102056,%rdi
+  1011ec:	00 00 00 
+  1011ef:	e8 2c 02 00 00       	call   101420 <text>
+  1011f4:	bf 11 00 00 00       	mov    $0x11,%edi
+  1011f9:	e8 52 03 00 00       	call   101550 <stop>
+  1011fe:	48 8b 04 25 10 d0 10 	mov    0x10d010,%rax
+  101205:	00 
+  101206:	48 83 e0 0f          	and    $0xf,%rax
+  10120a:	48 83 f8 08          	cmp    $0x8,%rax
+  10120e:	74 19                	je     101229 <kf_boot_check+0x159>
+  101210:	48 bf 69 20 10 00 00 	movabs $0x102069,%rdi
+  101217:	00 00 00 
+  10121a:	e8 01 02 00 00       	call   101420 <text>
+  10121f:	bf 11 00 00 00       	mov    $0x11,%edi
+  101224:	e8 27 03 00 00       	call   101550 <stop>
+  101229:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+  10122d:	48 25 00 04 00 00    	and    $0x400,%rax
+  101233:	48 83 f8 00          	cmp    $0x0,%rax
+  101237:	75 4e                	jne    101287 <kf_boot_check+0x1b7>
+  101239:	0f b7 45 ce          	movzwl -0x32(%rbp),%eax
+  10123d:	83 f8 08             	cmp    $0x8,%eax
+  101240:	75 45                	jne    101287 <kf_boot_check+0x1b7>
+  101242:	48 b8 01 00 01 80 00 	movabs $0x80010001,%rax
+  101249:	00 00 00 
+  10124c:	48 23 45 e8          	and    -0x18(%rbp),%rax
+  101250:	b9 01 00 01 80       	mov    $0x80010001,%ecx
+  101255:	48 39 c8             	cmp    %rcx,%rax
+  101258:	75 2d                	jne    101287 <kf_boot_check+0x1b7>
+  10125a:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  10125e:	48 83 e0 20          	and    $0x20,%rax
+  101262:	48 83 f8 00          	cmp    $0x0,%rax
+  101266:	74 1f                	je     101287 <kf_boot_check+0x1b7>
+  101268:	8b 45 d4             	mov    -0x2c(%rbp),%eax
+  10126b:	25 00 0d 00 00       	and    $0xd00,%eax
+  101270:	3d 00 0d 00 00       	cmp    $0xd00,%eax
+  101275:	75 10                	jne    101287 <kf_boot_check+0x1b7>
+  101277:	48 b8 00 30 10 00 00 	movabs $0x103000,%rax
+  10127e:	00 00 00 
+  101281:	48 39 45 e0          	cmp    %rax,-0x20(%rbp)
+  101285:	74 19                	je     1012a0 <kf_boot_check+0x1d0>
+  101287:	48 bf 82 20 10 00 00 	movabs $0x102082,%rdi
+  10128e:	00 00 00 
+  101291:	e8 8a 01 00 00       	call   101420 <text>
+  101296:	bf 11 00 00 00       	mov    $0x11,%edi
+  10129b:	e8 b0 02 00 00       	call   101550 <stop>
+  1012a0:	48 8b 04 25 00 30 10 	mov    0x103000,%rax
+  1012a7:	00 
+  1012a8:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  1012ac:	48 b9 00 40 10 00 00 	movabs $0x104000,%rcx
+  1012b3:	00 00 00 
+  1012b6:	48 83 c9 03          	or     $0x3,%rcx
+  1012ba:	48 39 c8             	cmp    %rcx,%rax
+  1012bd:	74 19                	je     1012d8 <kf_boot_check+0x208>
+  1012bf:	48 bf 90 20 10 00 00 	movabs $0x102090,%rdi
+  1012c6:	00 00 00 
+  1012c9:	e8 52 01 00 00       	call   101420 <text>
+  1012ce:	bf 11 00 00 00       	mov    $0x11,%edi
+  1012d3:	e8 78 02 00 00       	call   101550 <stop>
+  1012d8:	c7 45 c8 00 00 00 00 	movl   $0x0,-0x38(%rbp)
+  1012df:	83 7d c8 04          	cmpl   $0x4,-0x38(%rbp)
+  1012e3:	73 55                	jae    10133a <kf_boot_check+0x26a>
+  1012e5:	8b 45 c8             	mov    -0x38(%rbp),%eax
+  1012e8:	48 8b 04 c5 00 40 10 	mov    0x104000(,%rax,8),%rax
+  1012ef:	00 
+  1012f0:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  1012f4:	8b 4d c8             	mov    -0x38(%rbp),%ecx
+  1012f7:	c1 e1 0c             	shl    $0xc,%ecx
+  1012fa:	89 c9                	mov    %ecx,%ecx
+  1012fc:	89 ca                	mov    %ecx,%edx
+  1012fe:	48 b9 00 50 10 00 00 	movabs $0x105000,%rcx
+  101305:	00 00 00 
+  101308:	48 01 d1             	add    %rdx,%rcx
+  10130b:	48 83 c1 03          	add    $0x3,%rcx
+  10130f:	48 39 c8             	cmp    %rcx,%rax
+  101312:	74 19                	je     10132d <kf_boot_check+0x25d>
+  101314:	48 bf 9e 20 10 00 00 	movabs $0x10209e,%rdi
+  10131b:	00 00 00 
+  10131e:	e8 fd 00 00 00       	call   101420 <text>
+  101323:	bf 11 00 00 00       	mov    $0x11,%edi
+  101328:	e8 23 02 00 00       	call   101550 <stop>
+  10132d:	eb 00                	jmp    10132f <kf_boot_check+0x25f>
+  10132f:	8b 45 c8             	mov    -0x38(%rbp),%eax
+  101332:	83 c0 01             	add    $0x1,%eax
+  101335:	89 45 c8             	mov    %eax,-0x38(%rbp)
+  101338:	eb a5                	jmp    1012df <kf_boot_check+0x20f>
+  10133a:	c7 45 c4 00 00 00 00 	movl   $0x0,-0x3c(%rbp)
+  101341:	81 7d c4 00 08 00 00 	cmpl   $0x800,-0x3c(%rbp)
+  101348:	73 48                	jae    101392 <kf_boot_check+0x2c2>
+  10134a:	8b 45 c4             	mov    -0x3c(%rbp),%eax
+  10134d:	48 8b 04 c5 00 50 10 	mov    0x105000(,%rax,8),%rax
+  101354:	00 
+  101355:	48 83 e0 9f          	and    $0xffffffffffffff9f,%rax
+  101359:	8b 4d c4             	mov    -0x3c(%rbp),%ecx
+  10135c:	48 c1 e1 15          	shl    $0x15,%rcx
+  101360:	48 81 c1 83 00 00 00 	add    $0x83,%rcx
+  101367:	48 39 c8             	cmp    %rcx,%rax
+  10136a:	74 19                	je     101385 <kf_boot_check+0x2b5>
+  10136c:	48 bf ac 20 10 00 00 	movabs $0x1020ac,%rdi
+  101373:	00 00 00 
+  101376:	e8 a5 00 00 00       	call   101420 <text>
+  10137b:	bf 11 00 00 00       	mov    $0x11,%edi
+  101380:	e8 cb 01 00 00       	call   101550 <stop>
+  101385:	eb 00                	jmp    101387 <kf_boot_check+0x2b7>
+  101387:	8b 45 c4             	mov    -0x3c(%rbp),%eax
+  10138a:	83 c0 01             	add    $0x1,%eax
+  10138d:	89 45 c4             	mov    %eax,-0x3c(%rbp)
+  101390:	eb af                	jmp    101341 <kf_boot_check+0x271>
+  101392:	48 bf b8 20 10 00 00 	movabs $0x1020b8,%rdi
+  101399:	00 00 00 
+  10139c:	e8 7f 00 00 00       	call   101420 <text>
+  1013a1:	bf 10 00 00 00       	mov    $0x10,%edi
+  1013a6:	e8 a5 01 00 00       	call   101550 <stop>
+  1013ab:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+00000000001013b0 <serial>:
+  1013b0:	55                   	push   %rbp
+  1013b1:	48 89 e5             	mov    %rsp,%rbp
+  1013b4:	bf f9 03 00 00       	mov    $0x3f9,%edi
+  1013b9:	31 f6                	xor    %esi,%esi
+  1013bb:	e8 b0 01 00 00       	call   101570 <out>
+  1013c0:	bf fb 03 00 00       	mov    $0x3fb,%edi
+  1013c5:	be 80 00 00 00       	mov    $0x80,%esi
+  1013ca:	e8 a1 01 00 00       	call   101570 <out>
+  1013cf:	bf f8 03 00 00       	mov    $0x3f8,%edi
+  1013d4:	be 01 00 00 00       	mov    $0x1,%esi
+  1013d9:	e8 92 01 00 00       	call   101570 <out>
+  1013de:	bf f9 03 00 00       	mov    $0x3f9,%edi
+  1013e3:	31 f6                	xor    %esi,%esi
+  1013e5:	e8 86 01 00 00       	call   101570 <out>
+  1013ea:	bf fb 03 00 00       	mov    $0x3fb,%edi
+  1013ef:	be 03 00 00 00       	mov    $0x3,%esi
+  1013f4:	e8 77 01 00 00       	call   101570 <out>
+  1013f9:	bf fa 03 00 00       	mov    $0x3fa,%edi
+  1013fe:	be c7 00 00 00       	mov    $0xc7,%esi
+  101403:	e8 68 01 00 00       	call   101570 <out>
+  101408:	bf fc 03 00 00       	mov    $0x3fc,%edi
+  10140d:	be 0b 00 00 00       	mov    $0xb,%esi
+  101412:	e8 59 01 00 00       	call   101570 <out>
+  101417:	5d                   	pop    %rbp
+  101418:	c3                   	ret
+  101419:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000101420 <text>:
+  101420:	55                   	push   %rbp
+  101421:	48 89 e5             	mov    %rsp,%rbp
+  101424:	48 83 ec 20          	sub    $0x20,%rsp
+  101428:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  10142c:	c7 45 f4 00 00 00 00 	movl   $0x0,-0xc(%rbp)
+  101433:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  101437:	8b 4d f4             	mov    -0xc(%rbp),%ecx
+  10143a:	0f be 0c 08          	movsbl (%rax,%rcx,1),%ecx
+  10143e:	31 c0                	xor    %eax,%eax
+  101440:	83 f9 00             	cmp    $0x0,%ecx
+  101443:	88 45 ef             	mov    %al,-0x11(%rbp)
+  101446:	74 0d                	je     101455 <text+0x35>
+  101448:	81 7d f4 a0 00 00 00 	cmpl   $0xa0,-0xc(%rbp)
+  10144f:	0f 92 c0             	setb   %al
+  101452:	88 45 ef             	mov    %al,-0x11(%rbp)
+  101455:	8a 45 ef             	mov    -0x11(%rbp),%al
+  101458:	a8 01                	test   $0x1,%al
+  10145a:	75 02                	jne    10145e <text+0x3e>
+  10145c:	eb 70                	jmp    1014ce <text+0xae>
+  10145e:	c7 45 f0 00 00 00 00 	movl   $0x0,-0x10(%rbp)
+  101465:	bf fd 03 00 00       	mov    $0x3fd,%edi
+  10146a:	e8 31 01 00 00       	call   1015a0 <in>
+  10146f:	0f b6 c8             	movzbl %al,%ecx
+  101472:	83 e1 20             	and    $0x20,%ecx
+  101475:	31 c0                	xor    %eax,%eax
+  101477:	83 f9 00             	cmp    $0x0,%ecx
+  10147a:	88 45 ee             	mov    %al,-0x12(%rbp)
+  10147d:	75 0d                	jne    10148c <text+0x6c>
+  10147f:	81 7d f0 a0 86 01 00 	cmpl   $0x186a0,-0x10(%rbp)
+  101486:	0f 92 c0             	setb   %al
+  101489:	88 45 ee             	mov    %al,-0x12(%rbp)
+  10148c:	8a 45 ee             	mov    -0x12(%rbp),%al
+  10148f:	a8 01                	test   $0x1,%al
+  101491:	75 02                	jne    101495 <text+0x75>
+  101493:	eb 0b                	jmp    1014a0 <text+0x80>
+  101495:	8b 45 f0             	mov    -0x10(%rbp),%eax
+  101498:	83 c0 01             	add    $0x1,%eax
+  10149b:	89 45 f0             	mov    %eax,-0x10(%rbp)
+  10149e:	eb c5                	jmp    101465 <text+0x45>
+  1014a0:	81 7d f0 a0 86 01 00 	cmpl   $0x186a0,-0x10(%rbp)
+  1014a7:	75 02                	jne    1014ab <text+0x8b>
+  1014a9:	eb 23                	jmp    1014ce <text+0xae>
+  1014ab:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  1014af:	8b 4d f4             	mov    -0xc(%rbp),%ecx
+  1014b2:	bf f8 03 00 00       	mov    $0x3f8,%edi
+  1014b7:	0f b6 34 08          	movzbl (%rax,%rcx,1),%esi
+  1014bb:	e8 b0 00 00 00       	call   101570 <out>
+  1014c0:	8b 45 f4             	mov    -0xc(%rbp),%eax
+  1014c3:	83 c0 01             	add    $0x1,%eax
+  1014c6:	89 45 f4             	mov    %eax,-0xc(%rbp)
+  1014c9:	e9 65 ff ff ff       	jmp    101433 <text+0x13>
+  1014ce:	48 83 c4 20          	add    $0x20,%rsp
+  1014d2:	5d                   	pop    %rbp
+  1014d3:	c3                   	ret
+  1014d4:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+  1014db:	00 00 00 00 00 
+
+00000000001014e0 <hex>:
+  1014e0:	55                   	push   %rbp
+  1014e1:	48 89 e5             	mov    %rsp,%rbp
+  1014e4:	48 83 ec 30          	sub    $0x30,%rsp
+  1014e8:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  1014ec:	c6 45 f0 0a          	movb   $0xa,-0x10(%rbp)
+  1014f0:	c6 45 f1 00          	movb   $0x0,-0xf(%rbp)
+  1014f4:	c7 45 dc 00 00 00 00 	movl   $0x0,-0x24(%rbp)
+  1014fb:	83 7d dc 10          	cmpl   $0x10,-0x24(%rbp)
+  1014ff:	73 33                	jae    101534 <hex+0x54>
+  101501:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  101505:	8b 55 dc             	mov    -0x24(%rbp),%edx
+  101508:	c1 e2 02             	shl    $0x2,%edx
+  10150b:	b9 3c 00 00 00       	mov    $0x3c,%ecx
+  101510:	29 d1                	sub    %edx,%ecx
+  101512:	89 c9                	mov    %ecx,%ecx
+  101514:	48 d3 e8             	shr    %cl,%rax
+  101517:	48 83 e0 0f          	and    $0xf,%rax
+  10151b:	8a 0c 05 f2 20 10 00 	mov    0x1020f2(,%rax,1),%cl
+  101522:	8b 45 dc             	mov    -0x24(%rbp),%eax
+  101525:	88 4c 05 e0          	mov    %cl,-0x20(%rbp,%rax,1)
+  101529:	8b 45 dc             	mov    -0x24(%rbp),%eax
+  10152c:	83 c0 01             	add    $0x1,%eax
+  10152f:	89 45 dc             	mov    %eax,-0x24(%rbp)
+  101532:	eb c7                	jmp    1014fb <hex+0x1b>
+  101534:	48 8d 7d e0          	lea    -0x20(%rbp),%rdi
+  101538:	e8 e3 fe ff ff       	call   101420 <text>
+  10153d:	48 83 c4 30          	add    $0x30,%rsp
+  101541:	5d                   	pop    %rbp
+  101542:	c3                   	ret
+  101543:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  10154a:	84 00 00 00 00 00 
+
+0000000000101550 <stop>:
+  101550:	55                   	push   %rbp
+  101551:	48 89 e5             	mov    %rsp,%rbp
+  101554:	48 83 ec 01          	sub    $0x1,%rsp
+  101558:	40 88 f8             	mov    %dil,%al
+  10155b:	88 45 ff             	mov    %al,-0x1(%rbp)
+  10155e:	0f b6 45 ff          	movzbl -0x1(%rbp),%eax
+  101562:	e7 f4                	out    %eax,$0xf4
+  101564:	fa                   	cli
+  101565:	f4                   	hlt
+  101566:	eb fc                	jmp    101564 <stop+0x14>
+  101568:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+  10156f:	00 
+
+0000000000101570 <out>:
+  101570:	55                   	push   %rbp
+  101571:	48 89 e5             	mov    %rsp,%rbp
+  101574:	48 83 ec 04          	sub    $0x4,%rsp
+  101578:	40 88 f0             	mov    %sil,%al
+  10157b:	66 89 f9             	mov    %di,%cx
+  10157e:	66 89 4d fe          	mov    %cx,-0x2(%rbp)
+  101582:	88 45 fd             	mov    %al,-0x3(%rbp)
+  101585:	8a 45 fd             	mov    -0x3(%rbp),%al
+  101588:	66 8b 55 fe          	mov    -0x2(%rbp),%dx
+  10158c:	ee                   	out    %al,(%dx)
+  10158d:	48 83 c4 04          	add    $0x4,%rsp
+  101591:	5d                   	pop    %rbp
+  101592:	c3                   	ret
+  101593:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  10159a:	84 00 00 00 00 00 
+
+00000000001015a0 <in>:
+  1015a0:	55                   	push   %rbp
+  1015a1:	48 89 e5             	mov    %rsp,%rbp
+  1015a4:	48 83 ec 04          	sub    $0x4,%rsp
+  1015a8:	66 89 f8             	mov    %di,%ax
+  1015ab:	66 89 45 fe          	mov    %ax,-0x2(%rbp)
+  1015af:	66 8b 55 fe          	mov    -0x2(%rbp),%dx
+  1015b3:	ec                   	in     (%dx),%al
+  1015b4:	88 45 fd             	mov    %al,-0x3(%rbp)
+  1015b7:	8a 45 fd             	mov    -0x3(%rbp),%al
+  1015ba:	48 83 c4 04          	add    $0x4,%rsp
+  1015be:	5d                   	pop    %rbp
+  1015bf:	c3                   	ret

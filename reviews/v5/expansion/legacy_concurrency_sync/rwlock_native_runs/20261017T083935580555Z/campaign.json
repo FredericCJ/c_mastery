@@ -1,0 +1,3389 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-17T08:39:35.625053+00:00",
+  "inspected_paths": {
+    "tools/run_rwlock_native.py": "5b1d1b204940e706d1dbda1be38f603fe8078a8ca71cf9502e3224c3dbb0e527",
+    "tools/run_rwlock_depth.py": "27009c73e3201ba2677f246d850075279bbc7f88af6787317f66820e3ae4f72c",
+    "labs/execution/sync_depth/rwlock.h": "42772d7db88a9051aee40949846bb97d6f9babd493352334ee2b305f8c73cc5c",
+    "labs/execution/sync_depth/rwlock.c": "cc587586de8d0a69ab04dc35c9b40b403cbdf3ae888c1667cdc231bc34c2e156",
+    "labs/execution/sync_depth/rwphase.h": "123d756d1d259f4405f266746ec0e580de66ccbf4035aa30ae59ad19d0c6821b",
+    "labs/execution/sync_depth/rwphase.c": "49878f8c5b63bcc8622ee03265afb4366878034056d1e44998a515959fcbda9b",
+    "labs/execution/sync_depth/rwlock_tests.c": "86ea70d1aa4af4deffc638f07e78ea63c0334fef0fd8b5ad8c01e662cf43a21b",
+    "labs/execution/sync_depth/rwphase_tests.c": "2e50611c216e3b2ff7ca33f4bd95ec831e1dfa62da7c51236c2239e038f43925",
+    "labs/execution/sync_depth/RWLOCK.md": "a084b12f4b75867c76f85978ac65d164347abe7cdedd4a364c20a67432e17a3c",
+    "labs/execution/sync_depth/run_rwlock.py": "7cd925f4a9418c0f623fa81440325c04e7daa8dd16ea538d208a7de6794b6219",
+    "assessor/legacy_concurrency_sync/rwlock.c": "594b126bb6064cc4c0744305d197df39a09e7e6e4f12c456bc7b3cc7adfeac17",
+    "assessor/legacy_concurrency_sync/rwphase.c": "f14a2800ba251d5bf373b16bd2bc4fac8f85482f1fcc5be993bb5434145d804a",
+    "assessor/legacy_concurrency_sync/rwlock.md": "ab7d09f20caa3300633b741dd003229d0315100352ab791fb6b0f2be206f1415",
+    "assessor/execution/cmx.c": "2be79d77bc007778d8c5936169ae6a2b481d51d85349cdca40453e5fce953455",
+    "labs/execution/include/cmx.h": "a9b2271c47fb05b1c2d8382365ba61057c85e8c65376bb374eafa31545a83c1b",
+    "labs/execution/src/cmx.c": "00e73c44f26ad967cf5902598544beeed4403dd0be909a82ebf6ff34a35a3602",
+    "fixtures/os_v3/PR-T51-12.json": "9bc1bb21080bfabac5669b5eb0e2887ddfd05701075bcf34e71def76134f9d0d",
+    "labs/execution/sync_depth/rw_native_tests.c": "9d9c156290414f1d3d6098bb9f06114d1c24ddcbf547c4beb352c86d312bfdca",
+    "labs/execution/sync_depth/verify_rw_intervals.py": "50d5d51f8787e0887df2d76656597db11c456d48e54f55fc62c80d67fba10f0c"
+  },
+  "profiles": [
+    {
+      "name": "gcc-debug",
+      "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 101832,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 127263,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8027657,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4779137,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 11502726,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8884300,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9518538,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 9185141,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 7356216,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8381179,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7497891,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6828852,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6253434,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 7251802,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6864689,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 12981417,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8124073,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-debug-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "gcc-release",
+      "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 95980,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 86372,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4268350,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6119271,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8272274,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5292349,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8095036,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 4481730,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 6404322,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6247894,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5141212,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6039050,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5076078,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 12302106,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 615884,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 7082611,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6615884,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-release-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "gcc-asan",
+      "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 278012,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 334161,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7524712,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6035351,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10705914,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8013330,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 11859706,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8175163,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10235421,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5521706,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5120352,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6334618,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7836174,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10407045,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 4252852,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9654941,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7709853,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-asan-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "clang-debug",
+      "compiler": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 120147,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 134050,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5352115,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5270064,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9335297,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5051228,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 11332177,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6191086,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 7896331,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6543151,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7616596,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6964714,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7533612,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9685465,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7675932,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9874202,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 7603380,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O0",
+            "-g",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-debug-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "clang-release",
+      "compiler": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 81601,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 60540,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 3350283,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4470489,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 4970296,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 3691093,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8702885,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4051857,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 7711403,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5852010,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6467699,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 6589345,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 4955697,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 9014058,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 1690122,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8477140,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 5451091,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O3",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-release-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "clang-asan",
+      "compiler": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 236200,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 324640,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4864912,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4591632,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8947701,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6365101,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 8477464,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 4629955,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10876325,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7455600,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7647689,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 5718621,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8085604,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10979831,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6625278,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 10684398,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 6271449,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-asan-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "gcc-tsan",
+      "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 255455,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 253370,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 13476021,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 14573483,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 19329035,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 18717048,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 24259799,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 17541952,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 26164930,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 15231333,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 14623285,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 17317350,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 17114103,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 25959416,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 19184394,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 24344196,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 16633988,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "gcc",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/gcc-tsan-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-producer-stub.log",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "clang-tsan",
+      "compiler": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+      "outcomes": [
+        {
+          "variant": "reference",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-reference",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-reference"
+          ],
+          "execution_exit": 0,
+          "semantic_marker": "CDRN_PASS:two-effective-CPUs;live-reader-cohort3;15-equal-work-samples;actual-CMX-mutex+rw+phase;ordinary-payload-publication",
+          "interval_audit": {
+            "passed": true,
+            "samples": 17,
+            "intervals": 12008,
+            "observations": [
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 212842,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": true,
+                "intervals": 4,
+                "max_readers": 3,
+                "elapsed_ns": 186601,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 10133498,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 7443772,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 0,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 12957445,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 10182527,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 12424703,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 1,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 7395208,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 12463244,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 9814744,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 2,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 10185450,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 9947063,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 8550696,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 3,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 16205413,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "phase",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 3,
+                "elapsed_ns": 10080814,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "mutex",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 1,
+                "elapsed_ns": 13940862,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "mode": "writer",
+                "repeat": 4,
+                "cohort": false,
+                "intervals": 800,
+                "max_readers": 2,
+                "elapsed_ns": 7686722,
+                "effective_cpus": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "limits": "Recorded intervals and equal semantic work; no hardware traffic, infinite-stream fairness or weak-memory proof."
+          },
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-reference.log",
+          "passed": true
+        },
+        {
+          "variant": "reader-barge",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=1",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-reader-barge",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-reader-barge"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-reader-barge.log",
+          "passed": true
+        },
+        {
+          "variant": "wrong-phase",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=1",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-wrong-phase",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-wrong-phase"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-wrong-phase.log",
+          "passed": true
+        },
+        {
+          "variant": "writer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-writer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-writer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-writer-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "phase-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/execution/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-phase-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-phase-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-phase-stub.log",
+          "passed": true
+        },
+        {
+          "variant": "producer-stub",
+          "build_command": [
+            "clang",
+            "-std=c17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-O1",
+            "-g",
+            "-fsanitize=thread",
+            "-Wno-unused-parameter",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth",
+            "-I/mnt/f/Learning/Curricula/c_mastery/labs/execution/include",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/src/cmx.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwlock.c",
+            "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_concurrency_sync/rwphase.c",
+            "/mnt/f/Learning/Curricula/c_mastery/labs/execution/sync_depth/rw_native_tests.c",
+            "-DCDR_MUTANT=0",
+            "-DCPF_MUTANT=0",
+            "-o",
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-producer-stub",
+            "-pthread"
+          ],
+          "build_exit": 0,
+          "execution_command": [
+            "/tmp/rwlock-native-dcvr1rdj/clang-tsan-producer-stub"
+          ],
+          "execution_exit": 1,
+          "semantic_marker": "CDRN_CHECK:",
+          "interval_audit": null,
+          "log": "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-producer-stub.log",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "scope": "Three real readers and one writer, two effective allowed CPUs, actual CMX mutex/rw and phase cores; equal-work samples and independent recorded-interval audit.",
+  "limits": [
+    "Clock samples include port/trace/join overhead, no claimed speed ranking or hardware cache counters.",
+    "Logical CPUs/finite observations/TSan are not physical topology, all-schedule proof or real-time bound.",
+    "Serial control preflight rejects intentionally wrong policies before native threads."
+  ],
+  "source_stable": true,
+  "passed": true,
+  "log_sha256": {
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-reference.log": "763bde1287be0ce56aa4ba83be8d055e277c390bc1bc3a8c2f65c6796d813d2a",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-asan-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-reference.log": "14c12dea5913bbdd67272b51cd22e6c1710217c970e3e398b7032e35d929a6b3",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-debug-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-reference.log": "378acc09e9b90f1e57a25b92d0093878ceaa9a99bfb32c45924d046792e98a22",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-release-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-reference.log": "33c3d27d996204bd1fd57b6c544cc1d42bfbb608adb736f21ffa439014f8eeae",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/clang-tsan-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-reference.log": "832c1e6e761bea2f21286a424642e3bc28e150ec40618713e985a3435ba5580e",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-asan-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-reference.log": "5ef2627516319e0b5983a95b008c19fbcc7b656b69113bbc4964388c753a4a6d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-debug-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-reference.log": "be895bc188008a1d4f2db4efbc4539ebb0e1a669ef013f1925860f7434566743",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-release-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-phase-stub.log": "3adddf72ef7539a3249982fcfdc7bc7b8f6d412a028cdf6b094d91c75fd47304",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-producer-stub.log": "f761da43a784af510a4fa110ced6e65cf2f08f323aa36e97fa20624eb9793f6f",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-reader-barge.log": "5f9b37c78c7600e1a166fa5645f3e78272edb6baa74f437170aa0dcfad79680b",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-reference.log": "d21d15a7c49466359ad4ab277d72367fdecc2f5cd26d14e33536f37d7d44ec06",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-writer-stub.log": "74deafb27d07e9db86aa130ee2dcf62f9cca8e021d46254ccedb126c0233dd3d",
+    "reviews/v5/expansion/legacy_concurrency_sync/rwlock_native_runs/20261017T083935580555Z/gcc-tsan-wrong-phase.log": "c0b1493be2cc4a1a6f19405076f8e0c2edbba26dc43331b7e88f17630246408f"
+  }
+}

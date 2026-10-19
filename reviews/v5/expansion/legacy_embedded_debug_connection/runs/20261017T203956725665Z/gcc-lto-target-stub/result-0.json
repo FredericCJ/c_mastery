@@ -1,0 +1,159 @@
+{
+  "kind": "result",
+  "rows": [
+    {
+      "command": "break dc_checkpoint",
+      "ok": true,
+      "output": "Breakpoint 1 at 0x40: file /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c, line 5.\n",
+      "elapsed_ns": 1442514
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 2241360
+    },
+    {
+      "label": "initialized",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 237,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "x/4ub dc_bytes",
+      "ok": true,
+      "output": "0x20000000 <dc_bytes>:\t1\t2\t3\t4\n",
+      "elapsed_ns": 222459
+    },
+    {
+      "command": "x/wx 0xe000ed00",
+      "ok": true,
+      "output": "0xe000ed00:\t0x410fc240\n",
+      "elapsed_ns": 79906
+    },
+    {
+      "command": "info registers",
+      "ok": true,
+      "output": "r0             0x5                 5\nr1             0x7                 7\nr2             0x0                 0\nr3             0x20000000          536870912\nr4             0x20000000          536870912\nr5             0x0                 0\nr6             0x0                 0\nr7             0x0                 0\nr8             0x0                 0\nr9             0x0                 0\nr10            0x0                 0\nr11            0x0                 0\nr12            0x4                 4\nsp             0x2000fff8          0x2000fff8\nlr             0xed                237\npc             0x40                0x40 <dc_checkpoint>\nxpsr           0x21000000          553648128\nfpscr          0x0                 0\nmsp            0x2000fff8          536936440\npsp            0x0                 0\nprimask        0x0                 0\ncontrol        0x0                 0\nbasepri        0x0                 0\nfaultmask      0x0                 0\n",
+      "elapsed_ns": 509713
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1344518
+    },
+    {
+      "label": "checksum-one",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 243,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1228909
+    },
+    {
+      "label": "checksum-changed",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 0,
+        "dc_done": 0,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 251,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1221018
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1167887
+    },
+    {
+      "command": "continue",
+      "ok": true,
+      "output": "",
+      "elapsed_ns": 1173250
+    },
+    {
+      "label": "finished",
+      "values": {
+        "dc_output": 0,
+        "dc_counter": 7,
+        "dc_done": 1,
+        "dc_input": 5
+      },
+      "pc": 64,
+      "sp": 536936440,
+      "lr": 273,
+      "symbol": "dc_checkpoint in section .text\n"
+    },
+    {
+      "command": "detach",
+      "ok": true,
+      "output": "[Inferior 1 (process 1) detached]\n",
+      "elapsed_ns": 168307
+    }
+  ],
+  "debugger_command": [
+    "/mnt/f/Learning/Curricula/c_mastery/build/debugger-tools/root/usr/bin/gdb-multiarch",
+    "-nx",
+    "--batch",
+    "-x",
+    "<owned-script>"
+  ],
+  "qemu_command": [
+    "qemu-system-arm",
+    "-M",
+    "mps2-an386",
+    "-cpu",
+    "cortex-m4",
+    "-nographic",
+    "-monitor",
+    "none",
+    "-serial",
+    "none",
+    "-nic",
+    "none",
+    "-kernel",
+    "/tmp/debug-connection-ozd95ard/gcc-lto-target-stub/debug.elf",
+    "-chardev",
+    "socket,path=/tmp/dc-probe-84gwo6r3/gdb.sock,server=on,wait=off,id=gdb0",
+    "-gdb",
+    "chardev:gdb0",
+    "-S"
+  ],
+  "script": "set pagination off\nset confirm off\nset debuginfod enabled off\nfile /tmp/debug-connection-ozd95ard/gcc-lto-target-stub/debug.elf\ntarget remote /tmp/dc-probe-84gwo6r3/gdb.sock\npython\nKIND='result'\nREPORT='/tmp/dc-probe-84gwo6r3/observed.json'\nimport gdb,json,time\nrows=[]\ndef execute(command):\n start=time.monotonic_ns()\n try:\n  value=gdb.execute(command,to_string=True);rows.append({'command':command,'ok':True,'output':value,'elapsed_ns':time.monotonic_ns()-start});return value\n except gdb.error as error:\n  rows.append({'command':command,'ok':False,'output':str(error),'elapsed_ns':time.monotonic_ns()-start});return None\ndef capture(label):\n values={}\n for name in ('dc_output','dc_counter','dc_done','dc_input'):\n  try:values[name]=int(gdb.parse_and_eval(name))\n  except gdb.error as error:values[name]={'unavailable':str(error)}\n rows.append({'label':label,'values':values,'pc':int(gdb.parse_and_eval('$pc')),'sp':int(gdb.parse_and_eval('$sp')),'lr':int(gdb.parse_and_eval('$lr')),'symbol':gdb.execute('info symbol $pc',to_string=True)})\nexecute('break dc_checkpoint')\nexecute('continue');capture('initialized')\nexecute('x/4ub dc_bytes');execute('x/wx 0xe000ed00');execute('info registers')\nif KIND=='result':\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed');execute('continue');execute('continue');execute('continue');capture('finished')\nelif KIND=='state':\n execute('break dc_checksum');execute('continue');capture('checksum-entry')\n execute('info locals');execute('info args');execute('disassemble /s dc_checksum');execute('stepi');execute('info locals');execute('info line *$pc');execute('delete 2')\n execute('continue');capture('checksum-one');execute('continue');capture('checksum-changed')\n execute('continue');execute('continue')\n execute('break dc_leaf');execute('continue');capture('tail-leaf');execute('bt');execute('info frame');execute('frame 1');execute('info frame');execute('frame 0');execute('disassemble dc_tail');execute('delete 3')\n execute('continue');capture('finished')\nelif KIND=='access':\n execute('continue');execute('continue')\n execute('awatch dc_counter');execute('info watchpoints');execute('continue');capture('first-write');execute('x/i $pc');execute('continue');capture('first-write-checkpoint');execute('continue');capture('same-value-write');execute('x/i $pc')\nelif KIND=='limits':\n execute('set remote hardware-watchpoint-limit 2');execute('set remote hardware-watchpoint-length-limit 4');execute('show remote hardware-watchpoint-limit');execute('show remote hardware-watchpoint-length-limit')\n execute('awatch *(unsigned long long *)&dc_counter');execute('awatch dc_counter');execute('awatch dc_output');execute('awatch dc_input');execute('info watchpoints')\nelif KIND=='change':\n execute('continue');execute('continue');execute('watch dc_counter');execute('continue');capture('changed-write');execute('continue');capture('first-checkpoint');execute('continue');capture('same-value-skipped-to-checkpoint')\nexecute('detach')\nwith open(REPORT,'w') as output:json.dump({'kind':KIND,'rows':rows},output,indent=2)\n\nend\nquit\n",
+  "debugger_output": "cl_reset () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:8\n8\t uint32_t*s=&cl_data_load;for(uint32_t*d=&cl_data_start;d<&cl_data_end;++d)*d=*s++;for(uint32_t*d=&cl_bss_start;d<&cl_bss_end;++d)*d=0;\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n\nBreakpoint 1, dc_checkpoint () at /mnt/f/Learning/Curricula/c_mastery/labs/embedded_debug_depth/connection/m4.c:5\n5\t__attribute__((noinline)) void dc_checkpoint(void){__asm__ volatile(\"nop\":::\"memory\");}\n",
+  "transport": {
+    "kind": "owned UNIX-domain QEMU GDB endpoint",
+    "added_delay_ms_per_chunk": 0,
+    "credentials": "none",
+    "timing": "actual host monotonic command elapsed; added chunk delay is not physical network latency"
+  }
+}

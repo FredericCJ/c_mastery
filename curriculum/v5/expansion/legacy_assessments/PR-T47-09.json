@@ -4,7 +4,9 @@
   "domain": "T47",
   "title": "Recovery and repeated interruption - explicit objective assessment",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/storage_followthrough/durability/CONTRACTS.md",
+    "labs/storage_followthrough/logical/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -98,6 +100,29 @@
       "passages": [
         "Hardware Assumptions"
       ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-DURABILITY",
+      "path": "research/v5/expansion/legacy_storage_followthrough/durability_resources.json",
+      "passages": [
+        "Prerequisites and representation",
+        "Stable and pending model",
+        "Complete validation before home publication",
+        "Commit, checkpoint and recovery experiments",
+        "Finite model and security scope",
+        "Deliverables, assessment and hints"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-LOGICAL",
+      "path": "research/v5/expansion/legacy_storage_followthrough/logical_resources.json",
+      "passages": [
+        "Prerequisites, imports and environment",
+        "Representation and ordering",
+        "Ownership, failure and resource contracts",
+        "Workloads, independent checks and controls",
+        "Deliverables, rubric and changed assumptions"
+      ]
     }
   ],
   "reference_gaps": [
@@ -108,7 +133,29 @@
   "supplied_artifacts": [
     "curriculum/modules/T47.md",
     "curriculum/projects/PR-T47-09.md",
-    "fixtures/storage/PR-T47-09.json"
+    "fixtures/storage/PR-T47-09.json",
+    "labs/storage_followthrough/durability/medium.h",
+    "labs/storage_followthrough/durability/medium.c",
+    "labs/storage_followthrough/durability/guard.h",
+    "labs/storage_followthrough/durability/guard.c",
+    "labs/storage_followthrough/durability/tests.c",
+    "labs/storage_followthrough/durability/CMakeLists.txt",
+    "labs/storage_followthrough/durability/expect_failure.py",
+    "labs/storage_followthrough/durability/instrument_store.py",
+    "labs/storage_followthrough/durability/CONTRACTS.md",
+    "labs/storage_followthrough/durability/third/include/store.h",
+    "labs/storage_followthrough/durability/third/store.c",
+    "labs/storage_followthrough/durability/third/tests.c",
+    "labs/storage/include/store.h",
+    "labs/storage/src/store.c",
+    "labs/storage/FORMAT.md",
+    "labs/storage/INTEGRATION.md",
+    "labs/storage_followthrough/logical/logical.h",
+    "labs/storage_followthrough/logical/logical.c",
+    "labs/storage_followthrough/logical/tests.c",
+    "labs/storage_followthrough/logical/CMakeLists.txt",
+    "labs/storage_followthrough/logical/expect_failure.py",
+    "labs/storage_followthrough/logical/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "Retained partial anchors and criterion-specific new assessment tasks",
@@ -120,7 +167,25 @@
       "storage.recovery",
       "storage.tree"
     ],
-    "fresh_execution": "not-run for these supplemental tasks"
+    "fresh_execution": "not-run for these supplemental tasks",
+    "storage_durability_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-09-T47.09.a",
+        "AX-PR-T47-09-T47.09.a-DELAYED",
+        "AX-PR-T47-09-T47.09.b",
+        "AX-PR-T47-09-T47.09.c",
+        "AX-PR-T47-09-T47.09.c-DELAYED"
+      ],
+      "scope": "Only listed original ordinary/delayed obligations; application operation-ID and logical-redo support are separate. Physical durability and independent learner evidence remain unobserved."
+    },
+    "storage_logical_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/logical_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-09-T47.09.b-DELAYED"
+      ],
+      "scope": "Only the exact logical-redo variant; logical ADD with predecessor/applied sequence and latest-ID receipt, not arbitrary B+tree redo."
+    }
   },
   "criteria": [
     {
@@ -191,6 +256,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "durability_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-09-T47.09.a",
+          "AX-PR-T47-09-T47.09.a-DELAYED"
+        ],
+        "scope": "Only listed original ordinary/delayed obligations; application operation-ID and logical-redo support are separate. Physical durability and independent learner evidence remain unobserved."
       }
     },
     {
@@ -261,6 +334,20 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "durability_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-09-T47.09.b"
+        ],
+        "scope": "Only listed original ordinary/delayed obligations; application operation-ID and logical-redo support are separate. Physical durability and independent learner evidence remain unobserved."
+      },
+      "logical_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/logical_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-09-T47.09.b-DELAYED"
+        ],
+        "scope": "Only the exact logical-redo variant; logical ADD with predecessor/applied sequence and latest-ID receipt, not arbitrary B+tree redo."
       }
     },
     {
@@ -331,6 +418,14 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "durability_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/durability_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-09-T47.09.c",
+          "AX-PR-T47-09-T47.09.c-DELAYED"
+        ],
+        "scope": "Only listed original ordinary/delayed obligations; application operation-ID and logical-redo support are separate. Physical durability and independent learner evidence remain unobserved."
       }
     }
   ],

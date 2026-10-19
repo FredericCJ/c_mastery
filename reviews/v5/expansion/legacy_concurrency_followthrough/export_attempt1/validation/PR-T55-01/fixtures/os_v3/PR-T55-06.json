@@ -1,0 +1,43 @@
+{
+  "id": "PR-T55-06",
+  "description": "Michael-Scott queue with bounded reclamation finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 3,
+    "actions": [
+      [
+        "put",
+        7
+      ],
+      [
+        "put",
+        8
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        9
+      ],
+      [
+        "get"
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      7,
+      8,
+      9
+    ],
+    "rejected": 0,
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The queue uses a dummy node and helping: a lagging tail may be advanced by another participant. Its linearization points differ between enqueue and dequeue. Original pseudocode allocator assumptions do not authorize ordinary free; use the accepted hazard domain and bounded pool.",
+  "required_observation": "Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim."
+}

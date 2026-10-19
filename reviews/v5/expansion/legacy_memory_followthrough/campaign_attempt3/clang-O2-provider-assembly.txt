@@ -1,0 +1,251 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/legacy_memory_followthrough/campaign_attempt3/clang-O2-provider.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <pf_static>:
+   0:	0f 57 c0             	xorps  %xmm0,%xmm0
+   3:	0f 29 44 24 e8       	movaps %xmm0,-0x18(%rsp)
+   8:	0f 29 44 24 d8       	movaps %xmm0,-0x28(%rsp)
+   d:	89 f8                	mov    %edi,%eax
+   f:	83 e0 07             	and    $0x7,%eax
+  12:	89 7c 84 d8          	mov    %edi,-0x28(%rsp,%rax,4)
+  16:	8b 44 84 d8          	mov    -0x28(%rsp,%rax,4),%eax
+  1a:	c3                   	ret
+  1b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+0000000000000020 <pf_bounded>:
+  20:	55                   	push   %rbp
+  21:	48 89 e5             	mov    %rsp,%rbp
+  24:	48 83 e4 c0          	and    $0xffffffffffffffc0,%rsp
+  28:	48 83 ec 40          	sub    $0x40,%rsp
+  2c:	89 f8                	mov    %edi,%eax
+  2e:	83 e0 1f             	and    $0x1f,%eax
+  31:	40 88 3c 04          	mov    %dil,(%rsp,%rax,1)
+  35:	0f b6 04 04          	movzbl (%rsp,%rax,1),%eax
+  39:	48 89 ec             	mov    %rbp,%rsp
+  3c:	5d                   	pop    %rbp
+  3d:	c3                   	ret
+  3e:	66 90                	xchg   %ax,%ax
+
+0000000000000040 <pf_many>:
+  40:	01 fe                	add    %edi,%esi
+  42:	8d 04 0a             	lea    (%rdx,%rcx,1),%eax
+  45:	01 f0                	add    %esi,%eax
+  47:	44 01 c0             	add    %r8d,%eax
+  4a:	44 01 c8             	add    %r9d,%eax
+  4d:	03 44 24 08          	add    0x8(%rsp),%eax
+  51:	03 44 24 10          	add    0x10(%rsp),%eax
+  55:	03 44 24 18          	add    0x18(%rsp),%eax
+  59:	03 44 24 20          	add    0x20(%rsp),%eax
+  5d:	c3                   	ret
+  5e:	66 90                	xchg   %ax,%ax
+
+0000000000000060 <pf_outgoing>:
+  60:	50                   	push   %rax
+  61:	be 02 00 00 00       	mov    $0x2,%esi
+  66:	ba 03 00 00 00       	mov    $0x3,%edx
+  6b:	b9 04 00 00 00       	mov    $0x4,%ecx
+  70:	41 b8 05 00 00 00    	mov    $0x5,%r8d
+  76:	41 b9 06 00 00 00    	mov    $0x6,%r9d
+  7c:	6a 0a                	push   $0xa
+  7e:	6a 09                	push   $0x9
+  80:	6a 08                	push   $0x8
+  82:	6a 07                	push   $0x7
+  84:	e8 00 00 00 00       	call   89 <pf_outgoing+0x29>
+			85: R_X86_64_PLT32	pf_many-0x4
+  89:	48 83 c4 20          	add    $0x20,%rsp
+  8d:	ff c0                	inc    %eax
+  8f:	59                   	pop    %rcx
+  90:	c3                   	ret
+  91:	66 66 66 66 66 66 2e 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  98:	0f 1f 84 00 00 00 00 
+  9f:	00 
+
+00000000000000a0 <pf_dynamic>:
+  a0:	48 85 ff             	test   %rdi,%rdi
+  a3:	74 2a                	je     cf <pf_dynamic+0x2f>
+  a5:	55                   	push   %rbp
+  a6:	48 89 e5             	mov    %rsp,%rbp
+  a9:	48 89 e1             	mov    %rsp,%rcx
+  ac:	48 89 e0             	mov    %rsp,%rax
+  af:	48 8d 57 0f          	lea    0xf(%rdi),%rdx
+  b3:	48 83 e2 f0          	and    $0xfffffffffffffff0,%rdx
+  b7:	48 29 d0             	sub    %rdx,%rax
+  ba:	48 89 c4             	mov    %rax,%rsp
+  bd:	c6 44 07 ff 07       	movb   $0x7,-0x1(%rdi,%rax,1)
+  c2:	0f b6 44 07 ff       	movzbl -0x1(%rdi,%rax,1),%eax
+  c7:	48 89 cc             	mov    %rcx,%rsp
+  ca:	48 89 ec             	mov    %rbp,%rsp
+  cd:	5d                   	pop    %rbp
+  ce:	c3                   	ret
+  cf:	31 c0                	xor    %eax,%eax
+  d1:	c3                   	ret
+  d2:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  d9:	1f 84 00 00 00 00 00 
+
+00000000000000e0 <pf_indirect>:
+  e0:	50                   	push   %rax
+  e1:	48 89 f8             	mov    %rdi,%rax
+  e4:	89 f7                	mov    %esi,%edi
+  e6:	ff d0                	call   *%rax
+  e8:	ff c0                	inc    %eax
+  ea:	59                   	pop    %rcx
+  eb:	c3                   	ret
+  ec:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000000000f0 <pf_work>:
+  f0:	50                   	push   %rax
+  f1:	40 f6 c7 01          	test   $0x1,%dil
+  f5:	75 0a                	jne    101 <pf_work+0x11>
+  f7:	e8 00 00 00 00       	call   fc <pf_work+0xc>
+			f8: R_X86_64_PLT32	pf_bounded-0x4
+  fc:	83 c0 02             	add    $0x2,%eax
+  ff:	59                   	pop    %rcx
+ 100:	c3                   	ret
+ 101:	e8 00 00 00 00       	call   106 <pf_work+0x16>
+			102: R_X86_64_PLT32	pf_static-0x4
+ 106:	ff c0                	inc    %eax
+ 108:	59                   	pop    %rcx
+ 109:	c3                   	ret
+ 10a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+0000000000000110 <pf_sequential>:
+ 110:	c7 44 24 fc 00 00 00 	movl   $0x0,-0x4(%rsp)
+ 117:	00 
+ 118:	85 ff                	test   %edi,%edi
+ 11a:	74 7c                	je     198 <pf_sequential+0x88>
+ 11c:	89 f8                	mov    %edi,%eax
+ 11e:	83 e0 03             	and    $0x3,%eax
+ 121:	83 ff 04             	cmp    $0x4,%edi
+ 124:	72 1f                	jb     145 <pf_sequential+0x35>
+ 126:	89 f9                	mov    %edi,%ecx
+ 128:	83 e1 fc             	and    $0xfffffffc,%ecx
+ 12b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 130:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 134:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 138:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 13c:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 140:	83 c1 fc             	add    $0xfffffffc,%ecx
+ 143:	75 eb                	jne    130 <pf_sequential+0x20>
+ 145:	85 c0                	test   %eax,%eax
+ 147:	74 0f                	je     158 <pf_sequential+0x48>
+ 149:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+ 150:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 154:	ff c8                	dec    %eax
+ 156:	75 f8                	jne    150 <pf_sequential+0x40>
+ 158:	89 f8                	mov    %edi,%eax
+ 15a:	83 e0 03             	and    $0x3,%eax
+ 15d:	83 ff 04             	cmp    $0x4,%edi
+ 160:	72 23                	jb     185 <pf_sequential+0x75>
+ 162:	83 e7 fc             	and    $0xfffffffc,%edi
+ 165:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 16c:	00 00 00 00 
+ 170:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 174:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 178:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 17c:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 180:	83 c7 fc             	add    $0xfffffffc,%edi
+ 183:	75 eb                	jne    170 <pf_sequential+0x60>
+ 185:	85 c0                	test   %eax,%eax
+ 187:	74 0f                	je     198 <pf_sequential+0x88>
+ 189:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+ 190:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 194:	ff c8                	dec    %eax
+ 196:	75 f8                	jne    190 <pf_sequential+0x80>
+ 198:	8b 44 24 fc          	mov    -0x4(%rsp),%eax
+ 19c:	c3                   	ret
+ 19d:	0f 1f 00             	nopl   (%rax)
+
+00000000000001a0 <pf_nested>:
+ 1a0:	c7 44 24 fc 00 00 00 	movl   $0x0,-0x4(%rsp)
+ 1a7:	00 
+ 1a8:	85 ff                	test   %edi,%edi
+ 1aa:	74 4e                	je     1fa <pf_nested+0x5a>
+ 1ac:	89 f8                	mov    %edi,%eax
+ 1ae:	83 e0 03             	and    $0x3,%eax
+ 1b1:	89 f9                	mov    %edi,%ecx
+ 1b3:	83 e1 fc             	and    $0xfffffffc,%ecx
+ 1b6:	31 d2                	xor    %edx,%edx
+ 1b8:	eb 0c                	jmp    1c6 <pf_nested+0x26>
+ 1ba:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+ 1c0:	ff c2                	inc    %edx
+ 1c2:	39 fa                	cmp    %edi,%edx
+ 1c4:	74 34                	je     1fa <pf_nested+0x5a>
+ 1c6:	89 ce                	mov    %ecx,%esi
+ 1c8:	83 ff 04             	cmp    $0x4,%edi
+ 1cb:	72 18                	jb     1e5 <pf_nested+0x45>
+ 1cd:	0f 1f 00             	nopl   (%rax)
+ 1d0:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 1d4:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 1d8:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 1dc:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 1e0:	83 c6 fc             	add    $0xfffffffc,%esi
+ 1e3:	75 eb                	jne    1d0 <pf_nested+0x30>
+ 1e5:	85 c0                	test   %eax,%eax
+ 1e7:	74 d7                	je     1c0 <pf_nested+0x20>
+ 1e9:	89 c6                	mov    %eax,%esi
+ 1eb:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 1f0:	ff 44 24 fc          	incl   -0x4(%rsp)
+ 1f4:	ff ce                	dec    %esi
+ 1f6:	75 f8                	jne    1f0 <pf_nested+0x50>
+ 1f8:	eb c6                	jmp    1c0 <pf_nested+0x20>
+ 1fa:	8b 44 24 fc          	mov    -0x4(%rsp),%eax
+ 1fe:	c3                   	ret
+ 1ff:	90                   	nop
+
+0000000000000200 <main>:
+ 200:	55                   	push   %rbp
+ 201:	41 56                	push   %r14
+ 203:	53                   	push   %rbx
+ 204:	89 fb                	mov    %edi,%ebx
+ 206:	e8 00 00 00 00       	call   20b <main+0xb>
+			207: R_X86_64_PLT32	pf_work-0x4
+ 20b:	89 c5                	mov    %eax,%ebp
+ 20d:	bf 11 00 00 00       	mov    $0x11,%edi
+ 212:	e8 00 00 00 00       	call   217 <main+0x17>
+			213: R_X86_64_PLT32	pf_dynamic-0x4
+ 217:	41 89 c6             	mov    %eax,%r14d
+ 21a:	41 01 ee             	add    %ebp,%r14d
+ 21d:	48 8d 3d 00 00 00 00 	lea    0x0(%rip),%rdi        # 224 <main+0x24>
+			220: R_X86_64_PC32	pf_static-0x4
+ 224:	be 02 00 00 00       	mov    $0x2,%esi
+ 229:	e8 00 00 00 00       	call   22e <main+0x2e>
+			22a: R_X86_64_PLT32	pf_indirect-0x4
+ 22e:	89 c5                	mov    %eax,%ebp
+ 230:	89 df                	mov    %ebx,%edi
+ 232:	e8 00 00 00 00       	call   237 <main+0x37>
+			233: R_X86_64_PLT32	pf_outgoing-0x4
+ 237:	01 e8                	add    %ebp,%eax
+ 239:	44 01 f0             	add    %r14d,%eax
+ 23c:	89 05 00 00 00 00    	mov    %eax,0x0(%rip)        # 242 <main+0x42>
+			23e: R_X86_64_PC32	.bss-0x4
+ 242:	bf 08 00 00 00       	mov    $0x8,%edi
+ 247:	e8 00 00 00 00       	call   24c <main+0x4c>
+			248: R_X86_64_PLT32	pf_sequential-0x4
+ 24c:	89 c3                	mov    %eax,%ebx
+ 24e:	bf 08 00 00 00       	mov    $0x8,%edi
+ 253:	e8 00 00 00 00       	call   258 <main+0x58>
+			254: R_X86_64_PLT32	pf_nested-0x4
+ 258:	89 c5                	mov    %eax,%ebp
+ 25a:	48 8d 3d 00 00 00 00 	lea    0x0(%rip),%rdi        # 261 <main+0x61>
+			25d: R_X86_64_PC32	.L.str-0x4
+ 261:	89 de                	mov    %ebx,%esi
+ 263:	89 c2                	mov    %eax,%edx
+ 265:	31 c0                	xor    %eax,%eax
+ 267:	e8 00 00 00 00       	call   26c <main+0x6c>
+			268: R_X86_64_PLT32	printf-0x4
+ 26c:	83 3d 00 00 00 00 00 	cmpl   $0x0,0x0(%rip)        # 273 <main+0x73>
+			26e: R_X86_64_PC32	.bss-0x5
+ 273:	0f 94 c0             	sete   %al
+ 276:	83 f3 10             	xor    $0x10,%ebx
+ 279:	83 f5 40             	xor    $0x40,%ebp
+ 27c:	09 dd                	or     %ebx,%ebp
+ 27e:	0f 95 c1             	setne  %cl
+ 281:	08 c1                	or     %al,%cl
+ 283:	0f b6 c1             	movzbl %cl,%eax
+ 286:	5b                   	pop    %rbx
+ 287:	41 5e                	pop    %r14
+ 289:	5d                   	pop    %rbp
+ 28a:	c3                   	ret

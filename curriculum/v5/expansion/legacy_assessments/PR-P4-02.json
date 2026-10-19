@@ -6,7 +6,10 @@
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
-    "labs/integration/CONTRACTS.md"
+    "labs/integration/CONTRACTS.md",
+    "labs/checkpoint_depth/CONTRACTS.md",
+    "labs/checkpoint_depth/transfer/CONTRACTS.md",
+    "labs/checkpoint_firmware_followthrough/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -175,6 +178,34 @@
         "7.17.3 paragraphs1–14 Order and consistency",
         "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
       ]
+    },
+    {
+      "id": "R-P4-RM0090-21",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "Printed68 SRAM/CCM;287 GPIO BSRR;294 EXTI routing;310 DMA1 stream6/channel4;324 flow control;334 EN/NDTR;379 F43 interrupt table;389 EXTI W1C;973-975 and1011 TXE/TC and reserved status bits"
+      ]
+    },
+    {
+      "id": "R-P4-ARMV7M-EE",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "C1-699,706-707 DEMCR/TRCENA;736-738 DWT addresses/NOCYCCNT;740-741 CYCCNT enable, wrap and debug halt"
+      ]
+    },
+    {
+      "id": "R-P4-N1570",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "5.1.2.4 paragraphs1,11,25: execution environment, release/acquire and data races"
+      ]
+    },
+    {
+      "id": "R-P4-DS9484-14",
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/resources.json",
+      "passages": [
+        "Table12 printed75 PA2 AF7 USART2_TX; Table10 footnote7 printed71 PA0 reset role under selected packages/regulator mode"
+      ]
     }
   ],
   "reference_gaps": [
@@ -197,7 +228,22 @@
     "fixtures/legacy_checkpoints/P2.json",
     "fixtures/legacy_checkpoints/P3.json",
     "fixtures/legacy_checkpoints/P5.json",
-    "fixtures/legacy_checkpoints/P6.json"
+    "fixtures/legacy_checkpoints/P6.json",
+    "labs/checkpoint_firmware_followthrough/BOARD_CAPTURE.md",
+    "labs/checkpoint_firmware_followthrough/capture_layout.h",
+    "labs/checkpoint_firmware_followthrough/check_capture.py",
+    "labs/checkpoint_firmware_followthrough/CONTRACTS.md",
+    "labs/checkpoint_firmware_followthrough/read_capture.py",
+    "labs/checkpoint_firmware_followthrough/run.py",
+    "labs/checkpoint_firmware_followthrough/startup.S",
+    "labs/checkpoint_firmware_followthrough/target_build.py",
+    "labs/checkpoint_depth/include/checkpoint_firmware.h",
+    "labs/checkpoint_depth/include/checkpoint_depth.h",
+    "labs/checkpoint_depth/src/checkpoint_firmware.c",
+    "labs/checkpoint_depth/src/checkpoint_depth.c",
+    "labs/checkpoint_depth/tests/firmware.c",
+    "labs/checkpoint_depth/transfer/halfduplex.h",
+    "fixtures/legacy_checkpoints/transfer/P4_timing.json"
   ],
   "prerequisite_artifacts": [
     "PR-P4-01/accepted-component-and-dossier",
@@ -218,7 +264,20 @@
     "tests": [
       "integration.p4"
     ],
-    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted."
+    "fresh_execution": "New fixture oracle recomputation only, recorded in scoped validation. Full checkpoint criteria remain unexecuted.",
+    "observation_status": "historical-initial-authoring",
+    "observed_before_revision": "fd85773420a2fbb11003e83c8289417d62282ec4",
+    "active_successor": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "firmware_followthrough_successor": {
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P4-02-T29.09.b",
+        "AX-PR-P4-02-T30.05.b",
+        "AX-PR-P4-02-T30.05.c",
+        "AX-PR-P4-02-T31.10.c"
+      ],
+      "scope": "Exact original P4 ordinary/delayed tasks with capture/timing/changed-condition and reserved-status correction; actual learner/physical evidence separate"
+    }
   },
   "criteria": [
     {
@@ -330,6 +389,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-02-T29.09.b"
       }
     },
     {
@@ -441,6 +504,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-02-T30.05.b"
       }
     },
     {
@@ -551,6 +618,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-02-T30.05.c"
       }
     },
     {
@@ -662,6 +733,10 @@
       "security": {
         "applicable": false,
         "scope": "Correctness, ownership or measurement assessment of original teaching programs with synthetic data. Any flawed code is confined to a bounded local harness. Firmware experiments use dedicated boards/emulators; no flashing, deployed equipment, host policy changes or external service targeting is authorized. Crashes, undefined behavior or sanitizer reports do not establish arbitrary execution."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+        "id": "AX-PR-P4-02-T31.10.c"
       }
     }
   ],
@@ -676,5 +751,28 @@
       "Authored delayed opportunities are not completed assessments.",
       "Finite passing tests do not prove absolute mastery."
     ]
-  }
+  },
+  "successor_support": {
+    "path": "research/v5/expansion/legacy_completion/checkpoint_support.json",
+    "project": "PR-P4-02",
+    "criterion_ids": [
+      "AX-PR-P4-02-T29.09.b",
+      "AX-PR-P4-02-T30.05.b",
+      "AX-PR-P4-02-T30.05.c",
+      "AX-PR-P4-02-T31.10.c"
+    ],
+    "scope": "Active criterion-specific implementation/author-validation/variant readiness; the initial execution_support and reference_gaps retain their original observation scope."
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_checkpoint_firmware/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-P4-02-T29.09.b",
+        "AX-PR-P4-02-T30.05.b",
+        "AX-PR-P4-02-T30.05.c",
+        "AX-PR-P4-02-T31.10.c"
+      ],
+      "scope": "Exact original P4 ordinary/delayed tasks with capture/timing/changed-condition and reserved-status correction; actual learner/physical evidence separate"
+    }
+  ]
 }

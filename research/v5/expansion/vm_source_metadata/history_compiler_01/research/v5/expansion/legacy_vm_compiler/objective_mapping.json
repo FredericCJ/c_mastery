@@ -1,0 +1,92 @@
+{
+  "criteria": [
+    {
+      "criterion": "AX-PR-T46-05-T46.05.a",
+      "objective": "T46.05.a",
+      "task": "Scan explicit source spans containing embedded NUL, maximum-length names, duplicate functions/parameters and forward references. Resolve let initializers in the outer scope and bodies in the new scope.",
+      "delayed": {
+        "id": "AX-PR-T46-05-T46.05.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add nested lexical blocks with slot reuse and prove escaped values cannot refer to reused locals."
+      },
+      "case": "names",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-05-a"
+    },
+    {
+      "criterion": "AX-PR-T46-05-T46.05.b",
+      "objective": "T46.05.b",
+      "task": "Compile an outer x=2 with (+ (let x40 x) x), then independently decode emitted instructions and stack effects before executing. Compare against a tiny mathematical expression evaluator written separately.",
+      "delayed": {
+        "id": "AX-PR-T46-05-T46.05.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Change to assignment inside the inner scope and predict which binding changes."
+      },
+      "case": "scopes",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-05-b"
+    },
+    {
+      "criterion": "AX-PR-T46-05-T46.05.c",
+      "objective": "T46.05.c",
+      "task": "Inject source-length, nesting, code-space and local-slot exhaustion with a preexisting canary program. Distinguish syntax/resource refusal from runtime errors and prove failed compilation preserves the old program.",
+      "delayed": {
+        "id": "AX-PR-T46-05-T46.05.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Implement iterative parsing with an explicit bounded parse stack and compare failure behavior."
+      },
+      "case": "bounds",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-05-c"
+    },
+    {
+      "criterion": "AX-PR-T46-06-T46.06.a",
+      "objective": "T46.06.a",
+      "task": "Lower nested if/while expressions and annotate every patched absolute target and incoming stack height. Include an empty loop body result discarded at each iteration and a branch into an immediate mutant.",
+      "delayed": {
+        "id": "AX-PR-T46-06-T46.06.a-DELAYED",
+        "minimum_days": 7,
+        "task": "Add short-circuit Boolean operators and derive their distinct stack equations."
+      },
+      "case": "branches",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-06-a"
+    },
+    {
+      "criterion": "AX-PR-T46-06-T46.06.b",
+      "objective": "T46.06.b",
+      "task": "Compare set,do,if andwhile results with independent source-level traces. Use a side-effecting host counter only in the selected if arm and require while to return NIL.",
+      "delayed": {
+        "id": "AX-PR-T46-06-T46.06.b-DELAYED",
+        "minimum_days": 7,
+        "task": "Introduce a break expression with a value and specify its effect on joins."
+      },
+      "case": "controls",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-06-b"
+    },
+    {
+      "criterion": "AX-PR-T46-06-T46.06.c",
+      "objective": "T46.06.c",
+      "task": "Run a terminating counter loop and a balanced infinite loop with exact fuel budgets immediately below, at and above completion. Count dispatched instructions independently of source iterations.",
+      "delayed": {
+        "id": "AX-PR-T46-06-T46.06.c-DELAYED",
+        "minimum_days": 7,
+        "task": "Change lowering to reduce opcode count and reassess fuel compatibility."
+      },
+      "case": "fuel",
+      "teaching": "labs/runtime_followthrough/compiler/CONTRACTS.md",
+      "implementation": "assessor/runtime_followthrough/compiler/compiler.c",
+      "assessment": "assessor/runtime_followthrough/compiler/ANALYSIS.md#t46-06-c"
+    }
+  ],
+  "limitations": [
+    "Original learner delayed attempts remain unperformed.",
+    "No claim that C types enforce the guest invariants or that a finite oracle corpus proves equivalence."
+  ]
+}

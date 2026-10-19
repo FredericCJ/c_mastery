@@ -1,0 +1,162 @@
+# X-T70-006: Path copying, zipper contexts and retained-version costs
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for memory.pool, containers.array; prerequisite exercises: X-T03-003. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.
+
+Supplied artifacts: labs/dod/include/dod.h, deliberately incomplete labs/dod/src/dod.c, executable anchors, fixture PR-T70-06.json and the shared CONTRACTS.md. Expected example: Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.
+
+## Necessity
+
+Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it.
+
+## Reasoning
+
+T70.06.a: Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.
+
+T70.06.b: Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.
+
+T70.06.c: Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.
+
+T70.06.d: Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.
+
+T70.06.e: Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dod -B build/dod` then build and `ctest --test-dir build/dod -R "^dod.persistent$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. A root names a version, not the entire arena contents.
+2. Construct the changed child before its new parent and publish the root last.
+3. A zipper must remember which sibling survives at every ancestor; mutation of a crumb into the old tree defeats persistence.
+
+## Variants
+
+X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+## Required extension support
+
+Public headers `dod_persistent.h` and `dod_text.h`, their compiling source
+stubs and the explicit shared extension contracts now supply the separately
+required mechanisms assessed by dod.zipper, dod.refcount. Include these
+checks and the independent dictionary/sequence oracle in D3. Interpret each
+new result at its stated finite bounds; no prior anchor result is retroactively
+credited as execution of this extension. Preserve separately required cost,
+changed-hash, independent/delayed and target obligations.
+
+## Reclamation and stack experiment support
+
+`structure_measure.c` destroys the same fifteen-node/eight-owned-leaf tree
+synchronously and with drain budgets1,2,4. Verify exactly fifteen reclaimed
+nodes and eight drops in every repetition before interpreting durations. Read
+the compiler-produced stack reports together with the actual maximum call
+depth and callback frames; include the explicit pending-work record and caller
+storage. The companion census distinguishes32 region-allocated nodes from15
+nodes reachable in the latest snapshot. R4 must distinguish an operation-count
+budget from a callback latency guarantee and compare equal payload/lifetime
+contracts. The integer region tree and owned-text reference-count tree have
+different resource contracts, so their census alone is not a fair cleanup-time
+comparison. Host execution does not establish a target deadline.
+
+## History validation support
+
+The original anchor now runs the exact additional history contract in labs/dod/CONTRACTS.md and fixtures/dod/histories.json through tests/histories.c. Reproduce the relevant enumeration, retain its actual summary and compare the independent expected values; do not claim coverage from a fixture count without executing the implementation. The persistent/sparse Python oracle separately compares8097 actual trace rows. D3 and R3 require both the tested finite domain and what remains outside it. Preserve the separate changed-condition and independent learner criteria; author executions establish neither learner independence nor unbounded correctness.
+
+## Objective-specific assessment anchors
+
+### X-T70-006-R1 / T70.06.a
+
+Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-006-R2 / T70.06.b
+
+Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-006-R3 / T70.06.c
+
+Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-006-R4 / T70.06.d
+
+Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T70-006-R5 / T70.06.e
+
+Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T70-06
+
+Required earlier exercises: X-T03-003
+
+Required baseline units: none
+
+Required artifact imports: memory.pool, containers.array
+
+
+- [R-MOD-DOD-IM](https://docs.rs/im/latest/im/): Why Would I Want This?: structural sharing and workload tradeoffs; Values: Clone requirement for copied shared nodes
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T70-006-DELAYED.
+
+Contract SHA-256: 3a5d2fe65728fc239248542ee44e420d6b082a93d00b3c7a53d93363cac3b562

@@ -1,0 +1,1314 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-LLIB-N1570-FORMAT",
+      "title": "C11 draft library arguments and formatted output",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Public primary PDF, named pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Signed errors, exact argument types, width/precision and distinct truncation/termination contracts.",
+      "prerequisites": [
+        "C17 values, ownership and variadic argument promotions"
+      ],
+      "locators": [
+        "7.1.4p1 PDF201/printed183",
+        "7.4p1–2 PDF218/printed200",
+        "7.21.6.1p1–11 PDF327–333/printed309–315",
+        "7.21.6.5p1–3 and7.21.6.7p1–3 PDF343–344/printed325–326"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "PyMuPDF direct text inspection of exactly named primary pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "General library arguments, ctype domain, format width/length/conversions, narrow-byte versus complete-wide-character precision, wrong variadic types, snprintf and sscanf returns",
+        "limits": "Only named C11 draft passages. Published C17/C23 remain source gaps; no claim about uninspected remainder of the standard."
+      }
+    },
+    {
+      "id": "R-LLIB-RFC3629",
+      "title": "UTF-8 byte grammar and invalid-sequence boundary",
+      "authors": [
+        "F. Yergeau"
+      ],
+      "year": 2003,
+      "edition": "RFC3629 November2003",
+      "kind": "standard",
+      "url": "https://www.rfc-editor.org/rfc/rfc3629",
+      "access": "Named RFC Editor primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "oracle",
+      "assignable": true,
+      "reason": "Distinguish narrow-byte precision from complete scalar encoding and security-sensitive admission.",
+      "prerequisites": [
+        "Unsigned-byte representation"
+      ],
+      "locators": [
+        "Sections3–4 encoding and exact byte grammar",
+        "Section10 invalid encodings, scalar limits and normalization distinction"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Primary RFC Editor text read through web tool",
+        "scope": "One-to-four-byte scalar encoding, exclusion of overlong/surrogate/out-of-range encodings, and distinct normalization concern",
+        "limits": "Does not establish grapheme clustering, display width or a complete Unicode normalization algorithm."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-CONVERSION",
+      "title": "Restartable conversion and conversion-state ownership",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Primary PDF named pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate retained state, current-buffer consumption, encoding failure and locale-selected wide conversion.",
+      "prerequisites": [
+        "Byte spans and caller-owned state"
+      ],
+      "locators": [
+        "7.29.6.1–7.29.6.4.2 PDF459–464/printed441–446"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "PyMuPDF direct reading of six named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "btowc,wctob,mbsinit,restartable conversion state,mbrlen,mbrtowc,wcrtomb,mbsrtowcs,wcsrtombs",
+        "limits": "C11 draft only. No claim of published C17/C23 inspection or a portable wchar_t representation."
+      }
+    },
+    {
+      "id": "R-LLIB-POSIX2024-LOCALE",
+      "title": "POSIX per-thread locale selection and object lifetime",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "year": 2024,
+      "edition": "The Open Group Base Specifications Issue8 / IEEE1003.1-2024",
+      "kind": "standard",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/uselocale.html",
+      "access": "Current primary pages retrieved and directly read using WSL urllib; old-edition web fetches failed403",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Distinguish ISO process-global locale, POSIX per-operation objects and thread selection with explicit restore/free ordering.",
+      "prerequisites": [
+        "Object lifetime and pthread joins"
+      ],
+      "locators": [
+        "uselocale DESCRIPTION,RETURN VALUE,ERRORS,APPLICATION USAGE",
+        "newlocale DESCRIPTION,RETURN VALUE,ERRORS",
+        "freelocale DESCRIPTION,RETURN VALUE,ERRORS",
+        "isspace and isspace_l DESCRIPTION,RETURN VALUE,ERRORS",
+        "setlocale DESCRIPTION,RETURN VALUE,ERRORS"
+      ],
+      "related_urls": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/newlocale.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/freelocale.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/isspace.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/setlocale.html"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Directly read primary HTML bodies and named sections; no inference from a search result",
+        "scope": "Locale object creation/base replacement and failure ownership, current-thread installation/restoration, invalid/free handles, ctype argument domain, global locale race and borrowed returned strings",
+        "limits": "POSIX extension, not ISO C guarantee. Actual installed locale names and glibc behavior are separately observed. No other POSIX page is implicitly inspected."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-BYTES",
+      "title": "Representation, pointer ordering and byte/string library contracts",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Primary PDF exact named pages read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate live object/overlap premises, padding/value equality, valid representation round trips and bounded string contracts.",
+      "prerequisites": [
+        "Object lifetime and unsigned byte representation"
+      ],
+      "locators": [
+        "6.2.6.1p1–9 PDF62–63/printed44–45",
+        "6.5.8p1–6 PDF113–114/printed95–96",
+        "7.24.1–7.24.4.1 PDF380–383/printed362–365"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Object representations, padding/traps, related-pointer ordering, zero-count pointer arguments, memcpy/memmove/strcpy/strncpy and memcmp",
+        "limits": "C11 draft, not a new inspection of published C17. No portable golden outputs for invalid calls or arbitrary object representations."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-ALLOC",
+      "title": "Allocation and initialization contracts in the C11 draft",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Nonzero allocation/resize lifetime, failure preservation and zero-bit initialization limits.",
+      "prerequisites": [
+        "Object lifetime and alignment"
+      ],
+      "locators": [
+        "7.22.3p1–2 and7.22.3.1–5 PDF365–367/printed347–349"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF page reading",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "malloc,calloc,realloc,free,aligned_alloc and footnote296",
+        "limits": "C11 draft wording, not published C17. Later defect corrections are separately sourced."
+      }
+    },
+    {
+      "id": "R-LLIB-DR400-460",
+      "title": "WG14 C11 clarification records400 and460",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2017,
+      "edition": "N2243 version1.13 October2017; entries marked C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2243.htm",
+      "access": "Primary HTML entries directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Track zero-size ownership and distinguish initial from final alignment proposals.",
+      "prerequisites": [
+        "C11 draft allocation contracts"
+      ],
+      "locators": [
+        "DR400 summary and February2012 Proposed Technical Corrigendum",
+        "DR460 summary, initial proposal, April2014 and October2016 discussion and final Proposed Technical Corrigendum"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct primary HTML reading through web tool",
+        "scope": "Zero-size ownership correction and final alignment proposal chronology",
+        "limits": "Defect record is not the published ISO C17 document. Do not equate initial and final DR460 size wording."
+      }
+    },
+    {
+      "id": "R-LLIB-N3096-ALLOC",
+      "title": "C23 working-draft realloc zero-size comparison",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2023,
+      "edition": "N3096 April1,2023 working draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf",
+      "access": "Exact primary PDF page directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Bound the edition comparison without relabeling a draft as published C23.",
+      "prerequisites": [
+        "Nonzero resize ownership"
+      ],
+      "locators": [
+        "7.24.3.7p1–4 PDF383/printed364"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading",
+        "source_sha256": "a1262b7d5d2ab0e496e94cb0fe6fab7ec511f29e6aeee669b2d1b16020f30fe4",
+        "scope": "realloc nonnull zero size, nonzero failure and prefix preservation",
+        "limits": "April2023 working draft only; other allocation clauses on neighboring pages not inferred."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-NUMERIC",
+      "title": "Integer and floating conversion grammar and failure",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Distinguish admission grammar, conversion prefix, range, errno and locale dependence.",
+      "prerequisites": [
+        "ASCII token grammar and range checks"
+      ],
+      "locators": [
+        "7.8.2.3p1–3 PDF237/printed219",
+        "7.22.1–7.22.1.4 PDF359–363/printed341–345"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF page reading",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "atoi representability, strtod forms/end/range/rounding discussion, strtol base/sign rules and strtoumax result semantics",
+        "limits": "C11 draft; no published ISO or correct-rounding implementation claim."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-HEADERS",
+      "title": "Standard headers and optional bounds-checking interfaces",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate source entitlement, observed header capability, type contract and runtime dependency.",
+      "prerequisites": [
+        "C translation and object representation"
+      ],
+      "locators": [
+        "7.1.2 PDF199/printed181",
+        "K.2–K.3.1.1 PDF601/printed583",
+        "K.3.7.1.1 PDF632/printed614"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Complete C11 draft header list, conditional atomic/thread headers, optional AnnexK advertisement/request and memcpy_s contract",
+        "limits": "Only named draft passages inspected; published C17/C23 and C90 exact-text access remain separate."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-TYPES",
+      "title": "Integer typedefs and distinct formatting/scanning macros",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate source entitlement, observed header capability, type contract and runtime dependency.",
+      "prerequisites": [
+        "C translation and object representation"
+      ],
+      "locators": [
+        "7.8–7.8.1 PDF235–236/printed217–218",
+        "7.20.1.1–7.20.1.5 PDF308–309/printed290–291"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Optional exact-width typedefs and required maximum-width type; underlying types and PRI/SCN matching",
+        "limits": "Only named draft passages inspected; published C17/C23 and C90 exact-text access remain separate."
+      }
+    },
+    {
+      "id": "R-LLIB-N1256-HEADERS",
+      "title": "C99 TC3 draft standard-header list",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2007,
+      "edition": "N1256 September7,2007 C99 TC3 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf",
+      "access": "Named primary pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate source entitlement, observed header capability, type contract and runtime dependency.",
+      "prerequisites": [
+        "C translation and object representation"
+      ],
+      "locators": [
+        "Title/edition page",
+        "7.1.2p1–7 PDF177/printed165"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "6b08dff0fab150aa86fc36cdef2bede7a73881f291ee096a16b7ab84cf7f91a1",
+        "scope": "Header list includes stdbool/stdint and excludes later atomic/thread/checked-arithmetic/bit headers",
+        "limits": "Only named draft passages inspected; published C17/C23 and C90 exact-text access remain separate."
+      }
+    },
+    {
+      "id": "R-LLIB-N3096-HEADERS",
+      "title": "C23 draft header list and conditional features",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2023,
+      "edition": "N3096 April1,2023 working draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf",
+      "access": "Named primary pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate source entitlement, observed header capability, type contract and runtime dependency.",
+      "prerequisites": [
+        "C translation and object representation"
+      ],
+      "locators": [
+        "6.10.9.3 PDF206–207/printed187–188",
+        "7.1.2 PDF209–210/printed190–191",
+        "7.19 PDF329/printed310"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "a1262b7d5d2ab0e496e94cb0fe6fab7ec511f29e6aeee669b2d1b16020f30fe4",
+        "scope": "Six selected header names, NO_ATOMICS/NO_THREADS macros and changed stdbool content",
+        "limits": "Only named draft passages inspected; published C17/C23 and C90 exact-text access remain separate."
+      }
+    },
+    {
+      "id": "R-LLIB-POSIX2024-LINES",
+      "title": "POSIX getline and reentrant tokenization",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "year": 2024,
+      "edition": "Issue8 IEEE1003.1-2024",
+      "kind": "standard",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/getdelim.html",
+      "related_urls": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/strtok.html"
+      ],
+      "access": "Primary canonical pages directly retrieved/read; aliases failed403/502",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Distinguish POSIX allocation/state contracts from core C17.",
+      "prerequisites": [
+        "Caller-owned storage and state"
+      ],
+      "locators": [
+        "getdelim/getline DESCRIPTION,RETURN VALUE,ERRORS",
+        "strtok/strtok_r DESCRIPTION,RETURN VALUE,ERRORS"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct WSL urllib canonical HTML reading",
+        "scope": "Allocated/resized line extent, delimiter/NUL/return counts and reentrant caller-owned tokenizer state",
+        "limits": "POSIX extension, not core ISO entitlement. No other page inferred from links."
+      }
+    },
+    {
+      "id": "R-LLIB-GCC15-ATTRIBUTE",
+      "title": "GCC unused function attribute",
+      "authors": [
+        "GCC project"
+      ],
+      "year": 2025,
+      "edition": "GCC15.2.0 manual",
+      "kind": "documentation",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/Common-Function-Attributes.html",
+      "access": "Named primary online manual entry read",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "An accepted diagnostic-suppression extension is not ISO language syntax.",
+      "prerequisites": [
+        "Compiler diagnostics"
+      ],
+      "locators": [
+        "Common Function Attributes: unused entry"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official manual reading through web tool",
+        "scope": "unused suppresses unused-function warning",
+        "limits": "Only selected attribute entry; no claim all GCC attributes or other compilers behave identically."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-SCANNER",
+      "title": "Formatted input assignment and failure boundaries",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary PDF pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Distinguish conversion/publication and consumed/committed/closed states.",
+      "prerequisites": [
+        "C17 lifetime and I/O contracts"
+      ],
+      "locators": [
+        "7.21.6.2p1–16 PDF335–340/printed317–322"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Field widths, matching versus input failure, exact destination pointer/representability requirements, scansets and non-counting %n",
+        "limits": "C11 draft is not relabeled published C17; deliberately invalid operations are analysis-only."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-STREAMS",
+      "title": "FILE lifecycle, buffering and permitted transitions",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary PDF pages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Distinguish conversion/publication and consumed/committed/closed states.",
+      "prerequisites": [
+        "C17 lifetime and I/O contracts"
+      ],
+      "locators": [
+        "7.21.2–7.21.5.6 PDF316–326/printed298–308",
+        "7.21.7.1–2 PDF348–349/printed330–331",
+        "7.21.8–7.21.9.4 PDF353–355/printed335–337",
+        "7.21.10.2–3 PDF357/printed339"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Orientation, ownership ending even on fclose failure, buffer lifetime, update-stream transitions, byte-count I/O, seeking and observed EOF/error indicators",
+        "limits": "C11 draft is not relabeled published C17; deliberately invalid operations are analysis-only."
+      }
+    },
+    {
+      "id": "R-LLIB-POSIX2024-HANDLES",
+      "title": "POSIX active handles and stream orientation",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "year": 2024,
+      "edition": "Issue8 IEEE1003.1-2024",
+      "kind": "standard",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/V2_chap02.html#tag_16_05_01",
+      "access": "Canonical primary chapter directly retrieved/read through WSL after web403",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Give exact coordination rules for mixed descriptors/streams and two buffers sharing an open-file description.",
+      "prerequisites": [
+        "POSIX handles, offsets and FILE ownership"
+      ],
+      "locators": [
+        "2.5.1 Interaction of File Descriptors and Standard I/O Streams",
+        "2.5.2 Stream Orientation and Encoding Rules"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct primary chapter text reading of named complete sections",
+        "scope": "Active-handle transfer, seekable input synchronization, explicit-offset repositioning, fork implications and limits of input exactly-once claims",
+        "limits": "POSIX extension, not ISO input fflush entitlement; adjacent IPC material is not claimed as inspected."
+      }
+    },
+    {
+      "id": "R-LLIB-GLIBC241-COOKIE",
+      "title": "GNU custom streams and hook return contracts",
+      "authors": [
+        "GNU C Library maintainers"
+      ],
+      "year": 2025,
+      "edition": "glibc2.41 official source release manual",
+      "kind": "documentation",
+      "url": "https://sourceware.org/git/?p=glibc.git;a=blob;f=manual/stdio.texi;hb=glibc-2.41",
+      "access": "Exact downloaded release source manual directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "Inject harmless read/write/close failures into original FILE teaching targets using the correct GNU hook conventions.",
+      "prerequisites": [
+        "Synchronous callback contracts"
+      ],
+      "locators": [
+        "manual/stdio.texi lines5170–5318 Custom Streams and Cookies; Custom Stream Hook Functions"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct local source reading from official2.41 archive provisioned in cmastery-effects-tools",
+        "source_sha256": "505f0bde1d87886759136ac135b565f8a1e01428b24ffb0d90bc700ea41a4306",
+        "scope": "Opaque cookie ownership, four hooks, default buffering, read-1/write0/close-1 failure conventions",
+        "limits": "GNU extension. Selected native runtime identity is recorded independently; no whole libc source inspection implied."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-MATH",
+      "title": "Scalar and complex math, error channels and type-generic selection",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate mathematical, compiler, runtime and finite experimental claims.",
+      "prerequisites": [
+        "Binary floating-point representation and rounding"
+      ],
+      "locators": [
+        "7.3.8.3 PDF214/printed196",
+        "7.12.1 PDF251–252/printed233–234",
+        "7.12.7.5 PDF267/printed249",
+        "7.25 PDF391–393/printed373–375"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PDF/manual/source text inspection; exact local artifact hash where retained",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "csqrt domain/branch, advertised errno and exception channels, underflow discretion, sqrt and exact generic selection rules",
+        "limits": "C11 draft only; not published C17 or a source-based implementation accuracy proof."
+      }
+    },
+    {
+      "id": "R-LLIB-MPFR422",
+      "title": "MPFR directed rounding and conversion contracts",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "MPFR4.2.2 manual",
+      "kind": "documentation",
+      "url": "https://www.mpfr.org/mpfr-4.2.2/mpfr.html",
+      "access": "Named primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate mathematical, compiler, runtime and finite experimental claims.",
+      "prerequisites": [
+        "Binary floating-point representation and rounding"
+      ],
+      "locators": [
+        "4.4 Rounding first4200characters",
+        "mpfr_init2,mpfr_set_d,mpfr_sqrt,mpfr_acos,mpfr_get_d entries"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PDF/manual/source text inspection; exact local artifact hash where retained",
+        "source_sha256": "ee996f3dcc11d1f88393da162bdd90c3fa29191ca658c0fc594ffd38a22638bc",
+        "scope": "Specified rounding modes, exact binary-double input admission, directed elementary results and nearest output conversion",
+        "limits": "Only named manual entries inspected. Host verifier dependency, not target runtime or blanket proof of the oracle wrapper."
+      }
+    },
+    {
+      "id": "R-LLIB-GCC15-MATH",
+      "title": "GCC floating optimization assumptions",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "GCC15.2.0 manual",
+      "kind": "documentation",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/Optimize-Options.html",
+      "access": "Named primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate mathematical, compiler, runtime and finite experimental claims.",
+      "prerequisites": [
+        "Binary floating-point representation and rounding"
+      ],
+      "locators": [
+        "fast-math,no-math-errno,unsafe-math-optimizations,finite-math-only,rounding-math entries; retrieved lines1401–1500"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PDF/manual/source text inspection; exact local artifact hash where retained",
+        "source_sha256": null,
+        "scope": "Fast profile implied options and macro, finite/errno assumptions and experimental rounding-option limitations",
+        "limits": "Does not document all compiler transformations or establish Clang semantics; actual tool identity and executions are separate."
+      }
+    },
+    {
+      "id": "R-LLIB-GLIBC241-MATH",
+      "title": "GNU math accuracy goals and their limits",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "glibc2.41 official release",
+      "kind": "documentation",
+      "url": "https://sourceware.org/git/?p=glibc.git;a=blob;f=manual/math.texi;hb=glibc-2.41",
+      "access": "Named primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate mathematical, compiler, runtime and finite experimental claims.",
+      "prerequisites": [
+        "Binary floating-point representation and rounding"
+      ],
+      "locators": [
+        "manual/math.texi lines1450–1589"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PDF/manual/source text inspection; exact local artifact hash where retained",
+        "source_sha256": "c1222987717ffad398bd7274b236adb5a22832b98d6c06580429eeac2ff810a5",
+        "scope": "Fully specified sqrt/fma/rint distinction, non-correct-rounded goals for other operations, observed accuracy tables and separate vector-function discussion",
+        "limits": "Vector4-ULP discussion is not a scalar acos bound; no universal scalar error claim follows from finite tables."
+      }
+    },
+    {
+      "id": "R-LLIB-MUSL125-ACOS",
+      "title": "musl inverse-cosine range reduction",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "musl1.2.5 official release",
+      "kind": "documentation",
+      "url": "https://git.musl-libc.org/cgit/musl/tree/src/math/acos.c?h=v1.2.5",
+      "access": "Named primary passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate mathematical, compiler, runtime and finite experimental claims.",
+      "prerequisites": [
+        "Binary floating-point representation and rounding"
+      ],
+      "locators": [
+        "src/math/acos.c lines1–45"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PDF/manual/source text inspection; exact local artifact hash where retained",
+        "source_sha256": "cc6f9017e7e2e0ef01516fa12c68aa63865e6415c90dc039dfce9abffae09a4c",
+        "scope": "Commented piecewise asin/sqrt approximation, near1 correction and invalid-domain treatment",
+        "limits": "Only named introductory source passage read; no full-file proof, all-input ULP guarantee or whole-library inspection."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-SORT-RAND",
+      "title": "Sorting/search and pseudo-random sequence contracts",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "7.22.2 PDF364/printed346",
+        "7.22.5 PDF372–374/printed354–356"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "Seed repetition and absent quality guarantees, comparator consistency/movement, zero count, bsearch key partitions and unspecified equal-element identity",
+        "limits": "C11 draft, not published C17; no particular algorithm or security promise implied."
+      }
+    },
+    {
+      "id": "R-LLIB-GLIBC241-SORT",
+      "title": "GNU sorting implementation and allocation fallback",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "glibc2.41 official release",
+      "kind": "documentation",
+      "url": "https://sourceware.org/git/?p=glibc.git;a=blob;f=stdlib/qsort.c;hb=glibc-2.41",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "stdlib/qsort.c complete file"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "1673bd77f24a84441568a9d45fafdb4927029c0c254403fdc8b74eebe58ed467",
+        "scope": "Swap aliases, heapsort,1024-byte buffer,32-byte indirect threshold, merge/cycle movement, malloc failure fallback and errno preservation",
+        "limits": "Direct root inspection after independent author inspection; parallel authorship is not independent technical review. Implementation details are not portable guarantees."
+      }
+    },
+    {
+      "id": "R-LLIB-MUSL125-SORT",
+      "title": "musl smoothsort implementation",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "musl1.2.5 official release",
+      "kind": "documentation",
+      "url": "https://git.musl-libc.org/cgit/musl/tree/src/stdlib/qsort.c?h=v1.2.5",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "src/stdlib/qsort.c complete file"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "3a838cc7f83f4746df6063f567be1ebb2f7d204243342122acd43f44d2434ec6",
+        "scope": "Leonardo-size representation, sift/trinkle, bounded cycle chunks, shifts and sort loop; no allocation calls in inspected file",
+        "limits": "Fresh accessible source supersedes the older access gap only for these passages; no complete libc proof."
+      }
+    },
+    {
+      "id": "R-LLIB-LINUX-RANDOM",
+      "title": "Linux random-byte acquisition",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2026,
+      "edition": "Linux man-pages6.19, page dated2026-02-08",
+      "kind": "documentation",
+      "url": "https://man7.org/linux/man-pages/man2/getrandom.2.html",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "DESCRIPTION,RETURN VALUE,ERRORS,STANDARDS and interruption notes"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": null,
+        "scope": "Nonblocking failure, returned counts, interruption and Linux-specific service boundary",
+        "limits": "Direct primary man-pages reading; no entropy-quality proof or cryptographic implementation inspection."
+      }
+    },
+    {
+      "id": "R-LLIB-PICO1810-OS",
+      "title": "Picolibc operating-system boundary",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "Picolibc1.8.10 official release",
+      "kind": "documentation",
+      "url": "https://github.com/picolibc/picolibc/blob/1.8.10/doc/os.md",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "doc/os.md complete file"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "796f2bc4888e59d2b38fac38fd63d32458f2a4bb2087192ada16b23f2fcffaaf",
+        "scope": "Custom FILE callbacks, POSIX file/memory/exit support, semihosting and native configure flags; stale posix-io instruction explicitly identified",
+        "limits": "Documentation inconsistency is preserved and checked against tagged options; no board register/latency claim."
+      }
+    },
+    {
+      "id": "R-LLIB-PICO1810-BUILD",
+      "title": "Picolibc stdio configuration choices",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "Picolibc1.8.10 official release",
+      "kind": "documentation",
+      "url": "https://github.com/picolibc/picolibc/blob/1.8.10/doc/build.md",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "doc/build.md Stdio options,Tinystdio options,Legacy stdio options"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "6186ad06776eacbd342e4c004d08aca21587a69a07cbfe6fbec729819b7c060e",
+        "scope": "Tiny versus legacy stdio, callback ownership, formatting modes and POSIX-console backend distinction",
+        "limits": "Only named sections are attributed to root inspection; configuration labels do not establish runtime closure."
+      }
+    },
+    {
+      "id": "R-LLIB-PICO1810-OPTIONS",
+      "title": "Actual tagged Picolibc options",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "Picolibc1.8.10 official release",
+      "kind": "documentation",
+      "url": "https://github.com/picolibc/picolibc/blob/1.8.10/meson_options.txt",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "Option-name inventory and lines121–150 tinystdio/POSIX console entries"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "c096795c5ed9bedae88434f0860b9fdcc492741deac06df413eafe903bc728f1",
+        "scope": "posix-console/tinystdio exist; posix-io absent; tests-enable-posix-io is a separate testing option",
+        "limits": "Source inspection plus actual configure rejection; no inferred removal of general file support."
+      }
+    },
+    {
+      "id": "R-LLIB-PICO1810-SEEK",
+      "title": "Picolibc missing-seek failure branch",
+      "authors": [
+        "Named upstream project maintainers"
+      ],
+      "year": 2025,
+      "edition": "Picolibc1.8.10 official release",
+      "kind": "documentation",
+      "url": "https://github.com/picolibc/picolibc/blob/1.8.10/newlib/libc/tinystdio/fseek.c",
+      "access": "Named primary source passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate public semantics, implementation mechanisms, backend obligations and bounded security evidence.",
+      "prerequisites": [
+        "Ordering, callbacks, linking and platform contracts"
+      ],
+      "locators": [
+        "newlib/libc/tinystdio/fseek.c complete file"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct official tagged source/PDF/manual reading, not bibliography inference",
+        "source_sha256": "c7acb5295bc8c09ce2e29ec6618800118601aae07a2f04d0fd2ecbdaf9712640",
+        "scope": "Extended seek callback selection, EOF/unget handling and ESPIPE refusal without seek",
+        "limits": "Named implementation behavior; not a universal ISO fseek errno guarantee."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-PROCESS",
+      "title": "Environment and termination contracts",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Exact named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate control flow, lifetime, ordering, process state and platform extensions.",
+      "prerequisites": [
+        "C17 objects,ownership and concurrency reasoning"
+      ],
+      "locators": [
+        "7.22.4 PDF368–371/printed350–353"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "abort,atexit,at_quick_exit,exit,_Exit,getenv,quick_exit,system; distinct handler families and flushing limits",
+        "limits": "C11 draft only; published C17 text and uninspected defect changes remain explicit source gaps."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-TIME",
+      "title": "CPU and calendar conversion contracts",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Exact named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate control flow, lifetime, ordering, process state and platform extensions.",
+      "prerequisites": [
+        "C17 objects,ownership and concurrency reasoning"
+      ],
+      "locators": [
+        "7.27 PDF406–412/printed388–394"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "clock scale and sentinel,time_t/clock_t,clock/difftime/mktime/time/timespec_get,borrowed conversion storage,gmtime/localtime and strftime introduction",
+        "limits": "C11 draft only; published C17 text and uninspected defect changes remain explicit source gaps."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-CONTROL",
+      "title": "Nonlocal jumps and bounded signal handlers",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Exact named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate control flow, lifetime, ordering, process state and platform extensions.",
+      "prerequisites": [
+        "C17 objects,ownership and concurrency reasoning"
+      ],
+      "locators": [
+        "7.13 PDF280–282/printed262–264",
+        "7.14 PDF284–285/printed266–267"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "setjmp expression contexts,longjmp target lifetime/same-thread/VLA constraints,modified nonvolatile locals,signal and raise; no newer atomic-signal wording inferred",
+        "limits": "C11 draft only; published C17 text and uninspected defect changes remain explicit source gaps."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-THREADS",
+      "title": "C thread lifecycle and matching joins",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Exact named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate control flow, lifetime, ordering, process state and platform extensions.",
+      "prerequisites": [
+        "C17 objects,ownership and concurrency reasoning"
+      ],
+      "locators": [
+        "7.26.5 PDF401–403/printed383–385"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "thrd_create/detach/exit/join/sleep/yield and termination/join synchronization",
+        "limits": "C11 draft only; published C17 text and uninspected defect changes remain explicit source gaps."
+      }
+    },
+    {
+      "id": "R-LLIB-N1570-ATOMIC",
+      "title": "Atomic publication and implementation properties",
+      "authors": [
+        "WG14"
+      ],
+      "year": 2011,
+      "edition": "N1570 April12,2011 committee draft; not published C17",
+      "kind": "standard",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Exact named primary PDF passages directly read",
+      "domains": [
+        "T12"
+      ],
+      "role": "core",
+      "assignable": true,
+      "reason": "Separate control flow, lifetime, ordering, process state and platform extensions.",
+      "prerequisites": [
+        "C17 objects,ownership and concurrency reasoning"
+      ],
+      "locators": [
+        "5.1.2.4 PDF36–38/printed18–20",
+        "7.17 PDF292–297/printed274–279",
+        "7.17.6–7.17.7.2 PDF299–300/printed281–282"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct PyMuPDF reading of named pages",
+        "source_sha256": "208969fec021e4f4ce87a1873765298c73e7bbb5209b1c5868967c7adfc8492e",
+        "scope": "One-shot release/acquire synchronization and happens-before,atomic initialization/orders/fences/lock-free queries/types/store/load; no broader later-edition inference",
+        "limits": "C11 draft only; published C17 text and uninspected defect changes remain explicit source gaps."
+      }
+    },
+    {
+      "id": "R-LLIB-POSIX2024-PROCESS",
+      "title": "POSIX clocks and protected environment ownership",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "year": 2024,
+      "edition": "The Open Group Base Specifications Issue8 / IEEE1003.1-2024",
+      "kind": "standard",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/clock_getres.html",
+      "related_urls": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/getenv.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/setenv.html"
+      ],
+      "access": "Official canonical HTML directly retrieved/read through WSL after browser403 responses",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "State actual OS contracts without attributing them to ISO C.",
+      "prerequisites": [
+        "Process/thread lifetime and borrowed objects"
+      ],
+      "locators": [
+        "clock_getres DESCRIPTION,RETURN VALUE,ERRORS",
+        "getenv DESCRIPTION,RETURN VALUE,ERRORS",
+        "setenv DESCRIPTION,RETURN VALUE,ERRORS"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct primary HTML body reading of named sections",
+        "source_sha256": {
+          "clock_getres.html": "71b134895b554e33f242b05f3c2a12934109053bbe77af83e814892a5ac3638c",
+          "getenv.html": "deadaa32e051bee7c6521bb16dfd355e08036c0aba6ecc46565484033b39e7b8",
+          "setenv.html": "ee4b55f3f78c2c26ac3f9cfb7e9cc78eb1de3211d3f89c9fd86a0c921f60cfbe"
+        },
+        "scope": "Monotonic/process/thread clocks,resolution/errors; borrowed environment and mutation synchronization; copied setenv inputs",
+        "limits": "Only named POSIX pages inspected; no host clock-setting or external signal action executed."
+      }
+    },
+    {
+      "id": "R-LLIB-POSIX2024-CONTROL",
+      "title": "POSIX lifecycle and race-free signal waiting",
+      "authors": [
+        "IEEE",
+        "The Open Group"
+      ],
+      "year": 2024,
+      "edition": "The Open Group Base Specifications Issue8 / IEEE1003.1-2024",
+      "kind": "standard",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/pthread_create.html",
+      "related_urls": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/pthread_join.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/sigaction.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/sigprocmask.html",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/functions/sigsuspend.html"
+      ],
+      "access": "Official canonical HTML directly retrieved/read through WSL after browser403 responses",
+      "domains": [
+        "T12"
+      ],
+      "role": "comparison",
+      "assignable": true,
+      "reason": "State actual OS contracts without attributing them to ISO C.",
+      "prerequisites": [
+        "Process/thread lifetime and borrowed objects"
+      ],
+      "locators": [
+        "pthread_create DESCRIPTION,RETURN VALUE,ERRORS",
+        "pthread_join DESCRIPTION,RETURN VALUE,ERRORS",
+        "sigaction DESCRIPTION,RETURN VALUE,ERRORS",
+        "sigprocmask DESCRIPTION,RETURN VALUE,ERRORS",
+        "sigsuspend DESCRIPTION,RETURN VALUE,ERRORS"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct primary HTML body reading of named sections",
+        "source_sha256": {
+          "pthread_create.html": "64660529782d56c779b50c595975c965bbd704c766c4a5c79bc88bd220e2f7c9",
+          "pthread_join.html": "56630fcd8fcf5d91568d075939c3d05928a165267ee934298fe83c26c35bef6a",
+          "sigaction.html": "98dada5843e473a34a03fa8bae1ce3c5afab70bc426859b27d342ac71d17b381",
+          "sigprocmask.html": "986bcda4b5269f10251c95fd3c44e6b7123021e20ee2884b90e72fce17cc07a9",
+          "sigsuspend.html": "f4bfa844aa395688c10e48d85c9c743d9b80dd523a7517915390f6483c138659"
+        },
+        "scope": "Create/join lifecycle and failed-start handles; no cross-family joins; signal disposition/masks and atomic temporary-mask wait",
+        "limits": "Only named POSIX pages inspected; no host clock-setting or external signal action executed."
+      }
+    },
+    {
+      "id": "R-LLIB-GENMC019",
+      "title": "GenMC finite verification scope and memory-model selection",
+      "authors": [
+        "GenMC maintainers"
+      ],
+      "year": 2026,
+      "edition": "v0.19.0 commit9f6c4c0772d0c42b325681581acc6a0f3eb9b5f7",
+      "kind": "documentation",
+      "url": "https://github.com/MPI-SWS/genmc/tree/v0.19.0/doc/manual",
+      "access": "Exact privately built upstream checkout manual passages read",
+      "domains": [
+        "T12"
+      ],
+      "role": "oracle",
+      "assignable": true,
+      "reason": "Separate bounded RC11 exploration and diagnostic counterexamples from real-program race and liveness claims.",
+      "prerequisites": [
+        "Release/acquire and read-from relations"
+      ],
+      "locators": [
+        "doc/manual/usage.md first100lines",
+        "doc/manual/features.md first90lines"
+      ],
+      "inspection": {
+        "date": "2026-10-17",
+        "method": "Direct tagged checkout reading",
+        "source_sha256": {
+          "doc/manual/usage.md": "e23133ba0d83caad7c4344804f189377808881e9fd25b9577caeef87ce98e957",
+          "doc/manual/features.md": "e2cdfd069c58661bcf6d14c0557bc079e988971faf62c65b443965ebd36c0063"
+        },
+        "scope": "Command/model selection,finite/data-deterministic scope,RC11 versus IMM distinction",
+        "limits": "Only named passages; not a proof of verifier/compiler correctness or unbounded scheduler progress."
+      }
+    }
+  ]
+}

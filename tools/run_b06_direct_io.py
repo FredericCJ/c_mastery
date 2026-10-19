@@ -1,0 +1,13 @@
+"""Actual direct/buffered fallback measurement on owned temporary Linux files."""
+from pathlib import Path
+import subprocess,tempfile,json,hashlib,datetime,platform,os
+ROOT=Path(__file__).resolve().parents[1]
+def main():
+ lab=ROOT/'labs/linux_io_depth/targets';ref=ROOT/'assessor/linux_io_depth/targets';rows=[];parent=Path.home()/'cmastery-b06-tools/experiments';parent.mkdir(parents=True,exist_ok=True);env=dict(os.environ,B06_DIRECT_PARENT=str(parent));mount=subprocess.run(['findmnt','-T',str(parent),'-J'],capture_output=True,text=True)
+ with tempfile.TemporaryDirectory(prefix='b06-direct-build-') as d:
+  for cc,flags,tag in [('gcc',['-O0'],'gcc-debug'),('gcc',['-O3'],'gcc-release'),('clang',['-O1','-fsanitize=address,undefined','-fno-omit-frame-pointer'],'clang-sanitize')]:
+   exe=Path(d)/tag;cmd=[cc,'-std=c17','-Wall','-Wextra','-Werror','-pthread',*flags,'-I'+str(lab),str(ref/'transfer.c'),str(lab/'direct_probe.c'),'-o',str(exe)];p=subprocess.run(cmd,capture_output=True,text=True);rows.append(dict(label=tag+' build',command=cmd,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,passed=p.returncode==0))
+   if p.returncode:continue
+   p=subprocess.run([str(exe)],capture_output=True,text=True,timeout=60,env=env);rows.append(dict(label=tag+' execute',command=[str(exe)],environment={'B06_DIRECT_PARENT':str(parent)},returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,passed=p.returncode==0 and 'B06_DIRECT_PASS' in p.stdout))
+ files=[Path(__file__),lab/'direct_probe.c',lab/'transfer.h',lab/'DIRECT_IO.md',ref/'transfer.c'];report=dict(passed=all(r['passed'] for r in rows),recorded_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),system=platform.uname()._asdict(),filesystem={'command':['findmnt','-T',str(parent),'-J'],'returncode':mount.returncode,'stdout':mount.stdout},input_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},checks=rows,limitations=['Selected private experiment filesystem only; statx alignment and actual successful direct writes recorded, not generalized to other filesystems','Direct and buffered use separate files and equal fdatasync plus directory fsync obligations','No physical power-loss claim or universal performance ordering; timing includes synchronization and changes in cache/device state','No privileged cache dropping, device access or system setting modification']);(ROOT/'research/v5/expansion/b06/direct_io_validation.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(dict(passed=report['passed'],checks=len(rows),failed=[r for r in rows if not r['passed']])));return 0 if report['passed'] else 1
+if __name__=='__main__':raise SystemExit(main())

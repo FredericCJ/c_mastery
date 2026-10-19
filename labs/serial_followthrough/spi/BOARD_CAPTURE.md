@@ -1,0 +1,11 @@
+# SPI composition capture obligation
+
+The complete selected F439 setup, revision/errata, pin route, Ethernet/timer conflict, voltage/load and uncertainty requirements are in `labs/peripheral_depth/spi/BOARD_CAPTURE.md`, incorporated here. This authoring campaign did not flash a board or observe wires. MPS2 IRQ execution and RAM-register success cannot fill this dossier.
+
+Use a dedicated original peer with immutable synthetic register values. Bind learner sources, actual scheduler SRAM addresses/extent, image/map, vector route, clock generation, silicon/board revisions, partner mode/protocol, bridge settings and calibrated raw capture files. Confirm the selected SPI1/DMA2 stream0/3 owner, PA5/6/7 and PD14 route and no conflicting peripheral owner. Inspect each buffer's2×count extent and DMA visibility; do not substitute a numerical SRAM address from a model for placement evidence.
+
+Capture A6/3C in all modes, the complete three-byte version0/version1 CS interval, setup/hold margins, wrong peer status, and one/two-byte incomplete framing. Record SCK/MOSI/MISO/CS plus software event identity, stream EN/count/flags and accepted result. Report analog limits, sample aperture and measurement uncertainty independently of decoded bytes. Preserve both raw data and normalized transitions; never relabel generated traces as physical.
+
+Record actual IRQ/vector delivery and exclusion boundaries, then verify that cancellation retains storage until real acknowledgements. Controlled model schedules may postpone stop acknowledgements; do not corrupt active real DMA storage or claim arbitrary hardware delay injection. If acknowledgement never arrives, quarantine the buffers and stop the experiment. Reset requires the actual imported quiescence contract. An old event must retain its old token at the ingress boundary, not be relabeled from mutable active state.
+
+Compare PIO/DMA latency and resource use only under the same peer, bytes, deadlines and failure guarantees. State distributions and instrument perturbation; one finite capture gives no universal maximum. A changed APB clock, timer resolution, load, partner or cache architecture requires new derivation and observations. An assessor must separately check the retained unaided and delayed learner attempts.

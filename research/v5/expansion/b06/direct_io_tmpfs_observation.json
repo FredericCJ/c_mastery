@@ -1,0 +1,122 @@
+{
+  "passed": false,
+  "recorded_at": "2026-10-17T03:04:07.248087+00:00",
+  "system": {
+    "system": "Linux",
+    "node": "MAIN",
+    "release": "6.18.33.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "input_sha256": {
+    "tools/run_b06_direct_io.py": "2bfea1ce8275dd7c010af0f35a19262b4ffc50e39916ced80dd176dcdb201aae",
+    "labs/linux_io_depth/targets/direct_probe.c": "c0d5fcd879ddf7cf9e1f3c0d0d6194be05c0a68dd40ea000c28823306b7cd2fb",
+    "labs/linux_io_depth/targets/transfer.h": "a9b00c797d99dc7698b9cb3a6f15d23e93ea4f800eb903b538d7790b19c5f375",
+    "labs/linux_io_depth/targets/DIRECT_IO.md": "0c00fb15535833ae1046b6dac9cbbf0179230abf9f8cf28fd6a281ed4f80dc03",
+    "assessor/linux_io_depth/targets/transfer.c": "9ed3298d4be17ef7325292fd90074c8d83d5c639952874607472657c17987fca"
+  },
+  "checks": [
+    {
+      "label": "gcc-debug build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O0",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-d7bdt4k7/gcc-debug"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-debug execute",
+      "command": [
+        "/tmp/b06-direct-build-d7bdt4k7/gcc-debug"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_DIRECT_ASSERT:15:(sx.stx_mask&STATX_DIOALIGN)&&sx.stx_dio_mem_align&&sx.stx_dio_offset_align errno=0\n",
+      "passed": false
+    },
+    {
+      "label": "gcc-release build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O3",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-d7bdt4k7/gcc-release"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "gcc-release execute",
+      "command": [
+        "/tmp/b06-direct-build-d7bdt4k7/gcc-release"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_DIRECT_ASSERT:15:(sx.stx_mask&STATX_DIOALIGN)&&sx.stx_dio_mem_align&&sx.stx_dio_offset_align errno=0\n",
+      "passed": false
+    },
+    {
+      "label": "clang-sanitize build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/linux_io_depth/targets/transfer.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/direct_probe.c",
+        "-o",
+        "/tmp/b06-direct-build-d7bdt4k7/clang-sanitize"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "label": "clang-sanitize execute",
+      "command": [
+        "/tmp/b06-direct-build-d7bdt4k7/clang-sanitize"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_DIRECT_ASSERT:15:(sx.stx_mask&STATX_DIOALIGN)&&sx.stx_dio_mem_align&&sx.stx_dio_offset_align errno=0\n",
+      "passed": false
+    }
+  ],
+  "limitations": [
+    "Selected /tmp filesystem only; statx alignment and actual successful direct writes recorded, not generalized to other filesystems",
+    "Direct and buffered use separate files and equal fdatasync plus directory fsync obligations",
+    "No physical power-loss claim or universal performance ordering; timing includes synchronization and changes in cache/device state",
+    "No privileged cache dropping, device access or system setting modification"
+  ]
+}

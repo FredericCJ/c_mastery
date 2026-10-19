@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "R-ECM-N1570-CONTRACT",
+      "title": "WG14 N1570 diagnostics and mutex contracts",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG14"
+      ],
+      "edition": "N1570 committee draft2011, not published C17/C23",
+      "year": 2011,
+      "kind": "standards-draft",
+      "url": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
+      "access": "Actual cached primary draft text inspected",
+      "domains": [
+        "T65"
+      ],
+      "role": "semantic-authority-with-edition-limit",
+      "reason": "Separate omitted assert evaluation from mandatory address admission and synchronized report ownership.",
+      "prerequisites": [
+        "C object lifetime and threads"
+      ],
+      "locators": [
+        "7.2p1-3 and7.2.1.1p1-3: assert and NDEBUG",
+        "7.26.4.1-.3 and7.26.4.6: mutex init, ownership, synchronization and destruction"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Read actual cached text sections7.2 and7.26.4 at lines7330-7392 and13812-13906",
+        "scope": "7.2p1-3 and7.2.1.1p1-3: assert and NDEBUG; 7.26.4.1-.3 and7.26.4.6: mutex init, ownership, synchronization and destruction",
+        "local_cache_sha256": "6db926f123b04351146d9a68d4903ab1623888b16f26a52b1130ec6270d8df62",
+        "limits": "Draft C11 text only; published C17/C23 unavailable."
+      }
+    },
+    {
+      "id": "R-ECM-GLIBC-C11",
+      "title": "GNU C Library ISO C mutexes",
+      "authors": [
+        "The GNU C Library contributors"
+      ],
+      "edition": "Rolling manual observed2026-10-18",
+      "year": 2026,
+      "kind": "implementation-manual",
+      "url": "https://sourceware.org/glibc/manual/latest/html_node/ISO-C-Mutexes.html",
+      "access": "Primary manual actual HTML read",
+      "domains": [
+        "T65"
+      ],
+      "role": "hosted-backend-contract",
+      "reason": "Keep C11 and POSIX mutex backends and their execution evidence separate.",
+      "prerequisites": [
+        "Thread lifetime and shared state"
+      ],
+      "locators": [
+        "mtx_init types and return codes",
+        "mtx_lock synchronization and nonrecursive ownership",
+        "mtx_unlock and mtx_destroy lifetime"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Opened primary GNU C Library manual and read named function and type passages",
+        "scope": "mtx_init types and return codes; mtx_lock synchronization and nonrecursive ownership; mtx_unlock and mtx_destroy lifetime",
+        "limits": "Selected host APIs only, not all POSIX conformance, scheduler guarantees or library internals."
+      }
+    },
+    {
+      "id": "R-ECM-GLIBC-POSIX",
+      "title": "GNU C Library POSIX mutexes",
+      "authors": [
+        "The GNU C Library contributors"
+      ],
+      "edition": "Rolling manual observed2026-10-18",
+      "year": 2026,
+      "kind": "implementation-manual",
+      "url": "https://sourceware.org/glibc/manual/latest/html_node/POSIX-Mutexes.html",
+      "access": "Primary manual actual HTML read",
+      "domains": [
+        "T65"
+      ],
+      "role": "hosted-backend-contract",
+      "reason": "Keep C11 and POSIX mutex backends and their execution evidence separate.",
+      "prerequisites": [
+        "Thread lifetime and shared state"
+      ],
+      "locators": [
+        "pthread_mutex_lock exclusion",
+        "pthread_mutex_unlock ownership",
+        "PTHREAD_MUTEX_NORMAL and DEFAULT reentry limits"
+      ],
+      "assignable": true,
+      "inspection": {
+        "date": "2026-10-18",
+        "method": "Opened primary GNU C Library manual and read named function and type passages",
+        "scope": "pthread_mutex_lock exclusion; pthread_mutex_unlock ownership; PTHREAD_MUTEX_NORMAL and DEFAULT reentry limits",
+        "limits": "Selected host APIs only, not all POSIX conformance, scheduler guarantees or library internals."
+      }
+    }
+  ],
+  "inspected_artifacts": [
+    {
+      "path": "assessor/errors/errors.c",
+      "sha256": "5eba0560d7dd51697b02aff1b9642ad94a9cded49fbad6ef871e7340f960ac19",
+      "passages": [
+        "Actual er_contract_counter and ER_MUTANT15/16"
+      ]
+    },
+    {
+      "path": "labs/errors/CONTRACTS.md",
+      "sha256": "e6864e6922218ba3d84deddd8629a9aebd3322e763526a75f4e51ba12261f567",
+      "passages": [
+        "Explicit modes and report exhaustion"
+      ]
+    },
+    {
+      "path": "assessor/errors/analyses/X-T65-008.md",
+      "sha256": "42f791092a496154aaf08c0cd8fd78e25220f1fb5554ec1eabe50b05b23925c8",
+      "passages": [
+        "Harmless integrity target and required memory/concurrent variant"
+      ]
+    },
+    {
+      "path": "curriculum/v5/exercises/X-T65-008.md",
+      "sha256": "3dd84dfcc92b3c509cb4f3f958e4306c192f9eaa9e979c13caa3a40998442320",
+      "passages": [
+        "Original R1-R4 and delayed concurrent report ownership"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 inaccessible.",
+    "Open Group online mutex pages returned HTTP403; GNU implementation manual inspected instead.",
+    "C11 TSan runtime is not a successful sanitizer execution; paired original minimal controls retained.",
+    "No physical or independent human/learner assessment."
+  ]
+}

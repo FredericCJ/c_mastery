@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "exercises": [
+    "X-T74-006",
+    "X-T74-007"
+  ],
+  "status": "author-measured-host-scope",
+  "semantic_campaign": "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json",
+  "probe": "reviews/v5/expansion/modern_completion/object_runtime_generational_probe.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Observed GCC/Clang x86-64 sizes: ORNursery200,ORCards17,ORLargeHeap288,ORCCards640 bytes; concurrent control alignment64,packed metadata entry8. The metadata union reserves padded storage in both layout variants.",
+      "enforcer_and_limits": "C typed objects/declared extended alignment; host compiler observation."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Minor retains all old cells and young closure from explicit+remembered roots; major uses explicit/pin roots. Nonmovable words are retained through associated descriptors, roots/strong edges and central pin tickets.",
+      "enforcer_and_limits": "Graph invariant and actual ORGraph marker adapter; caller reserved-value discipline."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Movable physical references rewrite during collection; large payload addresses stay fixed in a stationary region. Handles/tickets retire at generation4. Snapshot/lease cannot outlive its control; joined workers and discarded snapshots precede close.",
+      "enforcer_and_limits": "Runtime generations/revisions and external quiescence discipline."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Serialized nursery/core; every mirrored old store uses the actual barrier adapter. Concurrent card fields/metadata use one mutex; private snapshots scan outside it. No global consistent collection snapshot is inferred.",
+      "enforcer_and_limits": "POSIX exclusion plus preflight/card invariants; not a C ownership type guarantee."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "No dynamic core allocation. Preflight checks every survivor destination before mutation. Second-survival promotions can exhaust8 old cells; major frees unreachable old cells before a retry. Large1..4-word first-fit rejects fragmented capacity despite sufficient total free words.",
+      "enforcer_and_limits": "Runtime capacity checks, independent occupied-set model and unchanged-state tests."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Minor copies each unique surviving young cell once; major copies young survivors and compacts old descriptors left. Payload region never moves. Source immutability/destination ordering replace whole-heap staging, but card snapshots and planning arrays still copy.",
+      "enforcer_and_limits": "Source proof, graph comparison and actual forwarding maps."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Major is bounded by16 graph nodes; word clearing bounded by8 words; no recursive finalizers. Pins contribute roots until central ticket finish. Card mutex operations can block without a latency bound.",
+      "enforcer_and_limits": "Runtime state and fixed-capacity proof; caller lifetime obligations."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "O2 inspected actual calls: preflight invokes admitted/or_card_scan and direct or_card_store or rebuild; GCC includes stack-check helper. Card commit invokes pthread lock/unlock and Clang abort on impossible unlock failure. No helper-free target claim.",
+      "enforcer_and_limits": "Actual disassembly; compiler/platform-dependent observation."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Real late-writer pthread schedule at all4 widths and2 placements; finite revisions reject stale snapshot commits unchanged. Positive and separately compiled controls passed declared TSan. Global concurrent copying, fairness and lock-free progress are outside the contract.",
+      "enforcer_and_limits": "Mutex publication, revision check and bounded execution evidence."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "All nursery capacity/validation failures precede destination/root writes; old/copy/scanned outputs unchanged. Fragmentation admission preserves whole region. Card version mismatch preserves outputs and current dirty state; finite counters refuse wrap.",
+      "enforcer_and_limits": "Runtime preflight plus targeted negative assertions and independent models."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Actual6 configurations record clean/no-change/header builds. O2 GCC .717752/.048775/.658064s; Clang .480495/.044057/.392937s. A first probe attempt failed -Wmisleading-indentation in generated harness; braces fixed and failed report/log retained.",
+      "enforcer_and_limits": "Exact commands and source hashes; no general compile-speed ranking."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "O2 whole-image text/data/bss GCC21122/664/16;Clang24694/648/16. Observed original minor vs preflight frames376 vs208 GCC,312 vs136 Clang. Major helper224/152; card commit64/40; large collect80/56. Calls/callee frames and ABI effects remain separate from local .su records.",
+      "enforcer_and_limits": "Host size/stack artifacts, not whole-program or interrupt-stack bounds."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "No persisted ABI for physical refs, snapshot owners, pins or mutex structs. Packed/padded traffic uses actual addresses under a64-byte model. perf absent: no hardware cache-miss/coherence count was obtained; no host settings changed.",
+      "enforcer_and_limits": "Explicit host model and unavailable-counter observation."
+    }
+  ],
+  "timing_scope": "1260 retained samples+84warmups. Each sample1000 full nursery lifecycles or card store/scan/clear rounds. Equal-root/payload/failure contracts include setup, validation/rebuild, promotion and major cleanup; traffic counters identify only their exact stages. Hardware events unavailable.",
+  "sealed_decision": {
+    "choice": "Preflight capacity with immutable from-space and stable left major compaction; keep a dedicated nonmovable first-fit region; use mutex/revision-checked per-card snapshot clearing.",
+    "reason": "Admission is decided before publication, native borrow address stability is explicit, and finite versions expose the late-clear window without unsynchronized payload reads.",
+    "reopen_when": "Change promotion policy, expose concurrent young mutation, make large payloads movable, add global concurrent collection or rely on a hardware cache-line/coherence claim."
+  },
+  "pins": {
+    "reviews/v5/expansion/modern_completion/object_runtime_generational_probe.json": "c094de942039cc5c3bb562aadb620e94f698a664a769138ae0f84bbaa59b3d45",
+    "labs/object_runtime/GENERATIONAL_EXTENSIONS.md": "4d0a8e7e86d76e3e43f7c866f72a053a307716dce9d94764c55335797067fe72",
+    "labs/object_runtime/CARD_EPOCH_EXTENSIONS.md": "c837aaaab63805837e5e1c9e8f57bf5b3a61be56981a88d505a4cc972f20423f",
+    "reviews/v5/expansion/modern_completion/object_runtime_current_campaign.json": "c15ceaba55a4beea63fa65d41343df2849b6b3d3297bd411dce4a638d73e12b7"
+  }
+}

@@ -14,7 +14,7 @@ from integrate_v2 import registry, graph as generate_graph
 GENERATED_IDENTITY_FIELDS = {'work_id', 'edition_id', 'inspection_ids'}
 
 
-def merge_resource_record(prior, incoming, accepted=False):
+def merge_resource_record(prior, incoming, accepted=False, correction=None):
     """Refresh unaccepted canonical inspection scope without replacing a work."""
     old = {k: v for k, v in prior.items() if k not in GENERATED_IDENTITY_FIELDS}
     new = {k: v for k, v in incoming.items() if k not in GENERATED_IDENTITY_FIELDS}
@@ -24,7 +24,9 @@ def merge_resource_record(prior, incoming, accepted=False):
         raise ValueError('Accepted resource record changed: ' + incoming['id'])
     identity_fields = ('title', 'authors', 'edition', 'year', 'url')
     if old and any(k in old and old[k] != new.get(k) for k in identity_fields):
-        raise ValueError('Conflicting fifth-edition resource identity: ' + incoming['id'])
+        from resource_identity_v5 import admitted
+        if not admitted(old, new, correction):
+            raise ValueError('Conflicting fifth-edition resource identity: ' + incoming['id'])
     return incoming
 
 
@@ -43,13 +45,10 @@ def graph():
 def merge_resources():
     from v5_common import baseline
     accepted = baseline()['resources']
-    additions = []
-    paths = list((ROOT / 'research/v5').glob('*resources.json'))
-    paths += list((ROOT / 'research/v5/expansion').rglob('*resources.json'))
-    paths += list((ROOT / 'research/v5/modern').glob('*resources.json'))
-    for addition_path in sorted(paths):
-        addition = read_json(addition_path)
-        additions += addition if isinstance(addition, list) else addition['resources']
+    from resource_inputs_v5 import discover
+    from resource_identity_v5 import corrections
+    additions, discovery = discover(ROOT)
+    reviewed_corrections = corrections(ROOT)
     if not additions:
         return 0
     path = ROOT / 'references/resources.json'
@@ -65,8 +64,10 @@ def merge_resources():
             if key not in resources:
                 raise ValueError('Unknown reused resource: ' + key)
             continue
-        resources[key] = merge_resource_record(resources.get(key, {}), item, key in accepted)
+        resources[key] = merge_resource_record(resources.get(key, {}), item, key in accepted, reviewed_corrections.get(key))
     value['resources'] = list(resources.values())
+    # Provenance stays outside the accepted resource objects and their identity.
+    value['v5_registration_provenance'] = discovery['registration_provenance']
     dump(path, value)
     return len(seen)
 

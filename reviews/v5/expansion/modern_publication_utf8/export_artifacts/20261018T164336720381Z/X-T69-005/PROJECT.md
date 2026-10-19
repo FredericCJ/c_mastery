@@ -1,0 +1,54 @@
+```json
+{
+  "id": "PR-T69-05",
+  "title": "Owning erased calls over the byte-only small buffer",
+  "module": "T69",
+  "topics": [
+    "T69.05"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-05.json",
+    "fixtures/dispatch/extensions.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T69-05: Owning erased calls over the byte-only small buffer
+
+## Contract
+
+Implement DSErased assign/call/move/drop by importing DSmall, not copying its algorithm. Captures are explicitly encoded counted bytes; the supplied thunk accepts one byte and argument[-100,100]. Add an int32 capture codec with a portable admitted signed conversion and a capture larger than16 bytes to exercise spill. Resource ownership transfers only after assign succeeds. A separate borrowing callable view must document owner/table lifetime and immediate versus retained use.
+
+The full required exercise is {ref}`X-T69-005`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+Capture byte7 called with3 produces10. Move leaves the source inactive/empty and destination active. Dropping source then destination twice invokes the resource destructor exactly once. Allocation failure during a large capture assignment leaves the destination empty and ownership with the caller.
+
+## Steps
+
+- **T69.05:** Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+The owning wrapper adds obligations beyond a function/context pair: capture representation, external cleanup, movement and borrowed result lifetime. Reusing T70 preserves a single storage contract. Drive assign/call/move/drop traces through a logical ownership model and an allocator request/release log. Exercise inline16 versus spill17 and capture128 versus129 using thunks that accept those schemas. Compile with sanitizers, but diagnose ownership-state errors before invoking an inactive or mismatched thunk. Count bytes copied, allocations, owner size, dispatch and destructors under the13-dimension contract.
+
+## Acceptance and evidence
+
+- **T69.05:** Drive assign/call/move/drop traces through a logical ownership model and an allocator request/release log. Exercise inline16 versus spill17 and capture128 versus129 using thunks that accept those schemas. Compile with sanitizers, but diagnose ownership-state errors before invoking an inactive or mismatched thunk. Count bytes copied, allocations, owner size, dispatch and destructors under the13-dimension contract. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Keep the resource with the caller until capture storage succeeds. A successful move must change both ownership states. Reconstruct typed values in actual typed locals rather than casting the inline byte array.
+
+## Transfer challenge
+
+X-T69-005-DELAYED: allow cloning only for captures whose clone callback can fail. Specify source preservation, destination rollback and destructor ordering when the second of two owned subresources fails to clone.

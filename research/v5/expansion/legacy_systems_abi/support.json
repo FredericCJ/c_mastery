@@ -1,0 +1,4444 @@
+{
+  "schema_version": 1,
+  "required": true,
+  "scope": "All30 original T08 supplemental criteria, their30 transfers and LSYS-EXEC-T08; historical snapshots retained.",
+  "source_sha256": {
+    "labs/machine_image/abi_depth/CONTRACTS.md": "36839d2b66895f07219ce9ba578b831dc63f9a149a907a68c805be7cf4beeb9f",
+    "assessor/legacy_systems/abi_depth/ANALYSIS.md": "13a6f665c082852d25b3637513ab265700a623cd2f480caf56750d8d850c1314",
+    "reviews/v5/expansion/legacy_systems_abi/full_validation.json": "e2e806568e909ae57bf90b2a4445e332dcc66d784240dfaf233077e4f9b92c16",
+    "reviews/v5/expansion/legacy_systems_abi/validation_check.json": "18397290b55da348a11b05e55863d81c21648c9afb1b1797779b165cbd175b98",
+    "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json": "361712baba33ee2ec9b41cf1d07e8fa4aa6d64385631c89ed33bccd8884e71f5",
+    "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json": "839bf22320b38d893eb1e1989bef21c2a887ab2e5889286f18163124ecf821e5",
+    "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json": "f8029c867be6c78caf864319a359175e508700dcbc7aad616462b59917b3abb0",
+    "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json": "67e2895320175503db78669497a417f5c75fae9b1d102eb30b5f20357775901c"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T08-01-T08.01.a",
+      "objective": "T08.01.a",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Compile a uint32_t array sum over {1,0xFFFFFFFF,3} with a uint64_t accumulator. Annotate each load, extension, addition, branch and return in the actual disassembly; predict 4294967299 without executing an overflow-invalid signed substitute.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.01.a",
+        "variant": false,
+        "claim": "Zero-extended loads produce4294967299; each build retains its actual disassembly",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.01.a",
+        "variant": true,
+        "claim": "Narrow accumulator produces modulo3",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.b",
+      "objective": "T08.01.b",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "For struct Cell {uint32_t x; uint16_t y;} under a measured sizeof/offsetof manifest, derive the effective address of cells[3].y from a synthetic base 0x1000; reconcile scale and displacement with disassembly.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.01.b",
+        "variant": false,
+        "claim": "Measured Cell stride8 and y offset4 derive synthetic address0x101c without dereferencing it",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.01.b",
+        "variant": true,
+        "claim": "Packed and reordered field manifests change offsets and stride",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.c",
+      "objective": "T08.01.c",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Decode the supplied B8 78 56 34 12 vector in declared 64-bit mode with 32-bit operand width, then list what its ISA meaning does and does not establish about latency, throughput or cache effects.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.01.c",
+        "variant": false,
+        "claim": "Actual x86 MOV encoding decoded under explicit operand width",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.01.c",
+        "variant": true,
+        "claim": "Two equal instruction-count IMUL loops vary dependency graph;18 paired samples/compiler, independent modular oracle; no fixed latency conclusion",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.a",
+      "objective": "T08.02.a",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Draw before/after state for one integer comparison and one floating-point computation in your disassembly, including general registers, stack pointer and relevant flag/control state. Mark unspecified call-boundary values.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.02.a",
+        "variant": false,
+        "claim": "Actual MXCSR before/after scalar FP computation; controls preserved and local original state restored",
+        "evidence": [
+          "control-dossier.json",
+          "control-and-fp"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "transfer_observation": {
+        "objective": "T08.02.a",
+        "variant": true,
+        "claim": "External clobber demonstrates flags are not call-preserved; save/recompute live values under declared ABI",
+        "evidence": [
+          "control-dossier.json"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.b",
+      "objective": "T08.02.b",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Extend the existing hostile caller to vary all callee-preserved sentinels independently; compare a correct sum routine with a version corrupting RBX while returning the correct result.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.02.b",
+        "variant": false,
+        "claim": "Six independently varied callee-preserved register sentinels; arithmetic-correct corruption rejected",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.02.b",
+        "variant": true,
+        "claim": "Actual nested call clobbers scratch argument registers; input lifetime preserved",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.c",
+      "objective": "T08.02.c",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Trace an x86 comparison of bit patterns 0xFFFFFFFF and 1 as signed32 and unsigned32, identifying branch conditions and flags from subtraction. Supply a separate portable C expression for each interpretation.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.02.c",
+        "variant": false,
+        "claim": "Five subtraction cases independently check CF/ZF/SF/OF and signed versus unsigned predicates",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.02.c",
+        "variant": true,
+        "claim": "0-1 sets carry without signed overflow; INT_MIN-1 sets signed overflow without carry",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.a",
+      "objective": "T08.10.a",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "For a bounded uint32_t x*8 routine retain source, compiler IR and disassembly, then map the value computation across representations. Use inputs0,1,UINT32_MAX with modulo arithmetic.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.10.a",
+        "variant": false,
+        "claim": "Unsigned multiplication0/1/UINT_MAX agrees with independent64-bit modulo oracle; LLVM IR and object retained",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.10.a",
+        "variant": true,
+        "claim": "Signed range is ceil(INT_MIN/8)..floor(INT_MAX/8); no overflowing evaluation",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.b",
+      "objective": "T08.10.b",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Create two equivalent bounded sums: one eligible for inlining and one crossing a separate TU boundary. Inspect branch removal and register spills while retaining identical outputs and measured code sizes.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.10.b",
+        "variant": false,
+        "claim": "Equal bounded separate-TU/local computations, sizes and paired elapsed samples retained",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.10.b",
+        "variant": true,
+        "claim": "GCC/Clang actual LTO linker runs, with full disassembly and no promised speedup",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.c",
+      "objective": "T08.10.c",
+      "project": "PR-T08-01",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "task": "Analyze int f(int x){return x+1>x;} at INT_MAX without running it as a defined test; compare with unsigned and checked-add implementations. Distinguish optimizer reasoning from observed wraparound.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-01.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.10.c",
+        "variant": false,
+        "claim": "INT_MAX ISO signed case is analysis-only; checked failure leaves output77 and unsigned wrap comparison false",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.10.c",
+        "variant": true,
+        "claim": "GCC and Clang documented -fwrapv mode executes separate signed-wrap contract",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.a",
+      "objective": "T08.03.a",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Annotate caller and callee of existing mi_mix for eight uint64_t arguments, including seventh/eighth locations before and after call. Independently derive outputs for (1..8) and the high-bit boundary case.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.03.a",
+        "variant": false,
+        "claim": "Eight arguments recorded before/after call and weighted sum204",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.03.a",
+        "variant": true,
+        "claim": "Ninth integer plus separate double argument class executes",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.b",
+      "objective": "T08.03.b",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Compile three return types: uint64_t, struct {uint64_t a,b;}, and struct {uint64_t a,b,c;}. Derive classification and hidden-result ownership, then verify call-site and callee agree without casting incompatible function pointers.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.03.b",
+        "variant": false,
+        "claim": "Scalar, integer pair and hidden-result triple execute through compatible prototypes",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.03.b",
+        "variant": true,
+        "claim": "Mixed integer/SSE return executes with distinct register classes",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.c",
+      "objective": "T08.03.c",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Instrument an original assembly call boundary to record rsp modulo16 before call and at callee entry, including two stack arguments. Verify allocated argument space and cleanup across repeated calls.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.03.c",
+        "variant": false,
+        "claim": "Actual baseline pre-call0 and entry8 modulo16 observed repeatedly",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.03.c",
+        "variant": true,
+        "claim": "Ninth AVX register-sized argument spills with actual compiler32-byte alignment; compile-only AVX fixture",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.a",
+      "objective": "T08.04.a",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Compile an address-taken local array and a non-address-taken scalar at O0/O2; annotate frame setup, spills, saved registers and red-zone use. Reconcile every stack adjustment with an observed object or ABI obligation.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.04.a",
+        "variant": false,
+        "claim": "O0/O2 source/object/stack manifests distinguish address-escaped array from scalar",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.04.a",
+        "variant": true,
+        "claim": "Value live across external call has recorded save/spill choices",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.b",
+      "objective": "T08.04.b",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Compare recursive and iterative unsigned factorial for inputs0..12 with and without sibling-call optimization and frame pointers. Derive logical activation count separately from actual frame growth.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.04.b",
+        "variant": false,
+        "claim": "Recursive/tail/iterative factorial0..12 matches independently listed13 results across four profiles",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.04.b",
+        "variant": true,
+        "claim": "Post-call volatile count equalsn and blocks tail-position claim; no ISO tail-call guarantee",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.c",
+      "objective": "T08.04.c",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Build a leaf routine with a64-byte temporary under ordinary userspace and -mno-red-zone; inspect addressing. Explain why kernel/interrupt contexts need a separately established environment contract.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.04.c",
+        "variant": false,
+        "claim": "64-byte volatile leaf inspected with/without red zone",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.04.c",
+        "variant": true,
+        "claim": "External-call variant keeps live temporary under actual frame allocation",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.a",
+      "objective": "T08.05.a",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Create sizeof/_Alignof/offsetof manifests for int,long,void*,size_t under LP64 and any available ILP32 target. Classify unavailable builds explicitly and analyze serialization of long as a proposed wire format.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.05.a",
+        "variant": false,
+        "claim": "LP64 executable manifest and actual ILP32 object manifest",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.05.a",
+        "variant": true,
+        "claim": "Actual LLVM COFF LLP64 object manifest; no Windows execution claim",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.b",
+      "objective": "T08.05.b",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Measure struct {char a; uint32_t b; uint16_t c;} and an explicitly packed extension variant; explain internal/tail padding and alignment. Compare member values, never use raw padding bytes as semantic equality.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.05.b",
+        "variant": false,
+        "claim": "Ordinary offsets0/4/8,size12 versus packed0/1/5,size7",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.05.b",
+        "variant": true,
+        "claim": "Reordered size8 changes binary interface despite same member values",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.c",
+      "objective": "T08.05.c",
+      "project": "PR-T08-02",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "task": "Compile producer/consumer manifests separately with intentionally different public layout macros. Check widths, offsets, alignment and interface version before linking/execution; retain the rejected pair.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-02.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.05.c",
+        "variant": false,
+        "claim": "Separately compiled same-symbol manifests reject changed public layout before unsafe linking/access",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.05.c",
+        "variant": true,
+        "claim": "Opaque handle implementation and separately compiled client execute with hidden private layout",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.a",
+      "objective": "T08.06.a",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "Compile float add for Arm32 soft and softfp with the same base procedure-call convention; inspect instructions and argument locations, keeping results compile-only unless a supported target exists.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.06.a",
+        "variant": false,
+        "claim": "Soft add object has explicit forbidden-for-final-image __aeabi_fadd; softfp emits VADD but base PCS",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [],
+        "group": "arm-procedure-calls"
+      },
+      "transfer_observation": {
+        "objective": "T08.06.a",
+        "variant": true,
+        "claim": "Hard/softfp VFP instruction selection compared with differing register argument attributes",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [
+          "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence."
+        ],
+        "group": "arm-procedure-calls"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.b",
+      "objective": "T08.06.b",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "Prepare an Arm32 object compatibility matrix for soft, softfp and hard-float, including target attributes and linker diagnostics. Require a known-good same-profile link control.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.06.b",
+        "variant": false,
+        "claim": "All nine soft/softfp/hard caller/callee links run with same-profile success controls",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [],
+        "group": "arm-procedure-calls"
+      },
+      "transfer_observation": {
+        "objective": "T08.06.b",
+        "variant": true,
+        "claim": "Variadic double marshaling object retained under all profiles; no variadic numeric execution claimed",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [
+          "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence."
+        ],
+        "group": "arm-procedure-calls"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.c",
+      "objective": "T08.06.c",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "List preserved VFP registers from the inspected AAPCS32 passage, then inspect a small assembly callee using d8 and a caller-owned sentinel design. Do not claim x86 hostile tests validate Arm preservation.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.06.c",
+        "variant": false,
+        "claim": "Actual M4 guest preserves d8 across32 independent sentinel values; mutant returns correct float but fails preservation",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [],
+        "group": "arm-procedure-calls"
+      },
+      "transfer_observation": {
+        "objective": "T08.06.c",
+        "variant": true,
+        "claim": "Assembler rejects absent d16 on SP-D16; d8-d15 obligation is unchanged; actual two PCS guest profiles",
+        "evidence": [
+          "arm-procedure-calls"
+        ],
+        "limitations": [
+          "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence."
+        ],
+        "group": "arm-procedure-calls"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.a",
+      "objective": "T08.07.a",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "Implement the existing mi_asm_sum contract with explicit text/function/global declarations, unsigned loads, zero-count no-access and a nonexecutable stack note. Inspect symbol type, size and stack permissions.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.07.a",
+        "variant": false,
+        "claim": "Actual baseline assembly exported in shared object with FUNC and nonexecutable stack",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.07.a",
+        "variant": true,
+        "claim": "Dynamic symbol boundary and local labels inspected",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.b",
+      "objective": "T08.07.b",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "Add matching CFI to an original assembly routine with a saved register and stack adjustment; inspect unwind tables and capture a debugger backtrace from a nested call. Corrupt only the CFI in a separate analysis variant.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.07.b",
+        "variant": false,
+        "claim": "Actual saved-RBX/32-byte frame CFI and debugger backtrace",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.07.b",
+        "variant": true,
+        "claim": "No frame pointer; early-return state restored; wrong metadata has CFA40 rather than48",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.c",
+      "objective": "T08.07.c",
+      "project": "PR-T08-03",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "task": "Extend the hostile harness with zero count/null, singleton UINT32_MAX, repeated calls and an alignment recorder. Demonstrate two mutants: preserved-register corruption and wrong stack adjustment, using bounded original processes.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-03.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.07.c",
+        "variant": false,
+        "claim": "Actual hostile/null/singleton/repeated alignment controls in core",
+        "evidence": [
+          "frames-and-cost",
+          "core"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "transfer_observation": {
+        "objective": "T08.07.c",
+        "variant": true,
+        "claim": "Separately compiled optimized C pressure consumer executes129 surrounding-value cases per compiler",
+        "evidence": [
+          "frames-and-cost"
+        ],
+        "limitations": [],
+        "group": "frames-and-cost"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.a",
+      "objective": "T08.08.a",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "Specify a two-instruction unsigned add inline assembly block with one read/write operand and one scratch output written before all inputs are consumed. Explain tied and early-clobber constraints, then inspect register allocation at O0/O2.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.08.a",
+        "variant": false,
+        "claim": "Two-instruction read-write plus early-clobber constraints execute O0/O2 and sanitizer profiles",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.08.a",
+        "variant": true,
+        "claim": "Equal-value loop plus explicit invalid alias allocation demonstrates missing-constraint counterexample",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.b",
+      "objective": "T08.08.b",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "Compare an asm block that accesses a named memory operand with one accessing memory through an opaque pointer plus memory clobber. Explain which values the compiler may retain across each; no concurrent data race is executed.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.08.b",
+        "variant": false,
+        "claim": "Named +m and opaque-pointer memory-clobber both execute with ownership contract",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "transfer_observation": {
+        "objective": "T08.08.b",
+        "variant": true,
+        "claim": "Precise named-memory alternative retains explicit cc effect; broad clobber is not synchronization",
+        "evidence": [
+          "core"
+        ],
+        "limitations": [],
+        "group": "unwind-metadata"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.c",
+      "objective": "T08.08.c",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "For an empty asm memory clobber, inspect the final instructions and compare with an explicitly selected processor fence. Separate compile ordering, CPU ordering and ISO C atomic synchronization in a three-layer table.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.08.c",
+        "variant": false,
+        "claim": "Empty compiler barrier, emitted mfence and release atomic have distinct contracts",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "transfer_observation": {
+        "objective": "T08.08.c",
+        "variant": true,
+        "claim": "Actual Cortex-M4 DMB object; Arm ordering argument remains separate from C synchronization",
+        "evidence": [
+          "representation-flags"
+        ],
+        "limitations": [],
+        "group": "representation-flags"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.a",
+      "objective": "T08.09.a",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "Compare a normal call, userspace getpid syscall, synchronous fault and external interrupt in a saved-state/return-owner table. Use only a harmless local syscall for execution; exception cases remain documented analysis.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.09.a",
+        "variant": false,
+        "claim": "Normal call and harmless direct Linux getpid syscall execute; saved-state table separates faults and interrupts",
+        "evidence": [
+          "control-dossier.json",
+          "control-and-fp"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "transfer_observation": {
+        "objective": "T08.09.a",
+        "variant": true,
+        "claim": "Signal frame and async-signal-safe obligations analyzed separately; no signal or interrupt execution claimed",
+        "evidence": [
+          "control-dossier.json"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.b",
+      "objective": "T08.09.b",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "Classify user-legal arithmetic/syscall and privileged control-register or interrupt-control instructions for the selected ISA. Inspect bytes only for privileged examples, with an explicit do-not-execute marker.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.09.b",
+        "variant": false,
+        "claim": "Privileged control-register/CLI/STI specimen assembled and decoded only; never linked/executed",
+        "evidence": [
+          "control-dossier.json",
+          "control-and-fp"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "transfer_observation": {
+        "objective": "T08.09.b",
+        "variant": true,
+        "claim": "Complete disposable guest protocol specifies privilege/IDT/page-table/capture prerequisites; analysis-only by original task",
+        "evidence": [
+          "control-dossier.json"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.c",
+      "objective": "T08.09.c",
+      "project": "PR-T08-04",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "task": "Draw the distinction between architectural fault PC/register state, OS signal delivery and C setjmp/longjmp control state. Explain why arbitrary saved machine bits cannot be cast into a portable C continuation.",
+      "teaching": [
+        "labs/machine_image/abi_depth/CONTRACTS.md",
+        "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json"
+      ],
+      "assessment_analysis": [
+        "assessor/legacy_systems/abi_depth/ANALYSIS.md",
+        "assessor/legacy_depth/PR-T08-04.md"
+      ],
+      "ordinary_observation": {
+        "objective": "T08.09.c",
+        "variant": false,
+        "claim": "Actual same-thread live-frame setjmp/longjmp7 and explicit indeterminate-local rule",
+        "evidence": [
+          "control-dossier.json",
+          "control-and-fp"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "transfer_observation": {
+        "objective": "T08.09.c",
+        "variant": true,
+        "claim": "Cooperative suspension versus asynchronous preemption analyzed with ownership/reentrancy counterexample",
+        "evidence": [
+          "control-dossier.json"
+        ],
+        "limitations": [],
+        "group": "control-and-fp"
+      },
+      "independent_assessment": "not-assessed; minimum7days unchanged",
+      "receipt": "reviews/v5/expansion/legacy_systems_abi/full_validation.json"
+    }
+  ],
+  "updates": [
+    {
+      "id": "AX-PR-T08-01-T08.01.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Zero-extended loads produce4294967299; each build retains its actual disassembly",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Narrow accumulator produces modulo3",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Measured Cell stride8 and y offset4 derive synthetic address0x101c without dereferencing it",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Packed and reordered field manifests change offsets and stride",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual x86 MOV encoding decoded under explicit operand width",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.01.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.01.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Two equal instruction-count IMUL loops vary dependency graph;18 paired samples/compiler, independent modular oracle; no fixed latency conclusion",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual MXCSR before/after scalar FP computation; controls preserved and local original state restored",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "External clobber demonstrates flags are not call-preserved; save/recompute live values under declared ABI",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Six independently varied callee-preserved register sentinels; arithmetic-correct corruption rejected",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual nested call clobbers scratch argument registers; input lifetime preserved",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Five subtraction cases independently check CF/ZF/SF/OF and signed versus unsigned predicates",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.02.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.02.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "0-1 sets carry without signed overflow; INT_MIN-1 sets signed overflow without carry",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Unsigned multiplication0/1/UINT_MAX agrees with independent64-bit modulo oracle; LLVM IR and object retained",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.a",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Signed range is ceil(INT_MIN/8)..floor(INT_MAX/8); no overflowing evaluation",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Equal bounded separate-TU/local computations, sizes and paired elapsed samples retained",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.b",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "GCC/Clang actual LTO linker runs, with full disassembly and no promised speedup",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "INT_MAX ISO signed case is analysis-only; checked failure leaves output77 and unsigned wrap comparison false",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-01-T08.10.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+      "original_objective": "T08.10.c",
+      "project": "PR-T08-01",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "GCC and Clang documented -fwrapv mode executes separate signed-wrap contract",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Eight arguments recorded before/after call and weighted sum204",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Ninth integer plus separate double argument class executes",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Scalar, integer pair and hidden-result triple execute through compatible prototypes",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Mixed integer/SSE return executes with distinct register classes",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual baseline pre-call0 and entry8 modulo16 observed repeatedly",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.03.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.03.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Ninth AVX register-sized argument spills with actual compiler32-byte alignment; compile-only AVX fixture",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "O0/O2 source/object/stack manifests distinguish address-escaped array from scalar",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Value live across external call has recorded save/spill choices",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Recursive/tail/iterative factorial0..12 matches independently listed13 results across four profiles",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Post-call volatile count equalsn and blocks tail-position claim; no ISO tail-call guarantee",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "64-byte volatile leaf inspected with/without red zone",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.04.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.04.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "External-call variant keeps live temporary under actual frame allocation",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "LP64 executable manifest and actual ILP32 object manifest",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.a",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual LLVM COFF LLP64 object manifest; no Windows execution claim",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Ordinary offsets0/4/8,size12 versus packed0/1/5,size7",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.b",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Reordered size8 changes binary interface despite same member values",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Separately compiled same-symbol manifests reject changed public layout before unsafe linking/access",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-02-T08.05.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+      "original_objective": "T08.05.c",
+      "project": "PR-T08-02",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-02.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Opaque handle implementation and separately compiled client execute with hidden private layout",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.a",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Soft add object has explicit forbidden-for-final-image __aeabi_fadd; softfp emits VADD but base PCS",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.a",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Hard/softfp VFP instruction selection compared with differing register argument attributes",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence.",
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.b",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "All nine soft/softfp/hard caller/callee links run with same-profile success controls",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.b",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Variadic double marshaling object retained under all profiles; no variadic numeric execution claimed",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence.",
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.c",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual M4 guest preserves d8 across32 independent sentinel values; mutant returns correct float but fails preservation",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.06.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.06.c",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Assembler rejects absent d16 on SP-D16; d8-d15 obligation is unchanged; actual two PCS guest profiles",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "QEMU architectural execution and semihosting only; no physical FPU timing, electrical or peripheral evidence.",
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.a",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual baseline assembly exported in shared object with FUNC and nonexecutable stack",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.a",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Dynamic symbol boundary and local labels inspected",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.b",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual saved-RBX/32-byte frame CFI and debugger backtrace",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.b",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "No frame pointer; early-return state restored; wrong metadata has CFA40 rather than48",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.c",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual hostile/null/singleton/repeated alignment controls in core",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-03-T08.07.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+      "original_objective": "T08.07.c",
+      "project": "PR-T08-03",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-03.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Separately compiled optimized C pressure consumer executes129 surrounding-value cases per compiler",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.a",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Two-instruction read-write plus early-clobber constraints execute O0/O2 and sanitizer profiles",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.a",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Equal-value loop plus explicit invalid alias allocation demonstrates missing-constraint counterexample",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.b",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Named +m and opaque-pointer memory-clobber both execute with ownership contract",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.b",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Precise named-memory alternative retains explicit cc effect; broad clobber is not synchronization",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.c",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Empty compiler barrier, emitted mfence and release atomic have distinct contracts",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.08.c",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual Cortex-M4 DMB object; Arm ordering argument remains separate from C synchronization",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.a",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.a",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Normal call and harmless direct Linux getpid syscall execute; saved-state table separates faults and interrupts",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.a-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.a",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Signal frame and async-signal-safe obligations analyzed separately; no signal or interrupt execution claimed",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.b",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.b",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Privileged control-register/CLI/STI specimen assembled and decoded only; never linked/executed",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.b-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.b",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Complete disposable guest protocol specifies privilege/IDT/page-table/capture prerequisites; analysis-only by original task",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.c",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.c",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Actual same-thread live-frame setjmp/longjmp7 and explicit indeterminate-local rule",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.c-DELAYED",
+      "original_source": "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+      "original_objective": "T08.09.c",
+      "project": "PR-T08-04",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-04.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "Cooperative suspension versus asynchronous preemption analyzed with ownership/reentrancy counterexample",
+      "required_environment": "Linux GCC15/Clang21/binutils/GDB, Arm GCC14 and explicit QEMU10.2.1 Cortex-M4; matching LLVM LTO linker.",
+      "validation_method": "Exact argv and original specimen bytes; independent arithmetic and flag expectations, actual layout/PCS rejection, preserved state, CFI/backtrace, emulated guest closure and paired cost observations.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ]
+    },
+    {
+      "id": "LSYS-EXEC-T08",
+      "dimensions": {
+        "teaching": {
+          "state": "complete",
+          "evidence": [
+            "labs/machine_image/abi_depth/CONTRACTS.md",
+            "curriculum/v5/expansion/legacy_assessments/PR-T08-01.json",
+            "assessor/legacy_systems/abi_depth/ANALYSIS.md"
+          ]
+        },
+        "implementation": {
+          "state": "complete-for-declared-reference-contract",
+          "evidence": [
+            "assessor/legacy_systems/abi_depth/representations.py",
+            "assessor/legacy_systems/abi_depth/frames.py",
+            "assessor/legacy_systems/abi_depth/arm.py",
+            "assessor/legacy_systems/abi_depth/control.py"
+          ]
+        },
+        "author_validation": {
+          "state": "passed-with-stated-scope",
+          "evidence": [
+            "reviews/v5/expansion/legacy_systems_abi/full_validation.json",
+            "reviews/v5/expansion/legacy_systems_abi/validation_check.json"
+          ]
+        },
+        "external_review": {
+          "state": "not-run",
+          "evidence": []
+        },
+        "independent_learner": {
+          "state": "not-assessed",
+          "evidence": []
+        },
+        "physical_observation": {
+          "state": "not-applicable-to-hosted-or-explicit-emulator-contract; no physical observation claimed",
+          "evidence": []
+        }
+      },
+      "closure_rationale": "All30 original criteria and30 delayed packages have individual implementation/analysis and recorded observations; no generic test is used as blanket evidence.",
+      "evidence_limits": [
+        "Bounded Linux/toolchain experiments; no physical target claim.",
+        "A successful reference run does not establish independent learner performance.",
+        "Source identity and reproducibility do not establish trust in a toolchain."
+      ],
+      "criteria": [
+        "AX-PR-T08-01-T08.01.a",
+        "AX-PR-T08-01-T08.01.b",
+        "AX-PR-T08-01-T08.01.c",
+        "AX-PR-T08-01-T08.02.a",
+        "AX-PR-T08-01-T08.02.b",
+        "AX-PR-T08-01-T08.02.c",
+        "AX-PR-T08-01-T08.10.a",
+        "AX-PR-T08-01-T08.10.b",
+        "AX-PR-T08-01-T08.10.c",
+        "AX-PR-T08-02-T08.03.a",
+        "AX-PR-T08-02-T08.03.b",
+        "AX-PR-T08-02-T08.03.c",
+        "AX-PR-T08-02-T08.04.a",
+        "AX-PR-T08-02-T08.04.b",
+        "AX-PR-T08-02-T08.04.c",
+        "AX-PR-T08-02-T08.05.a",
+        "AX-PR-T08-02-T08.05.b",
+        "AX-PR-T08-02-T08.05.c",
+        "AX-PR-T08-03-T08.06.a",
+        "AX-PR-T08-03-T08.06.b",
+        "AX-PR-T08-03-T08.06.c",
+        "AX-PR-T08-03-T08.07.a",
+        "AX-PR-T08-03-T08.07.b",
+        "AX-PR-T08-03-T08.07.c",
+        "AX-PR-T08-04-T08.08.a",
+        "AX-PR-T08-04-T08.08.b",
+        "AX-PR-T08-04-T08.08.c",
+        "AX-PR-T08-04-T08.09.a",
+        "AX-PR-T08-04-T08.09.b",
+        "AX-PR-T08-04-T08.09.c"
+      ]
+    }
+  ],
+  "source_records": [
+    {
+      "id": "R-LABI-AMD64",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.2.1–3.2.3, printed14–22: register roles, stack, classification, parameter allocation, return ownership"
+      ]
+    },
+    {
+      "id": "R-LABI-DWARF",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "6.4–6.4.2.2, printed171–177; CFA/rules/CIE/FDE and row instructions"
+      ]
+    },
+    {
+      "id": "R-LABI-AS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "7.13.1–7.13.3",
+        "7.13.9–7.13.20: CFA offsets, saved registers, restore and state stack"
+      ]
+    },
+    {
+      "id": "R-LABI-ASM",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "6.11.2.1 Volatile",
+        "6.11.2.2 Assembler Template",
+        "6.11.2.6 Clobbers and Scratch Registers, lines566–569"
+      ]
+    },
+    {
+      "id": "R-LABI-ARMPCS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "VFP register usage conventions, lines874–921",
+        "The Standard Variants, lines1425–1429",
+        "Argument Passing Conventions, lines2055–2072"
+      ]
+    },
+    {
+      "id": "R-LABI-ARMFLAGS",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.20.5 -mfloat-abi, lines26–30"
+      ]
+    },
+    {
+      "id": "R-LABI-M4",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.12.3 DMB, printed3-160",
+        "4.6.1 CPACR, printed4-48",
+        "4.6.6 Enabling the FPU, printed4-52"
+      ]
+    },
+    {
+      "id": "R-LABI-CMP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "CMP, printed3-161–3-162"
+      ]
+    },
+    {
+      "id": "R-LABI-CONTROL",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "MFENCE, printed4-15",
+        "MOV control registers, printed4-32–4-34",
+        "SYSCALL, printed4-699–4-701"
+      ]
+    },
+    {
+      "id": "R-LABI-LLP64",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "ILP32/LLP64 paragraphs, lines30–35"
+      ]
+    },
+    {
+      "id": "R-LABI-WRAP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "3.18 -fwrapv, lines67–69"
+      ]
+    },
+    {
+      "id": "R-LABI-CLANG-WRAP",
+      "path": "research/v5/expansion/legacy_systems_abi/resources.json",
+      "passages": [
+        "-fwrapv and -fno-wrapv option entry"
+      ]
+    }
+  ]
+}

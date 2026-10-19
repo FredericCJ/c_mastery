@@ -1,0 +1,35 @@
+ENTRY(bu_reset)
+MEMORY {
+ CODE(rx) : ORIGIN = @CODE@, LENGTH = 128K
+ RAM(rwx) : ORIGIN = 0x20000000, LENGTH = 64K
+ BANK(rw) : ORIGIN = @BANK@, LENGTH = 16K
+}
+SECTIONS {
+ .vectors : { KEEP(*(.vectors)) } >CODE
+ .text : { *(.text*) *(.rodata*) . = ALIGN(4); } >CODE
+ .tables : {
+ _copy_begin = .;
+ LONG(LOADADDR(.data)); LONG(ADDR(.data)); LONG(ADDR(.data)+SIZEOF(.data));
+ LONG(LOADADDR(.bank_data)); LONG(ADDR(.bank_data)); LONG(ADDR(.bank_data)+SIZEOF(.bank_data));
+ LONG(LOADADDR(.data)); LONG(ADDR(.data)); LONG(ADDR(.data));
+ _copy_end = .;
+ _zero_begin = .; LONG(ADDR(.bss)); LONG(ADDR(.bss)+SIZEOF(.bss));
+ LONG(ADDR(.bank_bss)); LONG(ADDR(.bank_bss)+SIZEOF(.bank_bss)); _zero_end = .;
+ } >CODE
+ .data : { . = ALIGN(4); *(.data*) . = ALIGN(4); } >RAM AT>CODE
+ .bank_data : { . = ALIGN(4); *(.bank_data) . = ALIGN(4); } >BANK AT>CODE
+ .bss (NOLOAD) : { . = ALIGN(4); *(.bss*) *(COMMON) . = ALIGN(4); } >RAM
+ .retained (NOLOAD) : { . = ALIGN(4); KEEP(*(.retained)) . = ALIGN(4); } >RAM
+ .stage (NOLOAD) : { . = ALIGN(4); KEEP(*(.stage)) . = ALIGN(4); } >RAM
+ .dma (NOLOAD) : { . = ALIGN(4); KEEP(*(.dma)) . = ALIGN(4); } >RAM
+ .bank_bss (NOLOAD) : { . = ALIGN(4); *(.bank_bss) . = ALIGN(4); } >BANK
+ _stack_top = ORIGIN(RAM)+LENGTH(RAM);
+ _stack_low = _stack_top-2048;
+ ASSERT(ADDR(.dma)+SIZEOF(.dma)<=_stack_low-32,"stack overlaps owned data")
+ ASSERT(ADDR(.dma)>=0x20000000&&ADDR(.dma)+SIZEOF(.dma)<=0x20030000,"DMA inaccessible bank")
+ ASSERT(_stack_top%8==0,"stack alignment")
+ ASSERT(ADDR(.vectors)%512==0,"vector alignment")
+ ASSERT(SIZEOF(.vectors)==428,"vector table missing or wrong extent")
+ ASSERT(ADDR(.bank_data)>=ORIGIN(BANK),"second bank")
+ /DISCARD/ : { *(.comment) *(.ARM.exidx*) *(.ARM.extab*) }
+}

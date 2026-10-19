@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "source_stable": true,
+  "input_sha256": {
+    "tools/measure_corpus_events.py": "50a9e396c0a5fe753eab156b653aed58eb4466171788426154796c1c7a3745c9",
+    "labs/corpus_events/events.h": "9d74960925d3325a3643ad41e3e58c50d3f5188794d18e10b9ec061d860c882f",
+    "labs/corpus_events/CONTRACTS.md": "f9c5335299739882c2eab30e7e4b4cc7e8b05539a1852e2c33847f860469895b",
+    "labs/corpus_events/tests.c": "4bfdb849943e3ef64db135a2b9e0b085946fc0bc4375f3fb23bf73765fed8f18",
+    "assessor/corpus_events/events.c": "73998d52db1d85ff3d82025078474f427dc8ebd13c9015a9702ead70167ff50f"
+  },
+  "executions": [
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DEV_TEXT=16",
+        "-Ilabs/corpus_events",
+        "assessor/corpus_events/events.c",
+        "labs/corpus_events/tests.c",
+        "-o",
+        "/tmp/events-cost-z140x93f/16"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "command": [
+        "/tmp/events-cost-z140x93f/16",
+        "parser"
+      ],
+      "exit_code": 0,
+      "stdout": "EV_RESOURCE:text=16:parser=312:event=40:queue=96:consumer=72\nEV_OK:parser\n",
+      "passed": true
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DEV_TEXT=1",
+        "-Ilabs/corpus_events",
+        "assessor/corpus_events/events.c",
+        "labs/corpus_events/tests.c",
+        "-o",
+        "/tmp/events-cost-z140x93f/1"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "passed": true
+    },
+    {
+      "command": [
+        "/tmp/events-cost-z140x93f/1",
+        "parser"
+      ],
+      "exit_code": 0,
+      "stdout": "EV_RESOURCE:text=1:parser=296:event=40:queue=96:consumer=72\nEV_OK:parser\n",
+      "passed": true
+    }
+  ],
+  "observations": [
+    {
+      "text": 16,
+      "parser": 312,
+      "event": 40,
+      "queue": 96,
+      "consumer": 72
+    },
+    {
+      "text": 1,
+      "parser": 296,
+      "event": 40,
+      "queue": 96,
+      "consumer": 72
+    }
+  ],
+  "model": {
+    "input_work": "O(N+K*name_limit), plus each explicitly repeated callback attempt",
+    "parser_storage": "O(depth_limit*name_limit+text_capacity), independent of already consumed document length",
+    "consumer_storage": "O(depth_limit), two copied queue events are additional",
+    "comparison": "Same logical language and semantic answers, differing TEXT event segmentation and storage."
+  },
+  "limits": [
+    "Actual native ABI sizes; target emitted frames/sections are separately recorded by the main campaign.",
+    "No physical timing, arbitrary concurrent callback safety, full XML conformity or complete-domain speed claim."
+  ]
+}

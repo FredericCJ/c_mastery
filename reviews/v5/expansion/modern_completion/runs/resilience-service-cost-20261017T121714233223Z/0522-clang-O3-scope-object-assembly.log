@@ -1,0 +1,378 @@
+
+/home/frede/cmastery-resilience-service-cost-xjic97b8/clang-O3-timing/CMakeFiles/resilience-pressure.dir/mnt/f/Learning/Curricula/c_mastery/assessor/resilience/followthrough/scope.c.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <rzf_scope_retain>:
+   0:	48 85 ff             	test   %rdi,%rdi
+   3:	0f 94 c1             	sete   %cl
+   6:	48 85 f6             	test   %rsi,%rsi
+   9:	0f 94 c2             	sete   %dl
+   c:	b8 01 00 00 00       	mov    $0x1,%eax
+  11:	08 ca                	or     %cl,%dl
+  13:	75 2d                	jne    42 <rzf_scope_retain+0x42>
+  15:	48 8b 47 18          	mov    0x18(%rdi),%rax
+  19:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+  20:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+  24:	74 1d                	je     43 <rzf_scope_retain+0x43>
+  26:	48 85 c0             	test   %rax,%rax
+  29:	74 12                	je     3d <rzf_scope_retain+0x3d>
+  2b:	48 8d 48 01          	lea    0x1(%rax),%rcx
+  2f:	f0 48 0f b1 4f 18    	lock cmpxchg %rcx,0x18(%rdi)
+  35:	75 e9                	jne    20 <rzf_scope_retain+0x20>
+  37:	48 89 3e             	mov    %rdi,(%rsi)
+  3a:	31 c0                	xor    %eax,%eax
+  3c:	c3                   	ret
+  3d:	b8 06 00 00 00       	mov    $0x6,%eax
+  42:	c3                   	ret
+  43:	b8 02 00 00 00       	mov    $0x2,%eax
+  48:	c3                   	ret
+  49:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000000050 <rzf_scope_release>:
+  50:	48 85 ff             	test   %rdi,%rdi
+  53:	74 36                	je     8b <rzf_scope_release+0x3b>
+  55:	48 8b 37             	mov    (%rdi),%rsi
+  58:	48 85 f6             	test   %rsi,%rsi
+  5b:	74 2e                	je     8b <rzf_scope_release+0x3b>
+  5d:	53                   	push   %rbx
+  5e:	48 c7 07 00 00 00 00 	movq   $0x0,(%rdi)
+  65:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  70:	f0 48 ff 4e 18       	lock decq 0x18(%rsi)
+  75:	75 13                	jne    8a <rzf_scope_release+0x3a>
+  77:	48 8b 5e 20          	mov    0x20(%rsi),%rbx
+  7b:	48 8b 7e 28          	mov    0x28(%rsi),%rdi
+  7f:	ff 56 38             	call   *0x38(%rsi)
+  82:	48 89 de             	mov    %rbx,%rsi
+  85:	48 85 db             	test   %rbx,%rbx
+  88:	75 e6                	jne    70 <rzf_scope_release+0x20>
+  8a:	5b                   	pop    %rbx
+  8b:	c3                   	ret
+  8c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+0000000000000090 <rzf_scope_create>:
+  90:	b8 01 00 00 00       	mov    $0x1,%eax
+  95:	48 85 c9             	test   %rcx,%rcx
+  98:	74 4f                	je     e9 <rzf_scope_create+0x59>
+  9a:	55                   	push   %rbp
+  9b:	41 57                	push   %r15
+  9d:	41 56                	push   %r14
+  9f:	41 55                	push   %r13
+  a1:	41 54                	push   %r12
+  a3:	53                   	push   %rbx
+  a4:	48 83 ec 18          	sub    $0x18,%rsp
+  a8:	48 8b 6c 24 58       	mov    0x58(%rsp),%rbp
+  ad:	48 85 ed             	test   %rbp,%rbp
+  b0:	74 29                	je     db <rzf_scope_create+0x4b>
+  b2:	48 83 7c 24 60 00    	cmpq   $0x0,0x60(%rsp)
+  b8:	74 21                	je     db <rzf_scope_create+0x4b>
+  ba:	49 89 d6             	mov    %rdx,%r14
+  bd:	49 89 f7             	mov    %rsi,%r15
+  c0:	48 89 fb             	mov    %rdi,%rbx
+  c3:	49 89 cc             	mov    %rcx,%r12
+  c6:	48 89 e7             	mov    %rsp,%rdi
+  c9:	48 89 de             	mov    %rbx,%rsi
+  cc:	4c 89 fa             	mov    %r15,%rdx
+  cf:	4c 89 f1             	mov    %r14,%rcx
+  d2:	e8 00 00 00 00       	call   d7 <rzf_scope_create+0x47>	d3: R_X86_64_PLT32	rz_scope_init-0x4
+  d7:	85 c0                	test   %eax,%eax
+  d9:	74 0f                	je     ea <rzf_scope_create+0x5a>
+  db:	48 83 c4 18          	add    $0x18,%rsp
+  df:	5b                   	pop    %rbx
+  e0:	41 5c                	pop    %r12
+  e2:	41 5d                	pop    %r13
+  e4:	41 5e                	pop    %r14
+  e6:	41 5f                	pop    %r15
+  e8:	5d                   	pop    %rbp
+  e9:	c3                   	ret
+  ea:	4c 8d 6c 24 50       	lea    0x50(%rsp),%r13
+  ef:	48 85 db             	test   %rbx,%rbx
+  f2:	74 78                	je     16c <rzf_scope_create+0xdc>
+  f4:	48 8b 43 18          	mov    0x18(%rbx),%rax
+  f8:	0f 1f 84 00 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ 100:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 104:	0f 84 af 00 00 00    	je     1b9 <rzf_scope_create+0x129>
+ 10a:	48 85 c0             	test   %rax,%rax
+ 10d:	0f 84 b0 00 00 00    	je     1c3 <rzf_scope_create+0x133>
+ 113:	48 8d 48 01          	lea    0x1(%rax),%rcx
+ 117:	f0 48 0f b1 4b 18    	lock cmpxchg %rcx,0x18(%rbx)
+ 11d:	75 e1                	jne    100 <rzf_scope_create+0x70>
+ 11f:	49 8b 7d 00          	mov    0x0(%r13),%rdi
+ 123:	be 40 00 00 00       	mov    $0x40,%esi
+ 128:	ff d5                	call   *%rbp
+ 12a:	48 85 c0             	test   %rax,%rax
+ 12d:	75 4d                	jne    17c <rzf_scope_create+0xec>
+ 12f:	eb 2a                	jmp    15b <rzf_scope_create+0xcb>
+ 131:	66 66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 140:	4c 8b 73 20          	mov    0x20(%rbx),%r14
+ 144:	48 8b 7b 28          	mov    0x28(%rbx),%rdi
+ 148:	48 89 de             	mov    %rbx,%rsi
+ 14b:	ff 53 38             	call   *0x38(%rbx)
+ 14e:	b8 02 00 00 00       	mov    $0x2,%eax
+ 153:	4c 89 f3             	mov    %r14,%rbx
+ 156:	4d 85 f6             	test   %r14,%r14
+ 159:	74 80                	je     db <rzf_scope_create+0x4b>
+ 15b:	f0 48 ff 4b 18       	lock decq 0x18(%rbx)
+ 160:	b8 02 00 00 00       	mov    $0x2,%eax
+ 165:	74 d9                	je     140 <rzf_scope_create+0xb0>
+ 167:	e9 6f ff ff ff       	jmp    db <rzf_scope_create+0x4b>
+ 16c:	49 8b 7d 00          	mov    0x0(%r13),%rdi
+ 170:	be 40 00 00 00       	mov    $0x40,%esi
+ 175:	ff d5                	call   *%rbp
+ 177:	48 85 c0             	test   %rax,%rax
+ 17a:	74 3d                	je     1b9 <rzf_scope_create+0x129>
+ 17c:	48 89 c7             	mov    %rax,%rdi
+ 17f:	48 89 de             	mov    %rbx,%rsi
+ 182:	4c 89 fa             	mov    %r15,%rdx
+ 185:	4c 89 f1             	mov    %r14,%rcx
+ 188:	49 89 c6             	mov    %rax,%r14
+ 18b:	e8 00 00 00 00       	call   190 <rzf_scope_create+0x100>	18c: R_X86_64_PLT32	rz_scope_init-0x4
+ 190:	49 c7 46 18 01 00 00 00 	movq   $0x1,0x18(%r14)
+ 198:	49 89 5e 20          	mov    %rbx,0x20(%r14)
+ 19c:	41 0f 10 45 00       	movups 0x0(%r13),%xmm0
+ 1a1:	41 0f 11 46 28       	movups %xmm0,0x28(%r14)
+ 1a6:	49 8b 45 10          	mov    0x10(%r13),%rax
+ 1aa:	49 89 46 38          	mov    %rax,0x38(%r14)
+ 1ae:	4d 89 34 24          	mov    %r14,(%r12)
+ 1b2:	31 c0                	xor    %eax,%eax
+ 1b4:	e9 22 ff ff ff       	jmp    db <rzf_scope_create+0x4b>
+ 1b9:	b8 02 00 00 00       	mov    $0x2,%eax
+ 1be:	e9 18 ff ff ff       	jmp    db <rzf_scope_create+0x4b>
+ 1c3:	b8 06 00 00 00       	mov    $0x6,%eax
+ 1c8:	e9 0e ff ff ff       	jmp    db <rzf_scope_create+0x4b>
+ 1cd:	0f 1f 00             	nopl   (%rax)
+
+00000000000001d0 <rzf_borrow_begin>:
+ 1d0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 1d5:	48 85 ff             	test   %rdi,%rdi
+ 1d8:	74 3e                	je     218 <rzf_borrow_begin+0x48>
+ 1da:	48 85 f6             	test   %rsi,%rsi
+ 1dd:	74 39                	je     218 <rzf_borrow_begin+0x48>
+ 1df:	48 83 3f 00          	cmpq   $0x0,(%rdi)
+ 1e3:	75 33                	jne    218 <rzf_borrow_begin+0x48>
+ 1e5:	48 8b 46 18          	mov    0x18(%rsi),%rax
+ 1e9:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+ 1f0:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 1f4:	74 1d                	je     213 <rzf_borrow_begin+0x43>
+ 1f6:	48 85 c0             	test   %rax,%rax
+ 1f9:	74 12                	je     20d <rzf_borrow_begin+0x3d>
+ 1fb:	48 8d 48 01          	lea    0x1(%rax),%rcx
+ 1ff:	f0 48 0f b1 4e 18    	lock cmpxchg %rcx,0x18(%rsi)
+ 205:	75 e9                	jne    1f0 <rzf_borrow_begin+0x20>
+ 207:	48 89 37             	mov    %rsi,(%rdi)
+ 20a:	31 c0                	xor    %eax,%eax
+ 20c:	c3                   	ret
+ 20d:	b8 06 00 00 00       	mov    $0x6,%eax
+ 212:	c3                   	ret
+ 213:	b8 02 00 00 00       	mov    $0x2,%eax
+ 218:	c3                   	ret
+ 219:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000000220 <rzf_borrow_ack>:
+ 220:	41 56                	push   %r14
+ 222:	53                   	push   %rbx
+ 223:	50                   	push   %rax
+ 224:	48 85 ff             	test   %rdi,%rdi
+ 227:	74 33                	je     25c <rzf_borrow_ack+0x3c>
+ 229:	48 8b 37             	mov    (%rdi),%rsi
+ 22c:	48 85 f6             	test   %rsi,%rsi
+ 22f:	74 32                	je     263 <rzf_borrow_ack+0x43>
+ 231:	48 c7 07 00 00 00 00 	movq   $0x0,(%rdi)
+ 238:	31 db                	xor    %ebx,%ebx
+ 23a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+ 240:	f0 48 ff 4e 18       	lock decq 0x18(%rsi)
+ 245:	75 21                	jne    268 <rzf_borrow_ack+0x48>
+ 247:	4c 8b 76 20          	mov    0x20(%rsi),%r14
+ 24b:	48 8b 7e 28          	mov    0x28(%rsi),%rdi
+ 24f:	ff 56 38             	call   *0x38(%rsi)
+ 252:	4c 89 f6             	mov    %r14,%rsi
+ 255:	4d 85 f6             	test   %r14,%r14
+ 258:	75 e6                	jne    240 <rzf_borrow_ack+0x20>
+ 25a:	eb 0c                	jmp    268 <rzf_borrow_ack+0x48>
+ 25c:	bb 01 00 00 00       	mov    $0x1,%ebx
+ 261:	eb 05                	jmp    268 <rzf_borrow_ack+0x48>
+ 263:	bb 06 00 00 00       	mov    $0x6,%ebx
+ 268:	89 d8                	mov    %ebx,%eax
+ 26a:	48 83 c4 08          	add    $0x8,%rsp
+ 26e:	5b                   	pop    %rbx
+ 26f:	41 5e                	pop    %r14
+ 271:	c3                   	ret
+ 272:	66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+0000000000000280 <rzf_budget_export>:
+ 280:	41 56                	push   %r14
+ 282:	53                   	push   %rbx
+ 283:	50                   	push   %rax
+ 284:	48 89 d3             	mov    %rdx,%rbx
+ 287:	48 85 ff             	test   %rdi,%rdi
+ 28a:	0f 94 c2             	sete   %dl
+ 28d:	48 85 c9             	test   %rcx,%rcx
+ 290:	41 0f 94 c0          	sete   %r8b
+ 294:	b8 01 00 00 00       	mov    $0x1,%eax
+ 299:	41 08 d0             	or     %dl,%r8b
+ 29c:	75 0f                	jne    2ad <rzf_budget_export+0x2d>
+ 29e:	49 89 ce             	mov    %rcx,%r14
+ 2a1:	48 89 e2             	mov    %rsp,%rdx
+ 2a4:	e8 00 00 00 00       	call   2a9 <rzf_budget_export+0x29>	2a5: R_X86_64_PLT32	rz_remaining-0x4
+ 2a9:	85 c0                	test   %eax,%eax
+ 2ab:	74 08                	je     2b5 <rzf_budget_export+0x35>
+ 2ad:	48 83 c4 08          	add    $0x8,%rsp
+ 2b1:	5b                   	pop    %rbx
+ 2b2:	41 5e                	pop    %r14
+ 2b4:	c3                   	ret
+ 2b5:	48 8b 0c 24          	mov    (%rsp),%rcx
+ 2b9:	b8 05 00 00 00       	mov    $0x5,%eax
+ 2be:	48 39 cb             	cmp    %rcx,%rbx
+ 2c1:	73 ea                	jae    2ad <rzf_budget_export+0x2d>
+ 2c3:	49 89 0e             	mov    %rcx,(%r14)
+ 2c6:	49 89 5e 08          	mov    %rbx,0x8(%r14)
+ 2ca:	31 c0                	xor    %eax,%eax
+ 2cc:	48 83 c4 08          	add    $0x8,%rsp
+ 2d0:	5b                   	pop    %rbx
+ 2d1:	41 5e                	pop    %r14
+ 2d3:	c3                   	ret
+ 2d4:	66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+00000000000002e0 <rzf_budget_import>:
+ 2e0:	4d 85 c0             	test   %r8,%r8
+ 2e3:	0f 94 c0             	sete   %al
+ 2e6:	48 85 ff             	test   %rdi,%rdi
+ 2e9:	41 0f 94 c1          	sete   %r9b
+ 2ed:	41 08 c1             	or     %al,%r9b
+ 2f0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 2f5:	75 29                	jne    320 <rzf_budget_import+0x40>
+ 2f7:	4c 8b 0f             	mov    (%rdi),%r9
+ 2fa:	4d 85 c9             	test   %r9,%r9
+ 2fd:	74 21                	je     320 <rzf_budget_import+0x40>
+ 2ff:	4c 2b 4f 08          	sub    0x8(%rdi),%r9
+ 303:	76 1b                	jbe    320 <rzf_budget_import+0x40>
+ 305:	b8 05 00 00 00       	mov    $0x5,%eax
+ 30a:	49 29 c9             	sub    %rcx,%r9
+ 30d:	76 11                	jbe    320 <rzf_budget_import+0x40>
+ 30f:	48 89 f7             	mov    %rsi,%rdi
+ 312:	48 89 d6             	mov    %rdx,%rsi
+ 315:	4c 89 ca             	mov    %r9,%rdx
+ 318:	4c 89 c1             	mov    %r8,%rcx
+ 31b:	e9 00 00 00 00       	jmp    320 <rzf_budget_import+0x40>	31c: R_X86_64_PLT32	rzf_scope_create-0x4
+ 320:	c3                   	ret
+ 321:	66 66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+0000000000000330 <rzf_budget_encode>:
+ 330:	48 85 f6             	test   %rsi,%rsi
+ 333:	0f 94 c0             	sete   %al
+ 336:	48 85 ff             	test   %rdi,%rdi
+ 339:	0f 94 c1             	sete   %cl
+ 33c:	08 c1                	or     %al,%cl
+ 33e:	b8 01 00 00 00       	mov    $0x1,%eax
+ 343:	0f 85 92 00 00 00    	jne    3db <rzf_budget_encode+0xab>
+ 349:	48 8b 17             	mov    (%rdi),%rdx
+ 34c:	48 85 d2             	test   %rdx,%rdx
+ 34f:	0f 84 86 00 00 00    	je     3db <rzf_budget_encode+0xab>
+ 355:	48 8b 4f 08          	mov    0x8(%rdi),%rcx
+ 359:	48 39 d1             	cmp    %rdx,%rcx
+ 35c:	73 7d                	jae    3db <rzf_budget_encode+0xab>
+ 35e:	48 89 d0             	mov    %rdx,%rax
+ 361:	48 c1 e8 38          	shr    $0x38,%rax
+ 365:	88 06                	mov    %al,(%rsi)
+ 367:	48 89 d0             	mov    %rdx,%rax
+ 36a:	48 c1 e8 30          	shr    $0x30,%rax
+ 36e:	88 46 01             	mov    %al,0x1(%rsi)
+ 371:	48 89 d0             	mov    %rdx,%rax
+ 374:	48 c1 e8 28          	shr    $0x28,%rax
+ 378:	88 46 02             	mov    %al,0x2(%rsi)
+ 37b:	48 89 d0             	mov    %rdx,%rax
+ 37e:	48 c1 e8 20          	shr    $0x20,%rax
+ 382:	88 46 03             	mov    %al,0x3(%rsi)
+ 385:	89 d0                	mov    %edx,%eax
+ 387:	c1 e8 18             	shr    $0x18,%eax
+ 38a:	88 46 04             	mov    %al,0x4(%rsi)
+ 38d:	89 d0                	mov    %edx,%eax
+ 38f:	c1 e8 10             	shr    $0x10,%eax
+ 392:	88 46 05             	mov    %al,0x5(%rsi)
+ 395:	88 76 06             	mov    %dh,0x6(%rsi)
+ 398:	88 56 07             	mov    %dl,0x7(%rsi)
+ 39b:	48 89 c8             	mov    %rcx,%rax
+ 39e:	48 c1 e8 38          	shr    $0x38,%rax
+ 3a2:	88 46 08             	mov    %al,0x8(%rsi)
+ 3a5:	48 89 c8             	mov    %rcx,%rax
+ 3a8:	48 c1 e8 30          	shr    $0x30,%rax
+ 3ac:	88 46 09             	mov    %al,0x9(%rsi)
+ 3af:	48 89 c8             	mov    %rcx,%rax
+ 3b2:	48 c1 e8 28          	shr    $0x28,%rax
+ 3b6:	88 46 0a             	mov    %al,0xa(%rsi)
+ 3b9:	48 89 c8             	mov    %rcx,%rax
+ 3bc:	48 c1 e8 20          	shr    $0x20,%rax
+ 3c0:	88 46 0b             	mov    %al,0xb(%rsi)
+ 3c3:	89 c8                	mov    %ecx,%eax
+ 3c5:	c1 e8 18             	shr    $0x18,%eax
+ 3c8:	88 46 0c             	mov    %al,0xc(%rsi)
+ 3cb:	89 c8                	mov    %ecx,%eax
+ 3cd:	c1 e8 10             	shr    $0x10,%eax
+ 3d0:	88 46 0d             	mov    %al,0xd(%rsi)
+ 3d3:	88 6e 0e             	mov    %ch,0xe(%rsi)
+ 3d6:	88 4e 0f             	mov    %cl,0xf(%rsi)
+ 3d9:	31 c0                	xor    %eax,%eax
+ 3db:	c3                   	ret
+ 3dc:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000000003e0 <rzf_budget_decode>:
+ 3e0:	48 85 ff             	test   %rdi,%rdi
+ 3e3:	0f 94 c1             	sete   %cl
+ 3e6:	48 85 f6             	test   %rsi,%rsi
+ 3e9:	0f 94 c2             	sete   %dl
+ 3ec:	b8 01 00 00 00       	mov    $0x1,%eax
+ 3f1:	08 ca                	or     %cl,%dl
+ 3f3:	0f 85 af 00 00 00    	jne    4a8 <rzf_budget_decode+0xc8>
+ 3f9:	0f b6 0f             	movzbl (%rdi),%ecx
+ 3fc:	0f b6 57 01          	movzbl 0x1(%rdi),%edx
+ 400:	c1 e1 10             	shl    $0x10,%ecx
+ 403:	c1 e2 08             	shl    $0x8,%edx
+ 406:	09 ca                	or     %ecx,%edx
+ 408:	0f b6 4f 02          	movzbl 0x2(%rdi),%ecx
+ 40c:	09 d1                	or     %edx,%ecx
+ 40e:	0f b6 57 03          	movzbl 0x3(%rdi),%edx
+ 412:	48 c1 e1 10          	shl    $0x10,%rcx
+ 416:	c1 e2 08             	shl    $0x8,%edx
+ 419:	48 09 ca             	or     %rcx,%rdx
+ 41c:	0f b6 4f 04          	movzbl 0x4(%rdi),%ecx
+ 420:	48 09 d1             	or     %rdx,%rcx
+ 423:	0f b6 57 05          	movzbl 0x5(%rdi),%edx
+ 427:	48 c1 e1 10          	shl    $0x10,%rcx
+ 42b:	c1 e2 08             	shl    $0x8,%edx
+ 42e:	48 09 ca             	or     %rcx,%rdx
+ 431:	44 0f b6 47 06       	movzbl 0x6(%rdi),%r8d
+ 436:	49 09 d0             	or     %rdx,%r8
+ 439:	49 c1 e0 08          	shl    $0x8,%r8
+ 43d:	0f b6 4f 07          	movzbl 0x7(%rdi),%ecx
+ 441:	4c 09 c1             	or     %r8,%rcx
+ 444:	74 62                	je     4a8 <rzf_budget_decode+0xc8>
+ 446:	0f b6 57 08          	movzbl 0x8(%rdi),%edx
+ 44a:	44 0f b6 47 09       	movzbl 0x9(%rdi),%r8d
+ 44f:	c1 e2 10             	shl    $0x10,%edx
+ 452:	41 c1 e0 08          	shl    $0x8,%r8d
+ 456:	41 09 d0             	or     %edx,%r8d
+ 459:	0f b6 57 0a          	movzbl 0xa(%rdi),%edx
+ 45d:	44 09 c2             	or     %r8d,%edx
+ 460:	44 0f b6 47 0b       	movzbl 0xb(%rdi),%r8d
+ 465:	48 c1 e2 10          	shl    $0x10,%rdx
+ 469:	41 c1 e0 08          	shl    $0x8,%r8d
+ 46d:	49 09 d0             	or     %rdx,%r8
+ 470:	0f b6 57 0c          	movzbl 0xc(%rdi),%edx
+ 474:	4c 09 c2             	or     %r8,%rdx
+ 477:	44 0f b6 47 0d       	movzbl 0xd(%rdi),%r8d
+ 47c:	48 c1 e2 10          	shl    $0x10,%rdx
+ 480:	41 c1 e0 08          	shl    $0x8,%r8d
+ 484:	49 09 d0             	or     %rdx,%r8
+ 487:	44 0f b6 4f 0e       	movzbl 0xe(%rdi),%r9d
+ 48c:	4d 09 c1             	or     %r8,%r9
+ 48f:	49 c1 e1 08          	shl    $0x8,%r9
+ 493:	0f b6 57 0f          	movzbl 0xf(%rdi),%edx
+ 497:	4c 09 ca             	or     %r9,%rdx
+ 49a:	48 39 ca             	cmp    %rcx,%rdx
+ 49d:	73 09                	jae    4a8 <rzf_budget_decode+0xc8>
+ 49f:	48 89 0e             	mov    %rcx,(%rsi)
+ 4a2:	48 89 56 08          	mov    %rdx,0x8(%rsi)
+ 4a6:	31 c0                	xor    %eax,%eax
+ 4a8:	c3                   	ret
+

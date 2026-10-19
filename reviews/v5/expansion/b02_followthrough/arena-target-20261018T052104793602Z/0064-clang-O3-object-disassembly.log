@@ -1,0 +1,458 @@
+
+/mnt/f/Learning/Curricula/c_mastery/reviews/v5/expansion/b02_followthrough/arena-target-20261018T052104793602Z/clang-O3/3.o:     file format elf32-littlearm
+
+
+Disassembly of section .text.bf_arena_init:
+
+00000000 <bf_arena_init>:
+   0:	b510      	push	{r4, lr}
+   2:	4604      	mov	r4, r0
+   4:	f7ff fffe 	bl	0 <b2_arena_init>
+			4: R_ARM_THM_CALL	b2_arena_init
+   8:	2000      	movs	r0, #0
+   a:	2101      	movs	r1, #1
+   c:	e9c4 006c 	strd	r0, r0, [r4, #432]	@ 0x1b0
+  10:	e9c4 106e 	strd	r1, r0, [r4, #440]	@ 0x1b8
+  14:	f8c4 01c0 	str.w	r0, [r4, #448]	@ 0x1c0
+  18:	bd10      	pop	{r4, pc}
+
+Disassembly of section .text.bf_arena_reserve:
+
+00000000 <bf_arena_reserve>:
+   0:	4684      	mov	ip, r0
+   2:	2800      	cmp	r0, #0
+   4:	f04f 0001 	mov.w	r0, #1
+   8:	bf18      	it	ne
+   a:	2b00      	cmpne	r3, #0
+   c:	d100      	bne.n	10 <bf_arena_reserve+0x10>
+   e:	4770      	bx	lr
+  10:	f8dc 01bc 	ldr.w	r0, [ip, #444]	@ 0x1bc
+  14:	b910      	cbnz	r0, 1c <bf_arena_reserve+0x1c>
+  16:	f8dc 01c0 	ldr.w	r0, [ip, #448]	@ 0x1c0
+  1a:	b108      	cbz	r0, 20 <bf_arena_reserve+0x20>
+  1c:	2007      	movs	r0, #7
+  1e:	4770      	bx	lr
+  20:	f8dc 01b0 	ldr.w	r0, [ip, #432]	@ 0x1b0
+  24:	2810      	cmp	r0, #16
+  26:	d003      	beq.n	30 <bf_arena_reserve+0x30>
+  28:	f8dc 01b8 	ldr.w	r0, [ip, #440]	@ 0x1b8
+  2c:	281f      	cmp	r0, #31
+  2e:	d901      	bls.n	34 <bf_arena_reserve+0x34>
+  30:	2003      	movs	r0, #3
+  32:	4770      	bx	lr
+  34:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+  38:	b082      	sub	sp, #8
+  3a:	461c      	mov	r4, r3
+  3c:	ab01      	add	r3, sp, #4
+  3e:	4660      	mov	r0, ip
+  40:	4666      	mov	r6, ip
+  42:	460d      	mov	r5, r1
+  44:	f7ff fffe 	bl	0 <b2_reserve>
+			44: R_ARM_THM_CALL	b2_reserve
+  48:	bbe8      	cbnz	r0, c6 <bf_arena_reserve+0xc6>
+  4a:	f8d6 21b0 	ldr.w	r2, [r6, #432]	@ 0x1b0
+  4e:	f8d6 31b8 	ldr.w	r3, [r6, #440]	@ 0x1b8
+  52:	1c57      	adds	r7, r2, #1
+  54:	eb02 0242 	add.w	r2, r2, r2, lsl #1
+  58:	f8c6 71b0 	str.w	r7, [r6, #432]	@ 0x1b0
+  5c:	1c5f      	adds	r7, r3, #1
+  5e:	eb06 0282 	add.w	r2, r6, r2, lsl #2
+  62:	f8dd 8004 	ldr.w	r8, [sp, #4]
+  66:	4631      	mov	r1, r6
+  68:	f8c6 71b8 	str.w	r7, [r6, #440]	@ 0x1b8
+  6c:	f842 3f70 	str.w	r3, [r2, #112]!
+  70:	462f      	mov	r7, r5
+  72:	46a4      	mov	ip, r4
+  74:	e9c2 8701 	strd	r8, r7, [r2, #4]
+  78:	b31d      	cbz	r5, c2 <bf_arena_reserve+0xc2>
+  7a:	f007 0e03 	and.w	lr, r7, #3
+  7e:	2500      	movs	r5, #0
+  80:	2f04      	cmp	r7, #4
+  82:	f04f 0400 	mov.w	r4, #0
+  86:	d308      	bcc.n	9a <bf_arena_reserve+0x9a>
+  88:	f027 0303 	bic.w	r3, r7, #3
+  8c:	eb01 0708 	add.w	r7, r1, r8
+  90:	193e      	adds	r6, r7, r4
+  92:	3404      	adds	r4, #4
+  94:	42a3      	cmp	r3, r4
+  96:	6335      	str	r5, [r6, #48]	@ 0x30
+  98:	d1fa      	bne.n	90 <bf_arena_reserve+0x90>
+  9a:	f1be 0f00 	cmp.w	lr, #0
+  9e:	d00f      	beq.n	c0 <bf_arena_reserve+0xc0>
+  a0:	f101 0330 	add.w	r3, r1, #48	@ 0x30
+  a4:	eb04 0508 	add.w	r5, r4, r8
+  a8:	2400      	movs	r4, #0
+  aa:	f1be 0f01 	cmp.w	lr, #1
+  ae:	555c      	strb	r4, [r3, r5]
+  b0:	d006      	beq.n	c0 <bf_arena_reserve+0xc0>
+  b2:	442b      	add	r3, r5
+  b4:	f1be 0f02 	cmp.w	lr, #2
+  b8:	705c      	strb	r4, [r3, #1]
+  ba:	bf1c      	itt	ne
+  bc:	2700      	movne	r7, #0
+  be:	709f      	strbne	r7, [r3, #2]
+  c0:	6813      	ldr	r3, [r2, #0]
+  c2:	e9cc 1300 	strd	r1, r3, [ip]
+  c6:	b002      	add	sp, #8
+  c8:	e8bd 41f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, lr}
+  cc:	4770      	bx	lr
+
+Disassembly of section .text.bf_arena_get:
+
+00000000 <bf_arena_get>:
+   0:	b5b0      	push	{r4, r5, r7, lr}
+   2:	f8dd c010 	ldr.w	ip, [sp, #16]
+   6:	f1bc 0f00 	cmp.w	ip, #0
+   a:	bf18      	it	ne
+   c:	2800      	cmpne	r0, #0
+   e:	d101      	bne.n	14 <bf_arena_get+0x14>
+  10:	2001      	movs	r0, #1
+  12:	bdb0      	pop	{r4, r5, r7, pc}
+  14:	4288      	cmp	r0, r1
+  16:	f04f 0e05 	mov.w	lr, #5
+  1a:	d134      	bne.n	86 <bf_arena_get+0x86>
+  1c:	b39a      	cbz	r2, 86 <bf_arena_get+0x86>
+  1e:	f8d0 11b0 	ldr.w	r1, [r0, #432]	@ 0x1b0
+  22:	b381      	cbz	r1, 86 <bf_arena_get+0x86>
+  24:	1e4c      	subs	r4, r1, #1
+  26:	f100 0594 	add.w	r5, r0, #148	@ 0x94
+  2a:	f855 1c24 	ldr.w	r1, [r5, #-36]
+  2e:	4291      	cmp	r1, r2
+  30:	d016      	beq.n	60 <bf_arena_get+0x60>
+  32:	b19c      	cbz	r4, 5c <bf_arena_get+0x5c>
+  34:	f855 1c18 	ldr.w	r1, [r5, #-24]
+  38:	4291      	cmp	r1, r2
+  3a:	d013      	beq.n	64 <bf_arena_get+0x64>
+  3c:	2c01      	cmp	r4, #1
+  3e:	d00d      	beq.n	5c <bf_arena_get+0x5c>
+  40:	f855 1c0c 	ldr.w	r1, [r5, #-12]
+  44:	4291      	cmp	r1, r2
+  46:	d00f      	beq.n	68 <bf_arena_get+0x68>
+  48:	2c02      	cmp	r4, #2
+  4a:	d007      	beq.n	5c <bf_arena_get+0x5c>
+  4c:	6829      	ldr	r1, [r5, #0]
+  4e:	4291      	cmp	r1, r2
+  50:	d00b      	beq.n	6a <bf_arena_get+0x6a>
+  52:	3c04      	subs	r4, #4
+  54:	3530      	adds	r5, #48	@ 0x30
+  56:	1c61      	adds	r1, r4, #1
+  58:	d1e7      	bne.n	2a <bf_arena_get+0x2a>
+  5a:	e014      	b.n	86 <bf_arena_get+0x86>
+  5c:	2005      	movs	r0, #5
+  5e:	bdb0      	pop	{r4, r5, r7, pc}
+  60:	3d24      	subs	r5, #36	@ 0x24
+  62:	e002      	b.n	6a <bf_arena_get+0x6a>
+  64:	3d18      	subs	r5, #24
+  66:	e000      	b.n	6a <bf_arena_get+0x6a>
+  68:	3d0c      	subs	r5, #12
+  6a:	68a9      	ldr	r1, [r5, #8]
+  6c:	428b      	cmp	r3, r1
+  6e:	bf24      	itt	cs
+  70:	2002      	movcs	r0, #2
+  72:	bdb0      	popcs	{r4, r5, r7, pc}
+  74:	6869      	ldr	r1, [r5, #4]
+  76:	f04f 0e00 	mov.w	lr, #0
+  7a:	4419      	add	r1, r3
+  7c:	4408      	add	r0, r1
+  7e:	f890 0030 	ldrb.w	r0, [r0, #48]	@ 0x30
+  82:	f88c 0000 	strb.w	r0, [ip]
+  86:	4670      	mov	r0, lr
+  88:	bdb0      	pop	{r4, r5, r7, pc}
+
+Disassembly of section .text.bf_arena_set:
+
+00000000 <bf_arena_set>:
+   0:	2800      	cmp	r0, #0
+   2:	bf04      	itt	eq
+   4:	2001      	moveq	r0, #1
+   6:	4770      	bxeq	lr
+   8:	b510      	push	{r4, lr}
+   a:	f8d0 41bc 	ldr.w	r4, [r0, #444]	@ 0x1bc
+   e:	b12c      	cbz	r4, 1c <bf_arena_set+0x1c>
+  10:	2107      	movs	r1, #7
+  12:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  16:	4608      	mov	r0, r1
+  18:	4770      	bx	lr
+  1a:	bf00      	nop
+  1c:	f8d0 41c0 	ldr.w	r4, [r0, #448]	@ 0x1c0
+  20:	b124      	cbz	r4, 2c <bf_arena_set+0x2c>
+  22:	2107      	movs	r1, #7
+  24:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  28:	4608      	mov	r0, r1
+  2a:	4770      	bx	lr
+  2c:	4288      	cmp	r0, r1
+  2e:	f04f 0105 	mov.w	r1, #5
+  32:	d1ee      	bne.n	12 <bf_arena_set+0x12>
+  34:	2a00      	cmp	r2, #0
+  36:	d0ec      	beq.n	12 <bf_arena_set+0x12>
+  38:	f8d0 11b0 	ldr.w	r1, [r0, #432]	@ 0x1b0
+  3c:	b311      	cbz	r1, 84 <bf_arena_set+0x84>
+  3e:	f8dd c008 	ldr.w	ip, [sp, #8]
+  42:	1e4c      	subs	r4, r1, #1
+  44:	f100 0e94 	add.w	lr, r0, #148	@ 0x94
+  48:	f85e 1c24 	ldr.w	r1, [lr, #-36]
+  4c:	4291      	cmp	r1, r2
+  4e:	d01f      	beq.n	90 <bf_arena_set+0x90>
+  50:	b1c4      	cbz	r4, 84 <bf_arena_set+0x84>
+  52:	f85e 1c18 	ldr.w	r1, [lr, #-24]
+  56:	4291      	cmp	r1, r2
+  58:	d01e      	beq.n	98 <bf_arena_set+0x98>
+  5a:	2c01      	cmp	r4, #1
+  5c:	d012      	beq.n	84 <bf_arena_set+0x84>
+  5e:	f85e 1c0c 	ldr.w	r1, [lr, #-12]
+  62:	4291      	cmp	r1, r2
+  64:	d01c      	beq.n	a0 <bf_arena_set+0xa0>
+  66:	2c02      	cmp	r4, #2
+  68:	d00c      	beq.n	84 <bf_arena_set+0x84>
+  6a:	f8de 1000 	ldr.w	r1, [lr]
+  6e:	4291      	cmp	r1, r2
+  70:	d018      	beq.n	a4 <bf_arena_set+0xa4>
+  72:	3c04      	subs	r4, #4
+  74:	1c61      	adds	r1, r4, #1
+  76:	f10e 0e30 	add.w	lr, lr, #48	@ 0x30
+  7a:	f04f 0105 	mov.w	r1, #5
+  7e:	d1e3      	bne.n	48 <bf_arena_set+0x48>
+  80:	e7c7      	b.n	12 <bf_arena_set+0x12>
+  82:	bf00      	nop
+  84:	2105      	movs	r1, #5
+  86:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  8a:	4608      	mov	r0, r1
+  8c:	4770      	bx	lr
+  8e:	bf00      	nop
+  90:	f1ae 0e24 	sub.w	lr, lr, #36	@ 0x24
+  94:	e006      	b.n	a4 <bf_arena_set+0xa4>
+  96:	bf00      	nop
+  98:	f1ae 0e18 	sub.w	lr, lr, #24
+  9c:	e002      	b.n	a4 <bf_arena_set+0xa4>
+  9e:	bf00      	nop
+  a0:	f1ae 0e0c 	sub.w	lr, lr, #12
+  a4:	f8de 1008 	ldr.w	r1, [lr, #8]
+  a8:	428b      	cmp	r3, r1
+  aa:	d20b      	bcs.n	c4 <bf_arena_set+0xc4>
+  ac:	f8de 1004 	ldr.w	r1, [lr, #4]
+  b0:	4419      	add	r1, r3
+  b2:	4408      	add	r0, r1
+  b4:	2100      	movs	r1, #0
+  b6:	f880 c030 	strb.w	ip, [r0, #48]	@ 0x30
+  ba:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  be:	4608      	mov	r0, r1
+  c0:	4770      	bx	lr
+  c2:	bf00      	nop
+  c4:	2102      	movs	r1, #2
+  c6:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  ca:	4608      	mov	r0, r1
+  cc:	4770      	bx	lr
+
+Disassembly of section .text.bf_arena_mark:
+
+00000000 <bf_arena_mark>:
+   0:	b510      	push	{r4, lr}
+   2:	4604      	mov	r4, r0
+   4:	2800      	cmp	r0, #0
+   6:	f04f 0001 	mov.w	r0, #1
+   a:	bf18      	it	ne
+   c:	2900      	cmpne	r1, #0
+   e:	d101      	bne.n	14 <bf_arena_mark+0x14>
+  10:	bd10      	pop	{r4, pc}
+  12:	bf00      	nop
+  14:	f8d4 01bc 	ldr.w	r0, [r4, #444]	@ 0x1bc
+  18:	b910      	cbnz	r0, 20 <bf_arena_mark+0x20>
+  1a:	f8d4 01c0 	ldr.w	r0, [r4, #448]	@ 0x1c0
+  1e:	b108      	cbz	r0, 24 <bf_arena_mark+0x24>
+  20:	2007      	movs	r0, #7
+  22:	bd10      	pop	{r4, pc}
+  24:	4620      	mov	r0, r4
+  26:	f7ff fffe 	bl	0 <b2_mark>
+			26: R_ARM_THM_CALL	b2_mark
+  2a:	2800      	cmp	r0, #0
+  2c:	bf18      	it	ne
+  2e:	bd10      	popne	{r4, pc}
+  30:	6860      	ldr	r0, [r4, #4]
+  32:	f8d4 11b0 	ldr.w	r1, [r4, #432]	@ 0x1b0
+  36:	eb04 0080 	add.w	r0, r4, r0, lsl #2
+  3a:	f8c0 118c 	str.w	r1, [r0, #396]	@ 0x18c
+  3e:	6860      	ldr	r0, [r4, #4]
+  40:	f8d4 11b4 	ldr.w	r1, [r4, #436]	@ 0x1b4
+  44:	eb04 0080 	add.w	r0, r4, r0, lsl #2
+  48:	f8c0 119c 	str.w	r1, [r0, #412]	@ 0x19c
+  4c:	2000      	movs	r0, #0
+  4e:	bd10      	pop	{r4, pc}
+
+Disassembly of section .text.bf_arena_register:
+
+00000000 <bf_arena_register>:
+   0:	4603      	mov	r3, r0
+   2:	2800      	cmp	r0, #0
+   4:	f04f 0001 	mov.w	r0, #1
+   8:	bf18      	it	ne
+   a:	2900      	cmpne	r1, #0
+   c:	d100      	bne.n	10 <bf_arena_register+0x10>
+   e:	4770      	bx	lr
+  10:	f8d3 01bc 	ldr.w	r0, [r3, #444]	@ 0x1bc
+  14:	b910      	cbnz	r0, 1c <bf_arena_register+0x1c>
+  16:	f8d3 01c0 	ldr.w	r0, [r3, #448]	@ 0x1c0
+  1a:	b108      	cbz	r0, 20 <bf_arena_register+0x20>
+  1c:	2007      	movs	r0, #7
+  1e:	4770      	bx	lr
+  20:	6858      	ldr	r0, [r3, #4]
+  22:	2800      	cmp	r0, #0
+  24:	bf04      	itt	eq
+  26:	2001      	moveq	r0, #1
+  28:	4770      	bxeq	lr
+  2a:	f8d3 c1b4 	ldr.w	ip, [r3, #436]	@ 0x1b4
+  2e:	f1bc 0f08 	cmp.w	ip, #8
+  32:	bf04      	itt	eq
+  34:	2003      	moveq	r0, #3
+  36:	4770      	bxeq	lr
+  38:	f10c 0001 	add.w	r0, ip, #1
+  3c:	f8c3 01b4 	str.w	r0, [r3, #436]	@ 0x1b4
+  40:	eb0c 004c 	add.w	r0, ip, ip, lsl #1
+  44:	eb03 0380 	add.w	r3, r3, r0, lsl #2
+  48:	2000      	movs	r0, #0
+  4a:	e9c3 124c 	strd	r1, r2, [r3, #304]	@ 0x130
+  4e:	f8c3 0138 	str.w	r0, [r3, #312]	@ 0x138
+  52:	4770      	bx	lr
+
+Disassembly of section .text.bf_arena_rollback:
+
+00000000 <bf_arena_rollback>:
+   0:	2800      	cmp	r0, #0
+   2:	bf04      	itt	eq
+   4:	2001      	moveq	r0, #1
+   6:	4770      	bxeq	lr
+   8:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+   c:	b083      	sub	sp, #12
+   e:	f8d0 71bc 	ldr.w	r7, [r0, #444]	@ 0x1bc
+  12:	b11f      	cbz	r7, 1c <bf_arena_rollback+0x1c>
+  14:	2007      	movs	r0, #7
+  16:	b003      	add	sp, #12
+  18:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  1c:	4288      	cmp	r0, r1
+  1e:	d009      	beq.n	34 <bf_arena_rollback+0x34>
+  20:	f8d0 01c0 	ldr.w	r0, [r0, #448]	@ 0x1c0
+  24:	2800      	cmp	r0, #0
+  26:	f04f 0007 	mov.w	r0, #7
+  2a:	bf08      	it	eq
+  2c:	2005      	moveq	r0, #5
+  2e:	b003      	add	sp, #12
+  30:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  34:	6847      	ldr	r7, [r0, #4]
+  36:	2f00      	cmp	r7, #0
+  38:	d0f2      	beq.n	20 <bf_arena_rollback+0x20>
+  3a:	42ba      	cmp	r2, r7
+  3c:	d1f0      	bne.n	20 <bf_arena_rollback+0x20>
+  3e:	1e57      	subs	r7, r2, #1
+  40:	eb00 0487 	add.w	r4, r0, r7, lsl #2
+  44:	69e7      	ldr	r7, [r4, #28]
+  46:	42bb      	cmp	r3, r7
+  48:	d1ea      	bne.n	20 <bf_arena_rollback+0x20>
+  4a:	f8d4 51a0 	ldr.w	r5, [r4, #416]	@ 0x1a0
+  4e:	f8d0 71b4 	ldr.w	r7, [r0, #436]	@ 0x1b4
+  52:	2601      	movs	r6, #1
+  54:	42af      	cmp	r7, r5
+  56:	4683      	mov	fp, r0
+  58:	f8c0 61bc 	str.w	r6, [r0, #444]	@ 0x1bc
+  5c:	d92c      	bls.n	b8 <bf_arena_rollback+0xb8>
+  5e:	9401      	str	r4, [sp, #4]
+  60:	f500 7696 	add.w	r6, r0, #300	@ 0x12c
+  64:	2401      	movs	r4, #1
+  66:	9600      	str	r6, [sp, #0]
+  68:	9402      	str	r4, [sp, #8]
+  6a:	eb07 0447 	add.w	r4, r7, r7, lsl #1
+  6e:	eb06 0484 	add.w	r4, r6, r4, lsl #2
+  72:	e003      	b.n	7c <bf_arena_rollback+0x7c>
+  74:	42af      	cmp	r7, r5
+  76:	f1a4 040c 	sub.w	r4, r4, #12
+  7a:	d921      	bls.n	c0 <bf_arena_rollback+0xc0>
+  7c:	6826      	ldr	r6, [r4, #0]
+  7e:	3f01      	subs	r7, #1
+  80:	2e00      	cmp	r6, #0
+  82:	d1f7      	bne.n	74 <bf_arena_rollback+0x74>
+  84:	4689      	mov	r9, r1
+  86:	e954 1002 	ldrd	r1, r0, [r4, #-8]
+  8a:	4692      	mov	sl, r2
+  8c:	4698      	mov	r8, r3
+  8e:	4788      	blx	r1
+  90:	b930      	cbnz	r0, a0 <bf_arena_rollback+0xa0>
+  92:	2001      	movs	r0, #1
+  94:	6020      	str	r0, [r4, #0]
+  96:	4658      	mov	r0, fp
+  98:	4643      	mov	r3, r8
+  9a:	4652      	mov	r2, sl
+  9c:	4649      	mov	r1, r9
+  9e:	e7e9      	b.n	74 <bf_arena_rollback+0x74>
+  a0:	9e00      	ldr	r6, [sp, #0]
+  a2:	42af      	cmp	r7, r5
+  a4:	f04f 0400 	mov.w	r4, #0
+  a8:	4658      	mov	r0, fp
+  aa:	4643      	mov	r3, r8
+  ac:	4652      	mov	r2, sl
+  ae:	4649      	mov	r1, r9
+  b0:	d8da      	bhi.n	68 <bf_arena_rollback+0x68>
+  b2:	f8c0 41bc 	str.w	r4, [r0, #444]	@ 0x1bc
+  b6:	e019      	b.n	ec <bf_arena_rollback+0xec>
+  b8:	2700      	movs	r7, #0
+  ba:	f8c0 71bc 	str.w	r7, [r0, #444]	@ 0x1bc
+  be:	e006      	b.n	ce <bf_arena_rollback+0xce>
+  c0:	9e02      	ldr	r6, [sp, #8]
+  c2:	2700      	movs	r7, #0
+  c4:	07f4      	lsls	r4, r6, #31
+  c6:	9c01      	ldr	r4, [sp, #4]
+  c8:	f8c0 71bc 	str.w	r7, [r0, #444]	@ 0x1bc
+  cc:	d00e      	beq.n	ec <bf_arena_rollback+0xec>
+  ce:	f7ff fffe 	bl	0 <b2_rollback>
+			ce: R_ARM_THM_CALL	b2_rollback
+  d2:	2800      	cmp	r0, #0
+  d4:	d19f      	bne.n	16 <bf_arena_rollback+0x16>
+  d6:	f8d4 0190 	ldr.w	r0, [r4, #400]	@ 0x190
+  da:	e9cb 056c 	strd	r0, r5, [fp, #432]	@ 0x1b0
+  de:	2000      	movs	r0, #0
+  e0:	f8cb 01c0 	str.w	r0, [fp, #448]	@ 0x1c0
+  e4:	b003      	add	sp, #12
+  e6:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  ea:	bf00      	nop
+  ec:	2701      	movs	r7, #1
+  ee:	e9c0 7170 	strd	r7, r1, [r0, #448]	@ 0x1c0
+  f2:	e9c0 2372 	strd	r2, r3, [r0, #456]	@ 0x1c8
+  f6:	2008      	movs	r0, #8
+  f8:	b003      	add	sp, #12
+  fa:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+Disassembly of section .text.bf_arena_commit:
+
+00000000 <bf_arena_commit>:
+   0:	2800      	cmp	r0, #0
+   2:	bf04      	itt	eq
+   4:	2001      	moveq	r0, #1
+   6:	4770      	bxeq	lr
+   8:	f8d0 c1bc 	ldr.w	ip, [r0, #444]	@ 0x1bc
+   c:	f1bc 0f00 	cmp.w	ip, #0
+  10:	d104      	bne.n	1c <bf_arena_commit+0x1c>
+  12:	f8d0 c1c0 	ldr.w	ip, [r0, #448]	@ 0x1c0
+  16:	f1bc 0f00 	cmp.w	ip, #0
+  1a:	d001      	beq.n	20 <bf_arena_commit+0x20>
+  1c:	2007      	movs	r0, #7
+  1e:	4770      	bx	lr
+  20:	4288      	cmp	r0, r1
+  22:	d001      	beq.n	28 <bf_arena_commit+0x28>
+  24:	2005      	movs	r0, #5
+  26:	4770      	bx	lr
+  28:	f8d0 c004 	ldr.w	ip, [r0, #4]
+  2c:	2105      	movs	r1, #5
+  2e:	f1bc 0f00 	cmp.w	ip, #0
+  32:	d00f      	beq.n	54 <bf_arena_commit+0x54>
+  34:	4562      	cmp	r2, ip
+  36:	d10d      	bne.n	54 <bf_arena_commit+0x54>
+  38:	f1a2 0c01 	sub.w	ip, r2, #1
+  3c:	eb00 018c 	add.w	r1, r0, ip, lsl #2
+  40:	69c9      	ldr	r1, [r1, #28]
+  42:	428b      	cmp	r3, r1
+  44:	d1ee      	bne.n	24 <bf_arena_commit+0x24>
+  46:	2a02      	cmp	r2, #2
+  48:	bf3c      	itt	cc
+  4a:	2001      	movcc	r0, #1
+  4c:	4770      	bxcc	lr
+  4e:	2100      	movs	r1, #0
+  50:	f8c0 c004 	str.w	ip, [r0, #4]
+  54:	4608      	mov	r0, r1
+  56:	4770      	bx	lr

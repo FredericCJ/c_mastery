@@ -1,0 +1,354 @@
+--- a/tools/candidate_author_environment.py
++++ b/tools/candidate_author_environment.py
+@@ -1,7 +1,8 @@
+ """Explicit local author evidence inputs, never added to a candidate archive.
+ 
+ Authority comes from exact active disposition rows and their embedded byte pins,
+-and the validated resource-identity correction policy consumed by the build.
++the validated resource-identity correction policy, and the exact selected POSIX
++supersession export maps consumed by the build.
+ This is environment provisioning, not a new source inspection or execution.
+ """
+ import argparse
+@@ -20,6 +21,17 @@
+ ACTIVE='curriculum/v5/expansion/implementation_updates.json'
+ CORRECTIONS='research/v5/resource_identity_corrections.json'
+ CORRECTION_CONSUMERS=('tools/resource_identity_v5.py','tools/resource_inputs_v5.py')
++# Exact reader edges in the two existing supersession validators. This is not
++# recursive discovery of arbitrary receipt/history JSON or directory contents.
++SUPERSESSION_EXPORTS={
++    'research/v5/expansion/legacy_posix_context/launcher_binding_successor.json':
++        ('research/v5/expansion/legacy_posix_context/exports.json',
++         ('source_sha256','outputs_sha256'),'pass'),
++    'research/v5/expansion/legacy_posix_binding_current/completion_dispositions.json':
++        ('reviews/v5/expansion/posix_binding_current/data_exports.json',
++         ('source_sha256',),'passed'),
++}
++SUPERSESSION_SELECTOR='tools/audit_active_disposition_pins.py'
+ LIMIT='Qualified local author reproduction: the ZIP alone does not contain these required author evidence inputs. No redistribution, new inspection, new mechanism execution, release acceptance or external observation is inferred.'
+ 
+ 
+@@ -98,6 +110,109 @@
+     return result
+ 
+ 
++def supersession_export_inputs(root,archive_names,current):
++    """Bind selected export input maps without replacing supersession guards.
++
++    Full semantic supersession validation still runs during the extracted build.
++    Here the exact proof/selector/guard/successor/original-row/report chain grants
++    only local byte provisioning. A new selector or reader requires review.
++    """
++    from audit_active_disposition_pins import SUPERSESSIONS,PROOF
++    if not (root/PROOF).exists():
++        if any((root/name).exists() for name in SUPERSESSION_EXPORTS):
++            raise ValueError('Missing POSIX supersession verification authority')
++        return []
++    def require(ok,message):
++        if not ok:raise ValueError(message)
++    def portable(name):
++        path=bounded(root,name)
++        require(name in archive_names,'Supersession authority is absent from source archive: '+name)
++        return path
++    def document(name,digest=None):
++        path=portable(name);actual=sha(path)
++        require(digest is None or actual==digest,'Stale supersession authority: '+name)
++        value=json.loads(path.read_text(encoding='utf8'))
++        require(isinstance(value,dict),'Malformed supersession authority: '+name)
++        return value,actual
++    require(set(SUPERSESSIONS)==set(SUPERSESSION_EXPORTS),'Unreviewed supersession selector')
++    selector_sha=sha(portable(SUPERSESSION_SELECTOR))
++    proof,proof_sha=document(PROOF)
++    checks=proof.get('checks')
++    require(proof.get('passed') is True and isinstance(checks,list)
++            and len(checks)==len(SUPERSESSIONS) and all(isinstance(x,dict) for x in checks)
++            and {x.get('successor') for x in checks}==set(SUPERSESSIONS),
++            'Incomplete or failed supersession verification')
++    result=[]
++    for index,item in enumerate(checks):
++        name=item['successor'];module,function,original_paths=SUPERSESSIONS[name]
++        guard='tools/'+module+'.py'
++        require(item.get('guard')==module+'.'+function and item.get('errors')==[],
++                'Wrong or failed supersession guard')
++        require(sha(portable(guard))==item.get('guard_source_sha256'),'Stale supersession guard')
++        require(isinstance(item.get('sha256'),str) and re.fullmatch('[0-9a-f]{64}',item['sha256']),
++                'Missing or malformed supersession successor digest')
++        value,value_sha=document(name,item.get('sha256'))
++        rows=value.get('updates')
++        require(isinstance(rows,list) and rows and all(isinstance(x,dict) and isinstance(x.get('id'),str) for x in rows),
++                'Malformed supersession rows')
++        row_hashes={row['id']:record_hash(row) for row in rows}
++        require(len(row_hashes)==len(rows) and type(item.get('row_count')) is int
++                and item['row_count']==len(rows),'Changed or duplicate supersession rows')
++        selected=sorted(key for key,digest in row_hashes.items() if current.get(key)==digest)
++        require(bool(selected),'Supersession has no exact current disposition')
++        originals=item.get('originals')
++        require(isinstance(originals,list) and len(originals)==len(original_paths)
++                and all(isinstance(x,dict) for x in originals)
++                and {x.get('path') for x in originals}==original_paths,
++                'Missing or unexpected supersession predecessor')
++        retained=[]
++        for original in originals:
++            require(isinstance(original.get('sha256'),str) and re.fullmatch('[0-9a-f]{64}',original['sha256']),
++                    'Missing or malformed supersession predecessor digest')
++            prior,prior_sha=document(original['path'],original.get('sha256'))
++            prior_rows=prior.get('updates')
++            require(isinstance(prior_rows,list) and prior_rows and all(isinstance(x,dict) and isinstance(x.get('id'),str) for x in prior_rows)
++                    and len({x['id'] for x in prior_rows})==len(prior_rows),
++                    'Malformed supersession predecessor rows')
++            require(all(row_hashes.get(x['id'])==record_hash(x) for x in prior_rows),
++                    'Original supersession disposition changed')
++            retained.append(dict(path=original['path'],sha256=prior_sha))
++        report_name,fields,status=SUPERSESSION_EXPORTS[name]
++        reports=value.get('current_reports');source_pins=value.get('source_sha256')
++        require(isinstance(reports,list) and reports.count(report_name)==1
++                and isinstance(source_pins,dict) and isinstance(source_pins.get(report_name),str)
++                and re.fullmatch('[0-9a-f]{64}',source_pins[report_name]),
++                'Missing selected supersession export pin')
++        report,report_sha=document(report_name,source_pins[report_name])
++        commands=report.get('commands')
++        require(report.get('status')==status and (status!='passed' or report.get('passed') is True)
++                and isinstance(commands,list) and commands
++                and all(isinstance(x,dict) and x.get('passed') is True for x in commands),
++                'Failed or malformed selected supersession export')
++        for field in fields:
++            mapping=report.get(field)
++            require(isinstance(mapping,dict) and bool(mapping),'Missing consumed supersession map: '+field)
++            for path,digest in sorted(mapping.items()):
++                require(isinstance(digest,str) and re.fullmatch('[0-9a-f]{64}',digest),
++                        'Malformed selected supersession input digest')
++                supplier=bounded(root,path)
++                require(sha(supplier)==digest,'Stale selected supersession input: '+path)
++                require(not (path in archive_names and 'private' in Path(path).parts),
++                        'Private supersession input is in source archive: '+path)
++                escape=lambda text:text.replace('~','~0').replace('/','~1')
++                authority=dict(kind='hash-bound-posix-supersession-export-input',
++                    provider=name,provider_sha256=value_sha,
++                    pointer='/source_sha256/'+escape(report_name),pin_name=path,active_ids=selected,
++                    verification=dict(path=PROOF,sha256=proof_sha,pointer='/checks/'+str(index)),
++                    selector=dict(path=SUPERSESSION_SELECTOR,sha256=selector_sha),
++                    guard=dict(path=guard,sha256=item['guard_source_sha256'],function=item['guard']),
++                    originals=sorted(retained,key=lambda x:x['path']),
++                    report=dict(path=report_name,sha256=report_sha,pointer='/'+field+'/'+escape(path)),
++                    qualification='Retained input bytes only; the original strict guard remains mandatory and no prior execution or inspection identity is rewritten.')
++                result.append((path,digest,authority))
++    return result
++
++
+ def discover(root,identity,archive_names):
+     root=root.resolve();archive_names=set(archive_names)
+     active_path=bounded(root,ACTIVE);active=json.loads(active_path.read_text(encoding='utf8'))['updates']
+@@ -131,6 +246,8 @@
+                     include(normalized,digest,authority)
+     for name,digest,authority in correction_capture_inputs(root,archive_names):
+         include(name,digest,authority)
++    for name,digest,authority in supersession_export_inputs(root,archive_names,current):
++        include(name,digest,authority)
+     for entry in values.values():entry['authority'].sort(key=lambda row:(row['provider'],row['pointer'],row['pin_name']))
+     external.sort(key=lambda row:(row['path'],row['authority']['provider'],row['authority']['pointer']))
+     return dict(schema_version=1,kind='qualified-local-author-environment',supplier_root=str(root),source_identity_sha256=identity['sha256'],active_dispositions_sha256=sha(active_path),archive_selection_sha256=names_hash(archive_names),inputs=[values[n] for n in sorted(values)],external_inputs_not_copied=external,limits=LIMIT)
+--- a/tools/check_candidate_author_environment.py
++++ b/tools/check_candidate_author_environment.py
+@@ -31,6 +31,193 @@
+     def write(self,name,value):
+         path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True)
+         path.write_bytes(value if isinstance(value,bytes) else (json.dumps(value)+'\n').encode());return path
++
++    def successor_fixture(self):
++        """Synthetic exact selection/row/pin chain; no real supersession claim."""
++        from audit_active_disposition_pins import PROOF,SUPERSESSIONS
++        self.proof_name=PROOF;self.proof={'passed':True,'checks':[]}
++        self.successors={};self.export_docs={};self.retained_outputs=[]
++        active=[self.row]
++        self.write(env.SUPERSESSION_SELECTOR,(env.ROOT/env.SUPERSESSION_SELECTOR).read_bytes())
++        self.names.add(env.SUPERSESSION_SELECTOR)
++        for ordinal,(name,(module,function,originals)) in enumerate(sorted(SUPERSESSIONS.items())):
++            guard='tools/'+module+'.py';self.write(guard,(env.ROOT/guard).read_bytes());self.names.add(guard)
++            rows=[];predecessors=[]
++            for index,prior_name in enumerate(sorted(originals)):
++                row=dict(id='synthetic-successor-'+str(ordinal)+'-'+str(index),dimensions={'implementation':{'state':'synthetic'}})
++                rows.append(row);active.append(row)
++                self.write(prior_name,{'updates':[row]});self.names.add(prior_name)
++                predecessors.append(dict(path=prior_name,sha256=env.sha(self.root/prior_name)))
++            public='labs/synthetic-successor/'+str(ordinal)+'.h';self.write(public,b'/* synthetic public input */\n');self.names.add(public)
++            report_name,fields,status=env.SUPERSESSION_EXPORTS[name]
++            report=dict(status=status,commands=[{'passed':True}],source_sha256={public:env.sha(self.root/public)})
++            if status=='passed':report['passed']=True
++            if 'outputs_sha256' in fields:
++                report['outputs_sha256']={}
++                for suffix,payload in (('PR-T23-01/project.md',b'# synthetic exported project\n'),('PR-T23-05/fixture.json',b'{}\n'),('PR-T23-06/context_stub',b'\x00\xffsynthetic executable bytes')):
++                    path='build/synthetic-posix-exports/'+suffix;self.write(path,payload)
++                    self.retained_outputs.append(path);report['outputs_sha256'][path]=env.sha(self.root/path)
++            self.write(report_name,report);self.names.add(report_name);self.export_docs[name]=report
++            successor=dict(updates=rows,current_reports=[report_name],source_sha256={report_name:env.sha(self.root/report_name)})
++            self.write(name,successor);self.names.add(name);self.successors[name]=successor
++            self.proof['checks'].append(dict(successor=name,sha256=env.sha(self.root/name),guard=module+'.'+function,
++                guard_source_sha256=env.sha(self.root/guard),row_count=len(rows),errors=[],originals=predecessors))
++        self.write(self.proof_name,self.proof);self.names.add(self.proof_name)
++        self.write(env.ACTIVE,{'updates':active})
++        return env.discover(self.root,self.identity,self.names)
++
++    def successor_repin(self):
++        """Let semantic negatives advance hashes; the meaning must still fail."""
++        for name,doc in self.export_docs.items():
++            report_name=env.SUPERSESSION_EXPORTS[name][0];self.write(report_name,doc)
++            self.successors[name]['source_sha256'][report_name]=env.sha(self.root/report_name)
++        for item in self.proof['checks']:
++            name=item['successor'];self.write(name,self.successors[name]);item['sha256']=env.sha(self.root/name)
++        self.write(self.proof_name,self.proof)
++
++    def test_exact_supersession_exports_are_complete_staged_and_hash_bound(self):
++        expected=self.successor_fixture();rows={r['destination']:r for r in expected['inputs']}
++        self.assertEqual(set(rows),{self.input,*self.retained_outputs})
++        for name in self.retained_outputs:
++            authority=rows[name]['authority'][0]
++            self.assertEqual(authority['verification']['sha256'],env.sha(self.root/self.proof_name))
++            self.assertEqual(authority['selector']['sha256'],env.sha(self.root/env.SUPERSESSION_SELECTOR))
++            self.assertEqual(authority['report']['sha256'],env.sha(self.root/authority['report']['path']))
++            self.assertTrue(authority['report']['pointer'].startswith('/outputs_sha256/'))
++            self.assertEqual(authority['guard']['sha256'],env.sha(self.root/authority['guard']['path']))
++        with self.assertRaisesRegex(ValueError,'ZIP alone'):env.require_opt_in(expected,None)
++        archive=Path(self.temp.name)/'supersession.zip'
++        with zipfile.ZipFile(archive,'w') as z:
++            for name in sorted(self.names):z.write(self.root/name,name)
++        prior=archive.read_bytes()
++        with zipfile.ZipFile(archive) as z:
++            self.assertTrue(set(self.retained_outputs).isdisjoint(z.namelist()));z.extractall(self.out)
++        env.stage(self.root,self.out,expected,expected,self.names)
++        self.assertTrue(all((self.out/p).read_bytes()==(self.root/p).read_bytes() for p in self.retained_outputs))
++        self.assertEqual(archive.read_bytes(),prior)
++        with self.assertRaisesRegex(ValueError,'overwrite'):env.stage(self.root,self.out,expected,expected,self.names)
++
++    def test_supersession_proof_selection_and_guard_are_not_optional(self):
++        self.successor_fixture()
++        cases=[lambda p:p.update(passed=False),lambda p:p['checks'].pop(),
++            lambda p:p['checks'].append(dict(p['checks'][0])),
++            lambda p:p['checks'][0].update(guard='unselected.validate'),
++            lambda p:p['checks'][0].update(guard_source_sha256='0'*64),
++            lambda p:p['checks'][0].update(errors=['failed']),
++            lambda p:p['checks'][0].update(row_count=True),
++            lambda p:p['checks'][0].update(sha256='0'*64),
++            lambda p:p['checks'][0]['originals'].clear()]
++        for mutate in cases:
++            with self.subTest(mutation=cases.index(mutate)):
++                bad=deepcopy(self.proof);mutate(bad);self.write(self.proof_name,bad)
++                with self.assertRaises(ValueError):env.discover(self.root,self.identity,self.names)
++        (self.root/self.proof_name).unlink()
++        with self.assertRaisesRegex(ValueError,'Missing POSIX'):env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_changed_original_row_is_rejected_even_with_repin(self):
++        self.successor_fixture();item=self.proof['checks'][0];original=item['originals'][0]
++        prior=json.loads((self.root/original['path']).read_text(encoding='utf8'))
++        prior['updates'][0]['dimensions']['implementation']['state']='unjustified completion'
++        self.write(original['path'],prior);original['sha256']=env.sha(self.root/original['path'])
++        self.write(self.proof_name,self.proof)
++        with self.assertRaisesRegex(ValueError,'Original supersession disposition changed'):
++            env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_successor_and_predecessor_digests_are_mandatory(self):
++        self.successor_fixture()
++        for index,item in enumerate(self.proof['checks']):
++            for target in ('successor',*range(len(item['originals']))):
++                for invalid in ('missing',None,'','not-a-digest','A'*64,0,False):
++                    with self.subTest(index=index,target=target,invalid=invalid):
++                        proof=deepcopy(self.proof)
++                        record=proof['checks'][index]
++                        if target!='successor':record=record['originals'][target]
++                        if invalid=='missing':record.pop('sha256')
++                        else:record['sha256']=invalid
++                        self.write(self.proof_name,proof)
++                        with self.assertRaisesRegex(ValueError,'Missing or malformed supersession .* digest'):
++                            env.discover(self.root,self.identity,self.names)
++        self.write(self.proof_name,self.proof)
++        self.assertEqual(len(env.discover(self.root,self.identity,self.names)['inputs']),1+len(self.retained_outputs))
++
++    def test_supersession_stale_source_output_or_report_is_not_rehashed(self):
++        self.successor_fixture()
++        name=next(n for n in self.successors if 'launcher_binding' in n)
++        report_name=env.SUPERSESSION_EXPORTS[name][0]
++        paths=[report_name,*self.export_docs[name]['source_sha256'],self.retained_outputs[0]]
++        for path in paths:
++            with self.subTest(path=path):
++                p=self.root/path;before=p.read_bytes();p.write_bytes(before+b'changed')
++                try:
++                    with self.assertRaises(ValueError):env.discover(self.root,self.identity,self.names)
++                finally:p.write_bytes(before)
++        (self.root/self.retained_outputs[0]).unlink()
++        with self.assertRaisesRegex(ValueError,'Missing or redirected'):env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_failure_types_and_missing_selected_maps_rejected_after_repin(self):
++        self.successor_fixture();name=next(n for n in self.successors if 'launcher_binding' in n)
++        original=deepcopy(self.export_docs[name])
++        for mutation in ('status','empty-commands','integer-passed','empty-outputs','missing-source','digest'):
++            with self.subTest(mutation=mutation):
++                self.export_docs[name]=deepcopy(original);d=self.export_docs[name]
++                if mutation=='status':d['status']='failed'
++                elif mutation=='empty-commands':d['commands']=[]
++                elif mutation=='integer-passed':d['commands'][0]['passed']=1
++                elif mutation=='empty-outputs':d['outputs_sha256']={}
++                elif mutation=='missing-source':d.pop('source_sha256')
++                else:d['outputs_sha256'][self.retained_outputs[0]]='not-a-digest'
++                self.successor_repin()
++                with self.assertRaises(ValueError):env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_traversal_and_absolute_maps_rejected(self):
++        self.successor_fixture();name=next(n for n in self.successors if 'launcher_binding' in n)
++        original=deepcopy(self.export_docs[name])
++        for path in ('../outside','/outside','C:/outside','build/../outside','build\\outside'):
++            self.export_docs[name]=deepcopy(original);self.export_docs[name]['outputs_sha256']={path:'0'*64};self.successor_repin()
++            with self.subTest(path=path),self.assertRaises(ValueError):env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_only_consumed_maps_grant_authority(self):
++        expected=self.successor_fixture();name=next(n for n in self.successors if 'binding_current' in n)
++        unselected='build/unselected-report-output.bin';self.write(unselected,b'not selected')
++        self.export_docs[name]['outputs_sha256']={unselected:env.sha(self.root/unselected)}
++        self.export_docs[name]['capture']='build/unselected-capture.pdf'
++        other='research/v5/expansion/unselected/exports.json'
++        self.write(other,{'status':'pass','outputs_sha256':{unselected:env.sha(self.root/unselected)}})
++        self.successors[name]['current_reports'].append(other);self.successor_repin()
++        current=env.discover(self.root,self.identity,self.names)
++        self.assertEqual([r['destination'] for r in current['inputs']],[r['destination'] for r in expected['inputs']])
++        env.stage(self.root,self.out,current,current,self.names)
++        self.assertFalse((self.out/unselected).exists())
++
++    def test_supersession_selected_report_cannot_be_substituted(self):
++        self.successor_fixture();name=next(n for n in self.successors if 'launcher_binding' in n)
++        self.successors[name]['current_reports']=['research/v5/expansion/unselected/exports.json'];self.successor_repin()
++        with self.assertRaisesRegex(ValueError,'Missing selected'):env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_authority_must_ship_and_exact_rows_must_be_current(self):
++        self.successor_fixture()
++        required={self.proof_name,env.SUPERSESSION_SELECTOR,*self.successors}
++        required.update(env.SUPERSESSION_EXPORTS[n][0] for n in self.successors)
++        for name in required:
++            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'absent from source archive'):
++                env.discover(self.root,self.identity,self.names-{name})
++        self.write(env.ACTIVE,{'updates':[self.row]})
++        with self.assertRaisesRegex(ValueError,'no exact current disposition'):
++            env.discover(self.root,self.identity,self.names)
++
++    def test_supersession_output_deduplicates_existing_pin_and_chain_is_immutable(self):
++        self.successor_fixture();name=self.retained_outputs[0]
++        d=json.loads((self.root/self.provider).read_text(encoding='utf8'))
++        d['source_sha256'][name]=env.sha(self.root/name);self.write(self.provider,d)
++        expected=env.discover(self.root,self.identity,self.names)
++        self.assertEqual(len(expected['inputs']),1+len(self.retained_outputs))
++        row=next(r for r in expected['inputs'] if r['destination']==name)
++        self.assertEqual(len(row['authority']),2)
++        for field in ('verification','selector','guard','report'):
++            bad=deepcopy(expected);target=next(r for r in bad['inputs'] if r['destination']==name)
++            authority=next(a for a in target['authority'] if a.get('kind')=='hash-bound-posix-supersession-export-input')
++            authority[field]['sha256']='0'*64
++            with self.assertRaises(ValueError):env.validate_manifest(bad,expected)
+ 
+     def correction_fixture(self,private=False):
+         """Synthetic bytes and real correction semantics, not source inspection."""
+@@ -394,7 +581,7 @@
+     output=(env.ROOT/args.output).absolute()
+     if output.exists() or output.resolve()!=output or not output.is_relative_to((env.ROOT/'reviews').resolve()):raise ValueError('Fresh report under reviews required')
+     stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(CandidateEnvironmentGuards))
+-    env.dump(output,dict(passed=result.wasSuccessful(),tests=result.testsRun,skipped=len(result.skipped),output=stream.getvalue(),source_sha256={p:env.sha(env.ROOT/p) for p in ['tools/candidate_author_environment.py','tools/check_candidate_author_environment.py','tools/check_candidate_exports_v5.py','tools/package_v4.py','tools/package_v5.py','tools/check_release_v5.py','tools/resource_identity_v5.py','tools/resource_inputs_v5.py']},scope='Isolated exact-manifest, active-row and validated correction-policy authority, path, immutable archive, local staging and acceptance-first release plumbing guards. Real corrections(root) reads synthetic staged captures; no PDF content or new source inspection. Real ZIPs use temporary fixtures and a declared build seam; no real private input copied or repository release accepted.'))
++    env.dump(output,dict(passed=result.wasSuccessful(),tests=result.testsRun,skipped=len(result.skipped),output=stream.getvalue(),source_sha256={p:env.sha(env.ROOT/p) for p in ['tools/candidate_author_environment.py','tools/check_candidate_author_environment.py','tools/check_candidate_exports_v5.py','tools/package_v4.py','tools/package_v5.py','tools/check_release_v5.py','tools/resource_identity_v5.py','tools/resource_inputs_v5.py','tools/audit_active_disposition_pins.py','tools/rebind_posix_launcher_metadata.py','tools/rebind_posix_data_metadata.py']},scope='Isolated exact-manifest, active-row, validated correction-policy and exact selected POSIX supersession export authority, path, immutable archive, local staging and acceptance-first release plumbing guards. Real corrections(root) reads synthetic staged captures; no PDF content or new source inspection. Real ZIPs use temporary fixtures and a declared build seam; no real private input copied or repository release accepted.'))
+     print(stream.getvalue());return int(not result.wasSuccessful())
+ 
+ 

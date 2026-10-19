@@ -31,6 +31,11 @@ def generate():
     ranges = {'B02': (1, 22), 'B03': (23, 35), 'B04': (36, 45), 'B05': (46, 56)}
     for batch in old['batches']:
         bid = batch['id']
+        batch['implementation_state'] = {
+            'inventory': 'curriculum/v5/expansion/work_inventory.json',
+            'dispositions': 'curriculum/v5/expansion/implementation_updates.json',
+            'policy': 'The batch status records specification coverage only. Read exact ordinary and delayed '
+                      'obligation dimensions for implementation, author execution and external evidence.'}
         if bid in ranges:
             low, high = ranges[bid]
             scope = set().union(*(v for k, v in leaves.items() if low <= int(k[1:]) <= high))
@@ -58,14 +63,16 @@ def generate():
                          explicit_assessment_criteria=sum(len(r['criteria']) for r in supplements if r['project'] in integration_projects),
                          evidence='curriculum/v5/expansion/legacy_assessment_catalog.json',
                          execution_limit='Composition criteria require the actual learner components and target evidence. Partial integration anchors do not establish the complete capstone.')
-    old['current_batch'] = 'integrated; full legacy depth and cross-domain composition'
+    old['current_batch'] = 'integrated implementation follow-through; exact obligation dimensions govern completion'
+    old['scope_record'] = 'research/v5/expansion/followthrough/scope.md'
     dump(BASE / 'remaining_work.json', old)
     remaining = [{'domain': key, 'leaf_count': len(value), 'assessed_leaf_count': len(value & audited),
                   'explicit_criteria': sum(domain_criteria[oid] for oid in value),
                   'remaining_leaf_ids': sorted(value - audited)}
                  for key, value in leaves.items() if int(key[1:]) <= 56]
-    gap_registers = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / 'research/v5').rglob('*.json')
-                           if any(word in p.stem for word in ('gap_ledger', 'remaining_work', 'depth_dispositions')))
+    from reconcile_implementation_v5 import discover_registers
+    discovered, _ = discover_registers()
+    gap_registers = sorted(path for path in discovered if path.endswith('.json') and path != 'curriculum/v5/expansion/gaps.json')
     dump(BASE / 'completion_ledger.json', {
         'schema_version': 1,
         'policy': 'Whole scope retained; no leaf is closed by a heading or test name. Authored work, '
@@ -80,7 +87,14 @@ def generate():
         'whole_plan_status': 'in-progress' if missing_projects or any(r['remaining_leaf_ids'] for r in remaining)
                              else 'authored-with-explicit-execution-and-review-obligations',
         'independent_assessment': 'not-inferred', 'physical_validation': 'not-inferred',
-        'historical_evidence': 'curriculum/v5/expansion/historical_receipts.json'})
+        'historical_evidence': 'curriculum/v5/expansion/historical_receipts.json',
+        'implementation_inventory': 'curriculum/v5/expansion/work_inventory.json',
+        'implementation_dispositions': 'curriculum/v5/expansion/implementation_updates.json',
+        'scope_record': 'research/v5/expansion/followthrough/scope.md',
+        'status_interpretation': 'Authored counts describe specifications. Implementation and author-validation '
+                                 'completion must be read from every reconciled obligation, including required '
+                                 'source-dependent extensions; external evidence is never inferred.',
+        'dimension_policy': 'Teaching, implementation, author validation, external review, independent learner performance and physical observation are adjudicated separately. Unreconciled records are not complete.'})
     gaps = read_json(BASE / 'gaps.json')
     by_id = {g['id']: g for g in gaps['gaps']}
     by_id['G-BASE-DEPTH'].update(scope='Every retained leaf and project, including checkpoints and capstones, without a substantive disposition in completion_ledger.json',
@@ -101,6 +115,8 @@ def generate():
                                    resolution='Run the current full build and current source-bound validation; preserve accepted baseline records.')
     by_id['G-CORPUS']['evidence'] = ['research/v5/modern/coverage', 'curriculum/v5/expansion/completion_ledger.json']
     dump(BASE / 'gaps.json', gaps)
+    from reconcile_implementation_v5 import generate as inventory_generate
+    inventory_generate()
     return {'legacy_criteria': len(criteria), 'remaining_legacy_leaves': sum(len(r['remaining_leaf_ids']) for r in remaining),
             'remaining_legacy_projects': len(missing_projects),
             'new_domains': len(fragments), 'gap_registers': len(gap_registers)}

@@ -1,0 +1,703 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "status": "passed",
+  "source_stable": true,
+  "external_inputs_stable": true,
+  "input_sha256": {
+    "tools/run_metaprog_cache_investigation.py": "67006e383a2ed6a4eeba22b5ff9167bc4de2a5496a8603337abb13719c7e0ea3",
+    "tools/verify_metaprog_build_cache.py": "646eacf909d42325afba44ebecfc2d207973caee1c58cbbd3378dd1d9b662ba1",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "labs/metaprog/build_cache/include/build_cache.h": "d863a1426bda0b95800fe2be0a457d9b89259e06bd85b4f513bd95c48be3f202",
+    "labs/metaprog/build_cache/include/cache_file.h": "b77161b48eb8b062330ba7995386a3cb8869dc36522a64ef71d22fe9ebbbfaec",
+    "labs/metaprog/build_cache/CACHE.md": "8215b040f10d6d5817e19f47d5245b32338eb270c0741c05a981615ba1d360fe",
+    "labs/metaprog/build_cache/tests/generate.c": "01514524a0fcb0314c6cc2a9faa7ea316cb7942b344f2632dac63df1c2a87267",
+    "labs/metaprog/build_cache/tests/consumer.c": "7a99448bc6d8ee16b6aa5759293d4352e8b862c5e2f3a976438a581d97356e67",
+    "assessor/metaprog/build_cache/build_cache.c": "87b738524e7d572c3d01bf807f4d081f7b61cdb0e360778adc7762e57ad37abc",
+    "assessor/metaprog/build_cache/cache_file.c": "9b1376047deb8fd0d2b720dfe9b16ca3a5a02b641ccbdc9eb98d8e3bf9d2f4f4",
+    "labs/metaprog/include/metaprog.h": "67c597abea589453837d08966f05e46bef26dc89afe44379870f5681a4778557",
+    "assessor/metaprog/metaprog.c": "91962f870285cb7052e09e03639c2b3039196d6cf85ca36f98a87a74a41735d1",
+    "assessor/metaprog/ring_template.inc": "5e6bb7c49e243e69a0c134fa2cbe75b0f5eb44c2c955759ce870f03192bb34cb",
+    "labs/api_depth/architecture/arch.h": "e9810484d6ff2a0e53b4219dac38b8237697b38b33b78ca01b9566f4c89937ff",
+    "assessor/api_depth/architecture/core.c": "d46a266401c5ddd12b098eef922b7b3b3254e7fa182edf9ac3addabfe89b695e"
+  },
+  "external_input_sha256": {
+    "/usr/bin/x86_64-linux-gnu-gcc-15": "b5f1b773a7c733738352000c92a077dc5852a1a2fc6d836b1e411be1e9ec5f88",
+    "/usr/lib/llvm-21/bin/clang": "412bbe8c60571a1eb06f48fde89635033621caeb01a9b4ee76d46711bae8e932",
+    "/usr/bin/ninja": "91e9548850cda2799facfdaa7abe33f9e978832f85e98212255708a7bbe437f2",
+    "/usr/bin/x86_64-linux-gnu-objdump": "44f07f8da860b15bd4dec909f229dec536595fb170a616fe3ab29c7b21c9736f",
+    "/usr/bin/x86_64-linux-gnu-nm": "f04262bf48192a7cbb78a17ca49ae03f8930b0372bd0115576f957b2e2a57a01"
+  },
+  "executions": [
+    {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.0030390640000064195,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/0-gcc-version.log",
+      "log_sha256": "8c25a94209b149cff424925e8a212864e5d086f8523d25cc285af2b89a78f2d7",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.011190247999991243,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/1-clang-version.log",
+      "log_sha256": "81c7227b613f6f7babb4025fd0a7f5957ad069f888f0e4b25f24d8a563109307",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.0035600779999924725,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/2-ninja-version.log",
+      "log_sha256": "375e8e678134fc7f75a5ae38bba96ec4638afd2df7e1c56c7ea40dbe6fc3250a",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "objdump",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.0033769679999977598,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/3-objdump-version.log",
+      "log_sha256": "33e1be286870869d5004bee9e01a8a5e921f8baafb24877bc9c073ecdeafe5af",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "nm",
+        "--version"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.012454695999991827,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/4-nm-version.log",
+      "log_sha256": "e05dd5050d2f489eb75d4209713755b6545ae3946deb668aeaeaba918ac4ed45",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/api_depth/architecture",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/tests/generate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/build_cache/build_cache.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/metaprog.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/api_depth/architecture/core.c",
+        "-o",
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/generator"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.6232205029999989,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/5-gcc-generator.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/api_depth/architecture",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/build_cache/cache_file.c",
+        "-o",
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.18996436099999414,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/6-gcc-file-object.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "objdump",
+        "-dr",
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.004161643000003323,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/7-gcc-file-objdump.log",
+      "log_sha256": "bde0188ae23851a6dbc941fb6ef88d0092cf475a45cc5a368598d68cb8b4fb99",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.009243402000009837,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/8-gcc-file-nm.log",
+      "log_sha256": "81b1f56362bd7ddec0e128ed03451ddc840cf7c4772600e0c8334021e0f61a90",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.17630328000001327,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/9-gcc-clean.log",
+      "log_sha256": "bf82e56febe8d9cbbcae18d0e9884c780f8938b3ddbf0dc67ec5d93cf81136e2",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.002484385000002476,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/10-gcc-initial.log",
+      "log_sha256": "b4c671b478812919524a92d2e17fd7c3da49b00007ed2543f3182a25808d14ee",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.0034855720000166457,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/11-gcc-unchanged.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.0033459900000138987,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/12-gcc-missing-implicit.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.002985816000006025,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/13-gcc-stale.log",
+      "log_sha256": "b4c671b478812919524a92d2e17fd7c3da49b00007ed2543f3182a25808d14ee",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.17408095700000104,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/14-gcc-repair.log",
+      "log_sha256": "bf82e56febe8d9cbbcae18d0e9884c780f8938b3ddbf0dc67ec5d93cf81136e2",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.012228552000010495,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/15-gcc-repaired.log",
+      "log_sha256": "4aa810fc1e82ecdf459e24bc3d43a425d9fa43099269bae85f1e62e8957b0433",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.008133870999984083,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/16-gcc-order-only.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.002646701999992729,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/17-gcc-ordered.log",
+      "log_sha256": "4aa810fc1e82ecdf459e24bc3d43a425d9fa43099269bae85f1e62e8957b0433",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.1839685869999812,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/18-gcc-implicit-again.log",
+      "log_sha256": "bf82e56febe8d9cbbcae18d0e9884c780f8938b3ddbf0dc67ec5d93cf81136e2",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.003188675000018293,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/19-gcc-third.log",
+      "log_sha256": "dbc3fa5c077e909adfe4c4455fe72641c3f0777300b9ba245aec8de9440ab373",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.17114239800000064,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/20-gcc-command-change.log",
+      "log_sha256": "54af91f18cd9f49b3d54a07938044b1775e5786f6eb941a088c3232ceca52949",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.002515470000020059,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/21-gcc-command.log",
+      "log_sha256": "0e352d39dcd7cfedfc2edcc974883c4cbf5cee5cb1b803107cb4e05c6dce8ebf",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/gcc/generator",
+        "source.dat",
+        "schema.dat",
+        "1",
+        "repeat.c"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/gcc",
+      "exit_code": 0,
+      "seconds": 0.0026531510000040726,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/22-gcc-reproduce.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/api_depth/architecture",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/tests/generate.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/build_cache/build_cache.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/metaprog.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/api_depth/architecture/core.c",
+        "-o",
+        "/tmp/cmastery-cache-investigation-budga15w/clang/generator"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.4538271469999984,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/23-clang-generator.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "clang",
+        "-std=c17",
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/build_cache/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/metaprog/include",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/api_depth/architecture",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/metaprog/build_cache/cache_file.c",
+        "-o",
+        "/tmp/cmastery-cache-investigation-budga15w/clang/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.09114155399998936,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/24-clang-file-object.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "objdump",
+        "-dr",
+        "/tmp/cmastery-cache-investigation-budga15w/clang/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.0037007580000079088,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/25-clang-file-objdump.log",
+      "log_sha256": "f5e7f27a048730cbc9abdf93f1f537d9ce152ebbb5f3597541cf4574d78c88e7",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cmastery-cache-investigation-budga15w/clang/cache_file.o"
+      ],
+      "cwd": "/mnt/f/Learning/Curricula/c_mastery",
+      "exit_code": 0,
+      "seconds": 0.019956745000001774,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/26-clang-file-nm.log",
+      "log_sha256": "c91b2ba1bb037fb67e80947f011f15eb8db33fd9709ac01bd295b95760472689",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.1465780890000019,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/27-clang-clean.log",
+      "log_sha256": "31ed77d3384c06cffa067d652e58193cda5fe636731f3cb8a1b11436d845e5a6",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.002600316000012981,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/28-clang-initial.log",
+      "log_sha256": "b4c671b478812919524a92d2e17fd7c3da49b00007ed2543f3182a25808d14ee",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.00363117800000623,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/29-clang-unchanged.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.005588893999998845,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/30-clang-missing-implicit.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.00274832200000219,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/31-clang-stale.log",
+      "log_sha256": "b4c671b478812919524a92d2e17fd7c3da49b00007ed2543f3182a25808d14ee",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.11595095300000935,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/32-clang-repair.log",
+      "log_sha256": "31ed77d3384c06cffa067d652e58193cda5fe636731f3cb8a1b11436d845e5a6",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.002560464999987744,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/33-clang-repaired.log",
+      "log_sha256": "4aa810fc1e82ecdf459e24bc3d43a425d9fa43099269bae85f1e62e8957b0433",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.004102885999998307,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/34-clang-order-only.log",
+      "log_sha256": "2cc7ab6e7ca9ceceabc2d94bef11558b792b54f5970849067dcc016fd76eeed0",
+      "required_marker": "ninja: no work to do."
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.016139632000005122,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/35-clang-ordered.log",
+      "log_sha256": "4aa810fc1e82ecdf459e24bc3d43a425d9fa43099269bae85f1e62e8957b0433",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.1558691500000009,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/36-clang-implicit-again.log",
+      "log_sha256": "31ed77d3384c06cffa067d652e58193cda5fe636731f3cb8a1b11436d845e5a6",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.002533246000012923,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/37-clang-third.log",
+      "log_sha256": "dbc3fa5c077e909adfe4c4455fe72641c3f0777300b9ba245aec8de9440ab373",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "ninja",
+        "-v"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.11957967699999017,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/38-clang-command-change.log",
+      "log_sha256": "07fc186b20a0899d16bbe4dd87a52f20572969c49dfdc46e13529ba5c7f13557",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/consumer"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.00712548399999946,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/39-clang-command.log",
+      "log_sha256": "0e352d39dcd7cfedfc2edcc974883c4cbf5cee5cb1b803107cb4e05c6dce8ebf",
+      "required_marker": null
+    },
+    {
+      "command": [
+        "/tmp/cmastery-cache-investigation-budga15w/clang/generator",
+        "source.dat",
+        "schema.dat",
+        "1",
+        "repeat.c"
+      ],
+      "cwd": "/tmp/cmastery-cache-investigation-budga15w/clang",
+      "exit_code": 0,
+      "seconds": 0.0026820139999870207,
+      "log": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/40-clang-reproduce.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "required_marker": null
+    }
+  ],
+  "observations": [
+    {
+      "kind": "missing-implicit",
+      "compiler": "gcc",
+      "stale": 15071374281841825813,
+      "expected": 15618351539541035615,
+      "repaired": 15618351539541035615
+    },
+    {
+      "kind": "order-only",
+      "compiler": "gcc",
+      "stale": 15618351539541035615,
+      "expected": 5603788800106234405,
+      "repaired": 5603788800106234405
+    },
+    {
+      "kind": "command-change",
+      "compiler": "gcc",
+      "before": 5603788800106234405,
+      "after": 12738390634380669744,
+      "expected": 12738390634380669744
+    },
+    {
+      "kind": "generated-consumer",
+      "compiler": "gcc",
+      "compiled_executed": true,
+      "byte_reproducible": true,
+      "actual_codec": true,
+      "clean_seconds": 0.17630328000001327,
+      "unchanged_seconds": 0.0034855720000166457,
+      "unchanged_no_work": true
+    },
+    {
+      "kind": "missing-implicit",
+      "compiler": "clang",
+      "stale": 15071374281841825813,
+      "expected": 15618351539541035615,
+      "repaired": 15618351539541035615
+    },
+    {
+      "kind": "order-only",
+      "compiler": "clang",
+      "stale": 15618351539541035615,
+      "expected": 5603788800106234405,
+      "repaired": 5603788800106234405
+    },
+    {
+      "kind": "command-change",
+      "compiler": "clang",
+      "before": 5603788800106234405,
+      "after": 12738390634380669744,
+      "expected": 12738390634380669744
+    },
+    {
+      "kind": "generated-consumer",
+      "compiler": "clang",
+      "compiled_executed": true,
+      "byte_reproducible": true,
+      "actual_codec": true,
+      "clean_seconds": 0.1465780890000019,
+      "unchanged_seconds": 0.00363117800000623,
+      "unchanged_no_work": true
+    }
+  ],
+  "generated_artifacts": [
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-initial.c",
+      "sha256": "182063d5dbcd0da093f8492044cf3ee433ed8ce8902dfe56bb2e0fb23d72735e"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-missing.ninja",
+      "sha256": "2c0e7d92c02059a2841fe4668b0768dd3c5d59d5d663c8bab527ed420930fb34"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-implicit.ninja",
+      "sha256": "4556424ecdee5e50054cb05a538e7a624197390fe2a1d7b1a4732d0a00e3382a"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-order-only.ninja",
+      "sha256": "f4ccbd7190e9673b79692651de52eaa9cfef8a2f14735b4f871bafbe2025c380"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-final.c",
+      "sha256": "118a896be0ec8d834d656191a8dfd73c2c272a005266f69af706e0bbf5c55006"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/gcc-command.ninja",
+      "sha256": "6bf41cc66ccd46880a59bb4a9fb39c7b9aa6439bd37049f6bb88b883e8fa181c"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-initial.c",
+      "sha256": "182063d5dbcd0da093f8492044cf3ee433ed8ce8902dfe56bb2e0fb23d72735e"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-missing.ninja",
+      "sha256": "3b133f04cb6acb44956d7c53769a4e659d37ac293f7f4feeaddaccb92ba65bbe"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-implicit.ninja",
+      "sha256": "b1c5487948a66ca25e9ebc5622c16ffa0d3041cf10123962c83aabf089635692"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-order-only.ninja",
+      "sha256": "d09ade250243c2b004f5ec3d309cf4760d9bd0372598a0f03a971c94374cb5d8"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-final.c",
+      "sha256": "118a896be0ec8d834d656191a8dfd73c2c272a005266f69af706e0bbf5c55006"
+    },
+    {
+      "path": "reviews/v5/expansion/modern_completion/runs/metaprog-cache-investigation-20261017T205057278158Z/clang-command.ninja",
+      "sha256": "5815582874782a48e10dde88fe214cf238f5475c8c3eb45c42b3060163397b04"
+    }
+  ],
+  "physical_validation": "not-run",
+  "independent_review": "not-run",
+  "learner_mastery": "not-assessed",
+  "limits": [
+    "Bounded declared bytes are an educational action model, not complete discovery of compiler inputs.",
+    "Actual Linux local process termination and file synchronization do not establish physical power-cut durability.",
+    "Ninja ordering, invalidation and command tracking are distinct; no authenticated shared-cache claim."
+  ]
+}

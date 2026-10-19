@@ -18,6 +18,12 @@ INLINE = re.compile(
     r'\((?P<address>[^)\r\n]+)\))|'
     r'(?P<code>(?P<ticks>`+)(?!`).*?(?<!`)(?P=ticks)(?!`))', re.S)
 DOWNLOADS = '_static/learner_sources'
+EXCLUDED_PARTS = frozenset({'private', '.venv', '__pycache__'})
+
+
+def excluded_source(relative):
+    """Private captures and runtime caches belong to no publication bundle."""
+    return bool(EXCLUDED_PARTS.intersection(relative.parts))
 
 
 def local_source(address, current=None, root=ROOT):
@@ -40,7 +46,10 @@ def local_source(address, current=None, root=ROOT):
         resolved = source.resolve().relative_to(root.resolve())
     except ValueError as exc:
         raise ValueError('Publication source escapes repository: ' + address) from exc
-    if not source.is_file():
+    # An excluded citation can survive in an authorized source register while
+    # its private capture is absent from an extracted source archive. Do not
+    # require, read or copy that capture merely to render its exclusion notice.
+    if not (excluded_source(PurePosixPath(name)) or excluded_source(resolved)) and not source.is_file():
         raise ValueError('Missing publication source file: ' + name)
     return name, source, resolved, parsed.fragment
 
@@ -49,7 +58,7 @@ def learner_source(relative):
     # Reuse the release policy: research authoring recipes and audits belong to
     # the full source bundle, even when an audit has no executable answers.
     from package_v5 import learner_file
-    return (relative.parts[0] in DOWNLOAD_ROOTS and 'assessor' not in relative.parts
+    return (not excluded_source(relative) and relative.parts[0] in DOWNLOAD_ROOTS and 'assessor' not in relative.parts
             and learner_file(Path(relative)))
 
 
@@ -58,6 +67,8 @@ def link(label, address, *, source, page, current=None, contracts=(), root=ROOT)
     if found is None:
         return '[' + label + '](' + address + ')'
     name, original, resolved, fragment = found
+    if excluded_source(PurePosixPath(name)) or excluded_source(resolved):
+        return label + ' (private research evidence; excluded from publication and all bundles)'
     if not learner_source(PurePosixPath(name)) or not learner_source(resolved):
         bundle = 'assessor' if 'assessor' in resolved.parts else 'full source'
         return (label + ' (restricted source evidence: `' + name + '`; ' +

@@ -1,0 +1,7 @@
+# T41.08 actual HTTP closure audit
+
+The original criteria and unchanged seven-day variants require binary/chunk/half-close interoperability, a usable UTC/omission boundary and link/new-incarnation evidence. Earlier net.c uses one GET and a literal historical Date. This successor imports the actual completed NbNet, EnRing, NaArp, NiReassembly, NcStack, NwRx and original parser, then the separately completed T42 hf_response encoder. It does not edit any accepted predecessor or label author reference providers as learner artifacts.
+
+Public raw-peer fixtures compare wire checksums, monotonically reconstructed outgoing sequence bytes and literal independent HTTP responses; the encoder is not its own oracle. Exact packet boundaries, peer MSS and flow window are changed independently. Required physical/delayed work has a complete source/bench/assessment package but actual board observations and independent learner attempts remain pending. The ordinary fixed one-request policy is explicit, not a full-host or full-HTTP conformance claim.
+
+Fresh named primary RFC9110/9112 passages are read and pinned in resources.json. Local target pilot encountered a duplicate main macro from inclusion of public predecessor fixtures; the failure is retained at build/network-http-target-pilot.log, corrected by explicit public-test entry naming. No warning or validator was weakened. Pilot2 linked25 explicit objects, executed underMPS2 and bounded emitted stack29304bytes under32768; final source-bound campaign supersedes that pilot for current claims.

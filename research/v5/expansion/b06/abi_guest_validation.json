@@ -1,0 +1,1018 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-18T12:15:18.366537+00:00",
+  "input_sha256": {
+    "assessor/architecture_ports/guests/aa64.ld": "a36d316be5855df1ab71d09a83f77ac9d58eb05d46e1b208e0bf7deaed4a9d7f",
+    "assessor/architecture_ports/guests/aa64.S": "666c50004a8a7d5af378f94e8b9966ad254cc3f6a4132227c965e09721e47c68",
+    "assessor/architecture_ports/guests/aa64_aggregate.S": "4e53b36045aac428451950b4bb616a9b12e186b494edc6094a64339e57d972de",
+    "assessor/architecture_ports/guests/aa64_simd.S": "d3356c5ba1e55d9782955cfb5b3454feb1023b814ce9737925e5e1128d5f8065",
+    "assessor/architecture_ports/guests/aa64_tasks.S": "1ec6793e89fd423739a6eb7dce14829558f2ed58a23ad7fa3565423fa41e626e",
+    "assessor/architecture_ports/guests/aggregate.c": "e5ce9dfa2acdf36c07e7be67bca81b815d1e9186b4b51ccecda30018e9c79378",
+    "assessor/architecture_ports/guests/ANALYSIS.md": "9f65809181673eefdeb928582a85219ac2dd99e6fd32518d677d9e722d96ba49",
+    "assessor/architecture_ports/guests/rv64.ld": "7018957e7a1fa00c9b2fd2cfec4d9f87f4c792399673bb331668c2c29cf33884",
+    "assessor/architecture_ports/guests/rv64.S": "9b60dbd6f34f206d59810d85c1f75532e06c7d36b58c3de66e9204553af466e7",
+    "assessor/architecture_ports/guests/rv64_aggregate.S": "a1db6f2863b5d75cfc138f73f9cba134ead3542e9f71da3b47dd157e5be1a9d2",
+    "assessor/architecture_ports/targets/aa64_context.S": "d38b8514ebaf41c661dd815e144136ea2d949ac658e183f50f48f87ab19dc767",
+    "assessor/architecture_ports/targets/rv64_context.S": "fe7d75a55c12e4a8d6baf01ea0f67c5be01c2be821bd5707c355765eb4a715ae",
+    "tools/run_b06_abi_guests.py": "7112a64484706210bb80396997f60c0d53b3841aa7b1702eb5a281a669e7a7e8"
+  },
+  "checks": [
+    {
+      "label": "Clang identity",
+      "command": [
+        "clang",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "linker identity",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Ubuntu LLD 21.1.8 (compatible with GNU linkers)\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 emulator identity",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/qemu-system-riscv64",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)\nCopyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=0 link",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/rv64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "-march=rv64imac",
+        "-mabi=lp64",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/rv640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=0 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/rv640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=0 closure",
+      "passed": true
+    },
+    {
+      "label": "rv64 mutation=0 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/rv640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           RISC-V\n  Version:                           0x1\n  Entry point address:               0x80000000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          10040 (bytes into file)\n  Flags:                             0x1, RVC, soft-float ABI\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         5\n  Size of section headers:           64 (bytes)\n  Number of section headers:         9\n  Section header string table index: 7\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000001000 0x0000000080000000 0x0000000080000000\n                 0x00000000000005d8 0x00000000000005d8  R E    0x1000\n  LOAD           0x00000000000015d8 0x00000000800005d8 0x00000000800005d8\n                 0x000000000000003d 0x000000000000003d  R      0x1000\n  LOAD           0x0000000000002000 0x0000000080001000 0x0000000080001000\n                 0x0000000000000000 0x000000000000b000  RW     0x1000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n  RISCV_ATTRIBUT 0x0000000000002000 0x0000000000000000 0x0000000000000000\n                 0x000000000000004e 0x000000000000004e  R      0x1\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n   04     .riscv.attributes \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=0 execution",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/qemu-system-riscv64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/rv640.elf",
+        "-bios",
+        "none"
+      ],
+      "returncode": 0,
+      "stdout": "B06_RV_PASS context=12 trap=3 address_spaces=2\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": "B06_RV_PASS"
+    },
+    {
+      "label": "rv64 mutation=1 link",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/rv64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "-march=rv64imac",
+        "-mabi=lp64",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/rv641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=1 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/rv641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=1 closure",
+      "passed": true
+    },
+    {
+      "label": "rv64 mutation=1 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/rv641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           RISC-V\n  Version:                           0x1\n  Entry point address:               0x80000000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          10040 (bytes into file)\n  Flags:                             0x1, RVC, soft-float ABI\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         5\n  Size of section headers:           64 (bytes)\n  Number of section headers:         9\n  Section header string table index: 7\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000001000 0x0000000080000000 0x0000000080000000\n                 0x00000000000005d8 0x00000000000005d8  R E    0x1000\n  LOAD           0x00000000000015d8 0x00000000800005d8 0x00000000800005d8\n                 0x000000000000003d 0x000000000000003d  R      0x1000\n  LOAD           0x0000000000002000 0x0000000080001000 0x0000000080001000\n                 0x0000000000000000 0x000000000000b000  RW     0x1000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n  RISCV_ATTRIBUT 0x0000000000002000 0x0000000000000000 0x0000000000000000\n                 0x000000000000004e 0x000000000000004e  R      0x1\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n   04     .riscv.attributes \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=1 execution",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/qemu-system-riscv64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/rv641.elf",
+        "-bios",
+        "none"
+      ],
+      "returncode": 1,
+      "stdout": "B06_RV_FAIL\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_RV_FAIL"
+    },
+    {
+      "label": "rv64 mutation=2 link",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/rv64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "-march=rv64imac",
+        "-mabi=lp64",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/rv642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=2 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/rv642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=2 closure",
+      "passed": true
+    },
+    {
+      "label": "rv64 mutation=2 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/rv642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           RISC-V\n  Version:                           0x1\n  Entry point address:               0x80000000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          10040 (bytes into file)\n  Flags:                             0x1, RVC, soft-float ABI\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         5\n  Size of section headers:           64 (bytes)\n  Number of section headers:         9\n  Section header string table index: 7\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000001000 0x0000000080000000 0x0000000080000000\n                 0x00000000000005d8 0x00000000000005d8  R E    0x1000\n  LOAD           0x00000000000015d8 0x00000000800005d8 0x00000000800005d8\n                 0x000000000000003d 0x000000000000003d  R      0x1000\n  LOAD           0x0000000000002000 0x0000000080001000 0x0000000080001000\n                 0x0000000000000000 0x000000000000b000  RW     0x1000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n  RISCV_ATTRIBUT 0x0000000000002000 0x0000000000000000 0x0000000000000000\n                 0x000000000000004e 0x000000000000004e  R      0x1\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n   04     .riscv.attributes \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=2 execution",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/qemu-system-riscv64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/rv642.elf",
+        "-bios",
+        "none"
+      ],
+      "returncode": 1,
+      "stdout": "B06_RV_FAIL\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_RV_FAIL"
+    },
+    {
+      "label": "rv64 mutation=4 link",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/rv64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "-march=rv64imac",
+        "-mabi=lp64",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/rv644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=4 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/rv644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=4 closure",
+      "passed": true
+    },
+    {
+      "label": "rv64 mutation=4 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/rv644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           RISC-V\n  Version:                           0x1\n  Entry point address:               0x80000000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          10040 (bytes into file)\n  Flags:                             0x1, RVC, soft-float ABI\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         5\n  Size of section headers:           64 (bytes)\n  Number of section headers:         9\n  Section header string table index: 7\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000001000 0x0000000080000000 0x0000000080000000\n                 0x00000000000005da 0x00000000000005da  R E    0x1000\n  LOAD           0x00000000000015da 0x00000000800005da 0x00000000800005da\n                 0x000000000000003d 0x000000000000003d  R      0x1000\n  LOAD           0x0000000000002000 0x0000000080001000 0x0000000080001000\n                 0x0000000000000000 0x000000000000b000  RW     0x1000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n  RISCV_ATTRIBUT 0x0000000000002000 0x0000000000000000 0x0000000000000000\n                 0x000000000000004e 0x000000000000004e  R      0x1\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n   04     .riscv.attributes \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "rv64 mutation=4 execution",
+      "command": [
+        "/home/frede/cmastery-b06-tools/usr/bin/qemu-system-riscv64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/rv644.elf",
+        "-bios",
+        "none"
+      ],
+      "returncode": 1,
+      "stdout": "B06_RV_FAIL\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_RV_FAIL"
+    },
+    {
+      "label": "aa64 emulator identity",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)\nCopyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers\n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=0 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=0 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=0 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=0 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa640.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c28 0x0000000000001c28  R E    0x10000\n  LOAD           0x0000000000011c28 0x0000000040081c28 0x0000000040081c28\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=0 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa640.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_AA_PASS context=11 trap=3 address_spaces=2\n",
+      "passed": true,
+      "expected": 0,
+      "marker": "B06_AA_PASS"
+    },
+    {
+      "label": "aa64 mutation=1 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=1 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=1 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=1 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa641.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c30 0x0000000000001c30  R E    0x10000\n  LOAD           0x0000000000011c30 0x0000000040081c30 0x0000000040081c30\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=1 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa641.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    },
+    {
+      "label": "aa64 mutation=2 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=2 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=2 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=2 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa642.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c28 0x0000000000001c28  R E    0x10000\n  LOAD           0x0000000000011c28 0x0000000040081c28 0x0000000040081c28\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=2 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa642.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    },
+    {
+      "label": "aa64 mutation=3 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa643.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=3 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa643.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=3 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=3 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa643.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c28 0x0000000000001c28  R E    0x10000\n  LOAD           0x0000000000011c28 0x0000000040081c28 0x0000000040081c28\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=3 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa643.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    },
+    {
+      "label": "aa64 mutation=4 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=4 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=4 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=4 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa644.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c28 0x0000000000001c28  R E    0x10000\n  LOAD           0x0000000000011c28 0x0000000040081c28 0x0000000040081c28\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=4 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa644.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    },
+    {
+      "label": "aa64 mutation=5 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa645.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=5 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa645.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=5 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=5 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa645.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c20 0x0000000000001c20  R E    0x10000\n  LOAD           0x0000000000011c20 0x0000000040081c20 0x0000000040081c20\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=5 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa645.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    },
+    {
+      "label": "aa64 mutation=6 link",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-nostdlib",
+        "-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21",
+        "-Wl,-T,/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aa64.ld",
+        "-Wl,-Map,/tmp/cm-b06-ports-jhirfcsz/target.map",
+        "/tmp/cm-b06-ports-jhirfcsz/guest.S",
+        "/tmp/cm-b06-ports-jhirfcsz/context.S",
+        "/tmp/cm-b06-ports-jhirfcsz/aggregate.S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/guests/aggregate.c",
+        "/tmp/cm-b06-ports-jhirfcsz/simd.S",
+        "/tmp/cm-b06-ports-jhirfcsz/tasks.S",
+        "-o",
+        "/tmp/cm-b06-ports-jhirfcsz/aa646.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=6 undefined symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cm-b06-ports-jhirfcsz/aa646.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=6 closure",
+      "passed": true
+    },
+    {
+      "label": "aa64 mutation=6 ELF mapping",
+      "command": [
+        "readelf",
+        "-h",
+        "-l",
+        "/tmp/cm-b06-ports-jhirfcsz/aa646.elf"
+      ],
+      "returncode": 0,
+      "stdout": "ELF Header:\n  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF64\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           AArch64\n  Version:                           0x1\n  Entry point address:               0x40080000\n  Start of program headers:          64 (bytes into file)\n  Start of section headers:          76656 (bytes into file)\n  Flags:                             0x0\n  Size of this header:               64 (bytes)\n  Size of program headers:           56 (bytes)\n  Number of program headers:         4\n  Size of section headers:           64 (bytes)\n  Number of section headers:         8\n  Section header string table index: 6\n\nProgram Headers:\n  Type           Offset             VirtAddr           PhysAddr\n                 FileSiz            MemSiz              Flags  Align\n  LOAD           0x0000000000010000 0x0000000040080000 0x0000000040080000\n                 0x0000000000001c28 0x0000000000001c28  R E    0x10000\n  LOAD           0x0000000000011c28 0x0000000040081c28 0x0000000040081c28\n                 0x0000000000000060 0x0000000000000060  R      0x10000\n  LOAD           0x0000000000012000 0x0000000040082000 0x0000000040082000\n                 0x0000000000000000 0x000000000000b3a0  RW     0x10000\n  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n                 0x0000000000000000 0x0000000000000000  RW     0x0\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .text \n   01     .rodata \n   02     .bss \n   03     \n",
+      "stderr": "",
+      "passed": true,
+      "expected": 0,
+      "marker": null
+    },
+    {
+      "label": "aa64 mutation=6 execution",
+      "command": [
+        "/usr/bin/qemu-system-aarch64",
+        "-M",
+        "virt",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-nic",
+        "none",
+        "-m",
+        "128M",
+        "-kernel",
+        "/tmp/cm-b06-ports-jhirfcsz/aa646.elf",
+        "-cpu",
+        "cortex-a53",
+        "-semihosting-config",
+        "enable=on,target=native"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_AA_FAIL\n",
+      "passed": true,
+      "expected": 1,
+      "marker": "B06_AA_FAIL"
+    }
+  ],
+  "scope": "Author guest execution; actual original assembly on QEMU virt; no host kernel changes, disks or network",
+  "limitations": [
+    "One hart/core; AArch64 low64 ABI versus all32 fixed128-bit vector registers plus FPCR/FPSR tested. No SVE/SME or asynchronous full integer-frame proof",
+    "Two page-table roots, one remapped data page, synchronous service and two deliberate page faults; not a complete operating system",
+    "Emulator architectural observations do not validate physical cache/timing behavior",
+    "Learner delayed transfer and independent assessment not performed"
+  ]
+}

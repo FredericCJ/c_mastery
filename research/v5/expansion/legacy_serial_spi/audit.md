@@ -1,0 +1,11 @@
+# Exact T38.06 follow-through
+
+The retained PR-T38-05 contract and three criterion/V1 objects were inspected in full. Their finite serial predictor did not establish actual controller integration, scheduler ownership, DMA acknowledgement or a late CPU interrupt. This successor preserves those objects and supplies the missing author mechanisms. No earlier learner acceptance is reinterpreted.
+
+Inspected implementations are the complete PsSpi and F439 target adapters, PuRates API/clock contract, sd_spi_edge, algo_ring init/put/take, and the imported basic Cortex-M4 exception wrapper. The actual full algorithm source is compiled with function sections; only the selected ring functions are retained, so unrelated algorithms are not newly validated. Header declarations from the private newlib tree are compiler inputs, not permission to link libc or libm.
+
+Fresh primary inspection: RM0090 Rev21 printed pp881–882 (Figure248 rendered and visually inspected),885,889–891,897–902,919–923. The pages distinguish first/second-edge sampling, byte framing, RX drain, TXE and BSY, DMA-memory versus wire completion, disable/reset and legal access widths. Board routing and silicon errata remain imported premises from the frozen producer's explicitly inspected source register, not a new physical inspection here. Exact final published ISO C17/C23 text remains a source gap; C17 compiler mode is not textual inspection.
+
+Author sequence: native construction and a Cortex-M4 pilot preceded final prose. Initial target compilation lacked the selected newlib header directory and failed before linking; its build log is retained under build/serial-spi-target-pilot. The next explicit-header link and MPS2 execution passed. A subsequent full campaign exposed unused parameters in the untouched legacy all-algorithm scaffold. The narrowly supplied ring_prerequisite.c declares only three unfinished imported operations; it fixes scaffolding compilation without weakening reference warnings or replacing the actual author ring producer.
+
+Required external work remains physical dedicated-peer captures, exact board/load/revision and timing verification, independent review, and independently attempted original/seven-day changed assessments. T38's other protocols and mixed T39/40/LRUN parents are not closed by this package.

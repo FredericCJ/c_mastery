@@ -6,6 +6,21 @@ from markdown_it import MarkdownIt
 import re
 from common import ROOT,read_json,dump,anchor,normalize_prose,find_glued
 from check_html import norm, compact
+from publish_v4 import without_literal_code
+
+
+def prose_errors(text):
+    prose = without_literal_code(text)
+    errors = []
+    if any(role in prose for role in ('{ref}`', '{download}`', '{term}`')):
+        errors.append('Unconverted publication role')
+    doubled = len(re.findall(r'^\s*- - ', prose, flags=re.M)) + len(re.findall(r'^\s*\d+\. - ', prose, flags=re.M))
+    if doubled:
+        errors.append('Doubled list markers rendered: ' + str(doubled))
+    glued = sorted(set(find_glued(prose)))
+    if glued:
+        errors.append('Glued word/number forms rendered: ' + str(glued[:40]))
+    return errors, doubled, glued
 
 def main():
     source=ROOT/'c_programming_mastery_curriculum.md'; text=source.read_text(encoding='utf-8')
@@ -29,11 +44,8 @@ def main():
         expected=compact(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
         if expected not in actual:errors.append('Missing objective text '+row['objective'])
         objective_checks+=1
-    if '{ref}`' in text or '{download}`' in text or '{term}`' in text:errors.append('Unconverted publication role')
-    doubled=len(re.findall(r'^\s*- - ',text,flags=re.M))+len(re.findall(r'^\s*\d+\. - ',text,flags=re.M))
-    if doubled:errors.append('Doubled list markers rendered: '+str(doubled))
-    glued=sorted(set(find_glued(text)))
-    if glued:errors.append('Glued word/number forms rendered: '+str(glued[:40]))
+    prose_checks, doubled, glued = prose_errors(text)
+    errors.extend(prose_checks)
     report={'passed':not errors,'local_links':checked,'unique_anchors':len(counts),'objective_checks':objective_checks,'bytes':source.stat().st_size,'doubled_bullets':doubled,'glued_forms':len(glued),'errors':errors}
     dump(ROOT/'reviews/markdown_checks.json',report); print(report)
     if errors:raise SystemExit(1)

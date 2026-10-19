@@ -1,0 +1,93 @@
+"""Reject omitted, stale, misbound or inflated T20 author evidence."""
+import argparse,copy,hashlib,importlib.util,json,pathlib,subprocess,sys
+ROOT=pathlib.Path(__file__).resolve().parents[1];FOLDER=ROOT/'research/v5/expansion/legacy_architecture'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def module(p,name):
+ spec=importlib.util.spec_from_file_location(name,p);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+def external_current(paths):
+ if sys.platform=='win32':
+  code='import hashlib,json,pathlib,sys; names=json.loads(sys.argv[1]); print(json.dumps({n:hashlib.sha256(pathlib.Path(n).read_bytes()).hexdigest() if pathlib.Path(n).is_file() else None for n in names}))'
+  r=subprocess.run(['wsl','-e','python3','-c',code,json.dumps(sorted(paths))],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,errors='replace',check=True);return json.loads(r.stdout)
+ return {p:sha(pathlib.Path(p)) if pathlib.Path(p).is_file() else None for p in paths}
+def validate(data,report,external):
+ errors=[]
+ def need(c,m):
+  if not c:errors.append(m)
+ bindings=module(FOLDER/'bindings.py','architecture_guard_bindings').BINDINGS;runner=module(ROOT/'tools/run_architecture_followthrough.py','architecture_guard_runner');expected={}
+ for p in sorted((ROOT/'curriculum/v5/expansion/legacy_assessments').glob('PR-T20-*.json')):
+  d=json.loads(p.read_text(encoding='utf8'))
+  for c in d['criteria']:
+   v=c['variants'][0];expected[c['id']]=(c,v,False,d['project']);expected[v['id']]=(c,v,True,d['project'])
+ rows=data.get('updates',[]);ids=[r.get('id') for r in rows];need(len(ids)==len(set(ids))==60 and set(ids)==set(expected),'exact ordinary/delayed identity mismatch')
+ for owner,key in [(data,'source_sha256'),(report,'source_sha256'),(report,'outputs_sha256')]:
+  pins=owner.get(key,{});need(bool(pins),'missing '+key)
+  for p,v in pins.items():need((ROOT/p).is_file() and sha(ROOT/p)==v,'stale '+key+' '+p)
+ receipt='research/v5/expansion/legacy_architecture/validation.json';closure_receipt='research/v5/expansion/legacy_architecture/closure.json';need(data.get('current_reports')==[receipt,'research/v5/expansion/legacy_architecture/exports.json',closure_receipt],'current report identity mismatch');need(report.get('status')=='pass' and report.get('failure') is None and bool(report.get('commands')) and all(r.get('passed') is True for r in report.get('commands',[])),'passing stable commands missing');need(report.get('source_sha256')==runner.source_pins(),'exact source closure mismatch')
+ closure=json.loads((ROOT/closure_receipt).read_text(encoding='utf8'));closure_runner=module(ROOT/'tools/run_architecture_closure.py','architecture_closure_guard');need(closure.get('status')=='pass' and len(closure.get('commands',[]))==52 and all(x.get('passed') is True for x in closure.get('commands',[])),'complete portable composition closure missing');need(closure.get('source_sha256')==closure_runner.source_pins(),'portable composition source mismatch')
+ for key in ['source_sha256','outputs_sha256']:
+  for name,value in closure.get(key,{}).items():need((ROOT/name).is_file() and sha(ROOT/name)==value,'stale composition closure '+name)
+ for compiler in ['gcc','clang']:
+  closed=next((x for x in closure.get('commands',[]) if x['id']==compiler+'.closed'),{});need(closed.get('passed') is True and not closed.get('output','missing').strip(),'unresolved complete composition')
+ need(report.get('external_source_sha256')==external and all(external.values()),'external source provenance stale or missing')
+ required_external={(runner.VENDOR/p).as_posix() for p in ['hal.tar.gz','device.tar.gz','cmsis.tar.gz','stm32f4xx-hal-driver-1.8.3/Src/stm32f4xx_hal_gpio.c','stm32f4xx-hal-driver-1.8.3/LICENSE.md']}
+ for name in report.get('outputs_sha256',{}):
+  if name.startswith('build/architecture-followthrough/arm.') and name.endswith('.o.d') and (ROOT/name).is_file():
+   for token in (ROOT/name).read_text(encoding='utf8').replace('\\\n',' ').split():
+    if token.startswith(runner.VENDOR.as_posix()):required_external.add(token)
+ need(set(external)==required_external,'external selected header/archives closure mismatch')
+ exported=json.loads((FOLDER/'exports.json').read_text(encoding='utf8'));need(exported.get('status')=='pass' and len(exported.get('commands',[]))==12 and all(x.get('passed') is True for x in exported.get('commands',[])),'export commands missing')
+ for key in ['source_sha256','outputs_sha256']:
+  for name,value in exported.get(key,{}).items():need((ROOT/name).is_file() and sha(ROOT/name)==value,'stale export '+name)
+ gate=json.loads((FOLDER/'research_gate.json').read_text(encoding='utf8'))
+ for name,value in gate.get('research_input_sha256',{}).items():need((ROOT/name).is_file() and sha(ROOT/name)==value,'stale research gate '+name)
+ commands={r['id']:r for r in report.get('commands',[])};observations=report.get('observations',{})
+ for compiler in ['gcc','clang']:
+  for profile in ['debug','optimized','sanitized']:
+   prefix=compiler+'.'+profile+'.'
+   for name in [*runner.UNITS,'plugin','composition','outbox_fault','property0','property1']:
+    r=commands.get(prefix+name,{});need(r.get('passed') is True and r.get('exit_code')==0,'missing positive '+prefix+name);need(commands.get(prefix+name+'.compile',{}).get('passed') is True,'missing compiled target '+prefix+name)
+   for name in ['mutant'+str(i) for i in runner.MUTANTS]+[u+'.learner' for u in runner.UNITS]:
+    r=commands.get(prefix+name,{});need(r.get('passed') is True and r.get('exit_code',0)!=0 and 'AR_ASSERT' in r.get('output',''),'missing intended semantic rejection '+prefix+name)
+   need(observations.get(prefix+'property0',{}).get('cases')==4105,'property population missing');need(abs(observations.get(prefix+'property1',{}).get('mutant_counterexample',0))==1,'actual minimized mutant counterexample missing')
+  for key in [compiler+'.policy1',compiler+'.policy2',compiler+'.config.2.0',compiler+'.config.4.0',compiler+'.config.4.1',compiler+'.identity.changed',compiler+'.vendor',compiler+'.profileC.closed',compiler+'.ineffective']:need(commands.get(key,{}).get('passed') is True,'missing changed assumption/closure '+key)
+  need(not commands.get(compiler+'.profileC.closed',{}).get('output','').strip(),'unclosed profile C')
+  identity=observations.get(compiler+'.identity.stale_rejected',{});need(identity.get('expected')=='0102010000000014' and identity.get('observed')=='0102000000000014' and identity.get('changed_header_sha256')!=identity.get('initial_header_sha256'),'stale configuration was not rejected')
+  ineffective=observations.get(compiler+'.ineffective',{});need(ineffective.get('returned_success') is True and ineffective.get('acceptance') is False,'ineffective test misclassified as evidence')
+ for entry in ['ar_target_minimal','ar_target_vendor','ar_target_input']:
+  for suffix in ['link','closed','size']:need(commands.get('arm.'+entry+'.'+suffix,{}).get('passed') is True,'target adapter missing '+entry+'.'+suffix)
+  need(not commands.get('arm.'+entry+'.closed',{}).get('output','').strip(),'target unresolved helper '+entry)
+ need(observations.get('models',{}).get('schedule',{}).get('single_cpu_two_worker_round_robin')==[3,4,6],'two-worker model missing or misbound')
+ for row in rows:
+  ident=row.get('id')
+  if ident not in expected:continue
+  c,v,delayed,parent=expected[ident];ordinary,transfer,reason=bindings[c['objective']]
+  need(row.get('objective')==c['objective'] and row.get('parent_project')==parent,'objective/parent mismatch '+ident);need(row.get('original_task')==(v['task'] if delayed else c['task']),'original task changed '+ident);need(row.get('original_delayed_variant')==v['id'] and row.get('minimum_days')==v['minimum_days'],'delayed identity/policy changed '+ident);need(row.get('closure_rationale')==reason,'rationale mismatch '+ident)
+  checks=set()
+  for selector in (transfer if delayed else ordinary):
+   matches={x for x in commands if x.startswith(selector) and not x.endswith('.compile')};need(bool(matches),'empty binding '+ident);checks.update(matches)
+  need(set(row.get('author_validation',{}).get('checks',[]))==checks and row.get('author_validation',{}).get('report')==receipt,'exact evidence binding mismatch '+ident)
+  need(row.get('author_validation',{}).get('additional_reports')==[closure_receipt],'full composition closure unbound '+ident)
+  dimensions=row.get('dimensions',{});need(set(dimensions)=={'teaching','implementation','author_validation','external_review','independent_learner','physical_observation'},'six dimensions absent '+ident)
+  for dim,state in [('external_review','not-run'),('independent_learner','not-assessed')]:need(dimensions.get(dim)==dict(state=state,evidence=[]),'inflated '+dim+' '+ident)
+  physical=c['objective']=='T20.04.b' or c['objective'].startswith('T20.05.');need(dimensions.get('physical_observation',{}).get('state')==('not-observed' if physical else 'not-applicable-to-host-or-analysis-contract'),'physical evidence inflated '+ident)
+ return errors
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--self-test',action='store_true');args=parser.parse_args();data=json.loads((FOLDER/'completion_dispositions.json').read_text(encoding='utf8'));report=json.loads((FOLDER/'validation.json').read_text(encoding='utf8'));external=external_current(report.get('external_source_sha256',{}));errors=validate(data,report,external);controls=[]
+ if args.self_test and not errors:
+  for kind in ['missing-criterion','missing-delayed','stale-source','stale-output','stale-vendor','missing-mutant','missing-positive','missing-composition','inflated-independent','inflated-physical','wrong-binding','missing-outbox-fault','stale-config','unclosed-profile-C']:
+   d=copy.deepcopy(data);r=copy.deepcopy(report)
+   if kind in ['missing-criterion','missing-delayed']:d['updates'].pop(0 if kind=='missing-criterion' else 1)
+   elif kind=='stale-source':r['source_sha256'][next(iter(r['source_sha256']))]='0'*64
+   elif kind=='stale-output':r['outputs_sha256'][next(iter(r['outputs_sha256']))]='0'*64
+   elif kind=='stale-vendor':r['external_source_sha256'][next(iter(r['external_source_sha256']))]='0'*64
+   elif kind in ['missing-mutant','missing-positive','missing-composition','missing-outbox-fault']:
+    key={'missing-mutant':'gcc.debug.mutant1','missing-positive':'gcc.debug.core','missing-composition':'gcc.debug.composition','missing-outbox-fault':'gcc.debug.outbox_fault'}[kind];r['commands']=[x for x in r['commands'] if x['id']!=key]
+   elif kind=='inflated-independent':d['updates'][0]['dimensions']['independent_learner']=dict(state='passed',evidence=['research/v5/expansion/legacy_architecture/validation.json'])
+   elif kind=='inflated-physical':next(x for x in d['updates'] if x['objective']=='T20.05.b')['dimensions']['physical_observation']['state']='observed'
+   elif kind=='wrong-binding':d['updates'][0]['author_validation']['checks']=['gcc.version']
+   elif kind=='stale-config':r['observations']['gcc.identity.stale_rejected']['observed']='0102010000000014'
+   elif kind=='unclosed-profile-C':next(x for x in r['commands'] if x['id']=='gcc.profileC.closed')['output']=' U malloc\n'
+   rejected=bool(validate(d,r,external));controls.append(dict(control=kind,rejected=rejected))
+   if not rejected:errors.append('negative control accepted '+kind)
+ print(json.dumps(dict(passed=not errors,updates=len(data['updates']),commands=len(report['commands']),negative_controls=controls,errors=errors),indent=2));return int(bool(errors))
+if __name__=='__main__':raise SystemExit(main())

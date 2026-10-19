@@ -1,0 +1,32 @@
+MW:watch:legal-cell99:live-generation2:value82
+
+Breakpoint 1, mw_marker (stage=1) at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5
+5	__attribute__((noinline)) void mw_marker(unsigned stage){__asm volatile(""::"r"(stage):"memory");}
+#1  0x000058677852c1d9 in main () at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:6
+6	int main(void){unsigned *p=malloc(sizeof *p);if(!p)return 2;*p=7;mw_marker(1);cells[1]=99;/* Legal address, wrong logical field: no section growth. */mw_marker(2);unsigned *next=malloc(sizeof *next);if(!next){free(p);return 2;}*next=*p;mw_marker(3);free(p);p=next;generation++;mw_marker(4);*p=82;mw_marker(5);printf("MW:watch:legal-cell%u:live-generation%u:value%u\n",cells[1],generation,*p);free(p);return 0;}
+
+Hardware watchpoint 2: cells[1]
+
+Old value = 8
+New value = 99
+0x000058677852c1e3 in main () at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:6
+6	int main(void){unsigned *p=malloc(sizeof *p);if(!p)return 2;*p=7;mw_marker(1);cells[1]=99;/* Legal address, wrong logical field: no section growth. */mw_marker(2);unsigned *next=malloc(sizeof *next);if(!next){free(p);return 2;}*next=*p;mw_marker(3);free(p);p=next;generation++;mw_marker(4);*p=82;mw_marker(5);printf("MW:watch:legal-cell%u:live-generation%u:value%u\n",cells[1],generation,*p);free(p);return 0;}
+
+Breakpoint 3, mw_marker (stage=3) at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5
+5	__attribute__((noinline)) void mw_marker(unsigned stage){__asm volatile(""::"r"(stage):"memory");}
+#1  0x000058677852c22e in main () at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:6
+6	int main(void){unsigned *p=malloc(sizeof *p);if(!p)return 2;*p=7;mw_marker(1);cells[1]=99;/* Legal address, wrong logical field: no section growth. */mw_marker(2);unsigned *next=malloc(sizeof *next);if(!next){free(p);return 2;}*next=*p;mw_marker(3);free(p);p=next;generation++;mw_marker(4);*p=82;mw_marker(5);printf("MW:watch:legal-cell%u:live-generation%u:value%u\n",cells[1],generation,*p);free(p);return 0;}
+
+Breakpoint 5, mw_marker (stage=4) at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5
+5	__attribute__((noinline)) void mw_marker(unsigned stage){__asm volatile(""::"r"(stage):"memory");}
+#1  0x000058677852c25b in main () at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:6
+6	int main(void){unsigned *p=malloc(sizeof *p);if(!p)return 2;*p=7;mw_marker(1);cells[1]=99;/* Legal address, wrong logical field: no section growth. */mw_marker(2);unsigned *next=malloc(sizeof *next);if(!next){free(p);return 2;}*next=*p;mw_marker(3);free(p);p=next;generation++;mw_marker(4);*p=82;mw_marker(5);printf("MW:watch:legal-cell%u:live-generation%u:value%u\n",cells[1],generation,*p);free(p);return 0;}
+
+Hardware watchpoint 6: *p
+
+Old value = 7
+New value = 82
+0x000058677852c265 in main () at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:6
+6	int main(void){unsigned *p=malloc(sizeof *p);if(!p)return 2;*p=7;mw_marker(1);cells[1]=99;/* Legal address, wrong logical field: no section growth. */mw_marker(2);unsigned *next=malloc(sizeof *next);if(!next){free(p);return 2;}*next=*p;mw_marker(3);free(p);p=next;generation++;mw_marker(4);*p=82;mw_marker(5);printf("MW:watch:legal-cell%u:live-generation%u:value%u\n",cells[1],generation,*p);free(p);return 0;}
+[Inferior 1 (process 3714) exited normally]
+MW_GDB:{"records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set debuginfod enabled off", "output": ""}, {"command": "break mw_marker if stage == 1", "output": "Breakpoint 1 at 0x1194: file /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c, line 5.\n"}, {"command": "run", "output": "[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\n"}, {"command": "up", "output": ""}, {"command": "watch cells[1]", "output": "Hardware watchpoint 2: cells[1]\n"}, {"command": "continue", "output": ""}, {"command": "print cells[1]", "output": "$1 = 99\n"}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n1       breakpoint     keep y   0x000058677852c194 in mw_marker at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5\n\tstop only if stage == 1\n\tbreakpoint already hit 1 time\n2       hw watchpoint  keep y                      cells[1]\n\tbreakpoint already hit 1 time\n"}, {"command": "delete breakpoints", "output": ""}, {"command": "break mw_marker if stage == 3", "output": "Breakpoint 3 at 0x58677852c194: file /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c, line 5.\n"}, {"command": "continue", "output": ""}, {"command": "up", "output": ""}, {"command": "watch *p", "output": "Hardware watchpoint 4: *p\n"}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n3       breakpoint     keep y   0x000058677852c194 in mw_marker at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5\n\tstop only if stage == 3\n\tbreakpoint already hit 1 time\n4       hw watchpoint  keep y                      *p\n"}, {"command": "delete breakpoints", "output": ""}, {"command": "break mw_marker if stage == 4", "output": "Breakpoint 5 at 0x58677852c194: file /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c, line 5.\n"}, {"command": "continue", "output": ""}, {"command": "up", "output": ""}, {"command": "print generation", "output": "$2 = 2\n"}, {"command": "watch *p", "output": "Hardware watchpoint 6: *p\n"}, {"command": "continue", "output": ""}, {"command": "print *p", "output": "$3 = 82\n"}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n5       breakpoint     keep y   0x000058677852c194 in mw_marker at /mnt/f/Learning/Curricula/c_mastery/labs/memory_followthrough/watch.c:5\n\tstop only if stage == 4\n\tbreakpoint already hit 1 time\n6       hw watchpoint  keep y                      *p\n\tbreakpoint already hit 1 time\n"}, {"command": "delete breakpoints", "output": ""}, {"command": "continue", "output": ""}], "heap": "only-selected-live-object", "omitted_memory": "unknown", "ASLR": "preserved", "native_core": false}

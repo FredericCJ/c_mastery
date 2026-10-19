@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "domain": "T68",
+  "criteria": [
+    {
+      "id": "X-T68-009-R1",
+      "objective": "T68.09.a",
+      "criterion": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Nested expansion preserves complete caller argument tokens while allocating one fresh context per invocation. A concrete reverse environment resolves the caller identity to11 and an original retagged or symbol-only defect to99. Namespace authority and context equality are explicit caller/runtime contracts, not unforgeable C types.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-009.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/nested_hygiene/HYGIENE.md",
+        "assessor/metaprog/nested_hygiene/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/nested_hygiene/nested_hygiene.c",
+        "labs/metaprog/nested_hygiene/include/nested_hygiene.h",
+        "labs/metaprog/nested_hygiene/tests/tests.c",
+        "labs/metaprog/nested_hygiene/tests/comparison.rs",
+        "tools/verify_metaprog_nested_hygiene.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_nested_hygiene_validation.json",
+        "research/v5/modern/metaprog_hygiene_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-009-R2",
+      "objective": "T68.09.b",
+      "criterion": "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Two-list zip and independent-list nested repetitions have explicit binding indices separate from syntax contexts. Per-invocation freshness, MAX sentinel exhaustion and depth/token/instruction limits are derived; zero-output recursion still consumes work. Actual Rust2021 positives and three translation refusals distinguish mixed-site lookup, unequal repetition and cross-invocation scope from this smaller uniform-context language.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-009.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/nested_hygiene/HYGIENE.md",
+        "assessor/metaprog/nested_hygiene/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/nested_hygiene/nested_hygiene.c",
+        "labs/metaprog/nested_hygiene/include/nested_hygiene.h",
+        "labs/metaprog/nested_hygiene/tests/tests.c",
+        "labs/metaprog/nested_hygiene/tests/comparison.rs",
+        "tools/verify_metaprog_nested_hygiene.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_nested_hygiene_validation.json",
+        "research/v5/modern/metaprog_hygiene_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-009-R3",
+      "objective": "T68.09.c",
+      "criterion": "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Six profiles pass four named anchors, eight compiled semantic controls including actual retained MOD17/18, and four compiling learner stubs reject. An independent explicit-work-stack oracle matches13720cases:2416successes,5400structural refusals,865shape refusals,4024budget refusals,794exhaustions and221capture refusals. Exact output and context authority remain unchanged on failures after partial work.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-009.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/nested_hygiene/HYGIENE.md",
+        "assessor/metaprog/nested_hygiene/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/nested_hygiene/nested_hygiene.c",
+        "labs/metaprog/nested_hygiene/include/nested_hygiene.h",
+        "labs/metaprog/nested_hygiene/tests/tests.c",
+        "labs/metaprog/nested_hygiene/tests/comparison.rs",
+        "tools/verify_metaprog_nested_hygiene.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_nested_hygiene_validation.json",
+        "research/v5/modern/metaprog_hygiene_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    },
+    {
+      "id": "X-T68-009-R4",
+      "objective": "T68.09.d",
+      "criterion": "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence.",
+      "levels": {
+        "0": "Missing or contradicted by the stated contract.",
+        "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+        "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+        "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+      },
+      "author_readiness": "ready-bounded",
+      "demonstration": "Required nested macros, equal-length metavariables, independent nested repetition, explicit parent-context escapes and three resource budgets are fully implemented and executed. Real Rust comparison supplies definition-site local/invocation-site item and explicit identifier-binding counterexamples; no full Rust/ISO C macro equivalence is claimed. All13cost rows, actual compiler object/stack observations and seven equal-contract samples are present; unaided delayed assessment remains external.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T68-009.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/nested_hygiene/HYGIENE.md",
+        "assessor/metaprog/nested_hygiene/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/nested_hygiene/nested_hygiene.c",
+        "labs/metaprog/nested_hygiene/include/nested_hygiene.h",
+        "labs/metaprog/nested_hygiene/tests/tests.c",
+        "labs/metaprog/nested_hygiene/tests/comparison.rs",
+        "tools/verify_metaprog_nested_hygiene.py"
+      ],
+      "validation": [
+        "research/v5/modern/metaprog_nested_hygiene_validation.json",
+        "research/v5/modern/metaprog_hygiene_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed",
+      "external_review": "not-run",
+      "physical_observation": "not-applicable-hosted-model"
+    }
+  ],
+  "variants": [
+    {
+      "id": "X-T68-009-DELAYED",
+      "author_support": "implemented-and-author-validated",
+      "evidence": [
+        "curriculum/v5/exercises/X-T68-009.md",
+        "labs/metaprog/CONTRACTS.md",
+        "labs/metaprog/nested_hygiene/HYGIENE.md",
+        "assessor/metaprog/nested_hygiene/ANALYSIS.md",
+        "assessor/metaprog/metaprog.c",
+        "assessor/metaprog/nested_hygiene/nested_hygiene.c",
+        "labs/metaprog/nested_hygiene/include/nested_hygiene.h",
+        "labs/metaprog/nested_hygiene/tests/tests.c",
+        "labs/metaprog/nested_hygiene/tests/comparison.rs",
+        "tools/verify_metaprog_nested_hygiene.py",
+        "research/v5/modern/metaprog_nested_hygiene_validation.json",
+        "research/v5/modern/metaprog_hygiene_investigation_validation.json"
+      ],
+      "independent_learner": "not-assessed"
+    }
+  ],
+  "current_reports": {
+    "research/v5/modern/metaprog_nested_hygiene_validation.json": "94deab4eb645ca17da717265f52ecefb10bfa96204b08870c6356234cd67424d",
+    "research/v5/modern/metaprog_hygiene_investigation_validation.json": "a41a5db9dce7516132d5e67a9b2d61acac7223c21109189fc85acd339e830acd"
+  },
+  "input_sha256": {
+    "assessor/metaprog/metaprog.c": "91962f870285cb7052e09e03639c2b3039196d6cf85ca36f98a87a74a41735d1",
+    "assessor/metaprog/nested_hygiene/ANALYSIS.md": "af9b596760100a27d66da496a9402c767b12655653b1c8f47ac77c376b35c575",
+    "assessor/metaprog/nested_hygiene/nested_hygiene.c": "388d78aaf14c1d572f56e6b8c3903717bf1dde734f0943dad1bc8c97e681b97a",
+    "assessor/metaprog/ring_template.inc": "5e6bb7c49e243e69a0c134fa2cbe75b0f5eb44c2c955759ce870f03192bb34cb",
+    "labs/metaprog/CONTRACTS.md": "fa937304252997ddf39e89dc8a1a091024140a02f18c8b8fdcca863c049f3139",
+    "labs/metaprog/include/metaprog.h": "67c597abea589453837d08966f05e46bef26dc89afe44379870f5681a4778557",
+    "labs/metaprog/nested_hygiene/CMakeLists.txt": "41a494e1e2f595e4e1f200ed0a6fad5cc921b0a381499d7992fd731e6f5dc0f9",
+    "labs/metaprog/nested_hygiene/HYGIENE.md": "0e5da4d67779630fdb6be0a388a770b44bcd589427b588f8c0166c9b991d1fe8",
+    "labs/metaprog/nested_hygiene/campaign.json": "dbba730947f807f62bce53b6eeb3d146e3d35a92e229fc03145b945a6047ce50",
+    "labs/metaprog/nested_hygiene/expect_failure.py": "759ec863045b8d001efb86b3597cdb630074de9ada9ebd516d3ae6273f4103dd",
+    "labs/metaprog/nested_hygiene/include/nested_hygiene.h": "41254cb50eec0c1b762ba460ba327c4bbbe6bfef56a165b1cc0da2b1d9006e09",
+    "labs/metaprog/nested_hygiene/src/nested_hygiene.c": "c9a6648ad32b59f04576fb8baf41f69fb6692098a7da71cc15062bf72d0f3057",
+    "labs/metaprog/nested_hygiene/tests/comparison.rs": "31a78e3124469e1c754bf97aa197c10a2aca34982da02b17f0c6002fa110f773",
+    "labs/metaprog/nested_hygiene/tests/tests.c": "f2d14a8eef3d0a891aa5421e4aaa9e61fce8cefd6ec44403e362bdfa259892f5",
+    "labs/metaprog/src/metaprog.c": "6bf76b2f1fe4a9504805a95292bbb69fb75699beeb681b81ccc9bb41e72fcf50",
+    "research/v5/modern/metaprog_nested_hygiene_research_gate.json": "12a79f3ce0ce87a66b60591c069f6bda04b64ca5b79db65e35955a0fcd77b3bb",
+    "research/v5/modern/metaprog_nested_hygiene_resources.json": "ab05c289ec9df705890f740dcde49561637335d2b90678c6eb579a1aff744c09",
+    "tools/common.py": "c4bfe81141fa304232f32b8b1ccdca16fda2b97ec976bb8599efa8f2a33cdfc4",
+    "tools/register_metaprog_nested_hygiene.py": "5b44f5e7e6847622bc9d826a26d90935aff23ec69ed32572691198de61c0fbec",
+    "tools/run_metaprog_module.py": "ab6bca4c93cc0ee459ee911d02c8f6a073c001e161b9cee02340b00485bf3c10",
+    "tools/run_metaprog_nested_hygiene.py": "40bd4d8d8cfec52991d5d58dfec3b4df6a1e131c423d297b122b40bb7c635bcb",
+    "tools/run_resilience_scoped.py": "da705d4660dcd1e2f9d6beb67a1bf2f203d643578147549b8e751845ab31c534",
+    "tools/v5_common.py": "b0f700108d088ce25121c259bb7a1ddb9145894c28481d1ee9b648b58268912f",
+    "tools/verify_metaprog_nested_hygiene.py": "f553f4253a2bebcc2a2fa085433f42ce4e97b82c0a575cbe7fe7b30039d4427b",
+    "tools/run_metaprog_hygiene_investigation.py": "85ec7bb049421a9a48895f4518ed690c3d6c4bd26e4a44d42e9933263ba9490e",
+    "curriculum/v5/exercises/X-T68-009.md": "fad934ce6b87cdbdad6216b381c6acb8d89704493f3c790c55e78ec7081bfa98",
+    "research/v5/modern/metaprog_nested_hygiene_validation.json": "94deab4eb645ca17da717265f52ecefb10bfa96204b08870c6356234cd67424d",
+    "research/v5/modern/metaprog_hygiene_investigation_validation.json": "a41a5db9dce7516132d5e67a9b2d61acac7223c21109189fc85acd339e830acd",
+    "tools/build_metaprog_nested_hygiene_readiness.py": "e96f6b9222fab468ea8c5db0e048c84e10d39a1a8908f373e9f154986fbefde7",
+    "tools/check_metaprog_nested_hygiene.py": "8fcc76a5d6a2c902544218b7401b1b4fd07e8c4925321c512741b62f156867d6"
+  },
+  "limits": [
+    "Namespace authority must remain unique while old tokens survive; visible checks cannot prove no other retained contexts exist.",
+    "Live disjoint controls and external serialization are caller premises.",
+    "Two flat metavariable lists and reverse environments are a bounded language, not full Rust repetition/lookup or C parsing.",
+    "Depth8, tokens64 and steps256 bound this execution; no unbounded termination theorem.",
+    "Finite author evidence is not independent human review or learner mastery; exact published C17/C23 unavailable."
+  ]
+}

@@ -1,0 +1,545 @@
+
+/tmp/debug-recovery-pjbthtkf/clang-O3-target-1/recovery.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000040 <fb_guest_main>:
+#include "target.h"
+static void emit(const char*s){register unsigned r0 __asm__("r0")=4;register const char*r1 __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");}
+void fb_guest_main(void){
+  40:	b082      	sub	sp, #8
+ (void)du_target();emit("DU_TARGET_CHECK:admission-or-unsolved\n");
+  42:	f000 f867 	bl	114 <du_target>
+static void emit(const char*s){register unsigned r0 __asm__("r0")=4;register const char*r1 __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");}
+  46:	f240 312c 	movw	r1, #812	@ 0x32c
+  4a:	2004      	movs	r0, #4
+  4c:	f2c0 0100 	movt	r1, #0
+  50:	beab      	bkpt	0x00ab
+  52:	2001      	movs	r0, #1
+ const unsigned block[2]={0x20026,1};register unsigned r0 __asm__("r0")=0x20;register const unsigned*r1 __asm__("r1")=block;__asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");for(;;){}
+  54:	9001      	str	r0, [sp, #4]
+  56:	2026      	movs	r0, #38	@ 0x26
+  58:	f2c0 0002 	movt	r0, #2
+  5c:	9000      	str	r0, [sp, #0]
+  5e:	2020      	movs	r0, #32
+  60:	4669      	mov	r1, sp
+  62:	beab      	bkpt	0x00ab
+  64:	e7fe      	b.n	64 <fb_guest_main+0x24>
+	...
+
+00000068 <du_prepare>:
+#define DU_MUTANT 0
+#endif
+static uint32_t get(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+uint32_t du_crc(const unsigned char*p,size_t n){uint32_t c=UINT32_MAX;for(size_t i=0;i<n;i++){c^=p[i];for(unsigned b=0;b<8;b++)c=(c>>1)^((0u-(c&1u))&0xedb88320u);}return ~c;}
+static int shape(const DuImage*i){return i&&i->version&&i->generation&&i->extent>=10&&i->extent<=2048&&i->base<=UINT32_MAX-i->extent&&!(i->base&511u)&&(i->entry&1u)&&(i->entry&~1u)>=i->base+8&&(i->entry&~1u)<=i->base+i->extent-2&&i->stack>0x20000000u&&i->stack<=0x20020000u&&!(i->stack&7u)&&i->clock;}
+  68:	b3c0      	cbz	r0, dc <du_prepare+0x74>
+  6a:	6803      	ldr	r3, [r0, #0]
+  6c:	b3b3      	cbz	r3, dc <du_prepare+0x74>
+  6e:	6983      	ldr	r3, [r0, #24]
+  70:	b3a3      	cbz	r3, dc <du_prepare+0x74>
+  72:	b570      	push	{r4, r5, r6, lr}
+  74:	6844      	ldr	r4, [r0, #4]
+  76:	f240 75f6 	movw	r5, #2038	@ 0x7f6
+  7a:	f1a4 030a 	sub.w	r3, r4, #10
+  7e:	42ab      	cmp	r3, r5
+  80:	d846      	bhi.n	110 <du_prepare+0xa8>
+  82:	6886      	ldr	r6, [r0, #8]
+  84:	4686      	mov	lr, r0
+  86:	43e0      	mvns	r0, r4
+  88:	4286      	cmp	r6, r0
+int du_encode(const DuImage*i,const unsigned char*p,size_t n,DuSlot*out){
+ if(!shape(i)||!p||!out||n!=i->extent||n>24||get(p)!=i->stack||get(p+4)!=i->entry)return DU_INVALID;
+  8a:	f04f 0001 	mov.w	r0, #1
+  8e:	d824      	bhi.n	da <du_prepare+0x72>
+  90:	4633      	mov	r3, r6
+  92:	f36f 235f 	bfc	r3, #9, #23
+  96:	bb03      	cbnz	r3, da <du_prepare+0x72>
+  98:	f8de c00c 	ldr.w	ip, [lr, #12]
+  9c:	ea5f 73cc 	movs.w	r3, ip, lsl #31
+  a0:	d01b      	beq.n	da <du_prepare+0x72>
+  a2:	f02c 0501 	bic.w	r5, ip, #1
+  a6:	f046 0308 	orr.w	r3, r6, #8
+  aa:	429d      	cmp	r5, r3
+static uint32_t get(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
+  ac:	d315      	bcc.n	da <du_prepare+0x72>
+ if(!shape(i)||!p||!out||n!=i->extent||n>24||get(p)!=i->stack||get(p+4)!=i->entry)return DU_INVALID;
+  ae:	19a3      	adds	r3, r4, r6
+  b0:	3b02      	subs	r3, #2
+  b2:	429d      	cmp	r5, r3
+static uint32_t get(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
+  b4:	d811      	bhi.n	da <du_prepare+0x72>
+ if(!shape(i)||!p||!out||n!=i->extent||n>24||get(p)!=i->stack||get(p+4)!=i->entry)return DU_INVALID;
+  b6:	f8de 4010 	ldr.w	r4, [lr, #16]
+  ba:	f06f 5000 	mvn.w	r0, #536870912	@ 0x20000000
+  be:	4420      	add	r0, r4
+  c0:	2300      	movs	r3, #0
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+  c2:	ebb3 4f50 	cmp.w	r3, r0, lsr #17
+  c6:	f04f 0001 	mov.w	r0, #1
+  ca:	bf08      	it	eq
+  cc:	f014 0307 	andseq.w	r3, r4, #7
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+  d0:	d103      	bne.n	da <du_prepare+0x72>
+  d2:	2a00      	cmp	r2, #0
+  d4:	bf18      	it	ne
+  d6:	2900      	cmpne	r1, #0
+  d8:	d102      	bne.n	e0 <du_prepare+0x78>
+  da:	bd70      	pop	{r4, r5, r6, pc}
+  dc:	2001      	movs	r0, #1
+  de:	4770      	bx	lr
+  e0:	f8de e014 	ldr.w	lr, [lr, #20]
+  e4:	f1be 0f00 	cmp.w	lr, #0
+  e8:	bf08      	it	eq
+  ea:	bd70      	popeq	{r4, r5, r6, pc}
+  ec:	6848      	ldr	r0, [r1, #4]
+  ee:	2801      	cmp	r0, #1
+  f0:	d10e      	bne.n	110 <du_prepare+0xa8>
+  f2:	6888      	ldr	r0, [r1, #8]
+  f4:	b960      	cbnz	r0, 110 <du_prepare+0xa8>
+  f6:	68c8      	ldr	r0, [r1, #12]
+  f8:	b950      	cbnz	r0, 110 <du_prepare+0xa8>
+  fa:	6908      	ldr	r0, [r1, #16]
+  fc:	b940      	cbnz	r0, 110 <du_prepare+0xa8>
+  fe:	6808      	ldr	r0, [r1, #0]
+ 100:	4570      	cmp	r0, lr
+ 102:	d105      	bne.n	110 <du_prepare+0xa8>
+ 104:	2000      	movs	r0, #0
+ 106:	e9c2 6400 	strd	r6, r4, [r2]
+ 10a:	f8c2 c008 	str.w	ip, [r2, #8]
+ 10e:	bd70      	pop	{r4, r5, r6, pc}
+ 110:	2001      	movs	r0, #1
+ 112:	bd70      	pop	{r4, r5, r6, pc}
+
+00000114 <du_target>:
+ 114:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+ 118:	b090      	sub	sp, #64	@ 0x40
+ 11a:	f240 0000 	movw	r0, #0
+ 11e:	f240 3114 	movw	r1, #788	@ 0x314
+ 122:	f2c0 0004 	movt	r0, #4
+ 126:	f2c0 0104 	movt	r1, #4
+ 12a:	1a09      	subs	r1, r1, r0
+ 12c:	f6a1 0201 	subw	r2, r1, #2049	@ 0x801
+ 130:	f512 6fff 	cmn.w	r2, #2040	@ 0x7f8
+ 134:	d933      	bls.n	19e <du_target+0x8a>
+ 136:	2203      	movs	r2, #3
+ 138:	e9cd 2109 	strd	r2, r1, [sp, #36]	@ 0x24
+ 13c:	900b      	str	r0, [sp, #44]	@ 0x2c
+ 13e:	6841      	ldr	r1, [r0, #4]
+ 140:	6800      	ldr	r0, [r0, #0]
+ 142:	f647 0840 	movw	r8, #30784	@ 0x7840
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+ 146:	f2c0 187d 	movt	r8, #381	@ 0x17d
+ 14a:	e9cd 100c 	strd	r1, r0, [sp, #48]	@ 0x30
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+ 14e:	f240 3054 	movw	r0, #852	@ 0x354
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+ 152:	e9cd 820e 	strd	r8, r2, [sp, #56]	@ 0x38
+ 156:	f2c0 0000 	movt	r0, #0
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+ 15a:	a904      	add	r1, sp, #16
+ 15c:	e890 00f8 	ldmia.w	r0, {r3, r4, r5, r6, r7}
+ 160:	460a      	mov	r2, r1
+ 162:	2000      	movs	r0, #0
+ 164:	c2f8      	stmia	r2!, {r3, r4, r5, r6, r7}
+ 166:	9003      	str	r0, [sp, #12]
+ 168:	e9cd 0001 	strd	r0, r0, [sp, #4]
+ 16c:	a809      	add	r0, sp, #36	@ 0x24
+ 16e:	aa01      	add	r2, sp, #4
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+ 170:	f7ff ff7a 	bl	68 <du_prepare>
+ 174:	2801      	cmp	r0, #1
+ 176:	d112      	bne.n	19e <du_target+0x8a>
+ 178:	2001      	movs	r0, #1
+ 17a:	9007      	str	r0, [sp, #28]
+ 17c:	a809      	add	r0, sp, #36	@ 0x24
+ 17e:	a904      	add	r1, sp, #16
+ 180:	aa01      	add	r2, sp, #4
+ 182:	f8cd 8010 	str.w	r8, [sp, #16]
+ 186:	f7ff ff6f 	bl	68 <du_prepare>
+ 18a:	2801      	cmp	r0, #1
+ 18c:	d107      	bne.n	19e <du_target+0x8a>
+ 18e:	2400      	movs	r4, #0
+ 190:	a809      	add	r0, sp, #36	@ 0x24
+ 192:	a904      	add	r1, sp, #16
+ 194:	aa01      	add	r2, sp, #4
+ 196:	9407      	str	r4, [sp, #28]
+ 198:	f7ff ff66 	bl	68 <du_prepare>
+ 19c:	b120      	cbz	r0, 1a8 <du_target+0x94>
+ 19e:	2001      	movs	r0, #1
+ 1a0:	b010      	add	sp, #64	@ 0x40
+ 1a2:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+ 1a6:	bf00      	nop
+ 1a8:	e9dd 1202 	ldrd	r1, r2, [sp, #8]
+ 1ac:	2000      	movs	r0, #0
+ 1ae:	9401      	str	r4, [sp, #4]
+ 1b0:	f000 f800 	bl	1b4 <fb_handoff>
+
+000001b4 <fb_handoff>:
+ 1b4:	f64e 5e98 	movw	lr, #60824	@ 0xed98
+ 1b8:	f24e 0310 	movw	r3, #57360	@ 0xe010
+ 1bc:	f2ce 0e00 	movt	lr, #57344	@ 0xe000
+ 1c0:	f2ce 0300 	movt	r3, #57344	@ 0xe000
+ 1c4:	2500      	movs	r5, #0
+ 1c6:	b672      	cpsid	i
+ 1c8:	f3bf 8f4f 	dsb	sy
+ 1cc:	601d      	str	r5, [r3, #0]
+ 1ce:	f84e 5c04 	str.w	r5, [lr, #-4]
+ 1d2:	f8d3 3d80 	ldr.w	r3, [r3, #3456]	@ 0xd80
+ 1d6:	f06f 0510 	mvn.w	r5, #16
+ 1da:	fa55 f593 	uxtab	r5, r5, r3, ror #8
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+ 1de:	f115 0f10 	cmn.w	r5, #16
+ 1e2:	d801      	bhi.n	1e8 <fb_handoff+0x34>
+ 1e4:	bf30      	wfi
+uint32_t du_crc(const unsigned char*p,size_t n){uint32_t c=UINT32_MAX;for(size_t i=0;i<n;i++){c^=p[i];for(unsigned b=0;b<8;b++)c=(c>>1)^((0u-(c&1u))&0xedb88320u);}return ~c;}
+ 1e6:	e7fd      	b.n	1e4 <fb_handoff+0x30>
+ 1e8:	0a1c      	lsrs	r4, r3, #8
+ 1ea:	f3c3 2307 	ubfx	r3, r3, #8, #8
+ 1ee:	3b01      	subs	r3, #1
+ 1f0:	f004 0c03 	and.w	ip, r4, #3
+ 1f4:	2b03      	cmp	r3, #3
+ 1f6:	f04f 0300 	mov.w	r3, #0
+ 1fa:	d31a      	bcc.n	232 <fb_handoff+0x7e>
+ 1fc:	f004 05fc 	and.w	r5, r4, #252	@ 0xfc
+ 200:	2400      	movs	r4, #0
+ 202:	bf00      	nop
+ 204:	1c66      	adds	r6, r4, #1
+ 206:	f8ce 4000 	str.w	r4, [lr]
+ 20a:	f8ce 3008 	str.w	r3, [lr, #8]
+ 20e:	f8ce 6000 	str.w	r6, [lr]
+ 212:	1ca6      	adds	r6, r4, #2
+ 214:	f8ce 3008 	str.w	r3, [lr, #8]
+ 218:	f8ce 6000 	str.w	r6, [lr]
+ 21c:	1ce6      	adds	r6, r4, #3
+ 21e:	3404      	adds	r4, #4
+ 220:	42ac      	cmp	r4, r5
+ 222:	f8ce 3008 	str.w	r3, [lr, #8]
+ 226:	f8ce 6000 	str.w	r6, [lr]
+ 22a:	f8ce 3008 	str.w	r3, [lr, #8]
+ 22e:	d1e9      	bne.n	204 <fb_handoff+0x50>
+ 230:	4623      	mov	r3, r4
+ 232:	f1bc 0f00 	cmp.w	ip, #0
+ 236:	d015      	beq.n	264 <fb_handoff+0xb0>
+ 238:	2400      	movs	r4, #0
+ 23a:	f1bc 0f01 	cmp.w	ip, #1
+ 23e:	f8ce 3000 	str.w	r3, [lr]
+ 242:	f8ce 4008 	str.w	r4, [lr, #8]
+ 246:	d00d      	beq.n	264 <fb_handoff+0xb0>
+ 248:	1c5d      	adds	r5, r3, #1
+ 24a:	f1bc 0f02 	cmp.w	ip, #2
+ 24e:	f8ce 5000 	str.w	r5, [lr]
+ 252:	f8ce 4008 	str.w	r4, [lr, #8]
+ 256:	d005      	beq.n	264 <fb_handoff+0xb0>
+ 258:	3302      	adds	r3, #2
+ 25a:	f8ce 3000 	str.w	r3, [lr]
+ 25e:	2300      	movs	r3, #0
+ 260:	f8ce 3008 	str.w	r3, [lr, #8]
+ 264:	2300      	movs	r3, #0
+ 266:	f8ce 3000 	str.w	r3, [lr]
+ 26a:	f8ce 3004 	str.w	r3, [lr, #4]
+ 26e:	2329      	movs	r3, #41	@ 0x29
+ 270:	f2c0 6302 	movt	r3, #1538	@ 0x602
+ 274:	f8ce 3008 	str.w	r3, [lr, #8]
+ 278:	2301      	movs	r3, #1
+ 27a:	f8ce 3000 	str.w	r3, [lr]
+ 27e:	f04f 5300 	mov.w	r3, #536870912	@ 0x20000000
+ 282:	f8ce 3004 	str.w	r3, [lr, #4]
+ 286:	2321      	movs	r3, #33	@ 0x21
+ 288:	f2c1 3306 	movt	r3, #4870	@ 0x1306
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+ 28c:	f8ce 3008 	str.w	r3, [lr, #8]
+ 290:	2305      	movs	r3, #5
+ 292:	f84e 3c04 	str.w	r3, [lr, #-4]
+ 296:	f3bf 8f4f 	dsb	sy
+ 29a:	f3bf 8f6f 	isb	sy
+ 29e:	f000 f801 	bl	2a4 <fb_branch>
+	...
+
+000002a4 <fb_branch>:
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+ 2a4:	4b05      	ldr	r3, [pc, #20]	@ (2bc <fb_branch+0x18>)
+static void put(unsigned char*p,uint32_t x){for(unsigned i=0;i<4;i++)p[i]=(unsigned char)(x>>(i*8));}
+ 2a6:	6018      	str	r0, [r3, #0]
+ 2a8:	2300      	movs	r3, #0
+ 2aa:	f383 8814 	msr	CONTROL, r3
+ DuSlot r={{0}};put(r.bytes,0x31554944);put(r.bytes+4,i->version);put(r.bytes+8,i->extent);put(r.bytes+12,i->base);put(r.bytes+16,i->entry);put(r.bytes+20,i->stack);put(r.bytes+24,i->clock);for(size_t k=0;k<n;k++)r.bytes[28+k]=p[k];put(r.bytes+52,i->generation);put(r.bytes+56,du_crc(r.bytes,56));put(r.bytes+60,0xc04d17ed);*out=r;return DU_OK;
+ 2ae:	f3bf 8f4f 	dsb	sy
+ 2b2:	f3bf 8f6f 	isb	sy
+ 2b6:	f381 8808 	msr	MSP, r1
+ 2ba:	4710      	bx	r2
+ 2bc:	e000ed08 	.word	0xe000ed08
+
+000002c0 <Reset>:
+}
+ 2c0:	4813      	ldr	r0, [pc, #76]	@ (310 <failed_exit+0x8>)
+ 2c2:	4914      	ldr	r1, [pc, #80]	@ (314 <failed_exit+0xc>)
+ 2c4:	4a14      	ldr	r2, [pc, #80]	@ (318 <failed_exit+0x10>)
+ 2c6:	4291      	cmp	r1, r2
+ 2c8:	d204      	bcs.n	2d4 <Reset+0x14>
+ 2ca:	f850 3b04 	ldr.w	r3, [r0], #4
+ 2ce:	f841 3b04 	str.w	r3, [r1], #4
+ 2d2:	e7f8      	b.n	2c6 <Reset+0x6>
+ 2d4:	4911      	ldr	r1, [pc, #68]	@ (31c <failed_exit+0x14>)
+ 2d6:	4a12      	ldr	r2, [pc, #72]	@ (320 <failed_exit+0x18>)
+ 2d8:	2300      	movs	r3, #0
+ 2da:	4291      	cmp	r1, r2
+ 2dc:	d202      	bcs.n	2e4 <Reset+0x24>
+ 2de:	f841 3b04 	str.w	r3, [r1], #4
+ ldr r2,=_bss_end
+ movs r3,#0
+3: cmp r1,r2
+ bhs 4f
+ str r3,[r1],#4
+ b 3b
+ 2e2:	e7fa      	b.n	2da <Reset+0x1a>
+4: bl fb_guest_main
+ 2e4:	f7ff feac 	bl	40 <fb_guest_main>
+ b Fault
+ 2e8:	e7ff      	b.n	2ea <Fault>
+
+000002ea <Fault>:
+.thumb_func
+Fault:
+ movs r0,#4
+ 2ea:	2004      	movs	r0, #4
+ ldr r1,=fault_message
+ 2ec:	490d      	ldr	r1, [pc, #52]	@ (324 <failed_exit+0x1c>)
+ bkpt 0xab
+ 2ee:	beab      	bkpt	0x00ab
+ movs r0,#0x20
+ 2f0:	2020      	movs	r0, #32
+ ldr r1,=failed_exit
+ 2f2:	490d      	ldr	r1, [pc, #52]	@ (328 <failed_exit+0x20>)
+ bkpt 0xab
+ 2f4:	beab      	bkpt	0x00ab
+ b .
+ 2f6:	e7fe      	b.n	2f6 <Fault+0xc>
+
+000002f8 <fault_message>:
+ 2f8:	475f4246 	.word	0x475f4246
+ 2fc:	54534555 	.word	0x54534555
+ 300:	5541465f 	.word	0x5541465f
+ 304:	000a544c 	.word	0x000a544c
+
+00000308 <failed_exit>:
+ 308:	00020026 	.word	0x00020026
+ 30c:	00000001 	.word	0x00000001
+ 310:	00000368 	.word	0x00000368
+ 314:	20000000 	.word	0x20000000
+ 318:	20000000 	.word	0x20000000
+ 31c:	20000000 	.word	0x20000000
+ 320:	20000000 	.word	0x20000000
+ 324:	000002f8 	.word	0x000002f8
+ 328:	00000308 	.word	0x00000308
+ 32c:	545f5544 	.word	0x545f5544
+ 330:	45475241 	.word	0x45475241
+ 334:	48435f54 	.word	0x48435f54
+ 338:	3a4b4345 	.word	0x3a4b4345
+ 33c:	696d6461 	.word	0x696d6461
+ 340:	6f697373 	.word	0x6f697373
+ 344:	726f2d6e 	.word	0x726f2d6e
+ 348:	736e752d 	.word	0x736e752d
+ 34c:	65766c6f 	.word	0x65766c6f
+ 350:	00000a64 	.word	0x00000a64
+ 354:	00f42400 	.word	0x00f42400
+ 358:	00000001 	.word	0x00000001
+	...
+
+Disassembly of section .candidate:
+
+00040000 <app_start>:
+   40000:	2001f000 	.word	0x2001f000
+   40004:	00040201 	.word	0x00040201
+   40008:	00040255 	.word	0x00040255
+   4000c:	00040255 	.word	0x00040255
+   40010:	00040255 	.word	0x00040255
+   40014:	00040255 	.word	0x00040255
+   40018:	00040255 	.word	0x00040255
+   4001c:	00040255 	.word	0x00040255
+   40020:	00040255 	.word	0x00040255
+   40024:	00040255 	.word	0x00040255
+   40028:	00040255 	.word	0x00040255
+   4002c:	00040255 	.word	0x00040255
+   40030:	00040255 	.word	0x00040255
+   40034:	00040255 	.word	0x00040255
+   40038:	00040255 	.word	0x00040255
+   4003c:	00040255 	.word	0x00040255
+	...
+
+00040200 <AppReset>:
+ .word AppFault
+ .endr
+ .space 448
+.thumb_func
+AppReset:
+ ldr r0,=_app_data
+   40200:	483d      	ldr	r0, [pc, #244]	@ (402f8 <app_bad_exit+0x8>)
+ ldr r1,=0x12345678
+   40202:	493e      	ldr	r1, [pc, #248]	@ (402fc <app_bad_exit+0xc>)
+ str r1,[r0]
+   40204:	6001      	str	r1, [r0, #0]
+ ldr r0,=_app_bss
+   40206:	483e      	ldr	r0, [pc, #248]	@ (40300 <app_bad_exit+0x10>)
+ movs r1,#0
+   40208:	2100      	movs	r1, #0
+ str r1,[r0]
+   4020a:	6001      	str	r1, [r0, #0]
+ ldr r0,=0xE000ED08
+   4020c:	483d      	ldr	r0, [pc, #244]	@ (40304 <app_bad_exit+0x14>)
+ ldr r0,[r0]
+   4020e:	6800      	ldr	r0, [r0, #0]
+ ldr r1,=app_start
+   40210:	493d      	ldr	r1, [pc, #244]	@ (40308 <app_bad_exit+0x18>)
+ cmp r0,r1
+   40212:	4288      	cmp	r0, r1
+ bne AppFail
+   40214:	d117      	bne.n	40246 <AppFail>
+ mrs r0,control
+   40216:	f3ef 8014 	mrs	r0, CONTROL
+ cmp r0,#0
+   4021a:	2800      	cmp	r0, #0
+ bne AppFail
+   4021c:	d113      	bne.n	40246 <AppFail>
+ mrs r0,primask
+   4021e:	f3ef 8010 	mrs	r0, PRIMASK
+ cmp r0,#1
+   40222:	2801      	cmp	r0, #1
+ bne AppFail
+   40224:	d10f      	bne.n	40246 <AppFail>
+ mrs r0,msp
+   40226:	f3ef 8008 	mrs	r0, MSP
+ ldr r1,=_app_stack
+   4022a:	4938      	ldr	r1, [pc, #224]	@ (4030c <app_bad_exit+0x1c>)
+ cmp r0,r1
+   4022c:	4288      	cmp	r0, r1
+ bne AppFail
+   4022e:	d10a      	bne.n	40246 <AppFail>
+ ldr r0,=0xE000ED94
+   40230:	4837      	ldr	r0, [pc, #220]	@ (40310 <app_bad_exit+0x20>)
+ ldr r0,[r0]
+   40232:	6800      	ldr	r0, [r0, #0]
+ cmp r0,#5
+   40234:	2805      	cmp	r0, #5
+ bne AppFail
+   40236:	d106      	bne.n	40246 <AppFail>
+#elif FB_FAULT_VARIANT == 2
+ ldr r0,=app_start
+ movs r1,#0
+ str r1,[r0]
+#endif
+ movs r0,#4
+   40238:	2004      	movs	r0, #4
+ adr r1,app_message
+   4023a:	a10a      	add	r1, pc, #40	@ (adr r1, 40264 <app_message>)
+ bkpt 0xab
+   4023c:	beab      	bkpt	0x00ab
+ movs r0,#0x20
+   4023e:	2020      	movs	r0, #32
+ adr r1,app_exit
+   40240:	a129      	add	r1, pc, #164	@ (adr r1, 402e8 <app_exit>)
+ bkpt 0xab
+   40242:	beab      	bkpt	0x00ab
+ b .
+   40244:	e7fe      	b.n	40244 <AppReset+0x44>
+
+00040246 <AppFail>:
+.thumb_func
+AppFail:
+ movs r0,#4
+   40246:	2004      	movs	r0, #4
+ adr r1,app_fail
+   40248:	a113      	add	r1, pc, #76	@ (adr r1, 40298 <app_fail>)
+ bkpt 0xab
+   4024a:	beab      	bkpt	0x00ab
+ movs r0,#0x20
+   4024c:	2020      	movs	r0, #32
+ adr r1,app_bad_exit
+   4024e:	a128      	add	r1, pc, #160	@ (adr r1, 402f0 <app_bad_exit>)
+ bkpt 0xab
+   40250:	beab      	bkpt	0x00ab
+ b .
+   40252:	e7fe      	b.n	40252 <AppFail+0xc>
+
+00040254 <AppFault>:
+.thumb_func
+AppFault:
+ movs r0,#4
+   40254:	2004      	movs	r0, #4
+ adr r1,app_fault
+   40256:	f20f 0157 	addw	r1, pc, #87	@ 0x57
+ bkpt 0xab
+   4025a:	beab      	bkpt	0x00ab
+ movs r0,#0x20
+   4025c:	2020      	movs	r0, #32
+#if FB_FAULT_VARIANT == 1 || FB_FAULT_VARIANT == 2
+ adr r1,app_exit
+#else
+ adr r1,app_bad_exit
+   4025e:	a124      	add	r1, pc, #144	@ (adr r1, 402f0 <app_bad_exit>)
+#endif
+ bkpt 0xab
+   40260:	beab      	bkpt	0x00ab
+ b .
+   40262:	e7fe      	b.n	40262 <AppFault+0xe>
+
+00040264 <app_message>:
+   40264:	475f4246 	.word	0x475f4246
+   40268:	54534555 	.word	0x54534555
+   4026c:	4e41485f 	.word	0x4e41485f
+   40270:	46464f44 	.word	0x46464f44
+   40274:	5341505f 	.word	0x5341505f
+   40278:	54563a53 	.word	0x54563a53
+   4027c:	4d2c524f 	.word	0x4d2c524f
+   40280:	432c5053 	.word	0x432c5053
+   40284:	52544e4f 	.word	0x52544e4f
+   40288:	502c4c4f 	.word	0x502c4c4f
+   4028c:	414d4952 	.word	0x414d4952
+   40290:	4d2c4b53 	.word	0x4d2c4b53
+   40294:	000a5550 	.word	0x000a5550
+
+00040298 <app_fail>:
+   40298:	475f4246 	.word	0x475f4246
+   4029c:	54534555 	.word	0x54534555
+   402a0:	4e41485f 	.word	0x4e41485f
+   402a4:	46464f44 	.word	0x46464f44
+   402a8:	4941465f 	.word	0x4941465f
+   402ac:	0a4c      	.short	0x0a4c
+	...
+
+000402af <app_fault>:
+   402af:	46          	.byte	0x46
+   402b0:	55475f42 	.word	0x55475f42
+   402b4:	5f545345 	.word	0x5f545345
+   402b8:	5f55504d 	.word	0x5f55504d
+   402bc:	4c554146 	.word	0x4c554146
+   402c0:	726f3a54 	.word	0x726f3a54
+   402c4:	6e696769 	.word	0x6e696769
+   402c8:	69206c61 	.word	0x69206c61
+   402cc:	6c61766e 	.word	0x6c61766e
+   402d0:	61206469 	.word	0x61206469
+   402d4:	73656363 	.word	0x73656363
+   402d8:	6f632073 	.word	0x6f632073
+   402dc:	6961746e 	.word	0x6961746e
+   402e0:	0a64656e 	.word	0x0a64656e
+   402e4:	00bf0000 	.word	0x00bf0000
+
+000402e8 <app_exit>:
+   402e8:	00020026 	.word	0x00020026
+   402ec:	00000000 	.word	0x00000000
+
+000402f0 <app_bad_exit>:
+   402f0:	00020026 	.word	0x00020026
+   402f4:	00000001 	.word	0x00000001
+   402f8:	2001e000 	.word	0x2001e000
+   402fc:	12345678 	.word	0x12345678
+   40300:	2001e004 	.word	0x2001e004
+   40304:	e000ed08 	.word	0xe000ed08
+   40308:	00040000 	.word	0x00040000
+   4030c:	2001f000 	.word	0x2001f000
+   40310:	e000ed94 	.word	0xe000ed94
+arm-none-eabi-objdump: DWARF error: mangled line number section (bad file number)
+arm-none-eabi-objdump: DWARF error: mangled line number section (bad file number)
+arm-none-eabi-objdump: DWARF error: mangled line number section (bad file number)

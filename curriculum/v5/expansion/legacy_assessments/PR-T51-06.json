@@ -2,10 +2,12 @@
   "schema_version": 1,
   "project": "PR-T51-06",
   "domain": "T51",
-  "title": "Bounded message queues with copied payloads — explicit depth assessments",
+  "title": "Bounded message queues with copied payloads \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/concurrency_lifecycle_depth/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/cmx/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -131,7 +133,56 @@
     "curriculum/projects/PR-T51-06.md",
     "fixtures/os_v3/PR-T51-06.json",
     "labs/execution/README.md",
-    "curriculum/guides/concurrent-system-contracts.md"
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/concurrency_lifecycle_depth/CMakeLists.txt",
+    "labs/concurrency_lifecycle_depth/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/family.json",
+    "labs/concurrency_lifecycle_depth/include/cl.h",
+    "labs/concurrency_lifecycle_depth/include/cl_posix.h",
+    "labs/concurrency_lifecycle_depth/src/core.c",
+    "labs/concurrency_lifecycle_depth/src/posix.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld",
+    "labs/concurrency_lifecycle_depth/tests/core.c",
+    "labs/concurrency_lifecycle_depth/tests/model.py",
+    "labs/concurrency_lifecycle_depth/tests/pointer_copy_negative.c",
+    "labs/concurrency_lifecycle_depth/tests/posix.c",
+    "labs/concurrency_lifecycle_depth/tests/reject.py",
+    "labs/concurrency_lifecycle_depth/tests/trace.c",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/wait/irq.c",
+    "labs/concurrency_lifecycle_depth/wait/irq.h",
+    "labs/concurrency_lifecycle_depth/wait/IRQ.md",
+    "labs/concurrency_lifecycle_depth/wait/m4.c",
+    "labs/concurrency_lifecycle_depth/wait/model.py",
+    "labs/concurrency_lifecycle_depth/wait/native.c",
+    "labs/concurrency_lifecycle_depth/wait/run_wait.py",
+    "labs/concurrency_lifecycle_depth/wait/tests.c",
+    "labs/concurrency_lifecycle_depth/wait/trace.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.h",
+    "labs/concurrency_lifecycle_depth/cmx/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx.c",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx.h",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx_irq.c",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx_irq.h",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx_task.c",
+    "labs/concurrency_lifecycle_depth/cmx/cl_cmx_task.h",
+    "labs/concurrency_lifecycle_depth/cmx/m4.c",
+    "labs/concurrency_lifecycle_depth/cmx/run.py",
+    "labs/concurrency_lifecycle_depth/cmx/task.ld",
+    "labs/concurrency_lifecycle_depth/cmx/task_run.py",
+    "labs/concurrency_lifecycle_depth/cmx/task_workload.c",
+    "labs/concurrency_lifecycle_depth/cmx/tests.c",
+    "labs/execution/include/cmx.h",
+    "labs/execution/include/cmx_port.h",
+    "labs/execution/src/board.c",
+    "labs/execution/src/cmx.c",
+    "labs/execution/src/context.S",
+    "labs/execution/src/cortex_port.c",
+    "labs/execution/src/startup.S",
+    "labs/execution/src/support.c",
+    "labs/concurrency_lifecycle_depth/cmx/irq_run.py"
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
@@ -229,7 +280,18 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
-      }
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_lifecycle/support.json",
+        "id": "AX-PR-T51-06-T51.06.a"
+      },
+      "additional_successor_support": [
+        {
+          "path": "research/v5/expansion/legacy_concurrency_queue_port/support.json",
+          "id": "AX-PR-T51-06-T51.06.a",
+          "scope": "Actual CL copied-byte acceptance integrated with CMX latch waits; original owned-buffer changed-condition implementation remains separately bound by prior support."
+        }
+      ]
     },
     {
       "id": "AX-PR-T51-06-T51.06.b",
@@ -319,7 +381,18 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
-      }
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_lifecycle/support.json",
+        "id": "AX-PR-T51-06-T51.06.b"
+      },
+      "additional_successor_support": [
+        {
+          "path": "research/v5/expansion/legacy_concurrency_queue_port/support.json",
+          "id": "AX-PR-T51-06-T51.06.b",
+          "scope": "Actual two-slot byte/full/short-output/zero-length contract, blocked sender and close/drain; original fragmentation variant remains separately bound."
+        }
+      ]
     },
     {
       "id": "AX-PR-T51-06-T51.06.c",
@@ -409,7 +482,18 @@
       "security": {
         "applicable": false,
         "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
-      }
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_lifecycle/support.json",
+        "id": "AX-PR-T51-06-T51.06.c"
+      },
+      "additional_successor_support": [
+        {
+          "path": "research/v5/expansion/legacy_concurrency_queue_port/support.json",
+          "id": "AX-PR-T51-06-T51.06.c",
+          "scope": "Actual CMX scheduler and six PSP stacks carry three producers/two consumers with60 unique messages; timed-out send and full abort; original acknowledgement model remains separately bound."
+        }
+      ]
     }
   ],
   "assessor_analysis": "assessor/legacy_depth/PR-T51-06.md",
@@ -423,5 +507,26 @@
       "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
       "Delayed variants are required opportunities, not completed assessments."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_concurrency_lifecycle/support.json",
+      "project": "PR-T51-06",
+      "criterion_ids": [
+        "AX-PR-T51-06-T51.06.a",
+        "AX-PR-T51-06-T51.06.b",
+        "AX-PR-T51-06-T51.06.c"
+      ],
+      "scope": "Serialized core plus actual pthread and Cortex-M4 emulator support; original CMX scheduler integration and historical observations remain distinct."
+    },
+    {
+      "path": "research/v5/expansion/legacy_concurrency_queue_port/support.json",
+      "criterion_ids": [
+        "AX-PR-T51-06-T51.06.a",
+        "AX-PR-T51-06-T51.06.b",
+        "AX-PR-T51-06-T51.06.c"
+      ],
+      "scope": "Actual copied-byte CMX wait/IRQ/PSP runtime adapter; prior owned-buffer/fragmentation/acknowledgement/robust-record scopes preserved separately."
+    }
+  ]
 }

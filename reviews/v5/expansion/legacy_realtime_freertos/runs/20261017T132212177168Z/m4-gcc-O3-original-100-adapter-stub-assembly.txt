@@ -1,0 +1,301 @@
+
+/tmp/freertos-depth-5ejt2u_4/m4-gcc-O3-original-100-adapter-stub/comparison.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <vectors>:
+   0:	00 00 01 20 0d 02 00 00 a9 00 00 00 a9 00 00 00     ... ............
+  10:	a9 00 00 00 a9 00 00 00 a9 00 00 00 00 00 00 00     ................
+	...
+  2c:	a9 00 00 00 a9 00 00 00 00 00 00 00 a9 00 00 00     ................
+  3c:	a9 00 00 00 a9 00 00 00                             ........
+
+00000044 <fc_ticks>:
+  44:	b1ba      	cbz	r2, 76 <fc_ticks+0x32>
+  46:	f101 3cff 	add.w	ip, r1, #4294967295	@ 0xffffffff
+  4a:	f242 730f 	movw	r3, #9999	@ 0x270f
+  4e:	459c      	cmp	ip, r3
+  50:	d811      	bhi.n	76 <fc_ticks+0x32>
+  52:	fba0 c301 	umull	ip, r3, r0, r1
+  56:	b973      	cbnz	r3, 76 <fc_ticks+0x32>
+  58:	4b08      	ldr	r3, [pc, #32]	@ (7c <fc_ticks+0x38>)
+  5a:	fb00 f101 	mul.w	r1, r0, r1
+  5e:	fba3 0301 	umull	r0, r3, r3, r1
+  62:	099b      	lsrs	r3, r3, #6
+  64:	f44f 707a 	mov.w	r0, #1000	@ 0x3e8
+  68:	fb00 1113 	mls	r1, r0, r3, r1
+  6c:	b101      	cbz	r1, 70 <fc_ticks+0x2c>
+  6e:	3301      	adds	r3, #1
+  70:	6013      	str	r3, [r2, #0]
+  72:	2001      	movs	r0, #1
+  74:	4770      	bx	lr
+  76:	2000      	movs	r0, #0
+  78:	4770      	bx	lr
+  7a:	bf00      	nop
+  7c:	10624dd3 	.word	0x10624dd3
+
+00000080 <fc_priority>:
+  80:	1e43      	subs	r3, r0, #1
+  82:	2b02      	cmp	r3, #2
+  84:	bf94      	ite	ls
+  86:	f1c0 0004 	rsbls	r0, r0, #4
+  8a:	2000      	movhi	r0, #0
+  8c:	4770      	bx	lr
+  8e:	bf00      	nop
+
+00000090 <fc_run>:
+  90:	4770      	bx	lr
+  92:	bf00      	nop
+
+00000094 <finish>:
+  94:	4b03      	ldr	r3, [pc, #12]	@ (a4 <finish+0x10>)
+  96:	b082      	sub	sp, #8
+  98:	e9cd 3000 	strd	r3, r0, [sp]
+  9c:	4669      	mov	r1, sp
+  9e:	2020      	movs	r0, #32
+  a0:	beab      	bkpt	0x00ab
+  a2:	e7fe      	b.n	a2 <finish+0xe>
+  a4:	00020026 	.word	0x00020026
+
+000000a8 <fc_fault>:
+  a8:	b508      	push	{r3, lr}
+  aa:	4903      	ldr	r1, [pc, #12]	@ (b8 <fc_fault+0x10>)
+  ac:	2004      	movs	r0, #4
+  ae:	beab      	bkpt	0x00ab
+  b0:	2002      	movs	r0, #2
+  b2:	f7ff ffef 	bl	94 <finish>
+  b6:	bf00      	nop
+  b8:	000002c0 	.word	0x000002c0
+
+000000bc <fc_fail>:
+  bc:	b508      	push	{r3, lr}
+  be:	4903      	ldr	r1, [pc, #12]	@ (cc <fc_fail+0x10>)
+  c0:	2004      	movs	r0, #4
+  c2:	beab      	bkpt	0x00ab
+  c4:	2001      	movs	r0, #1
+  c6:	f7ff ffe5 	bl	94 <finish>
+  ca:	bf00      	nop
+  cc:	000002d0 	.word	0x000002d0
+
+000000d0 <fc_done>:
+  d0:	b500      	push	{lr}
+  d2:	b083      	sub	sp, #12
+  d4:	235b      	movs	r3, #91	@ 0x5b
+  d6:	4604      	mov	r4, r0
+  d8:	aa01      	add	r2, sp, #4
+  da:	2164      	movs	r1, #100	@ 0x64
+  dc:	2015      	movs	r0, #21
+  de:	9301      	str	r3, [sp, #4]
+  e0:	f7ff ffb0 	bl	44 <fc_ticks>
+  e4:	b110      	cbz	r0, ec <fc_done+0x1c>
+  e6:	9d01      	ldr	r5, [sp, #4]
+  e8:	2d03      	cmp	r5, #3
+  ea:	d002      	beq.n	f2 <fc_done+0x22>
+  ec:	2000      	movs	r0, #0
+  ee:	f7ff ffe5 	bl	bc <fc_fail>
+  f2:	aa01      	add	r2, sp, #4
+  f4:	2164      	movs	r1, #100	@ 0x64
+  f6:	2001      	movs	r0, #1
+  f8:	f7ff ffa4 	bl	44 <fc_ticks>
+  fc:	2800      	cmp	r0, #0
+  fe:	d0f5      	beq.n	ec <fc_done+0x1c>
+ 100:	9e01      	ldr	r6, [sp, #4]
+ 102:	2e01      	cmp	r6, #1
+ 104:	d1f2      	bne.n	ec <fc_done+0x1c>
+ 106:	aa01      	add	r2, sp, #4
+ 108:	2164      	movs	r1, #100	@ 0x64
+ 10a:	2000      	movs	r0, #0
+ 10c:	f7ff ff9a 	bl	44 <fc_ticks>
+ 110:	2800      	cmp	r0, #0
+ 112:	d0eb      	beq.n	ec <fc_done+0x1c>
+ 114:	9b01      	ldr	r3, [sp, #4]
+ 116:	2b00      	cmp	r3, #0
+ 118:	d1e8      	bne.n	ec <fc_done+0x1c>
+ 11a:	2164      	movs	r1, #100	@ 0x64
+ 11c:	aa01      	add	r2, sp, #4
+ 11e:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
+ 122:	f7ff ff8f 	bl	44 <fc_ticks>
+ 126:	9b01      	ldr	r3, [sp, #4]
+ 128:	ea50 0103 	orrs.w	r1, r0, r3
+ 12c:	d1de      	bne.n	ec <fc_done+0x1c>
+ 12e:	4628      	mov	r0, r5
+ 130:	aa01      	add	r2, sp, #4
+ 132:	f7ff ff87 	bl	44 <fc_ticks>
+ 136:	2800      	cmp	r0, #0
+ 138:	d1d8      	bne.n	ec <fc_done+0x1c>
+ 13a:	aa01      	add	r2, sp, #4
+ 13c:	f242 7111 	movw	r1, #10001	@ 0x2711
+ 140:	4630      	mov	r0, r6
+ 142:	f7ff ff7f 	bl	44 <fc_ticks>
+ 146:	4602      	mov	r2, r0
+ 148:	2800      	cmp	r0, #0
+ 14a:	d1cf      	bne.n	ec <fc_done+0x1c>
+ 14c:	4631      	mov	r1, r6
+ 14e:	4630      	mov	r0, r6
+ 150:	f7ff ff78 	bl	44 <fc_ticks>
+ 154:	9b01      	ldr	r3, [sp, #4]
+ 156:	4318      	orrs	r0, r3
+ 158:	d1c8      	bne.n	ec <fc_done+0x1c>
+ 15a:	2001      	movs	r0, #1
+ 15c:	f7ff ff90 	bl	80 <fc_priority>
+ 160:	2803      	cmp	r0, #3
+ 162:	4605      	mov	r5, r0
+ 164:	d1c2      	bne.n	ec <fc_done+0x1c>
+ 166:	2002      	movs	r0, #2
+ 168:	f7ff ff8a 	bl	80 <fc_priority>
+ 16c:	2802      	cmp	r0, #2
+ 16e:	d1bd      	bne.n	ec <fc_done+0x1c>
+ 170:	4628      	mov	r0, r5
+ 172:	f7ff ff85 	bl	80 <fc_priority>
+ 176:	2801      	cmp	r0, #1
+ 178:	d1b8      	bne.n	ec <fc_done+0x1c>
+ 17a:	2000      	movs	r0, #0
+ 17c:	f7ff ff80 	bl	80 <fc_priority>
+ 180:	2800      	cmp	r0, #0
+ 182:	d1b3      	bne.n	ec <fc_done+0x1c>
+ 184:	2004      	movs	r0, #4
+ 186:	f7ff ff7b 	bl	80 <fc_priority>
+ 18a:	2800      	cmp	r0, #0
+ 18c:	d1ae      	bne.n	ec <fc_done+0x1c>
+ 18e:	6823      	ldr	r3, [r4, #0]
+ 190:	f5b3 7f80 	cmp.w	r3, #256	@ 0x100
+ 194:	d1aa      	bne.n	ec <fc_done+0x1c>
+ 196:	6863      	ldr	r3, [r4, #4]
+ 198:	f5b3 4fff 	cmp.w	r3, #32640	@ 0x7f80
+ 19c:	d1a6      	bne.n	ec <fc_done+0x1c>
+ 19e:	68a3      	ldr	r3, [r4, #8]
+ 1a0:	2b00      	cmp	r3, #0
+ 1a2:	d0a3      	beq.n	ec <fc_done+0x1c>
+ 1a4:	68e3      	ldr	r3, [r4, #12]
+ 1a6:	2b00      	cmp	r3, #0
+ 1a8:	d0a0      	beq.n	ec <fc_done+0x1c>
+ 1aa:	6923      	ldr	r3, [r4, #16]
+ 1ac:	2b00      	cmp	r3, #0
+ 1ae:	d09d      	beq.n	ec <fc_done+0x1c>
+ 1b0:	6963      	ldr	r3, [r4, #20]
+ 1b2:	2b00      	cmp	r3, #0
+ 1b4:	d09a      	beq.n	ec <fc_done+0x1c>
+ 1b6:	69a3      	ldr	r3, [r4, #24]
+ 1b8:	2b00      	cmp	r3, #0
+ 1ba:	d097      	beq.n	ec <fc_done+0x1c>
+ 1bc:	6aa3      	ldr	r3, [r4, #40]	@ 0x28
+ 1be:	2b03      	cmp	r3, #3
+ 1c0:	d194      	bne.n	ec <fc_done+0x1c>
+ 1c2:	69e3      	ldr	r3, [r4, #28]
+ 1c4:	2b01      	cmp	r3, #1
+ 1c6:	d191      	bne.n	ec <fc_done+0x1c>
+ 1c8:	6a23      	ldr	r3, [r4, #32]
+ 1ca:	2b02      	cmp	r3, #2
+ 1cc:	d18e      	bne.n	ec <fc_done+0x1c>
+ 1ce:	6a63      	ldr	r3, [r4, #36]	@ 0x24
+ 1d0:	2b03      	cmp	r3, #3
+ 1d2:	d18b      	bne.n	ec <fc_done+0x1c>
+ 1d4:	aa01      	add	r2, sp, #4
+ 1d6:	2164      	movs	r1, #100	@ 0x64
+ 1d8:	2015      	movs	r0, #21
+ 1da:	f7ff ff33 	bl	44 <fc_ticks>
+ 1de:	2800      	cmp	r0, #0
+ 1e0:	d084      	beq.n	ec <fc_done+0x1c>
+ 1e2:	9a01      	ldr	r2, [sp, #4]
+ 1e4:	6ae3      	ldr	r3, [r4, #44]	@ 0x2c
+ 1e6:	4293      	cmp	r3, r2
+ 1e8:	d180      	bne.n	ec <fc_done+0x1c>
+ 1ea:	6b22      	ldr	r2, [r4, #48]	@ 0x30
+ 1ec:	4293      	cmp	r3, r2
+ 1ee:	f63f af7d 	bhi.w	ec <fc_done+0x1c>
+ 1f2:	6ba3      	ldr	r3, [r4, #56]	@ 0x38
+ 1f4:	2b00      	cmp	r3, #0
+ 1f6:	f47f af79 	bne.w	ec <fc_done+0x1c>
+ 1fa:	4903      	ldr	r1, [pc, #12]	@ (208 <fc_done+0x138>)
+ 1fc:	2004      	movs	r0, #4
+ 1fe:	beab      	bkpt	0x00ab
+ 200:	2000      	movs	r0, #0
+ 202:	f7ff ff47 	bl	94 <finish>
+ 206:	bf00      	nop
+ 208:	000002e0 	.word	0x000002e0
+
+0000020c <cl_reset>:
+ 20c:	b538      	push	{r3, r4, r5, lr}
+ 20e:	4c26      	ldr	r4, [pc, #152]	@ (2a8 <cl_reset+0x9c>)
+ 210:	4b26      	ldr	r3, [pc, #152]	@ (2ac <cl_reset+0xa0>)
+ 212:	429c      	cmp	r4, r3
+ 214:	d222      	bcs.n	25c <cl_reset+0x50>
+ 216:	3b01      	subs	r3, #1
+ 218:	1b1b      	subs	r3, r3, r4
+ 21a:	ea4f 0e93 	mov.w	lr, r3, lsr #2
+ 21e:	2b03      	cmp	r3, #3
+ 220:	4d23      	ldr	r5, [pc, #140]	@ (2b0 <cl_reset+0xa4>)
+ 222:	4622      	mov	r2, r4
+ 224:	f10e 0e01 	add.w	lr, lr, #1
+ 228:	d916      	bls.n	258 <cl_reset+0x4c>
+ 22a:	ea4f 0c5e 	mov.w	ip, lr, lsr #1
+ 22e:	462b      	mov	r3, r5
+ 230:	eb05 0ccc 	add.w	ip, r5, ip, lsl #3
+ 234:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 238:	3308      	adds	r3, #8
+ 23a:	459c      	cmp	ip, r3
+ 23c:	e9c2 0100 	strd	r0, r1, [r2]
+ 240:	f102 0208 	add.w	r2, r2, #8
+ 244:	d1f6      	bne.n	234 <cl_reset+0x28>
+ 246:	f01e 0f01 	tst.w	lr, #1
+ 24a:	d007      	beq.n	25c <cl_reset+0x50>
+ 24c:	f02e 0e01 	bic.w	lr, lr, #1
+ 250:	eb05 058e 	add.w	r5, r5, lr, lsl #2
+ 254:	eb04 048e 	add.w	r4, r4, lr, lsl #2
+ 258:	682b      	ldr	r3, [r5, #0]
+ 25a:	6023      	str	r3, [r4, #0]
+ 25c:	4815      	ldr	r0, [pc, #84]	@ (2b4 <cl_reset+0xa8>)
+ 25e:	4b16      	ldr	r3, [pc, #88]	@ (2b8 <cl_reset+0xac>)
+ 260:	4298      	cmp	r0, r3
+ 262:	d21b      	bcs.n	29c <cl_reset+0x90>
+ 264:	3b01      	subs	r3, #1
+ 266:	1a1a      	subs	r2, r3, r0
+ 268:	ea4f 0c92 	mov.w	ip, r2, lsr #2
+ 26c:	2a03      	cmp	r2, #3
+ 26e:	4603      	mov	r3, r0
+ 270:	f10c 0c01 	add.w	ip, ip, #1
+ 274:	d910      	bls.n	298 <cl_reset+0x8c>
+ 276:	ea4f 015c 	mov.w	r1, ip, lsr #1
+ 27a:	eb00 01c1 	add.w	r1, r0, r1, lsl #3
+ 27e:	2200      	movs	r2, #0
+ 280:	e9c3 2200 	strd	r2, r2, [r3]
+ 284:	3308      	adds	r3, #8
+ 286:	428b      	cmp	r3, r1
+ 288:	d1fa      	bne.n	280 <cl_reset+0x74>
+ 28a:	f01c 0f01 	tst.w	ip, #1
+ 28e:	d005      	beq.n	29c <cl_reset+0x90>
+ 290:	f02c 0c01 	bic.w	ip, ip, #1
+ 294:	eb00 008c 	add.w	r0, r0, ip, lsl #2
+ 298:	2300      	movs	r3, #0
+ 29a:	6003      	str	r3, [r0, #0]
+ 29c:	4807      	ldr	r0, [pc, #28]	@ (2bc <cl_reset+0xb0>)
+ 29e:	f7ff fef7 	bl	90 <fc_run>
+ 2a2:	4806      	ldr	r0, [pc, #24]	@ (2bc <cl_reset+0xb0>)
+ 2a4:	f7ff ff14 	bl	d0 <fc_done>
+ 2a8:	20000000 	.word	0x20000000
+ 2ac:	20000000 	.word	0x20000000
+ 2b0:	00000310 	.word	0x00000310
+ 2b4:	20000000 	.word	0x20000000
+ 2b8:	2000003c 	.word	0x2000003c
+ 2bc:	20000000 	.word	0x20000000
+ 2c0:	4d5f4346 	.word	0x4d5f4346
+ 2c4:	41465f34 	.word	0x41465f34
+ 2c8:	0a544c55 	.word	0x0a544c55
+ 2cc:	00000000 	.word	0x00000000
+ 2d0:	4d5f4346 	.word	0x4d5f4346
+ 2d4:	48435f34 	.word	0x48435f34
+ 2d8:	0a4b4345 	.word	0x0a4b4345
+ 2dc:	00000000 	.word	0x00000000
+ 2e0:	4d5f4346 	.word	0x4d5f4346
+ 2e4:	41505f34 	.word	0x41505f34
+ 2e8:	713a5353 	.word	0x713a5353
+ 2ec:	65756575 	.word	0x65756575
+ 2f0:	686e692d 	.word	0x686e692d
+ 2f4:	74697265 	.word	0x74697265
+ 2f8:	65636e61 	.word	0x65636e61
+ 2fc:	6d69742d 	.word	0x6d69742d
+ 300:	74756f65 	.word	0x74756f65
+ 304:	656c632d 	.word	0x656c632d
+ 308:	70756e61 	.word	0x70756e61
+ 30c:	0000000a 	.word	0x0000000a

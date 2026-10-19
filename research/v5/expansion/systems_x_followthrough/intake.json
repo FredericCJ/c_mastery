@@ -1,0 +1,929 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "X-T43-001",
+      "source": "curriculum/v5/exercises/X-T43-001.md",
+      "sha256": "c745523ae112713d03abfb849f9545de4ad087642c1b56d8be4fcde583b4eada",
+      "original_rubric": [
+        {
+          "id": "X-T43-001-R1",
+          "objective": "T43.09.b",
+          "criterion": "Summarize paired repeated trials with a declared quantile convention and preserved raw samples.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T43-001-R2",
+          "objective": "T43.09.c",
+          "criterion": "Report outlier/uncertainty limits without equating median or sampled maximum to WCET.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.paired"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T43-001.md",
+      "original_sections": {
+        "Problem": "Implement s_paired. A=[100,100,100,100,100],B=[90,91,92,93,10000] yields lower median(B-A)=-8 and four wins; the mean has a different sign. Four pairs use lower median=-9. Handle UINT32_MAX versus0 without unsigned wrap. Extend a reused consumed-result harness to collect paired raw samples and record warmup/order/clock assumptions; distinguish these actual observations from the supplied synthetic fixtures.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Pairing preserves within-trial comparisons; sorting separate arrays first changes the experiment. Signed wide subtraction prevents uint32 underflow. A robust location statistic does not itself prove significance, causality or a deadline bound. The scalar algorithm is validated with synthetic samples; actual benchmark claims require measured raw evidence and equal correctness/work contracts.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.paired`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Randomize AB/BA order with recorded seed and compare order bias under a consumed workload. V2: Add bootstrap intervals as a host-only verifier and explain dependence/nonstationarity assumptions rather than claiming universal confidence.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T44-001",
+      "source": "curriculum/v5/exercises/X-T44-001.md",
+      "sha256": "d1c5f4db4ec253be2841d57fbd8550f1fb7dc71b975dd4a0d3de8992aa6746ca",
+      "original_rubric": [
+        {
+          "id": "X-T44-001-R1",
+          "objective": "T44.03.a",
+          "criterion": "Define stable tri-valued replay and preserve same-failure identity.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T44-001-R2",
+          "objective": "T44.03.b",
+          "criterion": "Implement bounded complement-based reduction with order/grammar preservation.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T44-001-R3",
+          "objective": "T44.03.c",
+          "criterion": "Check every remaining deletion and distinguish certified1-minimality from global minimum and causal repair.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.reduce"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T44-001.md",
+      "original_sections": {
+        "Problem": "Implement s_reduce with complement chunks and a final deletion certificate. Original tokens[7,4,9,9,2,8] fail when4 precedes2; reduce to[4,2]. A stable callback classifies PASS/FAIL/UNRESOLVED. Never accept an unresolved candidate as the same failure. If a final single-deletion trial is unresolved, return PENDING unchanged rather than certify1-minimality. Budget1 must preserve all outputs.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "A small crashing input is not necessarily the same defect. Only FAIL authorizes replacing the current reproducer. Final unresolved deletions leave the certificate incomplete. Chunk reduction accelerates discovery but the final single-deletion check supplies the actual1-minimality evidence. Nonmonotone failures can have multiple local minima; reduction is diagnostic evidence, not a code repair.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.reduce`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Use a grammar-aware token grouping and compare token-level versus group-level minimality. V2: Introduce nondeterministic replay and design repeated classification with an honest unresolved outcome; never silently treat flakiness as PASS.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T45-001",
+      "source": "curriculum/v5/exercises/X-T45-001.md",
+      "sha256": "3ac32c65ce20932252926fcdd6ba286dc900d3c50f556e34aaf87b760601517b",
+      "original_rubric": [
+        {
+          "id": "X-T45-001-R1",
+          "objective": "T45.07.a",
+          "criterion": "Preserve old accounting/ownership on failed nonzero resize.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T45-001-R2",
+          "objective": "T45.07.b",
+          "criterion": "Diagnose invalid release histories without evaluating invalid native pointers.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b04_depth",
+        "tests": [
+          "b04_depth.memory"
+        ],
+        "scaffold": "labs/b04_depth"
+      },
+      "assessor_analysis": "assessor/b04_depth/analyses/X-T45-001.md",
+      "original_sections": {
+        "Problem": "Implement b4_memory: allocate id1 size10, fail resize20, allocate id2 size7, resize id1 to4, free id1 then id2. Live totals10,10,17,11,7,0; peak17. Reject double free/unknown resize unchanged. Add SIZE_MAX overflow and four-slot exhaustion; correlate with an accepted allocator trace without treating identity as pointer.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b04_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Failed resize means no transfer, not permission to subtract the old object. Live sum differs from historical peak. Address reuse cannot validate stale aliases. This ledger omits aliases and cannot prove native safety; zero logical size is its explicit model policy, not C17 realloc(p,0) semantics.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b04_depth.memory`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Add generation-qualified aliases and moved resize preserving allocator ownership. V2: Add per-owner attribution and distinguish transfer from duplicated ownership.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T46-001",
+      "source": "curriculum/v5/exercises/X-T46-001.md",
+      "sha256": "5a78bb397c6c0ed7f9243a00758f0a03d35bbdc8fbd87c5ef3f2f3e157a29832",
+      "original_rubric": [
+        {
+          "id": "X-T46-001-R1",
+          "objective": "T46.02.a",
+          "criterion": "Separate all-record structure from reachable stack analysis.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T46-001-R2",
+          "objective": "T46.02.b",
+          "criterion": "Reject incompatible join heights without choosing the first predecessor.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T46-001-R3",
+          "objective": "T46.02.c",
+          "criterion": "Bound structural acceptance using nontermination and dynamic-safety counterexamples.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.verify"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T46-001.md",
+      "original_sections": {
+        "Problem": "Implement b5_verify. PUSH,PUSH,ADD,HALT has maximum2. Construct two paths reaching one PC at different heights and reject despite no individual underflow. Reject unreachable invalid opcode. Accept JUMP0 with maximum0 and explain nontermination. Compare fixed-width assumptions with accepted CVM boundaries/functions.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "A worklist assigns one consistent height per reachable PC; a revisit requires equality. Structural checks validate unreachable records while stack checks apply to reachable ones. A zero-effect loop reaches analysis fixed point but executes forever. Runtime types, initialized values, budgets and progress remain separate CVM obligations.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.verify`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Add variable-width operands and forbid branches into their interiors. V2: Add calls with arity/function boundaries before combining runtime type checks.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T47-001",
+      "source": "curriculum/v5/exercises/X-T47-001.md",
+      "sha256": "5a5df73655c937b873451853c141f2f8e21373ab210ac02371796d50ac3b3f6d",
+      "original_rubric": [
+        {
+          "id": "X-T47-001-R1",
+          "objective": "T47.09.a",
+          "criterion": "Validate committed prefix/generation/checksum before publishing recovery.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T47-001-R2",
+          "objective": "T47.09.c",
+          "criterion": "Separate committed corruption from admissible crash tails and preserve failure images.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.recover"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T47-001.md",
+      "original_sections": {
+        "Problem": "Implement b5_recover. Checkpoint(7,100), committed(8,200),(9,300) recovers300; an uncommitted record after8 stops at200. Corrupt a committed checksum and preserve output. Replay old checkpointed records then contiguous newer records. Enumerate payload-durable,commit-durable,acknowledge crash cuts and admissible old/new results.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Trust in the checkpoint is explicit. Validate even old committed checksums; only first uncommitted marker ends scanning. New generations must be contiguous without wrap. The supplied test starts checkpoint(8,100),record(9,200), then XORs bit0 into both record fields: generation becomes8, value201, checksum unchanged, and recovery returns100 instead of200. This harmless rollback demonstrates a checksum collision: detection is not authentication. Physical durability order is an adapter premise, not established by this pure function or SQLite rollback-mode discussion.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.recover`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Adapt to CST2 full-page after-images and interrupt recovery itself, retaining indeterminate-outcome semantics. V2: Specify a MAC interface and trust/key assumptions without claiming to implement cryptography.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T48-001",
+      "source": "curriculum/v5/exercises/X-T48-001.md",
+      "sha256": "8914e821f27119e9238b7c46a85ff7bbc935226382912ed53e452a9ea67e7374",
+      "original_rubric": [
+        {
+          "id": "X-T48-001-R1",
+          "objective": "T48.08.a",
+          "criterion": "Define checked copy-out extent and permissions independently of numeric ABI ranges.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T48-001-R2",
+          "objective": "T48.08.c",
+          "criterion": "Preserve synthetic kernel/peer state on rejected untrusted arguments.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.copy"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T48-001.md",
+      "original_sections": {
+        "Problem": "Implement b5_copy_to_user. Copy4 bytes at14 across pages; if page1 lacks writable permission, all64 bytes remain unchanged. Enable it and change exactly14..17. Exercise missing/user flags,address64+count0 and overflow lengths. Contrast all-or-nothing preflight with incremental-write mutant exposing a prefix before rejection.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Arithmetic extent is not permission. Check every touched page before writes to honor this contract. Stable mappings are a premise; real kernels need pinning/locking/fault recovery or explicit partial-copy semantics to handle TOCTOU. Native input pointer validity still belongs to the caller.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.copy`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Simulate remapping between preflight and commit and design version/pinning protection. V2: Define a partial-copy count/fault API and compare caller recovery obligations.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T49-001",
+      "source": "curriculum/v5/exercises/X-T49-001.md",
+      "sha256": "942d1485049646aaf30aa95195ba885ce2cc4889970d8782bf170801544c658b",
+      "original_rubric": [
+        {
+          "id": "X-T49-001-R1",
+          "objective": "T49.06.a",
+          "criterion": "Derive resident uniqueness/capacity and explicit future-information assumptions.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T49-001-R2",
+          "objective": "T49.06.b",
+          "criterion": "Implement three additional policies and integrate the existing fourth CLOCK policy through a trace adapter.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T49-001-R3",
+          "objective": "T49.06.c",
+          "criterion": "Derive FIFO anomaly9/10 and verify each eviction instead of trusting final totals.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.replace"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T49-001.md",
+      "original_sections": {
+        "Problem": "Implement FIFO,LRU,OPTIMAL plus per-access eviction records, retaining existing CLOCK as an explicit comparison adapter. Reference1,2,3,4,1,2,5,1,2,3,4,5 gives FIFO9/10 faults with3/4 frames, OPTIMAL7/6, and three-frameLRU10. Independently enumerate every legal victim choice for tiny traces to validate greedy future lookahead.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "FIFO age ignores hits, LRU recency includes them, and offline optimum uses future data. More memory need not improve FIFO because its trajectories are not nested. A future-victim DP oracle uses a different method than greedy farthest-next-use. This is page-ID simulation, not observed faults or a kernel replacement implementation. The earlier CLOCK mechanism is retained.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.replace`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Prove the exchange argument for farthest-next-use under equal page costs. V2: Add unequal dirty writeback costs and show why ordinary OPTIMAL fault minimization no longer minimizes total cost.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T50-001",
+      "source": "curriculum/v5/exercises/X-T50-001.md",
+      "sha256": "c40ef48769e1044bc760758f06922d8ef17b83ac5f4fa008cb42befa0b9de317",
+      "original_rubric": [
+        {
+          "id": "X-T50-001-R1",
+          "objective": "T50.05.a",
+          "criterion": "State clock/ownership assumptions separately from queue policy.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T50-001-R2",
+          "objective": "T50.05.c",
+          "criterion": "Preserve rollover expiry traces and expose finite-counter information limits.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.timer"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T50-001.md",
+      "original_sections": {
+        "Problem": "Implement timer arm/poll. Arm at UINT32_MAX-2 for5 ticks; poll1 leaves1 tick,poll2 expires,later polls stay expired. Reject delay2^31 and delta2^31 unchanged. Show zero elapsed and one full extra wrap are observationally indistinguishable; the caller must satisfy the observation bound.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Unsigned subtraction is unambiguous under actual elapsed<half-range. Ordinary now<last rejects valid wrap. Remaining duration and latched expiry prevent later wrap from reviving an expired timer. Small observed delta cannot detect a missed full wrap; tests cannot prove the external polling premise.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.timer`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Integrate with accepted equal-deadline queue and generation cancellation. V2: Add periodic phase-preserving release with skipped periods and compare delay-after-work drift.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T51-001",
+      "source": "curriculum/v5/exercises/X-T51-001.md",
+      "sha256": "2c080c333ff11aad37748e211c35852faeb4abe6e8cb721d23f1598d0ef86d87",
+      "original_rubric": [
+        {
+          "id": "X-T51-001-R1",
+          "objective": "T51.01.a",
+          "criterion": "State the shared protection domain for predicate, enrollment and runnable state.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T51-001-R2",
+          "objective": "T51.01.b",
+          "criterion": "Implement atomic model enrollment with predicate recheck and explicit lock ownership.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T51-001-R3",
+          "objective": "T51.01.c",
+          "criterion": "Reduce omitted enrollment to lost wake and distinguish spurious eligibility from predicate truth.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.wait"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T51-001.md",
+      "original_sections": {
+        "Problem": "Implement s_wait_event. Consumer locks and waits on false predicate atomically enrolling+unlocking; producer then locks,publishes,signals and unlocks; consumer becomes ready exactly once. A signal without publication wakes but leaves predicate false, so the consumer must recheck and reenroll. Enumerate producer before-check/during-enrollment/after-block schedules, marking lock-conflicting transitions invalid.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "A wake event is not retained truth and ready is not predicate satisfaction. Enrollment plus release must form one protected transition; otherwise publication can fall between observation and queue insertion. Model serialization is the proof premise, not an implementation of native scheduler locks. Integrate using the accepted CMX saved-mask/lock contract and unique runnable entries.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.wait`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Add a second waiter and verify exactly-once runnable membership. V2: Add timeout/cancel competition with generation identity and select one wake winner under the existing protection domain.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T51-002",
+      "source": "curriculum/v5/exercises/X-T51-002.md",
+      "sha256": "7c159ee0c58019d85d82ff615c3782caa6b67e3f55346457996fc6334ef0439d",
+      "original_rubric": [
+        {
+          "id": "X-T51-002-R1",
+          "objective": "T51.11.a",
+          "criterion": "Derive EMPTY, owner-specific RUNNING, READY and permanent FAILED transitions; separate attempt, publication and external effect.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Derive EMPTY, owner-specific RUNNING, READY and permanent FAILED transitions; separate attempt, publication and external effect. Supply independent traces and exact evidence.",
+            "3": "Change cooperative cancellation into recoverable owner loss and identify the missing detector/generation protocol. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T51-002-R2",
+          "objective": "T51.11.b",
+          "criterion": "Implement permanent failure and a blocking waiter adapter; prove release/acquire visibility of table/checksum and enrollment/recheck/wakeup.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Implement permanent failure and a blocking waiter adapter; prove release/acquire visibility of table/checksum and enrollment/recheck/wakeup. Supply independent traces and exact evidence.",
+            "3": "Port the wait adapter to the learner kernel and expose the shortest lost-wakeup trace. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T51-002-R3",
+          "objective": "T51.11.c",
+          "criterion": "Demonstrate one initializer, consistent readers and stable failure; compare retry and source-language panic semantics precisely.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Demonstrate one initializer, consistent readers and stable failure; compare retry and source-language panic semantics precisely. Supply independent traces and exact evidence.",
+            "3": "Add retry for a specified idempotent initializer and exhibit a non-idempotent counterexample. Derive the changed contract independently and bound the available evidence."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "X-T51-002-DELAYED"
+        ]
+      },
+      "lab": {
+        "family": "modern_bridge",
+        "scaffold": "labs/modern_bridge",
+        "tests": [
+          "modern_bridge.once"
+        ]
+      },
+      "assessor_analysis": "assessor/modern_bridge/analyses/X-T51-002.md",
+      "original_sections": {
+        "Problem": "Implement MBOnce for three participant identities and two ordinary values. The winner returns INIT, another participant BUSY and recursive owner entry RECURSIVE. Only the owner finishes. Success publishes17,34; READY readers copy both. Permanent failure becomes stable FAILED; the separately configured retry policy returns to EMPTY after failure. No reader sees a partial object. Add a target adapter using the learner execution wait queue: initialize t[i]=17*i+1 for i0..7 and publish checksum484 only after every entry is ready. Inject owner cancellation after entries0..3 through the owner cleanup path; permanent failure wakes all waiters with failure. Host pthreads do not implement the target scheduler.\n\nSupplied artifacts: `labs/modern_bridge/include/bridge.h`, compiling unsolved `src/bridge.c`, `tests/tests.c`, `fixtures/modern_bridge/cases.json` and the incorporated `labs/modern_bridge/CONTRACTS.md` version1. The contract defines representation, operations, preconditions, error precedence, ownership, finite limits and complexity. Preserve the interface. Target adapters remain separate learner sources; retain imported learner source hashes rather than copying assessor code.",
+        "Reasoning": "Draw competing CAS, recursion, wrong-owner finish and cancellation transitions. Give the release/acquire happens-before proof for ordinary fields and the table. Explain why relaxed publication can cause a C data race, not merely stale data. Prove enrollment-before-recheck and wakeup on every terminal state; cancellation removes only the cancelling waiter. MBOnce excludes asynchronous thread cancellation, abandonment and process crash. Rust OnceLock panic leaves uninitialized; Go Once considers a panicking invocation returned. Neither automatically equals our error status or effect rollback. Pre-C11 work requires a named platform threading contract; the inspected C11 draft is not exact C17.\n\nFor each operation state pre/postconditions, invariants, ownership and failure preservation. Assign guarantees to ISO C, compiler/ABI contract, runtime checks, external verification or caller discipline. Supply one plausible incorrect explanation and minimal counterexample. Complete the13-dimension modern cost review, with justified non-applicability; compare equal correctness and ownership contracts.",
+        "Verification": "Test every owner, repeated READY/FAILED reads, recursion, wrong-owner finish and injected failure/cancellation before/after each table entry. Force interleavings before CAS, after claim, between stores, after enrollment and before wakeup. Permanent failure has1 attempt; a fail-then-success retry history has2 attempts/1 successful publication. Recheck after spurious wakeups. Kill early-READY and unconditional-retry mutants, then independently kill a lost-wakeup target mutant. Run a supported race detector; unavailable evidence stays open. A sanitizer-free run is not the ordering proof.\n\nConfigure `cmake -S labs/modern_bridge -B <empty-build>`, build and run `ctest --test-dir <build> -R modern_bridge.once --output-on-failure`. Default learner bodies must compile and fail the semantic gate until implemented. Run the independent fixture verifier separately. An anchor pass does not satisfy D1-D4, target integration or independent assessment. A crash, timeout or suppressed diagnostic never counts as a repair.",
+        "Variants": "Immediate: expose nonblocking poll and blocking wrapper over one core, including wrapper cancellation. Delayed: retry an initializer that appends a synthetic journal record before publication. Show why exactly-once success does not mean exactly-once external effect; redesign with idempotency keys or transactional staging while retaining the permanent version.\n\nNamed delayed assessment `X-T51-002-DELAYED` follows the minimum study interval. Save the changed problem before implementation; parameter-only substitutions do not count. Assessor analysis contains withheld discriminators and is excluded from learner publication."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T52-001",
+      "source": "curriculum/v5/exercises/X-T52-001.md",
+      "sha256": "0e0f0658e5544d71a9712bcd89672de8380f89a2e6af5486b5fc869b8913f148",
+      "original_rubric": [
+        {
+          "id": "X-T52-001-R1",
+          "objective": "T52.03.a",
+          "criterion": "State scheduling, blocking, jitter and overhead premises.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T52-001-R2",
+          "objective": "T52.03.b",
+          "criterion": "Implement checked monotone iteration with ceiling interference.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T52-001-R3",
+          "objective": "T52.03.c",
+          "criterion": "Recompute terms independently and distinguish sufficient rejection from observed failure.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.response"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T52-001.md",
+      "original_sections": {
+        "Problem": "Implement b5_response. Own3,blocking1,higher(2,5,0),(1,7,1) gives iterations4,7,9,10,10; accept deadline10 and reject9 unchanged. Recover baseline own2/blocking1/interferer(1,4,0) fixedpoint4. Compare floor mutant with independently enumerated candidate bounds.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "A partial interfering release counts as a full job. Starting at own+blocking gives a monotone integer sequence bounded by deadline or rejection. Wide arithmetic follows from declared bounds. The oracle enumerates candidate R satisfying demand(R)<=R rather than reproducing recurrence. Observed maximum is not proven WCET and analysis rejection is not an observed deadline miss.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.response`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Add bounded context-switch overhead exactly once. V2: Add self-suspension and identify broken recurrence assumptions before selecting new analysis.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T53-001",
+      "source": "curriculum/v5/exercises/X-T53-001.md",
+      "sha256": "9be4b657c0ebe73426e92f0abbeeb3d9475391b3ff550022abb6cf1b096acc13",
+      "original_rubric": [
+        {
+          "id": "X-T53-001-R1",
+          "objective": "T53.09.a",
+          "criterion": "State unpublish/invalidate/free ordering and target-set stability.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T53-001-R2",
+          "objective": "T53.09.b",
+          "criterion": "Implement bounded generation-qualified acknowledgement without premature reuse.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T53-001-R3",
+          "objective": "T53.09.c",
+          "criterion": "Expose stale-translation access to a recycled synthetic frame in the early-reclaim model and bound native claims.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.shoot"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T53-001.md",
+      "original_sections": {
+        "Problem": "Implement shoot begin/ack/reclaim. Snapshot CPUs0,1; ACK0 alone leaves reclaim PENDING. A stale ACK1 from the prior generation cannot clear its pending bit. Only current ACK1 completes. Model the old frame containing synthetic labelOLD, then candidate reuse with labelNEW: the early-reclaim mutant permits a stale CPU view to observeNEW; corrected ordering prevents reuse until all captured CPUs invalidate.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Removing a mapping does not erase cached translations on other CPUs. Snapshotting the right target set and accepting only current-generation trusted invalidation ACKs precede reclaim. Offline/remapped CPUs cannot vanish from pending masks without a protocol. The host function trusts ACK meaning; actual IPI, ISA invalidation and barriers require disposable-guest evidence.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.shoot`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Batch adjacent mappings and derive per-CPU acknowledgement extent. V2: Add CPU hot-unplug and require an explicit quiescence handshake before dropping targets; native QEMU validation remains separate.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T54-001",
+      "source": "curriculum/v5/exercises/X-T54-001.md",
+      "sha256": "db884956e7b40254833db60a1b3a7ef7813e335c87ed1311b9ac45e7585468a2",
+      "original_rubric": [
+        {
+          "id": "X-T54-001-R1",
+          "objective": "T54.08.a",
+          "criterion": "State epoch/sequence/ownership and trust boundaries across recovery.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T54-001-R2",
+          "objective": "T54.08.b",
+          "criterion": "Reconcile one interrupted outstanding request under supervisor-provided quiescence.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T54-001-R3",
+          "objective": "T54.08.c",
+          "criterion": "Reject stale epochs despite sequence reuse and retain an explicit uncertain result.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b045_systems",
+        "tests": [
+          "b045_systems.peer"
+        ],
+        "scaffold": "labs/b045_systems"
+      },
+      "assessor_analysis": "assessor/b045_systems/analyses/X-T54-001.md",
+      "original_sections": {
+        "Problem": "Implement peer submit/ack/restart/ready. Submit(epoch1,seq1); restart without trusted quiescence remains PENDING and retains work. Trusted restart records uncertainty, advances epoch2,clears ready and retains an explicit result record. After ready2 submit seq1 again; stale ACK(1,1) must fail, ACK(2,1) succeeds. Exhaust epochs without wrapping. Explain how this composes with request completion ownership and supervisor evidence.\n\nThe public header supplies APIs; src/systems.c contains compiling failure stubs; tests/tests.c and fixtures/b045_systems/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "Timeout is observation, reset is an action, and quiescence is a fact requiring trusted evidence. Reusing sequence numbers is safe only within distinct nonwrapping epochs. A late ACK must not complete a new request. The retained uncertainty flag prevents false exactly-once claims but does not reconcile application side effects. No actual peer reset or shared-cache protocol is implemented here.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b045_systems.peer`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Add a bounded deduplication/reconciliation journal and define at-most-once versus unknown-result semantics. V2: Integrate heartbeat observation and the dedicated H745 supervisor adapter with image hashes and dedicated-board traces; host proof remains a narrower gate.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T55-001",
+      "source": "curriculum/v5/exercises/X-T55-001.md",
+      "sha256": "d7149d046035cd317ab0ef3fa5ed06691cad5a855ab044aff794ad76d036f3c0",
+      "original_rubric": [
+        {
+          "id": "X-T55-001-R1",
+          "objective": "T55.08.a",
+          "criterion": "Derive captured-reader ownership, safety and grace-period progress.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        },
+        {
+          "id": "X-T55-001-R2",
+          "objective": "T55.08.c",
+          "criterion": "Keep old storage until its final captured reader while allowing new-version readers.",
+          "levels": {
+            "0": "Cannot state mechanism or violates invariant.",
+            "1": "Reproduces ordinary results but cannot derive this claim or boundary assumptions.",
+            "2": "Derives this claim, implements obligations and diagnoses supplied counterexample with reproducible evidence.",
+            "3": "Independently handles changed assumptions, constructs a fresh counterexample and bounds the surviving guarantees."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "V1",
+          "V2"
+        ]
+      },
+      "lab": {
+        "family": "b05_depth",
+        "tests": [
+          "b05_depth.grace"
+        ],
+        "scaffold": "labs/b05_depth"
+      },
+      "assessor_analysis": "assessor/b05_depth/analyses/X-T55-001.md",
+      "original_sections": {
+        "Problem": "Implement enter/exit/begin/done. Reader0 enters ticket1,begin captures it,reader1 enters ticket2,reader0 exits:done must finish while reader1 remains. Reuse reader0 with a fresh ticket before done and retain this result. Reject stale exits/nested entry and exhaust finite tickets without wrap.\n\nThe public header supplies APIs; src/depth.c contains compiling failure stubs; tests/tests.c and fixtures/b05_depth/cases.json supply concrete cases. Honor the complete shared contract's extents, initialized controls, statuses, ownership and unchanged-failure rules. Do not modify trusted harness inputs to manufacture a pass.",
+        "Reasoning": "A grace period protects reader incarnations present at retirement. Slot occupancy confuses replacement with captured readers and can postpone forever. Unique nonwrapping tickets remove that alias in the model. A stalled captured reader still blocks. Real threads require publication and atomic synchronization; these ordinary fields are serialized, not Linux RCU.\n\nState pre/postconditions, invariants, ownership, failure semantics and resource/complexity arguments for each operation. Separately identify ISO C guarantees, diagnostics, external verification, runtime checks and caller discipline. Refute one plausible incorrect explanation using the smallest relevant input/history.",
+        "Verification": "Build learner family with CMake; run `b05_depth.grace`. The campaign builds GCC/Clang Debug/Release/sanitizer reference profiles, compiles a mechanism-specific mutant and requires marked semantic failure, and confirms the compiling stub rejects. Neither compile error nor crash counts as mutant detection. The independent mathematical oracle covers selected mechanisms explicitly; other APIs use hand-derived public traces and require additional learner-derived expectations.\n\nPass only when D1-D3 substantiate every mapped claim, all relevant checks pass without sanitizer findings, the mutant fails for the predicted reason and failure preserves required state. An assessor inspects arguments and fresh counterexamples. Independent transfer requires D4 and a real assessment record. Finite passing tests cannot establish absolute mastery.",
+        "Variants": "V1: Attach immutable version slots and serialized writers, proving protection. V2: Compare stalled readers against hazard pointers and epochs under equal memory bounds.\n\nAttempt selected delayed variant after at least7 days with unseen input. Identify new prerequisites and unavailable evidence explicitly."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T55-002",
+      "source": "curriculum/v5/exercises/X-T55-002.md",
+      "sha256": "32f6fcae34b0086505b085d0e083d9bad0f3db68f3dfb40c8f87ac0985cc142e",
+      "original_rubric": [
+        {
+          "id": "X-T55-002-R1",
+          "objective": "T55.05.a",
+          "criterion": "Derive live-domain ownership distinguishing publication, removal, retirement, protection and collection; forbid pre-validation access.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Derive live-domain ownership distinguishing publication, removal, retirement, protection and collection; forbid pre-validation access. Supply independent traces and exact evidence.",
+            "3": "Traverse a second link and derive when two simultaneous hazards are needed. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T55-002-R2",
+          "objective": "T55.05.b",
+          "criterion": "Implement publish/revalidate and all-participant scans with conservative ordering; enumerate critical schedules and compose a learner container.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Implement publish/revalidate and all-participant scans with conservative ordering; enumerate critical schedules and compose a learner container. Supply independent traces and exact evidence.",
+            "3": "Weaken one ordering only after a model/proof and explain the changed target assumptions. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T55-002-R3",
+          "objective": "T55.05.c",
+          "criterion": "Explain stalled-reader retention, generation exhaustion and bounded-pool failure separately from lock freedom and logical ABA.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Explain stalled-reader retention, generation exhaustion and bounded-pool failure separately from lock freedom and logical ABA. Supply independent traces and exact evidence.",
+            "3": "Compare paused hazard/epoch readers under equal pools/workloads without resetting identities. Derive the changed contract independently and bound the available evidence."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "X-T55-002-DELAYED"
+        ]
+      },
+      "lab": {
+        "family": "modern_bridge",
+        "scaffold": "labs/modern_bridge",
+        "tests": [
+          "modern_bridge.hazard"
+        ]
+      },
+      "assessor_analysis": "assessor/modern_bridge/analyses/X-T55-002.md",
+      "original_sections": {
+        "Problem": "Implement three typed cells, two reader slots and generations1..3 followed by retirement4. One writer publishes an immutable unsigned value. A reader observes an identity, publishes it as a hazard, revalidates source, then copies payload. Removal/retirement/scan are separate writer steps; reuse only if neither reader protects. The stale history publishes11, observes, removes/collects, publishes22 into the same cell, then protects the old identity: return RETRY and preserve the output sentinel. Reader1 protection must block collection too. Compose this with the learner three-node append/read/remove structure and record access intervals.\n\nSupplied artifacts: `labs/modern_bridge/include/bridge.h`, compiling unsolved `src/bridge.c`, `tests/tests.c`, `fixtures/modern_bridge/cases.json` and the incorporated `labs/modern_bridge/CONTRACTS.md` version1. The contract defines representation, operations, preconditions, error precedence, ownership, finite limits and complexity. Preserve the interface. Target adapters remain separate learner sources; retain imported learner source hashes rather than copying assessor code.",
+        "Reasoning": "Every hazardous access must lie inside continuous protection beginning before successful validation. Enumerate orders preserving reader publish<validate<access and writer remove<scan. With SC and nonreused logical identity, successful validation cannot coexist with a scan missing that uncleared hazard. Prove publication and reuse ordering separately. Identify single-writer and fixed-registration assumptions; replacing SC with release/acquire is not a text substitution. Contrast Michael's algorithm with this finite identity adapter and runtime-managed references: C does not enforce guard lifetime. Count atomic traffic, scans and retained cells; atomic_uint lock freedom is implementation-dependent.\n\nFor each operation state pre/postconditions, invariants, ownership and failure preservation. Assign guarantees to ISO C, compiler/ABI contract, runtime checks, external verification or caller discipline. Supply one plausible incorrect explanation and minimal counterexample. Complete the13-dimension modern cost review, with justified non-applicability; compare equal correctness and ownership contracts.",
+        "Verification": "Enumerate10 legal SC orders of five critical events. Test stale observation, reader1-only protection, both readers stalled, retired capacity and nine generations retired followed by FULL. In the container inject removal between every reader step, clear-too-early, ignored participant and active deregistration; minimize failures. Compare a locked oracle on identical histories and audit target atomics/undefined helpers. No fabricated pointer, crash or executed UB is required to kill protocol mutants.\n\nConfigure `cmake -S labs/modern_bridge -B <empty-build>`, build and run `ctest --test-dir <build> -R modern_bridge.hazard --output-on-failure`. Default learner bodies must compile and fail the semantic gate until implemented. Run the independent fixture verifier separately. An anchor pass does not satisfy D1-D4, target integration or independent assessment. A crash, timeout or suppressed diagnostic never counts as a repair.",
+        "Variants": "Immediate: traverse two adjacent nodes and specify simultaneous protection. Delayed: add participant deregistration/reuse; require quiescence and stop stale registration tokens from clearing a successor hazard. Compare retention with X-T55-003 under equal pools and pause schedules.\n\nNamed delayed assessment `X-T55-002-DELAYED` follows the minimum study interval. Save the changed problem before implementation; parameter-only substitutions do not count. Assessor analysis contains withheld discriminators and is excluded from learner publication."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    },
+    {
+      "id": "X-T55-003",
+      "source": "curriculum/v5/exercises/X-T55-003.md",
+      "sha256": "4a01c1b9e099277d32e352a9dd77db351f977ff81f01ed2eda5279b72ffea7ec",
+      "original_rubric": [
+        {
+          "id": "X-T55-003-R1",
+          "objective": "T55.07.a",
+          "criterion": "Specify entry/exit, retirement, advancement and participant lifetime; distinguish serialized model from concurrent publication.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Specify entry/exit, retirement, advancement and participant lifetime; distinguish serialized model from concurrent publication. Supply independent traces and exact evidence.",
+            "3": "Add deregistration without losing an active participant from the grace condition. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T55-003-R2",
+          "objective": "T55.07.b",
+          "criterion": "Implement a fixed-participant epoch container adapter and compare hazard retention under identical schedules.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Implement a fixed-participant epoch container adapter and compare hazard retention under identical schedules. Supply independent traces and exact evidence.",
+            "3": "Introduce periodic quiescent points and derive changed reader validity, latency and retention. Derive the changed contract independently and bound the available evidence."
+          }
+        },
+        {
+          "id": "X-T55-003-R3",
+          "objective": "T55.07.c",
+          "criterion": "Derive policy-admitted reuse, stalled-reader retention and counter exhaustion without equating progress with bounded storage.",
+          "levels": {
+            "0": "Missing or incorrect mechanism or evidence.",
+            "1": "Public output obtained without a valid invariant or independent boundary evidence.",
+            "2": "Derive policy-admitted reuse, stalled-reader retention and counter exhaustion without equating progress with bounded storage. Supply independent traces and exact evidence.",
+            "3": "Replace retirement with modular epochs and prove a distance bound or reject unbounded delay. Derive the changed contract independently and bound the available evidence."
+          }
+        }
+      ],
+      "original_delayed": {
+        "minimum_days": 7,
+        "variant_ids": [
+          "X-T55-003-DELAYED"
+        ]
+      },
+      "lab": {
+        "family": "modern_bridge",
+        "scaffold": "labs/modern_bridge",
+        "tests": [
+          "modern_bridge.epoch"
+        ]
+      },
+      "assessor_analysis": "assessor/modern_bridge/analyses/X-T55-003.md",
+      "original_sections": {
+        "Problem": "Implement the serialized two-participant/three-node MBEpoch tracker. At epoch1 enter reader0, retire node0, advance to2, then attempt another advance: BUSY until reader0 leaves. Advance to3 and collect exactly1. Distance1 never collects even with no active readers: this selected policy requires distance2. A reader entering the current cohort permits the first advance. Epoch3 reports FULL rather than wrapping. Add a synchronized adapter to the same learner append/read/remove structure and compare a paused reader0 while the writer removes all three nodes.\n\nSupplied artifacts: `labs/modern_bridge/include/bridge.h`, compiling unsolved `src/bridge.c`, `tests/tests.c`, `fixtures/modern_bridge/cases.json` and the incorporated `labs/modern_bridge/CONTRACTS.md` version1. The contract defines representation, operations, preconditions, error precedence, ownership, finite limits and complexity. Preserve the interface. Target adapters remain separate learner sources; retain imported learner source hashes rather than copying assessor code.",
+        "Reasoning": "For each node enumerate possible observers, entry epochs, required quiescent boundaries and first policy-admitted reuse. Distinguish conservative two-advance policy from theoretical earliest reuse under stronger knowledge. Subtraction is safe here because epochs never wrap. Plain MBEpoch fields cannot be raced. Derive real entry-before-access and remove-before-grace ordering and map synchronization to C and the target. Compare Crossbeam Guard library protocol with explicit C discipline; no borrow checker/collector is present. Bounded storage can fail despite nonblocking unrelated operations.\n\nFor each operation state pre/postconditions, invariants, ownership and failure preservation. Assign guarantees to ISO C, compiler/ABI contract, runtime checks, external verification or caller discipline. Supply one plausible incorrect explanation and minimal counterexample. Complete the13-dimension modern cost review, with justified non-applicability; compare equal correctness and ownership contracts.",
+        "Verification": "Enumerate enter/leave/retire/advance/collect with both readers, repeated transitions, reclaimed identities, all nodes retired, later-arriving reader, permanently active old cohort and epoch exhaustion. Check distances0/1/2. Kill ignore-old-reader and one-advance-reclaim mutants; add active-deregistration mutation in the real adapter. Run equal-rate hazard/epoch workloads under identical pauses; report retention and progress separately. Compare a locked model and schedule explorer. Concurrent sanitizer/target evidence remains distinct from serialized fixtures.\n\nConfigure `cmake -S labs/modern_bridge -B <empty-build>`, build and run `ctest --test-dir <build> -R modern_bridge.epoch --output-on-failure`. Default learner bodies must compile and fail the semantic gate until implemented. Run the independent fixture verifier separately. An anchor pass does not satisfy D1-D4, target integration or independent assessment. A crash, timeout or suppressed diagnostic never counts as a repair.",
+        "Variants": "Immediate: add quiescent points inside a long scan and reacquire every invalidated pointer. Delayed: wrap a finite epoch counter with a delayed reader; give an ambiguity counterexample, then impose a proved distance/delay bound or retain permanent exhaustion. Compare its costs/contracts with hazard slots.\n\nNamed delayed assessment `X-T55-003-DELAYED` follows the minimum study interval. Save the changed problem before implementation; parameter-only substitutions do not count. Assessor analysis contains withheld discriminators and is excluded from learner publication."
+      },
+      "status": "inspection-in-progress-not-a-completion-row"
+    }
+  ],
+  "limits": "Original source audit snapshot only; no closure or global inventory change."
+}

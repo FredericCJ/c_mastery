@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-03",
+  "exercise": "X-T69-003",
+  "anchor": "dispatch.dictionary",
+  "input_contract": "Implement ds_fold for0–16 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.",
+  "expected": "Folding subtraction over[3,2] from10 yields5; specialized addition yields15. Empty input with initial7 yields7 without callback invocation. A later rejected negative value preserves caller output99 even after an earlier successful callback.",
+  "independent_oracle": "Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "subtract": 5,
+    "sum": 15,
+    "empty": 7
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

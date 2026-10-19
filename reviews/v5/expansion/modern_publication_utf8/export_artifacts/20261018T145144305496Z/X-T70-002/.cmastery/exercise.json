@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "X-T70-002",
+  "title": "Inline bytes, allocator failure and explicit relocation",
+  "project": "PR-T70-02",
+  "domain": "T70",
+  "objectives": [
+    "T70.02.a",
+    "T70.02.b",
+    "T70.02.c",
+    "T70.02.d",
+    "T70.02.e"
+  ],
+  "families": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T03-003",
+    "X-T03-005"
+  ],
+  "prerequisite_artifacts": [
+    "memory.pool",
+    "containers.array"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DOD-LLVM",
+      "path": "research/v5/modern/dod_resources.json",
+      "passages": [
+        "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+        "llvm/ADT/PagedVector.h: page allocation and indirection"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dod",
+    "tests": [
+      "dod.small",
+      "dod.buffers"
+    ],
+    "scaffold": "labs/dod"
+  },
+  "fixtures": [
+    "fixtures/dod/PR-T70-02.json",
+    "fixtures/dod/buffers.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dod/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dod/analyses/X-T70-002.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/modern_completion/dod_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T70.02.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-002-R1"
+      ]
+    },
+    {
+      "objective": "T70.02.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-002-R2"
+      ]
+    },
+    {
+      "objective": "T70.02.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-002-R3"
+      ]
+    },
+    {
+      "objective": "T70.02.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-002-R4"
+      ]
+    },
+    {
+      "objective": "T70.02.e",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T70-002-R5"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T70-002-R1",
+      "objective": "T70.02.a",
+      "criterion": "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-002-R2",
+      "objective": "T70.02.b",
+      "criterion": "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-002-R3",
+      "objective": "T70.02.c",
+      "criterion": "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-002-R4",
+      "objective": "T70.02.d",
+      "criterion": "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T70-002-R5",
+      "objective": "T70.02.e",
+      "criterion": "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T70-002-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T70-002.md",
+  "brief_sha256": "a63454ab950521adb3ff5425bf9990822f4f69512aaa53adb9d7e702f0dabd0e",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dod/PR-T70-02.json": "20f0d8b8ee57e262bb4394e9827e5f858d54c9f498e2f58d4b59089d718b306e",
+    "fixtures/dod/buffers.json": "fd207422f41d1c8fbc77c2d1af8345a70d3def0a991080fd5ebd665ffa7696eb",
+    "labs/dod/CONTRACTS.md": "0c5321eb9afff79a479246240b3df494f46bd7f4b13ce95d52cb35d5b56497b9",
+    "research/v5/modern/dod_resources.json": "02da192d7d448ca1eb2e9ee2d3c2d2b1a827d951f2c29632a18d810b3c607dbf"
+  }
+}

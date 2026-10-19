@@ -24,7 +24,37 @@ def cells(mapping):
             for key, value in mapping.items()]
 
 
+def successor_locator(binding):
+    """Render metadata locators only; never open a support or solution file.
+
+    Authoring registers are deliberately not copied or made download links in
+    learner material. Restrict the literal path as well as the identifier so
+    malformed metadata cannot inject a Markdown link or an assessor location.
+    """
+    if not isinstance(binding, dict):
+        return None
+    name = binding.get('path')
+    if (not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_./-]+', name)
+            or not name.startswith('research/') or not name.endswith('.json')
+            or '..' in PurePosixPath(name).parts or 'assessor' in PurePosixPath(name).parts):
+        return None
+    identifiers = binding.get('criterion_ids', [binding.get('id')])
+    if not isinstance(identifiers, list):
+        identifiers = []
+    identifiers = [identifier for identifier in identifiers
+                   if isinstance(identifier, str)
+                   and re.fullmatch(r'AX-[A-Za-z0-9.-]+', identifier)]
+    return f"`{name}`" + (': ' + ', '.join(f'`{value}`' for value in identifiers) if identifiers else '')
+
+
 def learner_brief(data):
+    bindings = [data.get('successor_support')]
+    additions = data.get('additional_successor_support', [])
+    if isinstance(additions, list):
+        bindings += additions
+    bindings += [criterion.get('successor_support') for criterion in data['criteria']]
+    successors = list(dict.fromkeys(value for binding in bindings
+                                    if (value := successor_locator(binding))))
     lines = [f"# {data['project']}: required assessment supplement", '', data['title'], '',
              'This supplements the bound project; historical hours are descriptive, not a ceiling. '
              'Use the shared assessment contract and the existing learner artifact. Assessor analyses are distributed separately.', '',
@@ -40,8 +70,16 @@ def learner_brief(data):
               'Inspected baseline scope:', '', text_list([f"{b['path']}: " + '; '.join(b['passages'])
                                                        for b in data['baseline_binding']['files']]),
               text_list(data['baseline_binding']['inspection_limits']),
-              'Execution support: ' + data['execution_support']['scope'],
-              'Fresh execution: ' + str(data['execution_support']['fresh_execution']), '']
+              ('Recorded baseline execution support: ' if successors else 'Execution support: ') + data['execution_support']['scope'],
+              ('Recorded baseline fresh execution: ' if successors else 'Fresh execution: ') + str(data['execution_support']['fresh_execution']), '']
+    if successors:
+        lines += ['## Current successor support', '',
+                  'The baseline execution and validation statements below retain their original observation scope. '
+                  'Additional criterion support is tracked by these record locators. Use the supplied learner '
+                  'artifacts and shared contracts for the current implementation obligations. These locators '
+                  'do not copy or link assessor solutions, and their presence alone does not establish a '
+                  'passing current campaign, independent review, a learner attempt, or physical validation.', '',
+                  text_list(successors), '']
     for c in data['criteria']:
         lines += [f"(legacy-{anchor(c['id'])})=", f"## {c['id']}: {c['title']}", '',
                   f"Objective: {c['objective']}. Families: {', '.join(c['families'])}.", '',
@@ -58,7 +96,10 @@ def learner_brief(data):
         lines += ['', table(['Coverage facet', 'Claim and limit'], cells(c['facet_scope'])),
                   '**Security and containment:**', '',
                   table(['Property', 'Contract'], [[key, str(value)] for key, value in c['security'].items()]), '']
-    lines += ['## Validation status', '', table(['Dimension', 'Status'],
+        locator = successor_locator(c.get('successor_support'))
+        if locator:
+            lines += ['Current criterion successor record: ' + locator + '.', '']
+    lines += ['## Original validation status' if successors else '## Validation status', '', table(['Dimension', 'Status'],
               [[key, '; '.join(value) if isinstance(value, list) else value] for key, value in data['status'].items()])]
     return '\n'.join(lines) + '\n'
 

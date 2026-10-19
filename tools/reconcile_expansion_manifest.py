@@ -67,7 +67,10 @@ def reconcile():
     edition['new_families'] = new_families
     edition['receipts_dir'] = 'reviews/v5/expansion/integrated'
     expansion = edition['exercise_expansion']
-    expansion.update(batch='B01-B08', research_batches=[p.parent.name.upper() for p in sorted((ROOT/'research/v5/expansion').glob('*/research_gate.json')) if list(p.parent.glob('*resources.json'))],
+    from research_batches_v5 import discover
+    research_batches, author_evidence_batches = discover()
+    expansion.update(batch='B01-B08', research_batches=research_batches,
+                     author_evidence_batches=author_evidence_batches,
                      required_exercises=len(list((ROOT/'curriculum/v5/exercises').glob('X-*.md'))),
                      validation_receipt='reviews/v5/expansion/integrated/validation.json',
                      status='authored-additions-under-validation',

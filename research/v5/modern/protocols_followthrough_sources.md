@@ -1,0 +1,9 @@
+# Protocol follow-through source inspection
+
+On2026-10-17 read the actual primary passages registered in protocols_followthrough_resources.json. Rust's moved-owner diagnostic is a different enforcement mechanism from a copyable C wrapper; the new experiment records both actual translations and safe Rust E0382. Sesh0.1.1 explicitly scopes its binary-session deadlock-freedom and describes failure/cancellation notification; the original serialized replay model does not acquire that guarantee by resembling a protocol.
+
+QP/C8.1.5 requirements distinguish stable current events, outer-first entry, inner-first exit, local transitions and propagation when all guards fail. The new model states its own callback/state publication choice and does not claim complete QP/UML semantics. Dunkels explains that stackless local continuations do not preserve automatic locals and that potentially blocking child calls need separate continuations. The owned decoder therefore has persistent child states and a separately counted allocation, not a claimed two-byte total frame.
+
+Actual repository PTDriver/FwDma/FwWatchdog, execution task/copied-queue, ADPool brand and algo_ring implementations were read before composition. Their reference sources are linked directly and pinned by the runner; they are original component contracts, not new external standards. The peripheral numbers/task scheduler remain educational models. Existing B06 PM0253/RM0399 cache and HSEM inspection supports the separately referenced selected cache adapter; no new silicon or physical inspection is claimed here. Exact published C17 remains inaccessible in this corpus; previously identified N1570 stays C11 draft evidence.
+
+Source inspection permits authorship. It is neither independent review nor independent learner performance, and a source title/census row is not counted as another inspected passage.

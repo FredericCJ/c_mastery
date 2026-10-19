@@ -1,0 +1,34 @@
+Illegal use of unrelocated value found!
+Def:   %derived = getelementptr i8, ptr addrspace(1) %base, i64 %offset
+Use:   %a = load i8, ptr addrspace(1) %derived, align 1
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/frede/cmastery-modern-tools/usr/lib/llvm-21/bin/opt -passes=verify<safepoint-ir> -disable-output /mnt/f/Learning/Curricula/c_mastery/build/modern_completion/statepoint-20261017T064012989683Z/no-rematerialization/stale.ll
+1.	Running pass "function(verify<safepoint-ir>)" on module "/mnt/f/Learning/Curricula/c_mastery/build/modern_completion/statepoint-20261017T064012989683Z/no-rematerialization/stale.ll"
+2.	Running pass "verify<safepoint-ir>" on function "sp_entry"
+ #0 0x00007578034d9baf llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x44d9baf)
+ #1 0x00007578034d7457 llvm::sys::RunSignalHandlers() (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x44d7457)
+ #2 0x00007578034da99a (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x44da99a)
+ #3 0x00007577fe845cb0 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x45cb0)
+ #4 0x00007577fe8a61ac __pthread_kill_implementation ./nptl/pthread_kill.c:44:76
+ #5 0x00007577fe8a61ac __pthread_kill_internal ./nptl/pthread_kill.c:89:10
+ #6 0x00007577fe8a61ac pthread_kill ./nptl/pthread_kill.c:100:10
+ #7 0x00007577fe845b7e raise ./signal/../sysdeps/posix/raise.c:27:6
+ #8 0x00007577fe8288ec internal_signal_block_all ./stdlib/../sysdeps/unix/sysv/linux/internal-signals.h:81:3
+ #9 0x00007577fe8288ec __abort_lock_wrlock ./stdlib/abort.c:62:3
+#10 0x00007577fe8288ec abort ./stdlib/abort.c:85:3
+#11 0x000075780369f0c7 (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x469f0c7)
+#12 0x000075780369bd57 (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x469bd57)
+#13 0x000075780369a08f llvm::SafepointIRVerifierPass::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x469a08f)
+#14 0x0000757806e3eb76 (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x7e3eb76)
+#15 0x0000757803688ec5 llvm::PassManager<llvm::Function, llvm::AnalysisManager<llvm::Function>>::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x4688ec5)
+#16 0x0000757805ad8656 (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x6ad8656)
+#17 0x000075780368d896 llvm::ModuleToFunctionPassAdaptor::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x468d896)
+#18 0x0000757805ad9b06 (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x6ad9b06)
+#19 0x0000757803687ba5 llvm::PassManager<llvm::Module, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) (/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1+0x4687ba5)
+#20 0x000061550289b8e6 llvm::runPassPipeline(llvm::StringRef, llvm::Module&, llvm::TargetMachine*, llvm::TargetLibraryInfoImpl*, llvm::ToolOutputFile*, llvm::ToolOutputFile*, llvm::ToolOutputFile*, llvm::StringRef, llvm::ArrayRef<llvm::PassPlugin>, llvm::ArrayRef<std::function<void (llvm::PassBuilder&)>>, llvm::opt_tool::OutputKind, llvm::opt_tool::VerifierKind, bool, bool, bool, bool, bool, bool, bool) (/home/frede/cmastery-modern-tools/usr/lib/llvm-21/bin/opt+0x308e6)
+#21 0x000061550288e6b8 optMain (/home/frede/cmastery-modern-tools/usr/lib/llvm-21/bin/opt+0x236b8)
+#22 0x00007577fe82a601 __libc_start_call_main ./csu/../sysdeps/nptl/libc_start_call_main.h:83:3
+#23 0x00007577fe82a718 call_init ./csu/../csu/libc-start.c:128:20
+#24 0x00007577fe82a718 __libc_start_main ./csu/../csu/libc-start.c:347:5
+#25 0x00006155028891f5 _start (/home/frede/cmastery-modern-tools/usr/lib/llvm-21/bin/opt+0x1e1f5)

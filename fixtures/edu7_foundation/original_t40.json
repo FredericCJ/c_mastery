@@ -1,0 +1,121 @@
+{
+  "source": "research/enhancement/networking_contracts.json",
+  "source_sha256": "aefb9680043db8790d986f61d11feb8d8d87694909f8364604b54bdb99acf8cf",
+  "version": "1.1-reviewed-design",
+  "family": {
+    "domain": "T40",
+    "name": "EDU7-v1 seven-layer RS-485 exchange",
+    "claim": "Original educational implementation of explicit layer responsibilities; no ISO OSI protocol-suite conformance claim",
+    "topology": {
+      "nodes": {
+        "A": 17,
+        "R": 34,
+        "B": 51
+      },
+      "segments": [
+        "A--R.left",
+        "R.right--B"
+      ],
+      "equipment": "Three declared MCU endpoints, router with two independent UARTs, four THVD1400 3.3-V transceiver adapters; two isolated bench segments each no more than 1 m of nominal 120-ohm twisted pair, terminated 120 ohm at both ends",
+      "link_addresses": {
+        "left": {
+          "A": 1,
+          "R.left": 2
+        },
+        "right": {
+          "R.right": 1,
+          "B": 2
+        }
+      },
+      "routes": {
+        "A:51": "left,next_link=2",
+        "R:17": "left,next_link=1",
+        "R:51": "right,next_link=2",
+        "B:17": "right,next_link=1"
+      },
+      "physical_gate": "Actual voltage/polarity/wiring, common reference, termination resistance with power off, UART bit timing, DE release after final stop bit, no overlapping drivers, disconnect/reconnect and end-to-end relay captures; host traces close no physical criterion"
+    },
+    "L1": {
+      "uart": "115200 baud, 8 data bits, no parity, 1 stop bit; no UART error is accepted as clean data",
+      "adapter": "THVD1400 at 3.3 V; D=UART TX, R=UART RX, RE held low, DE controlled separately. Receiver stays enabled; local echo is explicitly filtered by transmitter ownership.",
+      "turnaround": "DE asserted 200 us before transmission; retained until UART transmission-complete reports the final stop bit; release then a 200 us guard before a peer may drive. These are lab policies; captured waveforms and actual part timing must validate them.",
+      "service": "Owned transmit span accepted or BUSY; ordered receive octets plus UART fault events, never a guarantee of error-free delivery"
+    },
+    "L2": {
+      "delimiter": 126,
+      "escape": 125,
+      "escaping": "Within the body, 0x7e and 0x7d become 0x7d followed by byte XOR 0x20; delimiter at both ends. Empty delimiters are ignored; trailing escape or overlong body is dropped through the next delimiter.",
+      "body": [
+        "version:u8=1",
+        "kind:u8 DATA=0,POLL=1,EMPTY=2",
+        "link_src:u8",
+        "link_dst:u8",
+        "payload_length:u8 0..40",
+        "payload:payload_length octets",
+        "CRC:be16"
+      ],
+      "crc": "CRC-16/CCITT-FALSE: polynomial0x1021, init0xffff, refin=false, refout=false, xorout0; cover all body bytes before CRC; check123456789=>0x29b1",
+      "max_unescaped_body": 47,
+      "max_escaped_frame": 96,
+      "arbitration": "Link address1 is the master. Once per25ms turn it sends at most one queued DATA then a zero-payload POLL. Address2 begins one DATA or EMPTY reply within2ms after POLL and guards, then finishes within10ms of its first octet. Slave never transmits without grant. Invalid grant/foreign address/CRC drops produce no upper delivery. Master waits for the completed reply or these bounded deadlines before the next turn; a reply that has begun is not discarded by the start-of-reply deadline.",
+      "service": "One validated local-link SDU up to40 bytes, or explicit busy/drop/fault result; no link retransmission, upper L4 handles loss"
+    },
+    "L3": {
+      "header": [
+        "version:u8=1",
+        "network_src:u8",
+        "network_dst:u8",
+        "hop_limit:u8",
+        "next_protocol:u8=4",
+        "payload_length:u8 0..34"
+      ],
+      "forwarding": "Source starts hop_limit=4. Destination consumes with positive hop limit. Router drops hop_limit<=1, unknown route, own-origin loop or bad length/protocol; otherwise decrement hop limit, preserve network src/dst and payload, rebuild link addresses and CRC on the other segment. No broadcast, dynamic routing or L3 fragmentation.",
+      "service": "Unreliable bounded end-to-end datagram between node IDs; router owns a private copy before releasing input link span"
+    },
+    "L4": {
+      "header": [
+        "type:u8 DATA=1,ACK=2,PROBE=3",
+        "src_port:u8",
+        "dst_port:u8",
+        "transfer_id:be16",
+        "fragment_index:u8",
+        "fragment_count:u8 1..5",
+        "credit:u8 0|1"
+      ],
+      "payload": "DATA has1..24 octets. All non-final fragments are24 bytes; total SDU1..120 bytes. ACK/PROBE have no payload. Service ports7 and8 are fixed endpoint SAPs; routing never uses port.",
+      "state": "One outstanding fragment per direction; one reassembly per (src node,src port,dst port). ACK must match tuple, transfer ID and fragment index. Duplicate accepted fragment is re-ACKed without duplicate delivery; unexpected index/count is rejected. Completion publishes a whole SDU atomically then frees reassembly.",
+      "flow_and_failure": "Credit0 pauses new data; PROBE after100ms asks for current credit without consuming data. Credit1 permits one fragment. Timeout100ms with at most3 retransmissions of the same bytes/index; then fail and clear partial SDU. An independent500ms zero-credit resource deadline reports blocked transfer. Transfer IDs never reused within an active session; wrap forces session reopen.",
+      "service": "Complete bounded message or explicit failed/blocked result, not a byte-stream socket",
+      "completed_receipt": "Transfer IDs start1 and strictly increase per direction within session/epoch; no wrap/reuse. Remember highest completed ID and one last completed receipt (tuple,ID,count,last index,last fragment bytes). Repeated matching last fragment is ACKed without publication; older completed IDs are dropped without publication. Replace receipt only on next complete transfer, clear on session reopen. Pending upper consumption retains one complete SDU and advertises credit0 until released."
+    },
+    "L5": {
+      "header": [
+        "type:u8 OPEN=1,OPEN_ACK=2,DATA=3,RESUME=4,TOKEN=5,CLOSE=6,ERROR=7",
+        "session_id:be16 nonzero",
+        "epoch:be16 nonzero",
+        "checkpoint:be16"
+      ],
+      "negotiation": "OPEN/OPEN_ACK payload is schema_id:u8=1,unit_id:u8=1,initial_token_node:u8=17. One session A<->B, ports7<->8. Incompatible schema/units or unknown epoch returns ERROR and no application delivery. OPEN and OPEN_ACK use checkpoint0; TOKEN, CLOSE and ERROR also use checkpoint0. DATA uses the next per-direction positive checkpoint; RESUME identifies that direction's last committed checkpoint. All multioctet integers are big-endian.",
+      "dialogue": "Only token holder sends DATA. TOKEN payload is new_holder_node:u8 and transfers dialogue right after its successful transport delivery. Start with A; A sends request then transfers token to B, B responds then returns token to A. Sending TOKEN enters TOKEN_PENDING: sender may send no new DATA until matching transport completion; lost ACK may temporarily leave no endpoint allowed to start DATA, never both. Receiver recognizes duplicate token delivery without granting a second change. CLOSE/reopen is required before checkpoint wrap.",
+      "checkpoint_and_resume": "Each direction starts checkpoint1 and increments only after accepted DATA. Same checkpoint+same payload is a duplicate and never reapplies application effect; different payload at same checkpoint is ERROR. Transport reset permits RESUME with same session/epoch and last committed checkpoint; peer retained RAM state must match. Restarted peer with no state refuses resume. Checkpoints and last response remain in RAM only; no durable exactly-once or authenticated-session claim.",
+      "service": "READY/DATA/TOKEN/RESUME_FAILED/CLOSED events independent of transport transfer IDs"
+    },
+    "L6": {
+      "encoding": "schema_id:u8=1 followed by ascending unique TLVs: tag:u8,length:u8,value:length. Total presentation PDU<=80 bytes; reject unknown schema, duplicate/out-of-order tags, length mismatch, noncanonical UTF-8 or unrepresentable integer before publication.",
+      "tags": {
+        "1": "verb:u8 GET=1,SET=2,REPLY=3,ERROR=4",
+        "2": "request_id:be16",
+        "3": "value:be16 signed two's-complement centidegrees Celsius",
+        "4": "unit:u8=1 centidegrees Celsius; mandatory for SET and REPLY",
+        "5": "label:UTF-8 0..16 bytes"
+      },
+      "service": "Typed original application record independent of host struct padding and endianness; optional label is display data, never a C format string",
+      "required_fields": "All records require verb and request ID. SET requires value and unit1; REPLY requires value and unit1; GET requires neither value nor unit. ERROR may report the retained setpoint with unit1. Known tags have exactly the declared lengths; unknown tags rejected; optional label never changes operation."
+    },
+    "L7": {
+      "application": "GET reads the declared fixture plant value; SET changes the declared fixture setpoint only in[-4000,12500] centidegreesC. Request ID matches response, ERROR leaves old setpoint unchanged. Unit1 is mandatory for SET/REPLY. No implication that a physical sensor exists.",
+      "acceptance": "A routed SET and GET, corrupt frame, wrong route/hop, dropped ACK, duplicate fragment, credit pause, token violation, compatible/incompatible OPEN, retained-state resume and peer reboot refusal, malformed representation and out-of-range SET each have exact state/output oracles",
+      "fixture_state": "Initial plant value1800 centidegreesC is immutable fixture input. Initial setpoint2200 is mutable. GET returns plant value; successful SET REPLY reports new setpoint. Invalid SET ERROR reports retained setpoint with unit1. Unchanged setpoint is established by explicit state/error-value witness, not by pretending GET reads the setpoint."
+    }
+  }
+}

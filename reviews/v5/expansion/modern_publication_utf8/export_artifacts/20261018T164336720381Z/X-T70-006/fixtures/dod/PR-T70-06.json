@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "PR-T70-06",
+  "exercise": "X-T70-006",
+  "anchor": "dod.persistent",
+  "input_contract": "Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.",
+  "expected": "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.",
+  "independent_oracle": "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "versions": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        17,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        17,
+        0,
+        0,
+        29,
+        0
+      ]
+    ],
+    "fresh_nodes": [
+      4,
+      4
+    ]
+  },
+  "verification_method": "labs/dod/tests/verify_fixtures.py recomputes the bounded mathematical model independently of C"
+}

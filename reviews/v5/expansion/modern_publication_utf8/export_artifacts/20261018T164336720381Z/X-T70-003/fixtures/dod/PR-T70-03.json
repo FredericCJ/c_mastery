@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "PR-T70-03",
+  "exercise": "X-T70-003",
+  "anchor": "dod.swar",
+  "input_contract": "Derive and implement d_swar_add for four unsigned8-bit lanes inside uint32_t using shifts, masks and unsigned arithmetic only. No intrinsics, scalar per-lane loop in the assessed implementation or signed overflow is allowed. A separate scalar oracle extracts each lane, adds in unsigned int and clamps to255. The packed numerical lane convention is independent of how a uint32_t is stored as bytes.",
+  "expected": "0xff00ff00 plus0x01010101 produces0xff01ff01. A255+1 low lane must saturate without adding1 to the adjacent lane. Every pair of byte inputs must agree with min(255,a+b).",
+  "independent_oracle": "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": 4278320897,
+  "verification_method": "labs/dod/tests/verify_fixtures.py recomputes the bounded mathematical model independently of C"
+}

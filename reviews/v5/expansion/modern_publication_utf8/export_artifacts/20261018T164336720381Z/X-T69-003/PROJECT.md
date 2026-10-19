@@ -1,0 +1,54 @@
+```json
+{
+  "id": "PR-T69-03",
+  "title": "Dictionary passing, specialization and effect-sensitive folds",
+  "module": "T69",
+  "topics": [
+    "T69.03"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-03.json",
+    "fixtures/dispatch/dictionary.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T69-03: Dictionary passing, specialization and effect-sensitive folds
+
+## Contract
+
+Implement ds_fold for0–16 ints with an explicit binary-operation dictionary and ds_sum as a directly specialized checked-add version. Fold order is left to right, initial value is explicit, and failure preserves caller output but not callback effects. Supply addition, subtraction and a failure-on-negative dictionary. Compare specialization versus dictionary passing under identical prefix-overflow semantics and nonconstant runtime dictionary selection.
+
+The full required exercise is {ref}`X-T69-003`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+Folding subtraction over[3,2] from10 yields5; specialized addition yields15. Empty input with initial7 yields7 without callback invocation. A later rejected negative value preserves caller output99 even after an earlier successful callback.
+
+## Steps
+
+- **T69.03:** Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+A generic callback signature does not grant associativity, purity or commutativity. Comparing a checked left fold with unchecked specialized addition measures different semantics. Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization.
+
+## Acceptance and evidence
+
+- **T69.03:** Use an oracle that records every operand pair and status, not only the final number. Include INT_MIN/INT_MAX prefixes whose later mathematical cancellation would fit, and document that the contract still rejects. Compare dictionary choices fixed at compile time, loaded from an input enum and selected per element. Inspect emitted calls/assembly and report optimizer-dependent devirtualization. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Subtraction exposes argument reversal immediately. Record the trace before invoking an effectful operation. Distinguish a type parameter from a parameter whose value is itself a type constructor.
+
+## Transfer challenge
+
+X-T69-003-DELAYED: introduce a saturating signed policy and parallel tree reduction. Produce a minimal associativity counterexample and either retain fold order or narrow the algebraic contract before optimizing.

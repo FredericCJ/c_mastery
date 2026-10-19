@@ -4,7 +4,9 @@
   "domain": "T47",
   "title": "Bounded no-steal transactions - explicit objective assessment",
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/storage_followthrough/transactions/CONTRACTS.md",
+    "labs/storage_followthrough/readers/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -98,6 +100,27 @@
       "passages": [
         "Hardware Assumptions"
       ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-TRANSACTIONS",
+      "path": "research/v5/expansion/legacy_storage_followthrough/transactions_resources.json",
+      "passages": [
+        "Original mechanism and an explicit verification port",
+        "Changed contract: operation rollback",
+        "One savepoint with finite identity",
+        "Required evidence and assessment",
+        "Verification and limitations"
+      ]
+    },
+    {
+      "id": "R-STORAGE-FOLLOW-READERS",
+      "path": "research/v5/expansion/legacy_storage_followthrough/readers_resources.json",
+      "passages": [
+        "Prerequisites and representation",
+        "Publication and shared cache authority",
+        "Snapshot versions, retention and reclamation",
+        "Concrete investigation and evidence"
+      ]
     }
   ],
   "reference_gaps": [
@@ -108,7 +131,30 @@
   "supplied_artifacts": [
     "curriculum/modules/T47.md",
     "curriculum/projects/PR-T47-06.md",
-    "fixtures/storage/PR-T47-06.json"
+    "fixtures/storage/PR-T47-06.json",
+    "labs/storage_followthrough/transactions/transactions.h",
+    "labs/storage_followthrough/transactions/transactions.c",
+    "labs/storage_followthrough/transactions/fault_port.h",
+    "labs/storage_followthrough/transactions/instrument_store.py",
+    "labs/storage_followthrough/transactions/tests.c",
+    "labs/storage_followthrough/transactions/CMakeLists.txt",
+    "labs/storage_followthrough/transactions/expect_failure.py",
+    "labs/storage_followthrough/transactions/CONTRACTS.md",
+    "labs/storage/include/store.h",
+    "labs/storage/src/store.c",
+    "labs/storage/FORMAT.md",
+    "labs/storage_followthrough/readers/readers.h",
+    "labs/storage_followthrough/readers/readers.c",
+    "labs/storage_followthrough/readers/tests.c",
+    "labs/storage_followthrough/readers/CMakeLists.txt",
+    "labs/storage_followthrough/readers/expect_failure.py",
+    "labs/storage_followthrough/readers/CONTRACTS.md",
+    "labs/storage_followthrough/cache/cache.h",
+    "labs/storage_followthrough/cache/cache.c",
+    "labs/storage_followthrough/cache/CONTRACTS.md",
+    "labs/storage_followthrough/lookup/lookup.h",
+    "labs/storage_followthrough/lookup/lookup.c",
+    "labs/storage_followthrough/lookup/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "Retained partial anchors and criterion-specific new assessment tasks",
@@ -116,7 +162,24 @@
     "tests": [
       "storage.transaction"
     ],
-    "fresh_execution": "not-run for these supplemental tasks"
+    "fresh_execution": "not-run for these supplemental tasks",
+    "storage_transactions_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-06-T47.06.a",
+        "AX-PR-T47-06-T47.06.b",
+        "AX-PR-T47-06-T47.06.c"
+      ],
+      "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
+    },
+    "storage_readers_successor": {
+      "path": "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T47-06-T47.06.a-DELAYED",
+        "AX-PR-T47-06-T47.06.c-DELAYED"
+      ],
+      "scope": "Only the exact two changed-condition tasks: copied snapshot lifetime/version retention and actual two-store shared-cache publication/serialization; ordinary support remains separately bound."
+    }
   },
   "criteria": [
     {
@@ -187,6 +250,20 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-06-T47.06.a"
+        ],
+        "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
+      },
+      "changed_condition_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-06-T47.06.a-DELAYED"
+        ],
+        "scope": "Only the exact two changed-condition tasks: copied snapshot lifetime/version retention and actual two-store shared-cache publication/serialization; ordinary support remains separately bound."
       }
     },
     {
@@ -257,6 +334,13 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-06-T47.06.b"
+        ],
+        "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
       }
     },
     {
@@ -326,6 +410,20 @@
       "security": {
         "applicable": false,
         "scope": "Original local learner components and synthetic fixtures only. This is a contract/diagnostic assessment, not an exploit demonstration; shared containment applies."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/transactions_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-06-T47.06.c"
+        ],
+        "scope": "Actual C17 split failure/whole-abort comparison, operation rollback, one finite savepoint and no-steal/uncertain-commit boundaries. Only named ordinary tasks plus T47.04.b and T47.06.b delayed variants; remaining variants are distinct."
+      },
+      "changed_condition_support": {
+        "path": "research/v5/expansion/legacy_storage_followthrough/readers_completion_dispositions.json",
+        "criterion_ids": [
+          "AX-PR-T47-06-T47.06.c-DELAYED"
+        ],
+        "scope": "Only the exact two changed-condition tasks: copied snapshot lifetime/version retention and actual two-store shared-cache publication/serialization; ordinary support remains separately bound."
       }
     }
   ],

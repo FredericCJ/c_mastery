@@ -1,0 +1,19 @@
+"""Bounded actual source readings, kept separate from author execution."""
+import copy,hashlib,json,pathlib,urllib.request
+HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def main():
+ lookup=json.loads((ROOT/'build/containers-depth/clrs_lookup.json').read_text());name=lookup['document']['path_absolute'].replace('F:\\Cours\\','F:\\Knowledge\\');parts=pathlib.PureWindowsPath(name);pdf=pathlib.Path('/mnt/f').joinpath(*parts.parts[1:]);assert sha(pdf)=='4f45c515e713ecd1170a1f829d9bbdf46da16faf6a35272ebb0efb4bd9632370';extract=ROOT/'build/algorithm-depth/clrs-41-44.txt';assert extract.is_file()
+ cache=pathlib.Path('/home/frede/cmastery-algorithm-sort-sources');cache.mkdir(exist_ok=True);ods=cache/'ods-merge.html';url='https://opendatastructures.org/ods-cpp/11_1_Comparison_Based_Sorti.html'
+ if not ods.exists():ods.write_bytes(urllib.request.urlopen(url,timeout=45).read())
+ specs=[('CLRS','Introduction to Algorithms: insertion records and loop invariants',['Thomas H. Cormen','Charles E. Leiserson','Ronald L. Rivest','Clifford Stein'],'Fourth edition',2022,'https://www.cs.dartmouth.edu/thc/',['2.1 held PDF41–44: record payloads, insertion pseudocode and invariant initialization/maintenance/termination'],{str(pdf):sha(pdf),str(extract):sha(extract)},'Actual previously extracted bounded text reread; source PDF exact ID/hash checked; no private extract published.'),('ODS','Open Data Structures: comparison-based sorting',['Pat Morin'],'Online C++ edition',2013,url,['11.1.1 merge-sort code and merge comparator, accessible lines14–46'],{str(ods):sha(ods)},'Actual primary HTML code/prose read; right-on-tie source is contrasted with required left-on-tie stable C contract, not claimed equivalent.')]
+ rows=[]
+ for key,title,authors,edition,year,url,locators,external,method in specs:
+  rows.append(dict(id='R-AS-'+key,title=title,authors=authors,edition=edition,year=year,kind='primary-text',url=url,access='Actual listed bounded passages inspected',domains=['T36'],role='primary',reason='Pending-record/permutation and explicit merge tie distinctions',prerequisites=['C lifetime, comparisons and loop invariants'],locators=locators,assignable=True,inspection=dict(date='2026-10-18',method=method,scope='; '.join(locators),limits='Listed passages only; pseudocode/C++ does not supply C ABI, lifetime or failure guarantees. No whole-book inspection.',external_source_sha256=external)))
+ abi_path=ROOT/'research/v5/expansion/legacy_algorithm_abi/resources.json';abi=json.loads(abi_path.read_text(encoding='utf8'));canonical=[]
+ for source in abi['resources']:
+  if source['id'] in ['R-AB-SYSV','R-AB-ARM']:
+   row=copy.deepcopy(source);row['id']=source['id'].replace('R-AB-','R-AS-');row['reason']='ABI preservation for actual changed tag-width and observer-call assembly; same actual bounded reading as preceding ABI package';rows.append(row);canonical.append(dict(path=abi_path.relative_to(ROOT).as_posix(),id=source['id']))
+ (HERE/'resources.json').write_text(json.dumps(dict(resources=rows,canonical_external_sources=canonical),indent=2)+'\n',encoding='utf8');files=[HERE/'resources.json',HERE/'audit.md',pathlib.Path(__file__),abi_path]
+ (HERE/'research_gate.json').write_text(json.dumps(dict(status='passage-inspected',scope='Three exact T36.05 original/changed author tasks; no independent acceptance',resource_ids=[r['id'] for r in rows],research_input_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in files},limitations=['Final published C17/C23 uninspected.','Actual inherited ABI passage inspection is not a whole-standard or independent review claim.','Source reading and finite author execution do not establish learner or physical mastery.']),indent=2)+'\n',encoding='utf8')
+if __name__=='__main__':main()

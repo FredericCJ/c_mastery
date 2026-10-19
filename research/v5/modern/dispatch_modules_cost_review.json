@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "author-observed-and-derived-with-explicit-bounds",
+  "source_bound_reports": [
+    "reviews/v5/expansion/modern_completion/dispatch_modules_probe.json"
+  ],
+  "semantic_report": "reviews/v5/expansion/modern_completion/dispatch_campaign.json",
+  "dimensions": [
+    {
+      "dimension": "Representation",
+      "evidence": "Executed x86-64 sizes: entry80, registry160, lease16, OwScope208 and each typed map32 bytes. Both private module pools occupy48 bytes (two instances), verified with nm rather than exposing a private client header."
+    },
+    {
+      "dimension": "Reachable storage",
+      "evidence": "Registry retains two opaque instances and up to four strong-reference obligations, with shared owner/context storage supplied separately. A stack OwScope holds up to three acquisition rollback entries in its eight-entry representation."
+    },
+    {
+      "dimension": "Lifetime",
+      "evidence": "Generation tokens retain logical identity only; registry identity stays live/stable. Borrowed core callbacks outlive their module. Shared continuation retains actual OwShared dependencies and consumes the live lease before cleanup."
+    },
+    {
+      "dimension": "Mutation/aliasing",
+      "evidence": "Complete operations are serialized. Read and IO owners may coincide and then acquire/release two references. Output/control/context aliasing otherwise excluded; typed map key/value correlations apply to direct typed calls."
+    },
+    {
+      "dimension": "Allocation",
+      "evidence": "Both private module factories use two actual static typed objects. Shared construction performs actual retains and conditional cleanup; no new dynamic allocation. Dead/count-overflow/full boundaries return without leaking the acquired prefix."
+    },
+    {
+      "dimension": "Movement/copying",
+      "evidence": "Contexts and registry cannot move while borrowed. A lease copies identity fields without duplicating ownership; only one valid close consumes the generation. Neither private representation is copied into a public byte buffer."
+    },
+    {
+      "dimension": "Destruction",
+      "evidence": "Close clears entry, closes module, releases IO then read. OwShared last-value/control destruction callbacks can perform external work and must satisfy the imported no-failure/no-reentry contract; elapsed destructor cost is not bounded by reference-count operations."
+    },
+    {
+      "dimension": "Dispatch",
+      "evidence": "Actual separate O2 original code contains two indirect callback calls; GCC alternative uses one call site in a two-iteration loop, Clang unrolls to two call sites. Both invoke twice. Controller passes clock/sink subsets to separate leaves; erased context ownership remains a caller relation."
+    },
+    {
+      "dimension": "Concurrency",
+      "evidence": "Non-atomic OwShared and registry are intentionally single-owner. No synchronized pointee access, cross-thread lease disposal or process authority follows from the generation checks."
+    },
+    {
+      "dimension": "Failure",
+      "evidence": "Four acquisition cuts and independent underlying/wrapper exhaustion preserve output and existing entries. Failed clock output is staged; failed sink effects remain visible. Both implementations match75 independent service traces. Compiler-negative clients test private-field and cross-key/value access."
+    },
+    {
+      "dimension": "Compilation",
+      "evidence": "Actual separate clean builds and private-implementation-only rebuild/relink/run commands are recorded for GCC/Clang and both implementations. Same public header and client object are retained for incremental rebuild. Diagnostics constrain ordinary typed calls, not deliberately erased/cast inputs."
+    },
+    {
+      "dimension": "Binary/stack",
+      "evidence": "At O2 raw-service comparison text bytes are2743/2791 GCC original/alternative and2267/2307 Clang; gc-sections excludes unused lease/map code. Compiled lease-open frames336/280 and lease-close32/24 GCC/Clang; original twice48/24 versus alternative64/40. Unknown callbacks/runtime prevent a full stack bound."
+    },
+    {
+      "dimension": "Boundary",
+      "evidence": "Two separately linked definitions satisfy one incomplete public type identity; this is not arbitrary runtime existential quantification. Seven200000-call trials after one warmup compare equal successful two-read contracts. Scheduling/frequency remain uncontrolled; no board or independent learner observation."
+    }
+  ]
+}

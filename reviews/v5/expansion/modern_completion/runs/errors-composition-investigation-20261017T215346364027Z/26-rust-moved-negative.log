@@ -1,0 +1,28 @@
+
+error[E0382]: use of moved value: `owned`
+ --> /mnt/f/Learning/Curricula/c_mastery/labs/errors/composition/tests/comparison.rs:8:37
+  |
+6 |     let owned:Result<Owner<'_>,(u32,usize)>=Ok(Owner(&dropped));
+  |         ----- move occurs because `owned` has type `Result<Owner<'_>, (u32, usize)>`, which does not implement the `Copy` trait
+7 |     let moved=owned.map(|x|x);
+  |               ----- --------- `owned` moved due to this method call
+  |               |
+  |               help: consider calling `.as_ref()` or `.as_mut()` to borrow the type's contents
+8 |     #[cfg(erc_bad_copy)] let _again=owned.map(|x|x);
+  |                                     ^^^^^ value used here after move
+  |
+note: `Result::<T, E>::map` takes ownership of the receiver `self`, which moves `owned`
+ --> /build/rustc-1.93-DHHnHq/rustc-1.93-1.93.1+dfsg/library/core/src/result.rs:831:28
+help: you could `clone` the value and consume it, if the `Owner<'_>: Clone` trait bound could be satisfied
+  |
+7 |     let moved=owned.clone().map(|x|x);
+  |                    ++++++++
+help: consider annotating `Owner<'_>` with `#[derive(Clone)]`
+  |
+2 + #[derive(Clone)]
+3 | struct Owner<'a>(&'a Cell<u32>);
+  |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0382`.

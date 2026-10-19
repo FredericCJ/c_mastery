@@ -1,0 +1,21 @@
+
+Breakpoint 1, dx_marker (stage=50) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x0000618dcda877ef in main (argc=2, argv=0x7ffc06ff4fa8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+
+Breakpoint 3, dx_marker (stage=51) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+
+Breakpoint 4, dx_marker (stage=52) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23
+23	__attribute__((noinline)) void dx_marker(unsigned stage){__asm__ volatile("" : : "r"(stage) : "memory");}
+#1  0x0000618dcda8784e in main (argc=2, argv=0x7ffc06ff4fa8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+
+Hardware watchpoint 5: *p
+
+Old value = 4
+New value = 5
+0x0000618dcda87858 in main (argc=2, argv=0x7ffc06ff4fa8) at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:62
+62	 if(!strcmp(argv[1],"relocate")){unsigned *p=malloc(sizeof *p);if(!p)return 3;*p=4;dx_marker(50);unsigned *q=malloc(sizeof *q);if(!q){free(p);return 3;}*q=*p;dx_marker(51);free(p);p=q;dx_marker(52);*p=5;dx_marker(53);free(p);return 0;}
+DX_GDB_JSON:{"mode": "relocate", "records": [{"command": "set pagination off", "output": ""}, {"command": "set confirm off", "output": ""}, {"command": "set disable-randomization off", "output": ""}, {"command": "set print pretty off", "output": ""}, {"command": "break dx_marker if stage == 50", "output": "Breakpoint 1 at 0x12b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "run relocate", "output": "\nThis GDB supports auto-downloading debuginfo from the following URLs:\n  <https://debuginfod.ubuntu.com>\nDebuginfod has been disabled.\nTo make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.\n[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/usr/lib/x86_64-linux-gnu/libthread_db.so.1\".\n"}, {"command": "up", "output": ""}, {"command": "print p", "output": "$1 = (unsigned int *) 0x618dd9d48010\n"}, {"command": "watch *p", "output": "Hardware watchpoint 2: *p\n"}, {"command": "delete 1", "output": ""}, {"command": "break dx_marker if stage == 51", "output": "Breakpoint 3 at 0x618dcda872b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "continue", "output": ""}, {"command": "delete 2", "output": ""}, {"command": "delete 3", "output": ""}, {"command": "break dx_marker if stage == 52", "output": "Breakpoint 4 at 0x618dcda872b4: file /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c, line 23.\n"}, {"command": "continue", "output": ""}, {"command": "up", "output": ""}, {"command": "print p", "output": "$2 = (unsigned int *) 0x618dd9d48030\n"}, {"command": "watch *p", "output": "Hardware watchpoint 5: *p\n"}, {"command": "continue", "output": ""}, {"command": "info breakpoints", "output": "Num     Type           Disp Enb Address            What\n4       breakpoint     keep y   0x0000618dcda872b4 in dx_marker at /mnt/f/Learning/Curricula/c_mastery/labs/debugging_followthrough/specimen.c:23\n\tstop only if stage == 52\n\tbreakpoint already hit 1 time\n5       hw watchpoint  keep y                      *p\n\tbreakpoint already hit 1 time\n"}, {"command": "print *p", "output": "$3 = 5\n"}], "heap": "not-captured", "ASLR": "preserved", "scope": "bounded debugger observation;not full execution history"}

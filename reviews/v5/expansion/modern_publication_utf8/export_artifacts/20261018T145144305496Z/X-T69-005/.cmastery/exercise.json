@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "X-T69-005",
+  "title": "Owning erased calls over the byte-only small buffer",
+  "project": "PR-T69-05",
+  "domain": "T69",
+  "objectives": [
+    "T69.05.a",
+    "T69.05.b",
+    "T69.05.c",
+    "T69.05.d",
+    "T69.05.e"
+  ],
+  "families": [
+    "B",
+    "C",
+    "D",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "required": true,
+  "prerequisite_exercises": [
+    "X-T70-002",
+    "X-T69-004",
+    "X-T66-009"
+  ],
+  "prerequisite_artifacts": [
+    "dod.small_buffer",
+    "memory.pool",
+    "memory.adversarial_allocator"
+  ],
+  "profile": "C",
+  "environment": {
+    "language": "ISO C17; edition comparisons bounded by actually inspected sources",
+    "target": "Hosted Linux x86-64; exact-width integer types required",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python"
+    ],
+    "dependencies": "Original mechanisms from typed objects, loops and supplied allocation callbacks; host verification tools are separate. No mechanism-providing collection library."
+  },
+  "source_records": [
+    {
+      "id": "R-MOD-DISPATCH-MOVE",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "func.wrap.move.class paragraphs1–2: wrapper and small-object recommendation",
+        "func.wrap.move.ctor paragraphs1–6: call constraints and moved-from state"
+      ]
+    },
+    {
+      "id": "R-MOD-DISPATCH-REF",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "func.wrap.ref.class paragraphs1–3: thunk and bound entity",
+        "func.wrap.ref.ctor paragraphs3–9: bound function/object construction",
+        "func.wrap.ref.inv paragraph1: invocation"
+      ]
+    },
+    {
+      "id": "R-MOD-DISPATCH-C-POINTERS",
+      "path": "research/v5/modern/dispatch_resources.json",
+      "passages": [
+        "6.3.2.3p1–2 and7–8 Pointer conversions",
+        "6.7.2.1p14–17 Structure/union layout and initial member",
+        "6.5.16.1p1 and6 Assignment qualifiers and unsafe double-pointer example"
+      ]
+    }
+  ],
+  "lab": {
+    "family": "dispatch",
+    "tests": [
+      "dispatch.erased",
+      "dispatch.capture_codec",
+      "dispatch.typed_capture",
+      "dispatch.clone_pair",
+      "dispatch.capture_admission"
+    ],
+    "scaffold": "labs/dispatch"
+  },
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-05.json",
+    "fixtures/dispatch/captures.json",
+    "fixtures/dispatch/laws.json"
+  ],
+  "shared_contracts": [
+    "curriculum/v5/exercises/shared-contract.md",
+    "labs/dispatch/CONTRACTS.md",
+    "curriculum/v5/exercises/modern-cost-contract.md"
+  ],
+  "assessor_analysis": "assessor/dispatch/analyses/X-T69-005.md",
+  "status": {
+    "content": "authored",
+    "execution": "see-source-bound-campaign",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "No exact published C17 text inspected.",
+      "Public executable anchors do not execute every written extension, independent measurement or delayed transfer."
+    ],
+    "campaign_receipt": "reviews/v5/expansion/modern_completion/dispatch_campaign.json"
+  },
+  "objective_coverage": [
+    {
+      "objective": "T69.05.a",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-005-R1"
+      ]
+    },
+    {
+      "objective": "T69.05.b",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-005-R2"
+      ]
+    },
+    {
+      "objective": "T69.05.c",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-005-R3"
+      ]
+    },
+    {
+      "objective": "T69.05.d",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-005-R4"
+      ]
+    },
+    {
+      "objective": "T69.05.e",
+      "teaching": [
+        "#problem",
+        "#reasoning"
+      ],
+      "implementation": [
+        "D1",
+        "D2"
+      ],
+      "boundary": {
+        "applicable": true,
+        "evidence": [
+          "D3"
+        ]
+      },
+      "independent_assessment": [
+        "X-T69-005-R5"
+      ]
+    }
+  ],
+  "rubric": [
+    {
+      "id": "X-T69-005-R1",
+      "objective": "T69.05.a",
+      "criterion": "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-005-R2",
+      "objective": "T69.05.b",
+      "criterion": "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-005-R3",
+      "objective": "T69.05.c",
+      "criterion": "Inject each allocation/codec failure, test source/destination/self move and repeated drop, and verify exactly-once external destruction plus unchanged outputs on failing calls.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-005-R4",
+      "objective": "T69.05.d",
+      "criterion": "Compare owning C erasure, a borrowed function reference and the documented C++ move_only_function/function_ref contracts. Analyze inline storage, movement constraints and empty invocation without claiming common ABI or universal small-buffer capacity.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    },
+    {
+      "id": "X-T69-005-R5",
+      "objective": "T69.05.e",
+      "criterion": "Transfer to a self-referential or over-aligned capture and a callback returning a borrowed reference. Either provide a justified typed representation/relocator/lifetime protocol or reject it explicitly; a byte copy is not a general solution.",
+      "levels": {
+        "0": "Absent or contradicts the stated representation/contract.",
+        "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+        "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+        "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+      }
+    }
+  ],
+  "delayed_transfer": {
+    "minimum_days": 7,
+    "variant_ids": [
+      "X-T69-005-DELAYED"
+    ]
+  },
+  "brief": "curriculum/v5/exercises/X-T69-005.md",
+  "brief_sha256": "2ef3bf8cb7055c5d3903a3619f2da1635ce88042ba1c9f86e74612a30f45e6f0",
+  "bound_files": {
+    "curriculum/v5/exercises/modern-cost-contract.md": "86dbb0c6e7ad0259f72c108caaa5ada504c57ba7a6745cf14b87ea5949159a6d",
+    "curriculum/v5/exercises/shared-contract.md": "33988b40f7d45dc1aa11579deb50ed51d7872abb81ee1ae53b1c579501efe4a3",
+    "fixtures/dispatch/PR-T69-05.json": "98d95daef38a6267e73a6aec09c48f4790eaef89efd00c7c7ec19a151b61f033",
+    "fixtures/dispatch/captures.json": "d16f885fa6f06ec64e2d676eb3036e84a9376b24fbe2df922a2ebd3664b98517",
+    "fixtures/dispatch/laws.json": "441c1add95eaed52e456abb9605e7c9bd52095c1423a56f35141135239a1346d",
+    "labs/dispatch/CONTRACTS.md": "46353fb78346148e82a553da4764838dd1d078462c6f1b054aff77dbc3953c56",
+    "research/v5/modern/dispatch_resources.json": "fbf4a364ad9bc35877589ef9781f43a9a15323d0d4eff7d4a70a8978305f1ecc"
+  }
+}

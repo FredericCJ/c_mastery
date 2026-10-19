@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "family": "corpus_munch",
+  "title": "Longest-prefix tokenization, rollback and failed-configuration memoization",
+  "build_system": "cmake",
+  "assessor_root": "assessor/corpus_munch",
+  "projects": [],
+  "units": [],
+  "exercises": [
+    {
+      "id": "X-T15-020",
+      "project": "PR-T15-09",
+      "tests": [
+        "corpus_munch.semantics",
+        "corpus_munch.bounds",
+        "corpus_munch.memo"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Original maximal-munch scanner with actual earlier regex DFA adapter"
+    }
+  ],
+  "campaign": {
+    "producer": "tools/run_corpus_munch.py",
+    "receipt": "corpus_munch_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "MM_CHECK:"
+  },
+  "profile": "C",
+  "limitations": [
+    "Bounded byte-class DFA/scanner; input buffering and full language lexicons are separate mechanisms."
+  ],
+  "dependencies": [
+    "parsing_depth"
+  ]
+}

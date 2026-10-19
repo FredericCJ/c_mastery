@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "project": "PR-T51-01",
+  "domain": "T51",
+  "title": "Atomic wait enrollment and lost-wakeup prevention \u2014 explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/wait/IRQ.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T51.md",
+        "sha256": "be23fc019ee82bf2322240949ce033c20ee2bb4b5c103d63d9c46f7271743695",
+        "passages": [
+          "Assigned substantive teaching passages and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T51-01.md",
+        "sha256": "66ecdf3d6e9dfc4b76b5d909efabacdf861b76518d8a07feef60f6a3417aa6ba",
+        "passages": [
+          "Complete metadata, contract, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "fixtures/os_v3/PR-T51-01.json",
+        "sha256": "16392038e5c73b40d6ffa391f38639152ad3d90a7f08a654cebc9368ef95c6f2",
+        "passages": [
+          "Complete synthetic input and expected output"
+        ]
+      },
+      {
+        "path": "research/v3/verify_fixtures.py",
+        "sha256": "1870228e17863b2f400262753f25d1d13d90ad6423c5705255f06c21ecb8a10a",
+        "passages": [
+          "compute branches for assigned T51/T52/T53 synthetic models; not learner or target execution"
+        ]
+      },
+      {
+        "path": "labs/execution/README.md",
+        "sha256": "74ceca4efe86cb51b9001e6131c427cc761b385b5f908f8a64f8e9b0405561ae",
+        "passages": [
+          "Actual target/dependency/ownership contracts and explicit evidence limitations"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "Assigned project unit objective/test links and substantive implementation steps"
+        ]
+      },
+      {
+        "path": "assessor/execution/cmx.c",
+        "sha256": "2be79d77bc007778d8c5936169ae6a2b481d51d85349cdca40453e5fce953455",
+        "passages": [
+          "Wait enrollment/priority recomputation, condition reacquisition, event/notification/barrier/once/RW functions; response/admission/CBS functions"
+        ]
+      },
+      {
+        "path": "assessor/execution/advanced.c",
+        "sha256": "bf4aa62bf8b17d5b34669c9b8ab71c21f8ce400732c2dc0e9d4360cddcd4ffd6",
+        "passages": [
+          "Priority ordering/partition/simulation/server functions"
+        ]
+      },
+      {
+        "path": "labs/execution/tests/contracts.c",
+        "sha256": "5e5ba66ab91cccf4ea42d1e49e26509acdad77dfbafb358a840b9121ac41f8bb",
+        "passages": [
+          "Enrollment/faults and named synchronization/response/EDF/CBS cases"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T51.md",
+        "anchors": [
+          "T51.01"
+        ]
+      }
+    ],
+    "units": [
+      "U-T51-01-01",
+      "U-T51-01-02",
+      "U-T51-01-03"
+    ],
+    "inspection_limits": [
+      "All assigned module teaching, parent contract/steps/failure/acceptance and complete synthetic fixture inspected.",
+      "Unit objective/test mappings and each project substantive implementation step inspected; no complete historical learner portfolio review.",
+      "Exact bounded assessor/test scopes are recorded in the baseline bindings; no full implementation review inferred."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
+    "target": "Externally serialized host state models plus original freestanding MCU runtime; actual IRQ execution requires dedicated emulator/board. FreeRTOS/Linux comparisons use separate builds and disposable guests where privileged.",
+    "profile": "E",
+    "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
+    "toolchain": [
+      "Record compiler, flags, optimization, target triple, linker map and actual helper/symbol closure.",
+      "Record emulator/board/kernel/config and clock source; unsupported targets and denied scheduling classes remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LCON-EWD",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "3.2 The Synchronizing Primitives: indivisible P/V definitions",
+        "4.3 The Bounded Buffer: empty/full credits and buffer exclusion"
+      ]
+    },
+    {
+      "id": "R-LCON-OSPP",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+        "PDF physical98:5.4.1 condition wait, signal and broadcast"
+      ]
+    },
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1\u201314 Order and consistency",
+        "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
+    "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T51-01.md",
+    "fixtures/os_v3/PR-T51-01.json",
+    "labs/execution/README.md",
+    "curriculum/guides/concurrent-system-contracts.md",
+    "labs/concurrency_lifecycle_depth/wait/CONTRACTS.md",
+    "labs/concurrency_lifecycle_depth/wait/irq.c",
+    "labs/concurrency_lifecycle_depth/wait/irq.h",
+    "labs/concurrency_lifecycle_depth/wait/IRQ.md",
+    "labs/concurrency_lifecycle_depth/wait/m4.c",
+    "labs/concurrency_lifecycle_depth/wait/model.py",
+    "labs/concurrency_lifecycle_depth/wait/native.c",
+    "labs/concurrency_lifecycle_depth/wait/run_wait.py",
+    "labs/concurrency_lifecycle_depth/wait/tests.c",
+    "labs/concurrency_lifecycle_depth/wait/trace.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.c",
+    "labs/concurrency_lifecycle_depth/wait/wait.h",
+    "labs/execution/include/cmx.h",
+    "labs/execution/src/cmx.c",
+    "labs/execution/src/support.c",
+    "labs/concurrency_lifecycle_depth/targets/m4.ld"
+  ],
+  "execution_support": {
+    "kind": "Retained concrete construction plus bounded model/host/guest anchors",
+    "scope": "Only each named test actual contract counts as existing executable support. The supplemental leaf investigations require their own evidence.",
+    "tests": [
+      "execution.enrollment"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave; fixture oracle recomputation is reported separately"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T51-01-T51.01.a",
+      "title": "Derive and defend the state, ownership and ordering contract for atomic wait enrollment and lost-wakeup prevention.",
+      "objective": "T51.01.a",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-EWD",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "3.2 The Synchronizing Primitives: indivisible P/V definitions",
+            "4.3 The Bounded Buffer: empty/full credits and buffer exclusion"
+          ]
+        },
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Enumerate the consumer check/enroll/block and producer publish/wake orderings for one false-to-true predicate. Supply a failing split-check trace and an externally serialized transition model that either consumes the predicate or enrolls exactly once; track task state and queue membership after every event.",
+      "purpose": "A wake is remembered even when nobody is enrolled.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.01 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T50-04",
+          "PR-T25-03",
+          "PR-T51-01 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A wake is remembered even when nobody is enrolled. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A wake is remembered even when nobody is enrolled.",
+        "D2": "Enumerate the consumer check/enroll/block and producer publish/wake orderings for one false-to-true predicate. Supply a failing split-check trace and an externally serialized transition model that either consumes the predicate or enrolls exactly once; track task state and queue membership after every event.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Replace one producer with an interrupt and identify the exact mask/lock boundary that must also protect enrollment."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Publishing after an unprotected false check but before enrollment can strand the consumer. A protected recheck/enrollment closes that interval; a pending predicate and a wake event are different state. The model proves only its chosen serialization assumptions.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Publishing after an unprotected false check but before enrollment can strand the consumer. A protected recheck/enrollment closes that interval; a pending predicate and a wake event are different state. The model proves only its chosen serialization assumptions. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Replace one producer with an interrupt and identify the exact mask/lock boundary that must also protect enrollment. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Draw the interval between checking the predicate and becoming visible to the producer.",
+        "Track queue membership separately from scheduler READY/WAITING state and resource state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-01-T51.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace one producer with an interrupt and identify the exact mask/lock boundary that must also protect enrollment."
+        }
+      ],
+      "assessor_anchor": "#t5101a",
+      "facet_scope": {
+        "teaching": "Retained T51.01 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.a"
+      }
+    },
+    {
+      "id": "AX-PR-T51-01-T51.01.b",
+      "title": "Implement a shared wait-queue primitive with predicate recheck, enrollment and scheduler block under one protection domain. Enumerate producer actions before check, during enrollment and after block.",
+      "objective": "T51.01.b",
+      "families": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-EWD",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "3.2 The Synchronizing Primitives: indivisible P/V definitions",
+            "4.3 The Bounded Buffer: empty/full credits and buffer exclusion"
+          ]
+        },
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Implement a caller-owned wait node with task generation, object identity and operation generation. Force immediate readiness, timeout before enrollment, sequence saturation and attempted second enrollment. Verify failed enrollment leaves no linked node and successful completion removes precisely one live enrollment.",
+      "purpose": "A raw task slot is a safe long-lived wait identity.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.01 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T50-04",
+          "PR-T25-03",
+          "PR-T51-01 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A raw task slot is a safe long-lived wait identity. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A raw task slot is a safe long-lived wait identity.",
+        "D2": "Implement a caller-owned wait node with task generation, object identity and operation generation. Force immediate readiness, timeout before enrollment, sequence saturation and attempted second enrollment. Verify failed enrollment leaves no linked node and successful completion removes precisely one live enrollment.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Reuse the same slot after cancellation and reap, then deliver the previous operation's timer callback."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "An operation must validate both task lifetime and wait incarnation. A stale callback cannot complete a new wait in the same slot. Sequence exhaustion needs a declared refusal/retirement rule; silent wrap cannot preserve the existing FIFO comparison.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "An operation must validate both task lifetime and wait incarnation. A stale callback cannot complete a new wait in the same slot. Sequence exhaustion needs a declared refusal/retirement rule; silent wrap cannot preserve the existing FIFO comparison. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Reuse the same slot after cancellation and reap, then deliver the previous operation's timer callback. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Draw the interval between checking the predicate and becoming visible to the producer.",
+        "Track queue membership separately from scheduler READY/WAITING state and resource state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-01-T51.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Reuse the same slot after cancellation and reap, then deliver the previous operation's timer callback."
+        }
+      ],
+      "assessor_anchor": "#t5101b",
+      "facet_scope": {
+        "teaching": "Retained T51.01 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.b"
+      }
+    },
+    {
+      "id": "AX-PR-T51-01-T51.01.c",
+      "title": "Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries.",
+      "objective": "T51.01.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-EWD",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "3.2 The Synchronizing Primitives: indivisible P/V definitions",
+            "4.3 The Bounded Buffer: empty/full credits and buffer exclusion"
+          ]
+        },
+        {
+          "id": "R-LCON-OSPP",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "PDF physical89:5.3.1 lock-group invariant and acquire/release",
+            "PDF physical98:5.4.1 condition wait, signal and broadcast"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1\u201314 Order and consistency",
+            "7.17.7.4 paragraphs1\u20137 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Run bounded schedules for signal before wait, signal after enrollment, repeated coalesced signals and two consumers competing for one predicate. Compare the model with learner traces; replace the protected predicate recheck with a stale cached value as a control. Report missing native interleavings separately.",
+      "purpose": "Passing a sequential latch test proves SMP lost-wakeup freedom.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T51.01 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T50-04",
+          "PR-T25-03",
+          "PR-T51-01 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Passing a sequential latch test proves SMP lost-wakeup freedom. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Passing a sequential latch test proves SMP lost-wakeup freedom.",
+        "D2": "Run bounded schedules for signal before wait, signal after enrollment, repeated coalesced signals and two consumers competing for one predicate. Compare the model with learner traces; replace the protected predicate recheck with a stale cached value as a control. Report missing native interleavings separately.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Move from a UP mask to two CPUs and supply the publication and exclusion argument plus actual target evidence if available."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "A Boolean latch may coalesce two signals; exactly one consumer consumes one stored truth. The faulty recheck produces a reachable stranded waiter. Host serial traces establish neither ISA ordering nor simultaneous CPU execution.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "A Boolean latch may coalesce two signals; exactly one consumer consumes one stored truth. The faulty recheck produces a reachable stranded waiter. Host serial traces establish neither ISA ordering nor simultaneous CPU execution. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Move from a UP mask to two CPUs and supply the publication and exclusion argument plus actual target evidence if available. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "Draw the interval between checking the predicate and becoming visible to the producer.",
+        "Track queue membership separately from scheduler READY/WAITING state and resource state."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T51-01-T51.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Move from a UP mask to two CPUs and supply the publication and exclusion argument plus actual target evidence if available."
+        }
+      ],
+      "assessor_anchor": "#t5101c",
+      "facet_scope": {
+        "teaching": "Retained T51.01 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      },
+      "successor_support": {
+        "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+        "id": "AX-PR-T51-01-T51.01.c"
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T51-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "New full leaf investigations unattempted; no fresh full target campaign inferred from fixture or structural validation.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite passing evidence does not prove absolute mastery.",
+      "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
+      "Delayed variants are required opportunities, not completed assessments."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_concurrency_wait/support.json",
+      "project": "PR-T51-01",
+      "criterion_ids": [
+        "AX-PR-T51-01-T51.01.a",
+        "AX-PR-T51-01-T51.01.b",
+        "AX-PR-T51-01-T51.01.c"
+      ],
+      "scope": "Actual CMX import, generation wrapper, finite oracle, pinned pthread and isolated M4 IRQ observations; no physical or independent learner claim."
+    }
+  ]
+}

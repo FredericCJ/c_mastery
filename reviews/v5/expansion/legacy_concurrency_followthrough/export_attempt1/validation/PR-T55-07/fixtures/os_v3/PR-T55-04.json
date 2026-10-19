@@ -1,0 +1,30 @@
+{
+  "id": "PR-T55-04",
+  "description": "A bounded pool for concurrent nodes finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 4,
+    "requests": [
+      2,
+      2,
+      1,
+      -1,
+      1
+    ]
+  },
+  "expected": {
+    "used": [
+      2,
+      4,
+      4,
+      3,
+      4
+    ],
+    "rejected": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Lock-free queue claims include node acquisition and reclamation. A fixed pool avoids general allocator dependencies but still needs a nonblocking allocation contract, exhaustion result and safe reuse discipline. Pool exhaustion must not silently turn into a blocking wait.",
+  "required_observation": "Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure."
+}

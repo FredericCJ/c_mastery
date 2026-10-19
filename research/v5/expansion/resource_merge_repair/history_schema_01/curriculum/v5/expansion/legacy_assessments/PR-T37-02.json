@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "project": "PR-T37-02",
+  "domain": "T37",
+  "title": "Independent depth assessment: Real instruction bytes and register/address boundaries",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/architecture_bytes/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/projects/PR-T37-02.md",
+        "sha256": "d0f20f5d5e8bbba1b5a43b27326cc1afde14ddc5d2616baeec18641bbb22754b",
+        "passages": [
+          "Full project obligations"
+        ]
+      },
+      {
+        "path": "curriculum/modules/T37.md",
+        "sha256": "011b1fbcddf4747bc6d44f4354b3b66b03453e750d72398d3db6b3e6e7729eee",
+        "passages": [
+          "Study sequence and teaching T37.01 through .10"
+        ]
+      },
+      {
+        "path": "labs/algorithms/SPEC.md",
+        "sha256": "9ab88d640d39c9cd21635e6feab626a7753a0fd22fa9da9ef9c6173dce2d105f",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/family.json",
+        "sha256": "21aad45052c78efb652c607d1f355d13e1acf35d7885590d42890d272261131b",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/include/algo.h",
+        "sha256": "d7cd32dbc308060a1fa0396412b525ab7aa426f3c03549c19d86bd4cc1213f5c",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "labs/algorithms/tests/test_algo.c",
+        "sha256": "0b63455eb7255940cb805759140aebf564124de5b8ee4a1be89949652447cb54",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      },
+      {
+        "path": "tools/verify_algorithms_fixtures.py",
+        "sha256": "210a97cc2bbfbf2b8cbe87d6546e060d230edda7c909a15214078febed9934dc",
+        "passages": [
+          "Relevant declared algorithm, mapped scope or selected mechanism test; unrelated functions not all reviewed"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T37.md",
+        "anchors": [
+          "T37.03",
+          "T37.04"
+        ]
+      }
+    ],
+    "units": [
+      "U-T37-02-01",
+      "U-T37-02-02",
+      "U-T37-02-03"
+    ],
+    "inspection_limits": [
+      "Units reviewed as objective mappings/project-derived checks, not independent evidence.",
+      "Selected relevant algorithms assessor/test functions inspected; unrelated functions not all reinspected.",
+      "External assigned books/vendor manuals not freshly inspected in this audit."
+    ]
+  },
+  "environment": {
+    "language": "ISO C17 baseline",
+    "target": "Parent Linux SysV x86-64 / Cortex-M4 bounded model or isolated emulator as applicable; physical evidence separate",
+    "profile": "C",
+    "dependencies": "Parent permitted primitives; host Python/sanitizers/oracles are not target runtime dependencies.",
+    "toolchain": [
+      "GCC",
+      "Clang",
+      "CMake",
+      "Python3",
+      "Parent assembler/disassembler/emulator as required"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LEGACY-T37-LOCAL",
+      "path": "research/v5/expansion/b045_legacy/resources.json",
+      "passages": [
+        "curriculum/modules/T37.md: Study sequence and teaching, T37.01 through T37.10",
+        "PR-T37-02: Contract, Inputs and expected results, Steps, Failure cases, Acceptance and evidence, Hints and recovery, Transfer challenge"
+      ]
+    },
+    {
+      "id": "R-AB-INTEL1",
+      "path": "research/v5/expansion/legacy_architecture_bytes/resources.json",
+      "passages": [
+        "3.4.1 and3.4.1.1, printed3-11\u20133-13: register widths and upper-state effects",
+        "3.7 selected effective-address base/index/scale, printed3-23\u20133-24"
+      ]
+    },
+    {
+      "id": "R-AB-INTEL2",
+      "path": "research/v5/expansion/legacy_architecture_bytes/resources.json",
+      "passages": [
+        "CMP forms and sign extension, printed3-161\u20133-162",
+        "Jcc rel8 table and relative description, printed3-499 and3-502"
+      ]
+    },
+    {
+      "id": "R-AB-ARM",
+      "path": "research/v5/expansion/legacy_architecture_bytes/resources.json",
+      "passages": [
+        "A2-30:32-bit general-purpose registers",
+        "A5-126: Thumb width prefixes and instruction-specific PC use",
+        "A7-205\u2013206: conditional B T1 encoding and operation",
+        "A7-223: CMP immediate T1 fields and operation",
+        "A7-291: MOV immediate T1 zero extension to32 bits"
+      ]
+    },
+    {
+      "id": "R-AB-RM",
+      "path": "research/v5/expansion/legacy_architecture_bytes/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM, printed68: AHB-accessible SRAM and CPU-only CCM"
+      ]
+    },
+    {
+      "id": "R-AB-ISO",
+      "path": "research/v5/expansion/legacy_architecture_bytes/resources.json",
+      "passages": [
+        "6.5 paragraphs6\u20137, printed77: declared/allocated effective type and allowed character access"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact external textbook/vendor/ISO passages need fresh inspection before source-dependent new claims; bibliography entries are not counted as read."
+  ],
+  "supplied_artifacts": [
+    "fixtures/algorithms/PR-T37-02.json",
+    "curriculum/projects/PR-T37-02.md",
+    "labs/algorithms/SPEC.md",
+    "labs/architecture_bytes/CONTRACTS.md",
+    "labs/architecture_bytes/bad_cast.c",
+    "labs/architecture_bytes/bytes.h",
+    "labs/architecture_bytes/encoding_att.S",
+    "labs/architecture_bytes/encoding_intel.S",
+    "labs/architecture_bytes/encoding_thumb.S",
+    "labs/architecture_bytes/encoding_wrong.S",
+    "labs/architecture_bytes/learner.c",
+    "labs/architecture_bytes/learner_thumb.S",
+    "labs/architecture_bytes/learner_x86.S",
+    "labs/architecture_bytes/link.ld",
+    "labs/architecture_bytes/native.c",
+    "labs/architecture_bytes/placement.c",
+    "labs/architecture_bytes/placement.ld",
+    "labs/architecture_bytes/tests.c",
+    "labs/architecture_bytes/thumb_start.c",
+    "labs/algorithm_wrappers/wrappers.h",
+    "labs/containers_depth/containers.h",
+    "labs/containers_depth/byte_helpers.c"
+  ],
+  "execution_support": {
+    "kind": "retained-implementation-and-assessment-analysis",
+    "scope": "Precise register/address fixture with Python checker and B01 object/extent work; Selected encoding fixture and independent Python annotation oracle",
+    "tests": [],
+    "fresh_execution": "not-run-by-this-supplement; additive X campaigns have separate source-bound results",
+    "architecture_bytes_successor": {
+      "path": "research/v5/expansion/legacy_architecture_bytes/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-02-T37.03.a",
+        "AX-PR-T37-02-T37.03.b",
+        "AX-PR-T37-02-T37.03.c",
+        "AX-PR-T37-02-T37.04.a",
+        "AX-PR-T37-02-T37.04.b",
+        "AX-PR-T37-02-T37.04.c"
+      ],
+      "scope": "Six exact ordinary/changed register, byte, storage, instruction and relocation mechanisms."
+    }
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T37-02-T37.03.a",
+      "title": "Reconstruct fullRAX afterAL=AA,AX=BBCC,EAX=89ABCDEF from1122334455667788",
+      "objective": "T37.03.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Reconstruct fullRAX afterAL=AA,AX=BBCC,EAX=89ABCDEF from1122334455667788; contrast selectedThumb32bit registers.",
+      "purpose": "Test derivation and missing assumptions beyond memorized output.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.03 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Reconstruct fullRAX afterAL=AA,AX=BBCC,EAX=89ABCDEF from1122334455667788; contrast selectedThumb32bit registers.",
+        "Derive the obligations behind this expectation: 11223344556677AA,112233445566BBCC,0000000089ABCDEF; EAX clears high state unlikeAL/AX.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Reconstruct fullRAX afterAL=AA,AX=BBCC,EAX=89ABCDEF from1122334455667788; contrast selectedThumb32bit registers.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Precise register/address fixture with Python checker and B01 object/extent work",
+        "D3": "Independent check and minimal counterexample against: 11223344556677AA,112233445566BBCC,0000000089ABCDEF; EAX clears high state unlikeAL/AX.",
+        "D4": "Delayed transfer: Add a partial-register dependency experiment and separate visible state from timing."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "11223344556677AA,112233445566BBCC,0000000089ABCDEF; EAX clears high state unlikeAL/AX.",
+        "limits": "Actual selected-instruction execution and typed-storage adapter remain required. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: 11223344556677AA,112233445566BBCC,0000000089ABCDEF; EAX clears high state unlikeAL/AX.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: 11223344556677AA,112233445566BBCC,0000000089ABCDEF; EAX clears high state unlikeAL/AX."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.03.a-V1",
+          "minimum_days": 7,
+          "task": "Add a partial-register dependency experiment and separate visible state from timing."
+        }
+      ],
+      "assessor_anchor": "#t37-03-a",
+      "facet_scope": {
+        "teaching": "Retain actual T37.03 module explanation and project contract.",
+        "implementation_or_analysis": "Precise register/address fixture with Python checker and B01 object/extent work",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Actual selected-instruction execution and typed-storage adapter remain required. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-02-T37.03.b",
+      "title": "Decode78,56,34,12 little-endian and bound0x1000+3*4+8 plus four-byte access before pointer formation.",
+      "objective": "T37.03.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "task": "Decode78,56,34,12 little-endian and bound0x1000+3*4+8 plus four-byte access before pointer formation.",
+      "purpose": "Test the concrete implementation/interface or evidence boundary.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.03 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Decode78,56,34,12 little-endian and bound0x1000+3*4+8 plus four-byte access before pointer formation.",
+        "Derive the obligations behind this expectation: Word0x12345678,start0x1014,end0x1018; checking only start is insufficient.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Decode78,56,34,12 little-endian and bound0x1000+3*4+8 plus four-byte access before pointer formation.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Precise register/address fixture with Python checker and B01 object/extent work",
+        "D3": "Independent check and minimal counterexample against: Word0x12345678,start0x1014,end0x1018; checking only start is insufficient.",
+        "D4": "Delayed transfer: Change wire endianness independently of host endianness and derive a byte adapter without casts."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Word0x12345678,start0x1014,end0x1018; checking only start is insufficient.",
+        "limits": "Actual selected-instruction execution and typed-storage adapter remain required. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Word0x12345678,start0x1014,end0x1018; checking only start is insufficient.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Word0x12345678,start0x1014,end0x1018; checking only start is insufficient."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.03.b-V1",
+          "minimum_days": 7,
+          "task": "Change wire endianness independently of host endianness and derive a byte adapter without casts."
+        }
+      ],
+      "assessor_anchor": "#t37-03-b",
+      "facet_scope": {
+        "teaching": "Retain actual T37.03 module explanation and project contract.",
+        "implementation_or_analysis": "Precise register/address fixture with Python checker and B01 object/extent work",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Actual selected-instruction execution and typed-storage adapter remain required. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-02-T37.03.c",
+      "title": "Compare actual typed pool, byte-copy API and allocated backing against an aligned declared-byte-array Record cast.",
+      "objective": "T37.03.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Compare actual typed pool, byte-copy API and allocated backing against an aligned declared-byte-array Record cast.",
+      "purpose": "Test falsification, resource/observation limits and transfer.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.03 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Compare actual typed pool, byte-copy API and allocated backing against an aligned declared-byte-array Record cast.",
+        "Derive the obligations behind this expectation: Alignment, accessibility and C effective-type permission are distinct; successful hardware load does not validate source.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Compare actual typed pool, byte-copy API and allocated backing against an aligned declared-byte-array Record cast.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Precise register/address fixture with Python checker and B01 object/extent work",
+        "D3": "Independent check and minimal counterexample against: Alignment, accessibility and C effective-type permission are distinct; successful hardware load does not validate source.",
+        "D4": "Delayed transfer: AddDMA reachability as a fourth obligation and construct a buffer satisfying only three."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Alignment, accessibility and C effective-type permission are distinct; successful hardware load does not validate source.",
+        "limits": "Actual selected-instruction execution and typed-storage adapter remain required. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Alignment, accessibility and C effective-type permission are distinct; successful hardware load does not validate source.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Alignment, accessibility and C effective-type permission are distinct; successful hardware load does not validate source."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.03.c-V1",
+          "minimum_days": 7,
+          "task": "AddDMA reachability as a fourth obligation and construct a buffer satisfying only three."
+        }
+      ],
+      "assessor_anchor": "#t37-03-c",
+      "facet_scope": {
+        "teaching": "Retain actual T37.03 module explanation and project contract.",
+        "implementation_or_analysis": "Precise register/address fixture with Python checker and B01 object/extent work",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Actual selected-instruction execution and typed-storage adapter remain required. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-02-T37.04.a",
+      "title": "Annotate48 3D FF FF FF FF and05 2A",
+      "objective": "T37.04.a",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Annotate48 3D FF FF FF FF and05 2A; reject truncated immediate and unsupported prefix before publication.",
+      "purpose": "Test derivation and missing assumptions beyond memorized output.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.04 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Annotate48 3D FF FF FF FF and05 2A; reject truncated immediate and unsupported prefix before publication.",
+        "Derive the obligations behind this expectation: SelectedCMP width64 length6 sign-extends-1; ThumbCMP T1 rn2 imm5 width16.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Annotate48 3D FF FF FF FF and05 2A; reject truncated immediate and unsupported prefix before publication.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Selected encoding fixture and independent Python annotation oracle",
+        "D3": "Independent check and minimal counterexample against: SelectedCMP width64 length6 sign-extends-1; ThumbCMP T1 rn2 imm5 width16.",
+        "D4": "Delayed transfer: Add one newly inspected vendor encoding while preserving unsupported behavior elsewhere."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "SelectedCMP width64 length6 sign-extends-1; ThumbCMP T1 rn2 imm5 width16.",
+        "limits": "Original C decoder and actual assembler/disassembler integration remain missing. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: SelectedCMP width64 length6 sign-extends-1; ThumbCMP T1 rn2 imm5 width16.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: SelectedCMP width64 length6 sign-extends-1; ThumbCMP T1 rn2 imm5 width16."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.04.a-V1",
+          "minimum_days": 7,
+          "task": "Add one newly inspected vendor encoding while preserving unsupported behavior elsewhere."
+        }
+      ],
+      "assessor_anchor": "#t37-04-a",
+      "facet_scope": {
+        "teaching": "Retain actual T37.04 module explanation and project contract.",
+        "implementation_or_analysis": "Selected encoding fixture and independent Python annotation oracle",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Original C decoder and actual assembler/disassembler integration remain missing. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-02-T37.04.b",
+      "title": "Compute77 FE target at0x1006",
+      "objective": "T37.04.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "task": "Compute77 FE target at0x1006; compare scoped Thumb width discrimination and architecturalPC convention.",
+      "purpose": "Test the concrete implementation/interface or evidence boundary.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.04 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Compute77 FE target at0x1006; compare scoped Thumb width discrimination and architecturalPC convention.",
+        "Derive the obligations behind this expectation: Next0x1008 plus-2 gives0x1006; Thumb11101/11110/11111 announces32bit; blanket+4 is invalid.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Compute77 FE target at0x1006; compare scoped Thumb width discrimination and architecturalPC convention.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Selected encoding fixture and independent Python annotation oracle",
+        "D3": "Independent check and minimal counterexample against: Next0x1008 plus-2 gives0x1006; Thumb11101/11110/11111 announces32bit; blanket+4 is invalid.",
+        "D4": "Delayed transfer: Relocate the stream and diagnose an absolute-base calculation accidentally retained from prior addresses."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Next0x1008 plus-2 gives0x1006; Thumb11101/11110/11111 announces32bit; blanket+4 is invalid.",
+        "limits": "Original C decoder and actual assembler/disassembler integration remain missing. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Next0x1008 plus-2 gives0x1006; Thumb11101/11110/11111 announces32bit; blanket+4 is invalid.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Next0x1008 plus-2 gives0x1006; Thumb11101/11110/11111 announces32bit; blanket+4 is invalid."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.04.b-V1",
+          "minimum_days": 7,
+          "task": "Relocate the stream and diagnose an absolute-base calculation accidentally retained from prior addresses."
+        }
+      ],
+      "assessor_anchor": "#t37-04-b",
+      "facet_scope": {
+        "teaching": "Retain actual T37.04 module explanation and project contract.",
+        "implementation_or_analysis": "Selected encoding fixture and independent Python annotation oracle",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Original C decoder and actual assembler/disassembler integration remain missing. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    },
+    {
+      "id": "AX-PR-T37-02-T37.04.c",
+      "title": "Assemble/disassemble both original snippets",
+      "objective": "T37.04.c",
+      "families": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "task": "Assemble/disassemble both original snippets; reconcile vendor fields and reject wrong width/signed displacement independently.",
+      "purpose": "Test falsification, resource/observation limits and transfer.",
+      "prerequisites": {
+        "knowledge": [
+          "T37.04 teaching and parent preconditions",
+          "C17 lifetime, arithmetic and declared models"
+        ],
+        "artifacts": [
+          "PR-T37-02 learner implementation/analysis dossier and exact source identity; absent implementation remains required"
+        ]
+      },
+      "reasoning": [
+        "Assemble/disassemble both original snippets; reconcile vendor fields and reject wrong width/signed displacement independently.",
+        "Derive the obligations behind this expectation: Static bytes and disassembly verify selected encoding, not arbitrary data execution or physical behavior.",
+        "Separate ISO C, selected API/model, ABI/OS and hardware assumptions; identify runtime checks and caller discipline."
+      ],
+      "deliverables": {
+        "D1": "Prediction and derivation: Assemble/disassemble both original snippets; reconcile vendor fields and reject wrong width/signed displacement independently.",
+        "D2": "Inspectable implementation, adapter or analysis with named sources. Retained support: Selected encoding fixture and independent Python annotation oracle",
+        "D3": "Independent check and minimal counterexample against: Static bytes and disassembly verify selected encoding, not arbitrary data execution or physical behavior.",
+        "D4": "Delayed transfer: Change assembler syntax while retaining encoding and identify operand-size versus syntax-only changes."
+      },
+      "verification": {
+        "procedure": "Predict the case before consulting expected results. Use an independent representation or trace; compare complete state and failure outputs. Retain source/tool identities and distinguish modeled, executed and unavailable evidence.",
+        "expected": "Static bytes and disassembly verify selected encoding, not arbitrary data execution or physical behavior.",
+        "limits": "Original C decoder and actual assembler/disassembler integration remain missing. No fresh baseline campaign or independent human assessment is implied.",
+        "pass": "All expected relations and their derivations hold; explain a fresh counterexample and the changed-assumption task."
+      },
+      "rubric": {
+        "0": "Cannot establish the relation: Static bytes and disassembly verify selected encoding, not arbitrary data execution or physical behavior.",
+        "1": "Replays the example but cannot justify its premise or diagnose a violated assumption.",
+        "2": "Derives this specific criterion, verifies its boundary and explains the first invalid transition.",
+        "3": "Independently completes the changed-assumption task and constructs a new counterexample to an overstated guarantee."
+      },
+      "hints": [
+        "Write the smallest admitted state and the first excluded boundary before looking at outputs.",
+        "After retaining your unaided attempt, use this discriminator: Static bytes and disassembly verify selected encoding, not arbitrary data execution or physical behavior."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T37-02-T37.04.c-V1",
+          "minimum_days": 7,
+          "task": "Change assembler syntax while retaining encoding and identify operand-size versus syntax-only changes."
+        }
+      ],
+      "assessor_anchor": "#t37-04-c",
+      "facet_scope": {
+        "teaching": "Retain actual T37.04 module explanation and project contract.",
+        "implementation_or_analysis": "Selected encoding fixture and independent Python annotation oracle",
+        "boundary_adversarial": "Named counterexample and expected state; D3 requires independent evidence.",
+        "independent_assessment": "New leaf-specific criterion/delayed variant authored, not independently administered.",
+        "remaining": "Original C decoder and actual assembler/disassembler integration remain missing. External edition/vendor-specific claims need actual passage reinspection."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original local synthetic states/bytes/traces. Invalid native pointers are analysis-only. Any kernel/firmware observations use parent disposable VM/dedicated emulator scope; no external targets or host security changes."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T37-02.md",
+  "status": {
+    "content": "authored",
+    "execution": "Actual register, decoder, typed-storage and paired dependency author execution; external, delayed learner and physical evidence remain separate.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Actual selected-instruction execution and typed-storage adapter remain required.",
+      "Original C decoder and actual assembler/disassembler integration remain missing.",
+      "No whole-leaf execution closure, absolute mastery or physical validation."
+    ]
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_architecture_bytes/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T37-02-T37.03.a",
+        "AX-PR-T37-02-T37.03.b",
+        "AX-PR-T37-02-T37.03.c",
+        "AX-PR-T37-02-T37.04.a",
+        "AX-PR-T37-02-T37.04.b",
+        "AX-PR-T37-02-T37.04.c"
+      ],
+      "scope": "Six exact ordinary/changed register, byte, storage, instruction and relocation mechanisms."
+    }
+  ]
+}

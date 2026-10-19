@@ -1,0 +1,516 @@
+
+/home/frede/cmastery-resilience-service-cost-xjic97b8/clang-O3-timing/CMakeFiles/resilience-composition.dir/mnt/f/Learning/Curricula/c_mastery/assessor/resilience/followthrough/fractional.c.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <rzf_bucket_init>:
+   0:	48 85 ff             	test   %rdi,%rdi
+   3:	0f 94 c0             	sete   %al
+   6:	4c 8d 4e ff          	lea    -0x1(%rsi),%r9
+   a:	41 ba fe ff ff ff    	mov    $0xfffffffe,%r10d
+  10:	4d 39 d1             	cmp    %r10,%r9
+  13:	41 0f 97 c1          	seta   %r9b
+  17:	4c 8d 52 ff          	lea    -0x1(%rdx),%r10
+  1b:	49 81 fa ff ff 00 00 	cmp    $0xffff,%r10
+  22:	41 0f 93 c2          	setae  %r10b
+  26:	41 08 c2             	or     %al,%r10b
+  29:	45 08 ca             	or     %r9b,%r10b
+  2c:	48 8d 41 ff          	lea    -0x1(%rcx),%rax
+  30:	48 3d ff ff 00 00    	cmp    $0xffff,%rax
+  36:	41 0f 93 c1          	setae  %r9b
+  3a:	b8 01 00 00 00       	mov    $0x1,%eax
+  3f:	45 08 d1             	or     %r10b,%r9b
+  42:	75 1d                	jne    61 <rzf_bucket_init+0x61>
+  44:	48 89 37             	mov    %rsi,(%rdi)
+  47:	48 89 57 08          	mov    %rdx,0x8(%rdi)
+  4b:	48 89 4f 10          	mov    %rcx,0x10(%rdi)
+  4f:	48 89 77 18          	mov    %rsi,0x18(%rdi)
+  53:	48 c7 47 20 00 00 00 00 	movq   $0x0,0x20(%rdi)
+  5b:	4c 89 47 28          	mov    %r8,0x28(%rdi)
+  5f:	31 c0                	xor    %eax,%eax
+  61:	c3                   	ret
+  62:	66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+0000000000000070 <rzf_bucket_consume>:
+  70:	b8 01 00 00 00       	mov    $0x1,%eax
+  75:	48 85 ff             	test   %rdi,%rdi
+  78:	0f 84 24 01 00 00    	je     1a2 <rzf_bucket_consume+0x132>
+  7e:	48 8b 0f             	mov    (%rdi),%rcx
+  81:	4c 8d 41 ff          	lea    -0x1(%rcx),%r8
+  85:	41 b9 fe ff ff ff    	mov    $0xfffffffe,%r9d
+  8b:	4d 39 c8             	cmp    %r9,%r8
+  8e:	0f 87 0e 01 00 00    	ja     1a2 <rzf_bucket_consume+0x132>
+  94:	4c 8b 47 08          	mov    0x8(%rdi),%r8
+  98:	4d 8d 48 ff          	lea    -0x1(%r8),%r9
+  9c:	49 81 f9 fe ff 00 00 	cmp    $0xfffe,%r9
+  a3:	0f 87 f9 00 00 00    	ja     1a2 <rzf_bucket_consume+0x132>
+  a9:	4c 8b 5f 10          	mov    0x10(%rdi),%r11
+  ad:	4d 8d 4b ff          	lea    -0x1(%r11),%r9
+  b1:	49 81 f9 fe ff 00 00 	cmp    $0xfffe,%r9
+  b8:	0f 87 e4 00 00 00    	ja     1a2 <rzf_bucket_consume+0x132>
+  be:	4c 8b 57 18          	mov    0x18(%rdi),%r10
+  c2:	4c 39 d1             	cmp    %r10,%rcx
+  c5:	0f 82 d7 00 00 00    	jb     1a2 <rzf_bucket_consume+0x132>
+  cb:	55                   	push   %rbp
+  cc:	41 57                	push   %r15
+  ce:	41 56                	push   %r14
+  d0:	53                   	push   %rbx
+  d1:	4c 8b 77 20          	mov    0x20(%rdi),%r14
+  d5:	4d 39 de             	cmp    %r11,%r14
+  d8:	0f 83 be 00 00 00    	jae    19c <rzf_bucket_consume+0x12c>
+  de:	49 89 c9             	mov    %rcx,%r9
+  e1:	4d 29 d1             	sub    %r10,%r9
+  e4:	0f 94 c3             	sete   %bl
+  e7:	4d 85 f6             	test   %r14,%r14
+  ea:	40 0f 95 c5          	setne  %bpl
+  ee:	40 84 eb             	test   %bpl,%bl
+  f1:	0f 85 a5 00 00 00    	jne    19c <rzf_bucket_consume+0x12c>
+  f7:	49 89 f7             	mov    %rsi,%r15
+  fa:	4c 2b 7f 28          	sub    0x28(%rdi),%r15
+  fe:	0f 92 c0             	setb   %al
+ 101:	48 39 ca             	cmp    %rcx,%rdx
+ 104:	0f 97 c3             	seta   %bl
+ 107:	08 c3                	or     %al,%bl
+ 109:	b8 07 00 00 00       	mov    $0x7,%eax
+ 10e:	0f 85 88 00 00 00    	jne    19c <rzf_bucket_consume+0x12c>
+ 114:	48 89 d3             	mov    %rdx,%rbx
+ 117:	4d 0f af cb          	imul   %r11,%r9
+ 11b:	4d 29 f1             	sub    %r14,%r9
+ 11e:	4c 89 c8             	mov    %r9,%rax
+ 121:	4c 09 c0             	or     %r8,%rax
+ 124:	48 c1 e8 20          	shr    $0x20,%rax
+ 128:	74 0a                	je     134 <rzf_bucket_consume+0xc4>
+ 12a:	4c 89 c8             	mov    %r9,%rax
+ 12d:	31 d2                	xor    %edx,%edx
+ 12f:	49 f7 f0             	div    %r8
+ 132:	eb 08                	jmp    13c <rzf_bucket_consume+0xcc>
+ 134:	44 89 c8             	mov    %r9d,%eax
+ 137:	31 d2                	xor    %edx,%edx
+ 139:	41 f7 f0             	div    %r8d
+ 13c:	48 83 fa 01          	cmp    $0x1,%rdx
+ 140:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 144:	49 39 c7             	cmp    %rax,%r15
+ 147:	73 20                	jae    169 <rzf_bucket_consume+0xf9>
+ 149:	4d 0f af c7          	imul   %r15,%r8
+ 14d:	4d 01 f0             	add    %r14,%r8
+ 150:	4c 89 c0             	mov    %r8,%rax
+ 153:	4c 09 d8             	or     %r11,%rax
+ 156:	48 c1 e8 20          	shr    $0x20,%rax
+ 15a:	74 14                	je     170 <rzf_bucket_consume+0x100>
+ 15c:	4c 89 c0             	mov    %r8,%rax
+ 15f:	31 d2                	xor    %edx,%edx
+ 161:	49 f7 f3             	div    %r11
+ 164:	48 89 c1             	mov    %rax,%rcx
+ 167:	eb 11                	jmp    17a <rzf_bucket_consume+0x10a>
+ 169:	49 89 d9             	mov    %rbx,%r9
+ 16c:	31 d2                	xor    %edx,%edx
+ 16e:	eb 10                	jmp    180 <rzf_bucket_consume+0x110>
+ 170:	44 89 c0             	mov    %r8d,%eax
+ 173:	31 d2                	xor    %edx,%edx
+ 175:	41 f7 f3             	div    %r11d
+ 178:	89 c1                	mov    %eax,%ecx
+ 17a:	4c 01 d1             	add    %r10,%rcx
+ 17d:	49 89 d9             	mov    %rbx,%r9
+ 180:	48 89 4f 18          	mov    %rcx,0x18(%rdi)
+ 184:	48 89 57 20          	mov    %rdx,0x20(%rdi)
+ 188:	48 89 77 28          	mov    %rsi,0x28(%rdi)
+ 18c:	b8 0f 00 00 00       	mov    $0xf,%eax
+ 191:	4c 29 c9             	sub    %r9,%rcx
+ 194:	72 06                	jb     19c <rzf_bucket_consume+0x12c>
+ 196:	48 89 4f 18          	mov    %rcx,0x18(%rdi)
+ 19a:	31 c0                	xor    %eax,%eax
+ 19c:	5b                   	pop    %rbx
+ 19d:	41 5e                	pop    %r14
+ 19f:	41 5f                	pop    %r15
+ 1a1:	5d                   	pop    %rbp
+ 1a2:	c3                   	ret
+ 1a3:	66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+00000000000001b0 <rzf_bucket_pair>:
+ 1b0:	48 39 f7             	cmp    %rsi,%rdi
+ 1b3:	0f 94 c0             	sete   %al
+ 1b6:	48 85 ff             	test   %rdi,%rdi
+ 1b9:	41 0f 94 c0          	sete   %r8b
+ 1bd:	41 08 c0             	or     %al,%r8b
+ 1c0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 1c5:	0f 85 a7 02 00 00    	jne    472 <rzf_bucket_pair+0x2c2>
+ 1cb:	4c 8b 07             	mov    (%rdi),%r8
+ 1ce:	4d 8d 48 ff          	lea    -0x1(%r8),%r9
+ 1d2:	41 ba fe ff ff ff    	mov    $0xfffffffe,%r10d
+ 1d8:	4d 39 d1             	cmp    %r10,%r9
+ 1db:	0f 87 91 02 00 00    	ja     472 <rzf_bucket_pair+0x2c2>
+ 1e1:	4c 8b 4f 08          	mov    0x8(%rdi),%r9
+ 1e5:	4d 8d 51 ff          	lea    -0x1(%r9),%r10
+ 1e9:	49 81 fa fe ff 00 00 	cmp    $0xfffe,%r10
+ 1f0:	0f 87 7c 02 00 00    	ja     472 <rzf_bucket_pair+0x2c2>
+ 1f6:	4c 8b 5f 10          	mov    0x10(%rdi),%r11
+ 1fa:	4d 8d 53 ff          	lea    -0x1(%r11),%r10
+ 1fe:	49 81 fa fe ff 00 00 	cmp    $0xfffe,%r10
+ 205:	0f 87 67 02 00 00    	ja     472 <rzf_bucket_pair+0x2c2>
+ 20b:	55                   	push   %rbp
+ 20c:	41 57                	push   %r15
+ 20e:	41 56                	push   %r14
+ 210:	41 55                	push   %r13
+ 212:	41 54                	push   %r12
+ 214:	53                   	push   %rbx
+ 215:	48 8b 6f 18          	mov    0x18(%rdi),%rbp
+ 219:	49 39 e8             	cmp    %rbp,%r8
+ 21c:	0f 82 46 02 00 00    	jb     468 <rzf_bucket_pair+0x2b8>
+ 222:	4c 8b 57 20          	mov    0x20(%rdi),%r10
+ 226:	4d 39 da             	cmp    %r11,%r10
+ 229:	0f 83 39 02 00 00    	jae    468 <rzf_bucket_pair+0x2b8>
+ 22f:	4c 89 c3             	mov    %r8,%rbx
+ 232:	48 29 eb             	sub    %rbp,%rbx
+ 235:	75 18                	jne    24f <rzf_bucket_pair+0x9f>
+ 237:	4d 85 d2             	test   %r10,%r10
+ 23a:	41 0f 95 c6          	setne  %r14b
+ 23e:	48 85 f6             	test   %rsi,%rsi
+ 241:	41 0f 94 c7          	sete   %r15b
+ 245:	45 08 f7             	or     %r14b,%r15b
+ 248:	74 0e                	je     258 <rzf_bucket_pair+0xa8>
+ 24a:	e9 19 02 00 00       	jmp    468 <rzf_bucket_pair+0x2b8>
+ 24f:	48 85 f6             	test   %rsi,%rsi
+ 252:	0f 84 10 02 00 00    	je     468 <rzf_bucket_pair+0x2b8>
+ 258:	4c 8b 36             	mov    (%rsi),%r14
+ 25b:	4d 8d 7e ff          	lea    -0x1(%r14),%r15
+ 25f:	41 bc fe ff ff ff    	mov    $0xfffffffe,%r12d
+ 265:	4d 39 e7             	cmp    %r12,%r15
+ 268:	0f 87 fa 01 00 00    	ja     468 <rzf_bucket_pair+0x2b8>
+ 26e:	4c 8b 7e 08          	mov    0x8(%rsi),%r15
+ 272:	4d 8d 67 ff          	lea    -0x1(%r15),%r12
+ 276:	49 81 fc fe ff 00 00 	cmp    $0xfffe,%r12
+ 27d:	0f 87 e5 01 00 00    	ja     468 <rzf_bucket_pair+0x2b8>
+ 283:	4c 8b 66 10          	mov    0x10(%rsi),%r12
+ 287:	4d 8d 6c 24 ff       	lea    -0x1(%r12),%r13
+ 28c:	49 81 fd fe ff 00 00 	cmp    $0xfffe,%r13
+ 293:	0f 87 cf 01 00 00    	ja     468 <rzf_bucket_pair+0x2b8>
+ 299:	4c 8b 6e 18          	mov    0x18(%rsi),%r13
+ 29d:	4d 39 ee             	cmp    %r13,%r14
+ 2a0:	0f 82 c2 01 00 00    	jb     468 <rzf_bucket_pair+0x2b8>
+ 2a6:	4c 89 7c 24 d0       	mov    %r15,-0x30(%rsp)
+ 2ab:	4c 8b 7e 20          	mov    0x20(%rsi),%r15
+ 2af:	4d 39 e7             	cmp    %r12,%r15
+ 2b2:	0f 83 b0 01 00 00    	jae    468 <rzf_bucket_pair+0x2b8>
+ 2b8:	4c 89 64 24 c8       	mov    %r12,-0x38(%rsp)
+ 2bd:	4d 89 f4             	mov    %r14,%r12
+ 2c0:	4c 89 6c 24 f0       	mov    %r13,-0x10(%rsp)
+ 2c5:	4d 29 ec             	sub    %r13,%r12
+ 2c8:	4c 89 64 24 f8       	mov    %r12,-0x8(%rsp)
+ 2cd:	41 0f 94 c5          	sete   %r13b
+ 2d1:	4c 89 7c 24 e8       	mov    %r15,-0x18(%rsp)
+ 2d6:	4d 85 ff             	test   %r15,%r15
+ 2d9:	41 0f 95 c4          	setne  %r12b
+ 2dd:	45 84 e5             	test   %r12b,%r13b
+ 2e0:	0f 85 82 01 00 00    	jne    468 <rzf_bucket_pair+0x2b8>
+ 2e6:	b8 07 00 00 00       	mov    $0x7,%eax
+ 2eb:	49 89 d7             	mov    %rdx,%r15
+ 2ee:	4c 2b 7f 28          	sub    0x28(%rdi),%r15
+ 2f2:	0f 82 70 01 00 00    	jb     468 <rzf_bucket_pair+0x2b8>
+ 2f8:	49 89 d4             	mov    %rdx,%r12
+ 2fb:	4c 2b 66 28          	sub    0x28(%rsi),%r12
+ 2ff:	4c 89 64 24 e0       	mov    %r12,-0x20(%rsp)
+ 304:	0f 92 44 24 d8       	setb   -0x28(%rsp)
+ 309:	4c 39 c1             	cmp    %r8,%rcx
+ 30c:	41 0f 97 c5          	seta   %r13b
+ 310:	4c 39 f1             	cmp    %r14,%rcx
+ 313:	41 0f 97 c4          	seta   %r12b
+ 317:	45 08 ec             	or     %r13b,%r12b
+ 31a:	44 0a 64 24 d8       	or     -0x28(%rsp),%r12b
+ 31f:	0f 85 43 01 00 00    	jne    468 <rzf_bucket_pair+0x2b8>
+ 325:	48 89 54 24 d8       	mov    %rdx,-0x28(%rsp)
+ 32a:	49 0f af db          	imul   %r11,%rbx
+ 32e:	4c 29 d3             	sub    %r10,%rbx
+ 331:	48 89 d8             	mov    %rbx,%rax
+ 334:	4c 09 c8             	or     %r9,%rax
+ 337:	48 c1 e8 20          	shr    $0x20,%rax
+ 33b:	74 0a                	je     347 <rzf_bucket_pair+0x197>
+ 33d:	48 89 d8             	mov    %rbx,%rax
+ 340:	31 d2                	xor    %edx,%edx
+ 342:	49 f7 f1             	div    %r9
+ 345:	eb 07                	jmp    34e <rzf_bucket_pair+0x19e>
+ 347:	89 d8                	mov    %ebx,%eax
+ 349:	31 d2                	xor    %edx,%edx
+ 34b:	41 f7 f1             	div    %r9d
+ 34e:	48 83 fa 01          	cmp    $0x1,%rdx
+ 352:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 356:	49 39 c7             	cmp    %rax,%r15
+ 359:	73 23                	jae    37e <rzf_bucket_pair+0x1ce>
+ 35b:	4d 0f af cf          	imul   %r15,%r9
+ 35f:	4d 01 ca             	add    %r9,%r10
+ 362:	4c 89 d0             	mov    %r10,%rax
+ 365:	4c 09 d8             	or     %r11,%rax
+ 368:	48 c1 e8 20          	shr    $0x20,%rax
+ 36c:	74 15                	je     383 <rzf_bucket_pair+0x1d3>
+ 36e:	4c 89 d0             	mov    %r10,%rax
+ 371:	31 d2                	xor    %edx,%edx
+ 373:	49 f7 f3             	div    %r11
+ 376:	49 89 d2             	mov    %rdx,%r10
+ 379:	49 89 c0             	mov    %rax,%r8
+ 37c:	eb 13                	jmp    391 <rzf_bucket_pair+0x1e1>
+ 37e:	45 31 d2             	xor    %r10d,%r10d
+ 381:	eb 11                	jmp    394 <rzf_bucket_pair+0x1e4>
+ 383:	44 89 d0             	mov    %r10d,%eax
+ 386:	31 d2                	xor    %edx,%edx
+ 388:	41 f7 f3             	div    %r11d
+ 38b:	41 89 d2             	mov    %edx,%r10d
+ 38e:	41 89 c0             	mov    %eax,%r8d
+ 391:	49 01 e8             	add    %rbp,%r8
+ 394:	48 8b 54 24 f8       	mov    -0x8(%rsp),%rdx
+ 399:	48 0f af 54 24 c8    	imul   -0x38(%rsp),%rdx
+ 39f:	48 2b 54 24 e8       	sub    -0x18(%rsp),%rdx
+ 3a4:	48 89 d0             	mov    %rdx,%rax
+ 3a7:	48 0b 54 24 d0       	or     -0x30(%rsp),%rdx
+ 3ac:	48 c1 ea 20          	shr    $0x20,%rdx
+ 3b0:	74 09                	je     3bb <rzf_bucket_pair+0x20b>
+ 3b2:	31 d2                	xor    %edx,%edx
+ 3b4:	48 f7 74 24 d0       	divq   -0x30(%rsp)
+ 3b9:	eb 06                	jmp    3c1 <rzf_bucket_pair+0x211>
+ 3bb:	31 d2                	xor    %edx,%edx
+ 3bd:	f7 74 24 d0          	divl   -0x30(%rsp)
+ 3c1:	48 83 fa 01          	cmp    $0x1,%rdx
+ 3c5:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 3c9:	45 31 db             	xor    %r11d,%r11d
+ 3cc:	48 39 44 24 e0       	cmp    %rax,-0x20(%rsp)
+ 3d1:	73 2d                	jae    400 <rzf_bucket_pair+0x250>
+ 3d3:	48 8b 44 24 e0       	mov    -0x20(%rsp),%rax
+ 3d8:	48 0f af 44 24 d0    	imul   -0x30(%rsp),%rax
+ 3de:	48 8b 54 24 e8       	mov    -0x18(%rsp),%rdx
+ 3e3:	48 01 c2             	add    %rax,%rdx
+ 3e6:	48 89 d0             	mov    %rdx,%rax
+ 3e9:	48 0b 54 24 c8       	or     -0x38(%rsp),%rdx
+ 3ee:	48 c1 ea 20          	shr    $0x20,%rdx
+ 3f2:	74 13                	je     407 <rzf_bucket_pair+0x257>
+ 3f4:	31 d2                	xor    %edx,%edx
+ 3f6:	48 f7 74 24 c8       	divq   -0x38(%rsp)
+ 3fb:	49 89 c1             	mov    %rax,%r9
+ 3fe:	eb 10                	jmp    410 <rzf_bucket_pair+0x260>
+ 400:	4d 89 f1             	mov    %r14,%r9
+ 403:	31 d2                	xor    %edx,%edx
+ 405:	eb 0e                	jmp    415 <rzf_bucket_pair+0x265>
+ 407:	31 d2                	xor    %edx,%edx
+ 409:	f7 74 24 c8          	divl   -0x38(%rsp)
+ 40d:	41 89 c1             	mov    %eax,%r9d
+ 410:	4c 03 4c 24 f0       	add    -0x10(%rsp),%r9
+ 415:	4c 39 c1             	cmp    %r8,%rcx
+ 418:	0f 96 c0             	setbe  %al
+ 41b:	4c 39 c9             	cmp    %r9,%rcx
+ 41e:	0f 96 c3             	setbe  %bl
+ 421:	84 d8                	test   %bl,%al
+ 423:	b8 0f 00 00 00       	mov    $0xf,%eax
+ 428:	41 0f 45 c3          	cmovne %r11d,%eax
+ 42c:	4c 0f 45 d9          	cmovne %rcx,%r11
+ 430:	4d 29 d9             	sub    %r11,%r9
+ 433:	4d 29 d8             	sub    %r11,%r8
+ 436:	4c 89 47 18          	mov    %r8,0x18(%rdi)
+ 43a:	4c 89 57 20          	mov    %r10,0x20(%rdi)
+ 43e:	48 8b 4c 24 d8       	mov    -0x28(%rsp),%rcx
+ 443:	48 89 4f 28          	mov    %rcx,0x28(%rdi)
+ 447:	4c 89 36             	mov    %r14,(%rsi)
+ 44a:	48 8b 7c 24 d0       	mov    -0x30(%rsp),%rdi
+ 44f:	48 89 7e 08          	mov    %rdi,0x8(%rsi)
+ 453:	48 8b 7c 24 c8       	mov    -0x38(%rsp),%rdi
+ 458:	48 89 7e 10          	mov    %rdi,0x10(%rsi)
+ 45c:	4c 89 4e 18          	mov    %r9,0x18(%rsi)
+ 460:	48 89 56 20          	mov    %rdx,0x20(%rsi)
+ 464:	48 89 4e 28          	mov    %rcx,0x28(%rsi)
+ 468:	5b                   	pop    %rbx
+ 469:	41 5c                	pop    %r12
+ 46b:	41 5d                	pop    %r13
+ 46d:	41 5e                	pop    %r14
+ 46f:	41 5f                	pop    %r15
+ 471:	5d                   	pop    %rbp
+ 472:	c3                   	ret
+ 473:	66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+0000000000000480 <rzf_credit_export>:
+ 480:	48 85 d2             	test   %rdx,%rdx
+ 483:	0f 94 c0             	sete   %al
+ 486:	48 85 ff             	test   %rdi,%rdi
+ 489:	0f 94 c1             	sete   %cl
+ 48c:	08 c1                	or     %al,%cl
+ 48e:	b9 01 00 00 00       	mov    $0x1,%ecx
+ 493:	0f 85 fe 00 00 00    	jne    597 <rzf_credit_export+0x117>
+ 499:	4c 8b 0f             	mov    (%rdi),%r9
+ 49c:	49 8d 41 ff          	lea    -0x1(%r9),%rax
+ 4a0:	41 b8 fe ff ff ff    	mov    $0xfffffffe,%r8d
+ 4a6:	4c 39 c0             	cmp    %r8,%rax
+ 4a9:	0f 87 e8 00 00 00    	ja     597 <rzf_credit_export+0x117>
+ 4af:	4c 8b 57 08          	mov    0x8(%rdi),%r10
+ 4b3:	49 8d 42 ff          	lea    -0x1(%r10),%rax
+ 4b7:	48 3d fe ff 00 00    	cmp    $0xfffe,%rax
+ 4bd:	0f 87 d4 00 00 00    	ja     597 <rzf_credit_export+0x117>
+ 4c3:	4c 8b 5f 10          	mov    0x10(%rdi),%r11
+ 4c7:	49 8d 43 ff          	lea    -0x1(%r11),%rax
+ 4cb:	48 3d fe ff 00 00    	cmp    $0xfffe,%rax
+ 4d1:	0f 87 c0 00 00 00    	ja     597 <rzf_credit_export+0x117>
+ 4d7:	55                   	push   %rbp
+ 4d8:	41 56                	push   %r14
+ 4da:	53                   	push   %rbx
+ 4db:	48 8b 5f 18          	mov    0x18(%rdi),%rbx
+ 4df:	49 39 d9             	cmp    %rbx,%r9
+ 4e2:	0f 82 ab 00 00 00    	jb     593 <rzf_credit_export+0x113>
+ 4e8:	4c 8b 47 20          	mov    0x20(%rdi),%r8
+ 4ec:	4d 39 d8             	cmp    %r11,%r8
+ 4ef:	0f 83 9e 00 00 00    	jae    593 <rzf_credit_export+0x113>
+ 4f5:	4c 89 c8             	mov    %r9,%rax
+ 4f8:	48 29 d8             	sub    %rbx,%rax
+ 4fb:	40 0f 94 c5          	sete   %bpl
+ 4ff:	4d 85 c0             	test   %r8,%r8
+ 502:	41 0f 95 c6          	setne  %r14b
+ 506:	44 84 f5             	test   %r14b,%bpl
+ 509:	0f 85 84 00 00 00    	jne    593 <rzf_credit_export+0x113>
+ 50f:	b9 07 00 00 00       	mov    $0x7,%ecx
+ 514:	48 2b 77 28          	sub    0x28(%rdi),%rsi
+ 518:	72 79                	jb     593 <rzf_credit_export+0x113>
+ 51a:	48 89 d7             	mov    %rdx,%rdi
+ 51d:	49 0f af c3          	imul   %r11,%rax
+ 521:	4c 29 c0             	sub    %r8,%rax
+ 524:	48 89 c1             	mov    %rax,%rcx
+ 527:	4c 09 d1             	or     %r10,%rcx
+ 52a:	48 c1 e9 20          	shr    $0x20,%rcx
+ 52e:	74 07                	je     537 <rzf_credit_export+0xb7>
+ 530:	31 d2                	xor    %edx,%edx
+ 532:	49 f7 f2             	div    %r10
+ 535:	eb 05                	jmp    53c <rzf_credit_export+0xbc>
+ 537:	31 d2                	xor    %edx,%edx
+ 539:	41 f7 f2             	div    %r10d
+ 53c:	48 83 fa 01          	cmp    $0x1,%rdx
+ 540:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 544:	31 c9                	xor    %ecx,%ecx
+ 546:	48 39 c6             	cmp    %rax,%rsi
+ 549:	73 1d                	jae    568 <rzf_credit_export+0xe8>
+ 54b:	49 0f af f2          	imul   %r10,%rsi
+ 54f:	49 01 f0             	add    %rsi,%r8
+ 552:	4c 89 c0             	mov    %r8,%rax
+ 555:	4c 09 d8             	or     %r11,%rax
+ 558:	48 c1 e8 20          	shr    $0x20,%rax
+ 55c:	74 14                	je     572 <rzf_credit_export+0xf2>
+ 55e:	4c 89 c0             	mov    %r8,%rax
+ 561:	31 d2                	xor    %edx,%edx
+ 563:	49 f7 f3             	div    %r11
+ 566:	eb 12                	jmp    57a <rzf_credit_export+0xfa>
+ 568:	49 89 fe             	mov    %rdi,%r14
+ 56b:	4c 89 c8             	mov    %r9,%rax
+ 56e:	31 d2                	xor    %edx,%edx
+ 570:	eb 0e                	jmp    580 <rzf_credit_export+0x100>
+ 572:	44 89 c0             	mov    %r8d,%eax
+ 575:	31 d2                	xor    %edx,%edx
+ 577:	41 f7 f3             	div    %r11d
+ 57a:	48 01 d8             	add    %rbx,%rax
+ 57d:	49 89 fe             	mov    %rdi,%r14
+ 580:	4d 89 0e             	mov    %r9,(%r14)
+ 583:	4d 89 56 08          	mov    %r10,0x8(%r14)
+ 587:	4d 89 5e 10          	mov    %r11,0x10(%r14)
+ 58b:	49 89 46 18          	mov    %rax,0x18(%r14)
+ 58f:	49 89 56 20          	mov    %rdx,0x20(%r14)
+ 593:	5b                   	pop    %rbx
+ 594:	41 5e                	pop    %r14
+ 596:	5d                   	pop    %rbp
+ 597:	89 c8                	mov    %ecx,%eax
+ 599:	c3                   	ret
+ 59a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+00000000000005a0 <rzf_credit_import>:
+ 5a0:	b8 01 00 00 00       	mov    $0x1,%eax
+ 5a5:	83 f9 01             	cmp    $0x1,%ecx
+ 5a8:	0f 87 3a 01 00 00    	ja     6e8 <rzf_credit_import+0x148>
+ 5ae:	48 85 ff             	test   %rdi,%rdi
+ 5b1:	0f 84 31 01 00 00    	je     6e8 <rzf_credit_import+0x148>
+ 5b7:	4d 85 c0             	test   %r8,%r8
+ 5ba:	0f 84 28 01 00 00    	je     6e8 <rzf_credit_import+0x148>
+ 5c0:	55                   	push   %rbp
+ 5c1:	41 57                	push   %r15
+ 5c3:	41 56                	push   %r14
+ 5c5:	53                   	push   %rbx
+ 5c6:	4c 8b 17             	mov    (%rdi),%r10
+ 5c9:	4c 8b 5f 08          	mov    0x8(%rdi),%r11
+ 5cd:	48 8b 5f 10          	mov    0x10(%rdi),%rbx
+ 5d1:	4c 8b 77 18          	mov    0x18(%rdi),%r14
+ 5d5:	48 8b 7f 20          	mov    0x20(%rdi),%rdi
+ 5d9:	4d 8d 4a ff          	lea    -0x1(%r10),%r9
+ 5dd:	41 bf ff ff ff ff    	mov    $0xffffffff,%r15d
+ 5e3:	4d 39 f9             	cmp    %r15,%r9
+ 5e6:	41 0f 92 c1          	setb   %r9b
+ 5ea:	4d 8d 7b ff          	lea    -0x1(%r11),%r15
+ 5ee:	49 81 ff ff ff 00 00 	cmp    $0xffff,%r15
+ 5f5:	40 0f 92 c5          	setb   %bpl
+ 5f9:	44 20 cd             	and    %r9b,%bpl
+ 5fc:	4c 8d 4b ff          	lea    -0x1(%rbx),%r9
+ 600:	49 81 f9 ff ff 00 00 	cmp    $0xffff,%r9
+ 607:	41 0f 92 c1          	setb   %r9b
+ 60b:	4d 39 f2             	cmp    %r14,%r10
+ 60e:	41 0f 93 c7          	setae  %r15b
+ 612:	45 20 cf             	and    %r9b,%r15b
+ 615:	41 20 ef             	and    %bpl,%r15b
+ 618:	48 39 df             	cmp    %rbx,%rdi
+ 61b:	41 0f 92 c1          	setb   %r9b
+ 61f:	45 20 f9             	and    %r15b,%r9b
+ 622:	41 80 f9 01          	cmp    $0x1,%r9b
+ 626:	0f 85 b6 00 00 00    	jne    6e2 <rzf_credit_import+0x142>
+ 62c:	4d 89 d1             	mov    %r10,%r9
+ 62f:	4d 29 f1             	sub    %r14,%r9
+ 632:	40 0f 95 c5          	setne  %bpl
+ 636:	48 85 ff             	test   %rdi,%rdi
+ 639:	41 0f 94 c7          	sete   %r15b
+ 63d:	41 08 ef             	or     %bpl,%r15b
+ 640:	41 80 ff 01          	cmp    $0x1,%r15b
+ 644:	0f 85 98 00 00 00    	jne    6e2 <rzf_credit_import+0x142>
+ 64a:	83 f9 01             	cmp    $0x1,%ecx
+ 64d:	75 4e                	jne    69d <rzf_credit_import+0xfd>
+ 64f:	48 89 d1             	mov    %rdx,%rcx
+ 652:	4c 0f af cb          	imul   %rbx,%r9
+ 656:	49 29 f9             	sub    %rdi,%r9
+ 659:	4c 89 c8             	mov    %r9,%rax
+ 65c:	4c 09 d8             	or     %r11,%rax
+ 65f:	48 c1 e8 20          	shr    $0x20,%rax
+ 663:	74 3d                	je     6a2 <rzf_credit_import+0x102>
+ 665:	4c 89 c8             	mov    %r9,%rax
+ 668:	31 d2                	xor    %edx,%edx
+ 66a:	49 f7 f3             	div    %r11
+ 66d:	48 83 fa 01          	cmp    $0x1,%rdx
+ 671:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 675:	48 39 c1             	cmp    %rax,%rcx
+ 678:	73 3d                	jae    6b7 <rzf_credit_import+0x117>
+ 67a:	4c 89 d8             	mov    %r11,%rax
+ 67d:	48 0f af c1          	imul   %rcx,%rax
+ 681:	48 01 c7             	add    %rax,%rdi
+ 684:	48 89 d8             	mov    %rbx,%rax
+ 687:	48 09 f8             	or     %rdi,%rax
+ 68a:	48 c1 e8 20          	shr    $0x20,%rax
+ 68e:	74 2e                	je     6be <rzf_credit_import+0x11e>
+ 690:	48 89 f8             	mov    %rdi,%rax
+ 693:	31 d2                	xor    %edx,%edx
+ 695:	48 f7 f3             	div    %rbx
+ 698:	48 89 d7             	mov    %rdx,%rdi
+ 69b:	eb 29                	jmp    6c6 <rzf_credit_import+0x126>
+ 69d:	4c 89 f0             	mov    %r14,%rax
+ 6a0:	eb 27                	jmp    6c9 <rzf_credit_import+0x129>
+ 6a2:	44 89 c8             	mov    %r9d,%eax
+ 6a5:	31 d2                	xor    %edx,%edx
+ 6a7:	41 f7 f3             	div    %r11d
+ 6aa:	48 83 fa 01          	cmp    $0x1,%rdx
+ 6ae:	48 83 d8 ff          	sbb    $0xffffffffffffffff,%rax
+ 6b2:	48 39 c1             	cmp    %rax,%rcx
+ 6b5:	72 c3                	jb     67a <rzf_credit_import+0xda>
+ 6b7:	31 ff                	xor    %edi,%edi
+ 6b9:	4c 89 d0             	mov    %r10,%rax
+ 6bc:	eb 0b                	jmp    6c9 <rzf_credit_import+0x129>
+ 6be:	89 f8                	mov    %edi,%eax
+ 6c0:	31 d2                	xor    %edx,%edx
+ 6c2:	f7 f3                	div    %ebx
+ 6c4:	89 d7                	mov    %edx,%edi
+ 6c6:	4c 01 f0             	add    %r14,%rax
+ 6c9:	4d 89 10             	mov    %r10,(%r8)
+ 6cc:	4d 89 58 08          	mov    %r11,0x8(%r8)
+ 6d0:	49 89 58 10          	mov    %rbx,0x10(%r8)
+ 6d4:	49 89 40 18          	mov    %rax,0x18(%r8)
+ 6d8:	49 89 78 20          	mov    %rdi,0x20(%r8)
+ 6dc:	49 89 70 28          	mov    %rsi,0x28(%r8)
+ 6e0:	31 c0                	xor    %eax,%eax
+ 6e2:	5b                   	pop    %rbx
+ 6e3:	41 5e                	pop    %r14
+ 6e5:	41 5f                	pop    %r15
+ 6e7:	5d                   	pop    %rbp
+ 6e8:	c3                   	ret
+

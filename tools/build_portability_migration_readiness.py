@@ -1,0 +1,24 @@
+"""Bind six original tasks independently; leave all other T05/T06 work active."""
+from common import ROOT,dump,read_json,sha
+from check_portability_migration import check,REPORT,COMPANION,EXPORT,BASE
+
+def main():
+ reports=[REPORT,COMPANION,EXPORT];d,c,e=[read_json(ROOT/p) for p in reports];check(d,c,e)
+ prefix='AX-PR-T05-01-T05.02.'
+ claims={
+ 'a':'Actual original C90 identifier-list producer and modern strict C17 checked implementation run65618 identical admitted cases per compiler/optimization. Explicit types, sign-specific preflight and unchanged output are derived; implicit-return diagnostic is separate.',
+ 'a-DELAYED':'Old producer, old consumer, modern implementation and driver compile as four separate objects at O0/O3 with GCC/Clang; actual link/run, symbols and disassembly are retained. A deliberately conflicting shared-header declaration fails for the intended type conflict. Link-name equality is not a compatibility proof.',
+ 'b':'Actual float-to-double calls distinguish C17 unprototyped and double-prototype conversion from the rejected void-parameter call. Exact N1570 passages and observed diagnostic policy are separated; no incompatible call is executed.',
+ 'b-DELAYED':'Actual C23 empty-list argument rejection is paired with a successful double-prototype call in all four companion profiles. Inspected N3096 6.7.6.3p1-14 is explicitly a draft. Clang strict legacy warning rejection and warning-retaining retry are recorded without changing the strict C17 implementation baseline.',
+ 'c':'Actual record-pointer comparator adapters use relational comparisons across signed extrema without subtraction or function-pointer casts. Six C17 profiles execute the hosted qsort integration plus first-principles stable insertion sort and independent39062-order/65618-sum oracle; four compiled mutants and four compiling stubs fail semantically.',
+ 'c-DELAYED':'Explicit live borrowed reverse context is copied before sorting and never retained; reverse still preserves equal-key serial order. Exact context/order/refusal preconditions, O(n squared)/O(1) costs and native object/stack evidence are supplied. A named reverse-ignored control and tie-instability control fail; delayed learner performance remains unassessed.'}
+ teaching=['curriculum/v5/expansion/legacy_assessments/PR-T05-01.json','labs/language_portability/migration/CONTRACTS.md','assessor/language_portability/migration/ANALYSIS.md']
+ implementation=['assessor/language_portability/migration/migration.c','labs/language_portability/migration/migration.h','labs/language_portability/migration/tests.c','labs/language_portability/migration/old_sum.c','labs/language_portability/migration/old_consumer.c','labs/language_portability/migration/old_driver.c','labs/language_portability/migration/promotion_consumer.c','labs/language_portability/migration/promoted.c','labs/language_portability/migration/negative.c','tools/verify_portability_migration.py']
+ ready=BASE+'/migration_readiness.json';dims=dict(teaching=dict(state='complete',evidence=teaching),implementation=dict(state='complete',evidence=implementation),author_validation=dict(state='passed',evidence=reports+[ready]),external_review=dict(state='not-run',evidence=[]),independent_learner=dict(state='not-assessed',evidence=[]),physical_observation=dict(state='not-run',evidence=['labs/language_portability/migration/CONTRACTS.md']))
+ rows=[dict(id=prefix+i,author_readiness='ready-bounded',demonstration=text,teaching=teaching,implementation=implementation,validation=reports,external_review='not-run',independent_learner='not-assessed',physical_observation='not-run') for i,text in claims.items()]
+ inputs={**d['input_sha256'],**c['input_sha256'],**e['input_sha256']}
+ for p in teaching+implementation+reports+[BASE+'/migration_resources.json',BASE+'/migration_research_gate.json','tools/check_portability_migration.py','tools/register_portability_migration.py','tools/build_portability_migration_readiness.py','tools/check_replicated_replay_depth.py']:inputs[p]=sha(ROOT/p)
+ dump(ROOT/ready,dict(schema_version=1,criteria=rows,input_sha256=inputs,current_reports={r:sha(ROOT/r) for r in reports},limits=['Exactly six T05.02 tasks; all other T05/T06 obligations remain active.','Actual C17 host implementation plus isolated C90/C23 comparisons; no whole-edition conformance, physical or independent learner claim.','Exact published C90/C17/C23 remain source-access gaps; named drafts only.']))
+ inputs[ready]=sha(ROOT/ready);dump(ROOT/BASE/'migration_completion_dispositions.json',dict(schema_version=1,updates=[dict(id=prefix+i,dimensions=dims,closure_rationale=text+' Bounded author support; no independent human or learner mastery claim.') for i,text in claims.items()],current_reports=reports,input_sha256=inputs));print(dict(passed=True,updates=len(rows)))
+
+if __name__=='__main__':main()

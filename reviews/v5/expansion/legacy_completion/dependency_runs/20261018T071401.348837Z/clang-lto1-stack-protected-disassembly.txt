@@ -1,0 +1,928 @@
+
+/tmp/checkpoint-dependencies-o2bsg1as/clang-lto1-stack-protected.so:     file format elf64-x86-64
+
+
+Disassembly of section .plt:
+
+0000000000001000 <__stack_chk_fail@plt-0x10>:
+    1000:	ff 35 ea 2f 00 00    	push   0x2fea(%rip)        # 3ff0 <_GLOBAL_OFFSET_TABLE_+0x8>
+    1006:	ff 25 ec 2f 00 00    	jmp    *0x2fec(%rip)        # 3ff8 <_GLOBAL_OFFSET_TABLE_+0x10>
+    100c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+0000000000001010 <__stack_chk_fail@plt>:
+    1010:	ff 25 ea 2f 00 00    	jmp    *0x2fea(%rip)        # 4000 <__stack_chk_fail>
+    1016:	68 00 00 00 00       	push   $0x0
+    101b:	e9 e0 ff ff ff       	jmp    1000 <__stack_chk_fail@plt-0x10>
+
+Disassembly of section .text:
+
+0000000000001020 <cpx_effect_probe>:
+    1020:	55                   	push   %rbp
+    1021:	53                   	push   %rbx
+    1022:	48 83 ec 18          	sub    $0x18,%rsp
+    1026:	48 8b 1d b3 2f 00 00 	mov    0x2fb3(%rip),%rbx        # 3fe0 <__stack_chk_guard>
+    102d:	48 8b 03             	mov    (%rbx),%rax
+    1030:	48 89 44 24 10       	mov    %rax,0x10(%rsp)
+    1035:	c6 04 24 07          	movb   $0x7,(%rsp)
+    1039:	48 85 ff             	test   %rdi,%rdi
+    103c:	0f 94 c0             	sete   %al
+    103f:	48 85 f6             	test   %rsi,%rsi
+    1042:	0f 94 c1             	sete   %cl
+    1045:	08 c1                	or     %al,%cl
+    1047:	75 5a                	jne    10a3 <cpx_effect_probe+0x83>
+    1049:	48 8b 4e 28          	mov    0x28(%rsi),%rcx
+    104d:	b8 01 00 00 00       	mov    $0x1,%eax
+    1052:	31 ed                	xor    %ebp,%ebp
+    1054:	48 83 f9 04          	cmp    $0x4,%rcx
+    1058:	74 4e                	je     10a8 <cpx_effect_probe+0x88>
+    105a:	44 8b 47 40          	mov    0x40(%rdi),%r8d
+    105e:	41 83 f8 ff          	cmp    $0xffffffff,%r8d
+    1062:	74 44                	je     10a8 <cpx_effect_probe+0x88>
+    1064:	41 ff c0             	inc    %r8d
+    1067:	44 89 47 40          	mov    %r8d,0x40(%rdi)
+    106b:	44 8b 4f 44          	mov    0x44(%rdi),%r9d
+    106f:	45 85 c9             	test   %r9d,%r9d
+    1072:	41 0f 95 c2          	setne  %r10b
+    1076:	45 39 c8             	cmp    %r9d,%r8d
+    1079:	41 0f 94 c0          	sete   %r8b
+    107d:	45 84 c2             	test   %r8b,%r10b
+    1080:	75 26                	jne    10a8 <cpx_effect_probe+0x88>
+    1082:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+    1086:	74 41                	je     10c9 <cpx_effect_probe+0xa9>
+    1088:	83 7f 14 00          	cmpl   $0x0,0x14(%rdi)
+    108c:	74 3f                	je     10cd <cpx_effect_probe+0xad>
+    108e:	83 7f 18 00          	cmpl   $0x0,0x18(%rdi)
+    1092:	74 40                	je     10d4 <cpx_effect_probe+0xb4>
+    1094:	31 ed                	xor    %ebp,%ebp
+    1096:	83 7f 1c 00          	cmpl   $0x0,0x1c(%rdi)
+    109a:	75 0c                	jne    10a8 <cpx_effect_probe+0x88>
+    109c:	b8 03 00 00 00       	mov    $0x3,%eax
+    10a1:	eb 36                	jmp    10d9 <cpx_effect_probe+0xb9>
+    10a3:	b8 03 00 00 00       	mov    $0x3,%eax
+    10a8:	89 c7                	mov    %eax,%edi
+    10aa:	ff d2                	call   *%rdx
+    10ac:	0f b6 0c 24          	movzbl (%rsp),%ecx
+    10b0:	48 8b 13             	mov    (%rbx),%rdx
+    10b3:	48 3b 54 24 10       	cmp    0x10(%rsp),%rdx
+    10b8:	0f 85 f5 00 00 00    	jne    11b3 <cpx_effect_probe+0x193>
+    10be:	01 e8                	add    %ebp,%eax
+    10c0:	01 c8                	add    %ecx,%eax
+    10c2:	48 83 c4 18          	add    $0x18,%rsp
+    10c6:	5b                   	pop    %rbx
+    10c7:	5d                   	pop    %rbp
+    10c8:	c3                   	ret
+    10c9:	31 c0                	xor    %eax,%eax
+    10cb:	eb 0c                	jmp    10d9 <cpx_effect_probe+0xb9>
+    10cd:	b8 01 00 00 00       	mov    $0x1,%eax
+    10d2:	eb 05                	jmp    10d9 <cpx_effect_probe+0xb9>
+    10d4:	b8 02 00 00 00       	mov    $0x2,%eax
+    10d9:	c7 04 87 0b 00 00 00 	movl   $0xb,(%rdi,%rax,4)
+    10e0:	c7 44 87 10 01 00 00 	movl   $0x1,0x10(%rdi,%rax,4)
+    10e7:	00 
+    10e8:	44 8b 46 20          	mov    0x20(%rsi),%r8d
+    10ec:	41 01 c8             	add    %ecx,%r8d
+    10ef:	41 83 e0 03          	and    $0x3,%r8d
+    10f3:	44 8b 4c 87 20       	mov    0x20(%rdi,%rax,4),%r9d
+    10f8:	49 c1 e1 20          	shl    $0x20,%r9
+    10fc:	49 09 c1             	or     %rax,%r9
+    10ff:	4e 89 0c c6          	mov    %r9,(%rsi,%r8,8)
+    1103:	4c 8d 41 01          	lea    0x1(%rcx),%r8
+    1107:	4c 89 46 28          	mov    %r8,0x28(%rsi)
+    110b:	bd 01 00 00 00       	mov    $0x1,%ebp
+    1110:	49 83 f8 04          	cmp    $0x4,%r8
+    1114:	74 23                	je     1139 <cpx_effect_probe+0x119>
+    1116:	8b 47 40             	mov    0x40(%rdi),%eax
+    1119:	83 f8 ff             	cmp    $0xffffffff,%eax
+    111c:	74 1b                	je     1139 <cpx_effect_probe+0x119>
+    111e:	ff c0                	inc    %eax
+    1120:	89 47 40             	mov    %eax,0x40(%rdi)
+    1123:	44 8b 4f 44          	mov    0x44(%rdi),%r9d
+    1127:	45 85 c9             	test   %r9d,%r9d
+    112a:	41 0f 95 c2          	setne  %r10b
+    112e:	44 39 c8             	cmp    %r9d,%eax
+    1131:	0f 94 c0             	sete   %al
+    1134:	41 84 c2             	test   %al,%r10b
+    1137:	74 0a                	je     1143 <cpx_effect_probe+0x123>
+    1139:	b8 01 00 00 00       	mov    $0x1,%eax
+    113e:	e9 65 ff ff ff       	jmp    10a8 <cpx_effect_probe+0x88>
+    1143:	31 c0                	xor    %eax,%eax
+    1145:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+    1149:	74 2e                	je     1179 <cpx_effect_probe+0x159>
+    114b:	83 7f 14 00          	cmpl   $0x0,0x14(%rdi)
+    114f:	74 1c                	je     116d <cpx_effect_probe+0x14d>
+    1151:	83 7f 18 00          	cmpl   $0x0,0x18(%rdi)
+    1155:	74 1d                	je     1174 <cpx_effect_probe+0x154>
+    1157:	83 7f 1c 00          	cmpl   $0x0,0x1c(%rdi)
+    115b:	b8 01 00 00 00       	mov    $0x1,%eax
+    1160:	0f 85 42 ff ff ff    	jne    10a8 <cpx_effect_probe+0x88>
+    1166:	b8 03 00 00 00       	mov    $0x3,%eax
+    116b:	eb 0c                	jmp    1179 <cpx_effect_probe+0x159>
+    116d:	b8 01 00 00 00       	mov    $0x1,%eax
+    1172:	eb 05                	jmp    1179 <cpx_effect_probe+0x159>
+    1174:	b8 02 00 00 00       	mov    $0x2,%eax
+    1179:	c7 04 87 16 00 00 00 	movl   $0x16,(%rdi,%rax,4)
+    1180:	c7 44 87 10 01 00 00 	movl   $0x1,0x10(%rdi,%rax,4)
+    1187:	00 
+    1188:	44 03 46 20          	add    0x20(%rsi),%r8d
+    118c:	41 83 e0 03          	and    $0x3,%r8d
+    1190:	8b 7c 87 20          	mov    0x20(%rdi,%rax,4),%edi
+    1194:	48 c1 e7 20          	shl    $0x20,%rdi
+    1198:	48 09 c7             	or     %rax,%rdi
+    119b:	4a 89 3c c6          	mov    %rdi,(%rsi,%r8,8)
+    119f:	48 83 c1 02          	add    $0x2,%rcx
+    11a3:	48 89 4e 28          	mov    %rcx,0x28(%rsi)
+    11a7:	bd 02 00 00 00       	mov    $0x2,%ebp
+    11ac:	31 c0                	xor    %eax,%eax
+    11ae:	e9 f5 fe ff ff       	jmp    10a8 <cpx_effect_probe+0x88>
+    11b3:	e8 58 fe ff ff       	call   1010 <__stack_chk_fail@plt>
+    11b8:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+    11bf:	00 
+
+00000000000011c0 <cpm_arena_init>:
+    11c0:	50                   	push   %rax
+    11c1:	4c 8b 0d 18 2e 00 00 	mov    0x2e18(%rip),%r9        # 3fe0 <__stack_chk_guard>
+    11c8:	49 8b 01             	mov    (%r9),%rax
+    11cb:	48 89 04 24          	mov    %rax,(%rsp)
+    11cf:	b8 03 00 00 00       	mov    $0x3,%eax
+    11d4:	48 85 ff             	test   %rdi,%rdi
+    11d7:	74 68                	je     1241 <cpm_arena_init+0x81>
+    11d9:	48 85 f6             	test   %rsi,%rsi
+    11dc:	41 0f 94 c2          	sete   %r10b
+    11e0:	48 85 d2             	test   %rdx,%rdx
+    11e3:	41 0f 95 c3          	setne  %r11b
+    11e7:	45 20 d3             	and    %r10b,%r11b
+    11ea:	48 85 c9             	test   %rcx,%rcx
+    11ed:	41 0f 94 c2          	sete   %r10b
+    11f1:	45 08 da             	or     %r11b,%r10b
+    11f4:	75 4b                	jne    1241 <cpm_arena_init+0x81>
+    11f6:	4c 8d 51 ff          	lea    -0x1(%rcx),%r10
+    11fa:	4c 85 d1             	test   %r10,%rcx
+    11fd:	41 0f 95 c2          	setne  %r10b
+    1201:	4d 85 c0             	test   %r8,%r8
+    1204:	41 0f 94 c3          	sete   %r11b
+    1208:	45 08 d3             	or     %r10b,%r11b
+    120b:	75 34                	jne    1241 <cpm_arena_init+0x81>
+    120d:	4c 39 c1             	cmp    %r8,%rcx
+    1210:	72 2f                	jb     1241 <cpm_arena_init+0x81>
+    1212:	49 81 f8 00 01 00 00 	cmp    $0x100,%r8
+    1219:	77 26                	ja     1241 <cpm_arena_init+0x81>
+    121b:	49 8d 48 ff          	lea    -0x1(%r8),%rcx
+    121f:	4c 21 c1             	and    %r8,%rcx
+    1222:	75 1d                	jne    1241 <cpm_arena_init+0x81>
+    1224:	48 89 37             	mov    %rsi,(%rdi)
+    1227:	48 89 57 08          	mov    %rdx,0x8(%rdi)
+    122b:	48 c7 47 10 00 00 00 	movq   $0x0,0x10(%rdi)
+    1232:	00 
+    1233:	4c 89 47 18          	mov    %r8,0x18(%rdi)
+    1237:	48 c7 47 20 01 00 00 	movq   $0x1,0x20(%rdi)
+    123e:	00 
+    123f:	31 c0                	xor    %eax,%eax
+    1241:	49 8b 09             	mov    (%r9),%rcx
+    1244:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1248:	75 02                	jne    124c <cpm_arena_init+0x8c>
+    124a:	59                   	pop    %rcx
+    124b:	c3                   	ret
+    124c:	e8 bf fd ff ff       	call   1010 <__stack_chk_fail@plt>
+    1251:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    1258:	00 00 00 
+    125b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+0000000000001260 <cpm_reserve>:
+    1260:	53                   	push   %rbx
+    1261:	48 83 ec 10          	sub    $0x10,%rsp
+    1265:	48 89 f3             	mov    %rsi,%rbx
+    1268:	48 8b 35 71 2d 00 00 	mov    0x2d71(%rip),%rsi        # 3fe0 <__stack_chk_guard>
+    126f:	48 8b 06             	mov    (%rsi),%rax
+    1272:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+    1277:	b8 03 00 00 00       	mov    $0x3,%eax
+    127c:	48 81 fb ff ff 00 00 	cmp    $0xffff,%rbx
+    1283:	0f 87 c5 00 00 00    	ja     134e <cpm_reserve+0xee>
+    1289:	48 85 ff             	test   %rdi,%rdi
+    128c:	0f 84 bc 00 00 00    	je     134e <cpm_reserve+0xee>
+    1292:	48 85 d2             	test   %rdx,%rdx
+    1295:	0f 84 b3 00 00 00    	je     134e <cpm_reserve+0xee>
+    129b:	4c 8b 4f 08          	mov    0x8(%rdi),%r9
+    129f:	4c 8b 47 10          	mov    0x10(%rdi),%r8
+    12a3:	4c 89 c9             	mov    %r9,%rcx
+    12a6:	4c 29 c1             	sub    %r8,%rcx
+    12a9:	b8 01 00 00 00       	mov    $0x1,%eax
+    12ae:	48 83 f9 03          	cmp    $0x3,%rcx
+    12b2:	0f 82 96 00 00 00    	jb     134e <cpm_reserve+0xee>
+    12b8:	49 89 d2             	mov    %rdx,%r10
+    12bb:	49 8d 48 03          	lea    0x3(%r8),%rcx
+    12bf:	4c 8b 5f 18          	mov    0x18(%rdi),%r11
+    12c3:	48 89 c8             	mov    %rcx,%rax
+    12c6:	4c 09 d8             	or     %r11,%rax
+    12c9:	48 c1 e8 20          	shr    $0x20,%rax
+    12cd:	74 0a                	je     12d9 <cpm_reserve+0x79>
+    12cf:	48 89 c8             	mov    %rcx,%rax
+    12d2:	31 d2                	xor    %edx,%edx
+    12d4:	49 f7 f3             	div    %r11
+    12d7:	eb 07                	jmp    12e0 <cpm_reserve+0x80>
+    12d9:	89 c8                	mov    %ecx,%eax
+    12db:	31 d2                	xor    %edx,%edx
+    12dd:	41 f7 f3             	div    %r11d
+    12e0:	4c 89 d8             	mov    %r11,%rax
+    12e3:	48 29 d0             	sub    %rdx,%rax
+    12e6:	48 89 c2             	mov    %rax,%rdx
+    12e9:	4c 09 da             	or     %r11,%rdx
+    12ec:	48 c1 ea 20          	shr    $0x20,%rdx
+    12f0:	74 07                	je     12f9 <cpm_reserve+0x99>
+    12f2:	31 d2                	xor    %edx,%edx
+    12f4:	49 f7 f3             	div    %r11
+    12f7:	eb 05                	jmp    12fe <cpm_reserve+0x9e>
+    12f9:	31 d2                	xor    %edx,%edx
+    12fb:	41 f7 f3             	div    %r11d
+    12fe:	4c 89 c8             	mov    %r9,%rax
+    1301:	48 29 c8             	sub    %rcx,%rax
+    1304:	48 39 c2             	cmp    %rax,%rdx
+    1307:	b8 01 00 00 00       	mov    $0x1,%eax
+    130c:	77 40                	ja     134e <cpm_reserve+0xee>
+    130e:	48 01 ca             	add    %rcx,%rdx
+    1311:	49 29 d1             	sub    %rdx,%r9
+    1314:	4c 39 cb             	cmp    %r9,%rbx
+    1317:	77 35                	ja     134e <cpm_reserve+0xee>
+    1319:	48 8b 07             	mov    (%rdi),%rax
+    131c:	42 88 1c 00          	mov    %bl,(%rax,%r8,1)
+    1320:	48 8b 07             	mov    (%rdi),%rax
+    1323:	48 8b 4f 10          	mov    0x10(%rdi),%rcx
+    1327:	88 7c 08 01          	mov    %bh,0x1(%rax,%rcx,1)
+    132b:	48 8b 07             	mov    (%rdi),%rax
+    132e:	48 8b 4f 10          	mov    0x10(%rdi),%rcx
+    1332:	c6 44 08 02 00       	movb   $0x0,0x2(%rax,%rcx,1)
+    1337:	49 89 12             	mov    %rdx,(%r10)
+    133a:	49 89 5a 08          	mov    %rbx,0x8(%r10)
+    133e:	8b 47 20             	mov    0x20(%rdi),%eax
+    1341:	41 89 42 10          	mov    %eax,0x10(%r10)
+    1345:	48 01 da             	add    %rbx,%rdx
+    1348:	48 89 57 10          	mov    %rdx,0x10(%rdi)
+    134c:	31 c0                	xor    %eax,%eax
+    134e:	48 8b 0e             	mov    (%rsi),%rcx
+    1351:	48 3b 4c 24 08       	cmp    0x8(%rsp),%rcx
+    1356:	75 06                	jne    135e <cpm_reserve+0xfe>
+    1358:	48 83 c4 10          	add    $0x10,%rsp
+    135c:	5b                   	pop    %rbx
+    135d:	c3                   	ret
+    135e:	e8 ad fc ff ff       	call   1010 <__stack_chk_fail@plt>
+    1363:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    136a:	00 00 00 
+    136d:	0f 1f 00             	nopl   (%rax)
+
+0000000000001370 <cpm_view>:
+    1370:	50                   	push   %rax
+    1371:	48 8b 0d 68 2c 00 00 	mov    0x2c68(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1378:	48 8b 01             	mov    (%rcx),%rax
+    137b:	48 89 04 24          	mov    %rax,(%rsp)
+    137f:	48 85 ff             	test   %rdi,%rdi
+    1382:	0f 94 c2             	sete   %dl
+    1385:	48 85 f6             	test   %rsi,%rsi
+    1388:	41 0f 94 c0          	sete   %r8b
+    138c:	b8 03 00 00 00       	mov    $0x3,%eax
+    1391:	41 08 d0             	or     %dl,%r8b
+    1394:	75 31                	jne    13c7 <cpm_view+0x57>
+    1396:	48 8b 17             	mov    (%rdi),%rdx
+    1399:	48 85 d2             	test   %rdx,%rdx
+    139c:	74 29                	je     13c7 <cpm_view+0x57>
+    139e:	4c 8d 4c 24 10       	lea    0x10(%rsp),%r9
+    13a3:	45 8b 41 10          	mov    0x10(%r9),%r8d
+    13a7:	44 3b 47 20          	cmp    0x20(%rdi),%r8d
+    13ab:	75 1a                	jne    13c7 <cpm_view+0x57>
+    13ad:	4d 8b 01             	mov    (%r9),%r8
+    13b0:	48 8b 7f 10          	mov    0x10(%rdi),%rdi
+    13b4:	4c 29 c7             	sub    %r8,%rdi
+    13b7:	72 0e                	jb     13c7 <cpm_view+0x57>
+    13b9:	49 39 79 08          	cmp    %rdi,0x8(%r9)
+    13bd:	77 08                	ja     13c7 <cpm_view+0x57>
+    13bf:	4c 01 c2             	add    %r8,%rdx
+    13c2:	48 89 16             	mov    %rdx,(%rsi)
+    13c5:	31 c0                	xor    %eax,%eax
+    13c7:	48 8b 09             	mov    (%rcx),%rcx
+    13ca:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    13ce:	75 02                	jne    13d2 <cpm_view+0x62>
+    13d0:	59                   	pop    %rcx
+    13d1:	c3                   	ret
+    13d2:	e8 39 fc ff ff       	call   1010 <__stack_chk_fail@plt>
+    13d7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    13de:	00 00 
+
+00000000000013e0 <cpm_pin>:
+    13e0:	50                   	push   %rax
+    13e1:	48 8b 0d f8 2b 00 00 	mov    0x2bf8(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    13e8:	48 8b 01             	mov    (%rcx),%rax
+    13eb:	48 89 04 24          	mov    %rax,(%rsp)
+    13ef:	b8 03 00 00 00       	mov    $0x3,%eax
+    13f4:	48 85 ff             	test   %rdi,%rdi
+    13f7:	74 30                	je     1429 <cpm_pin+0x49>
+    13f9:	48 83 3f 00          	cmpq   $0x0,(%rdi)
+    13fd:	74 2a                	je     1429 <cpm_pin+0x49>
+    13ff:	8b 54 24 20          	mov    0x20(%rsp),%edx
+    1403:	3b 57 20             	cmp    0x20(%rdi),%edx
+    1406:	75 21                	jne    1429 <cpm_pin+0x49>
+    1408:	48 8b 57 10          	mov    0x10(%rdi),%rdx
+    140c:	48 2b 54 24 10       	sub    0x10(%rsp),%rdx
+    1411:	72 16                	jb     1429 <cpm_pin+0x49>
+    1413:	48 39 54 24 18       	cmp    %rdx,0x18(%rsp)
+    1418:	77 0f                	ja     1429 <cpm_pin+0x49>
+    141a:	8b 57 24             	mov    0x24(%rdi),%edx
+    141d:	83 fa ff             	cmp    $0xffffffff,%edx
+    1420:	74 07                	je     1429 <cpm_pin+0x49>
+    1422:	ff c2                	inc    %edx
+    1424:	89 57 24             	mov    %edx,0x24(%rdi)
+    1427:	31 c0                	xor    %eax,%eax
+    1429:	48 8b 09             	mov    (%rcx),%rcx
+    142c:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1430:	75 02                	jne    1434 <cpm_pin+0x54>
+    1432:	59                   	pop    %rcx
+    1433:	c3                   	ret
+    1434:	e8 d7 fb ff ff       	call   1010 <__stack_chk_fail@plt>
+    1439:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000001440 <cpm_unpin>:
+    1440:	50                   	push   %rax
+    1441:	48 8b 0d 98 2b 00 00 	mov    0x2b98(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1448:	48 8b 01             	mov    (%rcx),%rax
+    144b:	48 89 04 24          	mov    %rax,(%rsp)
+    144f:	b8 03 00 00 00       	mov    $0x3,%eax
+    1454:	48 85 ff             	test   %rdi,%rdi
+    1457:	74 0e                	je     1467 <cpm_unpin+0x27>
+    1459:	8b 57 24             	mov    0x24(%rdi),%edx
+    145c:	85 d2                	test   %edx,%edx
+    145e:	74 07                	je     1467 <cpm_unpin+0x27>
+    1460:	ff ca                	dec    %edx
+    1462:	89 57 24             	mov    %edx,0x24(%rdi)
+    1465:	31 c0                	xor    %eax,%eax
+    1467:	48 8b 09             	mov    (%rcx),%rcx
+    146a:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    146e:	75 02                	jne    1472 <cpm_unpin+0x32>
+    1470:	59                   	pop    %rcx
+    1471:	c3                   	ret
+    1472:	e8 99 fb ff ff       	call   1010 <__stack_chk_fail@plt>
+    1477:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    147e:	00 00 
+
+0000000000001480 <cpm_reset>:
+    1480:	50                   	push   %rax
+    1481:	48 8b 0d 58 2b 00 00 	mov    0x2b58(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1488:	48 8b 01             	mov    (%rcx),%rax
+    148b:	48 89 04 24          	mov    %rax,(%rsp)
+    148f:	48 85 ff             	test   %rdi,%rdi
+    1492:	74 29                	je     14bd <cpm_reset+0x3d>
+    1494:	b8 02 00 00 00       	mov    $0x2,%eax
+    1499:	83 7f 24 00          	cmpl   $0x0,0x24(%rdi)
+    149d:	75 23                	jne    14c2 <cpm_reset+0x42>
+    149f:	8b 57 20             	mov    0x20(%rdi),%edx
+    14a2:	b8 01 00 00 00       	mov    $0x1,%eax
+    14a7:	83 fa 03             	cmp    $0x3,%edx
+    14aa:	74 16                	je     14c2 <cpm_reset+0x42>
+    14ac:	ff c2                	inc    %edx
+    14ae:	89 57 20             	mov    %edx,0x20(%rdi)
+    14b1:	48 c7 47 10 00 00 00 	movq   $0x0,0x10(%rdi)
+    14b8:	00 
+    14b9:	31 c0                	xor    %eax,%eax
+    14bb:	eb 05                	jmp    14c2 <cpm_reset+0x42>
+    14bd:	b8 03 00 00 00       	mov    $0x3,%eax
+    14c2:	48 8b 09             	mov    (%rcx),%rcx
+    14c5:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    14c9:	75 02                	jne    14cd <cpm_reset+0x4d>
+    14cb:	59                   	pop    %rcx
+    14cc:	c3                   	ret
+    14cd:	e8 3e fb ff ff       	call   1010 <__stack_chk_fail@plt>
+    14d2:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    14d9:	00 00 00 
+    14dc:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000000014e0 <cpm_pool_init>:
+    14e0:	50                   	push   %rax
+    14e1:	48 8b 05 f8 2a 00 00 	mov    0x2af8(%rip),%rax        # 3fe0 <__stack_chk_guard>
+    14e8:	48 8b 08             	mov    (%rax),%rcx
+    14eb:	48 89 0c 24          	mov    %rcx,(%rsp)
+    14ef:	0f 57 c0             	xorps  %xmm0,%xmm0
+    14f2:	0f 11 07             	movups %xmm0,(%rdi)
+    14f5:	0f 11 47 10          	movups %xmm0,0x10(%rdi)
+    14f9:	0f 28 0d 00 0b 00 00 	movaps 0xb00(%rip),%xmm1        # 2000 <cpm_pop+0x460>
+    1500:	0f 11 4f 20          	movups %xmm1,0x20(%rdi)
+    1504:	0f 11 47 30          	movups %xmm0,0x30(%rdi)
+    1508:	48 c7 47 40 00 00 00 	movq   $0x0,0x40(%rdi)
+    150f:	00 
+    1510:	48 8b 00             	mov    (%rax),%rax
+    1513:	48 3b 04 24          	cmp    (%rsp),%rax
+    1517:	75 02                	jne    151b <cpm_pool_init+0x3b>
+    1519:	58                   	pop    %rax
+    151a:	c3                   	ret
+    151b:	e8 f0 fa ff ff       	call   1010 <__stack_chk_fail@plt>
+
+0000000000001520 <cpm_ring_init>:
+    1520:	50                   	push   %rax
+    1521:	48 8b 05 b8 2a 00 00 	mov    0x2ab8(%rip),%rax        # 3fe0 <__stack_chk_guard>
+    1528:	48 8b 08             	mov    (%rax),%rcx
+    152b:	48 89 0c 24          	mov    %rcx,(%rsp)
+    152f:	0f 57 c0             	xorps  %xmm0,%xmm0
+    1532:	0f 11 47 20          	movups %xmm0,0x20(%rdi)
+    1536:	0f 11 07             	movups %xmm0,(%rdi)
+    1539:	0f 11 47 10          	movups %xmm0,0x10(%rdi)
+    153d:	48 8b 00             	mov    (%rax),%rax
+    1540:	48 3b 04 24          	cmp    (%rsp),%rax
+    1544:	75 02                	jne    1548 <cpm_ring_init+0x28>
+    1546:	58                   	pop    %rax
+    1547:	c3                   	ret
+    1548:	e8 c3 fa ff ff       	call   1010 <__stack_chk_fail@plt>
+    154d:	0f 1f 00             	nopl   (%rax)
+
+0000000000001550 <cpm_fail_at>:
+    1550:	50                   	push   %rax
+    1551:	48 8b 05 88 2a 00 00 	mov    0x2a88(%rip),%rax        # 3fe0 <__stack_chk_guard>
+    1558:	48 8b 08             	mov    (%rax),%rcx
+    155b:	48 89 0c 24          	mov    %rcx,(%rsp)
+    155f:	c7 47 40 00 00 00 00 	movl   $0x0,0x40(%rdi)
+    1566:	89 77 44             	mov    %esi,0x44(%rdi)
+    1569:	48 8b 00             	mov    (%rax),%rax
+    156c:	48 3b 04 24          	cmp    (%rsp),%rax
+    1570:	75 02                	jne    1574 <cpm_fail_at+0x24>
+    1572:	58                   	pop    %rax
+    1573:	c3                   	ret
+    1574:	e8 97 fa ff ff       	call   1010 <__stack_chk_fail@plt>
+    1579:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000001580 <cpm_allocate>:
+    1580:	50                   	push   %rax
+    1581:	48 8b 0d 58 2a 00 00 	mov    0x2a58(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1588:	48 8b 01             	mov    (%rcx),%rax
+    158b:	48 89 04 24          	mov    %rax,(%rsp)
+    158f:	48 85 ff             	test   %rdi,%rdi
+    1592:	41 0f 94 c0          	sete   %r8b
+    1596:	48 85 d2             	test   %rdx,%rdx
+    1599:	41 0f 94 c1          	sete   %r9b
+    159d:	b8 03 00 00 00       	mov    $0x3,%eax
+    15a2:	45 08 c1             	or     %r8b,%r9b
+    15a5:	75 78                	jne    161f <cpm_allocate+0x9f>
+    15a7:	44 8b 47 40          	mov    0x40(%rdi),%r8d
+    15ab:	b8 01 00 00 00       	mov    $0x1,%eax
+    15b0:	41 83 f8 ff          	cmp    $0xffffffff,%r8d
+    15b4:	74 69                	je     161f <cpm_allocate+0x9f>
+    15b6:	41 ff c0             	inc    %r8d
+    15b9:	44 89 47 40          	mov    %r8d,0x40(%rdi)
+    15bd:	44 8b 4f 44          	mov    0x44(%rdi),%r9d
+    15c1:	45 85 c9             	test   %r9d,%r9d
+    15c4:	41 0f 95 c2          	setne  %r10b
+    15c8:	45 39 c8             	cmp    %r9d,%r8d
+    15cb:	41 0f 94 c0          	sete   %r8b
+    15cf:	45 84 c2             	test   %r8b,%r10b
+    15d2:	75 4b                	jne    161f <cpm_allocate+0x9f>
+    15d4:	45 31 c0             	xor    %r8d,%r8d
+    15d7:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+    15db:	74 28                	je     1605 <cpm_allocate+0x85>
+    15dd:	83 7f 14 00          	cmpl   $0x0,0x14(%rdi)
+    15e1:	74 14                	je     15f7 <cpm_allocate+0x77>
+    15e3:	83 7f 18 00          	cmpl   $0x0,0x18(%rdi)
+    15e7:	74 16                	je     15ff <cpm_allocate+0x7f>
+    15e9:	83 7f 1c 00          	cmpl   $0x0,0x1c(%rdi)
+    15ed:	75 30                	jne    161f <cpm_allocate+0x9f>
+    15ef:	41 b8 03 00 00 00    	mov    $0x3,%r8d
+    15f5:	eb 0e                	jmp    1605 <cpm_allocate+0x85>
+    15f7:	41 b8 01 00 00 00    	mov    $0x1,%r8d
+    15fd:	eb 06                	jmp    1605 <cpm_allocate+0x85>
+    15ff:	41 b8 02 00 00 00    	mov    $0x2,%r8d
+    1605:	42 89 34 87          	mov    %esi,(%rdi,%r8,4)
+    1609:	42 c7 44 87 10 01 00 	movl   $0x1,0x10(%rdi,%r8,4)
+    1610:	00 00 
+    1612:	44 89 02             	mov    %r8d,(%rdx)
+    1615:	42 8b 44 87 20       	mov    0x20(%rdi,%r8,4),%eax
+    161a:	89 42 04             	mov    %eax,0x4(%rdx)
+    161d:	31 c0                	xor    %eax,%eax
+    161f:	48 8b 09             	mov    (%rcx),%rcx
+    1622:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1626:	75 02                	jne    162a <cpm_allocate+0xaa>
+    1628:	59                   	pop    %rcx
+    1629:	c3                   	ret
+    162a:	e8 e1 f9 ff ff       	call   1010 <__stack_chk_fail@plt>
+    162f:	90                   	nop
+
+0000000000001630 <cpm_lookup>:
+    1630:	50                   	push   %rax
+    1631:	48 8b 0d a8 29 00 00 	mov    0x29a8(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1638:	48 8b 01             	mov    (%rcx),%rax
+    163b:	48 89 04 24          	mov    %rax,(%rsp)
+    163f:	b8 03 00 00 00       	mov    $0x3,%eax
+    1644:	48 85 d2             	test   %rdx,%rdx
+    1647:	74 40                	je     1689 <cpm_lookup+0x59>
+    1649:	48 85 ff             	test   %rdi,%rdi
+    164c:	41 0f 95 c0          	setne  %r8b
+    1650:	f7 c6 fc ff ff ff    	test   $0xfffffffc,%esi
+    1656:	41 0f 94 c1          	sete   %r9b
+    165a:	45 20 c1             	and    %r8b,%r9b
+    165d:	41 80 f9 01          	cmp    $0x1,%r9b
+    1661:	75 26                	jne    1689 <cpm_lookup+0x59>
+    1663:	41 89 f0             	mov    %esi,%r8d
+    1666:	41 83 e0 03          	and    $0x3,%r8d
+    166a:	45 89 c1             	mov    %r8d,%r9d
+    166d:	42 83 7c 8f 10 01    	cmpl   $0x1,0x10(%rdi,%r9,4)
+    1673:	75 14                	jne    1689 <cpm_lookup+0x59>
+    1675:	48 c1 ee 20          	shr    $0x20,%rsi
+    1679:	42 39 74 87 20       	cmp    %esi,0x20(%rdi,%r8,4)
+    167e:	75 09                	jne    1689 <cpm_lookup+0x59>
+    1680:	4a 8d 04 87          	lea    (%rdi,%r8,4),%rax
+    1684:	48 89 02             	mov    %rax,(%rdx)
+    1687:	31 c0                	xor    %eax,%eax
+    1689:	48 8b 09             	mov    (%rcx),%rcx
+    168c:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1690:	75 02                	jne    1694 <cpm_lookup+0x64>
+    1692:	59                   	pop    %rcx
+    1693:	c3                   	ret
+    1694:	e8 77 f9 ff ff       	call   1010 <__stack_chk_fail@plt>
+    1699:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+00000000000016a0 <cpm_pool_pin>:
+    16a0:	50                   	push   %rax
+    16a1:	48 8b 0d 38 29 00 00 	mov    0x2938(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    16a8:	48 8b 01             	mov    (%rcx),%rax
+    16ab:	48 89 04 24          	mov    %rax,(%rsp)
+    16af:	48 85 ff             	test   %rdi,%rdi
+    16b2:	0f 95 c0             	setne  %al
+    16b5:	f7 c6 fc ff ff ff    	test   $0xfffffffc,%esi
+    16bb:	0f 94 c2             	sete   %dl
+    16be:	20 c2                	and    %al,%dl
+    16c0:	b8 03 00 00 00       	mov    $0x3,%eax
+    16c5:	80 fa 01             	cmp    $0x1,%dl
+    16c8:	75 2b                	jne    16f5 <cpm_pool_pin+0x55>
+    16ca:	89 f2                	mov    %esi,%edx
+    16cc:	83 e2 03             	and    $0x3,%edx
+    16cf:	41 89 d0             	mov    %edx,%r8d
+    16d2:	42 83 7c 87 10 01    	cmpl   $0x1,0x10(%rdi,%r8,4)
+    16d8:	75 1b                	jne    16f5 <cpm_pool_pin+0x55>
+    16da:	48 c1 ee 20          	shr    $0x20,%rsi
+    16de:	39 74 97 20          	cmp    %esi,0x20(%rdi,%rdx,4)
+    16e2:	75 11                	jne    16f5 <cpm_pool_pin+0x55>
+    16e4:	8b 74 97 30          	mov    0x30(%rdi,%rdx,4),%esi
+    16e8:	83 fe ff             	cmp    $0xffffffff,%esi
+    16eb:	74 08                	je     16f5 <cpm_pool_pin+0x55>
+    16ed:	ff c6                	inc    %esi
+    16ef:	89 74 97 30          	mov    %esi,0x30(%rdi,%rdx,4)
+    16f3:	31 c0                	xor    %eax,%eax
+    16f5:	48 8b 09             	mov    (%rcx),%rcx
+    16f8:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    16fc:	75 02                	jne    1700 <cpm_pool_pin+0x60>
+    16fe:	59                   	pop    %rcx
+    16ff:	c3                   	ret
+    1700:	e8 0b f9 ff ff       	call   1010 <__stack_chk_fail@plt>
+    1705:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    170c:	00 00 00 
+    170f:	90                   	nop
+
+0000000000001710 <cpm_pool_unpin>:
+    1710:	50                   	push   %rax
+    1711:	48 8b 0d c8 28 00 00 	mov    0x28c8(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1718:	48 8b 01             	mov    (%rcx),%rax
+    171b:	48 89 04 24          	mov    %rax,(%rsp)
+    171f:	48 85 ff             	test   %rdi,%rdi
+    1722:	0f 95 c0             	setne  %al
+    1725:	f7 c6 fc ff ff ff    	test   $0xfffffffc,%esi
+    172b:	0f 94 c2             	sete   %dl
+    172e:	20 c2                	and    %al,%dl
+    1730:	b8 03 00 00 00       	mov    $0x3,%eax
+    1735:	80 fa 01             	cmp    $0x1,%dl
+    1738:	75 2a                	jne    1764 <cpm_pool_unpin+0x54>
+    173a:	89 f2                	mov    %esi,%edx
+    173c:	83 e2 03             	and    $0x3,%edx
+    173f:	41 89 d0             	mov    %edx,%r8d
+    1742:	42 83 7c 87 10 01    	cmpl   $0x1,0x10(%rdi,%r8,4)
+    1748:	75 1a                	jne    1764 <cpm_pool_unpin+0x54>
+    174a:	48 c1 ee 20          	shr    $0x20,%rsi
+    174e:	39 74 97 20          	cmp    %esi,0x20(%rdi,%rdx,4)
+    1752:	75 10                	jne    1764 <cpm_pool_unpin+0x54>
+    1754:	8b 74 97 30          	mov    0x30(%rdi,%rdx,4),%esi
+    1758:	85 f6                	test   %esi,%esi
+    175a:	74 08                	je     1764 <cpm_pool_unpin+0x54>
+    175c:	ff ce                	dec    %esi
+    175e:	89 74 97 30          	mov    %esi,0x30(%rdi,%rdx,4)
+    1762:	31 c0                	xor    %eax,%eax
+    1764:	48 8b 09             	mov    (%rcx),%rcx
+    1767:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    176b:	75 02                	jne    176f <cpm_pool_unpin+0x5f>
+    176d:	59                   	pop    %rcx
+    176e:	c3                   	ret
+    176f:	e8 9c f8 ff ff       	call   1010 <__stack_chk_fail@plt>
+    1774:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+    177b:	00 00 00 
+    177e:	66 90                	xchg   %ax,%ax
+
+0000000000001780 <cpm_release>:
+    1780:	50                   	push   %rax
+    1781:	48 8b 0d 58 28 00 00 	mov    0x2858(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1788:	48 8b 01             	mov    (%rcx),%rax
+    178b:	48 89 04 24          	mov    %rax,(%rsp)
+    178f:	48 85 ff             	test   %rdi,%rdi
+    1792:	0f 95 c0             	setne  %al
+    1795:	f7 c6 fc ff ff ff    	test   $0xfffffffc,%esi
+    179b:	0f 94 c2             	sete   %dl
+    179e:	20 c2                	and    %al,%dl
+    17a0:	b8 03 00 00 00       	mov    $0x3,%eax
+    17a5:	80 fa 01             	cmp    $0x1,%dl
+    17a8:	75 4f                	jne    17f9 <cpm_release+0x79>
+    17aa:	89 f2                	mov    %esi,%edx
+    17ac:	83 e2 03             	and    $0x3,%edx
+    17af:	41 89 d0             	mov    %edx,%r8d
+    17b2:	42 83 7c 87 10 01    	cmpl   $0x1,0x10(%rdi,%r8,4)
+    17b8:	75 3f                	jne    17f9 <cpm_release+0x79>
+    17ba:	49 89 f0             	mov    %rsi,%r8
+    17bd:	49 c1 e8 20          	shr    $0x20,%r8
+    17c1:	44 39 44 97 20       	cmp    %r8d,0x20(%rdi,%rdx,4)
+    17c6:	75 31                	jne    17f9 <cpm_release+0x79>
+    17c8:	89 f2                	mov    %esi,%edx
+    17ca:	b8 02 00 00 00       	mov    $0x2,%eax
+    17cf:	83 7c 97 30 00       	cmpl   $0x0,0x30(%rdi,%rdx,4)
+    17d4:	75 23                	jne    17f9 <cpm_release+0x79>
+    17d6:	8b 44 97 20          	mov    0x20(%rdi,%rdx,4),%eax
+    17da:	83 f8 03             	cmp    $0x3,%eax
+    17dd:	75 0a                	jne    17e9 <cpm_release+0x69>
+    17df:	c7 44 97 10 02 00 00 	movl   $0x2,0x10(%rdi,%rdx,4)
+    17e6:	00 
+    17e7:	eb 0e                	jmp    17f7 <cpm_release+0x77>
+    17e9:	c7 44 97 10 00 00 00 	movl   $0x0,0x10(%rdi,%rdx,4)
+    17f0:	00 
+    17f1:	ff c0                	inc    %eax
+    17f3:	89 44 97 20          	mov    %eax,0x20(%rdi,%rdx,4)
+    17f7:	31 c0                	xor    %eax,%eax
+    17f9:	48 8b 09             	mov    (%rcx),%rcx
+    17fc:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1800:	75 02                	jne    1804 <cpm_release+0x84>
+    1802:	59                   	pop    %rcx
+    1803:	c3                   	ret
+    1804:	e8 07 f8 ff ff       	call   1010 <__stack_chk_fail@plt>
+    1809:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+
+0000000000001810 <cpm_prefix>:
+    1810:	55                   	push   %rbp
+    1811:	41 56                	push   %r14
+    1813:	53                   	push   %rbx
+    1814:	48 83 ec 10          	sub    $0x10,%rsp
+    1818:	4c 8b 0d c1 27 00 00 	mov    0x27c1(%rip),%r9        # 3fe0 <__stack_chk_guard>
+    181f:	49 8b 01             	mov    (%r9),%rax
+    1822:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+    1827:	48 85 ff             	test   %rdi,%rdi
+    182a:	0f 94 c0             	sete   %al
+    182d:	48 85 f6             	test   %rsi,%rsi
+    1830:	41 0f 94 c2          	sete   %r10b
+    1834:	41 08 c2             	or     %al,%r10b
+    1837:	4d 85 c0             	test   %r8,%r8
+    183a:	41 0f 94 c3          	sete   %r11b
+    183e:	b8 03 00 00 00       	mov    $0x3,%eax
+    1843:	45 08 d3             	or     %r10b,%r11b
+    1846:	0f 85 ea 00 00 00    	jne    1936 <cpm_prefix+0x126>
+    184c:	48 85 d2             	test   %rdx,%rdx
+    184f:	41 0f 94 c2          	sete   %r10b
+    1853:	48 85 c9             	test   %rcx,%rcx
+    1856:	41 0f 95 c3          	setne  %r11b
+    185a:	45 84 da             	test   %r11b,%r10b
+    185d:	0f 85 d3 00 00 00    	jne    1936 <cpm_prefix+0x126>
+    1863:	49 c7 00 00 00 00 00 	movq   $0x0,(%r8)
+    186a:	48 85 c9             	test   %rcx,%rcx
+    186d:	0f 84 c1 00 00 00    	je     1934 <cpm_prefix+0x124>
+    1873:	45 31 db             	xor    %r11d,%r11d
+    1876:	eb 44                	jmp    18bc <cpm_prefix+0xac>
+    1878:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+    187f:	00 
+    1880:	31 db                	xor    %ebx,%ebx
+    1882:	44 89 1c 9f          	mov    %r11d,(%rdi,%rbx,4)
+    1886:	c7 44 9f 10 01 00 00 	movl   $0x1,0x10(%rdi,%rbx,4)
+    188d:	00 
+    188e:	8b 46 20             	mov    0x20(%rsi),%eax
+    1891:	44 01 d0             	add    %r10d,%eax
+    1894:	83 e0 03             	and    $0x3,%eax
+    1897:	44 8b 5c 9f 20       	mov    0x20(%rdi,%rbx,4),%r11d
+    189c:	49 c1 e3 20          	shl    $0x20,%r11
+    18a0:	49 09 db             	or     %rbx,%r11
+    18a3:	4c 89 1c c6          	mov    %r11,(%rsi,%rax,8)
+    18a7:	49 ff c2             	inc    %r10
+    18aa:	4c 89 56 28          	mov    %r10,0x28(%rsi)
+    18ae:	4d 8b 18             	mov    (%r8),%r11
+    18b1:	49 ff c3             	inc    %r11
+    18b4:	4d 89 18             	mov    %r11,(%r8)
+    18b7:	49 39 cb             	cmp    %rcx,%r11
+    18ba:	73 78                	jae    1934 <cpm_prefix+0x124>
+    18bc:	4c 8b 56 28          	mov    0x28(%rsi),%r10
+    18c0:	b8 01 00 00 00       	mov    $0x1,%eax
+    18c5:	49 83 fa 04          	cmp    $0x4,%r10
+    18c9:	74 6b                	je     1936 <cpm_prefix+0x126>
+    18cb:	8b 5f 40             	mov    0x40(%rdi),%ebx
+    18ce:	83 fb ff             	cmp    $0xffffffff,%ebx
+    18d1:	74 63                	je     1936 <cpm_prefix+0x126>
+    18d3:	46 8b 1c 9a          	mov    (%rdx,%r11,4),%r11d
+    18d7:	ff c3                	inc    %ebx
+    18d9:	89 5f 40             	mov    %ebx,0x40(%rdi)
+    18dc:	8b 6f 44             	mov    0x44(%rdi),%ebp
+    18df:	85 ed                	test   %ebp,%ebp
+    18e1:	41 0f 95 c6          	setne  %r14b
+    18e5:	39 eb                	cmp    %ebp,%ebx
+    18e7:	0f 94 c3             	sete   %bl
+    18ea:	41 84 de             	test   %bl,%r14b
+    18ed:	75 47                	jne    1936 <cpm_prefix+0x126>
+    18ef:	83 7f 10 00          	cmpl   $0x0,0x10(%rdi)
+    18f3:	74 8b                	je     1880 <cpm_prefix+0x70>
+    18f5:	83 7f 14 00          	cmpl   $0x0,0x14(%rdi)
+    18f9:	74 25                	je     1920 <cpm_prefix+0x110>
+    18fb:	83 7f 18 00          	cmpl   $0x0,0x18(%rdi)
+    18ff:	74 29                	je     192a <cpm_prefix+0x11a>
+    1901:	bb 03 00 00 00       	mov    $0x3,%ebx
+    1906:	83 7f 1c 00          	cmpl   $0x0,0x1c(%rdi)
+    190a:	0f 84 72 ff ff ff    	je     1882 <cpm_prefix+0x72>
+    1910:	eb 24                	jmp    1936 <cpm_prefix+0x126>
+    1912:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+    1919:	1f 84 00 00 00 00 00 
+    1920:	bb 01 00 00 00       	mov    $0x1,%ebx
+    1925:	e9 58 ff ff ff       	jmp    1882 <cpm_prefix+0x72>
+    192a:	bb 02 00 00 00       	mov    $0x2,%ebx
+    192f:	e9 4e ff ff ff       	jmp    1882 <cpm_prefix+0x72>
+    1934:	31 c0                	xor    %eax,%eax
+    1936:	49 8b 09             	mov    (%r9),%rcx
+    1939:	48 3b 4c 24 08       	cmp    0x8(%rsp),%rcx
+    193e:	75 09                	jne    1949 <cpm_prefix+0x139>
+    1940:	48 83 c4 10          	add    $0x10,%rsp
+    1944:	5b                   	pop    %rbx
+    1945:	41 5e                	pop    %r14
+    1947:	5d                   	pop    %rbp
+    1948:	c3                   	ret
+    1949:	e8 c2 f6 ff ff       	call   1010 <__stack_chk_fail@plt>
+    194e:	66 90                	xchg   %ax,%ax
+
+0000000000001950 <cpm_atomic>:
+    1950:	55                   	push   %rbp
+    1951:	41 57                	push   %r15
+    1953:	41 56                	push   %r14
+    1955:	41 55                	push   %r13
+    1957:	41 54                	push   %r12
+    1959:	53                   	push   %rbx
+    195a:	48 81 ec 98 00 00 00 	sub    $0x98,%rsp
+    1961:	4c 8b 05 78 26 00 00 	mov    0x2678(%rip),%r8        # 3fe0 <__stack_chk_guard>
+    1968:	49 8b 00             	mov    (%r8),%rax
+    196b:	48 89 84 24 90 00 00 	mov    %rax,0x90(%rsp)
+    1972:	00 
+    1973:	48 85 ff             	test   %rdi,%rdi
+    1976:	41 0f 94 c1          	sete   %r9b
+    197a:	48 85 f6             	test   %rsi,%rsi
+    197d:	41 0f 94 c2          	sete   %r10b
+    1981:	b8 03 00 00 00       	mov    $0x3,%eax
+    1986:	45 08 ca             	or     %r9b,%r10b
+    1989:	0f 85 e4 01 00 00    	jne    1b73 <cpm_atomic+0x223>
+    198f:	48 85 d2             	test   %rdx,%rdx
+    1992:	41 0f 94 c1          	sete   %r9b
+    1996:	48 85 c9             	test   %rcx,%rcx
+    1999:	41 0f 95 c2          	setne  %r10b
+    199d:	45 84 d1             	test   %r10b,%r9b
+    19a0:	0f 85 cd 01 00 00    	jne    1b73 <cpm_atomic+0x223>
+    19a6:	41 b9 04 00 00 00    	mov    $0x4,%r9d
+    19ac:	4c 2b 4e 28          	sub    0x28(%rsi),%r9
+    19b0:	b8 01 00 00 00       	mov    $0x1,%eax
+    19b5:	4c 39 c9             	cmp    %r9,%rcx
+    19b8:	0f 87 b5 01 00 00    	ja     1b73 <cpm_atomic+0x223>
+    19be:	48 8b 47 40          	mov    0x40(%rdi),%rax
+    19c2:	48 89 84 24 80 00 00 	mov    %rax,0x80(%rsp)
+    19c9:	00 
+    19ca:	0f 10 07             	movups (%rdi),%xmm0
+    19cd:	0f 10 4f 10          	movups 0x10(%rdi),%xmm1
+    19d1:	0f 10 57 20          	movups 0x20(%rdi),%xmm2
+    19d5:	0f 10 5f 30          	movups 0x30(%rdi),%xmm3
+    19d9:	0f 29 5c 24 70       	movaps %xmm3,0x70(%rsp)
+    19de:	0f 29 54 24 60       	movaps %xmm2,0x60(%rsp)
+    19e3:	0f 29 4c 24 50       	movaps %xmm1,0x50(%rsp)
+    19e8:	0f 29 44 24 40       	movaps %xmm0,0x40(%rsp)
+    19ed:	0f 10 06             	movups (%rsi),%xmm0
+    19f0:	0f 10 4e 10          	movups 0x10(%rsi),%xmm1
+    19f4:	0f 10 56 20          	movups 0x20(%rsi),%xmm2
+    19f8:	0f 29 54 24 30       	movaps %xmm2,0x30(%rsp)
+    19fd:	0f 29 4c 24 20       	movaps %xmm1,0x20(%rsp)
+    1a02:	0f 29 44 24 10       	movaps %xmm0,0x10(%rsp)
+    1a07:	48 85 c9             	test   %rcx,%rcx
+    1a0a:	0f 84 0f 01 00 00    	je     1b1f <cpm_atomic+0x1cf>
+    1a10:	4c 8b 4c 24 38       	mov    0x38(%rsp),%r9
+    1a15:	b8 01 00 00 00       	mov    $0x1,%eax
+    1a1a:	49 83 f9 04          	cmp    $0x4,%r9
+    1a1e:	0f 84 4f 01 00 00    	je     1b73 <cpm_atomic+0x223>
+    1a24:	44 8b b4 24 80 00 00 	mov    0x80(%rsp),%r14d
+    1a2b:	00 
+    1a2c:	44 8b bc 24 84 00 00 	mov    0x84(%rsp),%r15d
+    1a33:	00 
+    1a34:	46 8d 14 31          	lea    (%rcx,%r14,1),%r10d
+    1a38:	44 89 54 24 0c       	mov    %r10d,0xc(%rsp)
+    1a3d:	48 ff c9             	dec    %rcx
+    1a40:	41 f7 d6             	not    %r14d
+    1a43:	47 8d 24 3e          	lea    (%r14,%r15,1),%r12d
+    1a47:	4c 8b 6c 24 30       	mov    0x30(%rsp),%r13
+    1a4c:	4d 01 cd             	add    %r9,%r13
+    1a4f:	45 31 db             	xor    %r11d,%r11d
+    1a52:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+    1a59:	1f 84 00 00 00 00 00 
+    1a60:	45 39 de             	cmp    %r11d,%r14d
+    1a63:	0f 84 0a 01 00 00    	je     1b73 <cpm_atomic+0x223>
+    1a69:	46 8b 14 9a          	mov    (%rdx,%r11,4),%r10d
+    1a6d:	45 85 ff             	test   %r15d,%r15d
+    1a70:	74 09                	je     1a7b <cpm_atomic+0x12b>
+    1a72:	45 39 dc             	cmp    %r11d,%r12d
+    1a75:	0f 84 f8 00 00 00    	je     1b73 <cpm_atomic+0x223>
+    1a7b:	83 7c 24 50 00       	cmpl   $0x0,0x50(%rsp)
+    1a80:	74 24                	je     1aa6 <cpm_atomic+0x156>
+    1a82:	83 7c 24 54 00       	cmpl   $0x0,0x54(%rsp)
+    1a87:	74 26                	je     1aaf <cpm_atomic+0x15f>
+    1a89:	83 7c 24 58 00       	cmpl   $0x0,0x58(%rsp)
+    1a8e:	74 2b                	je     1abb <cpm_atomic+0x16b>
+    1a90:	bb 03 00 00 00       	mov    $0x3,%ebx
+    1a95:	83 7c 24 5c 00       	cmpl   $0x0,0x5c(%rsp)
+    1a9a:	48 8d 6c 24 4c       	lea    0x4c(%rsp),%rbp
+    1a9f:	74 2f                	je     1ad0 <cpm_atomic+0x180>
+    1aa1:	e9 cd 00 00 00       	jmp    1b73 <cpm_atomic+0x223>
+    1aa6:	48 8d 6c 24 40       	lea    0x40(%rsp),%rbp
+    1aab:	31 db                	xor    %ebx,%ebx
+    1aad:	eb 21                	jmp    1ad0 <cpm_atomic+0x180>
+    1aaf:	bb 01 00 00 00       	mov    $0x1,%ebx
+    1ab4:	48 8d 6c 24 44       	lea    0x44(%rsp),%rbp
+    1ab9:	eb 15                	jmp    1ad0 <cpm_atomic+0x180>
+    1abb:	bb 02 00 00 00       	mov    $0x2,%ebx
+    1ac0:	48 8d 6c 24 48       	lea    0x48(%rsp),%rbp
+    1ac5:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    1acc:	00 00 00 00 
+    1ad0:	44 89 55 00          	mov    %r10d,0x0(%rbp)
+    1ad4:	c7 44 9c 50 01 00 00 	movl   $0x1,0x50(%rsp,%rbx,4)
+    1adb:	00 
+    1adc:	47 8d 14 2b          	lea    (%r11,%r13,1),%r10d
+    1ae0:	41 83 e2 03          	and    $0x3,%r10d
+    1ae4:	8b 6c 9c 60          	mov    0x60(%rsp,%rbx,4),%ebp
+    1ae8:	48 c1 e5 20          	shl    $0x20,%rbp
+    1aec:	48 09 dd             	or     %rbx,%rbp
+    1aef:	4a 89 6c d4 10       	mov    %rbp,0x10(%rsp,%r10,8)
+    1af4:	4f 8d 14 19          	lea    (%r9,%r11,1),%r10
+    1af8:	49 ff c2             	inc    %r10
+    1afb:	4c 39 d9             	cmp    %r11,%rcx
+    1afe:	74 0f                	je     1b0f <cpm_atomic+0x1bf>
+    1b00:	49 ff c3             	inc    %r11
+    1b03:	49 83 fa 04          	cmp    $0x4,%r10
+    1b07:	0f 85 53 ff ff ff    	jne    1a60 <cpm_atomic+0x110>
+    1b0d:	eb 64                	jmp    1b73 <cpm_atomic+0x223>
+    1b0f:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+    1b13:	89 84 24 80 00 00 00 	mov    %eax,0x80(%rsp)
+    1b1a:	4c 89 54 24 38       	mov    %r10,0x38(%rsp)
+    1b1f:	48 8b 84 24 80 00 00 	mov    0x80(%rsp),%rax
+    1b26:	00 
+    1b27:	48 89 47 40          	mov    %rax,0x40(%rdi)
+    1b2b:	0f 28 44 24 40       	movaps 0x40(%rsp),%xmm0
+    1b30:	0f 28 4c 24 50       	movaps 0x50(%rsp),%xmm1
+    1b35:	0f 28 54 24 60       	movaps 0x60(%rsp),%xmm2
+    1b3a:	0f 28 5c 24 70       	movaps 0x70(%rsp),%xmm3
+    1b3f:	0f 11 5f 30          	movups %xmm3,0x30(%rdi)
+    1b43:	0f 11 57 20          	movups %xmm2,0x20(%rdi)
+    1b47:	0f 11 4f 10          	movups %xmm1,0x10(%rdi)
+    1b4b:	0f 11 07             	movups %xmm0,(%rdi)
+    1b4e:	0f 28 44 24 10       	movaps 0x10(%rsp),%xmm0
+    1b53:	0f 28 4c 24 20       	movaps 0x20(%rsp),%xmm1
+    1b58:	48 8b 44 24 30       	mov    0x30(%rsp),%rax
+    1b5d:	48 89 46 20          	mov    %rax,0x20(%rsi)
+    1b61:	48 8b 44 24 38       	mov    0x38(%rsp),%rax
+    1b66:	48 89 46 28          	mov    %rax,0x28(%rsi)
+    1b6a:	0f 11 4e 10          	movups %xmm1,0x10(%rsi)
+    1b6e:	0f 11 06             	movups %xmm0,(%rsi)
+    1b71:	31 c0                	xor    %eax,%eax
+    1b73:	49 8b 08             	mov    (%r8),%rcx
+    1b76:	48 3b 8c 24 90 00 00 	cmp    0x90(%rsp),%rcx
+    1b7d:	00 
+    1b7e:	75 12                	jne    1b92 <cpm_atomic+0x242>
+    1b80:	48 81 c4 98 00 00 00 	add    $0x98,%rsp
+    1b87:	5b                   	pop    %rbx
+    1b88:	41 5c                	pop    %r12
+    1b8a:	41 5d                	pop    %r13
+    1b8c:	41 5e                	pop    %r14
+    1b8e:	41 5f                	pop    %r15
+    1b90:	5d                   	pop    %rbp
+    1b91:	c3                   	ret
+    1b92:	e8 79 f4 ff ff       	call   1010 <__stack_chk_fail@plt>
+    1b97:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+    1b9e:	00 00 
+
+0000000000001ba0 <cpm_pop>:
+    1ba0:	50                   	push   %rax
+    1ba1:	48 8b 0d 38 24 00 00 	mov    0x2438(%rip),%rcx        # 3fe0 <__stack_chk_guard>
+    1ba8:	48 8b 01             	mov    (%rcx),%rax
+    1bab:	48 89 04 24          	mov    %rax,(%rsp)
+    1baf:	48 85 ff             	test   %rdi,%rdi
+    1bb2:	0f 94 c2             	sete   %dl
+    1bb5:	48 85 f6             	test   %rsi,%rsi
+    1bb8:	41 0f 94 c0          	sete   %r8b
+    1bbc:	b8 03 00 00 00       	mov    $0x3,%eax
+    1bc1:	41 08 d0             	or     %dl,%r8b
+    1bc4:	75 2b                	jne    1bf1 <cpm_pop+0x51>
+    1bc6:	48 83 7f 28 00       	cmpq   $0x0,0x28(%rdi)
+    1bcb:	74 1f                	je     1bec <cpm_pop+0x4c>
+    1bcd:	48 8b 47 20          	mov    0x20(%rdi),%rax
+    1bd1:	48 8b 04 c7          	mov    (%rdi,%rax,8),%rax
+    1bd5:	48 89 06             	mov    %rax,(%rsi)
+    1bd8:	8b 47 20             	mov    0x20(%rdi),%eax
+    1bdb:	ff c0                	inc    %eax
+    1bdd:	83 e0 03             	and    $0x3,%eax
+    1be0:	48 89 47 20          	mov    %rax,0x20(%rdi)
+    1be4:	48 ff 4f 28          	decq   0x28(%rdi)
+    1be8:	31 c0                	xor    %eax,%eax
+    1bea:	eb 05                	jmp    1bf1 <cpm_pop+0x51>
+    1bec:	b8 01 00 00 00       	mov    $0x1,%eax
+    1bf1:	48 8b 09             	mov    (%rcx),%rcx
+    1bf4:	48 3b 0c 24          	cmp    (%rsp),%rcx
+    1bf8:	75 02                	jne    1bfc <cpm_pop+0x5c>
+    1bfa:	59                   	pop    %rcx
+    1bfb:	c3                   	ret
+    1bfc:	e8 0f f4 ff ff       	call   1010 <__stack_chk_fail@plt>

@@ -1,0 +1,136 @@
+# X-T69-001: Named interfaces, structural probes and semantic conformance
+
+## Prerequisites
+
+Bring pinned contracts and fresh recall for io.stream, containers.array; prerequisite exercises: X-T19-002. Required knowledge includes C object lifetime, checked arithmetic, ownership, typed arrays and the selected source passages. The shared contract and modern-cost contract are explicit parts of this exercise. Existing project estimates describe author accounting; they impose no learner time ceiling.
+
+## Environment
+
+Use C17 hosted Linux with GCC and Clang, CMake and host Python. Record compiler/ABI versions, integer widths, sizeof/alignment and optimization. Mechanism code uses no library implementing the mechanism. Allocator callbacks are supplied dependencies with separate ownership. A strict freestanding port requires its own generated-code/link audit and is not established by the hosted run. Compare C11 draft/C17/C23 only where inspected normative evidence supports the claim; exact published C17 access remains a reference gap.
+
+## Problem
+
+Implement DSView/DSOps and ds_measure for a borrowed int implementation and a second concrete counted-byte implementation that measures logical length. Every successful callback publishes one int; the wrapper calls exactly once and preserves caller output on failure. Build a nominal typed constructor for each implementation and a C17 _Generic structural probe that accepts only explicitly listed receiver types. Supply three rejected translations: wrong callback signature, an unlisted receiver, and incompatible named wrapper types. A second implementation with the correct signature but an incorrect length result must compile and fail semantic tests.
+
+Supplied artifacts: labs/dispatch/include/dispatch.h, deliberately incomplete labs/dispatch/src/dispatch.c, executable anchors, fixture PR-T69-01.json and the shared CONTRACTS.md. Expected example: A borrowed int7 measures7. A callback returning DS_FAILED after writing123 into its private output leaves caller output99 unchanged. A missing table rejects before invocation. The wrong-return-type callback fixture must fail strict C17 compilation.
+
+## Necessity
+
+An operation table can validate the presence of a function pointer but cannot infer that the pointer uses the same concrete representation as its object or satisfies the promised law.
+
+## Reasoning
+
+T69.01.a: Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.
+
+T69.01.b: Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.
+
+T69.01.c: Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.
+
+T69.01.d: Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup.
+
+State preconditions, postconditions, representation invariants, resource ownership, failure publication and complexity. For each guarantee identify ISO C rules, diagnostics, runtime checks, external verification and programmer discipline separately. Include a minimal counterexample to an overstated equivalence with the corresponding language/library abstraction. Apply all13 dimensions in modern-cost-contract.md, recording genuine non-applicability with reasons and unavailable measurements as gaps.
+
+## Deliverables
+
+- D1: representation/state diagrams, source-to-claim ledger and proofs for every listed objective, including a plausible incorrect explanation and a concrete counterexample.
+- D2: mechanism implementation and every separately requested extension, dependency adapters and a reproducible build; document each source of allocation, invalidation and partial progress.
+- D3: Enumerate int values-8..8 and counted spans0..16; instrument callback count and outputs. Compile every diagnostic fixture separately under GCC/Clang -std=c17 -Wpedantic -Werror and retain the intended diagnostic. Wrong semantic callbacks must compile and be rejected by behavior/invariant checks, not by a cast or a runtime type-name string. Never execute a deliberately incompatible function-pointer call.
+- D4: changed-condition implementation/analysis, the13-dimension cost dossier and a delayed independent attempt. Record assistance and all unexecuted target/measurement obligations.
+
+## Verification
+
+Run `cmake -S labs/dispatch -B build/dispatch` then build and `ctest --test-dir build/dispatch -R "^dispatch.traits$" --output-on-failure` for your implementation. Rebuild GCC/Clang at debug/release and sanitizer profiles. Enumerate int values-8..8 and counted spans0..16; instrument callback count and outputs. Compile every diagnostic fixture separately under GCC/Clang -std=c17 -Wpedantic -Werror and retain the intended diagnostic. Wrong semantic callbacks must compile and be rejected by behavior/invariant checks, not by a cast or a runtime type-name string. Never execute a deliberately incompatible function-pointer call.
+
+Pass requires the exact observable results, no invariant violation in the admitted state space, intended mutant rejection, independent expected values and level2 or better for every objective. A public test pass alone cannot satisfy written extensions or level3 transfer. The seven-day delay is an assessment condition, not a time limit on learning.
+
+## Rubric
+
+The machine-readable objective-specific rubric above is normative. Levels0–1 are incomplete; level2 requires justified implementation and falsification evidence; level3 requires independent transfer under changed assumptions. Assess each objective separately. Source-bound tests establish only their bounded behavior; they are not reviewer independence or learner mastery.
+
+## Hints
+
+1. Separate type compatibility from the relation between object and table.
+2. Create a typed constructor before erasing the receiver pointer.
+3. A temporary output confines a failed callback write, but not arbitrary callback side effects.
+
+## Variants
+
+X-T69-001-DELAYED: add an interface whose read method may make partial progress. Preserve both progress and status and show why the original single-output success/failure wrapper cannot express it.
+
+Also change compiler/optimization and an available data model. Revisit integer availability, object layout, helper dependencies and performance arguments rather than assuming numerical output validates portability. Assessor technical analysis and withheld cases are separate from learner publication.
+
+## Security
+
+Use only these original local teaching structures and synthetic values. Attacker influence is limited to admitted operation sequences, lengths, masks, hashes or allocation-failure schedules in this process. Observe stale-access rejection, lost-state prevention or resource-exhaustion behavior without dereferencing expired storage. A crash or sanitizer finding is not evidence of arbitrary execution. Repair violated invariants and add regression traces; surviving raw aliases, malicious allocator callbacks and concurrent mutation remain outside this bounded contract unless the variant explicitly adds them.
+
+## Validation
+
+Authored complete specification; executable anchor and assessor reference are separately source-bound in the campaign receipt. Learner artifacts, independent assessment, written extensions, additional data models and physical measurements are not implied by author test results. The source register records only inspected passages, and explicitly records inaccessible material. Residual obligations remain required, not optional exclusions.
+
+## Completion stage: nominal registration and partial progress
+
+Implement `dispatch_extensions.h` and its learner source. Use distinct `DSIntReceiver`/`DSBytesReceiver` and distinct named interface wrappers; `_Generic` must accept only their exact pointer types and evaluate an argument with a side effect exactly once. Test all ints-8..8, counted lengths0..16, null/empty spans, and a second-field view returned through a temporary receiver descriptor with static operations. Positive translation must compile before each negative signature/receiver/wrapper result can count. Run `dispatch.nominal`, its two mutants and `dispatch.constraint.nominal`; a constant-zero length implementation must compile and fail the assertion.
+
+For X-T69-001-DELAYED, implement `DSReader`/`DSProgress` with the exact partial-progress contract. A reader that writes three bytes and reports DS_FAILED must publish those three bytes and return count3/statusDS_FAILED, leaving the suffix unchanged. A reader claiming count5 for capacity4 returns DS_INVALID/count0 without publishing; its external effects still occurred. Exhaust counts0..16 with success and failure, plus end-of-stream, invalid result and capacity0. Run `dispatch.progress` and both mutants. D1 derives the distinction between output atomicity and external-effect rollback; D2 supplies both interfaces and the staging adapter; D3 includes42 independent acquisition/progress rows across this and the clone exercise; D4 retains the separately assessed delayed attempt. R1/R2 require exact diagnostic-versus-discipline boundaries, R3 checks semantic controls, and R4 still requires an independently implemented cross-operation law. An arbitrary callback can violate its memory contract; the wrapper is not a process isolation boundary.
+
+## Required rubric transfer implementation
+
+Implement DSCopyView and ds_copy_checked from dispatch_laws.h under the shared cross-method contract. Use counted bytes of lengths0..16, including embedded zeros, and independently state the length/copy relation before building. The102 oracle rows combine length, two failure positions and false reported count. A deliberately zero-terminated length paired with counted copying compiles but fails for [1,0,2]. Preserve caller bytes/count on failure, invoke each admitted method once, and distinguish checked count agreement from uncheckable arbitrary callback behavior. D3 includes both semantic mutants plus actual Rust trait positive and negative controls: missing method and wrong signature reject, yet the Rust implementation with length1/copy3 compiles and runs. A method call without the extension trait in scope rejects separately. Explain why naming C free functions does not provide trait method lookup or coherence.
+
+The supplied original fixtures, incomplete learner source, shared contract and separate assessor analysis define D1 through D4. Use the newly mapped named tests and independent oracle. Hints: identify the missing relation or lifetime first; keep the concrete owner visible; publish only after the stated evidence is available. Public author results do not grade an independent learner or remove the delayed attempt.
+
+## Objective-specific assessment anchors
+
+### X-T69-001-R1 / T69.01.a
+
+Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-001-R2 / T69.01.b
+
+Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-001-R3 / T69.01.c
+
+Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+### X-T69-001-R4 / T69.01.d
+
+Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup.
+
+- 0: Absent or contradicts the stated representation/contract.
+- 1: Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.
+- 2: Provides the complete stated result, a justified invariant and independently checked falsification evidence.
+- 3: Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits.
+
+## Traceability and contract selection
+
+Project: PR-T69-01
+
+Required earlier exercises: X-T19-002
+
+Required baseline units: none
+
+Required artifact imports: io.stream, containers.array
+
+
+- [R-MOD-DISPATCH-TRAIT-DECL](https://doc.rust-lang.org/reference/items/traits.html): items.traits.intro and impls; items.traits.dyn-compatible: receiver and method restrictions
+- [R-MOD-DISPATCH-C-POINTERS](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf): 6.3.2.3p1–2 and7–8 Pointer conversions; 6.7.2.1p14–17 Structure/union layout and initial member; 6.5.16.1p1 and6 Assignment qualifiers and unsafe double-pointer example
+
+Delayed transfer: wait at least 7 days after the first recorded study of this contract; select X-T69-001-DELAYED.
+
+Contract SHA-256: e3c86f69cd1a023a3652782cb6bb059cb808f1bd398102be6f47fe01c24281d9

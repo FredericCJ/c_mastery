@@ -1,0 +1,33 @@
+{
+  "id": "PR-T54-02",
+  "description": "Dual boot and epoch handshake finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 12,
+    "expected_cpus": [
+      4,
+      7
+    ],
+    "acks": [
+      [
+        4,
+        11
+      ],
+      [
+        7,
+        12
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      7
+    ],
+    "missing": [
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A boot handshake needs a version, epoch and readiness state so one core does not use stale SRAM left by a previous run. One core owns initialization; the peer acknowledges the same epoch after checking layout and capabilities. A peer may be late or absent.",
+  "required_observation": "Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately."
+}

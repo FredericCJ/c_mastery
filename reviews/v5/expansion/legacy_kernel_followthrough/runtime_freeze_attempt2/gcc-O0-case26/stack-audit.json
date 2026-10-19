@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "method": "static compiler rows + conservative direct/tail call graph + audited single CvmHost callback; every call adds eight extra bytes",
+  "maximum_native_chain_bytes": 6856,
+  "maximum_chain": [
+    "_start",
+    "kf_vm_probe",
+    "load",
+    "cvm_load",
+    "cvm_verify",
+    "u16"
+  ],
+  "usage": {
+    "memset": 56,
+    "memcpy": 72,
+    "nil": 64,
+    "cvm_int": 80,
+    "boolean": 80,
+    "u16": 24,
+    "put16": 32,
+    "i32": 40,
+    "cvm_status_name": 24,
+    "cvm_init": 80,
+    "width": 24,
+    "cvm_verify": 5256,
+    "layout": 56,
+    "cvm_decode": 1160,
+    "cvm_encode": 80,
+    "cvm_load": 1128,
+    "cvm_save": 64,
+    "live": 40,
+    "cvm_field": 72,
+    "cvm_root_push": 56,
+    "cvm_root_pop": 24,
+    "mark": 72,
+    "cvm_collect": 72,
+    "cvm_pair": 96,
+    "push": 40,
+    "frame": 56,
+    "cvm_run": 192,
+    "callback": 56,
+    "load": 32,
+    "run": 32,
+    "kf_vm_probe": 320,
+    "cmk_call": 48,
+    "cmk_write": 32,
+    "print": 40,
+    "number": 56,
+    "end": 24,
+    "_start": 48
+  },
+  "calls": {
+    "_start": [
+      "cmk_call",
+      "end",
+      "kf_vm_probe",
+      "number",
+      "print"
+    ],
+    "cmk_call": [],
+    "cmk_write": [
+      "cmk_call"
+    ],
+    "print": [
+      "cmk_write"
+    ],
+    "number": [
+      "cmk_write"
+    ],
+    "end": [
+      "cmk_call"
+    ],
+    "callback": [],
+    "load": [
+      "cvm_load"
+    ],
+    "run": [
+      "cvm_run"
+    ],
+    "kf_vm_probe": [
+      "cvm_init",
+      "cvm_int",
+      "load",
+      "run"
+    ],
+    "nil": [],
+    "cvm_int": [],
+    "boolean": [],
+    "u16": [],
+    "i32": [],
+    "cvm_init": [
+      "nil"
+    ],
+    "width": [],
+    "cvm_verify": [
+      "u16",
+      "width"
+    ],
+    "layout": [],
+    "cvm_decode": [
+      "layout",
+      "u16"
+    ],
+    "cvm_load": [
+      "cvm_decode",
+      "cvm_verify"
+    ],
+    "live": [],
+    "cvm_field": [
+      "live"
+    ],
+    "cvm_root_push": [
+      "live"
+    ],
+    "cvm_root_pop": [],
+    "mark": [
+      "live"
+    ],
+    "cvm_collect": [
+      "mark"
+    ],
+    "cvm_pair": [
+      "cvm_collect",
+      "cvm_root_pop",
+      "cvm_root_push",
+      "live"
+    ],
+    "push": [],
+    "frame": [],
+    "cvm_run": [
+      "boolean",
+      "callback",
+      "cvm_collect",
+      "cvm_field",
+      "cvm_int",
+      "cvm_pair",
+      "cvm_verify",
+      "frame",
+      "i32",
+      "nil",
+      "push",
+      "u16"
+    ],
+    "recursive.0": []
+  },
+  "indirect_calls": [
+    {
+      "from": "cvm_run",
+      "line": "40002fe9:\t41 ff d0             \tcall   *%r8",
+      "audited_target": "callback"
+    }
+  ],
+  "one_page_user_capacity_bytes": 4088,
+  "fits_one_page": false,
+  "separate_stacks": {
+    "normal_user_bytes": 131072,
+    "kernel_task_bytes": 8192,
+    "double_fault_IST_bytes": 8192,
+    "exception_frame_bytes": 176
+  },
+  "scope": "Fixed probe source and compiler profile only; no claim about an arbitrary future callback, physical latency, SMP or unlisted compiler."
+}

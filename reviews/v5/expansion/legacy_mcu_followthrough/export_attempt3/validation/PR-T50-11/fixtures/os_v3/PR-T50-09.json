@@ -1,0 +1,24 @@
+{
+  "id": "PR-T50-09",
+  "description": "Exit, join and deferred reclamation finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 3,
+    "deltas": [
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 3
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A task cannot reclaim the stack on which it is still executing. Exit publishes a result and transfers control; another context reaps storage only after no owner can resume it. Join is a single-consumer lifecycle operation in this teaching API, distinct from waiting on an event.",
+  "required_observation": "Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result."
+}

@@ -1,0 +1,13 @@
+def run(c,root,args):
+ c.group='abstractions-traversal';pub=root/'labs/api_depth/abstractions';private=root/'assessor/api_depth/abstractions';source=private/'traversal.c';providers=[root/'assessor/api_depth/contracts/ownership.c',root/'assessor/foundations/foundation.c'];common=['-std=c17','-Wall','-Wextra','-Werror','-I'+str(pub),'-I'+str(root/'labs/api_depth/contracts'),'-I'+str(root/'labs/api_depth/include'),'-I'+str(root/'labs/foundations/include')]
+ for cc in ('gcc','clang'):
+  for name,flags in [('debug',['-O0']),('release',['-O2']),('sanitize',['-O1','-fsanitize=address,undefined','-fno-pie','-no-pie'])]:
+   exe=c.root/(cc+'-'+name+'-traversal');c.run([cc,*common,*flags,pub/'traversal_tests.c',source,*providers,'-o',exe]);c.run([exe],contains='TRAVERSAL-PASS:pull_push_pairs=50;tree_bounds=32;depth=3;')
+ for name,flag,selected in [('traversal-lifetime','AT_MUTANT_LIFETIME',source),('traversal-stop','AT_MUTANT_STOP',source),('traversal-cancel','AT_MUTANT_CANCEL',source),('traversal-learner','UNSOLVED',pub/'traversal.c')]:
+  exe=c.root/name;c.run(['gcc',*common,'-O2','-D'+flag,pub/'traversal_tests.c',selected,*providers,'-o',exe]);c.run([exe],expected=1,contains='TRAVERSAL-CHECK:')
+ for cc in ('gcc','clang'):
+  for optimization in ('-O0','-O2'):
+   obj=c.root/(cc+optimization+'-traversal.o');c.run([cc,*common,optimization,'-fstack-usage','-c',source,'-o',obj]);c.run(['objdump','-dr',obj]);c.run(['size','-A',obj]);symbols=c.run(['nm','-u',obj]);c.require('f_view_read' in symbols and 'f_view' in symbols,'actual view provider imported '+cc+optimization,symbols)
+ stack={p.name:p.read_text() for p in c.root.glob('*traversal.su')};c.require(len(stack)==4,'actual traversal stack use records',stack)
+ for key,ordinary,changed in [('07.a','Exact2,4 prefix/total6,strictstop-before>5 andgeneration3→4 stale-before-read withidempotentterminalstates','Actual value-only epoch update preservesstructuralcursor andobservesnewvalue;reset/logicaldeathinvalidatewhilecontrolstorage remainslive'),('07.b','50empty/singleton/full boundpairs comparepull/push againstindependentprefixcount/sum;removalrequestdeniedwithoutmutation','Actualboundeddeferredproducer retainscursor/context acrosspumps,zero-budgetnoeffect,cancelquiescence andstale-owner rejection;noOS schedulerclaim'),('07.c','Actualpersistentstructsizes,4compilerstackreports,depth3nestedvisitor bound andworkcounts separatecollection/cursor/registrationstorage','Explicitthree-framecontinuationstack agreeswithboundedrecursivepreorder over32depth/capacitypairs andindependent1,2,4,5,3,6,7 prefix;invalidchild/cycle/empty handled')]:
+  c.observe('T19.'+key,ordinary,['abstractions-traversal']);c.observe('T19.'+key,changed,['abstractions-traversal'],True)

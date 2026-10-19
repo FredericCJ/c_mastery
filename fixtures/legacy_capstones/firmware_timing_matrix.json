@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "MCU capstone timing/evidence worksheet; exact arithmetic fixture, not physical measurements",
+  "rows": [
+    {
+      "requirement": "Interpret the irq.json 65530-to-6 counter interval",
+      "analytical_assumptions": "16-bit up-counter; exactly one observed wrap; no reset between samples; interval at most20 ticks",
+      "measured_maximum": null,
+      "timer_resolution": "one tick;62.5ns at declared16MHz",
+      "clock_configuration": "declared16MHz synthetic counter, not measured GPIO clock",
+      "interference": "none modeled; interrupt latency is not included",
+      "expected_ticks": 12,
+      "expected_nanoseconds": 750,
+      "evidence_layer": "source-bound C/Python arithmetic plus actual CPU execution of the C model",
+      "physical_gate": "required; no capture supplied"
+    },
+    {
+      "requirement": "Recompute under changed clock",
+      "analytical_assumptions": "same12 ticks and interval assumptions; actual counter clock changed to8MHz",
+      "measured_maximum": null,
+      "timer_resolution": "one tick;125ns at declared8MHz",
+      "clock_configuration": "declared8MHz synthetic counter",
+      "interference": "unchanged model; measured workload comparison requires identical correctness contracts",
+      "expected_ticks": 12,
+      "expected_nanoseconds": 1500,
+      "evidence_layer": "exact arithmetic changed-condition control",
+      "physical_gate": "required; new clock/instrument identity and uncertainty needed"
+    },
+    {
+      "requirement": "Interpret the same endpoints with an extra wrap",
+      "analytical_assumptions": "explicit epoch observes two wraps; a bound below65536 no longer holds",
+      "measured_maximum": null,
+      "timer_resolution": "16-bit endpoints alone are insufficient",
+      "clock_configuration": "declared16MHz, epoch accompanies both endpoints",
+      "interference": "long stall may exceed the original interval bound; no WCET inferred",
+      "expected_ticks": 65548,
+      "expected_nanoseconds": 4096750,
+      "evidence_layer": "counterexample to endpoint-only subtraction",
+      "physical_gate": "required; observe epoch consistency or establish an independent maximum interval"
+    }
+  ],
+  "acceptance": "Derive ticks before rational time conversion; reject a12-tick interpretation with the two-wrap history, and reject65548 under a20-tick admission bound. Fill physical measured maxima only from bound raw captures. Separate observed maximum, analytical bound and WCET claim."
+}

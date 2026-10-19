@@ -5,7 +5,11 @@
   "title": "Timer and PWM configuration — explicit depth assessments",
   "required": true,
   "shared_contracts": [
-    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/peripheral_depth/timer/CONTRACTS.md",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "baseline_binding": {
     "files": [
@@ -95,6 +99,37 @@
         "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
         "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
       ]
+    },
+    {
+      "id": "R-PT-RM21",
+      "path": "research/v5/expansion/legacy_advanced_timer/resources.json",
+      "passages": [
+        "Register map pp65–67; TIM3/TIM4 RCC gate bits p188",
+        "Timebase and up/center counting pp594–596,601–602",
+        "Capture/PWM pp610–615; Figure165 p615 rendered and visually inspected",
+        "CR1 and sync pp630–635; status/UG pp636–638; PWM mode p640; count/reload/compare pp645–646"
+      ]
+    },
+    {
+      "id": "R-PT-ERRATA24",
+      "path": "research/v5/expansion/legacy_advanced_timer/resources.json",
+      "passages": [
+        "ES0206 Rev24 p11 section2.2.7; prior UART inspection reused"
+      ]
+    },
+    {
+      "id": "R-PT-DS14",
+      "path": "research/v5/expansion/legacy_advanced_timer/resources.json",
+      "passages": [
+        "DS9484 Rev14 Table10 PA6/PA7 p58; Table12 PA6/PA7 AF2 p75 and PB6 AF2 p76"
+      ]
+    },
+    {
+      "id": "R-PT-BOARD11",
+      "path": "research/v5/expansion/legacy_advanced_timer/resources.json",
+      "passages": [
+        "UM1974 Rev11 Table12 p31 SB121/SB122; Table17 pp55–56 PA6/PA7/PB6, grounds and JP6/PHY conflict"
+      ]
     }
   ],
   "reference_gaps": [
@@ -107,7 +142,26 @@
     "curriculum/projects/PR-T28-03.md",
     "fixtures/embedded/PR-T28-03.json",
     "tools/verify_embedded_fixtures.py",
-    "labs/firmware_io/README.md"
+    "labs/firmware_io/README.md",
+    "labs/peripheral_depth/timer/analyze_capture.py",
+    "labs/peripheral_depth/timer/audit_target.py",
+    "labs/peripheral_depth/timer/BOARD_CAPTURE.md",
+    "labs/peripheral_depth/timer/capture_template.json",
+    "labs/peripheral_depth/timer/CONTRACTS.md",
+    "labs/peripheral_depth/timer/run.py",
+    "labs/peripheral_depth/timer/target.c",
+    "labs/peripheral_depth/timer/tests.c",
+    "labs/peripheral_depth/timer/timer.c",
+    "labs/peripheral_depth/timer/timer.h",
+    "labs/peripheral_depth/uart/uart.h",
+    "labs/peripheral_depth/uart/uart.c",
+    "labs/peripheral_depth/uart/audit_target.py",
+    "labs/peripheral_depth/uart/CONTRACTS.md",
+    "labs/serial_depth/include/serial_depth.h",
+    "labs/serial_depth/src/serial_depth.c",
+    "labs/serial_depth/CONTRACTS.md",
+    "labs/firmware_io/include/firmware_io.h",
+    "labs/firmware_io/CONTRACTS.md"
   ],
   "execution_support": {
     "kind": "retained implementation/analysis contracts and bounded partial anchors",
@@ -115,7 +169,16 @@
     "tests": [
       "firmware_io.timer"
     ],
-    "fresh_execution": "not-run in this depth-authoring wave"
+    "fresh_execution": "not-run in this depth-authoring wave",
+    "timer_pwm_successor": {
+      "path": "research/v5/expansion/legacy_advanced_timer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-03-T28.06.a",
+        "AX-PR-T28-03-T28.06.b",
+        "AX-PR-T28-03-T28.06.c"
+      ],
+      "scope": "Three T28.06 ordinary and three unchanged delayed tasks; actual pu_rates/fw_timer providers; physical, independent and remaining T28 scope separate"
+    }
   },
   "criteria": [
     {
@@ -386,7 +449,7 @@
   "assessor_analysis": "assessor/legacy_depth/PR-T28-03.md",
   "status": {
     "content": "authored",
-    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "execution": "Current criterion-specific author successors; unlinked criteria, independent learner and source/target gaps remain distinct.",
     "independent_review": "not-run",
     "learner_assessment": "not-assessed",
     "limitations": [
@@ -394,5 +457,16 @@
       "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
       "Historical optional labels do not exclude required expansion work."
     ]
-  }
+  },
+  "additional_successor_support": [
+    {
+      "path": "research/v5/expansion/legacy_advanced_timer/completion_dispositions.json",
+      "criterion_ids": [
+        "AX-PR-T28-03-T28.06.a",
+        "AX-PR-T28-03-T28.06.b",
+        "AX-PR-T28-03-T28.06.c"
+      ],
+      "scope": "Three T28.06 ordinary and three unchanged delayed tasks; actual pu_rates/fw_timer providers; physical, independent and remaining T28 scope separate"
+    }
+  ]
 }

@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "X-T56-002-R1",
+      "objective": "T56.02.b",
+      "exercise": "X-T56-002",
+      "criterion": "Release exactly the frames acquired by a failed load without changing earlier owners or publishing a partial image.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-002.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/load.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "memory allocation fail0..2, full16-frame ownership and saturated-reference rejection; guest allocation rollback at every actual segment/stack acquisition; LOAD_LEAK control",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Static page tables are not dynamically allocated; acquired data/stack frames are.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-002-R2",
+      "objective": "T56.04.a",
+      "exercise": "X-T56-002",
+      "criterion": "Derive shared reference/COW invariants and preserve parent/child byte isolation through copy and sole-owner paths.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-002.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/load.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "memory child copy, failed-copy unchanged state, parent isolation and sole-owner no-copy; guest child write and held-child two-CPU faults",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Finite guest interleavings do not prove every possible schedule.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-002-R3",
+      "objective": "T56.04.b",
+      "exercise": "X-T56-002",
+      "criterion": "Preflight every mapping and reject shared/device or multithreaded clone before parent mutation.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-002.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/load.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "memory mapping-kind/thread-count preflight; guest multithreaded and shared-writable clone rejection",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "This restricted clone policy is additional to the retained broader CMK2 clone.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-002-R4",
+      "objective": "T56.04.c",
+      "exercise": "X-T56-002",
+      "criterion": "Keep the original mapping intact on copy allocation failure and specify the additional TLB/quiescence obligations of a real kernel adapter.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-002.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/load.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "memory denied copy leaves source frame and refs intact; actual guest acknowledged invalidation and remote reaping; immutable-write rejection",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Copy-allocation exhaustion is injected in the portable core; guest concurrent COW exercises the actual retained allocator/locking path.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-003-R1",
+      "objective": "T56.05.a",
+      "exercise": "X-T56-003",
+      "criterion": "Preserve queued ownership while close prevents new sends, drain exactly once, and reject stale incarnation capabilities.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-003.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "channel close/send denial/drain-once/reopen stale epoch; guest cancellation, destroyed capability and old-incarnation wake rejection",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Queue capabilities in this adapter are granted within one owning process.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-003-R2",
+      "objective": "T56.05.b",
+      "exercise": "X-T56-003",
+      "criterion": "Validate the complete destination before copying or consuming a message; distinguish resource admission from copy failure.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-003.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "channel full-span validator failure leaves head/output/count untouched; guest cross-boundary copy rejection and exact partial suffix",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "The guest has no user unmap syscall; RETRY retains no blocked output pointer.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-003-R3",
+      "objective": "T56.05.c",
+      "exercise": "X-T56-003",
+      "criterion": "Attenuate directional rights and reject unauthorized receives, oversized messages and exhausted incarnation reuse.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-003.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "channel send-only receive denial, amplification denial, full admission and UINT32_MAX retirement; guest RIGHTS control",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Portable epoch exhaustion is deliberate boundary injection, not billions of guest reuses.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-004-R1",
+      "objective": "T56.08.a",
+      "exercise": "X-T56-004",
+      "criterion": "Distinguish independent opens from duplicated handles sharing one open description and account for reference lifetime.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-004.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "files separate-open offsets, dup shared offset and final-reference close; actual guest cloned process descriptions and FILE_FORK control",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Archive backing has guest lifetime; mutable versions have explicit root/snapshot references.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-004-R2",
+      "objective": "T56.08.b",
+      "exercise": "X-T56-004",
+      "criterion": "Check signed seek arithmetic and preserve offsets and output on failed complete-span validation, including EOF and empty input.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-004.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "files signed seek/EOF/null-zero and rejected-read sentinel; actual guest INT64_MAX/negative seek and cross-page output rejection; OFFSET control",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Successful reads admit at most256 bytes per syscall; no unrestricted POSIX file contract.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-004-R3",
+      "objective": "T56.08.c",
+      "exercise": "X-T56-004",
+      "criterion": "Reject duplicate/invalid namespace entries and stale or exhausted handles before exposing immutable borrowed archive bytes.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-004.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/services.inc",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/load.inc",
+        "labs/service_depth/adapters/services.inc",
+        "labs/service_depth/adapters/tests/user.c"
+      ],
+      "verification_procedure": "files duplicate/invalid namespace rejection, stale closes, exhausted handles and UINT32_MAX generation; guest imports retained checked CMKA parser",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "The core uses a validated SDEntry namespace; the adapter uses actual CMKA bytes and the retained parser.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-005-R1",
+      "objective": "T56.10.b",
+      "exercise": "X-T56-005",
+      "criterion": "Bind operation ID to payload and durable result so a same-ID retry after lost reply cannot apply its effect twice.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-005.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/receipt.c",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/receipt.c",
+        "labs/service_depth/adapters/tests/receipt_user.c"
+      ],
+      "verification_procedure": "journal lost-reply retry/conflicting payload and alternating slots; actual receipt/store commits, REAPPLY/PAYLOAD/SPLIT controls, VM restart",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Exactly-once effect is conditional on the declared transaction/durability/admission model.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-005-R2",
+      "objective": "T56.10.c",
+      "exercise": "X-T56-005",
+      "criterion": "Separate rejected admission, uncommitted interruption and uncertain committed progress; acknowledge only a flushed receipt.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-005.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/receipt.c",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/receipt.c",
+        "labs/service_depth/adapters/tests/receipt_user.c"
+      ],
+      "verification_procedure": "journal four cut outputs remain sentinel;185 media cuts and18176 sector cases; each actual VM write/flush/reply cut",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "A reset or failed flush is uncertain; host cached I/O is not physical power-loss evidence.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    },
+    {
+      "id": "X-T56-005-R3",
+      "objective": "T56.11.c",
+      "exercise": "X-T56-005",
+      "criterion": "Classify the four interruption cuts with recovery evidence and state the atomic-flush and latest-receipt limitations.",
+      "teaching": [
+        "curriculum/v5/exercises/X-T56-005.md",
+        "labs/service_depth/adapters/CONTRACTS.md",
+        "assessor/service_depth/kernel/ANALYSIS.md"
+      ],
+      "implementation": [
+        "assessor/service_depth/kernel/receipt.c",
+        "labs/service_depth/adapters/guest.py",
+        "labs/service_depth/adapters/kernel_abi.h",
+        "labs/service_depth/adapters/receipt.c",
+        "labs/service_depth/adapters/tests/receipt_user.c"
+      ],
+      "verification_procedure": "independent old/new0-or7 recovery oracle,75 guest interruption sites with reboot/retry; bounded multi-client retention and CRC counterexample analysis",
+      "observations": [
+        "reviews/v5/expansion/integrated/service_depth_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_campaign.json",
+        "reviews/v5/expansion/followthrough/service_adapter_check.json",
+        "reviews/v5/expansion/followthrough/service_image_costs.json",
+        "research/v5/expansion/followthrough/service_image_analysis.md"
+      ],
+      "limit": "Enumeration is not all joint corruption states; an unkeyed checksum cannot authenticate arbitrary malicious replacements.",
+      "learner_score": "not-assessed; author-reference readiness never assigns rubric level3"
+    }
+  ],
+  "input_sha256": {
+    "assessor/service_depth/kernel/ANALYSIS.md": "957c0a07e0ec5543bf515e8fe01e7ac38458db953682f193bb296f3ce3ef7ccf",
+    "assessor/service_depth/kernel/load.inc": "9f67c60aba202e765ae50ed66a1e94c68bf726dde9d6dbce631edb8f92fe875c",
+    "assessor/service_depth/kernel/receipt.c": "feb47639aad64f959a1a742a55bec1577ee1704af9fbd19fd14df6436cf575c2",
+    "assessor/service_depth/kernel/services.inc": "4916b414529eb28af594829cde14f2769360cb2d4879b15eccfb1e5a15ff6485",
+    "curriculum/v5/exercises/X-T56-002.md": "39a6dc0923636fb6a784d85893d99ec20b89f787d6901c8d73f1bcfe518d90a0",
+    "curriculum/v5/exercises/X-T56-003.md": "729817664b5a8db7a7eb5560ff12983b8704fb63f2d45363b712b1d2611eb561",
+    "curriculum/v5/exercises/X-T56-004.md": "1afa8e5de996e64bfb2076ee772516249da1daba7b49379e3966da27ffb6f500",
+    "curriculum/v5/exercises/X-T56-005.md": "adc68a80bd6e9f2c6d76557fbd8666351c47d4b7a66f66a82b66ecd3e3b8eef1",
+    "labs/service_depth/adapters/CONTRACTS.md": "5eff908f55e0beef42e51183c63d8e27a26ee5461901e5622022e993abb9ebaa",
+    "labs/service_depth/adapters/guest.py": "c7b6eeab5781e23bda74bef3b6390fb8e42c3402e174251dd58653632d35692c",
+    "labs/service_depth/adapters/kernel_abi.h": "12ebc7fbd922b6dc488d6f6b38875dc278940f28243dc92584381cf06b7730d5",
+    "labs/service_depth/adapters/load.inc": "06cc173f8c3b528a6f6839e3ae1691c5f61aa8dbff3b4bf90ac26c78bd1a29c6",
+    "labs/service_depth/adapters/receipt.c": "1c144751829eec41ffb48168f635fb1510a90a6f52cd0933db9fa81928d42107",
+    "labs/service_depth/adapters/services.inc": "0790b7a71ff7c62c98aba76f2d323c2a965c20c150185d5d38b3b04af0902411",
+    "labs/service_depth/adapters/tests/receipt_user.c": "3834e8e621ab8f45925579d7bd69894c6a5307370d1456ebfeaffc0d98bf86ab",
+    "labs/service_depth/adapters/tests/user.c": "d76158c189d0b51937e7400768d2ad931c88da59e61d86a6bc93f903e82b7377",
+    "labs/service_depth/tests/tests.c": "35ab89696c28e40b37136d094339c84065c06fbd9df4c03792e64308e1adc28a",
+    "research/v5/expansion/followthrough/service_image_analysis.md": "06b846a7c1fc759b18f7f726e125154d671c000cd699a4b533b0338329bcf749",
+    "reviews/v5/expansion/followthrough/service_adapter_campaign.json": "84c81236eab1fad7b77dbe94fcd288b663d70b213f950bc10d97c1a8d145dcae",
+    "reviews/v5/expansion/followthrough/service_adapter_check.json": "58604b6eeab20f95820e19a89e3d3d1f85b1fae0d19cd535f170023e8d8e76d6",
+    "reviews/v5/expansion/followthrough/service_image_costs.json": "5dbb9559f37b4891982f02f85bcb1d4e60de45dbebf004d0d42633c8d8023463",
+    "reviews/v5/expansion/integrated/service_depth_campaign.json": "56ca387c53fe8d686066cebba049dbfa1e5a657b00f20d23ebbea19a985be56a"
+  }
+}

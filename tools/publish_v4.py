@@ -40,13 +40,55 @@ def card(u, edition=4):
     if u['exports']:out+=['**Reusable exports:** '+', '.join('`'+a+'`' for a in u['exports'])+'. Export requires scoped component acceptance.']
     if u['readings']:
         out+=['**Bounded reading:**\n\n'+'\n'.join('- {ref}`'+r['resource_id']+'`: '+r['locator']+'. '+r.get('purpose','') for r in u['readings'])]
+    for stage in u.get('required_exercise_assessments', []):
+        out+=['**Required later assessment:** {ref}`'+anchor(stage['exercise'])+'`. Complete its prerequisite exercises: '+
+              ', '.join('{ref}`'+anchor(key)+'`' for key in stage['prerequisite_exercises'])+'. '+stage['prerequisite_policy'],
+              '**Separate exercise evidence:** family `'+stage['family']+'`; tests '+
+              ', '.join('`'+name+'`' for name in stage['tests'])+'. Criteria: '+
+              ', '.join('`'+key+'`' for key in stage['criteria'])+'. '+stage['assessment']+' '+stage['accounting']]
     remaining=u['remaining_evidence']
     out+=['**Remaining obligations:** '+('; '.join(remaining) if isinstance(remaining,list) else remaining)+'.',
         '**Objective facets:** '+', '.join('{ref}`'+o+' <'+o+'>`' for o in u['objectives'])+'.']
     return '\n\n'.join(out)+'\n'
 
 
-def plain_roles(text):
+def outside_literal_code(text, transform, literal_transform=None):
+    """Transform prose/directives while retaining original code-byte spans.
+
+    Markdown block maps distinguish a real MyST directive from directive-like
+    text inside a larger C fence. Ordinary fenced and indented code is literal;
+    structural MyST directive bodies retain the established prose transforms.
+    """
+    from markdown_it import MarkdownIt
+    offsets = [0]
+    # CommonMark line maps count CRLF, lone CR and LF only. str.splitlines()
+    # also splits U+2028/VT/FF and would move the protected byte boundaries.
+    offsets.extend(match.end() for match in re.finditer(r'\r\n|\r|\n', text))
+    if offsets[-1] != len(text):
+        offsets.append(len(text))
+    ranges = [token.map for token in MarkdownIt('commonmark').parse(text)
+              if token.map and (token.type == 'code_block' or
+                 (token.type == 'fence' and not token.info.lstrip().startswith('{')))]
+    result, position = [], 0
+    for first, last in sorted(ranges):
+        start, end = offsets[first], offsets[last]
+        if start < position:
+            raise ValueError('Overlapping literal publication code blocks')
+        code = text[start:end]
+        result.extend((transform(text[position:start]),
+                       code if literal_transform is None else literal_transform(code)))
+        position = end
+    result.append(transform(text[position:]))
+    return ''.join(result)
+
+
+def without_literal_code(text):
+    """Use the same code classification for standalone prose diagnostics."""
+    return outside_literal_code(text, lambda prose: prose,
+                                lambda code: '\n' * code.count('\n'))
+
+
+def _plain_roles_prose(text):
     from publish_links import plain_downloads
     text=plain_downloads(text)
     text=re.sub(r'^\(([^\n]+)\)=[ \t]*$',lambda m:'<a id="'+anchor(m[1])+'"></a>',text,flags=re.M)
@@ -55,6 +97,14 @@ def plain_roles(text):
     text=re.sub(r'\{download\}`([^`]+) <\.\./labdownloads/([^>]+)\.zip>`',lambda m:'['+m[1]+'](labs/'+m[2]+'/README.md)',text)
     text=re.sub(r'\[([^\]]+)\]\((?:\.\./)?(?:modules|projects)/([^/)]+)\.md\)',lambda m:'['+m[1]+'](#'+anchor(m[2])+')',text)
     return vocabulary.plain_terms(text)
+
+
+def plain_roles(text):
+    return outside_literal_code(text, _plain_roles_prose)
+
+
+def standalone_text(text):
+    return outside_literal_code(text, legacy.normalize_prose)
 
 
 def prepare(edition=4):
@@ -189,7 +239,7 @@ def prepare(edition=4):
     # All v4 cross references point to explicit anchors in this same standalone artifact.
     title=f'# C Programming Mastery {edition}\n'
     merged=merged.replace(title,title+'\n'+plain_roles(intro.split('```{toctree}')[0])+ '\n\n'+supplement+'\n\n---\n',1)
-    write(ROOT/'c_programming_mastery_curriculum.md',merged)
+    write_raw(ROOT/'c_programming_mastery_curriculum.md',standalone_text(merged))
     dump(receipts/'publication_inventory.json',{**summary,'project_pages':len(overlays),'recall_pages':len({s['id'].split('.')[0] for s in recall}),'download_families':summary['families'],'historical_source':'retained; '+tag+' overlays displayed first'})
     return source,html
 

@@ -1,0 +1,66 @@
+{
+  "id": "FX-NET-T41-08",
+  "description": "Shared HTTP response bytes split at64 with host-only physical verdict.",
+  "input": {
+    "case_kind": "http_adapter",
+    "shared_wire_fixture": "fixtures/network_http/09_wire.json",
+    "mss": 64,
+    "required_physical": [
+      "cable_recovery",
+      "descriptor_reuse",
+      "phy_clock"
+    ],
+    "evidence": [
+      {
+        "name": "cable_recovery",
+        "scope": "host"
+      },
+      {
+        "name": "descriptor_reuse",
+        "scope": "host"
+      },
+      {
+        "name": "phy_clock",
+        "scope": "host"
+      }
+    ]
+  },
+  "expected": {
+    "response_lengths": [
+      138,
+      135,
+      138
+    ],
+    "segment_lengths": [
+      [
+        64,
+        64,
+        10
+      ],
+      [
+        64,
+        64,
+        7
+      ],
+      [
+        64,
+        64,
+        10
+      ]
+    ],
+    "rejoined_hex": [
+      "485454502f312e3120323030204f4b0d0a446174653a2053756e2c203031204a616e20323032332030303a30303a303020474d540d0a436f6e74656e742d547970653a20746578742f706c61696e3b20636861727365743d7574662d380d0a436f6e74656e742d4c656e6774683a20330d0a436f6e6e656374696f6e3a20636c6f73650d0a0d0a6f6b0a",
+      "485454502f312e3120323030204f4b0d0a446174653a2053756e2c203031204a616e20323032332030303a30303a303020474d540d0a436f6e74656e742d547970653a20746578742f706c61696e3b20636861727365743d7574662d380d0a436f6e74656e742d4c656e6774683a20330d0a436f6e6e656374696f6e3a20636c6f73650d0a0d0a",
+      "485454502f312e3120323030204f4b0d0a446174653a2053756e2c203031204a616e20323032332030303a30303a303020474d540d0a436f6e74656e742d547970653a206170706c69636174696f6e2f6f637465742d73747265616d0d0a436f6e74656e742d4c656e6774683a20340d0a436f6e6e656374696f6e3a20636c6f73650d0a0d0a00ff410a"
+    ],
+    "head_body_bytes": 0,
+    "missing_physical": [
+      "cable_recovery",
+      "descriptor_reuse",
+      "phy_clock"
+    ],
+    "family_complete": false,
+    "parser_hours_counted_here": 0
+  },
+  "verification_method": "Recompute segmentation and byte rejoin from independently verified shared HTTP wire fixture; measured evidence-set difference keeps physical gates open."
+}

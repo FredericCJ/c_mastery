@@ -1,0 +1,32 @@
+typedef long int ptrdiff_t;
+typedef long unsigned int size_t;
+typedef int wchar_t;
+typedef struct {
+  long long __max_align_ll __attribute__((__aligned__(__alignof__(long long))));
+  long double __max_align_ld __attribute__((__aligned__(__alignof__(long double))));
+} max_align_t;
+typedef struct {void *context;void *(*acquire)(void *,unsigned,size_t);void (*release)(void *,unsigned,void *,size_t);} LeOps;
+typedef struct {unsigned char *data;size_t size;unsigned id;LeOps ops;} LeOwner;
+typedef enum {LE_OK,LE_INVALID,LE_NOMEM} LeStatus;
+LeStatus le_run(LeOps ops,unsigned transfer,LeOwner *out);
+void le_drop(LeOwner *owner);
+void le_drop(LeOwner *owner){
+ if(!owner || !owner->data)return;
+ LeOwner old=*owner;*owner=(LeOwner){0};old.ops.release(old.ops.context,old.id,old.data,old.size);
+}
+LeStatus le_run(LeOps ops,unsigned transfer,LeOwner *out){
+ if(!out || out->data || !ops.acquire || !ops.release || transfer>2)return LE_INVALID;
+ LeOwner a={0},b={0};LeStatus result=LE_NOMEM;
+ a=(LeOwner){.data=ops.acquire(ops.context,1,8),.size=8,.id=1,.ops=ops};if(!a.data)goto done;
+ b=(LeOwner){.data=ops.acquire(ops.context,2,16),.size=16,.id=2,.ops=ops};if(!b.data)goto done;
+ for(size_t i=0;i<a.size;i++)a.data[i]=(unsigned char)(i+1);
+ for(size_t i=0;i<b.size;i++)b.data[i]=(unsigned char)(i+17);
+ if(transfer){LeOwner *selected=transfer==1?&a:&b;*out=*selected;
+ *selected=(LeOwner){0};
+ }
+ result=LE_OK;
+done:
+ le_drop(&b);
+ le_drop(&a);
+ return result;
+}
